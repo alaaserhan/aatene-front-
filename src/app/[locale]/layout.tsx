@@ -7,13 +7,14 @@ export async function generateStaticParams() {
   return [{ locale: "ar" }, { locale: "en" }, { locale: "he" }];
 }
 
-export default function LangLayout({
+export default async  function LangLayout({
   children,
-  params: { locale },
+  params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: "en" | "ar" | "he" }>;
 }) {
+  const { locale } = await params; 
   setStaticParamsLocale(locale);
 
   const dir = locale === "ar" || locale === "he" ? "rtl" : "ltr";
