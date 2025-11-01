@@ -1,36 +1,33 @@
-// src/app/[lang]/(web)/login/page.tsx
+// src/app/[locale]/(web)/login/page.tsx
 import { Metadata } from 'next';
-import { LoginForm } from '@/src/features/auth/components/LoginForm';
+// ⭐️ (1) استيراد الدالة من المكتبة مباشرة
 import { setStaticParamsLocale } from 'next-international/server';
+import { LoginForm } from '@/src/features/auth/components/LoginForm';
+// ⭐️ (2) استيراد getScopedI18n من ملفنا المحلي
+import { getScopedI18n } from '@/src/i18n/server';
 
-export const metadata: Metadata = {
-  title: 'تسجيل الدخول', 
-  description: 'قم بتسجيل الدخول إلى حسابك في أعطيني',
-};
-
-// ⭐ Add generateStaticParams
-export async function generateStaticParams() {
-  return [
-    { locale: "ar" },
-    { locale: "en" },
-    { locale: "he" },
-  ];
+export async function generateMetadata({
+  params: { locale }
+}: {
+  params: { locale: string }
+}): Promise<Metadata> {
+  setStaticParamsLocale(locale); // ⭐️ من المكتبة
+  const t = await getScopedI18n('login'); // ⭐️ من ملفنا
+  return {
+    title: t('title'),
+  };
 }
 
-// ⭐ Add params
-export default async function LoginPage({
+export default function LoginPage({
   params,
 }: {
-  params: Promise<{ locale: string }>;
+  params: { locale: string };
 }) {
-  const { locale } = await params;
-  
-  // ⭐ IMPORTANT: Call this FIRST
-  setStaticParamsLocale(locale);
+  setStaticParamsLocale(params.locale); // ⭐️ من المكتبة
 
   return (
-    <div className="container">
-         <LoginForm /> 
+    <div className="container mx-auto flex min-h-[calc(100vh-10rem)] items-center justify-center py-12">
+      <LoginForm />
     </div>
   );
 }

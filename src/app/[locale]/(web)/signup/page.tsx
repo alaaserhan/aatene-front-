@@ -4,28 +4,37 @@ import { SignupForm } from '@/src/features/auth/components/SignupForm';
 import { getScopedI18n } from '@/src/i18n/server';
 import { setStaticParamsLocale } from 'next-international/server';
 
-export async function generateStaticParams() {
-  return [
-    { locale: "ar" },
-    { locale: "en" },
-    { locale: "he" },
-  ];
-}
+// (1) ⭐️ لسنا بحاجة لـ generateStaticParams هنا (موجودة في الـ layout)
+// export async function generateStaticParams() {
+//   return [
+//     { locale: "ar" },
+//     { locale: "en" },
+//     { locale: "he" },
+//   ];
+// }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params: { locale } // (2) ⭐️ الـ params هنا object عادي
+}: {
+  params: { locale: string } 
+}): Promise<Metadata> {
+  
+  // (3) ⭐️⭐️⭐️ استدعِ الدالة هنا أولاً ⭐️⭐️⭐️
+  setStaticParamsLocale(locale);
+  
   const t = await getScopedI18n('signup');
   return {
     title: t('title'),
   };
 }
 
-export default async function SignupPage({
-  params,
+export default function SignupPage({ // (4) ⭐️ عدّلنا الـ props هنا
+  params: { locale }
 }: {
-  params: Promise<{ locale: string }>;
+  params: { locale: string };
 }) {
-    const { locale } = await params;
   
+  // (5) ⭐️ استدعِ الدالة هنا أيضاً
   setStaticParamsLocale(locale);
   
   return (
