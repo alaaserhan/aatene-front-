@@ -49,6 +49,14 @@ interface NavItem {
   show: boolean;
 }
 
+interface Notification {
+  id: number;
+  title: string;
+  message: string;
+  time: string;
+  unread: boolean;
+}
+
 interface DashboardNavbarProps {
   navPrefix: "/admin" | "/dashboard";
 }
@@ -90,7 +98,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const mainNavItems = allNavItems.slice(0, 5);
   const moreMenuItems = allNavItems.slice(5);
 
-  const notifications = []; // بيانات وهمية
+  const notifications: Notification[] = [];
   const unreadCount = 0; // بيانات وهمية
 
   return (
