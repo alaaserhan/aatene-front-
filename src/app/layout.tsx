@@ -5,7 +5,6 @@ import { Toaster } from "sonner";
 import React from "react";
 import { Noto_Sans_Arabic } from "next/font/google";
 import "@/src/app/globals.css";
-import { getCurrentLocale } from "@/src/i18n/server";
 
 const notoSansArabic = Noto_Sans_Arabic({
   subsets: ["arabic"],
@@ -13,12 +12,9 @@ const notoSansArabic = Noto_Sans_Arabic({
   variable: "--font-noto-sans-arabic",
 });
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const lang = (await getCurrentLocale()) ?? "ar";
-  const dir = lang === "ar" || lang === "he" ? "rtl" : "ltr";
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang={lang} dir={dir} className={notoSansArabic.variable} suppressHydrationWarning>
+    <html lang="en" dir="ltr" className={notoSansArabic.variable} suppressHydrationWarning>
       <body>
         <QueryProvider>
           <AuthHydrator />
