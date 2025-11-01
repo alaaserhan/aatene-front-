@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronDown, Heart, Menu, X, Search, ChevronLeft, ArrowDownUp } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,7 +18,7 @@ interface MobileNavProps {
   categories: Category[];
 }
 
-const menuVariants = {
+const menuVariants: Variants = {
   closed: {
     x: "100%",
     transition: { type: "spring", stiffness: 300, damping: 30 },
@@ -29,12 +29,12 @@ const menuVariants = {
   },
 };
 
-const overlayVariants = {
+const overlayVariants: Variants = {
   closed: { opacity: 0 },
   open: { opacity: 1 },
 };
 
-const searchVariants = {
+const searchVariants: Variants = {
   closed: {
     y: "-100%",
     transition: { type: "spring", stiffness: 300, damping: 30 },

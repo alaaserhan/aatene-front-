@@ -32,7 +32,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
   DropdownMenuLabel, // ⭐️ (3)
 } from "@/src/components/ui/dropdown-menu";
 import { Badge } from "@/src/components/ui/badge";
@@ -40,7 +39,6 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose 
 import { Button } from "@/src/components/ui/button"; // ⭐️ (5)
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"; // ⭐️ (6)
 import { Separator } from "@/src/components/ui/separator"; // ⭐️ (7)
-import { cn } from "@/src/lib/utils";
 
 interface NavItem {
   label: string;
