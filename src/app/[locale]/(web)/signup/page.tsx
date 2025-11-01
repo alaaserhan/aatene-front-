@@ -4,14 +4,9 @@ import { SignupForm } from '@/src/features/auth/components/SignupForm';
 import { getScopedI18n } from '@/src/i18n/server';
 import { setStaticParamsLocale } from 'next-international/server';
 
-// (1) ⭐️ لسنا بحاجة لـ generateStaticParams هنا (موجودة في الـ layout)
-// export async function generateStaticParams() {
-//   return [
-//     { locale: "ar" },
-//     { locale: "en" },
-//     { locale: "he" },
-//   ];
-// }
+export async function generateStaticParams() {
+  return [{ locale: "ar" }, { locale: "en" }, { locale: "he" }];
+}
 
 export async function generateMetadata({
   params: { locale } // (2) ⭐️ الـ params هنا object عادي

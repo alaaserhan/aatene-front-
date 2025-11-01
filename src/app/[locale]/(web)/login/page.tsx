@@ -6,6 +6,10 @@ import { LoginForm } from '@/src/features/auth/components/LoginForm';
 // ⭐️ (2) استيراد getScopedI18n من ملفنا المحلي
 import { getScopedI18n } from '@/src/i18n/server';
 
+export async function generateStaticParams() {
+  return [{ locale: "ar" }, { locale: "en" }, { locale: "he" }];
+}
+
 export async function generateMetadata({
   params: { locale }
 }: {
@@ -18,12 +22,13 @@ export async function generateMetadata({
   };
 }
 
-export default function LoginPage({
+export default async function LoginPage({
   params,
 }: {
-  params: { locale: string };
+  params: { locale: string } | Promise<{ locale: string }>;
 }) {
-  setStaticParamsLocale(params.locale); // ⭐️ من المكتبة
+  const { locale } = await Promise.resolve(params);
+  setStaticParamsLocale(locale);
 
   return (
     <div className="container mx-auto flex min-h-[calc(100vh-10rem)] items-center justify-center py-12">
