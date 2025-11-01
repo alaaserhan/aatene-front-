@@ -9,7 +9,7 @@ export default async function DashboardLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: string; type: "admin" | "dashboard" }>;
+params: Promise<{ locale: string; type: string; }>;
 }) {
   const { locale, type } = await params;
 
