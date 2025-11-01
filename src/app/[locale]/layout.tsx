@@ -1,9 +1,7 @@
 import { Metadata } from 'next';
 import React from 'react';
 import { I18nProviderClient } from '@/src/i18n/provider';
-// ⭐️ (1) استيراد الدالة من المكتبة مباشرة
 import { setStaticParamsLocale } from 'next-international/server'; 
-// ⭐️ (2) استيراد getI18n من ملفنا المحلي
 import { getI18n } from '@/src/i18n/server'; 
 
 export async function generateStaticParams() {
@@ -20,9 +18,9 @@ export async function generateMetadata({
   params: { locale: string }
 }): Promise<Metadata> {
   
-  setStaticParamsLocale(locale); // ⭐️ من المكتبة
+  setStaticParamsLocale(locale);
   
-  const t = await getI18n(); // ⭐️ من ملفنا
+  const t = await getI18n();
   const siteName = t('site.name');
 
   return {
@@ -34,17 +32,22 @@ export async function generateMetadata({
   };
 }
 
-export default function LangLayout({
+// ⭐️ (1) خلّي الدالة async
+export default async function LangLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  // ⭐️ (2) استقبل الـ params كـ Promise
+  params: Promise<{ locale: string }>; 
 }) {
-  setStaticParamsLocale(params.locale); // ⭐️ من المكتبة
+  // ⭐️ (3) اعمل await للـ params
+  const { locale } = await params; 
+
+  setStaticParamsLocale(locale);
 
   return (
-    <I18nProviderClient locale={params.locale}>
+    <I18nProviderClient locale={locale}>
       {children}
     </I18nProviderClient>
   );
