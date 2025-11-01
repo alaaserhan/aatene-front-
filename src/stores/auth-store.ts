@@ -1,58 +1,56 @@
+// src/stores/auth-store.ts
 import { create } from "zustand";
 import Cookies from "js-cookie";
+import { User } from "../features/auth/types"; // Import the User type
 
 interface AuthState {
-  isLoggedIn: boolean; // هل اليوزر مسجل دخوله؟
-  isHydrated: boolean; // هل الـ store قرأ الكوكيز خلاص؟
-  login: (token: string) => void; // دالة اللوجين
-  logout: () => void; // دالة اللوج أوت
-  hydrate: () => void; // دالة مزامنة الكوكيز مع الـ state
+  isLoggedIn: boolean;
+  isHydrated: boolean;
+  user: User | null; // ⭐️ Add user state
+  login: (token: string, userData: User) => void; // ⭐️ Login now takes user data
+  logout: () => void;
+  hydrate: () => void;
+  // Optional: Function to update user data without logging out (e.g., after profile edit)
+  // setUser: (userData: User) => void; 
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  isLoggedIn: false, // القيمة الافتراضية
-  isHydrated: false, // القيمة الافتراضية
+export const useAuthStore = create<AuthState>((set, get) => ({ // Add 'get' to read state
+  isLoggedIn: false,
+  isHydrated: false,
+  user: null, // ⭐️ Initialize user as null
 
-  /**
-   * دالة بنستدعيها لما اليوزر يعمل لوجين
-   * @param token التوكن اللي راجع من الـ API
-   */
-  login: (token) => {
-    // 1. خزّن التوكن في الكوكيز (مثلاً لمدة 7 أيام)
-    // ⭐️ عدّل اسم الكوكي "token" لو مختلف
-    Cookies.set("token", token, { expires: 7, secure: true });
-    
-    // 2. حدّث الـ state
-    set({ isLoggedIn: true });
+  login: (token, userData) => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    Cookies.set("token", token, { expires: 365, secure: isProduction, sameSite: "lax" });
+    Cookies.set("user_type", userData.user_type)
+    set({ isLoggedIn: true, user: userData }); // ⭐️ Set user data
   },
 
-  /**
-   * دالة بنستدعيها لما اليوزر يعمل لوج أوت
-   */
   logout: () => {
-    // 1. امسح التوكن من الكوكيز
-    // ⭐️ عدّل اسم الكوكي "token" لو مختلف
     Cookies.remove("token");
-    
-    // 2. حدّث الـ state
-    set({ isLoggedIn: false });
+    set({ isLoggedIn: false, user: null }); // ⭐️ Clear user data
   },
 
-  /**
-   * دالة بتشتغل مرة واحدة بس عشان تقرأ الكوكيز
-   * وتعرف الـ store إذا كان اليوزر مسجل أصلاً ولا لأ
-   */
   hydrate: () => {
+    // Only run hydrate if it hasn't run before
+    if (get().isHydrated) return; 
+    
     try {
-      // ⭐️ عدّل اسم الكوكي "token" لو مختلف
       const token = Cookies.get("token");
       if (token) {
+        // We only know they *might* be logged in. We don't have user data yet.
+        // We could fetch user profile here, but it's often better
+        // to fetch it when a component actually needs it.
         set({ isLoggedIn: true });
       }
     } catch (e) {
       console.error("Error hydrating auth store:", e);
     }
-    // بلّغ الـ store إن المزامنة تمت
     set({ isHydrated: true });
   },
+
+  // Example optional function
+  // setUser: (userData) => {
+  //   set({ user: userData });
+  // }
 }));

@@ -1,0 +1,111 @@
+{
+  "login": {
+    "title": "Login",
+    "description_no_link": "Don't have an account? ",
+    "create_account": "Create a new account",
+    "email_phone_label": "Email or Phone",
+    "email_phone_placeholder": "Enter your email or phone",
+    "password_label": "Password",
+    "password_placeholder": "Enter your password",
+    "submit_button": "Login",
+    "loading_button": "Logging in...",
+    "forgot_password": "Forgot password?"
+  },
+  "signup": {
+    "title": "Create a New Account",
+    "description_no_link": "Already have an account? ",
+    "login_link": "Login here",
+    "first_name_label": "First Name",
+    "first_name_placeholder": "Enter your first name",
+    "last_name_label": "Last Name",
+    "last_name_placeholder": "Enter your last name",
+    "email_label": "Email",
+    "email_placeholder": "Enter your email",
+    "phone_label": "Phone Number",
+    "phone_placeholder": "Enter your phone number",
+    "password_label": "Password",
+    "password_placeholder": "Enter a strong password",
+    "confirm_password_label": "Confirm Password",
+    "confirm_password_placeholder": "Re-enter your password",
+    "terms_label_part1": "I have read and agree to the ",
+    "terms_link_text": "Terms of Service",
+    "terms_label_part2": " and ",
+    "privacy_link_text": "Privacy Policy",
+    "submit_button": "Create Account",
+    "loading_button": "Creating..."
+  },
+  "site": {
+    "name": "Aatene"
+  },
+  "validation": {
+    "login_required": "Email or Phone is required",
+    "password_min": "Password must be at least 6 characters",
+    "first_name_required": "First name is required",
+    "last_name_required": "Last name is required",
+    "email_required": "Email is required",
+    "email_invalid": "Invalid email address",
+    "phone_required": "Phone number is required",
+    "password_required": "Password is required",
+    "confirm_password_required": "Password confirmation is required",
+    "passwords_not_match": "Passwords do not match",
+    "terms_required": "You must accept the terms",
+    "general_error": "An error occurred. Please try again."
+  },
+  "navbar": {
+    "my_account": "My Account",
+    "login": "Login",
+    "all_categories": "All Categories",
+    "loading": "Loading...",
+    "search_placeholder": "Search",
+    "search_button": "Search",
+    "no_categories": "No categories available",
+    "compare": "Compare",
+    "admin_stores": "Manage Stores",
+    "favourites": "Favourites",
+    "chat": "Chats",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu",
+    "home": "Home",
+    "products": "Products",
+    "site": {
+      "name": "Aatene"
+    }
+  },
+  "general": {
+    "site": {
+      "name": "Aatene"
+    },
+    "or_continue_with": "Or continue with"
+  },
+  "dashboard_nav": {
+    "home": "Home",
+    "users": "Users",
+    "stores": "Stores",
+    "products": "Products",
+    "service_providers": "Service Providers",
+    "orders": "Orders",
+    "categories": "Categories",
+    "settings": "Settings",
+    "more": "More",
+    "search": "Search",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "new": "New",
+    "no_notifications": "No new notifications",
+    "view_all_notifications": "View all notifications"
+  },
+  "user_menu": {
+    "type_admin": "Admin",
+    "type_merchant": "Merchant",
+    "type_client": "Client",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "logging_out": "Logging out...",
+    "complaint_status": "Inquiry Status",
+    "control_panel_admin": "Admin Panel",
+    "control_panel_merchant": "Merchant Dashboard",
+    "become_merchant": "Become a Merchant",
+    "converting": "Converting..."
+  }
+}

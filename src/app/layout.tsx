@@ -3,27 +3,22 @@ import { AuthHydrator } from "@/src/components/providers/AuthHydrator";
 import { QueryProvider } from "@/src/components/providers/QueryProvider";
 import { Toaster } from "sonner";
 import React from "react";
-import { Cairo } from "next/font/google";
-import { cookies } from "next/headers"; // (1) استدعاء دالة الكوكيز
+import { Noto_Sans_Arabic } from "next/font/google";
 import "@/src/app/globals.css";
+import { getCurrentLocale } from "@/src/i18n/server";
 
-const cairo = Cairo({
-  subsets: ["arabic", "latin"],
+const notoSansArabic = Noto_Sans_Arabic({
+  subsets: ["arabic"],
   weight: ["300", "400", "500", "700", "900"],
-  variable: "--font-cairo",
+  variable: "--font-noto-sans-arabic",
 });
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar"; // الافتراضي عربي
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const lang = (await getCurrentLocale()) ?? "ar";
   const dir = lang === "ar" || lang === "he" ? "rtl" : "ltr";
 
   return (
-    <html lang={lang} dir={dir} className={cairo.variable} suppressHydrationWarning={true}>
+    <html lang={lang} dir={dir} className={notoSansArabic.variable} suppressHydrationWarning>
       <body>
         <QueryProvider>
           <AuthHydrator />

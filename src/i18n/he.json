@@ -1,0 +1,111 @@
+{
+  "login": {
+    "title": "התחברות",
+    "description_no_link": "אין לך חשבון? ",
+    "create_account": "צור חשבון חדש",
+    "email_phone_label": "אימייל או טלפון",
+    "email_phone_placeholder": "הזן את האימייל או הטלפון שלך",
+    "password_label": "סיסמה",
+    "password_placeholder": "הזן את הסיסמה שלך",
+    "submit_button": "התחבר",
+    "loading_button": "מתחבר...",
+    "forgot_password": "שכחת סיסמה?"
+  },
+  "signup": {
+    "title": "צור חשבון חדש",
+    "description_no_link": "כבר יש לך חשבון? ",
+    "login_link": "התחבר כאן",
+    "first_name_label": "שם פרטי",
+    "first_name_placeholder": "הזן שם פרטי",
+    "last_name_label": "שם משפחה",
+    "last_name_placeholder": "הזן שם משפחה",
+    "email_label": "אימייל",
+    "email_placeholder": "הזן את האימייל שלך",
+    "phone_label": "מספר טלפון",
+    "phone_placeholder": "הזן את מספר הטלפון שלך",
+    "password_label": "סיסמה",
+    "password_placeholder": "הזן סיסמה חזקה",
+    "confirm_password_label": "אשר סיסמה",
+    "confirm_password_placeholder": "הזן שוב את הסיסמה",
+    "terms_label_part1": "קראתי והסכמתי ל",
+    "terms_link_text": "תנאי השירות",
+    "terms_label_part2": " ו",
+    "privacy_link_text": "מדיניות הפרטיות",
+    "submit_button": "צור חשבון",
+    "loading_button": "יוצר..."
+  },
+  "site": {
+    "name": "Aatene"
+  },
+  "validation": {
+    "login_required": "נדרש אימייל או טלפון",
+    "password_min": "הסיסמה חייבת להכיל לפחות 6 תווים",
+    "first_name_required": "שם פרטי נדרש",
+    "last_name_required": "שם משפחה נדרש",
+    "email_required": "אימייל נדרש",
+    "email_invalid": "כתובת אימייל לא חוקית",
+    "phone_required": "מספר טלפון נדרש",
+    "password_required": "סיסמה נדרשת",
+    "confirm_password_required": "אישור סיסמה נדרש",
+    "passwords_not_match": "הסיסמאות אינן תואמות",
+    "terms_required": "עליך להסכים לתנאים",
+    "general_error": "אירעה שגיאה. אנא נסה שוב."
+  },
+  "navbar": {
+    "my_account": "החשבון שלי",
+    "login": "התחברות",
+    "all_categories": "כל הקטגוריות",
+    "loading": "טוען...",
+    "search_placeholder": "חיפוש",
+    "search_button": "חיפוש",
+    "no_categories": "אין קטגוריות זמינות",
+    "compare": "השוואה",
+    "admin_stores": "נהל חנויות",
+    "favourites": "מועדפים",
+    "chat": "צ'אטים",
+    "open_menu": "פתח תפריט",
+    "close_menu": "סגור תפריט",
+    "home": "בית",
+    "products": "מוצרים",
+    "site": {
+      "name": "Aatene"
+    }
+  },
+  "general": {
+    "site": {
+      "name": "Aatene"
+    },
+    "or_continue_with": "או המשך עם"
+  },
+  "dashboard_nav": {
+    "home": "ראשי",
+    "users": "משתמשים",
+    "stores": "חנויות",
+    "products": "מוצרים",
+    "service_providers": "נותני שירות",
+    "orders": "הזמנות",
+    "categories": "קטגוריות",
+    "settings": "הגדרות",
+    "more": "עוד",
+    "search": "חיפוש",
+    "messages": "הודעות",
+    "notifications": "התראות",
+    "new": "חדש",
+    "no_notifications": "אין התראות חדשות",
+    "view_all_notifications": "הצג את כל ההתראות"
+  },
+  "user_menu": {
+    "type_admin": "מנהל",
+    "type_merchant": "סוחר",
+    "type_client": "לקוח",
+    "profile": "פרופיל",
+    "settings": "הגדרות",
+    "logout": "התנתק",
+    "logging_out": "מתנתק...",
+    "complaint_status": "סטטוס פנייה",
+    "control_panel_admin": "פאנל מנהל",
+    "control_panel_merchant": "לוח בקרה (סוחר)",
+    "become_merchant": "הפוך לסוחר",
+    "converting": "מבצע המרה..."
+  }
+}
