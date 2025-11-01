@@ -38,10 +38,8 @@ export default function SignupPage({ // (4) ⭐️ عدّلنا الـ props ه�
   setStaticParamsLocale(locale);
   
   return (
-    <div className="container mx-auto flex min-h-[calc(100vh-10rem)] items-center justify-center py-12">
       <div className="w-full">
         <SignupForm />
       </div>
-    </div>
   );
 }
