@@ -129,7 +129,7 @@ export function LoginForm() {
 
       <div className="relative hidden h-full w-full bg-muted lg:block">
         <Image
-          src="/images/login.png"
+          src="/login.png"
           alt="Login illustration"
           fill
           style={{ objectFit: 'cover' }}
