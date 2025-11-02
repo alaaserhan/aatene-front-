@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
-import { useScopedI18n } from "@/src/i18n/provider";
 import { Button } from "@/src/components/ui/button";
 import {
   Form,
@@ -26,48 +25,28 @@ import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { ApiError } from "../types";
 
-type ValidationKey =
-  | "first_name_required"
-  | "last_name_required"
-  | "email_required"
-  | "email_invalid"
-  | "phone_required"
-  | "password_required"
-  | "password_min"
-  | "confirm_password_required"
-  | "passwords_not_match"
-  | "terms_required";
-
-const signupSchema = (tValidation: (key: string) => string) =>
-  z.object({
-    first_name: z.string().min(1, tValidation("first_name_required")),
-    last_name: z.string().min(1, tValidation("last_name_required")),
-    email: z.string().min(1, tValidation("email_required")).email(tValidation("email_invalid")),
-    phone: z.string().min(1, tValidation("phone_required")),
-    password: z.string().min(6, tValidation("password_min")),
-    confirmPassword: z.string().min(6, tValidation("confirm_password_required")),
+const signupSchema = z
+  .object({
+    first_name: z.string().min(1, "الاسم الأول مطلوب"),
+    last_name: z.string().min(1, "الاسم الأخير مطلوب"),
+    email: z.string().min(1, "البريد الإلكتروني مطلوب").email("البريد الإلكتروني غير صالح"),
+    phone: z.string().min(1, "رقم الهاتف مطلوب"),
+    password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
+    confirmPassword: z.string().min(6, "تأكيد كلمة المرور مطلوب"),
     terms: z.boolean().refine((val) => val === true, {
-      message: tValidation("terms_required"),
+      message: "يجب الموافقة على الشروط",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: tValidation("passwords_not_match"),
+    message: "كلمات المرور غير متطابقة",
     path: ["confirmPassword"],
   });
 
-type SignupFormData = z.infer<ReturnType<typeof signupSchema>>;
+type SignupFormData = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
-  const t = useScopedI18n('signup');
-  const tValidation = useScopedI18n('validation');
-  const tGeneral = useScopedI18n('general');
-
-  const simpleTValidation = (key: string): string => {
-    return tValidation(key as ValidationKey);
-  };
-
   const form = useForm<SignupFormData>({
-    resolver: zodResolver(signupSchema(simpleTValidation)),
+    resolver: zodResolver(signupSchema),
     defaultValues: {
       first_name: "",
       last_name: "",
@@ -105,24 +84,24 @@ export function SignupForm() {
             form.setError("root", { message: responseData.message });
           }
         } else {
-          toast.error(tValidation("general_error"));
+          toast.error("حدث خطأ ما، يرجى المحاولة مرة أخرى");
         }
       },
     });
   };
 
   return (
-    <Card className="grid overflow-hidden rounded-xl shadow-lg lg:grid-cols-2 border-none">
-      <CardContent className="flex flex-col items-center justify-center p-6 sm:p-12">
+    <Card className="container my-10 grid overflow-hidden rounded-xl shadow-lg lg:grid-cols-2 border-none">
+      <CardContent className="flex flex-col items-center justify-center">
         <div className="w-full space-y-6">
           <div className="text-center lg:text-start">
             <CardTitle className="text-2xl sm:text-3xl font-bold mb-1">
-              {t('title')}
+              إنشاء حساب جديد
             </CardTitle>
             <CardDescription className="text-gray-500 text-sm">
-              {t('description_no_link')}
+              لديك حساب بالفعل؟
               <Link href="/login" className="underline hover:text-primary">
-                {t('login_link')}
+                تسجيل الدخول
               </Link>
             </CardDescription>
           </div>
@@ -137,7 +116,7 @@ export function SignupForm() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-card px-2 text-muted-foreground">
-                {tGeneral('or_continue_with')}
+                أو أكمل بواسطة
               </span>
             </div>
           </div>
@@ -147,38 +126,38 @@ export function SignupForm() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormInput
                   name="first_name"
-                  label={t('first_name_label')}
-                  placeholder={t('first_name_placeholder')}
+                  label="الاسم الأول"
+                  placeholder="أدخل اسمك الأول"
                 />
                 <FormInput
                   name="last_name"
-                  label={t('last_name_label')}
-                  placeholder={t('last_name_placeholder')}
+                  label="الاسم الأخير"
+                  placeholder="أدخل اسمك الأخير"
                 />
               </div>
               <FormInput
                 name="email"
                 type="email"
-                label={t('email_label')}
-                placeholder={t('email_placeholder')}
+                label="البريد الإلكتروني"
+                placeholder="أدخل بريدك الإلكتروني"
               />
               <FormInput
                 name="phone"
                 type="tel"
-                label={t('phone_label')}
-                placeholder={t('phone_placeholder')}
+                label="رقم الهاتف"
+                placeholder="أدخل رقم هاتفك"
               />
               <FormInput
                 name="password"
                 type="password"
-                label={t('password_label')}
-                placeholder={t('password_placeholder')}
+                label="كلمة المرور"
+                placeholder="أدخل كلمة مرور قوية"
               />
               <FormInput
                 name="confirmPassword"
                 type="password"
-                label={t('confirm_password_label')}
-                placeholder={t('confirm_password_placeholder')}
+                label="تأكيد كلمة المرور"
+                placeholder="أعد إدخال كلمة المرور"
               />
 
               <FormField
@@ -194,13 +173,13 @@ export function SignupForm() {
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel className="text-xs text-gray-600 cursor-pointer">
-                        {t('terms_label_part1')}
+                        لقد قرأت ووافقت على
                         <Link href="/terms" className="underline hover:text-primary">
-                          {t('terms_link_text')}
+                          شروط الخدمة
                         </Link>
-                        {t('terms_label_part2')}
+                        و
                         <Link href="/privacy" className="underline hover:text-primary">
-                          {t('privacy_link_text')}
+                          سياسة الخصوصية
                         </Link>
                       </FormLabel>
                       <FormMessage />
@@ -211,7 +190,7 @@ export function SignupForm() {
 
               <Button type="submit" className="w-full gradient-blue" disabled={isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isPending ? t('loading_button') : t('submit_button')}
+                {isPending ? "جاري الإنشاء..." : "إنشاء حساب"}
               </Button>
             </form>
           </Form>
