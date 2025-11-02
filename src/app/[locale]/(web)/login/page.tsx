@@ -1,38 +1,25 @@
 // src/app/[locale]/(web)/login/page.tsx
 import { Metadata } from 'next';
-// ⭐️ (1) استيراد الدالة من المكتبة مباشرة
-import { setStaticParamsLocale } from 'next-international/server';
+import React from 'react';
 import { LoginForm } from '@/src/features/auth/components/LoginForm';
-// ⭐️ (2) استيراد getScopedI18n من ملفنا المحلي
-import { getScopedI18n } from '@/src/i18n/server';
+import { setStaticParamsLocale } from 'next-international/server';
 
-export async function generateStaticParams() {
-  return [{ locale: "ar" }, { locale: "en" }, { locale: "he" }];
-}
+export const metadata: Metadata = {
+  title: 'تسجيل الدخول',
+};
 
-export async function generateMetadata({
+export default function LoginPage({
   params: { locale }
 }: {
-  params: { locale: string }
-}): Promise<Metadata> {
-  setStaticParamsLocale(locale); // ⭐️ من المكتبة
-  const t = await getScopedI18n('login'); // ⭐️ من ملفنا
-  return {
-    title: t('title'),
-  };
-}
-
-export default async function LoginPage({
-  params,
-}: {
-  params: { locale: string } | Promise<{ locale: string }>;
+  params: { locale: string };
 }) {
-  const { locale } = await Promise.resolve(params);
   setStaticParamsLocale(locale);
 
   return (
     <div className="container mx-auto flex min-h-[calc(100vh-10rem)] items-center justify-center py-12">
-      <LoginForm />
+      <div className="w-full max-w-4xl">
+        <LoginForm />
+      </div>
     </div>
   );
 }

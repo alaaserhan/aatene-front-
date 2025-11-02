@@ -5,8 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useScopedI18n } from "@/src/i18n/provider";
 import { Button } from "@/src/components/ui/button";
 import {
   Form,
@@ -23,32 +21,16 @@ import { useLogin } from "../hooks";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 
-// (1) ⭐️ عرّفنا المفاتيح اللي الـ Schema محتاجها
-type ValidationKey = "login_required" | "password_min";
-
-// (2) ⭐️ عرّفنا الـ Schema إنه عايز دالة بتاخد المفاتيح دي
-const loginSchema = (tValidation: (key: ValidationKey) => string) => z.object({
-  login: z.string().min(1, tValidation('login_required')),
-  password: z.string().min(6, tValidation('password_min')),
+const loginSchema = z.object({
+  login: z.string().min(1, "البريد الإلكتروني أو الهاتف مطلوب"),
+  password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
 });
 
-type LoginFormData = z.infer<ReturnType<typeof loginSchema>>;
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
-  const router = useRouter();
-  const t = useScopedI18n('login');
-  const tValidation = useScopedI18n('validation');
-  const tGeneral = useScopedI18n('general');
-
-  // (3) ⭐️ عملنا دالة وسيطة بسيطة
-  // الدالة دي بتاخد المفاتيح المحددة (ValidationKey) وترجع string
-  const simpleTValidation = (key: ValidationKey): string => {
-    return tValidation(key); // نستدعي الدالة الأصلية
-  };
-
   const form = useForm<LoginFormData>({
-    // (4) ⭐️ مررنا الدالة الوسيطة للـ resolver
-    resolver: zodResolver(loginSchema(simpleTValidation)),
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       login: "",
       password: "",
@@ -67,12 +49,12 @@ export function LoginForm() {
         <div className="w-full space-y-6">
           <div className="text-center lg:text-start">
             <CardTitle className="text-2xl sm:text-3xl font-bold mb-1">
-              {t('title')}
+              تسجيل الدخول
             </CardTitle>
             <CardDescription className="text-gray-500 text-sm">
-              {t('description_no_link')}
+              ليس لديك حساب؟
               <Link href="/signup" className="underline hover:text-primary">
-                {t('create_account')}
+                إنشاء حساب جديد
               </Link>
             </CardDescription>
           </div>
@@ -87,7 +69,7 @@ export function LoginForm() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-card px-2 text-muted-foreground">
-                {tGeneral('or_continue_with')}
+                أو أكمل بواسطة
               </span>
             </div>
           </div>
@@ -99,11 +81,11 @@ export function LoginForm() {
                 name="login"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('email_phone_label')}</FormLabel>
+                    <FormLabel>البريد الإلكتروني أو الهاتف</FormLabel>
                     <FormControl>
                       <FormInput
                         type="text"
-                        placeholder={t('email_phone_placeholder')}
+                        placeholder="أدخل بريدك الإلكتروني أو هاتفك"
                         {...field}
                       />
                     </FormControl>
@@ -116,11 +98,11 @@ export function LoginForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('password_label')}</FormLabel>
+                    <FormLabel>كلمة المرور</FormLabel>
                     <FormControl>
                       <FormInput
                         type="password"
-                        placeholder={t('password_placeholder')}
+                        placeholder="أدخل كلمة المرور الخاصة بك"
                         {...field}
                       />
                     </FormControl>
@@ -130,14 +112,14 @@ export function LoginForm() {
               />
               <Button type="submit" className="w-full gradient-blue" disabled={isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isPending ? t('loading_button') : t('submit_button')}
+                {isPending ? "جاري التسجيل..." : "تسجيل الدخول"}
               </Button>
               <div className="text-center">
                 <Link
                   href="/forgot-password"
                   className="text-sm text-muted-foreground hover:underline"
                 >
-                  {t('forgot_password')}
+                  نسيت كلمة السر؟
                 </Link>
               </div>
             </form>
