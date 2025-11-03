@@ -24,28 +24,28 @@ export function SettingsAccordion({
       {/* Accordion Header */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
+        className="w-full cursor-pointer flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
       >
         <div className="flex items-center gap-3">
           {/* Title */}
-          <h2 className="text-xl font-semibold text-brand-black-1">
+          <h2 className=" font-semibold text-brand-black-1">
             {title}
           </h2>
           
           {/* Completed Checkmark */}
           {isCompleted && (
-            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500">
-              <Check className="w-4 h-4 text-white" strokeWidth={3} />
+            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-500">
+              <Check className="w-3 h-3 text-white" strokeWidth={3} />
             </div>
           )}
         </div>
 
         {/* Toggle Icon */}
-        <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 hover:border-brand-blue-2 transition-colors">
+        <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-gray-300 hover:border-brand-blue-2 transition-colors">
           {isOpen ? (
-            <ChevronUp className="w-5 h-5 text-brand-blue-2" />
+            <ChevronUp className="w-4 h-4 text-brand-blue-2" />
           ) : (
-            <ChevronDown className="w-5 h-5 text-brand-blue-2" />
+            <ChevronDown className="w-4 h-4 text-brand-blue-2" />
           )}
         </div>
       </button>

@@ -44,7 +44,7 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="grid overflow-hidden rounded-xl shadow-lg lg:grid-cols-2 border-none">
+    <Card className="grid overflow-hidden rounded-xl shadow-none lg:grid-cols-2 border-none">
       <CardContent className="flex flex-col items-center justify-center p-6 sm:p-12">
         <div className="w-full space-y-6">
           <div className="text-center lg:text-start">

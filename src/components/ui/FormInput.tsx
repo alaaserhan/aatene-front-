@@ -58,6 +58,7 @@ export function FormInput({
                 type={inputType}
                 {...props}
                 {...field}
+                className="shadow-none"
               />
               {type === "password" && (
                 <button

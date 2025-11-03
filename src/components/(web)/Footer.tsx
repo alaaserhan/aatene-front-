@@ -9,7 +9,7 @@ const Footer = () => {
   const lang = useLanguage();
   
   const footerStyle = {
-    boxShadow: "0px 0px 35px 0px #0d0d0d1a",
+    boxShadow: "0px 0px 75px 0px #0d0d0d1a",
   };
 
   const navigationSections = [
@@ -60,9 +60,9 @@ const Footer = () => {
   ];
 
   return (
-    <footer dir="rtl" style={footerStyle} className="bg-white text-gray-700 border-t border-gray-200">
+    <footer dir="rtl" style={footerStyle} className="bg-white text-gray-700 border-t border-gray-200 ">
       {/* Main Footer Content */}
-      <div className="bg-white">
+      <div className="bg-white container my-6 sm:my-12">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8">
             {/* Company Info and Social Links */}
             <div className="col-span-1 sm:col-span-1 lg:col-span-3">
@@ -181,8 +181,8 @@ const Footer = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="bg-[#EFF2F4] border-t border-gray-200">
-          <div className="p-2 py-6">
+      <div className="bg-[#EFF2F4] border-t border-gray-200 ">
+          <div className="p-2 container my-4">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-4 lg:gap-6">
               <div className="flex flex-wrap justify-center lg:justify-end items-center gap-2 sm:gap-3 text-xs sm:text-sm text-[#1C1C1C]">
                 <div className="flex items-center gap-1 hover:text-gray-600 transition-colors cursor-pointer">

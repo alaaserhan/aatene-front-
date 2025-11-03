@@ -91,8 +91,8 @@ export function SignupForm() {
   };
 
   return (
-    <Card className="container my-10 grid overflow-hidden rounded-xl shadow-lg lg:grid-cols-2 border-none">
-      <CardContent className="flex flex-col items-center justify-center">
+    <Card className="grid overflow-hidden rounded-xl shadow-none lg:grid-cols-2 border-none">
+      <CardContent className="flex flex-col items-center justify-center p-6 sm:p-12">
         <div className="w-full space-y-6">
           <div className="text-center lg:text-start">
             <CardTitle className="text-2xl sm:text-3xl font-bold mb-1">

@@ -52,14 +52,14 @@ const Navbar = () => {
       />
 
       {/* Desktop Navigation */}
-      <div className="hidden md:block px-4">
+      <div className="hidden md:block container my-2">
         {/* <MaxWidthWrapper noPaddingX={true} className="!py-5"> */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-6">
             <Link href={`/${lang}`} className="flex items-center gap-4">
               <img src="/black.svg" className="h-10" alt="logo" />
             </Link>
 
-            <div className="flex-1 max-w-2xl mx-[77px]">
+            <div className="flex-1 max-w-2xl">
               <SearchBar
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
@@ -72,7 +72,7 @@ const Navbar = () => {
               />
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 lg:gap-6">
               {isAuthenticated && <NavIcons />}
               <UserMenu />
             </div>
@@ -211,7 +211,7 @@ const NavIcons = () => {
   const userType = user?.user_type;
 
   return (
-    <div className="flex items-center gap-7 text-gray-500">
+    <div className="flex items-center gap-4 lg:gap-7 text-gray-500">
       <Link href={`/${lang}/compare`} className="flex items-center">
         <button className="text-gray-500 cursor-pointer" aria-label="المقارنات">
           <ArrowDownUp className="h-5 w-5" />

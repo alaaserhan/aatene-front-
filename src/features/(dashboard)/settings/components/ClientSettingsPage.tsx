@@ -8,9 +8,9 @@ import { SocialMediaSection } from "./SocialMediaSection";
 
 export function ClientSettingsPage() {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#f8f9fa" }} dir="rtl">
-      <div className="container mx-auto py-8 px-4">
-        <div className="space-y-6">
+    <div>
+      <div className="container mx-auto my-8">
+        <div className="space-y-3">
           {/* Basic Info Section */}
           <SettingsAccordion
             title="البيانات الأساسية"

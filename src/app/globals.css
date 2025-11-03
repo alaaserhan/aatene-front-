@@ -141,7 +141,7 @@ html {
   max-width: 1300px;
   margin-left: auto;
   margin-right: auto;
-  padding: 2rem 1rem;
+  padding: 0 1rem;
 }
 
 .gradient-blue {
@@ -150,7 +150,7 @@ html {
 
 @media (max-width: 676px) {
   .container {
-    padding: 1rem 0.5rem;
+    padding: 0 0.5rem;
   }
 
   html {
