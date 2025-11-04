@@ -93,10 +93,13 @@
 }
 
 body {
-  background: var(--foreground);
+  background: var(--white-1);
   color: var(--black-1);
   min-height: 100vh;
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
 }
+
 
 .dark {
   --background: oklch(0.129 0.042 264.695);
@@ -156,4 +159,8 @@ html {
   html {
     font-size: 85%;
   }
+}
+
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
 }

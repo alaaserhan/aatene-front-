@@ -182,8 +182,8 @@ const Footer = () => {
 
       {/* Bottom Bar */}
       <div className="bg-[#EFF2F4] border-t border-gray-200 ">
-          <div className="p-2 container my-4">
-            <div className="flex flex-col lg:flex-row justify-between items-center gap-4 lg:gap-6">
+          <div className="container">
+            <div className="flex flex-col lg:flex-row justify-between items-center gap-4 lg:gap-6 py-2">
               <div className="flex flex-wrap justify-center lg:justify-end items-center gap-2 sm:gap-3 text-xs sm:text-sm text-[#1C1C1C]">
                 <div className="flex items-center gap-1 hover:text-gray-600 transition-colors cursor-pointer">
                   <span>مصر</span>

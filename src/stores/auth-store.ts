@@ -1,7 +1,7 @@
 // src/stores/auth-store.ts
 import { create } from "zustand";
 import Cookies from "js-cookie";
-import { User } from "../features/auth/types"; // Import the User type
+import { User } from "../features/(web)/auth/types"; // Import the User type
 
 interface AuthState {
   isLoggedIn: boolean;

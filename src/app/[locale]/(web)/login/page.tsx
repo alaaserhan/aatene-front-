@@ -1,7 +1,7 @@
 // src/app/[locale]/(web)/login/page.tsx
 import { Metadata } from 'next';
 import React from 'react';
-import { LoginForm } from '@/src/features/auth/components/LoginForm';
+import { LoginForm } from '@/src/features/(web)/auth/components/LoginForm';
 import { setStaticParamsLocale } from 'next-international/server';
 
 export const metadata: Metadata = {

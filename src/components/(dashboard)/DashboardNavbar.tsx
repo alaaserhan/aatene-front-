@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
-import { useLogout } from "@/src/features/auth/hooks";
+import { useLogout } from "@/src/features/(web)/auth/hooks";
 import {
   DropdownMenu,
   DropdownMenuContent,

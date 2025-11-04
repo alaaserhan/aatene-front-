@@ -7,7 +7,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import api from "@/src/lib/axios";
 import { useLanguage } from "@/src/hooks/use-language";
-import { useLogout } from "@/src/features/auth/hooks";
+import { useLogout } from "@/src/features/(web)/auth/hooks";
 import { Button } from "../ui/button";
 
 interface UserMenuProps {

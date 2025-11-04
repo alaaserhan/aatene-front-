@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import UserMenu from "./UserMenu";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
-import { Category } from "@/src/features/product/types";
+import { Category } from "@/src/features/(web)/product/types";
 
 interface MobileNavProps {
   searchQuery: string;

@@ -9,8 +9,8 @@ import UserMenu from "./UserMenu";
 import MobileNav from "./MobileNav";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
-import { useSearchData } from "@/src/features/product/hooks";
-import { Category } from "@/src/features/product/types";
+import { useSearchData } from "@/src/features/(web)/product/hooks";
+import { Category } from "@/src/features/(web)/product/types";
 
 interface SearchBarProps {
   searchQuery: string;
