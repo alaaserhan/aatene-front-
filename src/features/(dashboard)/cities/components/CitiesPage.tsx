@@ -34,7 +34,7 @@ export function CitiesPage() {
     params.set("page", String(currentPage));
     params.set("per_page", String(ITEMS_PER_PAGE));
     if (searchQuery) {
-      params.set("search", searchQuery);
+      params.set("name", searchQuery);
     }
     return params;
   }, [currentPage, searchQuery]);
@@ -125,9 +125,9 @@ export function CitiesPage() {
   return (
     <div className="min-h-screen my-8">
       <div className="container mx-auto py-8 px-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-row items-start sm:items-center justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-2xl  font-medium text-brand-black-1">
+            <h1 className="text-xl md:text-2xl sm:text-2xl  font-medium text-brand-black-1">
               المدن المسموح بها للشحن
             </h1>
             <p className="text-sm text-gray-500 mt-1">اختر وجهات الشحن</p>
@@ -135,10 +135,10 @@ export function CitiesPage() {
 
           <button
             onClick={handleAddCity}
-            className="flex text-sm items-center gap-2 cursor-pointer px-6 py-3 text-white rounded-sm font-medium  transition-colors"
+            className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-3 text-white rounded-sm font-medium  transition-colors"
             style={{ backgroundColor: "var(--blue-3)" }}
           >
-            <HelpCircle className="w-5 h-5" />
+            <HelpCircle className="sm:w-5 sm:h-5 w-4 h-4" />
             أضف مدينة جديدة
           </button>
         </div>
@@ -171,13 +171,13 @@ export function CitiesPage() {
             <table className="w-full table-fixed">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-4 text-right text-sm font-medium text-gray-700 w-5/12 md:w-3/5">
+                  <th className="px-2 py-4 text-start text-sm font-medium text-gray-700 w-5/12 md:w-4/5">
                     اسم المدينة
                   </th>
-                  <th className="px-4 py-4 text-center text-sm font-medium text-gray-700 w-3/12 md:w-1/5">
+                  <th className="px-2 py-4 text-start text-sm font-medium text-gray-700 w-3/12 md:w-1/5">
                     حالة التفعيل
                   </th>
-                  <th className="px-4 py-4 text-right text-sm font-medium text-gray-700 w-4/12 md:w-1/5">
+                  <th className="px-2 py-4 text-start text-sm font-medium text-gray-700 w-3/12 md:w-1/5">
                     عمليات
                   </th>
                 </tr>
@@ -210,20 +210,20 @@ export function CitiesPage() {
                       key={city.id}
                       className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-4 py-4">
-                        <span className="text-sm font-medium text-brand-black-1 underline">
+                      <td className="px-2 py-4">
+                        <span className="text-sm font-medium ">
                           {city.name}
                         </span>
                       </td>
 
-                      <td className="px-4 py-4 flex justify-center mt-1">
+                      <td className="px-2 py-4">
                         <ToggleSwitch
                           enabled={city.is_active}
                           onChange={() => handleToggleCity(city)}
                         />
                       </td>
 
-                      <td className="px-4 py-4">
+                      <td className="px-2 py-4">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleEditCity(city)}
