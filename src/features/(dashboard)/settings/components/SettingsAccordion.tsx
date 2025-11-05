@@ -16,6 +16,7 @@ export function SettingsAccordion({
   children,
   isCompleted = true,
   defaultOpen = false,
+
 }: SettingsAccordionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 

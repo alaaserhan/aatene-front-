@@ -1,16 +1,23 @@
+// src/features/(dashboard)/settings/components/BasicInfoSection.tsx
 "use client";
 
 import { useState } from "react";
-import { MapPin, Mail } from "lucide-react";
-import { MultiSelect } from "./MultiSelect";
-import { ImageUpload } from "./ImageUpload";
-import { ColorPicker } from "./ColorPicker";
+import { MapPin, Mail, Upload } from "lucide-react";
+import { Label } from "@/src/components/ui/label";
+import { Input } from "@/src/components/ui/input";
+import { Button } from "@/src/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
+
 
 interface BasicInfoData {
   siteName: string;
-  languages: string[];
   logo: File | null;
-  primaryColor: string;
   email: string;
   address: string;
   phone: string;
@@ -19,166 +26,196 @@ interface BasicInfoData {
 
 export function BasicInfoSection() {
   const [formData, setFormData] = useState<BasicInfoData>({
-    siteName: "",
-    languages: ["العربية"],
+    siteName: "اعطني",
     logo: null,
-    primaryColor: "#2D496A",
     email: "bestshop@info.com",
     address: "شارع الخالق، مصر الجديدة، محافظة القاهرة، مصر",
     phone: "1289022985",
     whatsapp: "1289022985",
   });
 
-  const languageOptions = [
-    { value: "العربية", label: "العربية" },
-    { value: "الصينية", label: "الصينية" },
-    { value: "الإنجليزية", label: "الإنجليزية" },
-  ];
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData({ ...formData, logo: file });
+      setLogoPreview(URL.createObjectURL(file));
+      e.target.value = "";
+    }
+  };
 
   const handleSave = () => {
     console.log("Saving basic info:", formData);
-    // API call here
   };
 
   return (
-    <div className="space-y-6">
-      {/* Site Name */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-brand-black-1 text-right">
-          اسم الموقع <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          value={formData.siteName}
-          onChange={(e) => setFormData({ ...formData, siteName: e.target.value })}
-          placeholder="اختر"
-          maxLength={50}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-blue-2 text-right"
-          dir="rtl"
-        />
-        <p className="text-xs text-gray-500 text-right">
-          {formData.siteName.length}/50
-        </p>
-      </div>
-
-      {/* Languages */}
-      <MultiSelect
-        label="لغة الموقع"
-        options={languageOptions}
-        value={formData.languages}
-        onChange={(languages) => setFormData({ ...formData, languages })}
-        placeholder="اختر"
-      />
-
-      {/* Logo */}
-      <ImageUpload
-        label="شعار الموقع"
-        value={formData.logo}
-        onChange={(logo) => setFormData({ ...formData, logo })}
-      />
-
-      {/* Primary Color */}
-      <ColorPicker
-        label="اللون الأساسي للموقع"
-        value={formData.primaryColor}
-        onChange={(primaryColor) => setFormData({ ...formData, primaryColor })}
-      />
-
-      {/* Email */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-brand-black-1 text-right">
-          البريد الإلكتروني
-        </label>
-        <div className="relative">
-          <input
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-blue-2 text-right"
-            dir="ltr"
-          />
-          <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-        </div>
-      </div>
-
-      {/* Address */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-brand-black-1 text-right">
-          العنوان
-        </label>
-        <div className="relative">
-          <input
-            type="text"
-            value={formData.address}
-            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-            className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-blue-2 text-right"
-            dir="rtl"
-          />
-          <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-        </div>
-        <button
-          type="button"
-          className="px-4 py-2 bg-brand-blue-2 text-white rounded-lg text-sm hover:bg-brand-blue-3 transition-colors"
-        >
-          تحديد من الخريطة
-        </button>
-      </div>
-
-      {/* Phone Numbers */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* WhatsApp */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-brand-black-1 text-right">
-            الواتساب
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="tel"
-              value={formData.whatsapp}
-              onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-blue-2"
-              dir="ltr"
+    <div className="space-y-8">
+      <div >
+        <div className=" space-y-6">
+          {/* Site Name */}
+          <div className="space-y-2">
+            <Label htmlFor="siteName" className="text-start">
+              اسم الموقع <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="siteName"
+              type="text"
+              value={formData.siteName}
+              onChange={(e) =>
+                setFormData({ ...formData, siteName: e.target.value })
+              }
+              maxLength={50}
+              className="w-full text-start"
             />
-            <select className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-blue-2">
-              <option>+20</option>
-              <option>+1</option>
-              <option>+44</option>
-              <option>+971</option>
-            </select>
+            <p className="text-xs text-gray-500 text-end">
+              {formData.siteName.length}/50
+            </p>
           </div>
-        </div>
 
-        {/* Mobile */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-brand-black-1 text-right">
-            الهاتف المحمول
+                {/* Logo */}
+      <div className="space-y-2">
+        <Label htmlFor="logo" className="text-right">
+          شعار الموقع <span className="text-red-500">*</span>
+        </Label>
+        <div className="flex items-center justify-center w-full">
+          <label
+            htmlFor="logo-upload"
+            className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+          >
+            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+              <Upload className="w-8 h-8 mb-3 text-gray-400" />
+              <p className="mb-2 text-sm text-gray-500">
+                <span className="font-semibold">اضغط للرفع</span> أو اسحب وأفلت
+              </p>
+              <p className="text-xs text-gray-500">SVG, PNG, JPG (MAX. 800x400px)</p>
+            </div>
+            <Input id="logo-upload" type="file" className="hidden" />
           </label>
-          <div className="flex gap-2">
-            <input
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-blue-2"
-              dir="ltr"
-            />
-            <select className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-blue-2">
-              <option>+20</option>
-              <option>+1</option>
-              <option>+44</option>
-              <option>+971</option>
-            </select>
+        </div>
+      </div>
+
+
+          {/* Email */}
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-start">
+              البريد الإلكتروني
+            </Label>
+            <div className="flex items-center gap-3 px-3 border border-gray-300 rounded-lg focus-within:border-brand-blue-2">
+              <img src="/icons/dashboard/email.svg" className="w-5 h-5" alt="" />
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                className="w-full h-10 border-none shadow-none px-0 focus-visible:ring-0"
+              />
+            </div>
+          </div>
+
+          {/* Address */}
+          <div className="space-y-2">
+            <Label htmlFor="address" className="text-start">
+              العنوان
+            </Label>
+            <div className="flex items-center gap-3 ps-3 border border-gray-300 rounded-lg focus-within:border-brand-blue-2">
+              <img src="/icons/dashboard/mark.svg" alt="" className="w-5 h-5"/>
+              <Input
+                id="address"
+                type="text"
+                value={formData.address}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
+                className="h-10 border-none shadow-none px-0 focus-visible:ring-0 "
+              />
+              <Button
+                type="button"
+                variant="link"
+                className="p-0 px-3 py-0 mx-0.5  text-xs"
+              >
+                تحديد من الخريطة
+              </Button>
+            </div>
+          </div>
+
+          {/* Phone Numbers */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Mobile */}
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-start">
+                الهاتف المحمول
+              </Label>
+              <div
+                className="flex items-center border border-gray-300 rounded-lg focus-within:border-brand-blue-2"
+              >
+                <Select defaultValue="+20">
+                  <SelectTrigger className="w-[90px] border-none shadow-none focus:ring-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="+20">+20</SelectItem>
+                    <SelectItem value="+1">+1</SelectItem>
+                    <SelectItem value="+44">+44</SelectItem>
+                    <SelectItem value="+971">+971</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  className="flex-1 h-10 border-none shadow-none focus-visible:ring-0"
+                />
+              </div>
+            </div>
+
+            {/* WhatsApp */}
+            <div className="space-y-2">
+              <Label htmlFor="whatsapp" className="text-start">
+                الواتساب
+              </Label>
+              <div
+                className="flex items-center border border-gray-300 rounded-lg focus-within:border-brand-blue-2"
+              >
+                <Select defaultValue="+20">
+                  <SelectTrigger className="w-[90px] border-none shadow-none focus:ring-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="+20">+20</SelectItem>
+                    <SelectItem value="+1">+1</SelectItem>
+                    <SelectItem value="+44">+44</SelectItem>
+                    <SelectItem value="+971">+971</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  id="whatsapp"
+                  type="tel"
+                  value={formData.whatsapp}
+                  onChange={(e) =>
+                    setFormData({ ...formData, whatsapp: e.target.value })
+                  }
+                  className="flex-1 h-10 border-none shadow-none  focus-visible:ring-0"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Save Button */}
-      <div className="flex justify-end pt-4">
-        <button
+      <div className="flex justify-center pt-2">
+        <Button
           onClick={handleSave}
-          className="px-8 py-3 bg-brand-blue-3 text-white rounded-lg font-medium hover:bg-brand-blue-2 transition-colors"
+        variant="link"
         >
           حفظ الإعدادات
-        </button>
+        </Button>
       </div>
     </div>
   );
