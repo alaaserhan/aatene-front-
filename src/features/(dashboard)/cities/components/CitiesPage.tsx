@@ -127,7 +127,7 @@ export function CitiesPage() {
       <div className="container mx-auto py-8 px-4">
         <div className="flex flex-row items-start sm:items-center justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-xl md:text-2xl sm:text-2xl  font-medium text-brand-black-1">
+            <h1 className="text-xl md:text-2xl sm:text-2xl  font-bold text-brand-black-1">
               المدن المسموح بها للشحن
             </h1>
             <p className="text-sm text-gray-500 mt-1">اختر وجهات الشحن</p>
@@ -135,7 +135,7 @@ export function CitiesPage() {
 
           <button
             onClick={handleAddCity}
-            className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-3 text-white rounded-sm font-medium  transition-colors"
+            className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 sm:py-3 text-white rounded-sm font-medium  transition-colors"
             style={{ backgroundColor: "var(--blue-3)" }}
           >
             <HelpCircle className="sm:w-5 sm:h-5 w-4 h-4" />
