@@ -1,14 +1,17 @@
 // src/features/(dashboard)/settings/api.ts
 import api from "@/src/lib/axios";
 
-// --- Types ---
+// --- Types (Updated) ---
+
+export interface TranslatableString {
+  en: string;
+  ar: string;
+}
 
 export interface PolicyItem {
-  title_en: string;
-  title_ar: string;
-  content_ar: string;
-  content_en: string;
   logo: string | null;
+  title: TranslatableString;
+  content: TranslatableString;
   logo_url: string | null;
 }
 
@@ -19,9 +22,9 @@ export interface Settings {
   main_color: string;
   email: string;
   address: string;
+  languages: string[];
   whatsapp: string;
   phone: string;
-  languages: string[]; // <-- تم الإضافة
   facebook: string;
   instagram: string;
   snapchat: string;
@@ -29,9 +32,9 @@ export interface Settings {
   x: string;
   youtube: string;
   added_policies: string[] | null;
-  policies: PolicyItem[];
+  policies: PolicyItem[]; // Updated
   added_terms: string[] | null;
-  terms: PolicyItem[];
+  terms: PolicyItem[]; // Updated
 }
 
 export interface GetSettingsResponse {
@@ -41,10 +44,8 @@ export interface GetSettingsResponse {
 }
 
 export interface PolicyItemPayload {
-  title_en: string;
-  title_ar: string;
-  content_ar: string;
-  content_en: string;
+  title: TranslatableString;
+  content: TranslatableString;
   logo: File | null;
 }
 
@@ -56,7 +57,7 @@ export interface UpdateSettingsPayload {
   address: string;
   whatsapp: number | string;
   phone: number | string;
-  languages: string[]; // <-- تم الإضافة
+  languages: string[];
   facebook: string;
   instagram: string;
   snapchat: string;
@@ -64,67 +65,76 @@ export interface UpdateSettingsPayload {
   x: string;
   youtube: string;
   added_privacy_policies: string[];
-  policies: PolicyItemPayload[];
+  policies: PolicyItemPayload[]; // Updated
   added_terms: string[];
-  terms: PolicyItemPayload[];
+  terms: PolicyItemPayload[]; // Updated
 }
 
-// --- createFormData Helper (Copied from auth/api.ts) ---
-type Primitive = string | number | boolean;
-type FileLike = Blob | File;
-type Allowed = Primitive | Date | FileLike | (Primitive | Date | FileLike)[] | null | undefined;
+// --- API Functions ---
 
-const isFileLike = (v: unknown): v is FileLike =>
-  v instanceof Blob || v instanceof File;
-
-const toAppendable = (v: Primitive | Date): string =>
-  v instanceof Date ? v.toISOString() : String(v);
-
-type AllowedShape<T> = { [K in keyof T]: Allowed };
-
-export const createFormData = <T extends object>(data: AllowedShape<T>): FormData => {
-  const fd = new FormData();
-
-  (Object.entries(data) as [keyof T, Allowed][]).forEach(([key, value]) => {
-    if (value == null) return;
-
-    if (Array.isArray(value)) {
-      value.forEach((item) => {
-        if (item == null) return;
-        fd.append(String(key), isFileLike(item) ? item : toAppendable(item as Primitive | Date));
-      });
-      return;
-    }
-
-    fd.append(String(key), isFileLike(value) ? value : toAppendable(value as Primitive | Date));
-  });
-
-  return fd;
-};
-
+/**
+ * 1. Get All Settings
+ */
 export const getSettings = async (): Promise<GetSettingsResponse> => {
   const { data } = await api.get<GetSettingsResponse>("/admin/settings/get");
   return data;
 };
 
 /**
- * 2. Update Settings
+ * 2. Update Settings (Updated to handle new structure)
  */
 export const updateSettings = async (
   payload: UpdateSettingsPayload
 ): Promise<GetSettingsResponse> => {
-  // نحول الحقول المعقدة (Arrays of Objects) إلى JSON strings
-  // لكي يتمكن createFormData البسيط من التعامل معها
-  const massagedPayload = {
-    ...payload,
-    policies: JSON.stringify(payload.policies),
-    terms: JSON.stringify(payload.terms),
-    // (createFormData سيتعامل مع languages و added_terms و added_privacy_policies بشكل صحيح)
-  };
+  const fd = new FormData();
 
-  const formData = createFormData(massagedPayload);
+  // --- Append Simple Fields ---
+  fd.append("name", payload.name);
+  if (payload.logo) {
+    fd.append("logo", payload.logo);
+  }
+  fd.append("main_color", payload.main_color);
+  fd.append("email", payload.email);
+  fd.append("address", payload.address);
+  fd.append("whatsapp", String(payload.whatsapp));
+  fd.append("phone", String(payload.phone));
+  fd.append("facebook", payload.facebook);
+  fd.append("instagram", payload.instagram);
+  fd.append("snapchat", payload.snapchat);
+  fd.append("tiktok", payload.tiktok);
+  fd.append("x", payload.x);
+  fd.append("youtube", payload.youtube);
 
-  const { data } = await api.post<GetSettingsResponse>("/admin/settings", formData, {
+  // --- Append Simple Arrays ---
+  payload.languages.forEach((lang) => fd.append("languages[]", lang));
+  payload.added_terms.forEach((term) => fd.append("added_terms[]", term));
+  payload.added_privacy_policies.forEach((policy) =>
+    fd.append("added_privacy_policies[]", policy)
+  );
+
+  // --- Append Complex Arrays (Policies) ---
+  payload.policies.forEach((policy, index) => {
+    fd.append(`policies[${index}][title][en]`, policy.title.en);
+    fd.append(`policies[${index}][title][ar]`, policy.title.ar);
+    fd.append(`policies[${index}][content][en]`, policy.content.en);
+    fd.append(`policies[${index}][content][ar]`, policy.content.ar);
+    if (policy.logo) {
+      fd.append(`policies[${index}][logo]`, policy.logo);
+    }
+  });
+
+  // --- Append Complex Arrays (Terms) ---
+  payload.terms.forEach((term, index) => {
+    fd.append(`terms[${index}][title][en]`, term.title.en);
+    fd.append(`terms[${index}][title][ar]`, term.title.ar);
+    fd.append(`terms[${index}][content][en]`, term.content.en);
+    fd.append(`terms[${index}][content][ar]`, term.content.ar);
+    if (term.logo) {
+      fd.append(`terms[${index}][logo]`, term.logo);
+    }
+  });
+
+  const { data } = await api.post<GetSettingsResponse>("/admin/settings", fd, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return data;

@@ -21,14 +21,11 @@ export function ClientSettingsPage() {
   
   const { data: settingsData, isLoading, error } = useGetSettings();
 
-  // --- (هذا هو التعديل) ---
-  // نقوم بتحديث حالة اللغات بمجرد وصول البيانات من الـ API
   useEffect(() => {
     if (settingsData?.settings?.languages) {
       setSelectedLanguages(settingsData.settings.languages);
     }
   }, [settingsData]);
-  // --- نهاية التعديل ---
 
   const handleLanguagesChange = (languages: string[]) => {
     setSelectedLanguages(languages);
@@ -43,9 +40,11 @@ export function ClientSettingsPage() {
         <BasicInfoSection
           onLanguagesChange={handleLanguagesChange}
           initialData={settingsData?.settings}
+          selectedLanguages={selectedLanguages} // <-- (1) تم إضافة هذا السطر
         />
       ),
     },
+    // ... (باقي الأقسام كما هي)
     {
       id: "social-media",
       title: "بيانات السوشيل ميديا",

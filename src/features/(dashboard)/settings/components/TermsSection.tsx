@@ -296,39 +296,6 @@ export function TermsSection({
         </div>
       </div>
 
-      {/* Display Added Paragraphs */}
-      {paragraphs.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 text-end">
-            الشروط المضافة
-          </h3>
-          {paragraphs.map((para) => (
-            <div
-              key={para.id}
-              className="bg-gray-50 border border-gray-200 rounded-lg p-4"
-            >
-              <div className="flex items-start justify-between">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setParagraphs(paragraphs.filter((p) => p.id !== para.id))
-                  }
-                  className="text-red-500 hover:text-red-600 transition-colors"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-                <div className="flex-1 text-end">
-                  <h4 className="font-semibold text-gray-900">{para.titleAr}</h4>
-                  {para.titleEn && (
-                    <p className="text-sm text-gray-600 mt-1">{para.titleEn}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* Save All Button */}
       <div className="flex justify-center pt-4">
         <Button

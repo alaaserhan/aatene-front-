@@ -25,7 +25,7 @@ interface BasicInfoData {
   address: string;
   phone: string;
   whatsapp: string;
-  selectedLanguages: string[];
+  // (تم حذف selectedLanguages من هنا)
 }
 
 const AVAILABLE_LANGUAGES = [
@@ -35,12 +35,14 @@ const AVAILABLE_LANGUAGES = [
 ];
 
 interface BasicInfoSectionProps {
-  onLanguagesChange?: (languages: string[]) => void;
+  onLanguagesChange: (languages: string[]) => void; // (جعلناها إجبارية)
+  selectedLanguages: string[]; // <-- (2) تم إضافة هذا السطر
   initialData?: any;
 }
 
 export function BasicInfoSection({
   onLanguagesChange,
+  selectedLanguages, // <-- (2) تم استقبالها
   initialData,
 }: BasicInfoSectionProps) {
   const [formData, setFormData] = useState<BasicInfoData>({
@@ -51,7 +53,6 @@ export function BasicInfoSection({
     address: "",
     phone: "",
     whatsapp: "",
-    selectedLanguages: ["ar", "en", "he"],
   });
 
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
@@ -68,12 +69,10 @@ export function BasicInfoSection({
         address: initialData.address || "",
         phone: initialData.phone || "",
         whatsapp: initialData.whatsapp || "",
-        selectedLanguages: ["ar", "en", "he"], // يمكن تحديثها لاحقاً من API
       });
+      // (تم حذف تحميل اللغات من هنا، لأنها تدار من الأب)
     }
   }, [initialData]);
-
-  // (((( تم حذف الـ useEffect المسبب للـ Loop من هنا ))))
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -91,28 +90,18 @@ export function BasicInfoSection({
   };
 
   const handleToggleLanguage = (langId: string) => {
-    let newLanguages: string[] = [];
-    
-    setFormData((prev) => {
-      const isSelected = prev.selectedLanguages.includes(langId);
-      newLanguages = isSelected
-        ? prev.selectedLanguages.filter((id) => id !== langId)
-        : [...prev.selectedLanguages, langId];
+    // (3) تم تعديل المنطق ليعتمد على الـ prop
+    const isSelected = selectedLanguages.includes(langId);
+    let newLanguages = isSelected
+      ? selectedLanguages.filter((id) => id !== langId)
+      : [...selectedLanguages, langId];
 
-      if (newLanguages.length === 0) {
-        newLanguages = [langId];
-      }
-
-      return {
-        ...prev,
-        selectedLanguages: newLanguages,
-      };
-    });
-
-    // (((( هذا هو التعديل الثاني: ننادي الدالة يدوياً هنا ))))
-    if (onLanguagesChange) {
-      onLanguagesChange(newLanguages);
+    if (newLanguages.length === 0) {
+      newLanguages = [langId];
     }
+    
+    // (4) نرسل التحديث للأب مباشرة
+    onLanguagesChange(newLanguages);
   };
 
   const handleSelectAddressFromMap = (
@@ -133,6 +122,7 @@ export function BasicInfoSection({
         address: formData.address,
         whatsapp: formData.whatsapp,
         phone: formData.phone,
+        languages: selectedLanguages, // <-- (5) تم إرسال اللغات من الـ prop
         facebook: initialData?.facebook || "",
         instagram: initialData?.instagram || "",
         snapchat: initialData?.snapchat || "",
@@ -183,9 +173,8 @@ export function BasicInfoSection({
               <div className="border border-gray-300 rounded-lg p-4">
                 <div className="flex gap-3">
                   {AVAILABLE_LANGUAGES.map((lang) => {
-                    const isSelected = formData.selectedLanguages.includes(
-                      lang.id
-                    );
+                    // (6) تم التعديل ليعتمد على الـ prop
+                    const isSelected = selectedLanguages.includes(lang.id);
                     return (
                       <button
                         key={lang.id}
