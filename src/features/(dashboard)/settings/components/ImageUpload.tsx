@@ -1,11 +1,12 @@
+// src/features/(dashboard)/settings/components/ImageUpload.tsx
 "use client";
 
 import { useState, useRef, ChangeEvent } from "react";
-import { Upload, X } from "lucide-react";
+import { Upload, Trash2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
 interface ImageUploadProps {
-  label: string;
+  label?: string;
   optional?: boolean;
   value?: File | string | null;
   onChange: (file: File | null) => void;
@@ -32,17 +33,15 @@ export function ImageUpload({
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    
+
     if (file) {
-      // Check file size
       const fileSizeKB = Math.round(file.size / 1024);
-      
+
       if (fileSizeKB > maxSize) {
         alert(`حجم الملف يجب أن يكون أقل من ${maxSize} KB`);
         return;
       }
 
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
@@ -71,59 +70,49 @@ export function ImageUpload({
 
   return (
     <div className={cn("space-y-2", className)}>
-      {/* Label */}
-      <label className="block text-sm font-medium text-brand-black-1 text-right">
-        {label} {optional && "(اختياري)"}
-      </label>
+      {label && (
+        <label className="block text-sm font-medium text-gray-900">
+          {label} {optional && "(اختياري)"}
+        </label>
+      )}
 
-      {/* Upload Area */}
       {!preview ? (
         <div
           onClick={handleClick}
-          className="flex items-center justify-center w-full h-32 border-2 border-dashed border-brand-blue-2 rounded-lg hover:border-brand-blue-3 transition-colors cursor-pointer bg-blue-50/30"
+          className="flex items-center gap-3 px-4 py-3.5 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
         >
-          <div className="text-center">
-            <div className="flex justify-center mb-2">
-              <div className="p-3 bg-brand-blue-2 rounded-lg">
-                <Upload className="w-5 h-5 text-white" />
-              </div>
-            </div>
-            <p className="text-sm text-brand-blue-3 font-medium">
-              تحميل صورة
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              اضغط لرفع الصورة...
-            </p>
+          <span className="text-sm text-gray-600 font-medium">اضف صورة السياسة ...</span>
+          <div className="mr-auto p-2 bg-blue-4 rounded-lg">
+            <Upload className="w-5 h-5 text-white" strokeWidth={2} />
           </div>
         </div>
       ) : (
-        // Preview with Remove
-        <div className="relative w-full h-32 border-2 border-brand-blue-2 rounded-lg overflow-hidden bg-gray-100">
-          <img
-            src={preview}
-            alt="Preview"
-            className="w-full h-full object-contain"
-          />
+        <div className="flex items-center justify-between px-4 py-3 border border-gray-300 rounded-lg bg-gray-50">
           
-          {/* Remove Button */}
+          <div className="flex items-center gap-3 overflow-hidden">
+            <img
+              src={preview}
+              alt="Preview"
+              className="w-12 h-12 object-cover rounded"
+            />
+            <div className="text-sm overflow-hidden">
+              <p className="text-gray-600 text-xs">{fileSize || "..."}KB</p>
+              <p className="font-medium truncate text-xs">
+                {fileName || "ملف مرفوع"}
+              </p>
+            </div>
+          </div>
           <button
             onClick={handleRemove}
-            className="absolute top-2 left-2 p-1.5 bg-red-500 hover:bg-red-600 rounded-full transition-colors"
+            className="p-2 cursor-pointer bg-red-100 rounded-lg transition-colors flex-shrink-0"
             type="button"
+            aria-label="حذف الصورة"
           >
-            <X className="w-4 h-4 text-white" />
+            <img src="/icons/dashboard/trash.svg" alt="" className="w-5 h-5" />
           </button>
-          
-          {/* File Info */}
-          {fileName && fileSize && (
-            <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-              {fileName.substring(0, 15)}... • {fileSize}KB
-            </div>
-          )}
         </div>
       )}
 
-      {/* Hidden Input */}
       <input
         ref={fileInputRef}
         type="file"

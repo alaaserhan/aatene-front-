@@ -1,6 +1,7 @@
 // src/features/(dashboard)/settings/components/ClientSettingsPage.tsx
 "use client";
 
+import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import {
   Accordion,
@@ -13,43 +14,101 @@ import { BasicInfoSection } from "./BasicInfoSection";
 import { TermsSection } from "./TermsSection";
 import { PrivacyPolicySection } from "./PrivacyPolicySection";
 import { SocialMediaSection } from "./SocialMediaSection";
-
-const settingsItems = [
-  {
-    id: "basic-info",
-    title: "البيانات الأساسية",
-    isCompleted: true,
-    Content: BasicInfoSection,
-  },
-  {
-    id: "social-media",
-    title: "بيانات السوشيل ميديا",
-    isCompleted: true,
-    Content: SocialMediaSection,
-  },
-  {
-    id: "privacy-policy",
-    title: "سياسات الخصوصية",
-    isCompleted: true,
-    Content: PrivacyPolicySection,
-  },
-  {
-    id: "terms-of-use",
-    title: "شروط الاستخدام",
-    isCompleted: true,
-    Content: TermsSection,
-  },
-];
+import { useGetSettings } from "../hooks";
 
 export function ClientSettingsPage() {
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+  
+  const { data: settingsData, isLoading, error } = useGetSettings();
+
+  // --- (هذا هو التعديل) ---
+  // نقوم بتحديث حالة اللغات بمجرد وصول البيانات من الـ API
+  useEffect(() => {
+    if (settingsData?.settings?.languages) {
+      setSelectedLanguages(settingsData.settings.languages);
+    }
+  }, [settingsData]);
+  // --- نهاية التعديل ---
+
+  const handleLanguagesChange = (languages: string[]) => {
+    setSelectedLanguages(languages);
+  };
+
+  const settingsItems = [
+    {
+      id: "basic-info",
+      title: "البيانات الأساسية",
+      isCompleted: true,
+      Content: () => (
+        <BasicInfoSection
+          onLanguagesChange={handleLanguagesChange}
+          initialData={settingsData?.settings}
+        />
+      ),
+    },
+    {
+      id: "social-media",
+      title: "بيانات السوشيل ميديا",
+      isCompleted: true,
+      Content: () => (
+        <SocialMediaSection initialData={settingsData?.settings} />
+      ),
+    },
+    {
+      id: "privacy-policy",
+      title: "سياسات الخصوصية",
+      isCompleted: true,
+      Content: () => (
+        <PrivacyPolicySection
+          selectedLanguages={selectedLanguages}
+          initialData={settingsData?.settings}
+        />
+      ),
+    },
+    {
+      id: "terms-of-use",
+      title: "شروط الاستخدام",
+      isCompleted: true,
+      Content: () => (
+        <TermsSection
+          selectedLanguages={selectedLanguages}
+          initialData={settingsData?.settings}
+        />
+      ),
+    },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-4 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل الإعدادات...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">حدث خطأ في تحميل الإعدادات</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-4 text-white rounded-lg hover:bg-blue-3"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="container mx-auto my-8">
-        <Accordion
-          type="single"
-          collapsible
-          className="space-y-3"
-        >
+        <Accordion type="single" collapsible className="space-y-3">
           {settingsItems.map((item) => (
             <AccordionItem
               key={item.id}
@@ -63,19 +122,8 @@ export function ClientSettingsPage() {
                       <Check className="w-3 h-3 text-white" strokeWidth={3} />
                     </div>
                   )}
-                  <h1 className="font-semibold text-lg">
-                    {item.title}
-                  </h1>
+                  <h1 className="font-semibold text-lg">{item.title}</h1>
                 </div>
-                
-                {/* أيقونة السهم من shadcn/ui ستظهر هنا تلقائياً 
-                  لقد أضفتُ 
-                  [&[data-state=open]>div>svg]:rotate-180 
-                  للـ Trigger 
-                  لأن أيقونة shadcn الافتراضية قد لا تكون ChevronUp
-                  لكن هذا يضمن أنها "تدور" عند الفتح
-                */}
-
               </AccordionTrigger>
               <AccordionContent className="border-t border-gray-200 p-6 bg-gray-50/50">
                 <item.Content />

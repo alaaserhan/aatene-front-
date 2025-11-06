@@ -1,11 +1,12 @@
 // src/features/(dashboard)/settings/components/SocialMediaSection.tsx
 "use client";
 
-import React, { useState } from "react";
-
+import { useState, useEffect } from "react";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
+import { useUpdateSettings } from "../hooks";
+import { toast } from "sonner";
 
 type SocialMediaData = {
   facebook: string;
@@ -56,13 +57,17 @@ const socialInputs: {
   },
   {
     key: "twitter",
-    label: "تويتر",
+    label: "تويتر (X)",
     Icon: "twitter",
-    placeholder: "https://twitter.com/your-handle",
+    placeholder: "https://x.com/your-handle",
   },
 ];
 
-export function SocialMediaSection() {
+interface SocialMediaSectionProps {
+  initialData?: any;
+}
+
+export function SocialMediaSection({ initialData }: SocialMediaSectionProps) {
   const [formData, setFormData] = useState<SocialMediaData>({
     facebook: "",
     instagram: "",
@@ -72,9 +77,47 @@ export function SocialMediaSection() {
     snapchat: "",
   });
 
-  const handleSave = () => {
-    // استبدل هذا بالنداء للـ API حسب الحاجة
-    console.log("Saving social media:", formData);
+  const updateSettingsMutation = useUpdateSettings();
+
+  // تحميل البيانات الأولية
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        facebook: initialData.facebook || "",
+        instagram: initialData.instagram || "",
+        youtube: initialData.youtube || "",
+        twitter: initialData.x || "", // API uses 'x' for twitter
+        tiktok: initialData.tiktok || "",
+        snapchat: initialData.snapchat || "",
+      });
+    }
+  }, [initialData]);
+
+  const handleSave = async () => {
+    try {
+      await updateSettingsMutation.mutateAsync({
+        name: initialData?.name || "",
+        logo: null,
+        main_color: initialData?.main_color || "#000000",
+        email: initialData?.email || "",
+        address: initialData?.address || "",
+        whatsapp: initialData?.whatsapp || "",
+        phone: initialData?.phone || "",
+        facebook: formData.facebook,
+        instagram: formData.instagram,
+        snapchat: formData.snapchat,
+        tiktok: formData.tiktok,
+        x: formData.twitter,
+        youtube: formData.youtube,
+        added_privacy_policies: initialData?.added_policies || [],
+        policies: initialData?.policies || [],
+        added_terms: initialData?.added_terms || [],
+        terms: initialData?.terms || [],
+      });
+      toast.success("تم حفظ بيانات السوشيال ميديا بنجاح");
+    } catch (error) {
+      console.error("Error saving social media:", error);
+    }
   };
 
   return (
@@ -90,7 +133,11 @@ export function SocialMediaSection() {
 
               <div className="flex items-center gap-1 px-3 border border-gray-300 rounded-lg focus-within:border-brand-blue-2">
                 <span aria-hidden className="flex items-center">
-                  <img src={`/icons/dashboard/${Icon}.svg`} alt={Icon} className="w-5 h-5 text-gray-700" />
+                  <img
+                    src={`/icons/dashboard/${Icon}.svg`}
+                    alt={Icon}
+                    className="w-5 h-5 text-gray-700"
+                  />
                 </span>
 
                 <Input
@@ -113,8 +160,13 @@ export function SocialMediaSection() {
       </div>
 
       <div className="flex justify-center pt-2">
-        <Button onClick={handleSave} variant="link" className="cursor-pointer">
-          حفظ الإعدادات
+        <Button
+          onClick={handleSave}
+          variant="link"
+          className="cursor-pointer"
+          disabled={updateSettingsMutation.isPending}
+        >
+          {updateSettingsMutation.isPending ? "جاري الحفظ..." : "حفظ الإعدادات"}
         </Button>
       </div>
     </div>

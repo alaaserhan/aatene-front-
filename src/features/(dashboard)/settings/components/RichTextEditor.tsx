@@ -1,11 +1,12 @@
+// src/features/(dashboard)/settings/components/RichTextEditor.tsx
 "use client";
 
-import { useState, useRef } from "react";
-import { 
-  Bold, 
-  Italic, 
-  Underline, 
-  Strikethrough, 
+import { useRef } from "react";
+import {
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
   Link as LinkIcon,
   List,
   ListOrdered,
@@ -18,6 +19,7 @@ interface RichTextEditorProps {
   placeholder?: string;
   minHeight?: string;
   className?: string;
+  isRtl?: boolean;
 }
 
 export function RichTextEditor({
@@ -26,6 +28,7 @@ export function RichTextEditor({
   placeholder = "أضف وصف مميز...",
   minHeight = "200px",
   className,
+  isRtl = true,
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
 
@@ -58,47 +61,56 @@ export function RichTextEditor({
   };
 
   return (
-    <div className={cn("border border-gray-300 rounded-lg overflow-hidden bg-white", className)}>
-      {/* Toolbar */}
-      <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-gray-50">
+    <div
+      className={cn(
+        "border border-gray-300 rounded-lg overflow-hidden bg-white",
+        className
+      )}
+    >
+      {/* Editor - يظهر أولاً */}
+      <div className="relative">
+        <div
+          ref={editorRef}
+          contentEditable
+          onInput={handleInput}
+          className={cn(
+            "p-4 focus:outline-none min-h-[200px]"
+          )}
+          style={{ minHeight }}
+          dangerouslySetInnerHTML={{ __html: value || "" }}
+          suppressContentEditableWarning
+        />
+
+        {!value && (
+          <div
+            className={cn(
+              "absolute top-4 text-gray-400 start-4 pointer-events-none"
+            )}
+          >
+            {placeholder}
+          </div>
+        )}
+      </div>
+
+      {/* Toolbar - يظهر في الأسفل */}
+      <div className="flex items-center gap-1 p-2 border-t border-gray-200 bg-gray-50">
         {toolbarButtons.map((btn, index) => {
           const Icon = btn.icon;
           const isLink = btn.command === "createLink";
-          
+
           return (
             <button
               key={index}
               type="button"
-              onClick={() => isLink ? handleLinkClick() : executeCommand(btn.command)}
+              onClick={() => (isLink ? handleLinkClick() : executeCommand(btn.command))}
               className="p-2 hover:bg-gray-200 rounded transition-colors"
               title={btn.title}
             >
-              <Icon className="w-4 h-4 text-brand-blue-3" />
+              <Icon className="w-4 h-4 text-blue-4" />
             </button>
           );
         })}
       </div>
-
-      {/* Editor */}
-      <div
-        ref={editorRef}
-        contentEditable
-        onInput={handleInput}
-        className="p-4 focus:outline-none text-right"
-        style={{ minHeight }}
-        dir="rtl"
-        dangerouslySetInnerHTML={{ __html: value || "" }}
-        suppressContentEditableWarning
-      />
-      
-      {!value && (
-        <div 
-          className="absolute top-14 right-4 text-gray-400 pointer-events-none"
-          style={{ direction: "rtl" }}
-        >
-          {placeholder}
-        </div>
-      )}
     </div>
   );
 }

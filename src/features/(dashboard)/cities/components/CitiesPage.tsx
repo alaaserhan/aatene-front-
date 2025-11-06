@@ -227,7 +227,7 @@ export function CitiesPage() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleEditCity(city)}
-                            className="p-2.5 bg-[#5B87B91A] cursor-pointer rounded transition-colors group"
+                            className="p-2.5 bg-blue-5 cursor-pointer rounded transition-colors group"
                           >
                             <img
                               src="/icons/dashboard/pin.svg"
