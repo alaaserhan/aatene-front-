@@ -1,4 +1,4 @@
-// src/features/(dashboard)/cities/components/ToggleSwitch.tsx
+// src/components/ui/ToggleSwitch.tsx
 "use client";
 
 import { cn } from "@/src/lib/utils";
@@ -27,7 +27,11 @@ export function ToggleSwitch({ enabled, onChange, disabled = false }: ToggleSwit
       <span
         className={cn(
           "inline-block h-5 w-5 transform rounded-full bg-white transition-transform",
-          enabled ? "-translate-x-1" : "-translate-x-8"
+          // --- هذا هو الإصلاح ---
+          // LTR (Default): 
+          // enabled = right (x-8), disabled = left (x-1)
+          enabled ? "-translate-x-8" : "-translate-x-1",
+
         )}
       />
     </button>

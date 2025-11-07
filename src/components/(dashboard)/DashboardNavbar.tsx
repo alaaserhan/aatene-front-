@@ -22,7 +22,9 @@ import {
   Menu,
   LucideIcon,
   X,
-  Map, // ⭐️ (2)
+  Map,
+  GalleryVertical,
+  GalleryVerticalEnd, // ⭐️ (2)
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -82,15 +84,16 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   };
 
   const allNavItems: NavItem[] = [
-    { label: "الرئيسية", icon: Home, href: "", show: true },
-    { label: "المستخدمين", icon: Users, href: "/users", show: isAdmin },
-    { label: "المتاجر", icon: Store, href: "/stores", show: true },
-    { label: "المنتجات", icon: Shirt, href: "/products", show: true },
-    { label: "مقدمي الخدمات", icon: LayoutDashboard, href: "/service-providers", show: isAdmin },
-    { label: "الطلبات", icon: ShoppingCart, href: "/orders", show: isMerchant },
-    { label: "الفئات", icon: Package, href: "/categories", show: isAdmin },
+    // { label: "الرئيسية", icon: Home, href: "", show: true },
+    // { label: "المستخدمين", icon: Users, href: "/users", show: isAdmin },
+    // { label: "المتاجر", icon: Store, href: "/stores", show: true },
+    // { label: "المنتجات", icon: Shirt, href: "/products", show: true },
+    // { label: "مقدمي الخدمات", icon: LayoutDashboard, href: "/service-providers", show: isAdmin },
+    // { label: "الطلبات", icon: ShoppingCart, href: "/orders", show: isMerchant },
+    // { label: "الفئات", icon: Package, href: "/categories", show: isAdmin },
     { label: "الإعدادات", icon: Settings, href: "/settings", show: true },
     { label: "مدن الشحن", icon: Map, href: "/cities", show: true },
+    { label: "البنرات الإعلانية", icon:GalleryVerticalEnd, href: "/banners", show: true }
   ];
 
   const mainNavItems = allNavItems.slice(0, 5);

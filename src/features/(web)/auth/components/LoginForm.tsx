@@ -1,3 +1,4 @@
+// src/app/(web)/login/components/LoginForm.tsx
 "use client";
 
 import React from "react";
@@ -8,11 +9,7 @@ import Link from "next/link";
 import { Button } from "@/src/components/ui/button";
 import {
   Form,
-  FormControl,
   FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
 } from "@/src/components/ui/form";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Card, CardContent, CardDescription, CardTitle } from "@/src/components/ui/card";
@@ -79,35 +76,27 @@ export function LoginForm() {
               <FormField
                 control={form.control}
                 name="login"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>البريد الإلكتروني أو الهاتف</FormLabel>
-                    <FormControl>
-                      <FormInput
-                        type="text"
-                        placeholder="أدخل بريدك الإلكتروني أو هاتفك"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                render={({ field, fieldState }) => (
+                  <FormInput
+                    label="البريد الإلكتروني أو الهاتف"
+                    type="text"
+                    placeholder="أدخل بريدك الإلكتروني أو هاتفك"
+                    error={fieldState.error?.message}
+                    {...field}
+                  />
                 )}
               />
               <FormField
                 control={form.control}
                 name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>كلمة المرور</FormLabel>
-                    <FormControl>
-                      <FormInput
-                        type="password"
-                        placeholder="أدخل كلمة المرور الخاصة بك"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                render={({ field, fieldState }) => (
+                  <FormInput
+                    label="كلمة المرور"
+                    type="password"
+                    placeholder="أدخل كلمة المرور الخاصة بك"
+                    error={fieldState.error?.message}
+                    {...field}
+                  />
                 )}
               />
               <Button type="submit" className="w-full gradient-blue" disabled={isPending}>

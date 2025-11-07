@@ -1,3 +1,4 @@
+// src/app/(web)/signup/components/SignupForm.tsx
 "use client";
 
 import React from "react";
@@ -124,40 +125,88 @@ export function SignupForm() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormInput
+                <FormField
+                  control={form.control}
                   name="first_name"
-                  label="الاسم الأول"
-                  placeholder="أدخل اسمك الأول"
+                  render={({ field, fieldState }) => (
+                    <FormInput
+                      label="الاسم الأول"
+                      placeholder="أدخل اسمك الأول"
+                      required
+                      error={fieldState.error?.message}
+                      {...field}
+                    />
+                  )}
                 />
-                <FormInput
+                <FormField
+                  control={form.control}
                   name="last_name"
-                  label="الاسم الأخير"
-                  placeholder="أدخل اسمك الأخير"
+                  render={({ field, fieldState }) => (
+                    <FormInput
+                      label="الاسم الأخير"
+                      placeholder="أدخل اسمك الأخير"
+                      required
+                      error={fieldState.error?.message}
+                      {...field}
+                    />
+                  )}
                 />
               </div>
-              <FormInput
+              <FormField
+                control={form.control}
                 name="email"
-                type="email"
-                label="البريد الإلكتروني"
-                placeholder="أدخل بريدك الإلكتروني"
+                render={({ field, fieldState }) => (
+                  <FormInput
+                    label="البريد الإلكتروني"
+                    type="email"
+                    placeholder="أدخل بريدك الإلكتروني"
+                    required
+                    error={fieldState.error?.message}
+                    {...field}
+                  />
+                )}
               />
-              <FormInput
+              <FormField
+                control={form.control}
                 name="phone"
-                type="tel"
-                label="رقم الهاتف"
-                placeholder="أدخل رقم هاتفك"
+                render={({ field, fieldState }) => (
+                  <FormInput
+                    label="رقم الهاتف"
+                    type="tel"
+                    placeholder="أدخل رقم هاتفك"
+                    required
+                    error={fieldState.error?.message}
+                    {...field}
+                  />
+                )}
               />
-              <FormInput
+              <FormField
+                control={form.control}
                 name="password"
-                type="password"
-                label="كلمة المرور"
-                placeholder="أدخل كلمة مرور قوية"
+                render={({ field, fieldState }) => (
+                  <FormInput
+                    label="كلمة المرور"
+                    type="password"
+                    placeholder="أدخل كلمة مرور قوية"
+                    required
+                    error={fieldState.error?.message}
+                    {...field}
+                  />
+                )}
               />
-              <FormInput
+              <FormField
+                control={form.control}
                 name="confirmPassword"
-                type="password"
-                label="تأكيد كلمة المرور"
-                placeholder="أعد إدخال كلمة المرور"
+                render={({ field, fieldState }) => (
+                  <FormInput
+                    label="تأكيد كلمة المرور"
+                    type="password"
+                    placeholder="أعد إدخال كلمة المرور"
+                    required
+                    error={fieldState.error?.message}
+                    {...field}
+                  />
+                )}
               />
 
               <FormField

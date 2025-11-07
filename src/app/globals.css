@@ -44,6 +44,7 @@
   --blue-4:#406896;
   --blue-5:#5B87B91A;
   --gray-1:#9291A5;
+  --gray-2:#717171;
   --black-1:#202020;
 }
 
@@ -127,6 +128,11 @@
 .text-blue-5 {
   color: var(--blue-5);
 }
+
+.text-gray-2 {
+  color: var(--gray-2);
+}
+
 
 
 
@@ -228,7 +234,7 @@ html {
 }
 
 .container {
-  max-width: 1300px;
+  max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
   padding: 0 1rem;

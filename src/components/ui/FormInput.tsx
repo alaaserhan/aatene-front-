@@ -1,80 +1,109 @@
+// src/components/ui/FormInput.tsx
 "use client";
 
-import React, { useState } from "react";
-import { useFormContext, Control } from "react-hook-form";
-import { Eye, EyeOff } from "lucide-react";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/src/components/ui/form";
-import { Input } from "@/src/components/ui/input";
+import { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { cn } from "@/src/lib/utils";
 
-// ⭐️ (1) Use React.ComponentProps instead of InputProps
-interface FormInputProps
-  extends Omit<React.ComponentProps<typeof Input>, "type"> {
-  name: string;
+interface BaseInputProps {
   label?: string;
-  description?: string;
-  control?: Control;
-  // ⭐️ (2) Add "tel" to the list of allowed types
-  type?: "text" | "email" | "password" | "number" | "tel";
+  error?: string;
+  hint?: string;
+  required?: boolean;
+  maxLength?: number;
+  showCounter?: boolean;
+  className?: string;
+  containerClassName?: string;
 }
 
-export function FormInput({
-  name,
+type InputProps = BaseInputProps & 
+  Omit<InputHTMLAttributes<HTMLInputElement>, 'className'> & {
+    multiline?: false;
+  };
+
+type TextareaProps = BaseInputProps & 
+  Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'className'> & {
+    multiline: true;
+  };
+
+type FormInputProps = InputProps | TextareaProps;
+
+export const FormInput = forwardRef<
+  HTMLInputElement | HTMLTextAreaElement,
+  FormInputProps
+>(({ 
   label,
-  description,
-  control,
-  type = "text",
+  error,
+  hint,
+  required,
+  maxLength,
+  showCounter = false,
+  className = "",
+  containerClassName = "",
   ...props
-}: FormInputProps) {
-  const [showPassword, setShowPassword] = useState(false);
-  const form = useFormContext();
+}, ref) => {
+  const isMultiline = 'multiline' in props && props.multiline;
+  const value = String(props.value || '');
+  const currentLength = value.length;
 
-  const effectiveControl = control || form?.control;
-
-  if (!effectiveControl) {
-    throw new Error(
-      "FormInput must be used within a Form provider or have a control prop"
-    );
-  }
-
-  const inputType = type === "password" && showPassword ? "text" : type;
+  const inputClasses = cn(
+    "w-full px-4 py-3 border rounded-lg text-right",
+    "focus:outline-none focus:ring-2 focus:ring-blue-3 focus:border-transparent",
+    "transition-all duration-200",
+    error 
+      ? "border-red-500 focus:ring-red-500" 
+      : "border-gray-300 focus:ring-blue-3",
+    "disabled:bg-gray-100 disabled:cursor-not-allowed",
+    className
+  );
 
   return (
-    <FormField
-      control={effectiveControl}
-      name={name}
-      render={({ field }) => (
-        <FormItem className="w-full">
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
-            <div className="relative">
-              <Input
-                type={inputType}
-                {...props}
-                {...field}
-                className="shadow-none"
-              />
-              {type === "password" && (
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 end-0 flex items-center pe-3.5 text-muted-foreground"
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              )}
-            </div>
-          </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+    <div className={cn("space-y-2", containerClassName)}>
+      {/* Label */}
+      {label && (
+        <label className="block text-sm font-medium text-brand-black-1 text-right">
+          {label}
+          {required && <span className="text-red-500 mr-1">*</span>}
+        </label>
       )}
-    />
+
+      {/* Input/Textarea */}
+      {isMultiline ? (
+        <textarea
+          ref={ref as React.Ref<HTMLTextAreaElement>}
+          maxLength={maxLength}
+          className={inputClasses}
+          {...(props as TextareaHTMLAttributes<HTMLTextAreaElement>)}
+        />
+      ) : (
+        <input
+          ref={ref as React.Ref<HTMLInputElement>}
+          maxLength={maxLength}
+          className={inputClasses}
+          {...(props as InputHTMLAttributes<HTMLInputElement>)}
+        />
+      )}
+
+      {/* Counter, Hint, Error */}
+      <div className="flex items-center justify-between gap-2 min-h-[20px]">
+        {/* Hint or Error */}
+        <div className="flex-1 text-right">
+          {error && (
+            <p className="text-xs text-red-500">{error}</p>
+          )}
+          {!error && hint && (
+            <p className="text-xs text-gray-500">{hint}</p>
+          )}
+        </div>
+
+        {/* Character Counter */}
+        {(showCounter || maxLength) && (
+          <p className="text-xs text-gray-500 whitespace-nowrap">
+            {currentLength}/{maxLength || '∞'}
+          </p>
+        )}
+      </div>
+    </div>
   );
-}
+});
+
+FormInput.displayName = "FormInput";

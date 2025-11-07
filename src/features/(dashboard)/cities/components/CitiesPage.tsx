@@ -4,8 +4,7 @@
 import { useState, useMemo } from "react";
 import { Search, HelpCircle, Loader2 } from "lucide-react";
 import { CityModal, CityFormData } from "./CityModal";
-import { ConfirmDeleteModal } from "./ConfirmDeleteModal";
-import { ToggleSwitch } from "./ToggleSwitch";
+import { ConfirmDeleteModal } from "../../../../components/(dashboard)/ConfirmDeleteModal";
 import { City } from "../api";
 import {
   useGetCities,
@@ -15,6 +14,7 @@ import {
   useUpdateCityStatus,
 } from "../hooks";
 import { Pagination } from "@/src/components/ui/Pagination";
+import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 
 const ITEMS_PER_PAGE = 6;
 
