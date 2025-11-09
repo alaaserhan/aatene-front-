@@ -32,7 +32,7 @@ export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
       <div className={cn("space-y-2", containerClassName)}>
         {/* Label */}
         {label && (
-          <label className="block text-sm font-medium text-brand-black-1 text-right">
+          <label className="block text-sm font-medium text-brand-black-1 ">
             {label}
             {required && <span className="text-red-500 mr-1">*</span>}
           </label>
@@ -43,7 +43,7 @@ export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
           <select
             ref={ref}
             className={cn(
-              "w-full px-4 py-3 border rounded-lg text-right appearance-none cursor-pointer",
+              "w-full px-4 py-3 border rounded-lg  appearance-none cursor-pointer text-sm",
               "focus:outline-none focus:ring-2 focus:ring-blue-3 focus:border-transparent",
               "transition-all duration-200",
               "bg-white",

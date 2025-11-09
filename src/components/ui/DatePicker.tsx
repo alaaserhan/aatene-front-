@@ -28,7 +28,7 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
       <div className={cn("space-y-2", containerClassName)}>
         {/* Label */}
         {label && (
-          <label className="block text-sm font-medium text-brand-black-1 text-right">
+          <label className="block text-sm font-medium text-brand-black-1 ">
             {label}
             {required && <span className="text-red-500 mr-1">*</span>}
           </label>
@@ -40,7 +40,7 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
             ref={ref}
             type="date"
             className={cn(
-              "w-full px-4 py-3 pr-12 border rounded-lg text-right",
+              "w-full px-4 py-3 pr-12 border rounded-lg text-sm ",
               "focus:outline-none focus:ring-2 focus:ring-blue-3 focus:border-transparent",
               "transition-all duration-200",
               "cursor-pointer",

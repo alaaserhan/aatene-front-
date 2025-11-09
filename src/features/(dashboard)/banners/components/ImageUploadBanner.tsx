@@ -72,15 +72,15 @@ export function ImageUploadBanner({
   return (
     <div className={cn("space-y-3", className)}>
       {/* Label */}
-      <label className="block text-sm font-medium text-brand-black-1 text-right">
+      <label className="block text-sm font-medium ">
         {label}
       </label>
 
       {/* Info Box */}
-      <div className="bg-[#E8F4FD] rounded-lg p-4 space-y-2">
+      <div className="bg-blue-1 rounded-lg p-4 space-y-2">
         <div className="flex items-start gap-2">
           <Info className="w-5 h-5 text-blue-3 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-gray-700 space-y-1 text-right flex-1">
+          <div className="text-xs text-blue-2 space-y-1 text-right flex-1">
             <p>يمكنك سحب و إفلات الصورة لإضافة ترتيب الصور.</p>
             <ul className="list-disc list-inside space-y-0.5 mr-4">
               <li>الأفضل أن تكون الصورة بعرض {width} بكسل وطول {height} بكسل ({width}×{height}).</li>
@@ -116,21 +116,21 @@ export function ImageUploadBanner({
           </div>
         </div>
       ) : (
-        <div className="relative border-2 border-gray-200 rounded-lg overflow-hidden">
+        <div className="relative border-2 h-48 flex items-center justify-center border-gray-200 rounded-lg overflow-hidden">
           <img
             src={preview}
             alt="Preview"
-            className="w-full h-48 object-cover"
+            className="h-36 max-w-10/12 object-cover"
           />
           <button
             onClick={handleRemove}
             type="button"
-            className="absolute top-2 left-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors cursor-pointer"
+            className="absolute top-2 left-2 p-2 bg-red-100 text-white rounded-lg transition-colors cursor-pointer"
           >
-            <img src="/icons/dashboard/trash.svg" alt="حذف" className="w-4 h-4 invert" />
+            <img src="/icons/dashboard/trash.svg" alt="حذف" className="w-5 h-5" />
           </button>
           {fileName && (
-            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-xs truncate">
+            <div className="absolute bottom-0 left-0 right-0 bg-black/30 bg-opacity-50 text-white p-2 text-xs truncate">
               {fileName}
             </div>
           )}

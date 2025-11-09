@@ -83,11 +83,11 @@ export function BannersPage() {
     };
 
     const handleViewBanner = (bannerId: number) => {
-        router.push(`/dashboard/banners/${bannerId}`);
+        router.push(`/admin/banners/${bannerId}`);
     };
 
     const handleEditBanner = (bannerId: number) => {
-        router.push(`/admin/banners/${bannerId}`);
+        router.push(`/admin/banners/${bannerId}/edit`);
     };
 
     const handleDeleteClick = (bannerId: number) => {

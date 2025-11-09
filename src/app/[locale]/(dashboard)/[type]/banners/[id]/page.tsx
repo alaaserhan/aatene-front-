@@ -1,6 +1,10 @@
-import { BannerFormPage } from "@/src/features/(dashboard)/banners/components/BannerFormPage";
+import { BannerDetailsPage } from "@/src/features/(dashboard)/banners/components/BannerDetailsPage";
 
-export default function Page({ params }: { params: { id: string } }) {
-    const bannerId = params.id;
-    return <BannerFormPage mode="edit" bannerId={bannerId} />;
+type PageProps = { params: { id: string } };
+
+export default async function BannerPage({ params }: PageProps) {
+    const { id } = await params;
+  
+  return <BannerDetailsPage bannerId={id} />
+  
 }

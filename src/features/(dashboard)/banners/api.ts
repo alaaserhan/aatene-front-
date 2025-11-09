@@ -3,13 +3,17 @@ import api from "@/src/lib/axios";
 import { URLSearchParams } from "url";
 
 // --- Types ---
-
+export interface City {
+  id: number;
+  name: string;
+  is_active: boolean;
+}
 export interface Banner {
   id: number;
   title: string;
   description: string;
   city_id: string | null;
-  city: string | null; 
+  city: City | null; 
   place: string;
   url: string;
   start_date: string;
@@ -18,8 +22,8 @@ export interface Banner {
   priority: string;
   labtop_banner: string;
   mobile_banner: string;
-  labtop_banner_url: string;
-  mobile_banner_url: string;
+  labtop_banner_url?: string;
+  mobile_banner_url?: string;
 }
 
 export interface BaseResponse {

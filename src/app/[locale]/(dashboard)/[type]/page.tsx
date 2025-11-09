@@ -9,8 +9,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-4xl font-bold">أهلاً بك في أعطيني</h1>
-      <p>دي الصفحة -.</p>
+
     </div>
   );
 }

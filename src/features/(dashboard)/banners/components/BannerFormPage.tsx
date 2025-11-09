@@ -25,8 +25,10 @@ interface BannerFormData {
   end_date: string;
   priority: string;
   is_active: boolean | string;
-  labtop_banner: File | null;
-  mobile_banner: File | null;
+  labtop_banner: string | null | File;
+  mobile_banner: string | null | File;
+  mobile_banner_url: string | null;
+  labtop_banner_url: string | null;
 }
 
 interface BannerFormPageProps {
@@ -48,6 +50,8 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
     is_active: true,
     labtop_banner: null,
     mobile_banner: null,
+    mobile_banner_url: null,
+    labtop_banner_url: null,
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof BannerFormData, string>>>({});
@@ -57,6 +61,8 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
   const cities = citiesData?.data || [];
 
   // Get banner data if editing
+  console.log(bannerId);
+
   const { data: bannerData, isLoading: isLoadingBanner } = useGetSingleBanner(
     mode === "edit" && bannerId ? bannerId : ""
   );
@@ -79,8 +85,10 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
         end_date: banner.end_date || "",
         priority: banner.priority || "0",
         is_active: banner.is_active,
-        labtop_banner: null,
-        mobile_banner: null,
+        labtop_banner: banner.labtop_banner || null,
+        mobile_banner: banner.mobile_banner || null,
+        mobile_banner_url: banner.mobile_banner_url || null,
+        labtop_banner_url: banner.labtop_banner_url || null,
       });
     }
   }, [mode, bannerData]);
@@ -134,15 +142,10 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
       end_date: formData.end_date,
       is_active: formData.is_active ? "1" : "0",
       priority: formData.priority,
+      labtop_banner: formData.labtop_banner,
+      mobile_banner: formData.mobile_banner,
     };
 
-    if (formData.labtop_banner) {
-      payload.labtop_banner = formData.labtop_banner;
-    }
-
-    if (formData.mobile_banner) {
-      payload.mobile_banner = formData.mobile_banner;
-    }
 
     if (mode === "create") {
       createBannerMutation.mutate(payload as BannerCreatePayload, {
@@ -152,7 +155,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
       });
     } else if (mode === "edit" && bannerId) {
       updateBannerMutation.mutate(
-        { id: bannerId, payload : payload as BannerUpdatePayload },
+        { id: bannerId, payload: payload as BannerUpdatePayload },
         {
           onSuccess: () => {
             router.push("/dashboard/banners");
@@ -221,7 +224,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
 
             {/* المدينة أو الحي المراد ظهور الإعلان لسكانه */}
             <FormSelect
-              label="المدينة أو الحي المراد ظهور الإعلان لسكانه"
+              label="المدينة المراد ظهور الإعلان لسكانه"
               value={formData.city_id}
               onChange={(e) => setFormData({ ...formData, city_id: e.target.value })}
               options={[
@@ -257,7 +260,6 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <DatePicker
                 label="تاريخ بداية الإعلان"
-                required
                 value={formData.start_date}
                 onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                 error={errors.start_date}
@@ -265,35 +267,36 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
 
               <DatePicker
                 label="تاريخ انتهاء الإعلان"
-                required
                 value={formData.end_date}
                 onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
                 error={errors.end_date}
               />
             </div>
 
-            {/* أولوية الإعلان (ترتيب) */}
-            <FormInput
-              label="أولوية الإعلان (ترتيب)"
-              type="number"
-              min="0"
-              value={formData.priority}
-              onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-              placeholder="0"
-              error={errors.priority}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            {/* تفعيل/تعطيل الإعلان */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-brand-black-1 text-right">
-                تفعيل/تعطيل الإعلان
-              </label>
-              <div className="flex items-center justify-end gap-3">
+              {/* تفعيل/تعطيل الإعلان */}
+              <div className="flex justify-between items-center">
+                <label className="block text-sm font-medium">
+                  تفعيل/تعطيل الإعلان
+                </label>
                 <ToggleSwitch
                   enabled={formData.is_active}
                   onChange={(isActive) => setFormData({ ...formData, is_active: isActive })}
                 />
               </div>
+
+              {/* أولوية الإعلان (ترتيب) */}
+              <FormInput
+                label="أولوية الإعلان (ترتيب)"
+                type="number"
+                min="0"
+                value={formData.priority}
+                onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                placeholder="0"
+                error={errors.priority}
+              />
+
             </div>
 
             {/* رفع صورة للعرض على الكمبيوتر */}

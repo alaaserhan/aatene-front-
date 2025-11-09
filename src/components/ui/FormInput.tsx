@@ -46,7 +46,7 @@ export const FormInput = forwardRef<
   const currentLength = value.length;
 
   const inputClasses = cn(
-    "w-full px-4 py-3 border rounded-lg text-right",
+    "w-full px-4 py-3 border rounded-lg text-sm ",
     "focus:outline-none focus:ring-2 focus:ring-blue-3 focus:border-transparent",
     "transition-all duration-200",
     error 
@@ -60,7 +60,7 @@ export const FormInput = forwardRef<
     <div className={cn("space-y-2", containerClassName)}>
       {/* Label */}
       {label && (
-        <label className="block text-sm font-medium text-brand-black-1 text-right">
+        <label className="block text-sm font-medium">
           {label}
           {required && <span className="text-red-500 mr-1">*</span>}
         </label>
@@ -86,7 +86,7 @@ export const FormInput = forwardRef<
       {/* Counter, Hint, Error */}
       <div className="flex items-center justify-between gap-2 min-h-[20px]">
         {/* Hint or Error */}
-        <div className="flex-1 text-right">
+        <div className="flex-1">
           {error && (
             <p className="text-xs text-red-500">{error}</p>
           )}

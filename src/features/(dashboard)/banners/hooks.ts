@@ -38,7 +38,6 @@ export const useGetSingleBanner = (id: string | number) => {
   return useQuery({
     queryKey: [...BANNERS_QUERY_KEY, "detail", id],
     queryFn: () => getSingleBanner(id),
-    enabled: !!id, // Only run if id is provided
   });
 };
 
