@@ -17,6 +17,7 @@ interface ConfirmDeleteModalProps {
   onClose: () => void;
   onConfirm: () => void;
   title?: string;
+  description?: string;
   confirmText?: string;
   cancelText?: string;
 }
@@ -26,6 +27,7 @@ export function ConfirmDeleteModal({
   onClose,
   onConfirm,
   title = "هل أنت متأكد من حذف المدينة؟",
+  description = "لا يمكن استرجاع المدينة بعد حذفها",
   confirmText = "نعم، قم بالحذف",
   cancelText = "إلغاء",
 }: ConfirmDeleteModalProps) {
@@ -49,7 +51,7 @@ export function ConfirmDeleteModal({
             {title}
           </DialogTitle>
           <DialogDescription className="text-center text-gray-500 pt-2">
-            لا يمكنك التراجع عن هذا الإجراء بعد التأكيد.
+           {description || " لا يمكنك التراجع عن هذا الإجراء بعد التأكيد."}
           </DialogDescription>
         </DialogHeader>
 
