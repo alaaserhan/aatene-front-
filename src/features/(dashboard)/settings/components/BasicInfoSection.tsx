@@ -1,7 +1,7 @@
 // src/features/(dashboard)/settings/components/BasicInfoSection.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Upload, X } from "lucide-react";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
@@ -13,8 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
-import { useUpdateSettings } from "../hooks";
-import { toast } from "sonner";
 import { MapModal } from "./MapModal";
 
 interface BasicInfoData {
@@ -25,7 +23,7 @@ interface BasicInfoData {
   address: string;
   phone: string;
   whatsapp: string;
-  // (تم حذف selectedLanguages من هنا)
+  mainColor: string;
 }
 
 const AVAILABLE_LANGUAGES = [
@@ -35,72 +33,45 @@ const AVAILABLE_LANGUAGES = [
 ];
 
 interface BasicInfoSectionProps {
-  onLanguagesChange: (languages: string[]) => void; // (جعلناها إجبارية)
-  selectedLanguages: string[]; // <-- (2) تم إضافة هذا السطر
-  initialData?: any;
+  data: BasicInfoData;
+  languages: string[];
+  onChange: (data: Partial<BasicInfoData>) => void;
+  onLanguagesChange: (languages: string[]) => void;
 }
 
 export function BasicInfoSection({
+  data,
+  languages,
+  onChange,
   onLanguagesChange,
-  selectedLanguages, // <-- (2) تم استقبالها
-  initialData,
 }: BasicInfoSectionProps) {
-  const [formData, setFormData] = useState<BasicInfoData>({
-    siteName: "",
-    logo: null,
-    logoPreview: null,
-    email: "",
-    address: "",
-    phone: "",
-    whatsapp: "",
-  });
-
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
-  const updateSettingsMutation = useUpdateSettings();
-
-  // تحميل البيانات الأولية
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        siteName: initialData.name || "",
-        logo: null,
-        logoPreview: initialData.logo_url || null,
-        email: initialData.email || "",
-        address: initialData.address || "",
-        phone: initialData.phone || "",
-        whatsapp: initialData.whatsapp || "",
-      });
-      // (تم حذف تحميل اللغات من هنا، لأنها تدار من الأب)
-    }
-  }, [initialData]);
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const preview = URL.createObjectURL(file);
-      setFormData({ ...formData, logo: file, logoPreview: preview });
+      onChange({ logo: file, logoPreview: preview });
     }
   };
 
   const handleRemoveLogo = () => {
-    if (formData.logoPreview && formData.logoPreview.startsWith("blob:")) {
-      URL.revokeObjectURL(formData.logoPreview);
+    if (data.logoPreview && data.logoPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(data.logoPreview);
     }
-    setFormData({ ...formData, logo: null, logoPreview: null });
+    onChange({ logo: null, logoPreview: null });
   };
 
   const handleToggleLanguage = (langId: string) => {
-    // (3) تم تعديل المنطق ليعتمد على الـ prop
-    const isSelected = selectedLanguages.includes(langId);
+    const isSelected = languages.includes(langId);
     let newLanguages = isSelected
-      ? selectedLanguages.filter((id) => id !== langId)
-      : [...selectedLanguages, langId];
+      ? languages.filter((id) => id !== langId)
+      : [...languages, langId];
 
     if (newLanguages.length === 0) {
       newLanguages = [langId];
     }
-    
-    // (4) نرسل التحديث للأب مباشرة
+
     onLanguagesChange(newLanguages);
   };
 
@@ -109,35 +80,7 @@ export function BasicInfoSection({
     lat: number,
     lng: number
   ) => {
-    setFormData({ ...formData, address });
-  };
-
-  const handleSave = async () => {
-    try {
-      await updateSettingsMutation.mutateAsync({
-        name: formData.siteName,
-        logo: formData.logo,
-        main_color: initialData?.main_color || "#000000",
-        email: formData.email,
-        address: formData.address,
-        whatsapp: formData.whatsapp,
-        phone: formData.phone,
-        languages: selectedLanguages, // <-- (5) تم إرسال اللغات من الـ prop
-        facebook: initialData?.facebook || "",
-        instagram: initialData?.instagram || "",
-        snapchat: initialData?.snapchat || "",
-        tiktok: initialData?.tiktok || "",
-        x: initialData?.x || "",
-        youtube: initialData?.youtube || "",
-        added_privacy_policies: initialData?.added_policies || [],
-        policies: initialData?.policies || [],
-        added_terms: initialData?.added_terms || [],
-        terms: initialData?.terms || [],
-      });
-      toast.success("تم حفظ البيانات الأساسية بنجاح");
-    } catch (error) {
-      console.error("Error saving basic info:", error);
-    }
+    onChange({ address });
   };
 
   return (
@@ -153,15 +96,13 @@ export function BasicInfoSection({
               <Input
                 id="siteName"
                 type="text"
-                value={formData.siteName}
-                onChange={(e) =>
-                  setFormData({ ...formData, siteName: e.target.value })
-                }
+                value={data.siteName}
+                onChange={(e) => onChange({ siteName: e.target.value })}
                 maxLength={50}
                 className="w-full text-start"
               />
               <p className="text-xs text-gray-500 text-end">
-                {formData.siteName.length}/50
+                {data.siteName.length}/50
               </p>
             </div>
 
@@ -173,8 +114,7 @@ export function BasicInfoSection({
               <div className="border border-gray-300 rounded-lg p-4">
                 <div className="flex gap-3">
                   {AVAILABLE_LANGUAGES.map((lang) => {
-                    // (6) تم التعديل ليعتمد على الـ prop
-                    const isSelected = selectedLanguages.includes(lang.id);
+                    const isSelected = languages.includes(lang.id);
                     return (
                       <button
                         key={lang.id}
@@ -204,7 +144,7 @@ export function BasicInfoSection({
               <Label htmlFor="logo" className="text-start">
                 شعار الموقع <span className="text-red-500">*</span>
               </Label>
-              {!formData.logoPreview ? (
+              {!data.logoPreview ? (
                 <div className="flex items-center justify-center w-full">
                   <label
                     htmlFor="logo-upload"
@@ -244,7 +184,7 @@ export function BasicInfoSection({
                   </button>
                   <div className="flex items-center justify-center">
                     <img
-                      src={formData.logoPreview}
+                      src={data.logoPreview}
                       alt="Logo Preview"
                       className="max-h-32 object-contain"
                     />
@@ -267,10 +207,8 @@ export function BasicInfoSection({
                 <Input
                   id="email"
                   type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  value={data.email}
+                  onChange={(e) => onChange({ email: e.target.value })}
                   className="w-full h-10 border-none shadow-none px-0 focus-visible:ring-0"
                 />
               </div>
@@ -290,10 +228,8 @@ export function BasicInfoSection({
                 <Input
                   id="address"
                   type="text"
-                  value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
+                  value={data.address}
+                  onChange={(e) => onChange({ address: e.target.value })}
                   className="h-10 border-none shadow-none px-0 focus-visible:ring-0 "
                 />
                 <Button
@@ -329,10 +265,8 @@ export function BasicInfoSection({
                   <Input
                     id="phone"
                     type="tel"
-                    value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
+                    value={data.phone}
+                    onChange={(e) => onChange({ phone: e.target.value })}
                     className="flex-1 h-10 border-none shadow-none focus-visible:ring-0"
                   />
                 </div>
@@ -358,27 +292,14 @@ export function BasicInfoSection({
                   <Input
                     id="whatsapp"
                     type="tel"
-                    value={formData.whatsapp}
-                    onChange={(e) =>
-                      setFormData({ ...formData, whatsapp: e.target.value })
-                    }
+                    value={data.whatsapp}
+                    onChange={(e) => onChange({ whatsapp: e.target.value })}
                     className="flex-1 h-10 border-none shadow-none  focus-visible:ring-0"
                   />
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Save Button */}
-        <div className="flex justify-center pt-2">
-          <Button
-            onClick={handleSave}
-            variant="link"
-            disabled={updateSettingsMutation.isPending}
-          >
-            {updateSettingsMutation.isPending ? "جاري الحفظ..." : "حفظ الإعدادات"}
-          </Button>
         </div>
       </div>
 
@@ -387,7 +308,7 @@ export function BasicInfoSection({
         isOpen={isMapModalOpen}
         onClose={() => setIsMapModalOpen(false)}
         onSelectAddress={handleSelectAddressFromMap}
-        initialAddress={formData.address}
+        initialAddress={data.address}
       />
     </>
   );

@@ -1,16 +1,14 @@
 // src/features/(dashboard)/settings/components/PrivacyPolicySection.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { X } from "lucide-react";
 import { RichTextEditor } from "./RichTextEditor";
 import { ImageUpload } from "./ImageUpload";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
-import { useUpdateSettings } from "../hooks";
-import { toast } from "sonner";
 
 interface PolicyParagraph {
   id: string;
@@ -22,30 +20,17 @@ interface PolicyParagraph {
   contentEn: string;
 }
 
-const POLICY_TAGS = [
-  { id: "intro", label: "المقدمة" },
-  { id: "collection", label: "المعلومات التي نجمعها" },
-  { id: "usage", label: "كيفية إستخدام المعلومات" },
-  { id: "sharing", label: "مشاركة البيانات" },
-];
-
 interface PrivacyPolicySectionProps {
-  selectedLanguages?: string[];
-  initialData?: any;
+  selectedLanguages: string[];
+  paragraphs: PolicyParagraph[];
+  onChange: (paragraphs: PolicyParagraph[]) => void;
 }
 
 export function PrivacyPolicySection({
-  selectedLanguages = ["ar", "en", "he"],
-  initialData,
+  selectedLanguages = ["ar", "en"],
+  paragraphs,
+  onChange,
 }: PrivacyPolicySectionProps) {
-  const [activeTags, setActiveTags] = useState<string[]>([
-    "intro",
-    "collection",
-    "usage",
-    "sharing",
-  ]);
-  const [paragraphs, setParagraphs] = useState<PolicyParagraph[]>([]);
-  const [isAdding, setIsAdding] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState<PolicyParagraph>({
     id: Date.now().toString(),
     titleAr: "",
@@ -56,41 +41,33 @@ export function PrivacyPolicySection({
     contentEn: "",
   });
   const [languageTab, setLanguageTab] = useState<"ar" | "en">("ar");
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-  const updateSettingsMutation = useUpdateSettings();
-
-  // تحميل البيانات الأولية
-  useEffect(() => {
-    if (initialData) {
-      if (initialData.policies && Array.isArray(initialData.policies)) {
-        const loadedParagraphs = initialData.policies.map((policy: any, index: number) => ({
-          id: `policy-${index}`,
-          titleAr: policy.title_ar || "",
-          titleEn: policy.title_en || "",
-          image: null,
-          imageUrl: policy.logo_url || null,
-          contentAr: policy.content_ar || "",
-          contentEn: policy.content_en || "",
-        }));
-        setParagraphs(loadedParagraphs);
-      }
-
-      if (initialData.added_policies && Array.isArray(initialData.added_policies)) {
-        setActiveTags(initialData.added_policies);
-      }
+  const handleRemoveParagraph = (index: number) => {
+    const newParagraphs = paragraphs.filter((_, i) => i !== index);
+    onChange(newParagraphs);
+    
+    // إذا كنا نحرر هذه الفقرة، نلغي التحرير
+    if (editingIndex === index) {
+      resetForm();
     }
-  }, [initialData]);
-
-  const handleRemoveTag = (tagId: string) => {
-    setActiveTags(activeTags.filter((id) => id !== tagId));
   };
 
-  const handleAddParagraph = () => {
-    setIsAdding(true);
+  const handleTagClick = (index: number) => {
+    // إذا ضغطنا على نفس الـ tag المحدد، نلغي التحديد
+    if (editingIndex === index) {
+      resetForm();
+      return;
+    }
+
+    // نحمل بيانات الفقرة المختارة
+    const paragraph = paragraphs[index];
+    setCurrentParagraph(paragraph);
+    setEditingIndex(index);
+    setLanguageTab("ar");
   };
 
-  const handleSaveParagraph = () => {
-    setParagraphs([...paragraphs, currentParagraph]);
+  const resetForm = () => {
     setCurrentParagraph({
       id: Date.now().toString(),
       titleAr: "",
@@ -100,42 +77,21 @@ export function PrivacyPolicySection({
       contentAr: "",
       contentEn: "",
     });
-    setIsAdding(false);
+    setEditingIndex(null);
+    setLanguageTab("ar");
   };
 
-  const handleSaveAll = async () => {
-    try {
-      const policiesPayload = paragraphs.map((p) => ({
-        title_ar: p.titleAr,
-        title_en: p.titleEn,
-        content_ar: p.contentAr,
-        content_en: p.contentEn,
-        logo: p.image,
-      }));
-
-      await updateSettingsMutation.mutateAsync({
-        name: initialData?.name || "",
-        logo: null,
-        main_color: initialData?.main_color || "#000000",
-        email: initialData?.email || "",
-        address: initialData?.address || "",
-        whatsapp: initialData?.whatsapp || "",
-        phone: initialData?.phone || "",
-        facebook: initialData?.facebook || "",
-        instagram: initialData?.instagram || "",
-        snapchat: initialData?.snapchat || "",
-        tiktok: initialData?.tiktok || "",
-        x: initialData?.x || "",
-        youtube: initialData?.youtube || "",
-        added_privacy_policies: activeTags,
-        policies: policiesPayload,
-        added_terms: initialData?.added_terms || [],
-        terms: initialData?.terms || [],
-      });
-      toast.success("تم حفظ سياسات الخصوصية بنجاح");
-    } catch (error) {
-      console.error("Error saving privacy policies:", error);
+  const handleSaveParagraph = () => {
+    if (editingIndex !== null) {
+      // تحديث فقرة موجودة
+      const newParagraphs = [...paragraphs];
+      newParagraphs[editingIndex] = currentParagraph;
+      onChange(newParagraphs);
+    } else {
+      // إضافة فقرة جديدة
+      onChange([...paragraphs, currentParagraph]);
     }
+    resetForm();
   };
 
   const getLanguageLabel = (lang: string) => {
@@ -161,35 +117,54 @@ export function PrivacyPolicySection({
   return (
     <div className="space-y-6">
       {/* Policy Tags Section */}
-      <div className="bg-[#5B88BA33] rounded-lg p-6">
-        <h3 className="text-base font-medium mb-4">السياسات المضافة</h3>
-        <div className="flex flex-wrap gap-3">
-          {POLICY_TAGS.filter((tag) => activeTags.includes(tag.id)).map(
-            (tag, index) => (
+      {paragraphs.length > 0 && (
+        <div className="bg-[#5B88BA33] rounded-lg p-6">
+          <h3 className="text-base font-medium mb-4">السياسات المضافة</h3>
+          <div className="flex flex-wrap gap-3">
+            {paragraphs.map((paragraph, index) => (
               <div
-                key={tag.id}
-                className="flex items-center gap-2 px-2.5 py-2 bg-white border border-blue-4 rounded-full"
+                key={paragraph.id}
+                onClick={() => handleTagClick(index)}
+                className={cn(
+                  "flex items-center gap-2 px-2.5 py-2 border rounded-full cursor-pointer transition-all",
+                  editingIndex === index
+                    ? "bg-blue-4 border-blue-4 text-white"
+                    : "bg-white border-blue-4 hover:bg-blue-50"
+                )}
               >
-                <div className="w-3 h-3 bg-blue-4 rounded-full text-[8px] text-white flex items-center justify-center">
+                <div className={cn(
+                  "w-3 h-3 rounded-full text-[8px] flex items-center justify-center",
+                  editingIndex === index ? "bg-white text-blue-4" : "bg-blue-4 text-white"
+                )}>
                   <span className="pt-px">{index + 1}</span>
                 </div>
-                <span className="text-sm text-gray-900">{tag.label}</span>
+                <span className="text-sm">
+                  {paragraph.titleAr || paragraph.titleEn || `سياسة ${index + 1}`}
+                </span>
                 <button
                   type="button"
-                  onClick={() => handleRemoveTag(tag.id)}
-                  className="cursor-pointer"
-                  aria-label={`حذف ${tag.label}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveParagraph(index);
+                  }}
+                  className="cursor-pointer hover:scale-110 transition-transform"
+                  aria-label={`حذف ${paragraph.titleAr}`}
                 >
-                  <X className="w-4 h-4 text-blue-4" strokeWidth={2} />
+                  <X className={cn(
+                    "w-4 h-4",
+                    editingIndex === index ? "text-white" : "text-blue-4"
+                  )} strokeWidth={2} />
                 </button>
               </div>
-            )
-          )}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="space-y-6">
-        <h3 className="font-medium text-blue-2">إضافة عنوان</h3>
+        <h3 className="font-medium text-blue-2">
+          {editingIndex !== null ? "تعديل السياسة" : "إضافة سياسة جديدة"}
+        </h3>
 
         <div className="flex items-center justify-between">
           <div className="flex gap-3">
@@ -227,12 +202,12 @@ export function PrivacyPolicySection({
               })
             }
             placeholder="أضف عنوان السياسة..."
-            className="w-full  border-gray-300 rounded-lg h-12 px-4"
+            className="w-full border-gray-300 rounded-lg h-12 px-4"
           />
         </div>
 
         <div className="space-y-2">
-          <Label className="block font-medium text-blue-2 ">
+          <Label className="block font-medium text-blue-2">
             إضافة صورة (اختياري)
           </Label>
           <ImageUpload
@@ -246,7 +221,7 @@ export function PrivacyPolicySection({
         </div>
 
         <div className="space-y-4">
-          <Label className="block font-medium text-blue-2 ">الوصف</Label>
+          <Label className="block font-medium text-blue-2">الوصف</Label>
           <div className="flex items-center justify-between">
             <div className="flex gap-3">
               {availableLanguages.map((lang) => (
@@ -258,7 +233,7 @@ export function PrivacyPolicySection({
                   className={cn(
                     "px-6 py-2 rounded-full font-normal transition-colors",
                     languageTab === lang
-                      ? "bg-blue-4 text-white "
+                      ? "bg-blue-4 text-white"
                       : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
                   )}
                 >
@@ -281,33 +256,29 @@ export function PrivacyPolicySection({
               })
             }
             placeholder="أضف وصف مميز..."
-            isRtl={languageTab === "ar"}
+            isRtl={languageTab === "ar" || languageTab}
           />
         </div>
 
         <div className="flex gap-3 justify-center pt-2">
+          {editingIndex !== null && (
+            <Button
+              type="button"
+              onClick={resetForm}
+              variant="outline"
+              className="px-8 py-2.5 border-gray-300 text-gray-700 rounded-lg font-medium transition-colors"
+            >
+              إلغاء
+            </Button>
+          )}
           <Button
             type="button"
             onClick={handleSaveParagraph}
-            className="px-8 py-2.5 bg-blue-3 text-white rounded-lg font-medium  transition-colors"
+            className="px-8 py-2.5 bg-blue-3 text-white rounded-lg font-medium transition-colors"
           >
-            إضافة الفقرة
+            {editingIndex !== null ? "تحديث السياسة" : "إضافة السياسة"}
           </Button>
         </div>
-      </div>
-
-
-      {/* Save All Button */}
-      <div className="flex justify-center pt-4">
-        <Button
-          onClick={handleSaveAll}
-          variant="link"
-          disabled={updateSettingsMutation.isPending}
-        >
-          {updateSettingsMutation.isPending
-            ? "جاري الحفظ..."
-            : "حفظ سياسات الخصوصية"}
-        </Button>
       </div>
     </div>
   );

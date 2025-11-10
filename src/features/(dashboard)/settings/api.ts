@@ -31,10 +31,8 @@ export interface Settings {
   tiktok: string;
   x: string;
   youtube: string;
-  added_policies: string[] | null;
-  policies: PolicyItem[]; // Updated
-  added_terms: string[] | null;
-  terms: PolicyItem[]; // Updated
+  policies: PolicyItem[];
+  terms: PolicyItem[];
 }
 
 export interface GetSettingsResponse {
@@ -46,12 +44,12 @@ export interface GetSettingsResponse {
 export interface PolicyItemPayload {
   title: TranslatableString;
   content: TranslatableString;
-  logo: File | null;
+  logo: string | null; // <-- (تم التعديل: لم يعد ملفاً)
 }
 
 export interface UpdateSettingsPayload {
   name: string;
-  logo: File | null;
+  logo: string | null; // <-- (تم التعديل: لم يعد ملفاً)
   main_color: string;
   email: string;
   address: string;
@@ -64,10 +62,8 @@ export interface UpdateSettingsPayload {
   tiktok: string;
   x: string;
   youtube: string;
-  added_privacy_policies: string[];
-  policies: PolicyItemPayload[]; // Updated
-  added_terms: string[];
-  terms: PolicyItemPayload[]; // Updated
+  policies: PolicyItemPayload[];
+  terms: PolicyItemPayload[];
 }
 
 // --- API Functions ---
@@ -81,61 +77,13 @@ export const getSettings = async (): Promise<GetSettingsResponse> => {
 };
 
 /**
- * 2. Update Settings (Updated to handle new structure)
+ * 2. Update Settings (Updated to send JSON)
  */
 export const updateSettings = async (
   payload: UpdateSettingsPayload
 ): Promise<GetSettingsResponse> => {
-  const fd = new FormData();
-
-  // --- Append Simple Fields ---
-  fd.append("name", payload.name);
-  if (payload.logo) {
-    fd.append("logo", payload.logo);
-  }
-  fd.append("main_color", payload.main_color);
-  fd.append("email", payload.email);
-  fd.append("address", payload.address);
-  fd.append("whatsapp", String(payload.whatsapp));
-  fd.append("phone", String(payload.phone));
-  fd.append("facebook", payload.facebook);
-  fd.append("instagram", payload.instagram);
-  fd.append("snapchat", payload.snapchat);
-  fd.append("tiktok", payload.tiktok);
-  fd.append("x", payload.x);
-  fd.append("youtube", payload.youtube);
-
-  // --- Append Simple Arrays ---
-  payload.languages.forEach((lang) => fd.append("languages[]", lang));
-  payload.added_terms.forEach((term) => fd.append("added_terms[]", term));
-  payload.added_privacy_policies.forEach((policy) =>
-    fd.append("added_privacy_policies[]", policy)
-  );
-
-  // --- Append Complex Arrays (Policies) ---
-  payload.policies.forEach((policy, index) => {
-    fd.append(`policies[${index}][title][en]`, policy.title.en);
-    fd.append(`policies[${index}][title][ar]`, policy.title.ar);
-    fd.append(`policies[${index}][content][en]`, policy.content.en);
-    fd.append(`policies[${index}][content][ar]`, policy.content.ar);
-    if (policy.logo) {
-      fd.append(`policies[${index}][logo]`, policy.logo);
-    }
-  });
-
-  // --- Append Complex Arrays (Terms) ---
-  payload.terms.forEach((term, index) => {
-    fd.append(`terms[${index}][title][en]`, term.title.en);
-    fd.append(`terms[${index}][title][ar]`, term.title.ar);
-    fd.append(`terms[${index}][content][en]`, term.content.en);
-    fd.append(`terms[${index}][content][ar]`, term.content.ar);
-    if (term.logo) {
-      fd.append(`terms[${index}][logo]`, term.logo);
-    }
-  });
-
-  const { data } = await api.post<GetSettingsResponse>("/admin/settings", fd, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  // (تم التعديل: تم حذف FormData)
+  // سيقوم Axios بإرسال الكائن "payload" كـ JSON (application/json) تلقائياً
+  const { data } = await api.post<GetSettingsResponse>("/admin/settings", payload);
   return data;
 };

@@ -1,16 +1,14 @@
 // src/features/(dashboard)/settings/components/TermsSection.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { X } from "lucide-react";
 import { RichTextEditor } from "./RichTextEditor";
 import { ImageUpload } from "./ImageUpload";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
-import { useUpdateSettings } from "../hooks";
-import { toast } from "sonner";
 
 interface TermsParagraph {
   id: string;
@@ -22,30 +20,17 @@ interface TermsParagraph {
   contentEn: string;
 }
 
-const TERMS_TAGS = [
-  { id: "terms", label: "قبول الشروط" },
-  { id: "intellectual", label: "حقوق الملكية الفكرية" },
-  { id: "account", label: "إنشاء الحساب والمسؤولية" },
-  { id: "usage", label: "استخدام المنصة" },
-];
-
 interface TermsSectionProps {
-  selectedLanguages?: string[];
-  initialData?: any;
+  selectedLanguages: string[];
+  paragraphs: TermsParagraph[];
+  onChange: (paragraphs: TermsParagraph[]) => void;
 }
 
 export function TermsSection({
-  selectedLanguages = ["ar", "en", "he"],
-  initialData,
+  selectedLanguages = ["ar", "en"],
+  paragraphs,
+  onChange,
 }: TermsSectionProps) {
-  const [activeTags, setActiveTags] = useState<string[]>([
-    "terms",
-    "intellectual",
-    "account",
-    "usage",
-  ]);
-  const [paragraphs, setParagraphs] = useState<TermsParagraph[]>([]);
-  const [isAdding, setIsAdding] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState<TermsParagraph>({
     id: Date.now().toString(),
     titleAr: "",
@@ -56,41 +41,33 @@ export function TermsSection({
     contentEn: "",
   });
   const [languageTab, setLanguageTab] = useState<"ar" | "en">("ar");
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-  const updateSettingsMutation = useUpdateSettings();
-
-  // تحميل البيانات الأولية
-  useEffect(() => {
-    if (initialData) {
-      if (initialData.terms && Array.isArray(initialData.terms)) {
-        const loadedParagraphs = initialData.terms.map((term: any, index: number) => ({
-          id: `term-${index}`,
-          titleAr: term.title_ar || "",
-          titleEn: term.title_en || "",
-          image: null,
-          imageUrl: term.logo_url || null,
-          contentAr: term.content_ar || "",
-          contentEn: term.content_en || "",
-        }));
-        setParagraphs(loadedParagraphs);
-      }
-
-      if (initialData.added_terms && Array.isArray(initialData.added_terms)) {
-        setActiveTags(initialData.added_terms);
-      }
+  const handleRemoveParagraph = (index: number) => {
+    const newParagraphs = paragraphs.filter((_, i) => i !== index);
+    onChange(newParagraphs);
+    
+    // إذا كنا نحرر هذه الفقرة، نلغي التحرير
+    if (editingIndex === index) {
+      resetForm();
     }
-  }, [initialData]);
-
-  const handleRemoveTag = (tagId: string) => {
-    setActiveTags(activeTags.filter((id) => id !== tagId));
   };
 
-  const handleAddParagraph = () => {
-    setIsAdding(true);
+  const handleTagClick = (index: number) => {
+    // إذا ضغطنا على نفس الـ tag المحدد، نلغي التحديد
+    if (editingIndex === index) {
+      resetForm();
+      return;
+    }
+
+    // نحمل بيانات الفقرة المختارة
+    const paragraph = paragraphs[index];
+    setCurrentParagraph(paragraph);
+    setEditingIndex(index);
+    setLanguageTab("ar");
   };
 
-  const handleSaveParagraph = () => {
-    setParagraphs([...paragraphs, currentParagraph]);
+  const resetForm = () => {
     setCurrentParagraph({
       id: Date.now().toString(),
       titleAr: "",
@@ -100,42 +77,21 @@ export function TermsSection({
       contentAr: "",
       contentEn: "",
     });
-    setIsAdding(false);
+    setEditingIndex(null);
+    setLanguageTab("ar");
   };
 
-  const handleSaveAll = async () => {
-    try {
-      const termsPayload = paragraphs.map((p) => ({
-        title_ar: p.titleAr,
-        title_en: p.titleEn,
-        content_ar: p.contentAr,
-        content_en: p.contentEn,
-        logo: p.image,
-      }));
-
-      await updateSettingsMutation.mutateAsync({
-        name: initialData?.name || "",
-        logo: null,
-        main_color: initialData?.main_color || "#000000",
-        email: initialData?.email || "",
-        address: initialData?.address || "",
-        whatsapp: initialData?.whatsapp || "",
-        phone: initialData?.phone || "",
-        facebook: initialData?.facebook || "",
-        instagram: initialData?.instagram || "",
-        snapchat: initialData?.snapchat || "",
-        tiktok: initialData?.tiktok || "",
-        x: initialData?.x || "",
-        youtube: initialData?.youtube || "",
-        added_privacy_policies: initialData?.added_policies || [],
-        policies: initialData?.policies || [],
-        added_terms: activeTags,
-        terms: termsPayload,
-      });
-      toast.success("تم حفظ شروط الاستخدام بنجاح");
-    } catch (error) {
-      console.error("Error saving terms:", error);
+  const handleSaveParagraph = () => {
+    if (editingIndex !== null) {
+      // تحديث فقرة موجودة
+      const newParagraphs = [...paragraphs];
+      newParagraphs[editingIndex] = currentParagraph;
+      onChange(newParagraphs);
+    } else {
+      // إضافة فقرة جديدة
+      onChange([...paragraphs, currentParagraph]);
     }
+    resetForm();
   };
 
   const getLanguageLabel = (lang: string) => {
@@ -161,35 +117,54 @@ export function TermsSection({
   return (
     <div className="space-y-6">
       {/* Terms Tags Section */}
-      <div className="bg-[#5B88BA33] rounded-lg p-6">
-        <h3 className="text-base font-medium mb-4">شروط الاستخدام المضافة</h3>
-        <div className="flex flex-wrap gap-3">
-          {TERMS_TAGS.filter((tag) => activeTags.includes(tag.id)).map(
-            (tag, index) => (
+      {paragraphs.length > 0 && (
+        <div className="bg-[#5B88BA33] rounded-lg p-6">
+          <h3 className="text-base font-medium mb-4">شروط الاستخدام المضافة</h3>
+          <div className="flex flex-wrap gap-3">
+            {paragraphs.map((paragraph, index) => (
               <div
-                key={tag.id}
-                className="flex items-center gap-2 px-2.5 py-2 bg-white border border-blue-4 rounded-full"
+                key={paragraph.id}
+                onClick={() => handleTagClick(index)}
+                className={cn(
+                  "flex items-center gap-2 px-2.5 py-2 border rounded-full cursor-pointer transition-all",
+                  editingIndex === index
+                    ? "bg-blue-4 border-blue-4 text-white"
+                    : "bg-white border-blue-4 hover:bg-blue-50"
+                )}
               >
-                <div className="w-3 h-3 bg-blue-4 rounded-full text-[8px] text-white flex items-center justify-center">
+                <div className={cn(
+                  "w-3 h-3 rounded-full text-[8px] flex items-center justify-center",
+                  editingIndex === index ? "bg-white text-blue-4" : "bg-blue-4 text-white"
+                )}>
                   <span className="pt-px">{index + 1}</span>
                 </div>
-                <span className="text-sm text-gray-900">{tag.label}</span>
+                <span className="text-sm">
+                  {paragraph.titleAr || paragraph.titleEn || `شرط ${index + 1}`}
+                </span>
                 <button
                   type="button"
-                  onClick={() => handleRemoveTag(tag.id)}
-                  className="cursor-pointer"
-                  aria-label={`حذف ${tag.label}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveParagraph(index);
+                  }}
+                  className="cursor-pointer hover:scale-110 transition-transform"
+                  aria-label={`حذف ${paragraph.titleAr}`}
                 >
-                  <X className="w-4 h-4 text-blue-4" strokeWidth={2} />
+                  <X className={cn(
+                    "w-4 h-4",
+                    editingIndex === index ? "text-white" : "text-blue-4"
+                  )} strokeWidth={2} />
                 </button>
               </div>
-            )
-          )}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="space-y-6">
-        <h3 className="font-medium text-blue-2">إضافة عنوان</h3>
+        <h3 className="font-medium text-blue-2">
+          {editingIndex !== null ? "تعديل الشرط" : "إضافة شرط جديد"}
+        </h3>
 
         <div className="flex items-center justify-between">
           <div className="flex gap-3">
@@ -286,27 +261,24 @@ export function TermsSection({
         </div>
 
         <div className="flex gap-3 justify-center pt-2">
+          {editingIndex !== null && (
+            <Button
+              type="button"
+              onClick={resetForm}
+              variant="outline"
+              className="px-8 py-2.5 border-gray-300 text-gray-700 rounded-lg font-medium transition-colors"
+            >
+              إلغاء
+            </Button>
+          )}
           <Button
             type="button"
             onClick={handleSaveParagraph}
             className="px-8 py-2.5 bg-blue-3 text-white rounded-lg font-medium transition-colors"
           >
-            إضافة الفقرة
+            {editingIndex !== null ? "تحديث الشرط" : "إضافة الشرط"}
           </Button>
         </div>
-      </div>
-
-      {/* Save All Button */}
-      <div className="flex justify-center pt-4">
-        <Button
-          onClick={handleSaveAll}
-          variant="link"
-          disabled={updateSettingsMutation.isPending}
-        >
-          {updateSettingsMutation.isPending
-            ? "جاري الحفظ..."
-            : "حفظ شروط الاستخدام"}
-        </Button>
       </div>
     </div>
   );
