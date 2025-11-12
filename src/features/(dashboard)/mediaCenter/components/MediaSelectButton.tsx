@@ -1,0 +1,139 @@
+// src/features/(dashboard)/mediaCenter/components/MediaSelectButton.tsx
+"use client";
+
+import { useState, useEffect } from "react";
+import { Plus, Info, X } from "lucide-react";
+import { cn } from "@/src/lib/utils";
+import { MediaCenterModal } from "./MediaCenterModal";
+import { MediaItem } from "../api";
+
+interface MediaSelectButtonProps {
+  label: string;
+  value?: string | null;
+  previewUrl?: string | null;
+  onChange: (fileName: string | null, src: string | null) => void;
+  width: number;
+  height: number;
+  accept?: string;
+  className?: string;
+  error?: string;
+  primaryText?: string;
+  secondaryText?: string;
+  infoText?: string[];
+}
+
+export function MediaSelectButton({
+  label,
+  value,
+  previewUrl,
+  onChange,
+  width,
+  height,
+  accept = "image/png,image/jpeg,image/jpg",
+  className,
+  error,
+  primaryText = "أضف أو اسحب صورة أو فيديو",
+  secondaryText = "PNG, JPG, JPEG",
+  infoText = [
+    "يمكنك سحب و إفلات الصورة لإضافة ترتيب الصور.",
+    `الأفضل أن تكون الصورة بعرض ${width} بكسل وطول ${height} بكسل (${width}×${height}).`,
+    "الحجم يجب أن لا يتعدى حجم الصورة أو الفيديو 5 ميغابايت.",
+    "الجودة: أن تكون الصورة عالية الجودة وواضحة.",
+  ],
+}: MediaSelectButtonProps) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [preview, setPreview] = useState<string | null>(previewUrl || null);
+
+  useEffect(() => {
+    setPreview(previewUrl || null);
+  }, [previewUrl]);
+
+  const handleSelect = (file: MediaItem | MediaItem[]) => {
+    if (Array.isArray(file)) {
+      return;
+    }
+
+    const selectedPreviewUrl = file.src;
+    const selectedFileName = file.file_name;
+
+    setPreview(selectedPreviewUrl);
+    onChange(selectedFileName, selectedPreviewUrl);
+    setModalOpen(false);
+  };
+
+  const handleRemove = () => {
+    setPreview(null);
+    onChange(null, null);
+  };
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  return (
+    <div className={cn("space-y-3", className)}>
+      <label className="block text-sm font-medium text-brand-black-1 text-right">
+        {label}
+      </label>
+
+      <div className="bg-[#E8F4FD] rounded-lg p-4 space-y-2">
+        <div className="flex items-start gap-2">
+          <Info className="w-5 h-5 text-blue-3 flex-shrink-0 mt-0.5" />
+          <div className="text-xs text-gray-700 space-y-1 text-right flex-1">
+            {infoText.map((text, index) => (
+              <p key={index}>{index === 0 ? text : `• ${text}`}</p>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {!preview ? (
+        <div
+          onClick={handleOpenModal}
+          className={cn(
+            "border-2 border-dashed rounded-lg p-8 cursor-pointer transition-colors h-52 flex items-center justify-center",
+            "hover:border-blue-3 hover:bg-blue-50",
+            error ? "border-red-500" : "border-gray-300"
+          )}
+        >
+          <div className="flex flex-col items-center justify-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <Plus className="w-6 h-6 text-gray-400" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-gray-600 mb-1">{primaryText}</p>
+              <p className="text-xs text-gray-400">{secondaryText}</p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="relative h-52 flex justify-center items-center  border-2 border-gray-200 rounded-lg overflow-hidden">
+          <img
+            src={preview}
+            alt="Preview"
+            className="max-h-44 max-w-11/12 object-cover"
+          />
+          <button
+            onClick={handleRemove}
+            type="button"
+            className="absolute top-2 left-2 p-2 bg-red-100 hover:bg-red-200 text-white rounded-lg transition-colors cursor-pointer"
+          >
+            <img src="/icons/dashboard/trash.svg" alt="delete" />
+          </button>
+        </div>
+      )}
+
+      {error && <p className="text-xs text-red-500 text-right">{error}</p>}
+
+      <MediaCenterModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onSelect={handleSelect}
+        multiple={false}
+        accept={accept}
+        uploadPrimaryText={primaryText}
+        uploadSecondaryText={secondaryText}
+      />
+    </div>
+  );
+}

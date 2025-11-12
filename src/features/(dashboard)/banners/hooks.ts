@@ -1,137 +1,176 @@
 // src/features/(dashboard)/banners/hooks.ts
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  getBanners,
-  getSingleBanner,
-  createBanner,
-  updateBanner,
-  updateBannerStatus,
-  deleteBanner,
-  BannerCreatePayload,
-  BannerUpdatePayload,
-  UpdateStatusPayload,
-  SingleBannerResponse,
-  PaginatedBannersResponse, // <-- (1) قم باستيراد هذا النوع
-  Banner, // <-- (2) قم باستيراد هذا النوع
-} from "./api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import * as api from "./api";
 import { toast } from "sonner";
-import { URLSearchParams } from "url";
+import {
+  PaginatedBannersResponse,
+  SingleBannerResponse,
+  Banner,
+} from "./api";
 
-export const BANNERS_QUERY_KEY = ["banners"];
-
-/**
- * Hook to get paginated banners
- */
-export const useGetBanners = (params: URLSearchParams) => {
-  return useQuery({
-    queryKey: [...BANNERS_QUERY_KEY, "list", params.toString()],
-    queryFn: () => getBanners(params),
-  });
+const QK = {
+  any: ["banners"] as const,
+  listAny: ["banners", "list"] as const,
+  list: (paramsString: string) => ["banners", "list", paramsString] as const,
+  single: (id: string | number) => ["banners", "single", String(id)] as const,
 };
 
-/**
- * Hook to get a single banner by ID
- */
-export const useGetSingleBanner = (id: string | number) => {
-  return useQuery({
-    queryKey: [...BANNERS_QUERY_KEY, "detail", id],
-    queryFn: () => getSingleBanner(id),
-  });
-};
+const coerceActive = (v: unknown) => v === "1" || v === 1 || v === true;
 
-/**
- * Hook to create a new banner
- */
+export function useGetBanners(params: URLSearchParams) {
+  const key = QK.list(params.toString());
+  return useQuery({
+    queryKey: key,
+    queryFn: () => api.getBanners(params),
+  });
+}
+
+export function useGetSingleBanner(id?: string | number) {
+  return useQuery({
+    queryKey: QK.single(id ?? ""),
+    queryFn: () => api.getSingleBanner(id!),
+    enabled: !!id,
+  });
+}
+
 export const useCreateBanner = () => {
-  const queryClient = useQueryClient();
-
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: createBanner,
+    mutationFn: (payload: api.BannerCreatePayload) => api.createBanner(payload),
     onSuccess: (data) => {
       toast.success(data.message || "تم إنشاء البانر بنجاح");
-      queryClient.invalidateQueries({ queryKey: [BANNERS_QUERY_KEY, "list"] });
     },
-    onError: (error) => {
-      console.error("Create banner failed:", error);
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: QK.listAny });
     },
   });
 };
 
-/**
- * Hook to update an existing banner
- */
 export const useUpdateBanner = () => {
-  const queryClient = useQueryClient();
-
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: (variables: { id: string | number; payload: BannerUpdatePayload }) =>
-      updateBanner(variables.id, variables.payload),
-    onSuccess: (data: SingleBannerResponse) => {
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string | number;
+      payload: api.BannerUpdatePayload;
+    }) => api.updateBanner(id, payload),
+    onSuccess: (data) => {
       toast.success(data.message || "تم تحديث البانر بنجاح");
-      queryClient.invalidateQueries({ queryKey: [BANNERS_QUERY_KEY, "list"] });
-      queryClient.invalidateQueries({
-        queryKey: [BANNERS_QUERY_KEY, "detail", data.record.id],
-      });
     },
-    onError: (error) => {
-      console.error("Update banner failed:", error);
+    onSettled: (_data, _err, vars) => {
+      qc.invalidateQueries({ queryKey: QK.listAny });
+      qc.invalidateQueries({ queryKey: QK.single(vars.id) });
     },
   });
 };
 
-/**
- * Hook to update a banner's status
- */
 export const useUpdateBannerStatus = () => {
-  const queryClient = useQueryClient();
-
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: (variables: { id: string | number; payload: UpdateStatusPayload }) =>
-      updateBannerStatus(variables.id, variables.payload),
-    onSuccess: (data: SingleBannerResponse) => {
-      toast.success(data.message || "تم تحديث الحالة بنجاح");
-      // Optimistically update the list cache
-      queryClient.setQueryData(
-        [BANNERS_QUERY_KEY, "list"],
-        // (3) تم تعديل (any) إلى النوع الصحيح
-        (oldData: PaginatedBannersResponse | undefined) => {
-          if (!oldData) return oldData;
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string | number;
+      payload: { is_active: "1" | "0" };
+    }) => api.updateBannerStatus(id, payload),
+
+    onMutate: async (vars) => {
+      await qc.cancelQueries({ queryKey: QK.any });
+
+      const nextActive = coerceActive(vars.payload.is_active);
+
+      const prevLists = qc.getQueriesData<PaginatedBannersResponse>({
+        queryKey: QK.listAny,
+      });
+      const prevSingle = qc.getQueryData<SingleBannerResponse>(
+        QK.single(vars.id)
+      );
+
+      prevLists.forEach(([key]) => {
+        qc.setQueryData(key, (old: PaginatedBannersResponse | undefined) => {
+          if (!old?.data) return old;
           return {
-            ...oldData,
-            // (4) تم تعديل (any) إلى النوع الصحيح
-            data: oldData.data.map((banner: Banner) =>
-              banner.id === data.record.id ? data.record : banner
+            ...old,
+            data: old.data.map((b: Banner) =>
+              b.id === vars.id ? { ...b, is_active: nextActive } : b
             ),
           };
-        }
-      );
-      // Invalidate detail query
-      queryClient.invalidateQueries({
-        queryKey: [BANNERS_QUERY_KEY, "detail", data.record.id],
+        });
       });
+
+      if (prevSingle?.record) {
+        qc.setQueryData(QK.single(vars.id), {
+          ...prevSingle,
+          record: { ...prevSingle.record, is_active: nextActive },
+        });
+      }
+
+      return { prevLists, prevSingle };
     },
-    onError: (error) => {
-      console.error("Update status failed:", error);
+
+    onSuccess: (data) => {
+      toast.success(data.message || "تم تحديث الحالة بنجاح");
+    },
+
+    onError: (_err, vars, ctx) => {
+      toast.error("حدث خطأ أثناء تحديث الحالة");
+      ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
+      if (ctx?.prevSingle) qc.setQueryData(QK.single(vars.id), ctx.prevSingle);
+    },
+
+    onSettled: (_data, _err, vars) => {
+      qc.invalidateQueries({ queryKey: QK.listAny });
+      qc.invalidateQueries({ queryKey: QK.single(vars.id) });
     },
   });
 };
 
-/**
- * Hook to delete a banner
- */
 export const useDeleteBanner = () => {
-  const queryClient = useQueryClient();
-
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: deleteBanner,
-    onSuccess: (data) => {
-      toast.success(data.message || "تم حذف البانر بنجاح");
-      queryClient.invalidateQueries({ queryKey: [BANNERS_QUERY_KEY, "list"] });
+    mutationFn: (id: string | number) => api.deleteBanner(id),
+
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: QK.listAny });
+      const prevLists = qc.getQueriesData<PaginatedBannersResponse>({
+        queryKey: QK.listAny,
+      });
+      const prevSingle = qc.getQueryData<SingleBannerResponse>(QK.single(id));
+
+      prevLists.forEach(([key]) => {
+        qc.setQueryData(key, (old: PaginatedBannersResponse | undefined) => {
+          if (!old?.data) return old;
+          const nextData = old.data.filter((b: Banner) => b.id !== id);
+          const nextCount =
+            typeof old.recordsFiltered === "number"
+              ? Math.max(0, old.recordsFiltered - 1)
+              : nextData.length;
+          return { ...old, data: nextData, recordsFiltered: nextCount };
+        });
+      });
+
+      qc.removeQueries({ queryKey: QK.single(id) });
+
+      return { prevLists, prevSingle };
     },
-    onError: (error) => {
-      console.error("Delete banner failed:", error);
+    
+    onSuccess: (data) => {
+      toast.success(data.message || "تم الحذف بنجاح");
+    },
+
+    onError: (_err, id, ctx) => {
+      toast.error("حدث خطأ أثناء الحذف");
+      ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
+      if (ctx?.prevSingle) qc.setQueryData(QK.single(id), ctx.prevSingle);
+    },
+
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: QK.listAny });
     },
   });
 };

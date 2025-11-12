@@ -1,5 +1,5 @@
-import { UsersLayout } from "@/src/features/(dashboard)/users/components/UsersLayout";
+import { UsersPage } from "@/src/features/(dashboard)/users/components/UsersPage";
 
 export default function Page() {
-  return <UsersLayout />;
+  return <UsersPage />;
 }

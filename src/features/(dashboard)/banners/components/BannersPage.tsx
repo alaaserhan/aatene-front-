@@ -108,7 +108,8 @@ export function BannersPage() {
     };
 
     const handleToggleBanner = (banner: Banner) => {
-        const newStatus = !banner.is_active;
+        const currentStatus = banner.is_active === "1" || banner.is_active === true;
+        const newStatus = !currentStatus;
         updateStatusMutation({
             id: banner.id,
             payload: { is_active: newStatus ? "1" : "0" },
@@ -144,7 +145,7 @@ export function BannersPage() {
 
                     <button
                         onClick={handleAddBanner}
-                        className="flex text-sm items-center gap-2 cursor-pointer px-4 sm:px-6 py-2.5 sm:py-3 text-white rounded-sm font-medium transition-colors whitespace-nowrap"
+                        className="flex w-full sm:w-auto text-sm items-center gap-2 cursor-pointer px-4 sm:px-6 py-2.5 sm:py-3 text-white rounded-sm font-medium transition-colors whitespace-nowrap"
                         style={{ backgroundColor: "var(--blue-3)" }}
                     >
                         <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -281,7 +282,7 @@ export function BannersPage() {
                                                 <img
                                                     src={banner.labtop_banner_url}
                                                     alt={banner.title}
-                                                    className="w-full object-cover rounded"
+                                                    className="max-h-24 max-w-44 object-cover rounded"
                                                 />
                                             </td>
 
@@ -331,7 +332,7 @@ export function BannersPage() {
                                             {/* Status Toggle */}
                                             <td className="px-4 py-4">
                                                 <ToggleSwitch
-                                                    enabled={banner.is_active}
+                                                    enabled={banner.is_active === "1" || banner.is_active === true}
                                                     onChange={() => handleToggleBanner(banner)}
                                                 />
                                             </td>

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { DatePicker } from "@/src/components/ui/DatePicker";
-import { ImageUploadBanner } from "./ImageUploadBanner";
 import { Button } from "@/src/components/ui/button";
 import { useCreateBanner, useUpdateBanner, useGetSingleBanner } from "../hooks";
 import { useGetCities } from "../../cities/hooks";
@@ -14,6 +13,7 @@ import { Loader2 } from "lucide-react";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { BannerCreatePayload, BannerUpdatePayload } from "../api";
 import { FormSelect } from "@/src/components/ui/FormSelect";
+import { MediaSelectButton } from "../../mediaCenter/components/MediaSelectButton";
 
 interface BannerFormData {
   title: string;
@@ -25,10 +25,10 @@ interface BannerFormData {
   end_date: string;
   priority: string;
   is_active: boolean | string;
-  labtop_banner: string | null | File;
-  mobile_banner: string | null | File;
-  mobile_banner_url: string | null;
-  labtop_banner_url: string | null;
+  mobile_banner: string | null;
+  mobile_banner_preview: string | null;
+  labtop_banner: string | null;
+  labtop_banner_preview: string | null;
 }
 
 interface BannerFormPageProps {
@@ -48,30 +48,26 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
     end_date: "",
     priority: "0",
     is_active: true,
-    labtop_banner: null,
     mobile_banner: null,
-    mobile_banner_url: null,
-    labtop_banner_url: null,
+    mobile_banner_preview: null,
+    labtop_banner: null,
+    labtop_banner_preview: null,
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof BannerFormData, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof BannerFormData, string>>
+  >({});
 
-  // Get cities for dropdown
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
-
-  // Get banner data if editing
-  console.log(bannerId);
 
   const { data: bannerData, isLoading: isLoadingBanner } = useGetSingleBanner(
     mode === "edit" && bannerId ? bannerId : ""
   );
 
-  // Mutations
   const createBannerMutation = useCreateBanner();
   const updateBannerMutation = useUpdateBanner();
 
-  // Load banner data when editing
   useEffect(() => {
     if (mode === "edit" && bannerData?.record) {
       const banner = bannerData.record;
@@ -86,9 +82,9 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
         priority: banner.priority || "0",
         is_active: banner.is_active,
         labtop_banner: banner.labtop_banner || null,
+        labtop_banner_preview: banner.labtop_banner_url || null,
         mobile_banner: banner.mobile_banner || null,
-        mobile_banner_url: banner.mobile_banner_url || null,
-        labtop_banner_url: banner.labtop_banner_url || null,
+        mobile_banner_preview: banner.mobile_banner_url || null,
       });
     }
   }, [mode, bannerData]);
@@ -120,7 +116,6 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
         newErrors.mobile_banner = "صورة الموبايل مطلوبة";
       }
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -132,7 +127,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
       return;
     }
 
-    const payload: Partial<BannerFormData> = {
+    const payload = {
       title: formData.title,
       description: formData.description,
       city_id: formData.city_id || undefined,
@@ -145,7 +140,6 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
       labtop_banner: formData.labtop_banner,
       mobile_banner: formData.mobile_banner,
     };
-
 
     if (mode === "create") {
       createBannerMutation.mutate(payload as BannerCreatePayload, {
@@ -188,21 +182,20 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto py-8 px-4">
-        {/* Breadcrumb */}
         <Breadcrumb items={breadcrumbItems} className="" />
 
-        {/* Form Card */}
         <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8">
           <h1 className="text-2xl font-bold text-blue-4 mb-8 text-right">
             {mode === "create" ? "إضافة إعلان جديد" : "تعديل إعلان"}
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* عنوان البانر */}
             <FormInput
               label="عنوان البانر"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
               placeholder="اكتب عنوان البانر"
               hint="قم بتضمين الكلمات الرئيسية التي يستخدمها المشترون للبحث عن هذا العنصر."
               maxLength={40}
@@ -210,11 +203,12 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               error={errors.title}
             />
 
-            {/* وصف قصير */}
             <FormInput
               label="وصف قصير"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="اكتب وصف البانر"
               hint="قم بتضمين الكلمات الرئيسية التي يستخدمها المشترون للبحث عن هذا العنصر."
               maxLength={75}
@@ -222,11 +216,12 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               error={errors.description}
             />
 
-            {/* المدينة أو الحي المراد ظهور الإعلان لسكانه */}
             <FormSelect
               label="المدينة المراد ظهور الإعلان لسكانه"
               value={formData.city_id}
-              onChange={(e) => setFormData({ ...formData, city_id: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, city_id: e.target.value })
+              }
               options={[
                 { value: "", label: "الكل" },
                 ...cities.map((city) => ({
@@ -237,97 +232,111 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               error={errors.city_id}
             />
 
-            {/* مكان الإعلان */}
             <FormInput
               label="مكان الإعلان"
               value={formData.place}
-              onChange={(e) => setFormData({ ...formData, place: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, place: e.target.value })
+              }
               placeholder="ضع مكان واحد الإعلان (1,2,3,4,5,6)"
               error={errors.place}
             />
 
-            {/* رابط URL */}
             <FormInput
               label="رابط URL"
               type="url"
               value={formData.url}
-              onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, url: e.target.value })
+              }
               placeholder="رابط الإعلان (يجب البدء بـhttps://)"
               error={errors.url}
             />
 
-            {/* تاريخ بداية ونهاية الإعلان */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <DatePicker
                 label="تاريخ بداية الإعلان"
                 value={formData.start_date}
-                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, start_date: e.target.value })
+                }
                 error={errors.start_date}
               />
 
               <DatePicker
                 label="تاريخ انتهاء الإعلان"
                 value={formData.end_date}
-                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, end_date: e.target.value })
+                }
                 error={errors.end_date}
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-              {/* تفعيل/تعطيل الإعلان */}
               <div className="flex justify-between items-center">
                 <label className="block text-sm font-medium">
                   تفعيل/تعطيل الإعلان
                 </label>
                 <ToggleSwitch
-                  enabled={formData.is_active}
-                  onChange={(isActive) => setFormData({ ...formData, is_active: isActive })}
+                  enabled={
+                    formData.is_active === "1" || formData.is_active === true
+                  }
+                  onChange={(isActive) =>
+                    setFormData({ ...formData, is_active: isActive })
+                  }
                 />
               </div>
 
-              {/* أولوية الإعلان (ترتيب) */}
               <FormInput
                 label="أولوية الإعلان (ترتيب)"
                 type="number"
                 min="0"
                 value={formData.priority}
-                onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, priority: e.target.value })
+                }
                 placeholder="0"
                 error={errors.priority}
               />
-
             </div>
 
-            {/* رفع صورة للعرض على الكمبيوتر */}
-            <ImageUploadBanner
+            <MediaSelectButton
               label="رفع صورة للعرض على الكمبيوتر"
               width={1170}
               height={300}
-              value={
-                mode === "edit" && bannerData?.record?.labtop_banner_url
-                  ? bannerData.record.labtop_banner_url
-                  : formData.labtop_banner
+              value={formData.labtop_banner}
+              previewUrl={formData.labtop_banner_preview}
+              onChange={(fileName, src) =>
+                setFormData({
+                  ...formData,
+                  labtop_banner: fileName,
+                  labtop_banner_preview: src,
+                })
               }
-              onChange={(file) => setFormData({ ...formData, labtop_banner: file })}
               error={errors.labtop_banner}
+              accept="image/png,image/jpeg,image/jpg"
+              primaryText="اضف ملف"
             />
 
-            {/* رفع صورة للعرض على الموبايل */}
-            <ImageUploadBanner
+            <MediaSelectButton
               label="رفع صورة للعرض على الموبايل"
               width={360}
               height={200}
-              value={
-                mode === "edit" && bannerData?.record?.mobile_banner_url
-                  ? bannerData.record.mobile_banner_url
-                  : formData.mobile_banner
+              value={formData.mobile_banner}
+              previewUrl={formData.mobile_banner_preview}
+              onChange={(fileName, src) =>
+                setFormData({
+                  ...formData,
+                  mobile_banner: fileName,
+                  mobile_banner_preview: src,
+                })
               }
-              onChange={(file) => setFormData({ ...formData, mobile_banner: file })}
               error={errors.mobile_banner}
+              accept="image/png,image/jpeg,image/jpg"
+              primaryText="أضف صورة للموبايل"
             />
 
-            {/* Action Buttons */}
             <div className="flex gap-4 justify-center pt-6">
               <Button
                 type="button"
@@ -339,11 +348,14 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               </Button>
               <Button
                 type="submit"
-                disabled={createBannerMutation.isPending || updateBannerMutation.isPending}
+                disabled={
+                  createBannerMutation.isPending || updateBannerMutation.isPending
+                }
                 className="px-8 py-3 cursor-pointer"
                 style={{ backgroundColor: "var(--blue-3)" }}
               >
-                {(createBannerMutation.isPending || updateBannerMutation.isPending) ? (
+                {createBannerMutation.isPending ||
+                updateBannerMutation.isPending ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     جاري الحفظ...
