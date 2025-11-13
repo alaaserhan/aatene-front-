@@ -18,13 +18,9 @@ import {
   BaseResponse,
 } from "./api";
 import { toast } from "sonner";
-import { URLSearchParams } from "url";
 
 export const USERS_QUERY_KEY = ["users"];
 
-/**
- * Hook to get paginated users
- */
 export const useGetUsers = (params: URLSearchParams) => {
   return useQuery({
     queryKey: [...USERS_QUERY_KEY, "list", params.toString()],
@@ -32,20 +28,14 @@ export const useGetUsers = (params: URLSearchParams) => {
   });
 };
 
-/**
- * Hook to get a single user by ID
- */
-export const useGetSingleUser = (id: string | number | undefined) => {
+export const useGetSingleUser = (id: number | null) => {
   return useQuery({
     queryKey: [...USERS_QUERY_KEY, "detail", id],
     queryFn: () => getSingleUser(id!),
-    enabled: !!id, // Only run if id is provided
+    enabled: !!id,
   });
 };
 
-/**
- * Hook to create a new user
- */
 export const useCreateUser = () => {
   const queryClient = useQueryClient();
 
@@ -61,9 +51,6 @@ export const useCreateUser = () => {
   });
 };
 
-/**
- * Hook to update an existing user
- */
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
@@ -83,13 +70,12 @@ export const useUpdateUser = () => {
   });
 };
 
-/**
- * Hook to update a user's password
- */
 export const useUpdateUserPassword = () => {
   return useMutation({
-    mutationFn: (variables: { id: string | number; payload: UpdatePasswordPayload }) =>
-      updateUserPassword(variables.id, variables.payload),
+    mutationFn: (variables: {
+      id: string | number;
+      payload: UpdatePasswordPayload;
+    }) => updateUserPassword(variables.id, variables.payload),
     onSuccess: (data: BaseResponse) => {
       toast.success(data.message || "تم تحديث كلمة المرور بنجاح");
     },
@@ -99,9 +85,6 @@ export const useUpdateUserPassword = () => {
   });
 };
 
-/**
- * Hook to delete a user
- */
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 

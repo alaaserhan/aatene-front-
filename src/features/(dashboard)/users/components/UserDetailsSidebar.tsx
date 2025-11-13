@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -10,32 +10,40 @@ import {
   useUpdateUser,
   useDeleteUser,
 } from "../hooks";
-import { FormInput } from "@/src/components/ui/FormInput";
-import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { Button } from "@/src/components/ui/button";
-import { Loader2, Trash2 } from "lucide-react";
+import { Input } from "@/src/components/ui/input";
+import {
+  Loader2,
+  Trash2,
+  Mail,
+  Phone as PhoneIcon,
+  MessageCircle,
+} from "lucide-react";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
-
-// (ملاحظة: هذا الكومبوننت غير موجود، سأستخدم FormInput العادي)
-// import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput"; 
-
-// (ملاحظة: هذا الكومبوننت غير موجود، سأستخدم Select عادي)
-// import { MultiSelect } from "@/src/components/ui/MultiSelect"; 
+import { cn } from "@/src/lib/utils";
+import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
+import { UserUpdatePayload } from "../api";
 
 interface UserDetailsSidebarProps {
   selectedUserId: number | null;
   onUserUpdate: () => void;
   onUserDelete: () => void;
+  className?: string;
 }
+
+const roleOptions = [
+  { value: "", label: "مستخدم عادي" },
+  { value: "1", label: "Admin" },
+  { value: "2", label: "Merchant" },
+];
 
 const userSchema = z.object({
   first_name: z.string().min(1, "الاسم الأول مطلوب"),
   last_name: z.string().min(1, "الاسم الأخير مطلوب"),
   email: z.string().email("بريد إلكتروني غير صالح"),
   phone: z.string().min(1, "رقم الهاتف مطلوب"),
-  roles: z.array(z.number()).optional(), // (بناءً على API)
+  roles: z.string().optional(),
   is_active: z.boolean(),
-  gender: z.string().optional(), // (بناءً على API)
 });
 
 type UserFormData = z.infer<typeof userSchema>;
@@ -44,57 +52,97 @@ export function UserDetailsSidebar({
   selectedUserId,
   onUserUpdate,
   onUserDelete,
+  className,
 }: UserDetailsSidebarProps) {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [countryCode, setCountryCode] = useState("+20");
 
   const {
     data: userData,
     isLoading: isLoadingUser,
-    isError,
+    refetch,
   } = useGetSingleUser(selectedUserId);
 
   const updateUserMutation = useUpdateUser();
   const deleteUserMutation = useDeleteUser();
 
-  const form = useForm<UserFormData>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: {
       first_name: "",
       last_name: "",
       email: "",
       phone: "",
-      roles: [],
+      roles: "",
       is_active: true,
-      gender: "male",
     },
   });
 
-  // تحميل بيانات المستخدم في الفورم
+  const isActive = watch("is_active");
+
+  useEffect(() => {
+    if (selectedUserId) {
+      refetch();
+    }
+  }, [selectedUserId, refetch]);
+
   useEffect(() => {
     if (userData?.record) {
       const user = userData.record;
-      form.reset({
+      reset({
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
         phone: user.phone,
-        roles: user.roles.map((r) => r.id),
+        roles: user.roles?.[0]?.id ? String(user.roles[0].id) : "",
         is_active: user.is_active === "1" || user.is_active === true,
-        gender: user.gender,
+      });
+    } else {
+      reset({
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        roles: "",
+        is_active: true,
       });
     }
-  }, [userData, form]);
+  }, [userData, reset]);
 
   const onSubmit = (data: UserFormData) => {
-    if (!selectedUserId) return;
+    if (!selectedUserId || !userData?.record) return;
+
+    const originalUser = userData.record;
+
+    const payload: UserUpdatePayload = {
+      avatar: originalUser.avatar,
+      date_of_birth: originalUser.date_of_birth,
+      gender: originalUser.gender,
+      referral_code: originalUser.referral_code,
+      city_id: originalUser.city_id ? Number(originalUser.city_id) : undefined,
+      district_id: originalUser.district_id
+        ? Number(originalUser.district_id)
+        : undefined,
+
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      phone: data.phone,
+      is_active: data.is_active ? "1" : "0",
+      roles: data.roles ? [Number(data.roles)] : [],
+    };
 
     updateUserMutation.mutate(
       {
         id: selectedUserId,
-        payload: {
-          ...data,
-          is_active: data.is_active ? "1" : "0",
-        },
+        payload: payload,
       },
       {
         onSuccess: () => {
@@ -116,7 +164,12 @@ export function UserDetailsSidebar({
 
   if (isLoadingUser && selectedUserId) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-6 flex items-center justify-center min-h-[400px]">
+      <div
+        className={cn(
+          "bg-white rounded-lg border border-gray-200 p-6 flex items-center justify-center min-h-[500px]",
+          className
+        )}
+      >
         <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
       </div>
     );
@@ -124,106 +177,272 @@ export function UserDetailsSidebar({
 
   if (!selectedUserId) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-6 flex items-center justify-center min-h-[400px]">
-        <p className="text-gray-500">الرجاء تحديد مستخدم لعرض التفاصيل</p>
+      <div
+        className={cn(
+          "bg-white rounded-lg border border-gray-200 p-6 flex items-center justify-center min-h-[65vh]",
+          className
+        )}
+      >
+        <p className="text-sm text-gray-500">
+          الرجاء تحديد مستخدم لعرض التفاصيل
+        </p>
       </div>
     );
   }
 
+  const user = userData?.record;
+  if (!user) return null;
+
+  const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
+  const roleNames =
+    user.roles?.map((r) => r.name).join(", ") || "مستخدم عادي";
+
   return (
-    <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Card 1: بيانات المستخدم */}
+    <div className={cn("space-y-4", className)}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-6 text-start">
+          <h3 className="text-lg font-medium text-blue-4 mb-6">
             بيانات المستخدم
           </h3>
+
           <div className="space-y-4">
-            <FormInput
-              name="first_name"
-              label="الاسم"
-              placeholder="كيرلس عادل عزمي"
-              className="text-start"
-            />
-            
-            <FormInput
-              name="roles"
-              label="الدور"
-              placeholder="مدير عام"
-              className="text-start"
-              // (ملاحظة: هذا يجب أن يكون Select/MultiSelect)
-            />
-
-            <FormInput
-              name="email"
-              label="البريد الالكتروني"
-              type="email"
-              placeholder="kerooadel5@gmail.com"
-              className="text-start"
-            />
-
-            <FormInput
-              name="phone"
-              label="رقم الهاتف"
-              type="tel"
-              placeholder="+20 1289022985"
-              className="text-start"
-            />
-
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">تفعيل الحساب</label>
-              <ToggleSwitch
-                enabled={form.watch("is_active")}
-                onChange={(enabled) => form.setValue("is_active", enabled)}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                الاسم الأول
+              </label>
+              <Input
+                {...register("first_name")}
+                placeholder="الاسم الأول"
+                className="w-full"
               />
+              {errors.first_name && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.first_name.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                الاسم الأخير
+              </label>
+              <Input
+                {...register("last_name")}
+                placeholder="الاسم الأخير"
+                className="w-full"
+              />
+              {errors.last_name && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.last_name.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                الدور
+              </label>
+              <select
+                {...register("roles")}
+                className="w-full h-10 px-3 pr-8 bg-white border border-gray-300 rounded-lg text-sm appearance-none cursor-pointer focus:ring-2 focus:ring-[#3A5779] focus:border-transparent"
+              >
+                {roleOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              {errors.roles && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.roles.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                البريد الالكتروني
+              </label>
+              <Input
+                {...register("email")}
+                type="email"
+                placeholder="kerooadel5@gmail.com"
+                className="w-full"
+              />
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                رقم الهاتف
+              </label>
+              <div className="flex gap-2">
+                <Input
+                  {...register("phone")}
+                  type="tel"
+                  placeholder="1289022985"
+                  className="flex-1"
+                />
+                <div className="relative w-24">
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="w-full h-10 px-3 pr-8 bg-white border border-gray-300 rounded-lg text-sm appearance-none cursor-pointer focus:ring-2 focus:ring-[#3A5779] focus:border-transparent"
+                  >
+                    <option value="+20">+20</option>
+                    <option value="+966">+966</option>
+                    <option value="+971">+971</option>
+                  </select>
+                </div>
+              </div>
+              {errors.phone && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.phone.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <label className="text-sm font-medium text-gray-700">
+                تفعيل الحساب
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">
+                  {isActive ? "مفعل" : "غير مفعل"}
+                </span>
+                <ToggleSwitch
+                  enabled={isActive}
+                  onChange={(checked) => setValue("is_active", checked)}
+                />
+              </div>
+            </div>
+
+
+            <div className="flex items-center gap-3 mt-6">
+              <Button
+                type="submit"
+                disabled={updateUserMutation.isPending}
+                className="flex-1 bg-[#3A5779] hover:bg-[#2d4460] text-white cursor-pointer rounded-sm"
+              >
+                {updateUserMutation.isPending && (
+                  <Loader2 className="w-4 h-4 animate-spin ml-2" />
+                )}
+                حفظ التعديلات
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDeleteModalOpen(true)}
+                disabled={deleteUserMutation.isPending}
+                className="flex-1 rounded-sm bg-[#FB37481A] border-red-200 text-red-600 hover:text-red-600 hover:bg-red-100 cursor-pointer"
+              >
+                {deleteUserMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin ml-2" />
+                ) : (
+                  <img src="/icons/dashboard/trash.svg" alt="" />
+                )}
+                حذف المستخدم
+              </Button>
             </div>
           </div>
         </div>
 
-        {/* Card 2: معلومات المستخدم (ثابتة) */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-           <h3 className="text-lg font-semibold text-gray-900 mb-6 text-start">
+        <div className="bg-white rounded-lg border border-gray-200 p-6 flex flex-col gap-7">
+          <h3 className="text-lg font-medium text-blue-4">
             معلومات المستخدم
           </h3>
-          {/* (هنا يتم عرض البيانات الثابتة من التصميم) */}
-           <div className="flex items-center gap-4">
-            <img 
-              src={userData?.record.avatar_url} 
-              alt="avatar" 
-              className="w-14 h-14 rounded-full object-cover"
-            />
-            <div>
-              <p className="font-semibold">{userData?.record.first_name} {userData?.record.last_name}</p>
-              <p className="text-sm text-gray-500">{userData?.record.phone}</p>
-            </div>
-            {/* (يمكن إضافة الأيقونات هنا) */}
-           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          <Button
-            type="submit"
-            className="bg-[#3A5779] text-white hover:bg-opacity-90 cursor-pointer"
-            disabled={updateUserMutation.isPending}
-          >
-            {updateUserMutation.isPending && <Loader2 className="w-4 h-4 animate-spin me-2" />}
-            حفظ التعديلات
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            className="bg-red-50 text-red-600 hover:bg-red-100 cursor-pointer"
-            onClick={() => setDeleteModalOpen(true)}
-            disabled={deleteUserMutation.isPending}
-          >
-            {deleteUserMutation.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin me-2" />
-            ) : (
-              <Trash2 className="w-4 h-4 me-2" />
-            )}
-            حذف المستخدم
-          </Button>
+
+          <div className="flex flex-row justify-between items-center ">
+            <div className="flex flex-row gap-3 items-center">
+              <img
+                src={user.avatar_url || "/default-avatar.png"}
+                alt={fullName}
+                className="w-22 h-22 rounded-full object-cover mb-3"
+              />
+              <div className="flex flex-col gap-2.5">
+                <h4 className="text-base font-medium ">{fullName}</h4>
+                <p className="text-sm text-gray-2 ">{user.phone}</p>
+                <div className="flex items-center  gap-3 ">
+                  <button
+                    type="button"
+                    className=" cursor-pointer"
+                    title="إرسال بريد"
+                  >
+                    <div
+                      className="w-5 h-5 bg-blue-4"
+                      style={{
+                        maskImage: 'url(/icons/dashboard/email.svg)',
+                        maskSize: 'contain',
+                        maskRepeat: 'no-repeat',
+                        maskPosition: 'center',
+                      }}
+                    >
+                    </div>
+                  </button>
+                  <div
+                    className="w-5 h-5 bg-blue-4"
+                    style={{
+                      maskImage: 'url(/icons/dashboard/whatsapp.svg)',
+                      maskSize: 'contain',
+                      maskRepeat: 'no-repeat',
+                      maskPosition: 'center',
+                    }}
+                  >
+                  </div>
+                  <div
+                    className="w-5 h-5 bg-blue-4"
+                    style={{
+                      maskImage: 'url(/icons/dashboard/phone.svg)',
+                      maskSize: 'contain',
+                      maskRepeat: 'no-repeat',
+                      maskPosition: 'center',
+                    }}
+                  >
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <Button
+              type="button"
+              className="mb-6 bg-blue-3  cursor-pointer"
+            >
+              أضف عملات ذهبية
+            </Button>
+
+          </div>
+
+
+
+          <div className="text-sm flex flex-row gap-5">
+            <div className="flex flex-col gap-1 ">
+              <span className="text-gray-2">الدور الوظيفي</span>
+              <span className="font-medium ">{roleNames}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-gray-2">البريد الإلكتروني</span>
+              <span className="font-medium ">{user.email}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-gray-2">تاريخ الانضمام</span>
+              <span className="font-medium ">
+                {user.created_at
+                  ? new Date(user.created_at).toLocaleDateString("ar-EG", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
+                  : "-"}
+              </span>
+            </div>
+          </div>
         </div>
       </form>
 
@@ -232,7 +451,8 @@ export function UserDetailsSidebar({
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={handleDelete}
         title="هل أنت متأكد من حذف المستخدم؟"
+        description="سيتم حذف جميع بيانات المستخدم بشكل نهائي"
       />
-    </FormProvider>
+    </div>
   );
 }
