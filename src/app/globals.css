@@ -37,15 +37,15 @@
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
   /* --------------------------------------------------------------- */
-  --white-1:#F5F5F5;
-  --blue-1:#C8D7E8;
-  --blue-2:#38587A;
-  --blue-3:#2D496A;
-  --blue-4:#406896;
-  --blue-5:#5B87B91A;
-  --gray-1:#9291A5;
-  --gray-2:#717171;
-  --black-1:#393939;
+  --white-1: #F5F5F5;
+  --blue-1: #C8D7E8;
+  --blue-2: #38587A;
+  --blue-3: #2D496A;
+  --blue-4: #406896;
+  --blue-5: #5B87B91A;
+  --gray-1: #9291A5;
+  --gray-2: #717171;
+  --black-1: #393939;
 }
 
 .bg-blue-3 {
@@ -256,4 +256,38 @@ html {
 
 html body[data-scroll-locked] {
   margin-right: 0 !important;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-inline-start: 40px;
+}
+
+.prose ul {
+  list-style-type: disc;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  padding-inline-start: 40px;
+}
+
+.prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose ol>li::marker,
+.prose ul>li::marker {
+  color: #6b7280;
+}
+
+.prose a {
+  color: var(--blue-2);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.prose a:hover {
+  color: var(--blue-3);
 }

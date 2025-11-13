@@ -76,16 +76,21 @@ export function MediaSelectButton({
         {label}
       </label>
 
-      <div className="bg-[#E8F4FD] rounded-lg p-4 space-y-2">
-        <div className="flex items-start gap-2">
-          <Info className="w-5 h-5 text-blue-3 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-gray-700 space-y-1 text-right flex-1">
-            {infoText.map((text, index) => (
-              <p key={index}>{index === 0 ? text : `• ${text}`}</p>
-            ))}
+      {
+        infoText && infoText.length > 0 && (
+          <div className="bg-[#E8F4FD] rounded-lg p-4 space-y-2">
+            <div className="flex items-start gap-2">
+              <Info className="w-5 h-5 text-blue-3 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-gray-700 space-y-1 text-right flex-1">
+                {infoText.map((text, index) => (
+                  <p key={index}>{index === 0 ? text : `• ${text}`}</p>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        )
+      }
+
 
       {!preview ? (
         <div

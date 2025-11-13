@@ -1,17 +1,14 @@
 // src/features/(dashboard)/settings/components/RichTextEditor.tsx
 "use client";
 
-import { useRef } from "react";
-import {
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  Link as LinkIcon,
-  List,
-  ListOrdered,
-} from "lucide-react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import Link from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
 import { cn } from "@/src/lib/utils";
+import { RichTextToolbar } from "./RichTextToolbar";
+import { useEffect } from "react";
 
 interface RichTextEditorProps {
   value: string;
@@ -30,87 +27,69 @@ export function RichTextEditor({
   className,
   isRtl = true,
 }: RichTextEditorProps) {
-  const editorRef = useRef<HTMLDivElement>(null);
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: false,
+        blockquote: false,
+        codeBlock: false,
+        code: false,
+        horizontalRule: false,
+        hardBreak: false,
+      }),
+      Underline,
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+      }),
+      Placeholder.configure({
+        placeholder: placeholder,
+      }),
+    ],
+    content: value,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+    editorProps: {
+      attributes: {
+        class: cn(
+          "p-4 focus:outline-none",
+          "prose prose-sm max-w-none"
+        ),
+        style: `min-height: ${minHeight};`,
+      },
+    },
+    immediatelyRender: false,
+  });
 
-  const executeCommand = (command: string, value: string | null = null) => {
-    document.execCommand(command, false, value || undefined);
-    editorRef.current?.focus();
-  };
-
-  const handleInput = () => {
-    if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+  useEffect(() => {
+    if (editor) {
+      editor.setOptions({
+        editorProps: {
+          attributes: {
+            ...editor.options.editorProps.attributes,
+            dir: isRtl ? "rtl" : "ltr",
+          },
+        },
+      });
     }
-  };
+  }, [isRtl, editor]);
 
-  const toolbarButtons = [
-    { icon: Bold, command: "bold", title: "عريض" },
-    { icon: Italic, command: "italic", title: "مائل" },
-    { icon: Underline, command: "underline", title: "تحته خط" },
-    { icon: Strikethrough, command: "strikeThrough", title: "يتوسطه خط" },
-    { icon: LinkIcon, command: "createLink", title: "إضافة رابط" },
-    { icon: List, command: "insertUnorderedList", title: "قائمة منقطة" },
-    { icon: ListOrdered, command: "insertOrderedList", title: "قائمة مرقمة" },
-  ];
-
-  const handleLinkClick = () => {
-    const url = prompt("أدخل رابط URL:");
-    if (url) {
-      executeCommand("createLink", url);
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value, false);
     }
-  };
+  }, [value, editor]);
 
   return (
     <div
       className={cn(
-        "border border-gray-300 rounded-lg overflow-hidden bg-white",
+        "border border-gray-300 rounded-lg overflow-hidden bg-white flex flex-col",
         className
       )}
     >
-      {/* Editor - يظهر أولاً */}
-      <div className="relative">
-        <div
-          ref={editorRef}
-          contentEditable
-          onInput={handleInput}
-          className={cn(
-            "p-4 focus:outline-none min-h-[200px]"
-          )}
-          style={{ minHeight }}
-          dangerouslySetInnerHTML={{ __html: value || "" }}
-          suppressContentEditableWarning
-        />
-
-        {!value && (
-          <div
-            className={cn(
-              "absolute top-4 text-gray-400 start-4 pointer-events-none"
-            )}
-          >
-            {placeholder}
-          </div>
-        )}
-      </div>
-
-      {/* Toolbar - يظهر في الأسفل */}
-      <div className="flex items-center gap-1 p-2 border-t border-gray-200 bg-gray-50">
-        {toolbarButtons.map((btn, index) => {
-          const Icon = btn.icon;
-          const isLink = btn.command === "createLink";
-
-          return (
-            <button
-              key={index}
-              type="button"
-              onClick={() => (isLink ? handleLinkClick() : executeCommand(btn.command))}
-              className="p-2 hover:bg-gray-200 rounded transition-colors"
-              title={btn.title}
-            >
-              <Icon className="w-4 h-4 text-blue-4" />
-            </button>
-          );
-        })}
-      </div>
+      <EditorContent editor={editor} className="flex-1" />
+      <RichTextToolbar editor={editor} />
     </div>
   );
 }

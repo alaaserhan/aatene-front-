@@ -4,20 +4,23 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { RichTextEditor } from "./RichTextEditor";
-import { ImageUpload } from "./ImageUpload";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
+import { MediaSelectButton } from "../../mediaCenter/components/MediaSelectButton";
+import { toast } from "sonner";
 
 interface PolicyParagraph {
   id: string;
   titleAr: string;
   titleEn: string;
-  image: File | null;
-  imageUrl: string | null;
+  titleHe: string;
+  logo: string | null;
+  logo_url: string | null;
   contentAr: string;
   contentEn: string;
+  contentHe: string;
 }
 
 interface PrivacyPolicySectionProps {
@@ -25,6 +28,11 @@ interface PrivacyPolicySectionProps {
   paragraphs: PolicyParagraph[];
   onChange: (paragraphs: PolicyParagraph[]) => void;
 }
+
+const isContentEmpty = (content: string) => {
+  if (!content) return true;
+  return content.replace(/<[^>]*>?/gm, "").trim().length === 0;
+};
 
 export function PrivacyPolicySection({
   selectedLanguages = ["ar", "en"],
@@ -35,32 +43,34 @@ export function PrivacyPolicySection({
     id: Date.now().toString(),
     titleAr: "",
     titleEn: "",
-    image: null,
-    imageUrl: null,
+    titleHe: "",
+    logo: null,
+    logo_url: null,
     contentAr: "",
     contentEn: "",
+    contentHe: "",
   });
-  const [languageTab, setLanguageTab] = useState<"ar" | "en">("ar");
+  const [languageTab, setLanguageTab] = useState<"ar" | "en" | "he">("ar");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  const availableLanguages =
+    selectedLanguages.length > 0 ? selectedLanguages : ["ar"];
 
   const handleRemoveParagraph = (index: number) => {
     const newParagraphs = paragraphs.filter((_, i) => i !== index);
     onChange(newParagraphs);
-    
-    // إذا كنا نحرر هذه الفقرة، نلغي التحرير
+
     if (editingIndex === index) {
       resetForm();
     }
   };
 
   const handleTagClick = (index: number) => {
-    // إذا ضغطنا على نفس الـ tag المحدد، نلغي التحديد
     if (editingIndex === index) {
       resetForm();
       return;
     }
 
-    // نحمل بيانات الفقرة المختارة
     const paragraph = paragraphs[index];
     setCurrentParagraph(paragraph);
     setEditingIndex(index);
@@ -72,23 +82,56 @@ export function PrivacyPolicySection({
       id: Date.now().toString(),
       titleAr: "",
       titleEn: "",
-      image: null,
-      imageUrl: null,
+      titleHe: "",
+      logo: null,
+      logo_url: null,
       contentAr: "",
       contentEn: "",
+      contentHe: "",
     });
     setEditingIndex(null);
     setLanguageTab("ar");
   };
 
   const handleSaveParagraph = () => {
+    let isValid = true;
+    for (const lang of availableLanguages) {
+      if (lang === "ar") {
+        if (
+          !currentParagraph.titleAr.trim() ||
+          isContentEmpty(currentParagraph.contentAr)
+        ) {
+          isValid = false;
+        }
+      }
+      if (lang === "en") {
+        if (
+          !currentParagraph.titleEn.trim() ||
+          isContentEmpty(currentParagraph.contentEn)
+        ) {
+          isValid = false;
+        }
+      }
+      if (lang === "he") {
+        if (
+          !currentParagraph.titleHe.trim() ||
+          isContentEmpty(currentParagraph.contentHe)
+        ) {
+          isValid = false;
+        }
+      }
+    }
+
+    if (!isValid) {
+      toast.error("يرجى ملء حقلي العنوان والمحتوى لجميع اللغات المحددة.");
+      return;
+    }
+
     if (editingIndex !== null) {
-      // تحديث فقرة موجودة
       const newParagraphs = [...paragraphs];
       newParagraphs[editingIndex] = currentParagraph;
       onChange(newParagraphs);
     } else {
-      // إضافة فقرة جديدة
       onChange([...paragraphs, currentParagraph]);
     }
     resetForm();
@@ -107,16 +150,8 @@ export function PrivacyPolicySection({
     }
   };
 
-  const availableLanguages =
-    selectedLanguages.includes("ar") ||
-    selectedLanguages.includes("en") ||
-    selectedLanguages.includes("he")
-      ? selectedLanguages
-      : ["ar"];
-
   return (
     <div className="space-y-6">
-      {/* Policy Tags Section */}
       {paragraphs.length > 0 && (
         <div className="bg-[#5B88BA33] rounded-lg p-6">
           <h3 className="text-base font-medium mb-4">السياسات المضافة</h3>
@@ -132,14 +167,21 @@ export function PrivacyPolicySection({
                     : "bg-white border-blue-4 hover:bg-blue-50"
                 )}
               >
-                <div className={cn(
-                  "w-3 h-3 rounded-full text-[8px] flex items-center justify-center",
-                  editingIndex === index ? "bg-white text-blue-4" : "bg-blue-4 text-white"
-                )}>
+                <div
+                  className={cn(
+                    "w-3 h-3 rounded-full text-[8px] flex items-center justify-center",
+                    editingIndex === index
+                      ? "bg-white text-blue-4"
+                      : "bg-blue-4 text-white"
+                  )}
+                >
                   <span className="pt-px">{index + 1}</span>
                 </div>
                 <span className="text-sm">
-                  {paragraph.titleAr || paragraph.titleEn || `سياسة ${index + 1}`}
+                  {paragraph.titleAr ||
+                    paragraph.titleEn ||
+                    paragraph.titleHe ||
+                    `سياسة ${index + 1}`}
                 </span>
                 <button
                   type="button"
@@ -150,10 +192,13 @@ export function PrivacyPolicySection({
                   className="cursor-pointer hover:scale-110 transition-transform"
                   aria-label={`حذف ${paragraph.titleAr}`}
                 >
-                  <X className={cn(
-                    "w-4 h-4",
-                    editingIndex === index ? "text-white" : "text-blue-4"
-                  )} strokeWidth={2} />
+                  <X
+                    className={cn(
+                      "w-4 h-4",
+                      editingIndex === index ? "text-white" : "text-blue-4"
+                    )}
+                    strokeWidth={2}
+                  />
                 </button>
               </div>
             ))}
@@ -172,7 +217,7 @@ export function PrivacyPolicySection({
               <Button
                 key={lang}
                 type="button"
-                onClick={() => setLanguageTab(lang as "ar" | "en")}
+                onClick={() => setLanguageTab(lang as "ar" | "en" | "he")}
                 variant={languageTab === lang ? "default" : "outline"}
                 className={cn(
                   "px-6 py-2 rounded-full font-normal transition-colors",
@@ -193,12 +238,18 @@ export function PrivacyPolicySection({
             value={
               languageTab === "ar"
                 ? currentParagraph.titleAr
-                : currentParagraph.titleEn
+                : languageTab === "en"
+                ? currentParagraph.titleEn
+                : currentParagraph.titleHe
             }
             onChange={(e) =>
               setCurrentParagraph({
                 ...currentParagraph,
-                [languageTab === "ar" ? "titleAr" : "titleEn"]: e.target.value,
+                [languageTab === "ar"
+                  ? "titleAr"
+                  : languageTab === "en"
+                  ? "titleEn"
+                  : "titleHe"]: e.target.value,
               })
             }
             placeholder="أضف عنوان السياسة..."
@@ -207,16 +258,25 @@ export function PrivacyPolicySection({
         </div>
 
         <div className="space-y-2">
-          <Label className="block font-medium text-blue-2">
-            إضافة صورة (اختياري)
-          </Label>
-          <ImageUpload
-            label=""
-            optional={false}
-            value={currentParagraph.image || currentParagraph.imageUrl}
-            onChange={(image) =>
-              setCurrentParagraph({ ...currentParagraph, image })
+          <MediaSelectButton
+            label="إضافة صورة (اختياري)"
+            width={700}
+            height={400}
+            value={currentParagraph.logo}
+            previewUrl={currentParagraph.logo_url}
+            onChange={(fileName, src) =>
+              setCurrentParagraph({
+                ...currentParagraph,
+                logo: fileName,
+                logo_url: src,
+              })
             }
+            accept="image/png,image/jpeg,image/jpg"
+            primaryText="أضف صورة للسياسة"
+            infoText={[
+              // "الأفضل أن تكون الصورة بعرض 700 بكسل وطول 400 بكسل.",
+              // "الحجم يجب أن لا يتعدى 2 ميغابايت.",
+            ]}
           />
         </div>
 
@@ -228,7 +288,7 @@ export function PrivacyPolicySection({
                 <Button
                   key={lang}
                   type="button"
-                  onClick={() => setLanguageTab(lang as "ar" | "en")}
+                  onClick={() => setLanguageTab(lang as "ar" | "en" | "he")}
                   variant={languageTab === lang ? "default" : "outline"}
                   className={cn(
                     "px-6 py-2 rounded-full font-normal transition-colors",
@@ -247,16 +307,22 @@ export function PrivacyPolicySection({
             value={
               languageTab === "ar"
                 ? currentParagraph.contentAr
-                : currentParagraph.contentEn
+                : languageTab === "en"
+                ? currentParagraph.contentEn
+                : currentParagraph.contentHe
             }
             onChange={(value) =>
               setCurrentParagraph({
                 ...currentParagraph,
-                [languageTab === "ar" ? "contentAr" : "contentEn"]: value,
+                [languageTab === "ar"
+                  ? "contentAr"
+                  : languageTab === "en"
+                  ? "contentEn"
+                  : "contentHe"]: value,
               })
             }
             placeholder="أضف وصف مميز..."
-            isRtl={languageTab === "ar" || languageTab}
+            isRtl={languageTab === "ar" || languageTab === "he"}
           />
         </div>
 

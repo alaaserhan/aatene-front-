@@ -1,11 +1,8 @@
 // src/features/(dashboard)/settings/api.ts
 import api from "@/src/lib/axios";
 
-// --- Types (Updated) ---
-
 export interface TranslatableString {
-  en: string;
-  ar: string;
+  [key: string]: string;
 }
 
 export interface PolicyItem {
@@ -44,12 +41,12 @@ export interface GetSettingsResponse {
 export interface PolicyItemPayload {
   title: TranslatableString;
   content: TranslatableString;
-  logo: string | null; // <-- (تم التعديل: لم يعد ملفاً)
+  logo: string | null;
 }
 
 export interface UpdateSettingsPayload {
   name: string;
-  logo: string | null; // <-- (تم التعديل: لم يعد ملفاً)
+  logo: string | null;
   main_color: string;
   email: string;
   address: string;
@@ -66,24 +63,17 @@ export interface UpdateSettingsPayload {
   terms: PolicyItemPayload[];
 }
 
-// --- API Functions ---
-
-/**
- * 1. Get All Settings
- */
 export const getSettings = async (): Promise<GetSettingsResponse> => {
   const { data } = await api.get<GetSettingsResponse>("/admin/settings/get");
   return data;
 };
 
-/**
- * 2. Update Settings (Updated to send JSON)
- */
 export const updateSettings = async (
   payload: UpdateSettingsPayload
 ): Promise<GetSettingsResponse> => {
-  // (تم التعديل: تم حذف FormData)
-  // سيقوم Axios بإرسال الكائن "payload" كـ JSON (application/json) تلقائياً
-  const { data } = await api.post<GetSettingsResponse>("/admin/settings", payload);
+  const { data } = await api.post<GetSettingsResponse>(
+    "/admin/settings",
+    payload
+  );
   return data;
 };

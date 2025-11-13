@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
@@ -14,11 +14,12 @@ import {
   SelectValue,
 } from "@/src/components/ui/select";
 import { MapModal } from "./MapModal";
+import { MediaSelectButton } from "../../mediaCenter/components/MediaSelectButton";
 
 interface BasicInfoData {
   siteName: string;
-  logo: File | null;
-  logoPreview: string | null;
+  logo: string | null;
+  logo_url: string | null;
   email: string;
   address: string;
   phone: string;
@@ -47,21 +48,6 @@ export function BasicInfoSection({
 }: BasicInfoSectionProps) {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const preview = URL.createObjectURL(file);
-      onChange({ logo: file, logoPreview: preview });
-    }
-  };
-
-  const handleRemoveLogo = () => {
-    if (data.logoPreview && data.logoPreview.startsWith("blob:")) {
-      URL.revokeObjectURL(data.logoPreview);
-    }
-    onChange({ logo: null, logoPreview: null });
-  };
-
   const handleToggleLanguage = (langId: string) => {
     const isSelected = languages.includes(langId);
     let newLanguages = isSelected
@@ -88,7 +74,6 @@ export function BasicInfoSection({
       <div className="space-y-8">
         <div>
           <div className="space-y-6">
-            {/* Site Name */}
             <div className="space-y-2">
               <Label htmlFor="siteName" className="text-start">
                 اسم الموقع <span className="text-red-500">*</span>
@@ -106,7 +91,6 @@ export function BasicInfoSection({
               </p>
             </div>
 
-            {/* Site Languages */}
             <div className="space-y-2">
               <Label className="text-start">
                 لغة الموقع <span className="text-red-500">*</span>
@@ -139,61 +123,25 @@ export function BasicInfoSection({
               </div>
             </div>
 
-            {/* Logo */}
             <div className="space-y-2">
-              <Label htmlFor="logo" className="text-start">
-                شعار الموقع <span className="text-red-500">*</span>
-              </Label>
-              {!data.logoPreview ? (
-                <div className="flex items-center justify-center w-full">
-                  <label
-                    htmlFor="logo-upload"
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-                  >
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-8 h-8 mb-3 text-gray-400" />
-                      <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-semibold">اضغط للرفع</span> أو اسحب
-                        وأفلت
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        SVG, PNG, JPG (MAX. 800x400px)
-                      </p>
-                    </div>
-                    <Input
-                      id="logo-upload"
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleLogoChange}
-                    />
-                  </label>
-                </div>
-              ) : (
-                <div className="relative border-1 border-gray-300 rounded-lg bg-gray-50 p-4">
-                  <button
-                    type="button"
-                    onClick={handleRemoveLogo}
-                    className="absolute cursor-pointer top-2 left-2 p-2 bg-red-100 rounded-sm hover:bg-red-200 transition-colors"
-                  >
-                    <img
-                      src="/icons/dashboard/trash.svg"
-                      alt="حذف"
-                      className="w-5 h-5"
-                    />
-                  </button>
-                  <div className="flex items-center justify-center">
-                    <img
-                      src={data.logoPreview}
-                      alt="Logo Preview"
-                      className="max-h-32 object-contain"
-                    />
-                  </div>
-                </div>
-              )}
+              <MediaSelectButton
+                label="شعار الموقع"
+                width={300}
+                height={150}
+                value={data.logo}
+                previewUrl={data.logo_url}
+                onChange={(fileName, src) =>
+                  onChange({ logo: fileName, logo_url: src })
+                }
+                accept="image/png,image/jpeg,image/jpg,image/svg+xml"
+                primaryText="SVG, PNG, JPG (MAX. 800x400px)"
+                infoText={[
+                  "الأفضل أن تكون الصورة بعرض 300 بكسل وطول 150 بكسل.",
+                  "الحجم يجب أن لا يتعدى 2 ميغابايت.",
+                ]}
+              />
             </div>
 
-            {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-start">
                 البريد الإلكتروني
@@ -214,7 +162,6 @@ export function BasicInfoSection({
               </div>
             </div>
 
-            {/* Address */}
             <div className="space-y-2">
               <Label htmlFor="address" className="text-start">
                 العنوان
@@ -243,9 +190,7 @@ export function BasicInfoSection({
               </div>
             </div>
 
-            {/* Phone Numbers */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Mobile */}
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-start">
                   الهاتف المحمول
@@ -272,7 +217,6 @@ export function BasicInfoSection({
                 </div>
               </div>
 
-              {/* WhatsApp */}
               <div className="space-y-2">
                 <Label htmlFor="whatsapp" className="text-start">
                   الواتساب
@@ -303,7 +247,6 @@ export function BasicInfoSection({
         </div>
       </div>
 
-      {/* Map Modal */}
       <MapModal
         isOpen={isMapModalOpen}
         onClose={() => setIsMapModalOpen(false)}

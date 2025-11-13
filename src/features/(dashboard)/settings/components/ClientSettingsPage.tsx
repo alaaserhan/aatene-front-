@@ -17,13 +17,12 @@ import { PrivacyPolicySection } from "./PrivacyPolicySection";
 import { SocialMediaSection } from "./SocialMediaSection";
 import { useGetSettings, useUpdateSettings } from "../hooks";
 import { toast } from "sonner";
-import type { PolicyItemPayload } from "../api";
+import type { PolicyItemPayload, TranslatableString } from "../api";
 
-// Types for form data
 interface BasicInfoData {
   siteName: string;
-  logo: File | null;
-  logoPreview: string | null;
+  logo: string | null;
+  logo_url: string | null;
   email: string;
   address: string;
   phone: string;
@@ -44,10 +43,12 @@ interface PolicyParagraph {
   id: string;
   titleAr: string;
   titleEn: string;
-  image: File | null;
-  imageUrl: string | null;
+  titleHe: string;
+  logo: string | null;
+  logo_url: string | null;
   contentAr: string;
   contentEn: string;
+  contentHe: string;
 }
 
 interface SettingsFormData {
@@ -58,7 +59,6 @@ interface SettingsFormData {
   terms: PolicyParagraph[];
 }
 
-// --- (1) قمنا بتعريف مصفوفة الأقسام هنا (بدون الكومبوننت) ---
 const settingsItems = [
   {
     id: "basic-info",
@@ -81,7 +81,24 @@ const settingsItems = [
     isCompleted: true,
   },
 ];
-// --- (نهاية التعديل الأول) ---
+
+const createTranslatablePayload = (
+  base: { Ar: string; En: string; He: string },
+  languages: string[]
+): TranslatableString => {
+  const payload: TranslatableString = {};
+
+  if (languages.includes("ar")) {
+    payload.ar = base.Ar;
+  }
+  if (languages.includes("en")) {
+    payload.en = base.En;
+  }
+  if (languages.includes("he")) {
+    payload.he = base.He;
+  }
+  return payload;
+};
 
 export function ClientSettingsPage() {
   const { data: settingsData, isLoading, error } = useGetSettings();
@@ -91,7 +108,7 @@ export function ClientSettingsPage() {
     basicInfo: {
       siteName: "",
       logo: null,
-      logoPreview: null,
+      logo_url: null,
       email: "",
       address: "",
       phone: "",
@@ -111,16 +128,15 @@ export function ClientSettingsPage() {
     terms: [],
   });
 
-  // تحميل البيانات الأولية
   useEffect(() => {
     if (settingsData?.settings) {
       const settings = settingsData.settings;
-      
+
       setFormData({
         basicInfo: {
           siteName: settings.name || "",
-          logo: null,
-          logoPreview: settings.logo_url || null,
+          logo: settings.logo || null,
+          logo_url: settings.logo_url || null,
           email: settings.email || "",
           address: settings.address || "",
           phone: settings.phone || "",
@@ -136,29 +152,34 @@ export function ClientSettingsPage() {
           snapchat: settings.snapchat || "",
         },
         languages: settings.languages || ["ar", "en"],
-        privacyPolicies: settings.policies?.map((policy, index: number) => ({
-          id: `policy-${index}`,
-          titleAr: policy.title?.ar || "",
-          titleEn: policy.title?.en || "",
-          image: null,
-          imageUrl: policy.logo_url || null,
-          contentAr: policy.content?.ar || "",
-          contentEn: policy.content?.en || "",
-        })) || [],
-        terms: settings.terms?.map((term, index: number) => ({
-          id: `term-${index}`,
-          titleAr: term.title?.ar || "",
-          titleEn: term.title?.en || "",
-          image: null,
-          imageUrl: term.logo_url || null,
-          contentAr: term.content?.ar || "",
-          contentEn: term.content?.en || "",
-        })) || [],
+        privacyPolicies:
+          settings.policies?.map((policy, index: number) => ({
+            id: `policy-${index}`,
+            titleAr: policy.title?.ar || "",
+            titleEn: policy.title?.en || "",
+            titleHe: policy.title?.he || "",
+            logo: policy.logo || null,
+            logo_url: policy.logo_url || null,
+            contentAr: policy.content?.ar || "",
+            contentEn: policy.content?.en || "",
+            contentHe: policy.content?.he || "",
+          })) || [],
+        terms:
+          settings.terms?.map((term, index: number) => ({
+            id: `term-${index}`,
+            titleAr: term.title?.ar || "",
+            titleEn: term.title?.en || "",
+            titleHe: term.title?.he || "",
+            logo: term.logo || null,
+            logo_url: term.logo_url || null,
+            contentAr: term.content?.ar || "",
+            contentEn: term.content?.en || "",
+            contentHe: term.content?.he || "",
+          })) || [],
       });
     }
   }, [settingsData]);
 
-  // Handler functions
   const handleBasicInfoChange = (data: Partial<BasicInfoData>) => {
     setFormData((prev) => ({
       ...prev,
@@ -191,21 +212,34 @@ export function ClientSettingsPage() {
     }));
   };
 
-  // Save all settings
-  const handleSaveAll = async () => {
+const handleSaveAll = async () => {
     try {
+      const selectedLangs = formData.languages;
+
       const policiesPayload: PolicyItemPayload[] = formData.privacyPolicies.map(
         (p) => ({
-          title: { en: p.titleEn, ar: p.titleAr },
-          content: { en: p.contentEn, ar: p.contentAr },
-          logo: p.image,
+          title: createTranslatablePayload(
+            { Ar: p.titleAr, En: p.titleEn, He: p.titleHe },
+            selectedLangs
+          ),
+          content: createTranslatablePayload(
+            { Ar: p.contentAr, En: p.contentEn, He: p.contentHe },
+            selectedLangs
+          ),
+          logo: p.logo,
         })
       );
 
       const termsPayload: PolicyItemPayload[] = formData.terms.map((p) => ({
-        title: { en: p.titleEn, ar: p.titleAr },
-        content: { en: p.contentEn, ar: p.contentAr },
-        logo: p.image,
+        title: createTranslatablePayload(
+          { Ar: p.titleAr, En: p.titleEn, He: p.titleHe },
+          selectedLangs
+        ),
+        content: createTranslatablePayload(
+          { Ar: p.contentAr, En: p.contentEn, He: p.contentHe },
+          selectedLangs
+        ),
+        logo: p.logo,
       }));
 
       await updateSettingsMutation.mutateAsync({
@@ -226,10 +260,7 @@ export function ClientSettingsPage() {
         policies: policiesPayload,
         terms: termsPayload,
       });
-
-      toast.success("تم حفظ جميع الإعدادات بنجاح");
     } catch (error) {
-      console.error("Error saving settings:", error);
       toast.error("حدث خطأ أثناء حفظ الإعدادات");
     }
   };
@@ -264,7 +295,12 @@ export function ClientSettingsPage() {
   return (
     <div>
       <div className="container mx-auto my-8">
-        <Accordion type="single" collapsible className="space-y-3">
+        <Accordion
+          type="single"
+          collapsible
+          className="space-y-3"
+          defaultValue="basic-info"
+        >
           {settingsItems.map((item) => (
             <AccordionItem
               key={item.id}
@@ -281,14 +317,8 @@ export function ClientSettingsPage() {
                   <h1 className="font-semibold text-lg">{item.title}</h1>
                 </div>
               </AccordionTrigger>
-              <AccordionContent 
-                forceMount // (للحفاظ على الحالة عند الإغلاق)
-                className="border-t border-gray-200 p-6 bg-gray-50/50 data-[state=closed]:hidden"
-              >
-                {/* --- (2) هذا هو التعديل الأهم --- */}
-                {/* نقوم بعرض الكومبوننت الصحيح بناءً على الـ ID */}
-                
-                {item.id === 'basic-info' && (
+              <AccordionContent className="border-t border-gray-200 p-6 bg-gray-50/50">
+                {item.id === "basic-info" && (
                   <BasicInfoSection
                     data={formData.basicInfo}
                     languages={formData.languages}
@@ -296,43 +326,43 @@ export function ClientSettingsPage() {
                     onLanguagesChange={handleLanguagesChange}
                   />
                 )}
-                
-                {item.id === 'social-media' && (
+
+                {item.id === "social-media" && (
                   <SocialMediaSection
                     data={formData.socialMedia}
                     onChange={handleSocialMediaChange}
                   />
                 )}
-                
-                {item.id === 'privacy-policy' && (
+
+                {item.id === "privacy-policy" && (
                   <PrivacyPolicySection
                     selectedLanguages={formData.languages}
                     paragraphs={formData.privacyPolicies}
                     onChange={handlePrivacyPoliciesChange}
                   />
                 )}
-                
-                {item.id === 'terms-of-use' && (
+
+                {item.id === "terms-of-use" && (
                   <TermsSection
                     selectedLanguages={formData.languages}
                     paragraphs={formData.terms}
                     onChange={handleTermsChange}
                   />
                 )}
-                {/* --- (نهاية التعديل الثاني) --- */}
               </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
 
-        {/* زر الحفظ الرئيسي */}
         <div className="flex justify-center mt-8">
           <Button
             onClick={handleSaveAll}
             disabled={updateSettingsMutation.isPending}
-            className="px-12 py-3 bg-blue-4 text-white rounded-lg hover:bg-blue-3 font-medium text-base transition-colors"
+            className="px-8 py-2 bg-blue-3 text-white rounded-md hover:bg-blue-3 font-medium text-sm transition-colors"
           >
-            {updateSettingsMutation.isPending ? "جاري الحفظ..." : "حفظ جميع الإعدادات"}
+            {updateSettingsMutation.isPending
+              ? "جاري الحفظ..."
+              : "حفظ الإعدادات"}
           </Button>
         </div>
       </div>
