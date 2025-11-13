@@ -1,6 +1,4 @@
 // src/components/ui/OptionTag.tsx
-"use client";
-
 import { X } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
@@ -20,20 +18,29 @@ export function OptionTag({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 px-4 py-2 border border-blue-1 rounded-full bg-blue-5 transition-colors",
+        "inline-flex items-center gap-2 ",
+        "px-4 py-1 pb-1.5",
+        "rounded-full",
+        "border border-blue-3 bg-blue-5",
+        "cursor-default",
         className
       )}
     >
-      <span className="text-sm font-medium text-gray-700">{label}</span>
+      <span className="text-xs font-medium  text-blue-3">{label}</span>
+
       {showRemoveButton && onRemove && (
-        <button
-          type="button"
-          onClick={onRemove}
-          className="flex items-center justify-center w-4 h-4 cursor-pointer hover:opacity-70 transition-opacity"
-          aria-label={`حذف ${label}`}
-        >
-          <X className="w-3.5 h-3.5 text-gray-500" />
-        </button>
+        <>
+          <div className="h-4 w-px bg-gray-300" />
+
+          <button
+            type="button"
+            onClick={onRemove}
+            className="flex items-center justify-center cursor-pointer"
+            aria-label={`حذف ${label}`}
+          >
+            <X className="w-4 h-4 text-gray-600 hover:text-gray-800" />
+          </button>
+        </>
       )}
     </div>
   );

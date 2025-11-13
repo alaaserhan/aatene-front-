@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss"
 // ⭐️ (1) استدعي "default export" كله
-import defaultTheme from "tailwindcss/defaultTheme" 
-import animatePlugin from "tailwindcss-animate" 
+import defaultTheme from "tailwindcss/defaultTheme"
+import animatePlugin from "tailwindcss-animate"
 
 const config = {
   darkMode: "class",
@@ -22,8 +22,7 @@ const config = {
     },
     extend: {
       fontFamily: {
-        // ⭐️ (2) استخدم الخاصية من الأوبجكت اللي استدعيناه
-        sans: ["var(--font-cairo)", ...defaultTheme.fontFamily.sans],
+        sans: ["var(--font-ping-ar)", "sans-serif"],
       },
       colors: {
         'brand-white-1': '#F5F5F5',
@@ -33,7 +32,7 @@ const config = {
         'brand-gray-1': '#9291A5',
         'brand-black-1': '#202020',
       },
-   },
+    },
   },
   plugins: [
     animatePlugin,

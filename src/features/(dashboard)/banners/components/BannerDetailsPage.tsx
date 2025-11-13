@@ -118,7 +118,7 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
                     {/* Banner Title */}
                     <div className=" ">
                         <DetailRow
-                            icon={<Tag className="w-5 h-5 text-gray-400" />}
+                            icon={<img src="/icons/dashboard/mark2.svg" alt="Desktop" className="w-5 h-5 " />}
                             label="عنوان البانر"
                             value={banner.title}
                         />
@@ -129,7 +129,7 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
                         {/* Start Date - على اليمين */}
                         <div className="order-2 md:order-1">
                             <DetailRow
-                                icon={<Calendar className="w-5 h-5 text-gray-400" />}
+                                icon={<img src="/icons/dashboard/calender.svg" alt="Desktop" className="w-5 h-5 " />}
                                 label="تاريخ انتهاء الإعلان"
                                 value={banner.end_date}
                             />
@@ -138,7 +138,7 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
                         {/* End Date - على اليسار */}
                         <div className="order-1 md:order-2">
                             <DetailRow
-                                icon={<Calendar className="w-5 h-5 text-gray-400" />}
+                                icon={<img src="/icons/dashboard/calender.svg" alt="Desktop" className="w-5 h-5 " />}
                                 label="تاريخ بداية الإعلان"
                                 value={banner.start_date}
                             />
@@ -147,14 +147,20 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
 
                     {/* Priority & Status Grid - في نفس السطر */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6  ">
-                        {/* Status - على اليمين */}
-                        <div className="order-2 md:order-1">
+
+                        <div className="">
+                            <DetailRow
+                                icon={<div className="w-5 h-5 flex items-center justify-center text-gray-400 font-bold">#</div>}
+                                label="أولوية الإعلان (ترتيب)"
+                                value={banner.priority}
+                            />
+                        </div>
+
+
+                        <div className="">
                             <DetailRow
                                 icon={
-                                    <div className={cn(
-                                        "w-3 h-3 rounded-full",
-                                        banner.is_active ? "bg-green-500" : "bg-red-500"
-                                    )} />
+                                    <img src="/icons/dashboard/Activity.svg" alt="Desktop" className="w-5 h-5 " />
                                 }
                                 label="حالة الإعلان"
                                 value={
@@ -168,18 +174,10 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
                             />
                         </div>
 
-                        {/* Priority - على اليسار */}
-                        <div className="order-1 md:order-2">
-                            <DetailRow
-                                icon={<div className="w-5 h-5 flex items-center justify-center text-gray-400 font-bold">#</div>}
-                                label="أولوية الإعلان (ترتيب)"
-                                value={banner.priority}
-                            />
-                        </div>
                     </div>
 
                     {/* Cities/Districts */}
-                    <div className="border-t border-gray-200 pt-6">
+                    <div className="pt-2">
                         <div className="flex flex-col gap-3">
                             <label className="text-sm font-medium ">
                                 المدينة أو الحي المراد ظهور الإعلان لسكانه
@@ -203,21 +201,21 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
 
                     {/* Place */}
                     <DetailRow
-                        icon={<ImageIcon className="w-5 h-5 text-gray-400" />}
+                        icon={<img src="/icons/dashboard/map.svg" alt="Desktop" className="w-5 h-5 " />}
                         label="مكان الإعلان"
                         value={banner.place}
                     />
 
                     {/* URL */}
                     <DetailRow
-                        icon={<LinkIcon className="w-5 h-5 text-gray-400" />}
+                        icon={<img src="/icons/dashboard/url.svg" alt="url" className="w-5 h-5 " />}
                         label="رابط URL"
                         value={
                             <a
                                 href={banner.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-3 hover:underline break-all"
+                                className="hover:underline break-all"
                             >
                                 {banner.url}
                             </a>
@@ -226,22 +224,20 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
 
                     {/* Description */}
                     {banner.description && (
-                        <div className="border-t border-gray-200 pt-6">
-                            <DetailRow
-                                icon={<div className="w-5 h-5 flex items-center justify-center text-gray-400">📄</div>}
-                                label="وصف قصير"
-                                value={banner.description}
-                            />
-                        </div>
+                        <DetailRow
+                            icon={<img src="/icons/dashboard/text.svg" alt="Desktop" className="w-5 h-5 " />}
+                            label="وصف قصير"
+                            value={banner.description}
+                        />
                     )}
 
                     {/* Images Section */}
-                    <div className="border-t border-gray-200 pt-6 space-y-6">
+                    <div className="pt-3 space-y-6">
                         {/* Desktop Banner */}
                         {banner.labtop_banner_url && (
                             <div className="space-y-3">
                                 <div className="flex items-center gap-2">
-                                    <ImageIcon className="w-5 h-5 text-gray-400" />
+                                    <img src="/icons/dashboard/gallery.svg" alt="Desktop" className="w-5 h-5 " />
                                     <label className="text-sm font-medium ">
                                         صورة العرض على الكمبيوتر
                                     </label>
@@ -260,7 +256,7 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
                         {banner.mobile_banner_url && (
                             <div className="space-y-3">
                                 <div className="flex items-center gap-2">
-                                    <ImageIcon className="w-5 h-5 text-gray-400" />
+                                    <img src="/icons/dashboard/gallery.svg" alt="Desktop" className="w-5 h-5 " />
                                     <label className="text-sm font-medium ">
                                         صورة العرض على الموبايل
                                     </label>
@@ -284,6 +280,7 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
                 onClose={() => setDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
                 title="هل أنت متأكد من حذف هذا الإعلان؟"
+                description="لا يمكن استرجاع البنر بعد حذفه"
                 confirmText="نعم، قم بالحذف"
                 cancelText="إلغاء"
             />
@@ -300,9 +297,9 @@ interface DetailRowProps {
 
 function DetailRow({ icon, label, value }: DetailRowProps) {
     return (
-        <div className="flex items-start gap-3 border-b pb-6 border-b-[#E2E2E2]">
-            <div className="flex-shrink-0 mt-1">{icon}</div>
-            <div className="flex-1 min-w-0 flex flex-row items-center gap-6">
+        <div className="flex items-start gap-2 border-b pb-4 pt-4 border-b-[#E2E2E2]">
+            <div className="flex-shrink-0">{icon}</div>
+            <div className="flex-1 min-w-0 flex flex-row items-center gap-10">
                 <p className="text-sm font-medium text-gray-500 mb-1">{label}</p>
                 <div className="text-sm break-words font-medium">
                     {value}

@@ -399,6 +399,7 @@ export function BannersPage() {
                 onClose={() => setDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
                 title="هل أنت متأكد من حذف البنر؟"
+                description="لا يمكن استرجاع البنر بعد حذفه"
                 confirmText="نعم، قم بالحذف"
                 cancelText="إلغاء"
             />
