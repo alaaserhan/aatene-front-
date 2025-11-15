@@ -52,7 +52,7 @@ export function ImageViewerModal({
         </button>
 
         {/* Main Image Container */}
-        <div className="relative bg-gray-900 rounded-2xl overflow-hidden">
+        <div className="relative bg-gray-900  rounded-2xl overflow-hidden">
           <div className="aspect-[4/3] flex items-center justify-center">
             <img
               src={images[currentIndex]}
@@ -68,13 +68,13 @@ export function ImageViewerModal({
                 onClick={handlePrevious}
                 className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white rounded-full transition-all cursor-pointer shadow-lg"
               >
-                <ChevronLeft className="w-6 h-6 text-gray-900" />
+                <ChevronLeft className="w-6 h-6 " />
               </button>
               <button
                 onClick={handleNext}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white rounded-full transition-all cursor-pointer shadow-lg"
               >
-                <ChevronRight className="w-6 h-6 text-gray-900" />
+                <ChevronRight className="w-6 h-6 " />
               </button>
             </>
           )}

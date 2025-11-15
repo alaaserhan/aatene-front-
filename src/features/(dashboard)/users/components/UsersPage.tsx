@@ -5,13 +5,11 @@ import { useState, useMemo, useRef } from "react";
 import { useGetUsers } from "../hooks";
 import { useGetRoles } from "../../roles/hooks";
 import { User } from "../api";
-import { Button } from "@/src/components/ui/button";
 import { Plus } from "lucide-react";
-import { UserFilterPanel } from "./UserFilterPanel";
 import { UserListSidebar } from "./UserListSidebar";
 import { UserDetailsSidebar } from "./UserDetailsSidebar";
-import { cn } from "@/src/lib/utils";
 import Link from "next/link";
+import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
 
 export function UsersPage() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -68,7 +66,7 @@ export function UsersPage() {
     setSelectedUserId(null);
   };
 
-  const handleFilterChange = (roleName: string) => {
+  const handleFilterChange = (roleName: string ) => {
     setActiveRoleName(roleName);
     setCurrentPage(1);
     setSelectedUserId(null);
@@ -112,10 +110,10 @@ export function UsersPage() {
       <main className="flex-1 p-6 h-[calc(100vh-65px)]">
         <div className="grid grid-cols-12 gap-6 h-full">
           <div className="col-span-12 lg:col-span-2 h-full">
-            <UserFilterPanel
-              categories={filterCategories}
-              activeFilter={activeRoleName}
-              onFilterChange={handleFilterChange}
+            <SidebarFilterPanel
+              options={filterCategories}
+              activeValue={activeRoleName}
+              onValueChange={handleFilterChange}
               className="h-full"
             />
           </div>

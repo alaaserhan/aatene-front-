@@ -10,6 +10,7 @@ export interface Category {
   is_active: boolean | "0" | "1";
   parent_id: string | null;
   subCategories: Category[];
+  sub_categories_count?: string;
 }
 
 export interface CategorySelectOption {

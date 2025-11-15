@@ -12,11 +12,10 @@ import { useGetPermissions } from "../hooks";
 import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Plus, Loader2 } from "lucide-react";
-import { UserFilterPanel } from "../../users/components/UserFilterPanel";
-import { cn } from "@/src/lib/utils";
 import Link from "next/link";
 import { toast } from "sonner";
 import { RoleListItem } from "../../roles/api";
+import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
 
 export function PermissionsPage() {
   const [mode, setMode] = useState<"edit" | "create">("edit");
@@ -170,8 +169,8 @@ export function PermissionsPage() {
       <main className="flex-1 p-6">
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-3">
-            <UserFilterPanel
-              categories={filterCategories}
+            <SidebarFilterPanel
+              options={filterCategories}
               activeFilter={selectedRoleId ? String(selectedRoleId) : ""}
               onFilterChange={handleRoleSelect}
             />

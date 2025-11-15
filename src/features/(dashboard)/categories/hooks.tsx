@@ -28,6 +28,32 @@ export function useGetCategories(params: URLSearchParams) {
   });
 }
 
+export function useGetParentCategories(params: URLSearchParams) {
+  params.set("only_parent", "true");
+  const key = QK.list(params.toString());
+  return useQuery({
+    queryKey: key,
+    queryFn: () => api.getCategories(params),
+  });
+}
+
+export function useGetSubCategories(
+  parentId: string | number,
+  type: "product" | "service"
+) {
+  const params = new URLSearchParams();
+  params.set("type", type);
+  params.set("only_sub_categories", "true");
+  params.set("parent_id", String(parentId));
+
+  const key = QK.list(params.toString());
+  return useQuery({
+    queryKey: key,
+    queryFn: () => api.getCategories(params),
+    enabled: !!parentId,
+  });
+}
+
 export function useGetCategoryOptions() {
   return useQuery({
     queryKey: QK.options,

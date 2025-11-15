@@ -118,6 +118,10 @@
   border-color: var(--gray-1);
 }
 
+.border-gray-2{
+  border-color: var(--gray-2);
+}
+
 .border-black-1 {
   border-color: var(--black-1);
 }
