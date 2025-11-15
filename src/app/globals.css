@@ -43,6 +43,7 @@
   --blue-3: #2D496A;
   --blue-4: #406896;
   --blue-5: #5B87B91A;
+  --blue-6: #5B88BA33;
   --gray-1: #9291A5;
   --gray-2: #717171;
   --black-1: #393939;
@@ -62,6 +63,14 @@
 
 .bg-blue-4 {
   background-color: var(--blue-4);
+}
+
+.bg-blue-5 {
+  background-color: var(--blue-5);
+}
+
+.bg-blue-6 {
+  background-color: var(--blue-6);
 }
 
 .bg-white-1 {
@@ -94,6 +103,14 @@
 
 .border-blue-4 {
   border-color: var(--blue-4);
+}
+
+.border-blue-5 {
+  border-color: var(--blue-5);
+}
+
+.border-white-1 {
+  border-color: var(--white-1);
 }
 
 

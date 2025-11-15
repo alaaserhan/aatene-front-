@@ -32,7 +32,7 @@ export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
       <div className={cn("space-y-2", containerClassName)}>
         {/* Label */}
         {label && (
-          <label className="block text-sm font-medium text-brand-black-1 ">
+          <label className="block text-sm font-medium text-brand-black-1 mb-3">
             {label}
             {required && <span className="text-red-500 mr-1">*</span>}
           </label>

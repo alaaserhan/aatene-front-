@@ -42,12 +42,11 @@ export interface SingleUserResponse extends BaseResponse {
 }
 
 export interface UserCreatePayload {
-  avatar?: File;
+  avatar?: string | null;
   first_name: string;
   last_name: string;
   email: string;
   phone: string;
-  password: string;
   roles: number[];
   is_active: "0" | "1";
   date_of_birth?: string;
@@ -77,49 +76,6 @@ export interface UpdatePasswordPayload {
   password_confirmation: string;
 }
 
-type Primitive = string | number | boolean;
-type FileLike = Blob | File;
-type Allowed =
-  | Primitive
-  | Date
-  | FileLike
-  | (Primitive | Date | FileLike)[]
-  | null
-  | undefined;
-
-const isFileLike = (v: unknown): v is FileLike =>
-  v instanceof Blob || v instanceof File;
-
-const toAppendable = (v: Primitive | Date): string =>
-  v instanceof Date ? v.toISOString() : String(v);
-
-type AllowedShape<T> = { [K in keyof T]: Allowed };
-
-export const createFormData = <T extends object>(
-  data: AllowedShape<T>
-): FormData => {
-  const fd = new FormData();
-
-  (Object.entries(data) as [keyof T, Allowed][]).forEach(([key, value]) => {
-    if (value == null) return;
-
-    if (Array.isArray(value)) {
-      value.forEach((item) => {
-        if (item == null) return;
-        fd.append(`${String(key)}[]`, toAppendable(item as Primitive | Date));
-      });
-      return;
-    }
-
-    fd.append(
-      String(key),
-      isFileLike(value) ? value : toAppendable(value as Primitive | Date)
-    );
-  });
-
-  return fd;
-};
-
 export const getUsers = async (
   params: URLSearchParams
 ): Promise<PaginatedUsersResponse> => {
@@ -139,10 +95,7 @@ export const getSingleUser = async (
 export const createUser = async (
   payload: UserCreatePayload
 ): Promise<SingleUserResponse> => {
-  const formData = createFormData(payload);
-  const { data } = await api.post<SingleUserResponse>("/admin/users", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const { data } = await api.post<SingleUserResponse>("/admin/users", payload);
   return data;
 };
 
@@ -150,13 +103,9 @@ export const updateUser = async (
   id: string | number,
   payload: UserUpdatePayload
 ): Promise<SingleUserResponse> => {
-  const formData = createFormData(payload);
   const { data } = await api.post<SingleUserResponse>(
     `/admin/users/${id}`,
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
+    payload
   );
   return data;
 };
@@ -165,13 +114,9 @@ export const updateUserPassword = async (
   id: string | number,
   payload: UpdatePasswordPayload
 ): Promise<BaseResponse> => {
-  const formData = createFormData(payload);
   const { data } = await api.post<BaseResponse>(
     `/admin/users/${id}/update-password`,
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
+    payload
   );
   return data;
 };

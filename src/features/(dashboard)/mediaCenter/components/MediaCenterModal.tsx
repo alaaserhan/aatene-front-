@@ -34,13 +34,13 @@ import { MediaItem as MediaItemType } from "../api";
 
 // (جديد) تعريف مصفوفة الفلاتر
 const MEDIA_TYPES = [
-  { value: "gallery", label: "Gallery", icon: Grid3X3 },
-  { value: "image", label: "Images", icon: ImageIcon },
-  { value: "pdf", label: "PDF", icon: FileText },
-  { value: "word", label: "Word", icon: FileText },
-  { value: "excel", label: "Excel", icon: FileSpreadsheet },
-  { value: "file", label: "Files", icon: File },
-  { value: "avatar", label: "Avatars", icon: User },
+  { value: "pdf", label: "ملفات PDF", icon: FileText },
+  { value: "word", label: "ملفات Word", icon: FileText },
+  { value: "excel", label: "ملفات Excel", icon: FileSpreadsheet },
+  { value: "file", label: "ملفات", icon: File },
+  { value: "avatar", label: "افاتار", icon: User }, 
+  { value: "gallery", label: "المعرض", icon: Grid3X3 },
+  { value: "image", label: "الصور", icon: ImageIcon },
 ];
 
 interface MediaCenterModalProps {
@@ -260,9 +260,9 @@ export function MediaCenterModal({
                             : "bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-200"
                         )}
                         onClick={() => handleTypeChange(type.value)}
-                      >
+                        >
+                        <span className="hidden md:inline">{type.label}</span>
                         <Icon className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">{type.label}</span>
                       </Badge>
                     );
                   })}
@@ -277,7 +277,7 @@ export function MediaCenterModal({
 
         {/* Main Content */}
         {/* (جديد) تعديل الارتفاع ليأخذ الفلاتر في الحسبان */}
-        <div className="flex flex-col h-[calc(90vh-260px)] justify-between overflow-hidden">
+        <div className="flex flex-col h-[calc(90vh-130px)] justify-between overflow-hidden">
           <ScrollArea className="flex-1">
             {/* Upload Area */}
             {showUploadArea && (

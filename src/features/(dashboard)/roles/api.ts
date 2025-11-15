@@ -7,9 +7,13 @@ export interface Permission {
   name: string;
 }
 
-export interface Role {
+export interface RoleListItem {
   id: number;
   name: string;
+  title: string | null;
+}
+
+export interface Role extends RoleListItem {
   permissions: Permission[];
 }
 
@@ -21,7 +25,7 @@ export interface BaseResponse {
 export interface PaginatedRolesResponse extends BaseResponse {
   recordsTotal: number;
   recordsFiltered: number;
-  data: Role[];
+  data: RoleListItem[];
 }
 
 export interface SingleRoleResponse extends BaseResponse {
@@ -29,12 +33,14 @@ export interface SingleRoleResponse extends BaseResponse {
 }
 
 export interface RoleCreatePayload {
-  name: string;
+  title: string | null;
   permissions: number[];
+  name: string;
 }
 
 export interface RoleUpdatePayload {
   name?: string;
+  title?: string | null;
   permissions?: number[];
 }
 

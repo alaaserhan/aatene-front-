@@ -1,7 +1,7 @@
 // src/features/(dashboard)/users/components/UserDetailsSidebar.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -10,6 +10,7 @@ import {
   useUpdateUser,
   useDeleteUser,
 } from "../hooks";
+import { useGetRoles } from "../../roles/hooks";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import {
@@ -23,6 +24,7 @@ import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteMo
 import { cn } from "@/src/lib/utils";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { UserUpdatePayload } from "../api";
+import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
 
 interface UserDetailsSidebarProps {
   selectedUserId: number | null;
@@ -30,12 +32,6 @@ interface UserDetailsSidebarProps {
   onUserDelete: () => void;
   className?: string;
 }
-
-const roleOptions = [
-  { value: "", label: "مستخدم عادي" },
-  { value: "1", label: "Admin" },
-  { value: "2", label: "Merchant" },
-];
 
 const userSchema = z.object({
   first_name: z.string().min(1, "الاسم الأول مطلوب"),
@@ -62,6 +58,23 @@ export function UserDetailsSidebar({
     isLoading: isLoadingUser,
     refetch,
   } = useGetSingleUser(selectedUserId);
+
+  const { data: rolesData } = useGetRoles(new URLSearchParams());
+
+  const dynamicRoleOptions = useMemo(() => {
+    const baseOptions = [{ value: "", label: "مستخدم " }];
+
+    if (!rolesData?.data) {
+      return baseOptions;
+    }
+
+    const fetchedRoles = rolesData.data.map((role) => ({
+      value: String(role.id),
+      label: role.name,
+    }));
+
+    return [...baseOptions, ...fetchedRoles];
+  }, [rolesData]);
 
   const updateUserMutation = useUpdateUser();
   const deleteUserMutation = useDeleteUser();
@@ -207,7 +220,7 @@ export function UserDetailsSidebar({
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium  mb-2">
                 الاسم الأول
               </label>
               <Input
@@ -223,7 +236,7 @@ export function UserDetailsSidebar({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium  mb-2">
                 الاسم الأخير
               </label>
               <Input
@@ -239,14 +252,14 @@ export function UserDetailsSidebar({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium  mb-2">
                 الدور
               </label>
               <select
                 {...register("roles")}
                 className="w-full h-10 px-3 pr-8 bg-white border border-gray-300 rounded-lg text-sm appearance-none cursor-pointer focus:ring-2 focus:ring-[#3A5779] focus:border-transparent"
               >
-                {roleOptions.map((option) => (
+                {dynamicRoleOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -260,7 +273,7 @@ export function UserDetailsSidebar({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium  mb-2">
                 البريد الالكتروني
               </label>
               <Input
@@ -276,57 +289,36 @@ export function UserDetailsSidebar({
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                رقم الهاتف
-              </label>
-              <div className="flex gap-2">
-                <Input
-                  {...register("phone")}
-                  type="tel"
-                  placeholder="1289022985"
-                  className="flex-1"
-                />
-                <div className="relative w-24">
-                  <select
-                    value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
-                    className="w-full h-10 px-3 pr-8 bg-white border border-gray-300 rounded-lg text-sm appearance-none cursor-pointer focus:ring-2 focus:ring-[#3A5779] focus:border-transparent"
-                  >
-                    <option value="+20">+20</option>
-                    <option value="+966">+966</option>
-                    <option value="+971">+971</option>
-                  </select>
-                </div>
-              </div>
-              {errors.phone && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.phone.message}
-                </p>
-              )}
-            </div>
+            <PhoneNumberInput
+              label="رقم الهاتف"
+              placeholder="0128000000"
+              countryCode={countryCode}
+              onCountryCodeChange={setCountryCode}
+              {...register("phone")}
+              error={errors.phone?.message}
+            />
 
-            <div className="flex items-center justify-between pt-2">
-              <label className="text-sm font-medium text-gray-700">
+            <div className="flex flex-col gap-3 pt-2">
+              <label className="text-sm font-medium ">
                 تفعيل الحساب
               </label>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">
-                  {isActive ? "مفعل" : "غير مفعل"}
+                <span className="text-xs text-gray-2">
+                  غير مفعل
                 </span>
                 <ToggleSwitch
                   enabled={isActive}
                   onChange={(checked) => setValue("is_active", checked)}
                 />
+                <span className="text-xs text-gray-2">مفعل</span>
               </div>
             </div>
-
 
             <div className="flex items-center gap-3 mt-6">
               <Button
                 type="submit"
                 disabled={updateUserMutation.isPending}
-                className="flex-1 bg-[#3A5779] hover:bg-[#2d4460] text-white cursor-pointer rounded-sm"
+                className="px-6 bg-blue-6  text-blue-4 cursor-pointer rounded-xs"
               >
                 {updateUserMutation.isPending && (
                   <Loader2 className="w-4 h-4 animate-spin ml-2" />
@@ -338,7 +330,7 @@ export function UserDetailsSidebar({
                 variant="outline"
                 onClick={() => setDeleteModalOpen(true)}
                 disabled={deleteUserMutation.isPending}
-                className="flex-1 rounded-sm bg-[#FB37481A] border-red-200 text-red-600 hover:text-red-600 hover:bg-red-100 cursor-pointer"
+                className="px-6 rounded-xs  bg-[#FB37481A] border-red-200 text-red-600 hover:text-red-600 hover:bg-red-100 cursor-pointer"
               >
                 {deleteUserMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin ml-2" />
@@ -351,11 +343,10 @@ export function UserDetailsSidebar({
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-6 flex flex-col gap-7">
+        <div className="bg-white rounded-lg border border-gray-200 p-6 flex flex-col gap-6">
           <h3 className="text-lg font-medium text-blue-4">
             معلومات المستخدم
           </h3>
-
 
           <div className="flex flex-row justify-between items-center ">
             <div className="flex flex-row gap-3 items-center">
@@ -366,47 +357,45 @@ export function UserDetailsSidebar({
               />
               <div className="flex flex-col gap-2.5">
                 <h4 className="text-base font-medium ">{fullName}</h4>
-                <p className="text-sm text-gray-2 ">{user.phone}</p>
-                <div className="flex items-center  gap-3 ">
-                  <button
-                    type="button"
-                    className=" cursor-pointer"
-                    title="إرسال بريد"
-                  >
+                <div className="flex gap-3">
+                  <p className="text-sm text-gray-2 ">{user.phone}</p>
+                  <div className="flex items-center  gap-3 ">
+                    <button
+                      type="button"
+                      className=" cursor-pointer"
+                      title="إرسال بريد"
+                    >
+                      <div
+                        className="w-5 h-5 bg-blue-4"
+                        style={{
+                          maskImage: "url(/icons/dashboard/email.svg)",
+                          maskSize: "contain",
+                          maskRepeat: "no-repeat",
+                          maskPosition: "center",
+                        }}
+                      ></div>
+                    </button>
                     <div
                       className="w-5 h-5 bg-blue-4"
                       style={{
-                        maskImage: 'url(/icons/dashboard/email.svg)',
-                        maskSize: 'contain',
-                        maskRepeat: 'no-repeat',
-                        maskPosition: 'center',
+                        maskImage: "url(/icons/dashboard/whatsapp.svg)",
+                        maskSize: "contain",
+                        maskRepeat: "no-repeat",
+                        maskPosition: "center",
                       }}
-                    >
-                    </div>
-                  </button>
-                  <div
-                    className="w-5 h-5 bg-blue-4"
-                    style={{
-                      maskImage: 'url(/icons/dashboard/whatsapp.svg)',
-                      maskSize: 'contain',
-                      maskRepeat: 'no-repeat',
-                      maskPosition: 'center',
-                    }}
-                  >
-                  </div>
-                  <div
-                    className="w-5 h-5 bg-blue-4"
-                    style={{
-                      maskImage: 'url(/icons/dashboard/phone.svg)',
-                      maskSize: 'contain',
-                      maskRepeat: 'no-repeat',
-                      maskPosition: 'center',
-                    }}
-                  >
+                    ></div>
+                    <div
+                      className="w-5 h-5 bg-blue-4"
+                      style={{
+                        maskImage: "url(/icons/dashboard/phone.svg)",
+                        maskSize: "contain",
+                        maskRepeat: "no-repeat",
+                        maskPosition: "center",
+                      }}
+                    ></div>
                   </div>
                 </div>
               </div>
-
             </div>
 
             <Button
@@ -415,10 +404,7 @@ export function UserDetailsSidebar({
             >
               أضف عملات ذهبية
             </Button>
-
           </div>
-
-
 
           <div className="text-sm flex flex-row gap-5">
             <div className="flex flex-col gap-1 ">

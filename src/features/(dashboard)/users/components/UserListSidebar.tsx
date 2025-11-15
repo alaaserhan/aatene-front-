@@ -8,7 +8,7 @@ import { ListFilter, Loader2, Search } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
 interface UserListSidebarProps {
-  usersData: { data: User[] };
+  usersData: any;
   isLoading: boolean;
   isError: boolean;
   selectedUserId: number | null;
@@ -51,7 +51,7 @@ export function UserListSidebar({
   return (
     <div
       className={cn(
-        "bg-white rounded-lg flex flex-col max-h-[65vh] overflow-hidden",
+        "bg-white rounded-lg flex flex-col overflow-hidden",
         className
       )}
     >
@@ -94,7 +94,7 @@ export function UserListSidebar({
             {users.map((user) => {
               const isSelected = selectedUserId === user.id;
               const fullName =
-                `${user.first_name || ""}`.trim();
+                `${user.first_name || ""} ${user.last_name || ""}`.trim();
               const roleName = user.roles?.[0]?.name || "مستخدم";
               const status = getStatusProps(user);
 
@@ -107,7 +107,6 @@ export function UserListSidebar({
                     isSelected ? "bg-blue-5" : "hover:bg-gray-50"
                   )}
                 >
-
                   <div className="flex-shrink-0">
                     <img
                       src={user.avatar_url || "/default-avatar.png"}
@@ -116,10 +115,9 @@ export function UserListSidebar({
                     />
                   </div>
 
-
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold truncate mb-1.5">
-                      {fullName}
+                      {user.first_name}
                     </p>
                     <p className="text-xs text-gray-2 truncate">
                       {roleName}
@@ -132,7 +130,9 @@ export function UserListSidebar({
                       status.color
                     )}
                   >
-                    <div className={cn("w-2 h-2 rounded-full shadow mt-0.5", status.dot)} />
+                    <div
+                      className={cn("w-2 h-2 rounded-full shadow mt-0.5", status.dot)}
+                    />
                     <span className="text-xs font-medium">{status.text}</span>
                   </div>
                 </div>

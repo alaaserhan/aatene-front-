@@ -4,7 +4,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "./api";
 import { toast } from "sonner";
-import { PaginatedRolesResponse, SingleRoleResponse, Role } from "./api";
+import { PaginatedRolesResponse, SingleRoleResponse, RoleListItem } from "./api";
 
 const QK = {
   any: ["roles"] as const,
@@ -63,13 +63,15 @@ export function useUpdateRole() {
         QK.single(vars.id)
       );
 
+      const { permissions, ...listPayload } = vars.payload;
+
       prevLists.forEach(([key]) => {
         qc.setQueryData(key, (old: PaginatedRolesResponse | undefined) => {
           if (!old?.data) return old;
           return {
             ...old,
-            data: old.data.map((r: Role) =>
-              r.id === vars.id ? { ...r, ...vars.payload } : r
+            data: old.data.map((r: RoleListItem) =>
+              r.id === vars.id ? { ...r, ...listPayload } : r
             ),
           };
         });
@@ -118,7 +120,7 @@ export function useDeleteRole() {
       prevLists.forEach(([key]) => {
         qc.setQueryData(key, (old: PaginatedRolesResponse | undefined) => {
           if (!old?.data) return old;
-          const nextData = old.data.filter((r: Role) => r.id !== id);
+          const nextData = old.data.filter((r: RoleListItem) => r.id !== id);
           const nextCount =
             typeof old.recordsFiltered === "number"
               ? Math.max(0, old.recordsFiltered - 1)

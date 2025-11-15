@@ -2,13 +2,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import * as api from "./api";
 import {
-  getUsers,
-  getSingleUser,
-  createUser,
-  updateUser,
-  updateUserPassword,
-  deleteUser,
   UserCreatePayload,
   UserUpdatePayload,
   UpdatePasswordPayload,
@@ -18,54 +13,125 @@ import {
   BaseResponse,
 } from "./api";
 import { toast } from "sonner";
+import { PaginatedRolesResponse as RolesPaginatedResponse } from "../../roles/api";
+import { Role } from "./api";
 
-export const USERS_QUERY_KEY = ["users"];
+const QK = {
+  any: ["users"] as const,
+  listAny: ["users", "list"] as const,
+  list: (paramsString: string) => ["users", "list", paramsString] as const,
+  single: (id: string | number) => ["users", "single", String(id)] as const,
+};
+
+const RoleQK = {
+  listAny: ["roles", "list"] as const,
+};
+
+const coerceActive = (v: unknown) => v === "1" || v === 1 || v === true;
 
 export const useGetUsers = (params: URLSearchParams) => {
+  const key = QK.list(params.toString());
   return useQuery({
-    queryKey: [...USERS_QUERY_KEY, "list", params.toString()],
-    queryFn: () => getUsers(params),
+    queryKey: key,
+    queryFn: () => api.getUsers(params),
   });
 };
 
-export const useGetSingleUser = (id: number | null) => {
+export const useGetSingleUser = (id: string | number | undefined) => {
   return useQuery({
-    queryKey: [...USERS_QUERY_KEY, "detail", id],
-    queryFn: () => getSingleUser(id!),
+    queryKey: QK.single(id ?? ""),
+    queryFn: () => api.getSingleUser(id!),
     enabled: !!id,
   });
 };
 
 export const useCreateUser = () => {
-  const queryClient = useQueryClient();
-
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: createUser,
+    mutationFn: (payload: UserCreatePayload) => api.createUser(payload),
     onSuccess: (data: SingleUserResponse) => {
       toast.success(data.message || "تم إنشاء المستخدم بنجاح");
-      queryClient.invalidateQueries({ queryKey: [USERS_QUERY_KEY, "list"] });
     },
-    onError: (error) => {
-      console.error("Create user failed:", error);
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: QK.listAny });
     },
   });
 };
 
 export const useUpdateUser = () => {
-  const queryClient = useQueryClient();
-
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (variables: { id: string | number; payload: UserUpdatePayload }) =>
-      updateUser(variables.id, variables.payload),
+      api.updateUser(variables.id, variables.payload),
+
+    onMutate: async (vars) => {
+      await qc.cancelQueries({ queryKey: QK.any });
+
+      const prevLists = qc.getQueriesData<PaginatedUsersResponse>({
+        queryKey: QK.listAny,
+      });
+      const prevSingle = qc.getQueryData<SingleUserResponse>(
+        QK.single(vars.id)
+      );
+
+      const { is_active, roles, ...rest } = vars.payload;
+      const optimisticPayload: Partial<User> = { ...rest };
+
+      if (is_active !== undefined) {
+        optimisticPayload.is_active = coerceActive(is_active);
+      }
+
+      if (roles !== undefined) {
+        const rolesCache = qc.getQueryData<RolesPaginatedResponse>(
+          RoleQK.listAny
+        );
+        const newRoleList: Role[] = [];
+
+        if (rolesCache?.data && roles.length > 0) {
+          const roleId = roles[0];
+          const foundRole = rolesCache.data.find((r) => r.id === roleId);
+          if (foundRole) {
+            newRoleList.push({ id: foundRole.id, name: foundRole.name });
+          }
+        }
+        optimisticPayload.roles = newRoleList;
+      }
+
+      prevLists.forEach(([key, oldData]) => {
+        qc.setQueryData(key, (old: PaginatedUsersResponse | undefined) => {
+          if (!old?.data) return old;
+          return {
+            ...old,
+            data: old.data.map((u: User) =>
+              u.id === vars.id ? { ...u, ...optimisticPayload } : u
+            ),
+          };
+        });
+      });
+
+      if (prevSingle?.record) {
+        qc.setQueryData(QK.single(vars.id), {
+          ...prevSingle,
+          record: { ...prevSingle.record, ...optimisticPayload },
+        });
+      }
+
+      return { prevLists, prevSingle };
+    },
+
     onSuccess: (data: SingleUserResponse) => {
       toast.success(data.message || "تم تحديث المستخدم بنجاح");
-      queryClient.invalidateQueries({ queryKey: [USERS_QUERY_KEY, "list"] });
-      queryClient.invalidateQueries({
-        queryKey: [USERS_QUERY_KEY, "detail", data.record.id],
-      });
     },
-    onError: (error) => {
-      console.error("Update user failed:", error);
+
+    onError: (_err, vars, ctx) => {
+      toast.error("حدث خطأ أثناء التعديل");
+      ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
+      if (ctx?.prevSingle) qc.setQueryData(QK.single(vars.id), ctx.prevSingle);
+    },
+
+    onSettled: (_data, _err, vars) => {
+      qc.invalidateQueries({ queryKey: QK.listAny });
+      qc.invalidateQueries({ queryKey: QK.single(vars.id) });
     },
   });
 };
@@ -75,27 +141,53 @@ export const useUpdateUserPassword = () => {
     mutationFn: (variables: {
       id: string | number;
       payload: UpdatePasswordPayload;
-    }) => updateUserPassword(variables.id, variables.payload),
+    }) => api.updateUserPassword(variables.id, variables.payload),
     onSuccess: (data: BaseResponse) => {
       toast.success(data.message || "تم تحديث كلمة المرور بنجاح");
-    },
-    onError: (error) => {
-      console.error("Update password failed:", error);
     },
   });
 };
 
 export const useDeleteUser = () => {
-  const queryClient = useQueryClient();
-
+  const qc = useQueryClient();
   return useMutation({
-    mutationFn: deleteUser,
+    mutationFn: (id: string | number) => api.deleteUser(id),
+
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: QK.listAny });
+      const prevLists = qc.getQueriesData<PaginatedUsersResponse>({
+        queryKey: QK.listAny,
+      });
+      const prevSingle = qc.getQueryData<SingleUserResponse>(QK.single(id));
+
+      prevLists.forEach(([key, oldData]) => {
+        qc.setQueryData(key, (old: PaginatedUsersResponse | undefined) => {
+          if (!old?.data) return old;
+          const nextData = old.data.filter((u: User) => u.id !== id);
+          const nextCount =
+            typeof old.recordsFiltered === "number"
+              ? Math.max(0, old.recordsFiltered - 1)
+              : nextData.length;
+          return { ...old, data: nextData, recordsFiltered: nextCount };
+        });
+      });
+
+      qc.removeQueries({ queryKey: QK.single(id) });
+      return { prevLists, prevSingle };
+    },
+
     onSuccess: (data: BaseResponse) => {
       toast.success(data.message || "تم حذف المستخدم بنجاح");
-      queryClient.invalidateQueries({ queryKey: [USERS_QUERY_KEY, "list"] });
     },
-    onError: (error) => {
-      console.error("Delete user failed:", error);
+
+    onError: (_err, id, ctx) => {
+      toast.error("حدث خطأ أثناء الحذف");
+      ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
+      if (ctx?.prevSingle) qc.setQueryData(QK.single(id), ctx.prevSingle);
+    },
+
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: QK.listAny });
     },
   });
 };

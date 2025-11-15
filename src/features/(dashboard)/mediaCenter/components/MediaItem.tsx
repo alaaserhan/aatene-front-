@@ -19,13 +19,13 @@ export function MediaItem({ item, isSelected, onSelect }: MediaItemProps) {
     <Card
       onClick={onSelect}
       className={cn(
-        "group relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md",
-        isSelected && "ring-2 ring-blue-3 ring-offset-2 shadow-lg"
+        "group relative cursor-pointer overflow-hidden rounded-xl border shadow-none border-gray-200 bg-white  transition-all duration-200 hover:shadow-sm",
+        isSelected && "ring-2 ring-blue-3 ring-offset-2"
       )}
     >
       {/* علامة الاختيار */}
       {isSelected && (
-        <div className="absolute top-2 right-2 z-10 rounded-full bg-blue-3 p-1 text-white shadow-lg">
+        <div className="absolute top-2 right-2 z-10 rounded-full bg-blue-3 p-1 text-white">
           <Check className="h-3 w-3" />
         </div>
       )}
@@ -47,18 +47,18 @@ export function MediaItem({ item, isSelected, onSelect }: MediaItemProps) {
         </div>
 
         {/* الشريط السفلي */}
-        <div className="border-t border-gray-200 bg-[#5B87B91A] px-3 py-2">
+        <div className="border-t border-gray-200 bg-white px-3 py-2">
           {/* العنوان */}
           <p
-            className="truncate text-center text-sm font-semibold text-gray-700"
+            className="truncate text-center text-sm"
             title={item.title}
           >
-            <span className="align-middle text-[#406896]">{item.title}</span>
+            <span className="font-medium text-neutral-800">{item.title}</span>
           </p>
 
           {/* الحجم */}
           <div className="mt-1 flex items-center justify-end">
-            <span className="text-[11px] text-gray-500">
+            <span className="text-[11px] text-gray-2">
               {Math.round(parseInt(item.size) / 1024)}KB
             </span>
           </div>
