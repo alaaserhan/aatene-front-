@@ -1,10 +1,10 @@
 // src/features/(dashboard)/categories/components/CategoryModal.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, Upload } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { X, Upload, Info, Plus } from "lucide-react";
 import { cn } from "@/src/lib/utils";
-import { Category, CategorySelectOption } from "../api";
+import { Category, CategorySelectOption, MediaItem } from "../api";
 import {
   Dialog,
   DialogContent,
@@ -15,9 +15,9 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
-import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
-import { MediaItem } from "../../mediaCenter/api";
+import { ReusableDropdown } from "@/src/components/(dashboard)/ReusableDropdown";
+import Link from "next/link";
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -54,12 +54,27 @@ export function CategoryModal({
   category,
   mode,
   parentId,
+  parentName,
   categoryOptions = [],
   currentType,
 }: CategoryModalProps) {
   const [formData, setFormData] = useState<CategoryFormData>(defaultFormData);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+
+  const parentCategoryName = parentName || "";
+
+  const dropdownOptions = useMemo(() => {
+    const baseOptions = [{ value: "", label: "فئة رئيسية" }];
+    const parentOptions =
+      categoryOptions
+        .filter((opt) => opt.parent_id === null)
+        .map((opt) => ({
+          value: String(opt.id),
+          label: opt.name,
+        })) || [];
+    return [...baseOptions, ...parentOptions];
+  }, [categoryOptions]);
 
   useEffect(() => {
     if (isOpen) {
@@ -124,28 +139,36 @@ export function CategoryModal({
   if (!isOpen) return null;
 
   const getModalTitle = () => {
-    if (mode === "edit") return "تعديل بيانات الفئة";
+    if (mode === "edit") return "تعديل الفئة";
+    if (mode === "addSub" && parentCategoryName)
+      return `إضافة فئة فرعية إلى "${parentCategoryName}"`;
     if (mode === "addSub") return "إضافة فئة فرعية جديدة";
     return activeType === "product"
-      ? "إضافة فئة منتجات جديدة"
-      : "إضافة فئة خدمات جديدة";
+      ? "إضافة فئة رئيسية جديدة"
+      : "إضافة فئة خدمات جديدة ";
   };
-  
+
   const activeType = formData.type || currentType;
 
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent
-          className="sm:max-w-2xl max-h-[90vh] overflow-y-auto"
+          className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0"
+          dir="rtl"
         >
-          <DialogHeader className="text-start">
+          <DialogHeader className="p-6 pb-4 text-start">
             <DialogTitle className="text-xl font-bold text-gray-900">
               {getModalTitle()}
             </DialogTitle>
+            <p className="text-sm text-gray-500 pt-2">
+              ابدأ بتنظيم متجرك بإنشاء فئة منتجات جديدة. تساعدك الفئات على ترتيب
+              المنتجات داخل متجرك لسهولة التصفح والإدارة، دون أن تؤثر على
+              التصنيفات الرئيسية في المنصة.
+            </p>
           </DialogHeader>
 
-          <div className="p-6 space-y-6">
+          <div className="px-6 pb-6 space-y-6">
             <div>
               <Label htmlFor="cat-name" className="mb-2 block">
                 اسم الفئة
@@ -157,7 +180,7 @@ export function CategoryModal({
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                placeholder="اكتب اسم الفئة هنا"
+                placeholder="اسم الفئة"
                 className="w-full px-4 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-3 focus:border-transparent"
               />
             </div>
@@ -167,91 +190,105 @@ export function CategoryModal({
                 <Label htmlFor="cat-parent" className="mb-2 block">
                   الفئة الأساسية (اختياري)
                 </Label>
-                <select
-                  id="cat-parent"
-                  value={formData.parent_id || ""}
-                  onChange={(e) =>
+                <ReusableDropdown
+                  options={dropdownOptions}
+                  value={String(formData.parent_id || "")}
+                  onChange={(value) =>
                     setFormData({
                       ...formData,
-                      parent_id: e.target.value ? Number(e.target.value) : null,
+                      parent_id: value ? Number(value) : null,
                     })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-3 focus:border-transparent cursor-pointer"
-                >
-                  <option value="">فئة رئيسية</option>
-                  {categoryOptions
-                    .filter((opt) => opt.parent_id === null)
-                    .map((opt) => (
-                      <option key={opt.id} value={opt.id}>
-                        {opt.name}
-                      </option>
-                    ))}
-                </select>
+                  placeholder="فئة رئيسية"
+                  showSelectedLabel={true}
+                />
               </div>
             )}
 
-            <div>
-              <Label className="block text-sm font-medium text-gray-900 mb-2">
-                صور الفئة
-              </Label>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsMediaModalOpen(true)}
-                className="flex items-center justify-center gap-2 w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-3 transition-colors cursor-pointer"
-              >
-                <Upload className="w-5 h-5 text-gray-400" />
-                <span className="text-sm text-gray-600">
-                  اضغط لاختيار الصور من مركز الوسائط
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Label className="block text-sm font-medium text-gray-900">
+                  الصور
+                </Label>
+                <span className="text-xs text-gray-500">
+                  (يمكنك إضافة حتى {4} صور)
                 </span>
-              </Button>
+                <Link
+                  href="#"
+                  className="text-xs font-medium text-blue-3 flex items-center gap-1 me-auto"
+                >
+                  نصائح لالتقاط صور جيدة
+                  <Info className="w-3 h-3" />
+                </Link>
+              </div>
 
-              {previewUrls.length > 0 && (
-                <div className="mt-4 grid grid-cols-4 gap-3">
-                  {previewUrls.map((url, idx) => (
-                    <div key={idx} className="relative group">
-                      <img
-                        src={url}
-                        alt={`Preview ${idx + 1}`}
-                        className="w-full aspect-square object-cover rounded-lg border border-gray-200"
-                      />
-                      <button
-                        onClick={() => handleRemoveImage(idx)}
-                        className="absolute -top-2 -start-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+              <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-3">
+                <p className="text-xs text-blue-3 flex items-center gap-1">
+                  <Info className="w-3 h-3" />
+                  يمكنك سحب و إفلات الصورة لإعادة ترتيب الصور
+                </p>
+              </div>
+
+              <div className="grid grid-cols-5 gap-3">
+                {previewUrls.map((url, idx) => (
+                  <div
+                    key={idx}
+                    className="relative group aspect-square border border-gray-200 rounded-lg"
+                  >
+                    <img
+                      src={url}
+                      alt={`Preview ${idx + 1}`}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                    <button
+                      onClick={() => handleRemoveImage(idx)}
+                      className="absolute -top-2 -start-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+                {previewUrls.length < 4 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsMediaModalOpen(true)}
+                    className="flex flex-col items-center justify-center gap-2 w-full aspect-square border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-3 transition-colors cursor-pointer"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                      <Plus className="w-5 h-5 text-gray-500" />
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium text-gray-900">
-                حالة الفئة
-              </Label>
-              <ToggleSwitch
-                enabled={formData.is_active}
-                onChange={(checked) =>
-                  setFormData({ ...formData, is_active: checked })
-                }
-              />
+                    <span className="text-xs text-gray-600 text-center">
+                      اضف أو اسحب صورة أو فيديو
+                    </span>
+                    <span className="text-[10px] text-gray-400">
+                      png, jpg, svg
+                    </span>
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
 
-          <DialogFooter className="p-6 border-t border-gray-200">
+          <DialogFooter className="p-6 bg-gray-50 border-t border-gray-200 flex sm:justify-center">
+            <Button
+              onClick={onClose}
+              variant="outline"
+              className="w-full sm:w-auto px-10 py-3 bg-white"
+            >
+              إلغاء
+            </Button>
             <Button
               onClick={handleSave}
               disabled={!formData.name.trim()}
               className={cn(
-                "w-full px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer",
+                "w-full sm:w-auto px-10 py-3 rounded-lg font-medium transition-colors cursor-pointer",
                 formData.name.trim()
-                  ? "bg-blue-3 hover:bg-blue-600 text-white"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  ? "bg-blue-3 hover:bg-blue-600 text-white" :
+                  "bg-gray-300 text-gray-500 cursor-not-allowed"
               )}
             >
-              حفظ
+              {mode === "edit" ? "حفظ التعديلات" : "إضافة الفئة"}
             </Button>
           </DialogFooter>
         </DialogContent>

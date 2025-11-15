@@ -13,7 +13,7 @@ interface CategoryAccordionProps {
   onToggleCategory: (id: number) => void;
   onEdit: (category: Category) => void;
   onDelete: (categoryId: number) => void;
-  onAddSubCategory: (parentId: number) => void;
+  onAddSubCategory: (parentId: number,name:string) => void;
   onViewImages: (images: string[]) => void;
   level: number;
 }
@@ -70,7 +70,7 @@ export function CategoryAccordion({
         </button>
 
         <button
-          onClick={() => onAddSubCategory(category.id)}
+          onClick={() => onAddSubCategory(category.id,category.name)}
           className="p-3 bg-[#00D9C01A]  hover:bg-[#00D9C030] transition-colors cursor-pointer flex-shrink-0"
         >
           <svg

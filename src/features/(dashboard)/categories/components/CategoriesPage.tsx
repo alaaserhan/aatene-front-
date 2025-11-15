@@ -22,6 +22,7 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
+import { FormInput } from "@/src/components/ui/FormInput";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -45,6 +46,7 @@ export function CategoriesPage() {
   const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null);
   const [modalMode, setModalMode] = useState<"add" | "edit" | "addSub">("add");
   const [parentIdForSub, setParentIdForSub] = useState<number | null>(null);
+  const [parentName , setParentName] = useState<string | null>(null);
   const [viewerImages, setViewerImages] = useState<string[]>([]);
 
   const queryParams = useMemo(() => {
@@ -84,11 +86,12 @@ export function CategoriesPage() {
     setCategoryModalOpen(true);
   };
 
-  const handleAddSubCategory = (parentId: number) => {
+  const handleAddSubCategory = (parentId: number,name:string) => {
     setSelectedCategory(null);
     setModalMode("addSub");
     setParentIdForSub(parentId);
     setCategoryModalOpen(true);
+    setParentName(name);
   };
 
   const handleEditCategory = (category: Category) => {
@@ -194,18 +197,18 @@ export function CategoriesPage() {
           <div className="col-span-12 lg:col-span-9 h-full flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
               <div className="relative flex-1 w-full sm:w-auto">
-                <Input
+                <FormInput
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="ابحث باسم الفئة أو الفئة الفرعية"
-                  className="w-full px-4 py-3 ps-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-3 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-white ps-12 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-3 focus:border-transparent"
                 />
                 <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
               <Button
                 onClick={handleAddCategory}
-                className="flex items-center gap-2 px-6 py-3 bg-[#2C4A67] hover:bg-[#3A5779] text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer"
+                className="flex items-center gap-2 px-6 py-3 bg-blue-3   text-sm font-semibold rounded-xs transition-colors cursor-pointer"
               >
                 <Plus className="w-5 h-5" />
                 إضافة فئة منتجات جديدة
@@ -266,6 +269,7 @@ export function CategoriesPage() {
         category={selectedCategory}
         mode={modalMode}
         parentId={parentIdForSub}
+        parentName={parentName}
         categoryOptions={categoryOptions}
         currentType={activeType}
       />
