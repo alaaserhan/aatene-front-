@@ -103,7 +103,7 @@ export function CategoryAccordion(props: AccordionProps) {
             <img src="/icons/dashboard/pin.svg" alt="Edit" className="w-4 h-4" />
           </button>
 
-          <button
+          {/* <button
             onClick={() => onAddOption(attribute)}
             className="p-3 bg-[#00D9C01A]  hover:bg-[#00D9C030] transition-colors cursor-pointer flex-shrink-0"
           >
@@ -122,7 +122,7 @@ export function CategoryAccordion(props: AccordionProps) {
                 strokeLinejoin="round"
               />
             </svg>
-          </button>
+          </button> */}
 
           <div className={cn("flex items-center gap-0 flex-1 ms-4 justify-end")}>
             <span className="text-sm font-medium pe-2">

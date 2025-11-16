@@ -122,7 +122,7 @@ export function AttributeModal({
                 id="attr-name"
                 {...register("title")}
                 placeholder="اسم السمة"
-                className="w-full px-4 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-3 focus:border-transparent"
+                className="w-full px-4 py-3 border-gray-300 rounded-xs focus:ring-2 focus:ring-blue-3 focus:border-transparent"
               />
               {errors.title && (
                 <p className="text-xs text-red-500 mt-1">
@@ -139,7 +139,7 @@ export function AttributeModal({
                   value={optionInput}
                   onChange={(e) => setOptionInput(e.target.value)}
                   placeholder="أضف الخيار المتاح"
-                  className="w-full px-4 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-3 focus:border-transparent"
+                  className="w-full px-4 py-3 border-gray-300 rounded-xs focus:ring-2 focus:ring-blue-3 focus:border-transparent"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
@@ -150,7 +150,7 @@ export function AttributeModal({
                 <Button
                   type="button"
                   onClick={handleAddOption}
-                  className="px-6 py-3 bg-[#3A5779] text-white hover:bg-[#2d4460] cursor-pointer"
+                  className="px-6 py-3 bg-blue-4 rounded-xs text-white hover:bg-[#2d4460] cursor-pointer"
                 >
                   إضافة
                 </Button>
@@ -170,20 +170,20 @@ export function AttributeModal({
             </div>
           </div>
 
-          <DialogFooter className="p-6 bg-gray-50 border-t border-gray-200 flex sm:justify-center">
+          <DialogFooter className="p-6 bg-gray-50 border-t border-gray-200 flex sm:justify-center" >
+            <Button
+              type="submit"
+              className="w-full sm:w-auto px-10 py-3 rounded-xs font-medium transition-colors cursor-pointer bg-blue-4 text-white"
+            >
+              {mode === "edit" ? "حفظ التعديلات" : "إضافة الفئة"}
+            </Button>
             <Button
               type="button"
               onClick={onClose}
               variant="outline"
-              className="w-full sm:w-auto px-10 py-3 bg-white"
+              className="w-full sm:w-auto px-10 py-3 bg-white rounded-xs"
             >
               إلغاء
-            </Button>
-            <Button
-              type="submit"
-              className="w-full sm:w-auto px-10 py-3 rounded-lg font-medium transition-colors cursor-pointer bg-blue-3 hover:bg-blue-600 text-white"
-            >
-              {mode === "edit" ? "حفظ التعديلات" : "إضافة الفئة"}
             </Button>
           </DialogFooter>
         </form>

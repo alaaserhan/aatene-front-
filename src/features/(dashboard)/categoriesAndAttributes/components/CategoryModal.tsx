@@ -172,7 +172,7 @@ export function CategoryModal({
               placeholder={
                 activeType === "service" ? "اسم الخدمة" : "اسم الفئة"
               }
-              className="w-full px-4 py-3 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-3 focus:border-transparent"
+              className="w-full px-4 py-3 border-gray-300 rounded-xs focus:ring-2 focus:ring-blue-3 focus:border-transparent"
             />
           </div>
 
@@ -203,14 +203,14 @@ export function CategoryModal({
           )}
         </div>
 
-        <DialogFooter className="p-4 bg-white border-t border-gray-200 flex sm:justify-center">
+        <DialogFooter className="p-4 bg-white border-t border-gray-200 flex sm:justify-center" dir="rtl">
           <Button
             onClick={handleSave}
             disabled={!formData.name.trim()}
             className={cn(
-              "w-full sm:w-auto px-10 py-3 rounded-lg font-medium transition-colors cursor-pointer",
+              "w-full sm:w-auto px-10 py-3 rounded-xs font-medium transition-colors cursor-pointer",
               formData.name.trim()
-                ? "bg-blue-3 hover:bg-blue-600 text-white"
+                ? "bg-blue-4  text-white"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             )}
           >
@@ -223,7 +223,7 @@ export function CategoryModal({
           <Button
             onClick={onClose}
             variant="outline"
-            className="w-full sm:w-auto px-10 py-3 bg-white"
+            className="w-full sm:w-auto px-10 py-3 bg-white rounded-xs"
           >
             إلغاء
           </Button>
