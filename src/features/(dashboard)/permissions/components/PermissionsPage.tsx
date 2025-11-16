@@ -171,8 +171,8 @@ export function PermissionsPage() {
           <div className="col-span-12 lg:col-span-3">
             <SidebarFilterPanel
               options={filterCategories}
-              activeFilter={selectedRoleId ? String(selectedRoleId) : ""}
-              onFilterChange={handleRoleSelect}
+              activeValue={selectedRoleId ? String(selectedRoleId) : ""}
+              onValueChange={handleRoleSelect}
             />
           </div>
 

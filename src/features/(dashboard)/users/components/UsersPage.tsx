@@ -26,7 +26,7 @@ export function UsersPage() {
     const rolesFilters =
       rolesData?.data.map((role) => ({
         name: role.title || role.name,
-        value: role.id,
+        value: String(role.id),
       })) || [];
     return [...baseFilters, ...rolesFilters];
   }, [rolesData]);
