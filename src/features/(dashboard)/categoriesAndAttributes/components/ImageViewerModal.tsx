@@ -1,4 +1,4 @@
-// src/features/(dashboard)/categories/components/ImageViewerModal.tsx
+// src/features/(dashboard)/categoriesAndAttributes/components/ImageViewerModal.tsx
 "use client";
 
 import { useState, useEffect } from "react";

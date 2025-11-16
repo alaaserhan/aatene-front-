@@ -1,4 +1,4 @@
-import { CategoriesPage } from "@/src/features/(dashboard)/categories/components/CategoriesPage";
+import { CategoriesPage } from "@/src/features/(dashboard)/categoriesAndAttributes/components/CategoriesPage";
 
 export default function Page() {
   return <CategoriesPage />;

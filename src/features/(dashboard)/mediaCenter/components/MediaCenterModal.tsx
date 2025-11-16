@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-// (جديد) استيراد المكونات المطلوبة
 import {
   Dialog,
   DialogContent,
@@ -12,10 +11,9 @@ import {
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import { ScrollArea, ScrollBar } from "@/src/components/ui/scroll-area"; // (جديد)
-import { Badge } from "@/src/components/ui/badge"; // (جديد)
-import { cn } from "@/src/lib/utils"; // (جديد)
-// (جديد) استيراد الأيقونات
+import { ScrollArea, ScrollBar } from "@/src/components/ui/scroll-area";
+import { Badge } from "@/src/components/ui/badge";
+import { cn } from "@/src/lib/utils";
 import {
   X,
   Search,
@@ -29,16 +27,15 @@ import {
 } from "lucide-react";
 import { MediaGrid } from "./MediaGrid";
 import { MediaUploadArea } from "./MediaUploadArea";
-import { useGetMediaList, useUploadMedia } from "../hooks"; // (حذفت useDeleteMedia لأنها غير مستخدمة هنا)
+import { useGetMediaList, useUploadMedia } from "../hooks";
 import { MediaItem as MediaItemType } from "../api";
 
-// (جديد) تعريف مصفوفة الفلاتر
-const MEDIA_TYPES = [
+const ALL_MEDIA_TYPES = [
   { value: "pdf", label: "ملفات PDF", icon: FileText },
   { value: "word", label: "ملفات Word", icon: FileText },
   { value: "excel", label: "ملفات Excel", icon: FileSpreadsheet },
   { value: "file", label: "ملفات", icon: File },
-  { value: "avatar", label: "افاتار", icon: User }, 
+  { value: "avatar", label: "افاتار", icon: User },
   { value: "gallery", label: "المعرض", icon: Grid3X3 },
   { value: "image", label: "الصور", icon: ImageIcon },
 ];
@@ -51,6 +48,7 @@ interface MediaCenterModalProps {
   accept?: string;
   uploadPrimaryText?: string;
   uploadSecondaryText?: string;
+  allowedMediaTypes?: string[];
 }
 
 export function MediaCenterModal({
@@ -61,42 +59,48 @@ export function MediaCenterModal({
   accept = "image/png,image/jpeg,image/jpg",
   uploadPrimaryText = "أضف أو اسحب صورة أو فيديو",
   uploadSecondaryText = "PNG, JPG, JPEG",
+  allowedMediaTypes,
 }: MediaCenterModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  // (جديد) إضافة حالة للفلتر النشط
-  const [activeType, setActiveType] = useState("gallery");
   const [selectedItems, setSelectedItems] = useState<MediaItemType[]>([]);
   const [showUploadArea, setShowUploadArea] = useState(false);
 
-  // (جديد) تعديل useMemo ليعتمد على activeType و searchQuery
+  const mediaTypes = useMemo(() => {
+    if (allowedMediaTypes) {
+      return ALL_MEDIA_TYPES.filter((type) =>
+        allowedMediaTypes.includes(type.value)
+      );
+    }
+    return ALL_MEDIA_TYPES;
+  }, [allowedMediaTypes]);
+
+  const [activeType, setActiveType] = useState(
+    mediaTypes[0]?.value || "gallery"
+  );
+
   const params = useMemo(() => {
     const p = new URLSearchParams();
     if (searchQuery) {
       p.set("search", searchQuery);
     }
-    // (جديد) إضافة الفلتر النشط للـ params
     if (activeType) {
       p.set("type", activeType);
     }
     return p;
-  }, [searchQuery, activeType]); // (جديد) إضافة activeType للمصفوفة
+  }, [searchQuery, activeType]);
 
-  // Fetch media list
   const { data: mediaData, isLoading, error } = useGetMediaList(params);
   const mediaItems = mediaData?.data || [];
 
-  // Upload mutation
   const uploadMutation = useUploadMedia();
 
-  // Handle file upload
   const handleUpload = async (files: FileList) => {
-    // (جديد) استخدام activeType بدلاً من حسابها يدوياً
     const fileType = activeType || (accept.includes("image") ? "image" : "file");
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       await uploadMutation.mutateAsync({
-        type: fileType, // (جديد)
+        type: fileType,
         file,
       });
     }
@@ -104,7 +108,6 @@ export function MediaCenterModal({
     setShowUploadArea(false);
   };
 
-  // Handle item selection
   const handleSelectItem = (item: MediaItemType) => {
     if (multiple) {
       const isSelected = selectedItems.some((selected) => selected.id === item.id);
@@ -116,13 +119,11 @@ export function MediaCenterModal({
         setSelectedItems((prev) => [...prev, item]);
       }
     } else {
-      // Single selection - close modal immediately
       onSelect(item);
       onOpenChange(false);
     }
   };
 
-  // Handle confirm selection (for multiple)
   const handleConfirmSelection = () => {
     if (selectedItems.length > 0) {
       onSelect(selectedItems);
@@ -131,25 +132,22 @@ export function MediaCenterModal({
     }
   };
 
-  // (جديد) دالة لتغيير الفلتر
   const handleTypeChange = (type: string) => {
     setActiveType(type);
-    setSearchQuery(""); // (اختياري) تصفير البحث عند تغيير التاب
+    setSearchQuery("");
   };
 
-  // Handle close
   const handleClose = () => {
     onOpenChange(false);
     setSelectedItems([]);
     setSearchQuery("");
     setShowUploadArea(false);
-    setActiveType("gallery"); // (جديد) إعادة التعيين للقيمة الافتراضية
+    setActiveType(mediaTypes[0]?.value || "gallery");
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-[95vw] lg:max-w-[65vw] p-0 gap-0 overflow-hidden border-0 [&>button]:hidden">
-        {/* حل مشكلة إمكانية الوصول */}
         <VisuallyHidden>
           <DialogTitle>مركز الوسائط</DialogTitle>
           <DialogDescription>
@@ -158,11 +156,9 @@ export function MediaCenterModal({
           </DialogDescription>
         </VisuallyHidden>
 
-        {/* Header */}
         <div className="flex flex-col gap-4 border-b border-gray-200 bg-white">
-           <div className="border-b border-gray-200 p-4">
+          <div className="border-b border-gray-200 p-4">
             <div className="flex items-center justify-between">
-              {/* Close Button */}
               <Button
                 variant="outline"
                 size="sm"
@@ -172,7 +168,6 @@ export function MediaCenterModal({
                 <X className="h-4 w-4" />
               </Button>
 
-              {/* Search Bar - Desktop */}
               <div className="flex-1 hidden md:block md:max-w-md lg:max-w-xl mx-4">
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -193,19 +188,13 @@ export function MediaCenterModal({
                 </div>
               </div>
 
-                            {/* Logo & Title */}
               <div className="flex items-center gap-3">
-                {/* <div className="w-8 h-8 bg-blue-3 rounded-lg flex items-center justify-center">
-                  <Upload className="w-5 h-5 text-white" />
-                </div> */}
                 <h1 className="text-base lg:text-lg font-bold text-gray-900">
                   مركز الوسائط
                 </h1>
               </div>
-
             </div>
 
-            {/* Search Bar - Mobile */}
             <div className="block md:hidden w-full mt-3">
               <div className="relative">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -227,25 +216,22 @@ export function MediaCenterModal({
             </div>
           </div>
 
-          {/* (جديد) إضافة صف الفلاتر وزر الرفع */}
           <div className="flex flex-col lg:flex-row justify-between gap-4 px-4 pb-4">
-               {/* Upload Button */}
             <div className="flex justify-center lg:justify-start">
               <Button
                 onClick={() => setShowUploadArea(!showUploadArea)}
                 className="w-full max-w-xs lg:w-auto h-9 font-medium cursor-pointer"
-                style={{ backgroundColor: "var(--blue-3)" }} // استخدم لونك
+                style={{ backgroundColor: "var(--blue-3)" }}
               >
                 <Upload className="ml-2 h-4 w-4" />
                 {showUploadArea ? "إخفاء منطقة الرفع" : "رفع ملف"}
               </Button>
             </div>
 
-            {/* Filter Badges - Scrollable */}
             <div className="flex-1 lg:flex-none overflow-hidden">
               <ScrollArea className="w-full max-w-full">
                 <div className="flex gap-2 pb-1 w-max ">
-                  {MEDIA_TYPES.map((type) => {
+                  {mediaTypes.map((type) => {
                     const Icon = type.icon;
                     const isActive = activeType === type.value;
 
@@ -256,11 +242,11 @@ export function MediaCenterModal({
                         className={cn(
                           "cursor-pointer px-3 py-2 h-8 text-xs font-medium transition-all duration-200 hover:scale-105 whitespace-nowrap flex items-center gap-1.5 flex-shrink-0",
                           isActive
-                            ? "bg-blue-3 hover:bg-blue-3/90" // استخدم لونك الأساسي
+                            ? "bg-blue-3 hover:bg-blue-3/90"
                             : "bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-200"
                         )}
                         onClick={() => handleTypeChange(type.value)}
-                        >
+                      >
                         <span className="hidden md:inline">{type.label}</span>
                         <Icon className="w-3.5 h-3.5" />
                       </Badge>
@@ -270,16 +256,11 @@ export function MediaCenterModal({
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>
             </div>
-
-         
           </div>
         </div>
 
-        {/* Main Content */}
-        {/* (جديد) تعديل الارتفاع ليأخذ الفلاتر في الحسبان */}
         <div className="flex flex-col h-[calc(90vh-130px)] justify-between overflow-hidden">
           <ScrollArea className="flex-1">
-            {/* Upload Area */}
             {showUploadArea && (
               <div className="p-4">
                 <MediaUploadArea
@@ -292,7 +273,6 @@ export function MediaCenterModal({
               </div>
             )}
 
-            {/* Media Grid */}
             <MediaGrid
               items={mediaItems}
               selectedItems={selectedItems}
@@ -302,10 +282,26 @@ export function MediaCenterModal({
             />
           </ScrollArea>
 
-          {/* Footer - Multiple Selection (كما هو) */}
           {multiple && selectedItems.length > 0 && (
             <div className="flex items-center justify-between gap-3 p-4 border-t border-gray-200 bg-[#C8D7E8]">
-              {/* ... (نفس كود الفوتر) ... */}
+              <div className="flex gap-2 items-center">
+                <button
+                  onClick={() => setSelectedItems([])}
+                  className="text-[#406896] hover:text-red-600 transition-colors cursor-pointer"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+                <p className="text-sm font-medium">
+                  تم اختيار {selectedItems.length} ملف
+                </p>
+              </div>
+              <Button
+                onClick={handleConfirmSelection}
+                className="cursor-pointer"
+                style={{ backgroundColor: "var(--blue-3)" }}
+              >
+                إدراج
+              </Button>
             </div>
           )}
         </div>

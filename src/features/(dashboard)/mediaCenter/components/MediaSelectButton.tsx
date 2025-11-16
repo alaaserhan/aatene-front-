@@ -2,10 +2,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Info, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { MediaCenterModal } from "./MediaCenterModal";
 import { MediaItem } from "../api";
+import { InfoBox } from "@/src/components/ui/InfoBox";
 
 interface MediaSelectButtonProps {
   label: string;
@@ -72,25 +73,11 @@ export function MediaSelectButton({
 
   return (
     <div className={cn("space-y-3", className)}>
-      <label className="block text-sm font-medium text-brand-black-1 text-right">
+      <label className="block text-sm font-medium text-brand-black-1 text-start">
         {label}
       </label>
 
-      {
-        infoText && infoText.length > 0 && (
-          <div className="bg-[#E8F4FD] rounded-lg p-4 space-y-2">
-            <div className="flex items-start gap-2">
-              <Info className="w-5 h-5 text-blue-3 flex-shrink-0 mt-0.5" />
-              <div className="text-xs text-gray-700 space-y-1 text-right flex-1">
-                {infoText.map((text, index) => (
-                  <p key={index}>{index === 0 ? text : `• ${text}`}</p>
-                ))}
-              </div>
-            </div>
-          </div>
-        )
-      }
-
+      {infoText && infoText.length > 0 && <InfoBox texts={infoText} />}
 
       {!preview ? (
         <div
@@ -128,7 +115,7 @@ export function MediaSelectButton({
         </div>
       )}
 
-      {error && <p className="text-xs text-red-500 text-right">{error}</p>}
+      {error && <p className="text-xs text-red-500 text-start">{error}</p>}
 
       <MediaCenterModal
         open={modalOpen}

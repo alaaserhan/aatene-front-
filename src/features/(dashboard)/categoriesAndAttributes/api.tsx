@@ -1,11 +1,11 @@
-// src/features/(dashboard)/categories/api.ts
+// src/features/(dashboard)/categoriesAndAttributes/api.ts
 import api from "@/src/lib/axios";
 
 export interface Category {
   id: number;
   name: string;
   images: string[];
-  images_urls: string | null;
+  images_urls: string[] | null;
   type: string;
   is_active: boolean | "0" | "1";
   parent_id: string | null;
@@ -133,5 +133,88 @@ export const deleteCategory = async (
   id: string | number
 ): Promise<BaseResponse> => {
   const { data } = await api.delete<BaseResponse>(`/admin/categories/${id}`);
+  return data;
+};
+
+export interface AttributeOption {
+  id: number;
+  title: string;
+  data: string | null;
+}
+
+export interface Attribute {
+  id: number;
+  title: string;
+  options: AttributeOption[];
+}
+
+export interface PaginatedAttributesResponse extends BaseResponse {
+  recordsTotal: number;
+  recordsFiltered: number;
+  data: Attribute[];
+}
+
+export interface SingleAttributeResponse extends BaseResponse {
+  record: Attribute;
+}
+
+export interface AttributeOptionPayload {
+  title: string;
+  data?: string | null;
+}
+
+export interface AttributeCreatePayload {
+  title: string;
+  options: AttributeOptionPayload[];
+}
+
+export interface AttributeUpdatePayload {
+  title?: string;
+  options?: AttributeOptionPayload[];
+}
+
+export const getAttributes = async (
+  params: URLSearchParams
+): Promise<PaginatedAttributesResponse> => {
+  const { data } = await api.get<PaginatedAttributesResponse>(
+    `/admin/attributes?${params.toString()}`
+  );
+  return data;
+};
+
+export const getSingleAttribute = async (
+  id: string | number
+): Promise<SingleAttributeResponse> => {
+  const { data } = await api.get<SingleAttributeResponse>(
+    `/admin/attributes/${id}`
+  );
+  return data;
+};
+
+export const createAttribute = async (
+  payload: AttributeCreatePayload
+): Promise<SingleAttributeResponse> => {
+  const { data } = await api.post<SingleAttributeResponse>(
+    "/admin/attributes",
+    payload
+  );
+  return data;
+};
+
+export const updateAttribute = async (
+  id: string | number,
+  payload: AttributeUpdatePayload
+): Promise<SingleAttributeResponse> => {
+  const { data } = await api.post<SingleAttributeResponse>(
+    `/admin/attributes/${id}`,
+    payload
+  );
+  return data;
+};
+
+export const deleteAttribute = async (
+  id: string | number
+): Promise<BaseResponse> => {
+  const { data } = await api.delete<BaseResponse>(`/admin/attributes/${id}`);
   return data;
 };

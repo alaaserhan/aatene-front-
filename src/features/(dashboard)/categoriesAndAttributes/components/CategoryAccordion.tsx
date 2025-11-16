@@ -1,4 +1,4 @@
-// src/features/(dashboard)/categories/components/CategoryAccordion.tsx
+// src/features/(dashboard)/categoriesAndAttributes/components/CategoryAccordion.tsx
 "use client";
 
 import { useState } from "react";
@@ -29,10 +29,10 @@ export function CategoryAccordion({
   level,
 }: CategoryAccordionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const images = category.images_urls
-    ? category.images_urls.split(",")
-    : category.images || [];
-  const subCategoriesCount = Number(category.sub_categories_count || 0);
+  const images = category?.images_urls
+    ? category?.images_urls.split(",")
+    : category?.images || [];
+  const subCategoriesCount = Number(category?.sub_categories_count || 0);
   const hasSubCategories = subCategoriesCount > 0;
 
   const {
@@ -40,8 +40,8 @@ export function CategoryAccordion({
     isLoading,
     isError,
   } = useGetSubCategories(
-    category.id,
-    category.type as "product" | "service"
+    category?.id,
+    category?.type as "product" | "service"
   );
 
   return (
@@ -49,7 +49,7 @@ export function CategoryAccordion({
     >
       <div
         className="flex items-center gap-1 p-2 border border-input rounded mb-2"
-        style={{ marginInlineEnd: level === 0 ? "1rem" : `${level * 3.5}rem` }}
+        style={{ marginInlineEnd: level === 0 ? "0rem" : `${level * 3.5}rem` }}
       >
         <button
           onClick={() => onDelete(category.id)}
@@ -70,7 +70,7 @@ export function CategoryAccordion({
         </button>
 
         <button
-          onClick={() => onAddSubCategory(category.id,category.name)}
+          onClick={() => onAddSubCategory(category.id,category?.name)}
           className="p-3 bg-[#00D9C01A]  hover:bg-[#00D9C030] transition-colors cursor-pointer flex-shrink-0"
         >
           <svg
@@ -90,30 +90,36 @@ export function CategoryAccordion({
           </svg>
         </button>
 
-        <div className="flex gap-2 flex-1 overflow-x-auto ms-4">
-          {images.slice(0, 4).map((img, idx) => (
-            <button
-              key={idx}
-              onClick={() => onViewImages(images)}
-              className="flex-shrink-0 w-10 h-10 rounded overflow-hidden  hover:border-blue-3 transition-colors cursor-pointer"
-            >
-              <img
-                src={img}
-                alt={`${category.name} ${idx + 1}`}
-                className="w-full h-full object-cover"
-              />
-            </button>
-          ))}
-          {images.length > 4 && (
-            <div className="flex-shrink-0 w-full h-full rounded flex items-center justify-center text-sm font-medium text-gray-600">
-              +{images.length - 4}
-            </div>
-          )}
-        </div>
+        {/* عرض الصور - يظهر فقط للمنتجات */}
+        {category.type === "product" && (
+          <div className="flex gap-2 flex-1 overflow-x-auto ms-4">
+            {images.slice(0, 4).map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => onViewImages(images)}
+                className="flex-shrink-0 w-10 h-10 rounded overflow-hidden  hover:border-blue-3 transition-colors cursor-pointer"
+              >
+                <img
+                  src={img}
+                  alt={`${category.name} ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+            {images.length > 4 && (
+              <div className="flex-shrink-0 w-full h-full rounded flex items-center justify-center text-sm font-medium text-gray-600">
+                +{images.length - 4}
+              </div>
+            )}
+          </div>
+        )}
 
-        <div className="flex items-center gap-0 flex-shrink-0">
+        <div className={cn(
+          "flex items-center gap-0 flex-shrink-0",
+          category.type === "service" && "flex-1 ms-4 justify-end"
+        )}>
           <span className="text-sm font-medium pe-2">
-            {category.name}
+            {category?.name}
           </span>
 
           {hasSubCategories && (

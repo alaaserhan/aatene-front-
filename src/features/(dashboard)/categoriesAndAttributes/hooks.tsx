@@ -1,4 +1,4 @@
-// src/features/(dashboard)/categories/hooks.ts
+// src/features/(dashboard)/categoriesAndAttributes/hooks.ts
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,9 +8,12 @@ import {
   PaginatedCategoriesResponse,
   SingleCategoryResponse,
   Category,
+  PaginatedAttributesResponse,
+  SingleAttributeResponse,
+  Attribute,
 } from "./api";
 
-const QK = {
+const CategoryQK = {
   any: ["categories"] as const,
   listAny: ["categories", "list"] as const,
   list: (paramsString: string) => ["categories", "list", paramsString] as const,
@@ -18,10 +21,17 @@ const QK = {
   options: ["categories", "options"] as const,
 };
 
+const AttributeQK = {
+  any: ["attributes"] as const,
+  listAny: ["attributes", "list"] as const,
+  list: (paramsString: string) => ["attributes", "list", paramsString] as const,
+  single: (id: string | number) => ["attributes", "single", String(id)] as const,
+};
+
 const coerceActive = (v: unknown) => v === "1" || v === 1 || v === true;
 
 export function useGetCategories(params: URLSearchParams) {
-  const key = QK.list(params.toString());
+  const key = CategoryQK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getCategories(params),
@@ -30,7 +40,7 @@ export function useGetCategories(params: URLSearchParams) {
 
 export function useGetParentCategories(params: URLSearchParams) {
   params.set("only_parent", "true");
-  const key = QK.list(params.toString());
+  const key = CategoryQK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getCategories(params),
@@ -46,7 +56,7 @@ export function useGetSubCategories(
   params.set("only_sub_categories", "true");
   params.set("parent_id", String(parentId));
 
-  const key = QK.list(params.toString());
+  const key = CategoryQK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getCategories(params),
@@ -56,14 +66,14 @@ export function useGetSubCategories(
 
 export function useGetCategoryOptions() {
   return useQuery({
-    queryKey: QK.options,
+    queryKey: CategoryQK.options,
     queryFn: () => api.getCategoryOptions(),
   });
 }
 
 export function useGetSingleCategory(id?: string | number) {
   return useQuery({
-    queryKey: QK.single(id ?? ""),
+    queryKey: CategoryQK.single(id ?? ""),
     queryFn: () => api.getSingleCategory(id!),
     enabled: !!id,
   });
@@ -78,8 +88,8 @@ export function useCreateCategory() {
       toast.success(data.message || "تم إنشاء القسم بنجاح");
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: QK.listAny });
-      qc.invalidateQueries({ queryKey: QK.options });
+      qc.invalidateQueries({ queryKey: CategoryQK.listAny });
+      qc.invalidateQueries({ queryKey: CategoryQK.options });
     },
   });
 }
@@ -96,13 +106,13 @@ export function useUpdateCategory() {
     }) => api.updateCategory(id, payload),
 
     onMutate: async (vars) => {
-      await qc.cancelQueries({ queryKey: QK.any });
+      await qc.cancelQueries({ queryKey: CategoryQK.any });
 
       const prevLists = qc.getQueriesData<PaginatedCategoriesResponse>({
-        queryKey: QK.listAny,
+        queryKey: CategoryQK.listAny,
       });
       const prevSingle = qc.getQueryData<SingleCategoryResponse>(
-        QK.single(vars.id)
+        CategoryQK.single(vars.id)
       );
 
       const { parent_id, is_active, ...rest } = vars.payload;
@@ -131,7 +141,7 @@ export function useUpdateCategory() {
       });
 
       if (prevSingle?.record) {
-        qc.setQueryData(QK.single(vars.id), {
+        qc.setQueryData(CategoryQK.single(vars.id), {
           ...prevSingle,
           record: { ...prevSingle.record, ...optimisticPayload },
         });
@@ -147,13 +157,14 @@ export function useUpdateCategory() {
     onError: (_err, vars, ctx) => {
       toast.error("حدث خطأ أثناء التعديل");
       ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
-      if (ctx?.prevSingle) qc.setQueryData(QK.single(vars.id), ctx.prevSingle);
+      if (ctx?.prevSingle)
+        qc.setQueryData(CategoryQK.single(vars.id), ctx.prevSingle);
     },
 
     onSettled: (_data, _err, vars) => {
-      qc.invalidateQueries({ queryKey: QK.listAny });
-      qc.invalidateQueries({ queryKey: QK.options });
-      qc.invalidateQueries({ queryKey: QK.single(vars.id) });
+      qc.invalidateQueries({ queryKey: CategoryQK.listAny });
+      qc.invalidateQueries({ queryKey: CategoryQK.options });
+      qc.invalidateQueries({ queryKey: CategoryQK.single(vars.id) });
     },
   });
 }
@@ -170,15 +181,15 @@ export function useUpdateCategoryStatus() {
     }) => api.updateCategoryStatus(id, payload),
 
     onMutate: async (vars) => {
-      await qc.cancelQueries({ queryKey: QK.any });
+      await qc.cancelQueries({ queryKey: CategoryQK.any });
 
       const nextActive = coerceActive(vars.payload.is_active);
 
       const prevLists = qc.getQueriesData<PaginatedCategoriesResponse>({
-        queryKey: QK.listAny,
+        queryKey: CategoryQK.listAny,
       });
       const prevSingle = qc.getQueryData<SingleCategoryResponse>(
-        QK.single(vars.id)
+        CategoryQK.single(vars.id)
       );
 
       prevLists.forEach(([key]) => {
@@ -194,7 +205,7 @@ export function useUpdateCategoryStatus() {
       });
 
       if (prevSingle?.record) {
-        qc.setQueryData(QK.single(vars.id), {
+        qc.setQueryData(CategoryQK.single(vars.id), {
           ...prevSingle,
           record: { ...prevSingle.record, is_active: nextActive },
         });
@@ -210,12 +221,13 @@ export function useUpdateCategoryStatus() {
     onError: (_err, vars, ctx) => {
       toast.error("حدث خطأ أثناء تحديث الحالة");
       ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
-      if (ctx?.prevSingle) qc.setQueryData(QK.single(vars.id), ctx.prevSingle);
+      if (ctx?.prevSingle)
+        qc.setQueryData(CategoryQK.single(vars.id), ctx.prevSingle);
     },
 
     onSettled: (_data, _err, vars) => {
-      qc.invalidateQueries({ queryKey: QK.listAny });
-      qc.invalidateQueries({ queryKey: QK.single(vars.id) });
+      qc.invalidateQueries({ queryKey: CategoryQK.listAny });
+      qc.invalidateQueries({ queryKey: CategoryQK.single(vars.id) });
     },
   });
 }
@@ -229,8 +241,8 @@ export function useUpdateCategoryParent() {
       toast.success(data.message || "تم تحديث الأقسام بنجاح");
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: QK.listAny });
-      qc.invalidateQueries({ queryKey: QK.options });
+      qc.invalidateQueries({ queryKey: CategoryQK.listAny });
+      qc.invalidateQueries({ queryKey: CategoryQK.options });
     },
   });
 }
@@ -241,12 +253,14 @@ export function useDeleteCategory() {
     mutationFn: (id: string | number) => api.deleteCategory(id),
 
     onMutate: async (id) => {
-      await qc.cancelQueries({ queryKey: QK.listAny });
+      await qc.cancelQueries({ queryKey: CategoryQK.listAny });
 
       const prevLists = qc.getQueriesData<PaginatedCategoriesResponse>({
-        queryKey: QK.listAny,
+        queryKey: CategoryQK.listAny,
       });
-      const prevSingle = qc.getQueryData<SingleCategoryResponse>(QK.single(id));
+      const prevSingle = qc.getQueryData<SingleCategoryResponse>(
+        CategoryQK.single(id)
+      );
 
       prevLists.forEach(([key]) => {
         qc.setQueryData(key, (old: PaginatedCategoriesResponse | undefined) => {
@@ -260,7 +274,7 @@ export function useDeleteCategory() {
         });
       });
 
-      qc.removeQueries({ queryKey: QK.single(id) });
+      qc.removeQueries({ queryKey: CategoryQK.single(id) });
 
       return { prevLists, prevSingle };
     },
@@ -272,12 +286,153 @@ export function useDeleteCategory() {
     onError: (_err, id, ctx) => {
       toast.error("حدث خطأ أثناء الحذف");
       ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
-      if (ctx?.prevSingle) qc.setQueryData(QK.single(id), ctx.prevSingle);
+      if (ctx?.prevSingle)
+        qc.setQueryData(CategoryQK.single(id), ctx.prevSingle);
     },
 
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: QK.listAny });
-      qc.invalidateQueries({ queryKey: QK.options });
+      qc.invalidateQueries({ queryKey: CategoryQK.listAny });
+      qc.invalidateQueries({ queryKey: CategoryQK.options });
+    },
+  });
+}
+
+export function useGetAttributes(params: URLSearchParams) {
+  const key = AttributeQK.list(params.toString());
+  return useQuery({
+    queryKey: key,
+    queryFn: () => api.getAttributes(params),
+  });
+}
+
+export function useGetSingleAttribute(id?: string | number) {
+  return useQuery({
+    queryKey: AttributeQK.single(id ?? ""),
+    queryFn: () => api.getSingleAttribute(id!),
+    enabled: !!id,
+  });
+}
+
+export function useCreateAttribute() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: api.AttributeCreatePayload) =>
+      api.createAttribute(payload),
+    onSuccess: (data) => {
+      toast.success(data.message || "تم إنشاء السمة بنجاح");
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: AttributeQK.listAny });
+    },
+  });
+}
+
+export function useUpdateAttribute() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string | number;
+      payload: api.AttributeUpdatePayload;
+    }) => api.updateAttribute(id, payload),
+
+    onMutate: async (vars) => {
+      await qc.cancelQueries({ queryKey: AttributeQK.any });
+
+      const prevLists = qc.getQueriesData<PaginatedAttributesResponse>({
+        queryKey: AttributeQK.listAny,
+      });
+      const prevSingle = qc.getQueryData<SingleAttributeResponse>(
+        AttributeQK.single(vars.id)
+      );
+
+      prevLists.forEach(([key]) => {
+        qc.setQueryData(key, (old: PaginatedAttributesResponse | undefined) => {
+          if (!old?.data) return old;
+          return {
+            ...old,
+            data: old.data.map((a: Attribute) =>
+              a.id === vars.id ? { ...a, ...vars.payload } : a
+            ),
+          };
+        });
+      });
+
+      if (prevSingle?.record) {
+        qc.setQueryData(AttributeQK.single(vars.id), {
+          ...prevSingle,
+          record: { ...prevSingle.record, ...vars.payload },
+        });
+      }
+
+      return { prevLists, prevSingle };
+    },
+
+    onSuccess: (data) => {
+      toast.success(data.message || "تم تحديث السمة بنجاح");
+    },
+
+    onError: (_err, vars, ctx) => {
+      toast.error("حدث خطأ أثناء التعديل");
+      ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
+      if (ctx?.prevSingle)
+        qc.setQueryData(AttributeQK.single(vars.id), ctx.prevSingle);
+    },
+
+    onSettled: (_data, _err, vars) => {
+      qc.invalidateQueries({ queryKey: AttributeQK.listAny });
+      qc.invalidateQueries({ queryKey: AttributeQK.single(vars.id) });
+    },
+  });
+}
+
+export function useDeleteAttribute() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string | number) => api.deleteAttribute(id),
+
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: AttributeQK.listAny });
+
+      const prevLists = qc.getQueriesData<PaginatedAttributesResponse>({
+        queryKey: AttributeQK.listAny,
+      });
+      const prevSingle = qc.getQueryData<SingleAttributeResponse>(
+        AttributeQK.single(id)
+      );
+
+      prevLists.forEach(([key]) => {
+        qc.setQueryData(key, (old: PaginatedAttributesResponse | undefined) => {
+          if (!old?.data) return old;
+          const nextData = old.data.filter((a: Attribute) => a.id !== id);
+          const nextCount =
+            typeof old.recordsFiltered === "number"
+              ? Math.max(0, old.recordsFiltered - 1)
+              : nextData.length;
+          return { ...old, data: nextData, recordsFiltered: nextCount };
+        });
+      });
+
+      qc.removeQueries({ queryKey: AttributeQK.single(id) });
+
+      return { prevLists, prevSingle };
+    },
+
+    onSuccess: (data) => {
+      toast.success(data.message || "تم حذف السمة بنجاح");
+    },
+
+    onError: (_err, id, ctx) => {
+      toast.error("حدث خطأ أثناء الحذف");
+      ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
+      if (ctx?.prevSingle)
+        qc.setQueryData(AttributeQK.single(id), ctx.prevSingle);
+    },
+
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: AttributeQK.listAny });
     },
   });
 }
