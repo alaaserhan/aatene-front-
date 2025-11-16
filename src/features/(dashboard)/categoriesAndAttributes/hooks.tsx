@@ -49,7 +49,8 @@ export function useGetParentCategories(params: URLSearchParams) {
 
 export function useGetSubCategories(
   parentId: string | number,
-  type: "product" | "service"
+  type: "product" | "service",
+  options: { enabled?: boolean } = {} 
 ) {
   const params = new URLSearchParams();
   params.set("type", type);
@@ -60,10 +61,9 @@ export function useGetSubCategories(
   return useQuery({
     queryKey: key,
     queryFn: () => api.getCategories(params),
-    enabled: !!parentId,
+    enabled: !!parentId && (options.enabled ?? true),
   });
 }
-
 export function useGetCategoryOptions() {
   return useQuery({
     queryKey: CategoryQK.options,

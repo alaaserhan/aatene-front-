@@ -20,6 +20,7 @@ interface MediaSelectButtonProps {
   error?: string;
   primaryText?: string;
   secondaryText?: string;
+  allowedMediaTypes?: string[];
   infoText?: string[];
 }
 
@@ -35,6 +36,7 @@ export function MediaSelectButton({
   error,
   primaryText = "أضف أو اسحب صورة أو فيديو",
   secondaryText = "PNG, JPG, JPEG",
+  allowedMediaTypes = ["gallery", "image"],
   infoText = [
     "يمكنك سحب و إفلات الصورة لإضافة ترتيب الصور.",
     `الأفضل أن تكون الصورة بعرض ${width} بكسل وطول ${height} بكسل (${width}×${height}).`,
@@ -125,6 +127,7 @@ export function MediaSelectButton({
         accept={accept}
         uploadPrimaryText={primaryText}
         uploadSecondaryText={secondaryText}
+        allowedMediaTypes={allowedMediaTypes}
       />
     </div>
   );

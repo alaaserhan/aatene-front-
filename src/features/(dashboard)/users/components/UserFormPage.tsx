@@ -123,9 +123,9 @@ export function UserFormPage() {
                   setValue("avatar_preview", src);
                 }}
                 accept="image/png,image/jpeg,image/jpg,image/svg+xml"
-                primaryText="PNG, JPG, SVG"
+                primaryText="اظافة صورة شخصية"
                 infoText={[]}
-                className=""
+                allowedMediaTypes={["avatar"]}
               />
 
               <FormInput

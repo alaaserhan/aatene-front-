@@ -148,16 +148,16 @@ export function CategoryModal({
         className="sm:max-w-xl max-h-[90vh] overflow-y-auto p-0"
         dir="rtl"
       >
-        <DialogHeader className="p-6 pb-4 text-start border-b border-gray-200">
-          <DialogTitle className="text-xl font-bold ">
+        <DialogHeader className="p-4 pb-4 text-start border-b border-gray-200">
+          <DialogTitle className="text-lg font-bold ">
             {getModalTitle()}
           </DialogTitle>
-          <p className="text-sm text-gray-500 pt-2">
+          <p className="text-sm pt-1">
             {getModalDescription()}
           </p>
         </DialogHeader>
 
-        <div className="px-6 pb-6 space-y-6">
+        <div className="px-4 pb-4 space-y-6">
           <div>
             <Label htmlFor="cat-name" className="mb-2 block">
               {activeType === "service" ? "اسم الخدمة" : "اسم الفئة"}

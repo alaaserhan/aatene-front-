@@ -277,6 +277,7 @@ export function PrivacyPolicySection({
               // "الأفضل أن تكون الصورة بعرض 700 بكسل وطول 400 بكسل.",
               // "الحجم يجب أن لا يتعدى 2 ميغابايت.",
             ]}
+            allowedMediaTypes={["gallery", "image"]}
           />
         </div>
 

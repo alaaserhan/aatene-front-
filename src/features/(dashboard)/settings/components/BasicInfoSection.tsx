@@ -139,6 +139,7 @@ export function BasicInfoSection({
                   "الأفضل أن تكون الصورة بعرض 300 بكسل وطول 150 بكسل.",
                   "الحجم يجب أن لا يتعدى 2 ميغابايت.",
                 ]}
+                allowedMediaTypes={["gallery", "image"]}
               />
             </div>
 

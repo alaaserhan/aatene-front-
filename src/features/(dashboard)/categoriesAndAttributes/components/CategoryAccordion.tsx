@@ -4,11 +4,46 @@
 import { useState } from "react";
 import { ChevronUp, ChevronDown, Loader2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
-import { Category } from "../api";
+import { Category, Attribute, AttributeOption } from "../api";
 import { useGetSubCategories } from "../hooks";
 
-interface CategoryAccordionProps {
-  category: Category;
+interface AttributeOptionRowProps {
+  option: AttributeOption;
+  onDelete: () => void;
+  level: number;
+}
+
+function AttributeOptionRow({
+  option,
+  onDelete,
+  level,
+}: AttributeOptionRowProps) {
+  return (
+    <div
+      className="flex items-center gap-1 p-2 border border-input rounded mb-2"
+      style={{ marginInlineEnd: `${level * 3.5}rem` }}
+    >
+      <button
+        onClick={onDelete}
+        className="p-3 bg-[#FB37481A]  hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
+      >
+        <img
+          src="/icons/dashboard/trash.svg"
+          alt="Delete"
+          className="w-4 h-4"
+        />
+      </button>
+
+      <div className="flex-1 ms-4">
+        <span className="text-sm font-medium pe-2 flex justify-end">{option.title}</span>
+      </div>
+    </div>
+  );
+}
+
+type CategoryProps = {
+  item: Category;
+  itemType: "category";
   selectedCategories: Set<number>;
   onToggleCategory: (id: number) => void;
   onEdit: (category: Category) => void;
@@ -16,19 +51,125 @@ interface CategoryAccordionProps {
   onAddSubCategory: (parentId: number, name: string) => void;
   onViewImages: (images: string[]) => void;
   level: number;
-}
+};
 
-export function CategoryAccordion({
-  category,
-  selectedCategories,
-  onToggleCategory,
-  onEdit,
-  onDelete,
-  onAddSubCategory,
-  onViewImages,
-  level,
-}: CategoryAccordionProps) {
+type AttributeProps = {
+  item: Attribute;
+  itemType: "attribute";
+  onEdit: (attribute: Attribute) => void;
+  onDelete: (attributeId: number) => void;
+  onAddOption: (attribute: Attribute) => void;
+  onDeleteOption: (optionId: number, attribute: Attribute) => void;
+  level: number;
+};
+
+type AccordionProps = CategoryProps | AttributeProps;
+
+export function CategoryAccordion(props: AccordionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  if (props.itemType === "attribute") {
+    const {
+      item: attribute,
+      onEdit,
+      onDelete,
+      onAddOption,
+      onDeleteOption,
+      level,
+    } = props;
+    const hasOptions = attribute.options.length > 0;
+
+    return (
+      <div>
+        <div
+          className="flex items-center gap-1 p-2 border border-input rounded mb-2"
+          style={{ marginInlineEnd: `${level * 3.5}rem` }}
+        >
+          <button
+            onClick={() => onDelete(attribute.id)}
+            className="p-3 bg-[#FB37481A]  hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
+          >
+            <img
+              src="/icons/dashboard/trash.svg"
+              alt="Delete"
+              className="w-4 h-4"
+            />
+          </button>
+
+          <button
+            onClick={() => onEdit(attribute)}
+            className="p-3 bg-blue-5  hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
+          >
+            <img src="/icons/dashboard/pin.svg" alt="Edit" className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => onAddOption(attribute)}
+            className="p-3 bg-[#00D9C01A]  hover:bg-[#00D9C030] transition-colors cursor-pointer flex-shrink-0"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 3.33333V12.6667M3.33333 8H12.6667"
+                stroke="#00D9C0"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+
+          <div className={cn("flex items-center gap-0 flex-1 ms-4 justify-end")}>
+            <span className="text-sm font-medium pe-2">
+              {attribute.title}
+            </span>
+
+            {hasOptions && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+              >
+                {isExpanded ? (
+                  <ChevronUp className="w-4 h-4 text-gray-2" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-gray-2" />
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {hasOptions && isExpanded && (
+          <div>
+            {attribute.options.map((option) => (
+              <AttributeOptionRow
+                key={option.id}
+                option={option}
+                onDelete={() => onDeleteOption(option.id, attribute)}
+                level={level + 1}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const {
+    item: category,
+    selectedCategories,
+    onToggleCategory,
+    onEdit,
+    onDelete,
+    onAddSubCategory,
+    onViewImages,
+    level,
+  } = props;
 
   const imageUrls = category?.images_urls || category?.images || [];
   const images = imageUrls.filter((img) => img && img.trim() !== "");
@@ -42,7 +183,10 @@ export function CategoryAccordion({
     isError,
   } = useGetSubCategories(
     category?.id,
-    category?.type as "product" | "service"
+    category?.type as "product" | "service",
+    {
+      enabled: isExpanded,
+    }
   );
 
   return (
@@ -106,7 +250,7 @@ export function CategoryAccordion({
               </button>
             ))}
             {images.length > 4 && (
-              <div className="flex-shrink-0 w-full h-full rounded flex items-center justify-center text-sm font-medium text-gray-600">
+              <div className="flex-shrink-0 w-10 h-10 rounded flex items-center justify-center text-sm font-medium text-gray-600 bg-gray-50">
                 +{images.length - 4}
               </div>
             )}
@@ -154,7 +298,8 @@ export function CategoryAccordion({
             subCategoriesData.data.map((subCat) => (
               <CategoryAccordion
                 key={subCat.id}
-                category={subCat}
+                item={subCat}
+                itemType="category"
                 selectedCategories={selectedCategories}
                 onToggleCategory={onToggleCategory}
                 onEdit={onEdit}

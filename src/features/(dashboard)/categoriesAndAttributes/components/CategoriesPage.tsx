@@ -5,16 +5,21 @@ import { useState, useMemo } from "react";
 import { Search, Plus, Loader2 } from "lucide-react";
 import { CategoryAccordion } from "./CategoryAccordion";
 import { CategoryModal, CategoryFormData } from "./CategoryModal";
+import { AttributeModal } from "./AttributeModal";
 import { ImageViewerModal } from "./ImageViewerModal";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
-import { Category } from "../api";
+import { Category, Attribute, AttributeOption } from "../api";
 import {
   useGetParentCategories,
   useGetCategoryOptions,
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
+  useGetAttributes,
+  useCreateAttribute,
+  useUpdateAttribute,
+  useDeleteAttribute,
 } from "../hooks";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -23,11 +28,17 @@ import { Input } from "@/src/components/ui/input";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { cn } from "@/src/lib/utils";
+import * as api from "../api";
 
 const ITEMS_PER_PAGE = 10;
 
 type PageMode = "product" | "service";
 type ProductSubMode = "categories" | "attributes";
+
+interface OptionToDelete {
+  optionId: number;
+  attribute: Attribute;
+}
 
 export function CategoriesPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,43 +51,83 @@ export function CategoriesPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [imageViewerOpen, setImageViewerOpen] = useState(false);
-
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
   const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null);
-  const [modalMode, setModalMode] = useState<"add" | "edit" | "addSub">("add");
+  const [categoryModalMode, setCategoryModalMode] = useState<
+    "add" | "edit" | "addSub"
+  >("add");
   const [parentIdForSub, setParentIdForSub] = useState<number | null>(null);
   const [parentName, setParentName] = useState<string | null>(null);
+
+  const [attributeModalOpen, setAttributeModalOpen] = useState(false);
+  const [selectedAttribute, setSelectedAttribute] = useState<Attribute | null>(
+    null
+  );
+  const [attributeToDelete, setAttributeToDelete] = useState<number | null>(null);
+  const [attributeModalMode, setAttributeModalMode] = useState<"add" | "edit">(
+    "add"
+  );
+
+  const [optionToDelete, setOptionToDelete] = useState<OptionToDelete | null>(
+    null
+  );
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [viewerImages, setViewerImages] = useState<string[]>([]);
 
   const activeType = pageMode;
+  const isAttributeMode =
+    pageMode === "product" && productSubMode === "attributes";
 
   const queryParams = useMemo(() => {
     const params = new URLSearchParams();
-    params.set("type", activeType);
     params.set("page", String(currentPage));
     params.set("per_page", String(ITEMS_PER_PAGE));
-    if (searchQuery) {
-      params.set("name", searchQuery);
+
+    if (isAttributeMode) {
+      if (searchQuery) params.set("title", searchQuery);
+    } else {
+      params.set("type", activeType);
+      if (searchQuery) params.set("name", searchQuery);
     }
     return params;
-  }, [activeType, currentPage, searchQuery]);
+  }, [activeType, currentPage, searchQuery, isAttributeMode]);
 
-  const { data: categoriesData, isLoading } =
-    useGetParentCategories(queryParams);
+  const { data: categoriesData, isLoading: categoriesLoading } =
+    useGetParentCategories(queryParams, {
+      enabled: !isAttributeMode,
+    });
   const { data: categoryOptionsData } = useGetCategoryOptions();
+
+  const { data: attributesData, isLoading: attributesLoading } =
+    useGetAttributes(queryParams, {
+      enabled: isAttributeMode,
+    });
+
+  const isLoading = categoriesLoading || attributesLoading;
 
   const { mutate: createCategoryMutation } = useCreateCategory();
   const { mutate: updateCategoryMutation } = useUpdateCategory();
   const { mutate: deleteCategoryMutation } = useDeleteCategory();
 
+  const { mutate: createAttributeMutation } = useCreateAttribute();
+  const { mutate: updateAttributeMutation } = useUpdateAttribute();
+  const { mutate: deleteAttributeMutation } = useDeleteAttribute();
+
   const categories = categoriesData?.data || [];
-  const totalPages = Math.ceil(
+  const attributes = attributesData?.data || [];
+  const totalCategoriesPages = Math.ceil(
     (categoriesData?.recordsFiltered || 0) / ITEMS_PER_PAGE
   );
+  const totalAttributesPages = Math.ceil(
+    (attributesData?.recordsFiltered || 0) / ITEMS_PER_PAGE
+  );
+  const totalPages = isAttributeMode
+    ? totalAttributesPages
+    : totalCategoriesPages;
   const categoryOptions = categoryOptionsData?.categories || [];
 
   const filterOptions = [
@@ -86,37 +137,22 @@ export function CategoriesPage() {
 
   const handleAddCategory = () => {
     setSelectedCategory(null);
-    setModalMode("add");
+    setCategoryModalMode("add");
     setParentIdForSub(null);
     setCategoryModalOpen(true);
   };
-
   const handleAddSubCategory = (parentId: number, name: string) => {
     setSelectedCategory(null);
-    setModalMode("addSub");
+    setCategoryModalMode("addSub");
     setParentIdForSub(parentId);
     setCategoryModalOpen(true);
     setParentName(name);
   };
-
   const handleEditCategory = (category: Category) => {
     setSelectedCategory(category);
-    setModalMode("edit");
+    setCategoryModalMode("edit");
     setCategoryModalOpen(true);
   };
-
-  const handleDeleteClick = (categoryId: number) => {
-    setCategoryToDelete(categoryId);
-    setDeleteModalOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (categoryToDelete !== null) {
-      deleteCategoryMutation(categoryToDelete);
-      setDeleteModalOpen(false);
-    }
-  };
-
   const handleSaveCategory = (categoryData: CategoryFormData) => {
     const payload = {
       name: categoryData.name,
@@ -125,14 +161,8 @@ export function CategoriesPage() {
       parent_id: categoryData.parent_id,
       type: activeType,
     };
-
-    const mutationOptions = {
-      onSuccess: () => {
-        setCategoryModalOpen(false);
-      },
-    };
-
-    if (modalMode === "edit" && selectedCategory) {
+    const mutationOptions = { onSuccess: () => setCategoryModalOpen(false) };
+    if (categoryModalMode === "edit" && selectedCategory) {
       updateCategoryMutation(
         { id: selectedCategory.id, payload },
         mutationOptions
@@ -140,6 +170,87 @@ export function CategoriesPage() {
     } else {
       createCategoryMutation(payload, mutationOptions);
     }
+  };
+
+  const handleAddAttribute = () => {
+    setSelectedAttribute(null);
+    setAttributeModalMode("add");
+    setAttributeModalOpen(true);
+  };
+
+  const handleEditAttribute = (attribute: Attribute) => {
+    setSelectedAttribute(attribute);
+    setAttributeModalMode("edit");
+    setAttributeModalOpen(true);
+  };
+
+  const handleAddOptionClick = (attribute: Attribute) => {
+    handleEditAttribute(attribute);
+  };
+
+  const handleSaveAttribute = (data: {
+    title: string;
+    options: api.AttributeOptionPayload[];
+  }) => {
+    const mutationOptions = { onSuccess: () => setAttributeModalOpen(false) };
+    if (attributeModalMode === "edit" && selectedAttribute) {
+      updateAttributeMutation(
+        { id: selectedAttribute.id, payload: data },
+        mutationOptions
+      );
+    } else {
+      createAttributeMutation(data, mutationOptions);
+    }
+  };
+
+  const handleDeleteCategoryClick = (categoryId: number) => {
+    setCategoryToDelete(categoryId);
+    setAttributeToDelete(null);
+    setOptionToDelete(null);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteAttributeClick = (attributeId: number) => {
+    setAttributeToDelete(attributeId);
+    setCategoryToDelete(null);
+    setOptionToDelete(null);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteOptionClick = (
+    optionId: number,
+    attribute: Attribute
+  ) => {
+    setOptionToDelete({ optionId, attribute });
+    setAttributeToDelete(null);
+    setCategoryToDelete(null);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (categoryToDelete !== null) {
+      deleteCategoryMutation(categoryToDelete);
+    } else if (attributeToDelete !== null) {
+      deleteAttributeMutation(attributeToDelete);
+    } else if (optionToDelete !== null) {
+      const { optionId, attribute } = optionToDelete;
+
+      const newOptionsPayload = attribute.options
+        .filter((opt) => opt.id !== optionId)
+        .map((opt) => ({ title: opt.title, data: opt.data }));
+
+      const payload: api.AttributeUpdatePayload = {
+        title: attribute.title,
+        options: newOptionsPayload,
+      };
+
+      updateAttributeMutation({ id: attribute.id, payload });
+    }
+
+    setDeleteModalOpen(false);
+    setCategoryToDelete(null);
+    setAttributeToDelete(null);
+    setOptionToDelete(null);
   };
 
   const handleToggleCategory = (categoryId: number) => {
@@ -159,24 +270,28 @@ export function CategoriesPage() {
     setImageViewerOpen(true);
   };
 
-  // تحديد نصوص modal الحذف حسب نوع الصفحة
   const getDeleteModalTexts = () => {
+    if (optionToDelete) {
+      return {
+        title: "هل أنت متأكد من حذف الخيار؟",
+        description: "سيتم حذف هذا الخيار بشكل نهائي.",
+      };
+    }
     if (pageMode === "product") {
       if (productSubMode === "attributes") {
         return {
           title: "هل أنت متأكد من حذف السمة؟",
-          description: "سيتم حذف السمة وجميع الخيارات التابعة لها بشكل نهائي"
+          description: "سيتم حذف السمة وجميع الخيارات التابعة لها بشكل نهائي",
         };
       }
       return {
         title: "هل أنت متأكد من حذف الفئة؟",
-        description: "سيتم حذف الفئة وجميع الفئات الفرعية التابعة لها بشكل نهائي"
+        description: "سيتم حذف الفئة وجميع الفئات الفرعية التابعة لها بشكل نهائي",
       };
     }
-    // service
     return {
       title: "هل أنت متأكد من حذف الخدمة؟",
-      description: "سيتم حذف الخدمة وجميع الخدمات الفرعية التابعة لها بشكل نهائي"
+      description: "سيتم حذف الخدمة وجميع الخدمات الفرعية التابعة لها بشكل نهائي",
     };
   };
 
@@ -226,9 +341,11 @@ export function CategoriesPage() {
               <SidebarFilterPanel
                 options={filterOptions}
                 activeValue={productSubMode}
-                onValueChange={(value) =>
-                  setProductSubMode(value as ProductSubMode)
-                }
+                onValueChange={(value) => {
+                  setProductSubMode(value as ProductSubMode);
+                  setCurrentPage(1);
+                  setSearchQuery("");
+                }}
                 className="h-full"
               />
             </div>
@@ -249,7 +366,9 @@ export function CategoriesPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={
-                    pageMode === "product"
+                    isAttributeMode
+                      ? "ابحث باسم السمة"
+                      : pageMode === "product"
                       ? "ابحث باسم الفئة أو الفئة الفرعية"
                       : "ابحث باسم الخدمة أو الخدمة الفرعية"
                   }
@@ -258,17 +377,20 @@ export function CategoriesPage() {
                 <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
               <Button
-                onClick={handleAddCategory}
+                onClick={
+                  isAttributeMode ? handleAddAttribute : handleAddCategory
+                }
                 className="flex items-center gap-2 px-6 py-3 bg-blue-3 w-full sm:w-auto  text-white text-sm font-semibold rounded-xs transition-colors cursor-pointer"
               >
                 <Plus className="w-5 h-5" />
-                {pageMode === "product"
+                {isAttributeMode
+                  ? "إضافة سمة جديدة"
+                  : pageMode === "product"
                   ? "إضافة فئة منتجات جديدة"
                   : "إضافة خدمة جديدة"}
               </Button>
             </div>
             <div className="bg-white rounded-lg p-1 sm:p-4">
-
               <ScrollArea className="flex-1 space-y-3">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12 bg-white rounded-lg">
@@ -279,19 +401,43 @@ export function CategoriesPage() {
                       </span>
                     </div>
                   </div>
+                ) : isAttributeMode ? (
+                  attributes.length === 0 ? (
+                    <div className="flex items-center justify-center py-12">
+                      <p className="text-sm text-gray-500">
+                        لا توجد سمات لعرضها
+                      </p>
+                    </div>
+                  ) : (
+                    attributes.map((attribute) => (
+                      <CategoryAccordion
+                        key={attribute.id}
+                        item={attribute}
+                        itemType="attribute"
+                        onEdit={handleEditAttribute}
+                        onDelete={handleDeleteAttributeClick}
+                        onAddOption={handleAddOptionClick}
+                        onDeleteOption={handleDeleteOptionClick}
+                        level={0}
+                      />
+                    ))
+                  )
                 ) : categories.length === 0 ? (
                   <div className="flex items-center justify-center py-12">
-                    <p className="text-sm text-gray-500">لا توجد فئات لعرضها</p>
+                    <p className="text-sm text-gray-500">
+                      لا توجد فئات لعرضها
+                    </p>
                   </div>
                 ) : (
                   categories.map((category) => (
                     <CategoryAccordion
                       key={category.id}
-                      category={category}
+                      item={category}
+                      itemType="category"
                       selectedCategories={selectedCategories}
                       onToggleCategory={handleToggleCategory}
                       onEdit={handleEditCategory}
-                      onDelete={handleDeleteClick}
+                      onDelete={handleDeleteCategoryClick}
                       onAddSubCategory={handleAddSubCategory}
                       onViewImages={handleViewImages}
                       level={0}
@@ -320,11 +466,19 @@ export function CategoriesPage() {
         onClose={() => setCategoryModalOpen(false)}
         onSave={handleSaveCategory}
         category={selectedCategory}
-        mode={modalMode}
+        mode={categoryModalMode}
         parentId={parentIdForSub}
         parentName={parentName}
         categoryOptions={categoryOptions}
         currentType={activeType}
+      />
+
+      <AttributeModal
+        isOpen={attributeModalOpen}
+        onClose={() => setAttributeModalOpen(false)}
+        onSave={handleSaveAttribute}
+        attribute={selectedAttribute}
+        mode={attributeModalMode}
       />
 
       <ConfirmDeleteModal

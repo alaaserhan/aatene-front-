@@ -25,7 +25,7 @@ params: Promise<{ locale: string; type: string; }>;
 
   return <>
   <DashboardNavbar navPrefix={type === "admin" ? "/admin" : "/dashboard"} />
-  <div className="">
+  <div>
     {children}
   </div>
   </>;
