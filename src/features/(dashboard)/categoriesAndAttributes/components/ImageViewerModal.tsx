@@ -46,7 +46,7 @@ export function ImageViewerModal({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl mx-4"
+        className="relative w-full max-w-2xl mx-2"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative rounded-2xl overflow-hidden">
@@ -69,15 +69,15 @@ export function ImageViewerModal({
             <>
               <button
                 onClick={handlePrevious}
-                className="absolute start-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white rounded-full transition-all cursor-pointer shadow-lg"
+                className="absolute start-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white rounded-full transition-all cursor-pointer shadow-lg"
               >
-                <ChevronLeft className="w-6 h-6 text-gray-900" />
+              <ChevronRight className="w-5 h-5 text-gray-900" />
               </button>
               <button
                 onClick={handleNext}
-                className="absolute end-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white rounded-full transition-all cursor-pointer shadow-lg"
+                className="absolute end-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white rounded-full transition-all cursor-pointer shadow-lg"
               >
-                <ChevronRight className="w-6 h-6 text-gray-900" />
+                <ChevronLeft className="w-5 h-5 text-gray-900" />
               </button>
             </>
           )}
