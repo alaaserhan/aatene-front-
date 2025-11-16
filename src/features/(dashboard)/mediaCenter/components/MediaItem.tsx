@@ -10,20 +10,27 @@ interface MediaItemProps {
   item: MediaItemType;
   isSelected: boolean;
   onSelect: () => void;
+  isDisabled?: boolean;
 }
 
-export function MediaItem({ item, isSelected, onSelect }: MediaItemProps) {
+export function MediaItem({
+  item,
+  isSelected,
+  onSelect,
+  isDisabled = false,
+}: MediaItemProps) {
   const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(item.file_name);
 
   return (
     <Card
-      onClick={onSelect}
+      onClick={!isDisabled ? onSelect : undefined}
       className={cn(
-        "group relative cursor-pointer overflow-hidden rounded-xl border shadow-none border-gray-200 bg-white  transition-all duration-200 hover:shadow-sm",
-        isSelected && "ring-2 ring-blue-3 ring-offset-2"
+        "group relative overflow-hidden rounded-xl border shadow-none border-gray-200 bg-white  transition-all duration-200",
+        isSelected && "ring-2 ring-blue-3 ring-offset-2",
+        !isDisabled && "cursor-pointer hover:shadow-sm",
+        isDisabled && "opacity-60"
       )}
     >
-      {/* علامة الاختيار */}
       {isSelected && (
         <div className="absolute top-2 right-2 z-10 rounded-full bg-blue-3 p-1 text-white">
           <Check className="h-3 w-3" />
@@ -31,7 +38,6 @@ export function MediaItem({ item, isSelected, onSelect }: MediaItemProps) {
       )}
 
       <CardContent className="p-0">
-        {/* صورة المنتج */}
         <div className="aspect-square overflow-hidden bg-gray-100">
           {isImage ? (
             <img
@@ -46,17 +52,13 @@ export function MediaItem({ item, isSelected, onSelect }: MediaItemProps) {
           )}
         </div>
 
-        {/* الشريط السفلي */}
         <div className="border-t border-gray-200 bg-white px-3 py-2">
-          {/* العنوان */}
           <p
             className="truncate text-center text-sm"
             title={item.title}
           >
             <span className="font-medium text-neutral-800">{item.title}</span>
           </p>
-
-          {/* الحجم */}
           <div className="mt-1 flex items-center justify-end">
             <span className="text-[11px] text-gray-2">
               {Math.round(parseInt(item.size) / 1024)}KB

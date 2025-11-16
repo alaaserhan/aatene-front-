@@ -219,7 +219,7 @@ export function CategoriesPage() {
         </div>
       </header>
 
-      <main className="flex-1 p-6 h-[calc(100vh-65px)]">
+      <main className="flex-1 p-2 sm:p-6 h-[calc(100vh-65px)]">
         <div className="grid grid-cols-12 gap-6 h-full">
           {pageMode === "product" && (
             <div className="col-span-12 lg:col-span-3 h-full">
@@ -259,7 +259,7 @@ export function CategoriesPage() {
               </div>
               <Button
                 onClick={handleAddCategory}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-3  text-white text-sm font-semibold rounded-xs transition-colors cursor-pointer"
+                className="flex items-center gap-2 px-6 py-3 bg-blue-3 w-full sm:w-auto  text-white text-sm font-semibold rounded-xs transition-colors cursor-pointer"
               >
                 <Plus className="w-5 h-5" />
                 {pageMode === "product"
@@ -267,50 +267,50 @@ export function CategoriesPage() {
                   : "إضافة خدمة جديدة"}
               </Button>
             </div>
-<div className="bg-white rounded-lg p-4">
+            <div className="bg-white rounded-lg p-1 sm:p-4">
 
-            <ScrollArea className="flex-1 space-y-3">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12 bg-white rounded-lg">
-                  <div className="flex flex-col items-center gap-3">
-                    <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
-                    <span className="text-sm text-gray-600">
-                      جاري تحميل البيانات...
-                    </span>
+              <ScrollArea className="flex-1 space-y-3">
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-12 bg-white rounded-lg">
+                    <div className="flex flex-col items-center gap-3">
+                      <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
+                      <span className="text-sm text-gray-600">
+                        جاري تحميل البيانات...
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ) : categories.length === 0 ? (
-                <div className="flex items-center justify-center py-12">
-                  <p className="text-sm text-gray-500">لا توجد فئات لعرضها</p>
-                </div>
-              ) : (
-                categories.map((category) => (
-                  <CategoryAccordion
-                    key={category.id}
-                    category={category}
-                    selectedCategories={selectedCategories}
-                    onToggleCategory={handleToggleCategory}
-                    onEdit={handleEditCategory}
-                    onDelete={handleDeleteClick}
-                    onAddSubCategory={handleAddSubCategory}
-                    onViewImages={handleViewImages}
-                    level={0}
-                  />
-                ))
-              )}
-            </ScrollArea>
+                ) : categories.length === 0 ? (
+                  <div className="flex items-center justify-center py-12">
+                    <p className="text-sm text-gray-500">لا توجد فئات لعرضها</p>
+                  </div>
+                ) : (
+                  categories.map((category) => (
+                    <CategoryAccordion
+                      key={category.id}
+                      category={category}
+                      selectedCategories={selectedCategories}
+                      onToggleCategory={handleToggleCategory}
+                      onEdit={handleEditCategory}
+                      onDelete={handleDeleteClick}
+                      onAddSubCategory={handleAddSubCategory}
+                      onViewImages={handleViewImages}
+                      level={0}
+                    />
+                  ))
+                )}
+              </ScrollArea>
 
-            {totalPages > 1 && (
-              <div className="p-4 ">
-                <Pagination
-                  totalPages={totalPages}
-                  currentPage={currentPage}
-                  onPageChange={(page) => setCurrentPage(page)}
-                  className={isLoading ? "opacity-50 pointer-events-none" : ""}
-                />
-              </div>
-            )}
-</div>
+              {totalPages > 1 && (
+                <div className="p-4 ">
+                  <Pagination
+                    totalPages={totalPages}
+                    currentPage={currentPage}
+                    onPageChange={(page) => setCurrentPage(page)}
+                    className={isLoading ? "opacity-50 pointer-events-none" : ""}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

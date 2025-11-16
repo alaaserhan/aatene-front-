@@ -13,7 +13,7 @@ interface CategoryAccordionProps {
   onToggleCategory: (id: number) => void;
   onEdit: (category: Category) => void;
   onDelete: (categoryId: number) => void;
-  onAddSubCategory: (parentId: number,name:string) => void;
+  onAddSubCategory: (parentId: number, name: string) => void;
   onViewImages: (images: string[]) => void;
   level: number;
 }
@@ -29,10 +29,11 @@ export function CategoryAccordion({
   level,
 }: CategoryAccordionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const images = category?.images_urls
-    ? category?.images_urls.split(",")
-    : category?.images || [];
-  const subCategoriesCount = Number(category?.sub_categories_count || 0);
+
+  const imageUrls = category?.images_urls || category?.images || [];
+  const images = imageUrls.filter((img) => img && img.trim() !== "");
+
+  const subCategoriesCount = Number(category.sub_categories_count || 0);
   const hasSubCategories = subCategoriesCount > 0;
 
   const {
@@ -45,8 +46,7 @@ export function CategoryAccordion({
   );
 
   return (
-    <div
-    >
+    <div>
       <div
         className="flex items-center gap-1 p-2 border border-input rounded mb-2"
         style={{ marginInlineEnd: level === 0 ? "0rem" : `${level * 3.5}rem` }}
@@ -70,7 +70,7 @@ export function CategoryAccordion({
         </button>
 
         <button
-          onClick={() => onAddSubCategory(category.id,category?.name)}
+          onClick={() => onAddSubCategory(category.id, category?.name)}
           className="p-3 bg-[#00D9C01A]  hover:bg-[#00D9C030] transition-colors cursor-pointer flex-shrink-0"
         >
           <svg
@@ -90,7 +90,6 @@ export function CategoryAccordion({
           </svg>
         </button>
 
-        {/* عرض الصور - يظهر فقط للمنتجات */}
         {category.type === "product" && (
           <div className="flex gap-2 flex-1 overflow-x-auto ms-4">
             {images.slice(0, 4).map((img, idx) => (
@@ -114,10 +113,12 @@ export function CategoryAccordion({
           </div>
         )}
 
-        <div className={cn(
-          "flex items-center gap-0 flex-shrink-0",
-          category.type === "service" && "flex-1 ms-4 justify-end"
-        )}>
+        <div
+          className={cn(
+            "flex items-center gap-0 flex-shrink-0",
+            category.type === "service" && "flex-1 ms-4 justify-end"
+          )}
+        >
           <span className="text-sm font-medium pe-2">
             {category?.name}
           </span>
@@ -138,7 +139,7 @@ export function CategoryAccordion({
       </div>
 
       {hasSubCategories && isExpanded && (
-        <div >
+        <div>
           {isLoading && (
             <div className="flex items-center justify-center p-4">
               <Loader2 className="w-5 h-5 animate-spin text-blue-3" />

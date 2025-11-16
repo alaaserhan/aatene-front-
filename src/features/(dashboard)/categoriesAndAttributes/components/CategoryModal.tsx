@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { X, Info } from "lucide-react";
 import { cn } from "@/src/lib/utils";
-import { Category, CategorySelectOption } from "../api";
+import { Category, CategorySelectOption, MediaItem } from "../api";
 import {
   Dialog,
   DialogContent,
@@ -80,9 +80,12 @@ export function CategoryModal({
     if (isOpen) {
       if (mode === "edit" && category) {
         const existingImages = category.images || [];
-        const existingImageUrls = category.images_urls
-          ? category.images_urls.split(",")
-          : [];
+        
+        const existingImageUrls = (
+          Array.isArray(category.images_urls)
+            ? category.images_urls
+            : []
+        ).filter((img) => img && img.trim() !== "");
 
         setFormData({
           id: category.id,
@@ -173,6 +176,7 @@ export function CategoryModal({
             />
           </div>
 
+
           {activeType === "product" && (
             <div className="space-y-3">
               <div className="flex flex-col gap-1">
@@ -213,8 +217,8 @@ export function CategoryModal({
             {mode === "edit"
               ? "حفظ التعديلات"
               : activeType === "service"
-                ? "إضافة الخدمة"
-                : "إضافة الفئة"}
+              ? "إضافة الخدمة"
+              : "إضافة الفئة"}
           </Button>
           <Button
             onClick={onClose}

@@ -1,7 +1,7 @@
 // src/features/(dashboard)/mediaCenter/components/MediaCenterModal.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +29,7 @@ import { MediaGrid } from "./MediaGrid";
 import { MediaUploadArea } from "./MediaUploadArea";
 import { useGetMediaList, useUploadMedia } from "../hooks";
 import { MediaItem as MediaItemType } from "../api";
+import { toast } from "sonner";
 
 const ALL_MEDIA_TYPES = [
   { value: "pdf", label: "ملفات PDF", icon: FileText },
@@ -49,6 +50,7 @@ interface MediaCenterModalProps {
   uploadPrimaryText?: string;
   uploadSecondaryText?: string;
   allowedMediaTypes?: string[];
+  selectionLimit?: number;
 }
 
 export function MediaCenterModal({
@@ -60,6 +62,7 @@ export function MediaCenterModal({
   uploadPrimaryText = "أضف أو اسحب صورة أو فيديو",
   uploadSecondaryText = "PNG, JPG, JPEG",
   allowedMediaTypes,
+  selectionLimit,
 }: MediaCenterModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItems, setSelectedItems] = useState<MediaItemType[]>([]);
@@ -77,6 +80,12 @@ export function MediaCenterModal({
   const [activeType, setActiveType] = useState(
     mediaTypes[0]?.value || "gallery"
   );
+
+  useEffect(() => {
+    if (open) {
+      setActiveType(mediaTypes[0]?.value || "gallery");
+    }
+  }, [open, mediaTypes]);
 
   const params = useMemo(() => {
     const p = new URLSearchParams();
@@ -110,12 +119,22 @@ export function MediaCenterModal({
 
   const handleSelectItem = (item: MediaItemType) => {
     if (multiple) {
-      const isSelected = selectedItems.some((selected) => selected.id === item.id);
+      const isSelected = selectedItems.some(
+        (selected) => selected.id === item.id
+      );
       if (isSelected) {
         setSelectedItems((prev) =>
           prev.filter((selected) => selected.id !== item.id)
         );
       } else {
+        if (selectionLimit && selectedItems.length >= selectionLimit) {
+          toast.warning(
+            `لا يمكنك اختيار أكثر من ${selectionLimit} ${
+              allowedMediaTypes?.includes("image") ? "صور" : "ملفات"
+            }`
+          );
+          return;
+        }
         setSelectedItems((prev) => [...prev, item]);
       }
     } else {
@@ -279,6 +298,7 @@ export function MediaCenterModal({
               onSelectItem={handleSelectItem}
               isLoading={isLoading}
               error={error ? "حدث خطأ أثناء تحميل الملفات" : null}
+              selectionLimit={selectionLimit}
             />
           </ScrollArea>
 

@@ -101,6 +101,7 @@ export function MediaMultiSelect({
         onSelect={handleMediaSelect}
         multiple={true}
         allowedMediaTypes={allowedMediaTypes}
+        selectionLimit={maxFiles - value.length}
       />
     </div>
   );

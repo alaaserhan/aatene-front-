@@ -11,6 +11,7 @@ interface MediaGridProps {
   onSelectItem: (item: MediaItemType) => void;
   isLoading?: boolean;
   error?: string | null;
+  selectionLimit?: number;
 }
 
 export function MediaGrid({
@@ -19,8 +20,8 @@ export function MediaGrid({
   onSelectItem,
   isLoading = false,
   error = null,
+  selectionLimit,
 }: MediaGridProps) {
-  // Loading state
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-full space-y-4 min-h-[400px]">
@@ -30,7 +31,6 @@ export function MediaGrid({
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-full space-y-4 min-h-[400px]">
@@ -42,7 +42,6 @@ export function MediaGrid({
     );
   }
 
-  // Empty state
   if (!items || items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full space-y-6 min-h-[400px]">
@@ -57,17 +56,26 @@ export function MediaGrid({
     );
   }
 
-  // Grid display
+  const isSelectionFull =
+    selectionLimit !== undefined
+      ? selectedItems.length >= selectionLimit
+      : false;
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5  gap-3 lg:gap-4 p-4">
       {items.map((item) => {
-        const isSelected = selectedItems.some((selected) => selected.id === item.id);
+        const isSelected = selectedItems.some(
+          (selected) => selected.id === item.id
+        );
+        const isDisabled = !isSelected && isSelectionFull;
+
         return (
           <MediaItemComponent
             key={item.id}
             item={item}
             isSelected={isSelected}
             onSelect={() => onSelectItem(item)}
+            isDisabled={isDisabled}
           />
         );
       })}
