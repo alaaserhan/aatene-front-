@@ -42,9 +42,9 @@ export function UserListSidebar({
     }
 
     return {
-      text: "في الانتظار",
-      color: "text-[#FF9500]",
-      dot: "bg-[#FF9500]",
+      text: "غير مفعل",
+      color: "text-red-600",
+      dot: "bg-red-500",
     };
   };
 

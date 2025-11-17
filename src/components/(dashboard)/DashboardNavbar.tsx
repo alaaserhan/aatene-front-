@@ -117,7 +117,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                   <Menu className="w-6 h-6" style={{ color: "var(--blue-3)" }} />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-72 p-0 flex flex-col border-none" style={{ backgroundColor: "var(--blue-1)" }}>
+              <SheetContent side="right" className="w-72 p-0 flex flex-col border-none" >
                 <SheetHeader className="p-4 border-b" style={{ borderColor: "var(--blue-2)" }}>
                   <SheetTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -264,7 +264,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               aria-label="بحث"
               onClick={() => router.push(`${navPrefix}/search`)}
             >
-              <Search className="w-5 h-5" style={{ color: "var(--blue-3)" }} />
+              <img src="/icons/search.svg" className="w-5 h-5" alt="search" />
             </Button>
 
             <Button
@@ -275,7 +275,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               asChild
             >
               <Link href={`${navPrefix}/chat`}>
-                <MessageSquare className="w-5 h-5" style={{ color: "var(--blue-3)" }} />
+                <img src="/icons/chat.svg" className="w-5 h-5" alt="chat" />
                 {/* <Badge 
                   className="absolute text-white -top-1 -right-1 h-4 w-4 justify-center p-0 text-[10px]"
                   variant="destructive"
@@ -293,7 +293,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                   className="rounded-lg hover:bg-white/20 relative"
                   aria-label="الإشعارات"
                 >
-                  <Bell className="w-5 h-5" style={{ color: "var(--blue-3)" }} />
+                  <img src="/icons/ring.svg" className="w-5 h-5" alt="notifications"  />
                   {unreadCount > 0 && (
                     <Badge 
                       className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0 text-[10px]"
@@ -362,8 +362,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/20 h-auto"
-                    style={{ backgroundColor: "rgba(221, 228, 237, 0.5)" }}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-transparent h-auto"
+                    
                   >
                     <Avatar className="w-10 h-10 border-2 border-white">
                       <AvatarImage src={user?.avatar} alt={user?.fullname} />
