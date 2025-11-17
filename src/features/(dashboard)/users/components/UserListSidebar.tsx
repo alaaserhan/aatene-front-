@@ -1,14 +1,14 @@
 // src/features/(dashboard)/users/components/UserListSidebar.tsx
 "use client";
 
-import { User } from "../api";
+import { User, PaginatedUsersResponse } from "../api";
 import { Input } from "@/src/components/ui/input";
-import { Button } from "@/src/components/ui/button";
-import { ListFilter, Loader2, Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { cn } from "@/src/lib/utils";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 
 interface UserListSidebarProps {
-  usersData: any;
+  usersData: PaginatedUsersResponse | undefined;
   isLoading: boolean;
   isError: boolean;
   selectedUserId: number | null;
@@ -16,7 +16,15 @@ interface UserListSidebarProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   className?: string;
+  statusFilter: string;
+  onStatusFilterChange: (value: string) => void;
 }
+
+const statusFilterOptions = [
+  { label: "الكل", value: "all" },
+  { label: "مفعل", value: "1" },
+  { label: "غير مفعل", value: "0" },
+];
 
 export function UserListSidebar({
   usersData,
@@ -27,6 +35,8 @@ export function UserListSidebar({
   searchQuery,
   onSearchChange,
   className,
+  statusFilter,
+  onStatusFilterChange,
 }: UserListSidebarProps) {
   const users: User[] = usersData?.data || [];
 
@@ -63,17 +73,24 @@ export function UserListSidebar({
             placeholder="ابحث باسم الموظف "
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pr-10 pl-3 py-2.5 bg-gray-50 border-gray-300 rounded-sm text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#3A5779] focus:border-transparent"
+            className="w-full pr-10 pl-3 py-3 h-10 border-gray-300 rounded-sm text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#3A5779] focus:border-transparent"
           />
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-1.5 h-9 px-3 py-2 cursor-pointer border-blue-3 text-blue-3 bg-blue-5 rounded-sm"
-        >
-          <img src="/icons/dashboard/order.svg" alt="order" />
-          <span className="text-sm font-medium pb-1">ترتيب</span>
-        </Button>
+
+        <ReusableDropdown
+          options={statusFilterOptions}
+          value={statusFilter}
+          onChange={onStatusFilterChange}
+          showSelectedLabel={true}
+          triggerIcon={
+            <img
+              src="/icons/dashboard/order.svg"
+              alt="filter"
+              className="w-4 h-4"
+            />
+          }
+          className="min-w-[120px]"
+        />
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -131,7 +148,10 @@ export function UserListSidebar({
                     )}
                   >
                     <div
-                      className={cn("w-2 h-2 rounded-full shadow mt-0.5", status.dot)}
+                      className={cn(
+                        "w-2 h-2 rounded-full shadow mt-0.5",
+                        status.dot
+                      )}
                     />
                     <span className="text-xs font-medium">{status.text}</span>
                   </div>

@@ -50,11 +50,11 @@ export function ReusableDropdown({
   }, []);
 
   return (
-    <div className={cn("relative", className)} ref={dropdownRef}>
+    <div className={cn("relative")} ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-sm bg-white hover:bg-gray-50 transition-colors cursor-pointer min-w-[180px] justify-between"
+        className={cn("flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-sm bg-white hover:bg-gray-50 transition-colors cursor-pointer  justify-between", className)}
       >
         <div className="flex items-center gap-2">
           {triggerIcon}

@@ -16,6 +16,7 @@ export function UsersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeRoleName, setActiveRoleName] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const detailsRef = useRef<HTMLDivElement>(null);
 
@@ -44,8 +45,12 @@ export function UsersPage() {
       params.set("roles", activeRoleName);
     }
 
+    if (statusFilter !== "all") {
+      params.set("is_active", statusFilter);
+    }
+
     return params;
-  }, [currentPage, searchQuery, activeRoleName]);
+  }, [currentPage, searchQuery, activeRoleName, statusFilter]);
 
   const { data: usersData, isLoading, isError } = useGetUsers(queryParams);
 
@@ -66,8 +71,20 @@ export function UsersPage() {
     setSelectedUserId(null);
   };
 
-  const handleFilterChange = (roleName: string ) => {
+  const handleRoleFilterChange = (roleName: string) => {
     setActiveRoleName(roleName);
+    setCurrentPage(1);
+    setSelectedUserId(null);
+  };
+
+  const handleStatusFilterChange = (status: string) => {
+    setStatusFilter(status);
+    setCurrentPage(1);
+    setSelectedUserId(null);
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
     setCurrentPage(1);
     setSelectedUserId(null);
   };
@@ -113,7 +130,7 @@ export function UsersPage() {
             <SidebarFilterPanel
               options={filterCategories}
               activeValue={activeRoleName}
-              onValueChange={handleFilterChange}
+              onValueChange={handleRoleFilterChange}
               className="h-full"
             />
           </div>
@@ -126,8 +143,10 @@ export function UsersPage() {
               selectedUserId={selectedUserId}
               onSelectUser={handleSelectUser}
               searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
+              onSearchChange={handleSearchChange}
               className="h-full"
+              statusFilter={statusFilter}
+              onStatusFilterChange={handleStatusFilterChange}
             />
           </div>
 

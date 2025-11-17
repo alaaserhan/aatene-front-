@@ -26,7 +26,6 @@ const filterOptions = [
 ];
 
 const sortOptions = [
-  { value: "created_at", label: "ترتيب حسب..." },
   { value: "priority", label: "الأولوية" },
   { value: "start_date", label: "تاريخ البدء" },
   { value: "end_date", label: "تاريخ الانتهاء" },
@@ -193,6 +192,7 @@ export function BannersPage() {
                   setSortBy(value);
                   setCurrentPage(1);
                 }}
+                className="min-w-[140px]"
               />
             </div>
           </div>
