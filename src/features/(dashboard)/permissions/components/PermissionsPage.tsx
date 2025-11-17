@@ -14,15 +14,158 @@ import { FormInput } from "@/src/components/ui/FormInput";
 import { Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { RoleListItem } from "../../roles/api";
+import { Role, RoleListItem } from "../../roles/api";
+import { Permission } from "../api";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
+
+// --- المكون الداخلي للفورم ---
+
+interface PermissionFormProps {
+  role?: Role | null;
+  allPermissions: Permission[];
+  onSave: (payload: {
+    title: string;
+    name: string;
+    permissions: number[];
+  }) => void;
+  onCancel: () => void;
+  isMutating: boolean;
+  mode: "edit" | "create";
+}
+
+function PermissionForm({
+  role,
+  allPermissions,
+  onSave,
+  onCancel,
+  isMutating,
+  mode,
+}: PermissionFormProps) {
+  // 1. يتم تهيئة الـ State من الـ props عند بناء المكون لأول مرة
+  const [roleTitleInput, setRoleTitleInput] = useState(role?.title || "");
+  const [selectedPermissions, setSelectedPermissions] = useState<number[]>(
+    role?.permissions?.map((p : Permission) => p.id) || []
+  );
+
+  const handlePermissionToggle = (permissionId: number) => {
+    setSelectedPermissions((prev) => {
+      if (prev.includes(permissionId)) {
+        return prev.filter((id) => id !== permissionId);
+      }
+      return [...prev, permissionId];
+    });
+  };
+
+  const handleSaveClick = () => {
+    const titleToSave = roleTitleInput.trim();
+    if (!titleToSave) {
+      toast.error("اسم الدور الوظيفي مطلوب");
+      return;
+    }
+    onSave({
+      title: titleToSave,
+      name: role?.name || "",
+      permissions: selectedPermissions,
+    });
+  };
+
+  return (
+    <div>
+      <div className="bg-white rounded-lg p-6">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-blue-4">
+            {mode === "create"
+              ? "إضافة دور وظيفي جديد"
+              : "معلومات الدور الوظيفي"}
+          </h2>
+        </div>
+        <div className="">
+          <FormInput
+            label="اسم الدور الوظيفي"
+            value={roleTitleInput}
+            onChange={(e) => setRoleTitleInput(e.target.value)}
+            placeholder="ادخل اسم الدور الوظيفي"
+          />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg p-6 mt-6">
+        <div className="space-y-4">
+          <h3 className="text-lg text-blue-4 font-semibold">
+            صلاحية الموظف
+          </h3>
+          <div className="space-y-3">
+            {allPermissions.map((permission) => {
+              const isChecked = selectedPermissions.includes(permission.id);
+              return (
+                <div
+                  key={permission.id}
+                  className="flex items-center justify-between py-2"
+                >
+                  <label className="flex items-center gap-3 cursor-pointer flex-1">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => handlePermissionToggle(permission.id)}
+                      className="w-4 h-4 text-blue-3 cursor-pointer accent-blue-3"
+                    />
+                    <span className="text-sm text-gray-700">
+                      {permission.title}
+                    </span>
+                  </label>
+                  <button
+                    type="button"
+                    className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded text-gray-500 hover:bg-gray-50 cursor-pointer opacity-50"
+                    disabled
+                  >
+                    +
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg p-6 mt-6">
+        <div className="flex gap-4 justify-center">
+          <Button
+            type="button"
+            onClick={handleSaveClick}
+            disabled={isMutating}
+            className="px-8 py-3 cursor-pointer rounded-sm"
+            style={{ backgroundColor: "var(--blue-4)" }}
+          >
+            {isMutating ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                جاري الحفظ...
+              </span>
+            ) : (
+              "حفظ التغييرات"
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isMutating}
+            className="px-8 py-3 cursor-pointer text-blue-4 rounded-sm"
+            style={{ backgroundColor: "var(--blue-5)" }}
+          >
+            إلغاء
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- المكون الرئيسي (الأب) ---
 
 export function PermissionsPage() {
   const [mode, setMode] = useState<"edit" | "create">("edit");
   const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
-  const [roleName, setRoleName] = useState("");
-  const [roleTitle, setRoleTitle] = useState("");
-  const [selectedPermissions, setSelectedPermissions] = useState<number[]>([]);
 
   const { data: rolesData } = useGetRoles(new URLSearchParams());
   const roles = rolesData?.data || [];
@@ -39,18 +182,7 @@ export function PermissionsPage() {
   const isMutating =
     createRoleMutation.isPending || updateRoleMutation.isPending;
 
-  useEffect(() => {
-    if (mode === "edit" && roleDetailsData?.record) {
-      const role = roleDetailsData.record;
-      setRoleName(role.name || "");
-      setRoleTitle(role.title ||"");
-      setSelectedPermissions(role.permissions?.map((p) => p.id) || []);
-    } else if (mode === "create") {
-      setRoleName("");
-      setRoleTitle("");
-      setSelectedPermissions([]);
-    }
-  }, [mode, roleDetailsData, selectedRoleId]);
+  // 2. تم حذف الـ useEffect الذي يسبب المشكلة
 
   const filterCategories = useMemo(() => {
     return roles.map((role: RoleListItem) => ({
@@ -69,27 +201,17 @@ export function PermissionsPage() {
     setSelectedRoleId(null);
   };
 
-  const handlePermissionToggle = (permissionId: number) => {
-    setSelectedPermissions((prev) => {
-      if (prev.includes(permissionId)) {
-        return prev.filter((id) => id !== permissionId);
-      }
-      return [...prev, permissionId];
-    });
-  };
-
-  const handleSave = () => {
-    const titleToSave = roleTitle.trim();
-    if (!titleToSave) {
-      toast.error("اسم الدور الوظيفي مطلوب");
-      return;
-    }
-
+  const handleSave = (payload: {
+    title: string;
+    name: string;
+    permissions: number[];
+  }) => {
     if (mode === "create") {
       createRoleMutation.mutate(
         {
-          name: titleToSave,
-          permissions: selectedPermissions,
+          name: payload.name,
+          title: payload.title, 
+          permissions: payload.permissions,
         },
         {
           onSuccess: (data) => {
@@ -104,9 +226,9 @@ export function PermissionsPage() {
         {
           id: selectedRoleId,
           payload: {
-            title: titleToSave,
-            name: titleToSave,
-            permissions: selectedPermissions,
+            title: payload.title,
+            name: payload.name,
+            permissions: payload.permissions,
           },
         },
         {
@@ -119,15 +241,14 @@ export function PermissionsPage() {
   };
 
   const handleCancel = () => {
-    if (mode === "create") {
-      setRoleName("");
-      setRoleTitle("");
-      setSelectedPermissions([]);
-    } else if (roleDetailsData?.record) {
-      const role = roleDetailsData.record;
-      setRoleName(role.name || "");
-      setRoleTitle(role.title || "");
-      setSelectedPermissions(role.permissions?.map((p) => p.id) || []);
+    if (mode === "create" && roles.length > 0) {
+      setMode("edit");
+      setSelectedRoleId(roles[0].id);
+    } else if (mode === "create" && roles.length === 0) {
+      // لا تفعل شيئاً
+    } else {
+      // سيعيد الـ key بناء المكون بنفس الـ ID، مما يعيد تهيئة الـ state
+      setSelectedRoleId((prev) => prev);
     }
   };
 
@@ -188,102 +309,16 @@ export function PermissionsPage() {
                 <Loader2 className="w-6 h-6 animate-spin text-blue-3" />
               </div>
             ) : (
-              <div>
-                <div className="bg-white rounded-lg p-6">
-                  <div className="mb-6">
-                    <h2 className="text-xl font-bold text-blue-4">
-                      {mode === "create"
-                        ? "إضافة دور وظيفي جديد"
-                        : "معلومات الدور الوظيفي"}
-                    </h2>
-                  </div>
-
-                  <div className="">
-                    <FormInput
-                      label="اسم الدور الوظيفي"
-                      value={roleTitle}
-                      onChange={(e) => setRoleTitle(e.target.value)}
-                      placeholder="ادخل اسم الدور الوظيفي"
-                    />
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-lg p-6 mt-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg text-blue-4 font-semibold">
-                      صلاحية الموظف
-                    </h3>
-
-                    <div className="space-y-3">
-                      {allPermissions.map((permission) => {
-                        const isChecked = selectedPermissions.includes(
-                          permission.id
-                        );
-
-                        return (
-                          <div
-                            key={permission.id}
-                            className="flex items-center justify-between py-2"
-                          >
-                            <label className="flex items-center gap-3 cursor-pointer flex-1">
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={() =>
-                                  handlePermissionToggle(permission.id)
-                                }
-                                className="w-4 h-4 text-blue-3 cursor-pointer accent-blue-3"
-                              />
-                              <span className="text-sm text-gray-700">
-                                {permission.title}
-                              </span>
-                            </label>
-
-                            <button
-                              type="button"
-                              className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded text-gray-500 hover:bg-gray-50 cursor-pointer opacity-50"
-                              disabled
-                            >
-                              +
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-lg p-6 mt-6">
-                  <div className="flex gap-4 justify-center">
-                    <Button
-                      type="button"
-                      onClick={handleSave}
-                      disabled={isMutating}
-                      className="px-8 py-3 cursor-pointer rounded-sm"
-                      style={{ backgroundColor: "var(--blue-4)" }}
-                    >
-                      {isMutating ? (
-                        <span className="flex items-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          جاري الحفظ...
-                        </span>
-                      ) : (
-                        "حفظ التغييرات"
-                      )}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleCancel}
-                      disabled={isMutating}
-                      className="px-8 py-3 cursor-pointer text-blue-4 rounded-sm"
-                      style={{ backgroundColor: "var(--blue-5)" }}
-                    >
-                      إلغاء
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              // 4. تم إضافة الـ key هنا لحل مشكلة الـ useEffect
+              <PermissionForm
+                key={selectedRoleId || "create"}
+                mode={mode}
+                role={roleDetailsData?.record}
+                allPermissions={allPermissions}
+                onSave={handleSave}
+                onCancel={handleCancel}
+                isMutating={isMutating}
+              />
             )}
           </div>
         </div>

@@ -35,7 +35,9 @@ function AttributeOptionRow({
       </button>
 
       <div className="flex-1 ms-4">
-        <span className="text-sm font-medium pe-2 flex justify-end">{option.title}</span>
+        <span className="text-sm font-medium pe-2 flex justify-end">
+          {option.title}
+        </span>
       </div>
     </div>
   );
@@ -65,101 +67,78 @@ type AttributeProps = {
 
 type AccordionProps = CategoryProps | AttributeProps;
 
-export function CategoryAccordion(props: AccordionProps) {
+function AttributeAccordionContent(props: AttributeProps) {
+  const {
+    item: attribute,
+    onEdit,
+    onDelete,
+    onAddOption,
+    onDeleteOption,
+    level,
+  } = props;
+
   const [isExpanded, setIsExpanded] = useState(false);
+  const hasOptions = attribute.options.length > 0;
 
-  if (props.itemType === "attribute") {
-    const {
-      item: attribute,
-      onEdit,
-      onDelete,
-      onAddOption,
-      onDeleteOption,
-      level,
-    } = props;
-    const hasOptions = attribute.options.length > 0;
-
-    return (
-      <div>
-        <div
-          className="flex items-center gap-1 p-2 border border-input rounded mb-2"
-          style={{ marginInlineEnd: `${level * 3.5}rem` }}
+  return (
+    <div>
+      <div
+        className="flex items-center gap-1 p-2 border border-input rounded mb-2"
+        style={{ marginInlineEnd: `${level * 3.5}rem` }}
+      >
+        <button
+          onClick={() => onDelete(attribute.id)}
+          className="p-3 bg-[#FB37481A]  hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
         >
-          <button
-            onClick={() => onDelete(attribute.id)}
-            className="p-3 bg-[#FB37481A]  hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
-          >
-            <img
-              src="/icons/dashboard/trash.svg"
-              alt="Delete"
-              className="w-4 h-4"
-            />
-          </button>
+          <img
+            src="/icons/dashboard/trash.svg"
+            alt="Delete"
+            className="w-4 h-4"
+          />
+        </button>
 
-          <button
-            onClick={() => onEdit(attribute)}
-            className="p-3 bg-blue-5  hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
-          >
-            <img src="/icons/dashboard/pin.svg" alt="Edit" className="w-4 h-4" />
-          </button>
+        <button
+          onClick={() => onEdit(attribute)}
+          className="p-3 bg-blue-5  hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
+        >
+          <img src="/icons/dashboard/pin.svg" alt="Edit" className="w-4 h-4" />
+        </button>
 
-          {/* <button
-            onClick={() => onAddOption(attribute)}
-            className="p-3 bg-[#00D9C01A]  hover:bg-[#00D9C030] transition-colors cursor-pointer flex-shrink-0"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+        <div className={cn("flex items-center gap-0 flex-1 ms-4 justify-end")}>
+          <span className="text-sm font-medium pe-2">{attribute.title}</span>
+
+          {hasOptions && (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
             >
-              <path
-                d="M8 3.33333V12.6667M3.33333 8H12.6667"
-                stroke="#00D9C0"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button> */}
-
-          <div className={cn("flex items-center gap-0 flex-1 ms-4 justify-end")}>
-            <span className="text-sm font-medium pe-2">
-              {attribute.title}
-            </span>
-
-            {hasOptions && (
-              <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
-              >
-                {isExpanded ? (
-                  <ChevronUp className="w-4 h-4 text-gray-2" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-gray-2" />
-                )}
-              </button>
-            )}
-          </div>
+              {isExpanded ? (
+                <ChevronUp className="w-4 h-4 text-gray-2" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-gray-2" />
+              )}
+            </button>
+          )}
         </div>
-
-        {hasOptions && isExpanded && (
-          <div>
-            {attribute.options.map((option) => (
-              <AttributeOptionRow
-                key={option.id}
-                option={option}
-                onDelete={() => onDeleteOption(option.id, attribute)}
-                level={level + 1}
-              />
-            ))}
-          </div>
-        )}
       </div>
-    );
-  }
 
+      {hasOptions && isExpanded && (
+        <div>
+          {attribute.options.map((option) => (
+            <AttributeOptionRow
+              key={option.id}
+              option={option}
+              onDelete={() => onDeleteOption(option.id, attribute)}
+              level={level + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CategoryAccordionContent(props: CategoryProps) {
   const {
     item: category,
     selectedCategories,
@@ -170,6 +149,8 @@ export function CategoryAccordion(props: AccordionProps) {
     onViewImages,
     level,
   } = props;
+
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const imageUrls = category?.images_urls || category?.images || [];
   const images = imageUrls.filter((img) => img && img.trim() !== "");
@@ -263,9 +244,7 @@ export function CategoryAccordion(props: AccordionProps) {
             category.type === "service" && "flex-1 ms-4 justify-end"
           )}
         >
-          <span className="text-sm font-medium pe-2">
-            {category?.name}
-          </span>
+          <span className="text-sm font-medium pe-2">{category?.name}</span>
 
           {hasSubCategories && (
             <button
@@ -313,4 +292,16 @@ export function CategoryAccordion(props: AccordionProps) {
       )}
     </div>
   );
+}
+
+export function CategoryAccordion(props: AccordionProps) {
+  if (props.itemType === "attribute") {
+    return <AttributeAccordionContent {...props} />;
+  }
+
+  if (props.itemType === "category") {
+    return <CategoryAccordionContent {...props} />;
+  }
+
+  return null;
 }
