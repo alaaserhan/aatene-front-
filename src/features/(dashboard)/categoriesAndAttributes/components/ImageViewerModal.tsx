@@ -20,10 +20,6 @@ export function ImageViewerModal({
 }: ImageViewerModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
-  useEffect(() => {
-    setCurrentIndex(initialIndex);
-  }, [isOpen, initialIndex]);
-
   if (!isOpen || images.length === 0) return null;
 
   const handlePrevious = (e: React.MouseEvent) => {
@@ -71,7 +67,7 @@ export function ImageViewerModal({
                 onClick={handlePrevious}
                 className="absolute start-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white rounded-full transition-all cursor-pointer shadow-lg"
               >
-              <ChevronRight className="w-5 h-5 text-gray-900" />
+                <ChevronRight className="w-5 h-5 text-gray-900" />
               </button>
               <button
                 onClick={handleNext}

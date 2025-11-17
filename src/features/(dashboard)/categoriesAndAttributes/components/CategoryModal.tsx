@@ -1,10 +1,9 @@
 // src/features/(dashboard)/categoriesAndAttributes/components/CategoryModal.tsx
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { X, Info } from "lucide-react";
+import { useState, useMemo } from "react";
 import { cn } from "@/src/lib/utils";
-import { Category, CategorySelectOption, MediaItem } from "../api";
+import { Category, CategorySelectOption } from "../api";
 import {
   Dialog,
   DialogContent,
@@ -15,8 +14,6 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
-import { ReusableDropdown } from "@/src/components/(dashboard)/ReusableDropdown";
-import Link from "next/link";
 import { MediaMultiSelect } from "@/src/components/ui/MediaMultiSelect";
 
 interface CategoryModalProps {
@@ -59,8 +56,35 @@ export function CategoryModal({
   categoryOptions = [],
   currentType,
 }: CategoryModalProps) {
-  const [formData, setFormData] = useState<CategoryFormData>(defaultFormData);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [formData, setFormData] = useState<CategoryFormData>(() => {
+    if (mode === "edit" && category) {
+      return {
+        id: category.id,
+        name: category.name,
+        images: category.images || [],
+        is_active: category.is_active === "1" || category.is_active === true,
+        parent_id: category.parent_id ? Number(category.parent_id) : null,
+        type: category.type,
+      };
+    }
+    if (mode === "addSub" && parentId) {
+      return {
+        ...defaultFormData,
+        parent_id: parentId,
+        type: currentType,
+      };
+    }
+    return { ...defaultFormData, type: currentType };
+  });
+
+  const [previewUrls, setPreviewUrls] = useState<string[]>(() => {
+    if (mode === "edit" && category) {
+      return (
+        Array.isArray(category.images_urls) ? category.images_urls : []
+      ).filter((img) => img && img.trim() !== "");
+    }
+    return [];
+  });
 
   const parentCategoryName = parentName || "";
 
@@ -75,40 +99,6 @@ export function CategoryModal({
         })) || [];
     return [...baseOptions, ...parentOptions];
   }, [categoryOptions]);
-
-  useEffect(() => {
-    if (isOpen) {
-      if (mode === "edit" && category) {
-        const existingImages = category.images || [];
-        
-        const existingImageUrls = (
-          Array.isArray(category.images_urls)
-            ? category.images_urls
-            : []
-        ).filter((img) => img && img.trim() !== "");
-
-        setFormData({
-          id: category.id,
-          name: category.name,
-          images: existingImages,
-          is_active: category.is_active === "1" || category.is_active === true,
-          parent_id: category.parent_id ? Number(category.parent_id) : null,
-          type: category.type,
-        });
-        setPreviewUrls(existingImageUrls);
-      } else if (mode === "addSub" && parentId) {
-        setFormData({
-          ...defaultFormData,
-          parent_id: parentId,
-          type: currentType,
-        });
-        setPreviewUrls([]);
-      } else {
-        setFormData({ ...defaultFormData, type: currentType });
-        setPreviewUrls([]);
-      }
-    }
-  }, [isOpen, category, mode, parentId, currentType]);
 
   const activeType = formData.type || currentType;
 
@@ -152,9 +142,7 @@ export function CategoryModal({
           <DialogTitle className="text-lg font-bold ">
             {getModalTitle()}
           </DialogTitle>
-          <p className="text-sm pt-1">
-            {getModalDescription()}
-          </p>
+          <p className="text-sm pt-1">{getModalDescription()}</p>
         </DialogHeader>
 
         <div className="px-4 pb-4 space-y-6">
@@ -175,7 +163,6 @@ export function CategoryModal({
               className="w-full px-4 py-3 border-gray-300 rounded-xs focus:ring-2 focus:ring-blue-3 focus:border-transparent"
             />
           </div>
-
 
           {activeType === "product" && (
             <div className="space-y-3">
@@ -203,7 +190,10 @@ export function CategoryModal({
           )}
         </div>
 
-        <DialogFooter className="p-4 bg-white border-t border-gray-200 flex sm:justify-center" dir="rtl">
+        <DialogFooter
+          className="p-4 bg-white border-t border-gray-200 flex sm:justify-center"
+          dir="rtl"
+        >
           <Button
             onClick={handleSave}
             disabled={!formData.name.trim()}
@@ -217,8 +207,8 @@ export function CategoryModal({
             {mode === "edit"
               ? "حفظ التعديلات"
               : activeType === "service"
-              ? "إضافة الخدمة"
-              : "إضافة الفئة"}
+                ? "إضافة الخدمة"
+                : "إضافة الفئة"}
           </Button>
           <Button
             onClick={onClose}
