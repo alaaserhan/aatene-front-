@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { Role, RoleListItem } from "../../roles/api";
 import { Permission } from "../api";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
+import { cn } from "@/src/lib/utils";
 
 // --- المكون الداخلي للفورم ---
 
@@ -41,10 +42,10 @@ function PermissionForm({
   isMutating,
   mode,
 }: PermissionFormProps) {
-  // 1. يتم تهيئة الـ State من الـ props عند بناء المكون لأول مرة
   const [roleTitleInput, setRoleTitleInput] = useState(role?.title || "");
+  const [roleNameInput, setRoleNameInput] = useState(role?.name || "");
   const [selectedPermissions, setSelectedPermissions] = useState<number[]>(
-    role?.permissions?.map((p : Permission) => p.id) || []
+    role?.permissions?.map((p: Permission) => p.id) || []
   );
 
   const handlePermissionToggle = (permissionId: number) => {
@@ -58,13 +59,20 @@ function PermissionForm({
 
   const handleSaveClick = () => {
     const titleToSave = roleTitleInput.trim();
+    const nameToSave = roleNameInput.trim();
+
     if (!titleToSave) {
       toast.error("اسم الدور الوظيفي مطلوب");
       return;
     }
+    if (!nameToSave) {
+      toast.error("الاسم البرمجى مطلوب");
+      return;
+    }
+
     onSave({
       title: titleToSave,
-      name: role?.name || "",
+      name: nameToSave,
       permissions: selectedPermissions,
     });
   };
@@ -79,12 +87,22 @@ function PermissionForm({
               : "معلومات الدور الوظيفي"}
           </h2>
         </div>
-        <div className="">
+        <div className="space-y-4">
           <FormInput
             label="اسم الدور الوظيفي"
             value={roleTitleInput}
             onChange={(e) => setRoleTitleInput(e.target.value)}
-            placeholder="ادخل اسم الدور الوظيفي"
+            placeholder="ادخل اسم الدور الوظيفي (مثال: مدير النظام)"
+          />
+
+          <FormInput
+            label="الاسم البرمجي"
+            value={roleNameInput}
+            onChange={(e) => setRoleNameInput(e.target.value)}
+            placeholder="ادخل الاسم البرمجي (مثال: admin)"
+            readOnly={mode === "edit"}
+            disabled={mode === "edit"}
+            className={cn(mode === "edit" && "bg-gray-100 text-gray-500")}
           />
         </div>
       </div>
@@ -182,11 +200,9 @@ export function PermissionsPage() {
   const isMutating =
     createRoleMutation.isPending || updateRoleMutation.isPending;
 
-  // 2. تم حذف الـ useEffect الذي يسبب المشكلة
-
   const filterCategories = useMemo(() => {
     return roles.map((role: RoleListItem) => ({
-      name: role.title || role.name,
+      name: role.title ,
       value: String(role.id),
     }));
   }, [roles]);
@@ -210,7 +226,7 @@ export function PermissionsPage() {
       createRoleMutation.mutate(
         {
           name: payload.name,
-          title: payload.title, 
+          title: payload.title,
           permissions: payload.permissions,
         },
         {
@@ -245,9 +261,8 @@ export function PermissionsPage() {
       setMode("edit");
       setSelectedRoleId(roles[0].id);
     } else if (mode === "create" && roles.length === 0) {
-      // لا تفعل شيئاً
+      // noop
     } else {
-      // سيعيد الـ key بناء المكون بنفس الـ ID، مما يعيد تهيئة الـ state
       setSelectedRoleId((prev) => prev);
     }
   };
@@ -309,7 +324,6 @@ export function PermissionsPage() {
                 <Loader2 className="w-6 h-6 animate-spin text-blue-3" />
               </div>
             ) : (
-              // 4. تم إضافة الـ key هنا لحل مشكلة الـ useEffect
               <PermissionForm
                 key={selectedRoleId || "create"}
                 mode={mode}
