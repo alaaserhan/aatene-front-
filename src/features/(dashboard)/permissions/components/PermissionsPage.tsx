@@ -202,7 +202,7 @@ export function PermissionsPage() {
 
   const filterCategories = useMemo(() => {
     return roles.map((role: RoleListItem) => ({
-      name: role.title ,
+      name: role.title || "" ,
       value: String(role.id),
     }));
   }, [roles]);
