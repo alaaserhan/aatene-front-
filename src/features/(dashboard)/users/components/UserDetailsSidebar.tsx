@@ -57,7 +57,7 @@ export function UserDetailsSidebar({
     data: userData,
     isLoading: isLoadingUser,
     refetch,
-  } = useGetSingleUser(selectedUserId);
+  } = useGetSingleUser(selectedUserId || undefined)
 
   const { data: rolesData } = useGetRoles(new URLSearchParams());
 

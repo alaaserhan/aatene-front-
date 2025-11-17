@@ -1,7 +1,6 @@
 // src/features/(dashboard)/users/hooks.ts
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as api from "./api";
 import {
   UserCreatePayload,
@@ -13,8 +12,8 @@ import {
   BaseResponse,
 } from "./api";
 import { toast } from "sonner";
-import { PaginatedRolesResponse as RolesPaginatedResponse } from "../../roles/api";
 import { Role } from "./api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const QK = {
   any: ["users"] as const,
@@ -58,6 +57,16 @@ export const useCreateUser = () => {
   });
 };
 
+interface RolesCacheData {
+  id: number;
+  name: string;
+  title: string | null;
+}
+
+interface RolesCacheResponse {
+  data: RolesCacheData[];
+}
+
 export const useUpdateUser = () => {
   const qc = useQueryClient();
   return useMutation({
@@ -74,15 +83,22 @@ export const useUpdateUser = () => {
         QK.single(vars.id)
       );
 
-      const { is_active, roles, ...rest } = vars.payload;
+      const { is_active, roles, city_id, district_id, ...rest } = vars.payload;
       const optimisticPayload: Partial<User> = { ...rest };
 
       if (is_active !== undefined) {
         optimisticPayload.is_active = coerceActive(is_active);
       }
 
+      if (city_id !== undefined) {
+        optimisticPayload.city_id = String(city_id);
+      }
+      if (district_id !== undefined) {
+        optimisticPayload.district_id = String(district_id);
+      }
+
       if (roles !== undefined) {
-        const rolesCache = qc.getQueryData<RolesPaginatedResponse>(
+        const rolesCache = qc.getQueryData<RolesCacheResponse>(
           RoleQK.listAny
         );
         const newRoleList: Role[] = [];
@@ -91,7 +107,8 @@ export const useUpdateUser = () => {
           const roleId = roles[0];
           const foundRole = rolesCache.data.find((r) => r.id === roleId);
           if (foundRole) {
-            newRoleList.push({ id: foundRole.id, name: foundRole.name });
+            const displayName = foundRole.title || foundRole.name;
+            newRoleList.push({ id: foundRole.id, name: displayName });
           }
         }
         optimisticPayload.roles = newRoleList;
