@@ -30,27 +30,35 @@ const AttributeQK = {
 
 const coerceActive = (v: unknown) => v === "1" || v === 1 || v === true;
 
-export function useGetCategories(params: URLSearchParams) {
+export function useGetCategories(
+  params: URLSearchParams,
+  options: { enabled?: boolean } = {} // <-- تم التعديل هنا
+) {
   const key = CategoryQK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getCategories(params),
+    enabled: options.enabled ?? true, // <-- وتمت الإضافة هنا
   });
 }
 
-export function useGetParentCategories(params: URLSearchParams) {
+export function useGetParentCategories(
+  params: URLSearchParams,
+  options: { enabled?: boolean } = {} // <-- تم التعديل هنا
+) {
   params.set("only_parent", "true");
   const key = CategoryQK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getCategories(params),
+    enabled: options.enabled ?? true, // <-- وتمت الإضافة هنا
   });
 }
 
 export function useGetSubCategories(
   parentId: string | number,
   type: "product" | "service",
-  options: { enabled?: boolean } = {} 
+  options: { enabled?: boolean } = {}
 ) {
   const params = new URLSearchParams();
   params.set("type", type);
@@ -297,11 +305,15 @@ export function useDeleteCategory() {
   });
 }
 
-export function useGetAttributes(params: URLSearchParams) {
+export function useGetAttributes(
+  params: URLSearchParams,
+  options: { enabled?: boolean } = {} // <-- تم التعديل هنا
+) {
   const key = AttributeQK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getAttributes(params),
+    enabled: options.enabled ?? true, // <-- وتمت الإضافة هنا
   });
 }
 

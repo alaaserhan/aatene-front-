@@ -9,7 +9,7 @@ import { AttributeModal } from "./AttributeModal";
 import { ImageViewerModal } from "./ImageViewerModal";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
-import { Category, Attribute, AttributeOption } from "../api";
+import { Category, Attribute } from "../api";
 import {
   useGetParentCategories,
   useGetCategoryOptions,
@@ -154,10 +154,10 @@ export function CategoriesPage() {
     setCategoryModalOpen(true);
   };
   const handleSaveCategory = (categoryData: CategoryFormData) => {
-    const payload = {
+    const payload: api.CategoryCreatePayload = {
       name: categoryData.name,
       images: categoryData.images,
-      is_active: categoryData.is_active ? ("1" as "1") : ("0" as "0"),
+      is_active: categoryData.is_active ? "1" : "0",
       parent_id: categoryData.parent_id,
       type: activeType,
     };
@@ -369,8 +369,8 @@ export function CategoriesPage() {
                     isAttributeMode
                       ? "ابحث باسم السمة"
                       : pageMode === "product"
-                      ? "ابحث باسم الفئة أو الفئة الفرعية"
-                      : "ابحث باسم الخدمة أو الخدمة الفرعية"
+                        ? "ابحث باسم الفئة أو الفئة الفرعية"
+                        : "ابحث باسم الخدمة أو الخدمة الفرعية"
                   }
                   className="w-full px-4 py-3 ps-12 border border-gray-300 rounded-xs focus:outline-none focus:ring-2 focus:ring-blue-3 focus:border-transparent"
                 />
@@ -386,8 +386,8 @@ export function CategoriesPage() {
                 {isAttributeMode
                   ? "إضافة سمة جديدة"
                   : pageMode === "product"
-                  ? "إضافة فئة منتجات جديدة"
-                  : "إضافة خدمة جديدة"}
+                    ? "إضافة فئة منتجات جديدة"
+                    : "إضافة خدمة جديدة"}
               </Button>
             </div>
             <div className="bg-white rounded-lg p-1 sm:p-4">
