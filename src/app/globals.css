@@ -46,6 +46,7 @@
   --blue-6: #5B88BA33;
   --gray-1: #9291A5;
   --gray-2: #717171;
+  --gray-3:#AAAAAA;
   --black-1: #393939;
 }
 
@@ -152,6 +153,10 @@
 
 .text-gray-2 {
   color: var(--gray-2);
+}
+
+.text-gray-3 {
+  color: var(--gray-3);
 }
 
 
@@ -394,4 +399,14 @@ html body[data-scroll-locked] {
 .PhoneInputCountrySelect option:focus {
   background-color: hsl(var(--accent));
   outline: none;
+}
+
+
+@layer base {
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--blue-4) transparent;
+  }
+
 }

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useRef } from "react";
-import { useGetUsers } from "../hooks";
+import { useInfiniteGetUsers } from "../hooks";
 import { useGetRoles } from "../../roles/hooks";
 import { User } from "../api";
 import { Plus } from "lucide-react";
@@ -15,7 +15,6 @@ export function UsersPage() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeRoleName, setActiveRoleName] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
 
   const detailsRef = useRef<HTMLDivElement>(null);
@@ -34,7 +33,6 @@ export function UsersPage() {
 
   const queryParams = useMemo(() => {
     const params = new URLSearchParams();
-    params.set("page", String(currentPage));
     params.set("per_page", "10");
 
     if (searchQuery) {
@@ -50,9 +48,22 @@ export function UsersPage() {
     }
 
     return params;
-  }, [currentPage, searchQuery, activeRoleName, statusFilter]);
+  }, [searchQuery, activeRoleName, statusFilter]);
 
-  const { data: usersData, isLoading, isError } = useGetUsers(queryParams);
+  // استخدام useInfiniteGetUsers بدلاً من useGetUsers
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteGetUsers(queryParams);
+
+  // دمج الصفحات في مصفوفة واحدة
+  const allUsers = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) || [];
+  }, [data]);
 
   const handleSelectUser = (user: User) => {
     setSelectedUserId(user.id);
@@ -73,19 +84,16 @@ export function UsersPage() {
 
   const handleRoleFilterChange = (roleName: string) => {
     setActiveRoleName(roleName);
-    setCurrentPage(1);
     setSelectedUserId(null);
   };
 
   const handleStatusFilterChange = (status: string) => {
     setStatusFilter(status);
-    setCurrentPage(1);
     setSelectedUserId(null);
   };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage(1);
     setSelectedUserId(null);
   };
 
@@ -125,19 +133,19 @@ export function UsersPage() {
       </header>
 
       <main className="flex-1 p-6 h-[calc(100vh-65px)]">
-        <div className="grid grid-cols-12 gap-6 h-full">
+        <div className="grid grid-cols-12 gap-4 h-full">
           <div className="col-span-12 lg:col-span-2 h-full">
             <SidebarFilterPanel
               options={filterCategories}
               activeValue={activeRoleName}
               onValueChange={handleRoleFilterChange}
-              className="h-full"
+              className="h-full max-h-[calc(100vh-193px)] overflow-y-auto"
             />
           </div>
 
-          <div className="col-span-12 lg:col-span-4 h-full">
+          <div className="col-span-12 lg:col-span-3 h-full">
             <UserListSidebar
-              usersData={usersData}
+              users={allUsers} // تمرير البيانات المدمجة
               isLoading={isLoading}
               isError={isError}
               selectedUserId={selectedUserId}
@@ -147,10 +155,14 @@ export function UsersPage() {
               className="h-full"
               statusFilter={statusFilter}
               onStatusFilterChange={handleStatusFilterChange}
+              // --- تمرير دوال Infinite Scroll ---
+              onLoadMore={fetchNextPage}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
             />
           </div>
 
-          <div className="col-span-12 lg:col-span-6 h-full" ref={detailsRef}>
+          <div className="col-span-12 lg:col-span-7 h-full" ref={detailsRef}>
             <UserDetailsSidebar
               selectedUserId={selectedUserId}
               onUserUpdate={handleUserUpdate}

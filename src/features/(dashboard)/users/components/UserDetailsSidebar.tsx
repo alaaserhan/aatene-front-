@@ -211,7 +211,7 @@ export function UserDetailsSidebar({
     user.roles?.map((r) => r.name).join(", ") || "مستخدم عادي";
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("space-y-4 max-h-[calc(100vh-193px)] overflow-y-auto", className)}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h3 className="text-lg font-medium text-blue-4 mb-6">

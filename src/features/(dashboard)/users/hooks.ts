@@ -1,6 +1,7 @@
 // src/features/(dashboard)/users/hooks.ts
 "use client";
 
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import * as api from "./api";
 import {
   UserCreatePayload,
@@ -13,7 +14,17 @@ import {
 } from "./api";
 import { toast } from "sonner";
 import { Role } from "./api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+// تعريف الواجهة المساعدة لحل مشكلة النوع الناقص في الرد السابق
+interface RolesCacheData {
+  id: number;
+  name: string;
+  title: string | null;
+}
+
+interface RolesCacheResponse {
+  data: RolesCacheData[];
+}
 
 const QK = {
   any: ["users"] as const,
@@ -33,6 +44,26 @@ export const useGetUsers = (params: URLSearchParams) => {
   return useQuery({
     queryKey: key,
     queryFn: () => api.getUsers(params),
+  });
+};
+
+// --- الجديد: هوك التمرير اللانهائي ---
+export const useInfiniteGetUsers = (params: URLSearchParams) => {
+  const key = QK.list(params.toString());
+  return useInfiniteQuery({
+    queryKey: key,
+    queryFn: ({ pageParam = 1 }) => {
+      const newParams = new URLSearchParams(params);
+      newParams.set("page", String(pageParam));
+      // تأكد من أن api.getUsers يقبل الباراميترز ويرسلها
+      return api.getUsers(newParams);
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      const totalPages = Math.ceil(lastPage.recordsFiltered / 10); // فرضنا 10 عناصر في الصفحة
+      const nextPage = allPages.length + 1;
+      return nextPage <= totalPages ? nextPage : undefined;
+    },
+    initialPageParam: 1,
   });
 };
 
@@ -56,16 +87,6 @@ export const useCreateUser = () => {
     },
   });
 };
-
-interface RolesCacheData {
-  id: number;
-  name: string;
-  title: string | null;
-}
-
-interface RolesCacheResponse {
-  data: RolesCacheData[];
-}
 
 export const useUpdateUser = () => {
   const qc = useQueryClient();
@@ -114,16 +135,18 @@ export const useUpdateUser = () => {
         optimisticPayload.roles = newRoleList;
       }
 
-      prevLists.forEach(([key, oldData]) => {
-        qc.setQueryData(key, (old: PaginatedUsersResponse | undefined) => {
-          if (!old?.data) return old;
-          return {
+      // تحديث الكاش للصفحات (Infinite Query)
+      qc.setQueriesData({ queryKey: QK.listAny }, (old: any) => {
+         if (!old?.pages) return old;
+         return {
             ...old,
-            data: old.data.map((u: User) =>
-              u.id === vars.id ? { ...u, ...optimisticPayload } : u
-            ),
-          };
-        });
+            pages: old.pages.map((page: PaginatedUsersResponse) => ({
+               ...page,
+               data: page.data.map((u: User) => 
+                  u.id === Number(vars.id) ? { ...u, ...optimisticPayload } : u
+               )
+            }))
+         }
       });
 
       if (prevSingle?.record) {
@@ -142,8 +165,8 @@ export const useUpdateUser = () => {
 
     onError: (_err, vars, ctx) => {
       toast.error("حدث خطأ أثناء التعديل");
-      ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
-      if (ctx?.prevSingle) qc.setQueryData(QK.single(vars.id), ctx.prevSingle);
+      // استرجاع الحالة السابقة (معقد قليلاً مع infinite query، يمكن تبسيطه)
+      qc.invalidateQueries({ queryKey: QK.listAny });
     },
 
     onSettled: (_data, _err, vars) => {
@@ -172,25 +195,20 @@ export const useDeleteUser = () => {
 
     onMutate: async (id) => {
       await qc.cancelQueries({ queryKey: QK.listAny });
-      const prevLists = qc.getQueriesData<PaginatedUsersResponse>({
-        queryKey: QK.listAny,
-      });
-      const prevSingle = qc.getQueryData<SingleUserResponse>(QK.single(id));
-
-      prevLists.forEach(([key, oldData]) => {
-        qc.setQueryData(key, (old: PaginatedUsersResponse | undefined) => {
-          if (!old?.data) return old;
-          const nextData = old.data.filter((u: User) => u.id !== id);
-          const nextCount =
-            typeof old.recordsFiltered === "number"
-              ? Math.max(0, old.recordsFiltered - 1)
-              : nextData.length;
-          return { ...old, data: nextData, recordsFiltered: nextCount };
-        });
+      
+      // التحديث التفاؤلي للحذف (Infinite Query)
+      qc.setQueriesData({ queryKey: QK.listAny }, (old: any) => {
+         if (!old?.pages) return old;
+         return {
+            ...old,
+            pages: old.pages.map((page: PaginatedUsersResponse) => ({
+               ...page,
+               data: page.data.filter((u: User) => u.id !== Number(id))
+            }))
+         }
       });
 
       qc.removeQueries({ queryKey: QK.single(id) });
-      return { prevLists, prevSingle };
     },
 
     onSuccess: (data: BaseResponse) => {
@@ -199,8 +217,7 @@ export const useDeleteUser = () => {
 
     onError: (_err, id, ctx) => {
       toast.error("حدث خطأ أثناء الحذف");
-      ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
-      if (ctx?.prevSingle) qc.setQueryData(QK.single(id), ctx.prevSingle);
+      qc.invalidateQueries({ queryKey: QK.listAny });
     },
 
     onSettled: () => {

@@ -74,6 +74,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const isAdmin = user?.user_type === "admin";
   const isMerchant = user?.user_type === "merchant";
 
+  
+
   const isActive = (path: string) => {
     const fullPath = `${navPrefix}${path}`;
     // الصفحة الرئيسية لازم تطابق بالضبط
@@ -86,7 +88,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const allNavItems: NavItem[] = [
     // { label: "الرئيسية", icon: Home, href: "", show: true },
     { label: "المستخدمين", icon: Users, href: "/users", show: true },
-    // { label: "المتاجر", icon: Store, href: "/stores", show: true },
+    { label: "المتاجر", icon: Store, href: "/stores", show: true },
     // { label: "المنتجات", icon: Shirt, href: "/products", show: true },
     // { label: "مقدمي الخدمات", icon: LayoutDashboard, href: "/service-providers", show: isAdmin },
     // { label: "الطلبات", icon: ShoppingCart, href: "/orders", show: isMerchant },
