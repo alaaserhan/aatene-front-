@@ -1,7 +1,7 @@
 // src/features/(dashboard)/stores/hooks.ts
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
 import * as api from "./api";
 import { toast } from "sonner";
 import {
@@ -25,6 +25,25 @@ export function useGetStores(params: URLSearchParams) {
   return useQuery({
     queryKey: key,
     queryFn: () => api.getStores(params),
+  });
+}
+
+// --- هوك التمرير اللانهائي الجديد ---
+export function useInfiniteGetStores(params: URLSearchParams) {
+  const key = StoresQK.list(params.toString());
+  return useInfiniteQuery({
+    queryKey: key,
+    queryFn: ({ pageParam = 1 }) => {
+      const newParams = new URLSearchParams(params);
+      newParams.set("page", String(pageParam));
+      return api.getStores(newParams);
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      const totalPages = Math.ceil(lastPage.recordsFiltered / 10); // بافتراض 10 عناصر في الصفحة
+      const nextPage = allPages.length + 1;
+      return nextPage <= totalPages ? nextPage : undefined;
+    },
+    initialPageParam: 1,
   });
 }
 
@@ -75,16 +94,18 @@ export function useUpdateStore() {
         id: Number(vars.id),
       } as unknown as Partial<Store>;
 
-      prevLists.forEach(([key]) => {
-        qc.setQueryData(key, (old: PaginatedStoresResponse | undefined) => {
-          if (!old?.data) return old;
-          return {
+      // تحديث الكاش لـ Infinite Data
+      qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>({ queryKey: StoresQK.listAny }, (old) => {
+         if (!old) return undefined;
+         return {
             ...old,
-            data: old.data.map((s: Store) =>
-              s.id === Number(vars.id) ? { ...s, ...optimisticPayload } : s
-            ),
-          };
-        });
+            pages: old.pages.map((page) => ({
+               ...page,
+               data: page.data.map((s) => 
+                  s.id === Number(vars.id) ? { ...s, ...optimisticPayload } : s
+               )
+            }))
+         };
       });
 
       if (prevSingle?.record) {
@@ -103,9 +124,8 @@ export function useUpdateStore() {
 
     onError: (_err, vars, ctx) => {
       toast.error("حدث خطأ أثناء التعديل");
-      ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
-      if (ctx?.prevSingle)
-        qc.setQueryData(StoresQK.single(vars.id), ctx.prevSingle);
+      // استرجاع الحالة السابقة (يمكن تبسيطه بعمل invalidate مباشرة)
+      qc.invalidateQueries({ queryKey: StoresQK.listAny });
     },
 
     onSettled: (_data, _err, vars) => {
@@ -136,18 +156,18 @@ export function useUpdateStoreStatus() {
         StoresQK.single(vars.id)
       );
 
-      prevLists.forEach(([key]) => {
-        qc.setQueryData(key, (old: PaginatedStoresResponse | undefined) => {
-          if (!old?.data) return old;
-          return {
+      // تحديث الكاش لـ Infinite Data
+      qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>({ queryKey: StoresQK.listAny }, (old) => {
+         if (!old) return undefined;
+         return {
             ...old,
-            data: old.data.map((s: Store) =>
-              s.id === Number(vars.id)
-                ? { ...s, status: vars.payload.status }
-                : s
-            ),
-          };
-        });
+            pages: old.pages.map((page) => ({
+               ...page,
+               data: page.data.map((s) => 
+                  s.id === Number(vars.id) ? { ...s, status: vars.payload.status } : s
+               )
+            }))
+         };
       });
 
       if (prevSingle?.record) {
@@ -166,9 +186,7 @@ export function useUpdateStoreStatus() {
 
     onError: (_err, vars, ctx) => {
       toast.error("حدث خطأ أثناء تحديث الحالة");
-      ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
-      if (ctx?.prevSingle)
-        qc.setQueryData(StoresQK.single(vars.id), ctx.prevSingle);
+      qc.invalidateQueries({ queryKey: StoresQK.listAny });
     },
 
     onSettled: (_data, _err, vars) => {
@@ -186,28 +204,19 @@ export function useDeleteStore() {
     onMutate: async (id) => {
       await qc.cancelQueries({ queryKey: StoresQK.listAny });
 
-      const prevLists = qc.getQueriesData<PaginatedStoresResponse>({
-        queryKey: StoresQK.listAny,
-      });
-      const prevSingle = qc.getQueryData<SingleStoreResponse>(
-        StoresQK.single(id)
-      );
-
-      prevLists.forEach(([key]) => {
-        qc.setQueryData(key, (old: PaginatedStoresResponse | undefined) => {
-          if (!old?.data) return old;
-          const nextData = old.data.filter((s: Store) => s.id !== Number(id));
-          const nextCount =
-            typeof old.recordsFiltered === "number"
-              ? Math.max(0, old.recordsFiltered - 1)
-              : nextData.length;
-          return { ...old, data: nextData, recordsFiltered: nextCount };
-        });
+      // تحديث الكاش لـ Infinite Data
+      qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>({ queryKey: StoresQK.listAny }, (old) => {
+         if (!old) return undefined;
+         return {
+            ...old,
+            pages: old.pages.map((page) => ({
+               ...page,
+               data: page.data.filter((s) => s.id !== Number(id))
+            }))
+         };
       });
 
       qc.removeQueries({ queryKey: StoresQK.single(id) });
-
-      return { prevLists, prevSingle };
     },
 
     onSuccess: (data) => {
@@ -216,9 +225,7 @@ export function useDeleteStore() {
 
     onError: (_err, id, ctx) => {
       toast.error("حدث خطأ أثناء الحذف");
-      ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
-      if (ctx?.prevSingle)
-        qc.setQueryData(StoresQK.single(id), ctx.prevSingle);
+      qc.invalidateQueries({ queryKey: StoresQK.listAny });
     },
 
     onSettled: () => {

@@ -2,13 +2,14 @@
 "use client";
 
 import { useState, useMemo, useRef } from "react";
-import { useGetStores } from "../hooks";
+import { useInfiniteGetStores } from "../hooks"; // استبدال الهوك
 import { Store } from "../api";
 import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarList";
 import { StoreEmptyState } from "./StoreEmptyState";
 import { cn } from "@/src/lib/utils";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
 
 const statusFilterOptions = [
     { label: "الكل", value: "all" },
@@ -20,14 +21,15 @@ export function StoresPage() {
     const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
-    const [currentPage, setCurrentPage] = useState(1);
+
+    // لم نعد بحاجة لـ currentPage في الحالة المحلية مع infinite scroll
+    // const [currentPage, setCurrentPage] = useState(1);
 
     const detailsRef = useRef<HTMLDivElement>(null);
 
     const queryParams = useMemo(() => {
         const params = new URLSearchParams();
-        params.set("page", String(currentPage));
-        params.set("per_page", "10");
+        params.set("per_page", "10"); // عدد العناصر لكل صفحة
 
         if (searchQuery) {
             params.set("name", searchQuery);
@@ -38,12 +40,25 @@ export function StoresPage() {
         }
 
         return params;
-    }, [currentPage, searchQuery, statusFilter]);
+    }, [searchQuery, statusFilter]);
 
-    const { data: storesData, isLoading, isError } = useGetStores(queryParams);
-    const stores = storesData?.data || [];
+    // استخدام هوك Infinite Scroll
+    const {
+        data,
+        isLoading,
+        isError,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
+    } = useInfiniteGetStores(queryParams);
 
-    const isTrueEmpty = !isLoading && stores.length === 0 && statusFilter === "all";
+    // دمج جميع البيانات من الصفحات المختلفة
+    const allStores = useMemo(() => {
+        return data?.pages.flatMap((page) => page.data) || [];
+    }, [data]);
+
+    // التحقق من الحالة الفارغة الحقيقية (بدون بحث أو فلتر)
+    const isTrueEmpty = !isLoading && !isError && allStores.length === 0 && !searchQuery && statusFilter === "all";
 
     const handleStoreClick = (store: Store) => {
         setSelectedStoreId(store.id);
@@ -53,6 +68,18 @@ export function StoresPage() {
                 block: "start",
             });
         }
+    };
+
+    const handleSearchChange = (query: string) => {
+        setSearchQuery(query);
+        // عند البحث، React Query سيعيد جلب البيانات تلقائياً من الصفحة الأولى
+        // ولكن يفضل تصفير التحديد
+        setSelectedStoreId(null);
+    };
+
+    const handleFilterChange = (value: string) => {
+        setStatusFilter(value);
+        setSelectedStoreId(null);
     };
 
     const renderStoreItem = (store: Store) => {
@@ -93,7 +120,6 @@ export function StoresPage() {
                             {isActive ? "مفعل" : "غير مفعل"}
                         </span>
                     </div>
-
                 </div>
             </div>
         );
@@ -103,7 +129,7 @@ export function StoresPage() {
         <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col">
             <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
                 <div className="flex items-center justify-between h-16 px-6">
-                    <h1 className="text-blue-4">إدارة المتاجر</h1>
+                    <h1 className="text-blue-4 font-semibold">إدارة المتاجر</h1>
                     <Link
                         href="/admin/stores/add"
                         className="flex items-center gap-2 px-4 py-2 bg-[#3A5779] rounded-xs text-white text-sm font-semibold cursor-pointer hover:bg-[#2d4460] transition-colors"
@@ -121,17 +147,20 @@ export function StoresPage() {
                     <div className="grid grid-cols-12 gap-4 h-full">
                         <div className="col-span-12 lg:col-span-4 h-full order-1 lg:order-1">
                             <GenericSidebarList
-                                data={stores}
+                                data={allStores}
                                 isLoading={isLoading}
                                 isError={isError}
                                 searchQuery={searchQuery}
-                                onSearchChange={setSearchQuery}
+                                onSearchChange={handleSearchChange}
                                 filterValue={statusFilter}
-                                onFilterChange={setStatusFilter}
+                                onFilterChange={handleFilterChange}
                                 filterOptions={statusFilterOptions}
                                 renderItem={renderStoreItem}
                                 emptyText="لا توجد متاجر مطابقة للبحث"
                                 selectedId={selectedStoreId}
+                                onLoadMore={fetchNextPage}
+                                hasNextPage={hasNextPage}
+                                isFetchingNextPage={isFetchingNextPage}
                             />
                         </div>
 
