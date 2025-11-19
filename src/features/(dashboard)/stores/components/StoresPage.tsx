@@ -2,14 +2,14 @@
 "use client";
 
 import { useState, useMemo, useRef } from "react";
-import { useInfiniteGetStores } from "../hooks"; // استبدال الهوك
+import { useInfiniteGetStores } from "../hooks";
 import { Store } from "../api";
 import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarList";
 import { StoreEmptyState } from "./StoreEmptyState";
+import { StoreDetailsPage } from "./StoreDetailsPage";
 import { cn } from "@/src/lib/utils";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
 
 const statusFilterOptions = [
     { label: "الكل", value: "all" },
@@ -22,14 +22,11 @@ export function StoresPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
 
-    // لم نعد بحاجة لـ currentPage في الحالة المحلية مع infinite scroll
-    // const [currentPage, setCurrentPage] = useState(1);
-
     const detailsRef = useRef<HTMLDivElement>(null);
 
     const queryParams = useMemo(() => {
         const params = new URLSearchParams();
-        params.set("per_page", "10"); // عدد العناصر لكل صفحة
+        params.set("per_page", "10");
 
         if (searchQuery) {
             params.set("name", searchQuery);
@@ -42,7 +39,6 @@ export function StoresPage() {
         return params;
     }, [searchQuery, statusFilter]);
 
-    // استخدام هوك Infinite Scroll
     const {
         data,
         isLoading,
@@ -52,12 +48,10 @@ export function StoresPage() {
         isFetchingNextPage
     } = useInfiniteGetStores(queryParams);
 
-    // دمج جميع البيانات من الصفحات المختلفة
     const allStores = useMemo(() => {
         return data?.pages.flatMap((page) => page.data) || [];
     }, [data]);
 
-    // التحقق من الحالة الفارغة الحقيقية (بدون بحث أو فلتر)
     const isTrueEmpty = !isLoading && !isError && allStores.length === 0 && !searchQuery && statusFilter === "all";
 
     const handleStoreClick = (store: Store) => {
@@ -72,8 +66,6 @@ export function StoresPage() {
 
     const handleSearchChange = (query: string) => {
         setSearchQuery(query);
-        // عند البحث، React Query سيعيد جلب البيانات تلقائياً من الصفحة الأولى
-        // ولكن يفضل تصفير التحديد
         setSelectedStoreId(null);
     };
 
@@ -165,23 +157,21 @@ export function StoresPage() {
                         </div>
 
                         <div className="col-span-12 lg:col-span-8 h-full order-2 lg:order-2" ref={detailsRef}>
-                            <div className="bg-white rounded-lg border border-gray-200 h-full flex items-center justify-center">
-                                {!selectedStoreId ? (
+                            {!selectedStoreId ? (
+                                <div className="bg-white rounded-lg border border-gray-200 h-full flex items-center justify-center">
                                     <div className="text-center p-6">
                                         <div className="h-44 mx-auto mb-2 flex items-center justify-center">
                                             <img src="/icons/dashboard/nostore.svg" className="h-44" alt="placeholder" />
                                         </div>
                                         <h3 className="text-xl font-bold">لم يتم اختيار متجر</h3>
-                                        <p className="text-gray-3 text-sm mt-1">قم بتحديد متجر لمشاهدة تفاصيله هنا
+                                        <p className="text-gray-3 text-sm mt-1">
+                                            قم بتحديد متجر لمشاهدة تفاصيله هنا
                                         </p>
                                     </div>
-                                ) : (
-                                    <div className="p-10 text-center text-gray-500">
-                                        {/* هنا سيتم وضع مكون تفاصيل المتجر لاحقاً */}
-                                        <p>تفاصيل المتجر ID: {selectedStoreId}</p>
-                                    </div>
-                                )}
-                            </div>
+                                </div>
+                            ) : (
+                                <StoreDetailsPage storeId={selectedStoreId} />
+                            )}
                         </div>
                     </div>
                 )}
