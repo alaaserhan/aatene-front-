@@ -1,4 +1,3 @@
-// src/features/(dashboard)/cities/hooks.ts
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -50,8 +49,10 @@ export const useCreateCity = () => {
 export const useUpdateCity = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (variables: { id: number | string; payload: CityUpdatePayload }) =>
-      updateCity(variables.id, variables.payload),
+    mutationFn: (variables: {
+      id: number | string;
+      payload: CityUpdatePayload;
+    }) => updateCity(variables.id, variables.payload),
 
     onMutate: async (vars) => {
       await qc.cancelQueries({ queryKey: QK.any });
@@ -74,7 +75,7 @@ export const useUpdateCity = () => {
           return {
             ...old,
             data: old.data.map((city: City) =>
-              city.id === vars.id ? { ...city, ...nextPayload } : city
+              city.id === Number(vars.id) ? { ...city, ...nextPayload } : city
             ),
           };
         });
@@ -114,7 +115,9 @@ export const useDeleteCity = () => {
       prevLists.forEach(([key]) => {
         qc.setQueryData(key, (old: PaginatedCitiesResponse | undefined) => {
           if (!old?.data) return old;
-          const nextData = old.data.filter((city: City) => city.id !== id);
+          const nextData = old.data.filter(
+            (city: City) => city.id !== Number(id)
+          );
           const nextCount =
             typeof old.recordsFiltered === "number"
               ? Math.max(0, old.recordsFiltered - 1)
@@ -166,7 +169,9 @@ export const useUpdateCityStatus = () => {
           return {
             ...old,
             data: old.data.map((city: City) =>
-              city.id === vars.id ? { ...city, is_active: nextActive } : city
+              city.id === Number(vars.id)
+                ? { ...city, is_active: nextActive }
+                : city
             ),
           };
         });

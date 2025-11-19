@@ -13,7 +13,7 @@ export function StoreEmptyState() {
                 </div>
             </div>
 
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold mb-2">
                 لا يوجد لديك أي متجر
             </h3>
             <p className="text-sm text-gray-3 mb-6">
@@ -22,7 +22,7 @@ export function StoreEmptyState() {
 
             <Link href="/admin/stores/add">
                 <Button
-                    className="bg-blue-4 text-white px-16 py-5 cursor-pointer"
+                    className="bg-blue-3 text-white px-16 py-5 cursor-pointer rounded-xs"
                 >
                     إنشاء متجر
                 </Button>

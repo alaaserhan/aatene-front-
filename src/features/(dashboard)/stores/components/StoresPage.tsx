@@ -37,15 +37,13 @@ export function StoresPage() {
             params.set("status", statusFilter);
         }
 
-        params.set("orderDir", "asc");
-
         return params;
     }, [currentPage, searchQuery, statusFilter]);
 
     const { data: storesData, isLoading, isError } = useGetStores(queryParams);
     const stores = storesData?.data || [];
 
-    const isTrueEmpty = !isLoading && isError && stores.length === 0 && !searchQuery && statusFilter === "all";
+    const isTrueEmpty = !isLoading && stores.length === 0 && statusFilter === "all";
 
     const handleStoreClick = (store: Store) => {
         setSelectedStoreId(store.id);
@@ -105,7 +103,7 @@ export function StoresPage() {
         <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col">
             <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
                 <div className="flex items-center justify-between h-16 px-6">
-                    <h1 className="text-lg font-bold text-gray-800">إدارة المتاجر</h1>
+                    <h1 className="text-blue-4">إدارة المتاجر</h1>
                     <Link
                         href="/admin/stores/add"
                         className="flex items-center gap-2 px-4 py-2 bg-[#3A5779] rounded-xs text-white text-sm font-semibold cursor-pointer hover:bg-[#2d4460] transition-colors"
@@ -116,7 +114,7 @@ export function StoresPage() {
                 </div>
             </header>
 
-            <main className="flex-1 p-6 h-[calc(100vh-65px)]">
+            <main className="flex-1 p-6 min-h-[calc(100vh-145px)]">
                 {isTrueEmpty ? (
                     <StoreEmptyState />
                 ) : (

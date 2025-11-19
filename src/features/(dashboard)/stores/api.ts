@@ -1,5 +1,6 @@
 // src/features/(dashboard)/stores/api.ts
 import api from "@/src/lib/axios";
+import { getDynamicEndpoint } from "@/src/lib/api-helper"; 
 
 export type StoreStatus = "active" | "not-active";
 export type StoreType = "products" | "services";
@@ -163,8 +164,9 @@ export interface UpdateStatusPayload {
 export const getStores = async (
   params: URLSearchParams
 ): Promise<PaginatedStoresResponse> => {
+  const endpoint = getDynamicEndpoint("/stores");
   const { data } = await api.get<PaginatedStoresResponse>(
-    `/admin/stores?${params.toString()}`
+    `${endpoint}?${params.toString()}`
   );
   return data;
 };
@@ -172,17 +174,16 @@ export const getStores = async (
 export const getSingleStore = async (
   id: string | number
 ): Promise<SingleStoreResponse> => {
-  const { data } = await api.get<SingleStoreResponse>(`/admin/stores/${id}`);
+  const endpoint = getDynamicEndpoint(`/stores/${id}`);
+  const { data } = await api.get<SingleStoreResponse>(endpoint);
   return data;
 };
 
 export const createStore = async (
   payload: StoreCreatePayload
 ): Promise<SingleStoreResponse> => {
-  const { data } = await api.post<SingleStoreResponse>(
-    "/admin/stores",
-    payload
-  );
+  const endpoint = getDynamicEndpoint("/stores");
+  const { data } = await api.post<SingleStoreResponse>(endpoint, payload);
   return data;
 };
 
@@ -190,10 +191,8 @@ export const updateStore = async (
   id: string | number,
   payload: StoreUpdatePayload
 ): Promise<SingleStoreResponse> => {
-  const { data } = await api.post<SingleStoreResponse>(
-    `/admin/stores/${id}`,
-    payload
-  );
+  const endpoint = getDynamicEndpoint(`/stores/${id}`);
+  const { data } = await api.post<SingleStoreResponse>(endpoint, payload);
   return data;
 };
 
@@ -201,16 +200,15 @@ export const updateStoreStatus = async (
   id: string | number,
   payload: UpdateStatusPayload
 ): Promise<SingleStoreResponse> => {
-  const { data } = await api.post<SingleStoreResponse>(
-    `/admin/stores/${id}/update-status`,
-    payload
-  );
+  const endpoint = getDynamicEndpoint(`/stores/${id}/update-status`);
+  const { data } = await api.post<SingleStoreResponse>(endpoint, payload);
   return data;
 };
 
 export const deleteStore = async (
   id: string | number
 ): Promise<BaseResponse> => {
-  const { data } = await api.delete<BaseResponse>(`/admin/stores/${id}`);
+  const endpoint = getDynamicEndpoint(`/stores/${id}`);
+  const { data } = await api.delete<BaseResponse>(endpoint);
   return data;
 };

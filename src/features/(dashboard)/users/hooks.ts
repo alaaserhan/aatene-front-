@@ -1,7 +1,7 @@
 // src/features/(dashboard)/users/hooks.ts
 "use client";
 
-import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
 import * as api from "./api";
 import {
   UserCreatePayload,
@@ -15,7 +15,6 @@ import {
 import { toast } from "sonner";
 import { Role } from "./api";
 
-// تعريف الواجهة المساعدة لحل مشكلة النوع الناقص في الرد السابق
 interface RolesCacheData {
   id: number;
   name: string;
@@ -47,7 +46,6 @@ export const useGetUsers = (params: URLSearchParams) => {
   });
 };
 
-// --- الجديد: هوك التمرير اللانهائي ---
 export const useInfiniteGetUsers = (params: URLSearchParams) => {
   const key = QK.list(params.toString());
   return useInfiniteQuery({
@@ -55,11 +53,10 @@ export const useInfiniteGetUsers = (params: URLSearchParams) => {
     queryFn: ({ pageParam = 1 }) => {
       const newParams = new URLSearchParams(params);
       newParams.set("page", String(pageParam));
-      // تأكد من أن api.getUsers يقبل الباراميترز ويرسلها
       return api.getUsers(newParams);
     },
     getNextPageParam: (lastPage, allPages) => {
-      const totalPages = Math.ceil(lastPage.recordsFiltered / 10); // فرضنا 10 عناصر في الصفحة
+      const totalPages = Math.ceil(lastPage.recordsFiltered / 10);
       const nextPage = allPages.length + 1;
       return nextPage <= totalPages ? nextPage : undefined;
     },
@@ -135,18 +132,17 @@ export const useUpdateUser = () => {
         optimisticPayload.roles = newRoleList;
       }
 
-      // تحديث الكاش للصفحات (Infinite Query)
-      qc.setQueriesData({ queryKey: QK.listAny }, (old: any) => {
-         if (!old?.pages) return old;
+      qc.setQueriesData<InfiniteData<PaginatedUsersResponse>>({ queryKey: QK.listAny }, (old) => {
+         if (!old) return undefined;
          return {
             ...old,
-            pages: old.pages.map((page: PaginatedUsersResponse) => ({
+            pages: old.pages.map((page) => ({
                ...page,
-               data: page.data.map((u: User) => 
+               data: page.data.map((u) => 
                   u.id === Number(vars.id) ? { ...u, ...optimisticPayload } : u
                )
             }))
-         }
+         };
       });
 
       if (prevSingle?.record) {
@@ -165,7 +161,6 @@ export const useUpdateUser = () => {
 
     onError: (_err, vars, ctx) => {
       toast.error("حدث خطأ أثناء التعديل");
-      // استرجاع الحالة السابقة (معقد قليلاً مع infinite query، يمكن تبسيطه)
       qc.invalidateQueries({ queryKey: QK.listAny });
     },
 
@@ -196,16 +191,15 @@ export const useDeleteUser = () => {
     onMutate: async (id) => {
       await qc.cancelQueries({ queryKey: QK.listAny });
       
-      // التحديث التفاؤلي للحذف (Infinite Query)
-      qc.setQueriesData({ queryKey: QK.listAny }, (old: any) => {
-         if (!old?.pages) return old;
+      qc.setQueriesData<InfiniteData<PaginatedUsersResponse>>({ queryKey: QK.listAny }, (old) => {
+         if (!old) return undefined;
          return {
             ...old,
-            pages: old.pages.map((page: PaginatedUsersResponse) => ({
+            pages: old.pages.map((page) => ({
                ...page,
-               data: page.data.filter((u: User) => u.id !== Number(id))
+               data: page.data.filter((u) => u.id !== Number(id))
             }))
-         }
+         };
       });
 
       qc.removeQueries({ queryKey: QK.single(id) });
