@@ -38,10 +38,7 @@ export function MediaSelectButton({
   secondaryText = "PNG, JPG, JPEG",
   allowedMediaTypes = ["gallery", "image"],
   infoText = [
-    "يمكنك سحب و إفلات الصورة لإضافة ترتيب الصور.",
-    `الأفضل أن تكون الصورة بعرض ${width} بكسل وطول ${height} بكسل (${width}×${height}).`,
-    "الحجم يجب أن لا يتعدى حجم الصورة أو الفيديو 5 ميغابايت.",
-    "الجودة: أن تكون الصورة عالية الجودة وواضحة.",
+
   ],
 }: MediaSelectButtonProps) {
   const [modalOpen, setModalOpen] = useState(false);

@@ -1,4 +1,5 @@
 import api from "@/src/lib/axios";
+import { getDynamicEndpoint } from "@/src/lib/api-helper";
 
 export interface City {
   id: number;
@@ -22,7 +23,7 @@ export interface UpdateStatusPayload {
   is_active: "0" | "1";
 }
 
-interface BaseResponse {
+export interface BaseResponse {
   status: boolean;
   message: string;
 }
@@ -40,8 +41,9 @@ export interface CityResponse extends BaseResponse {
 export const getCities = async (
   params: URLSearchParams
 ): Promise<PaginatedCitiesResponse> => {
+  const endpoint = getDynamicEndpoint("/cities");
   const { data } = await api.get<PaginatedCitiesResponse>(
-    `/admin/cities?${params.toString()}`
+    `${endpoint}?${params.toString()}`
   );
   return data;
 };
@@ -49,7 +51,8 @@ export const getCities = async (
 export const createCity = async (
   payload: CityCreatePayload
 ): Promise<CityResponse> => {
-  const { data } = await api.post<CityResponse>("/admin/cities", payload);
+  const endpoint = getDynamicEndpoint("/cities");
+  const { data } = await api.post<CityResponse>(endpoint, payload);
   return data;
 };
 
@@ -57,14 +60,16 @@ export const updateCity = async (
   id: number | string,
   payload: CityUpdatePayload
 ): Promise<CityResponse> => {
-  const { data } = await api.post<CityResponse>(`/admin/cities/${id}`, payload);
+  const endpoint = getDynamicEndpoint(`/cities/${id}`);
+  const { data } = await api.post<CityResponse>(endpoint, payload);
   return data;
 };
 
 export const deleteCity = async (
   id: number | string
 ): Promise<BaseResponse> => {
-  const { data } = await api.delete<BaseResponse>(`/admin/cities/${id}`);
+  const endpoint = getDynamicEndpoint(`/cities/${id}`);
+  const { data } = await api.delete<BaseResponse>(endpoint);
   return data;
 };
 
@@ -72,8 +77,9 @@ export const updateCityStatus = async (
   id: number | string,
   payload: UpdateStatusPayload
 ): Promise<CityResponse> => {
+  const endpoint = getDynamicEndpoint(`/cities/${id}/update-status`);
   const { data } = await api.post<CityResponse>(
-    `/admin/cities/${id}/update-status`,
+    endpoint,
     payload
   );
   return data;

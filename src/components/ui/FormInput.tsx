@@ -46,8 +46,8 @@ export const FormInput = forwardRef<
   const currentLength = value.length;
 
   const inputClasses = cn(
-    "w-full px-4 py-3 border rounded-lg text-[13px] ",
-    "focus:outline-none focus:ring-2 focus:ring-blue-3 focus:border-transparent",
+    "w-full px-4 py-3 border rounded-sm text-[13px]  ",
+    "focus:outline-none focus:ring-0 focus:ring-blue-3",
     "transition-all duration-200",
     error 
       ? "border-red-500 focus:ring-red-500" 
@@ -60,7 +60,7 @@ export const FormInput = forwardRef<
     <div className={cn("space-y-2", containerClassName)}>
       {/* Label */}
       {label && (
-        <label className="block text-sm font-medium mb-3">
+        <label className="block text-sm font-medium mb-2">
           {label}
           {required && <span className="text-red-500 mr-1">*</span>}
         </label>

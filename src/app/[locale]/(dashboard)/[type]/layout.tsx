@@ -21,7 +21,7 @@ params: Promise<{ locale: string; type: string; }>;
   if (!token || !role) redirect(`/${locale}/login`);
 
   // منع دخول /admin لغير admin
-  if (type === "admin" && role !== "admin") redirect(`/${locale}/dashboard`);
+  if ((type === "admin" && role !== "admin" && role !== "merchant")) redirect(`/${locale}/dashboard`);
 
   return <>
   <DashboardNavbar navPrefix={type === "admin" ? "/admin" : "/dashboard"} />

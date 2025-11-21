@@ -123,7 +123,7 @@ export function CitiesPage() {
   };
 
   return (
-    <div className="min-h-screen my-8">
+    <div className="min-h-screen my-8 ">
       <div className="container mx-auto py-8 px-4">
         <div className="flex flex-row items-start sm:items-center justify-between gap-4 mb-4">
           <div>

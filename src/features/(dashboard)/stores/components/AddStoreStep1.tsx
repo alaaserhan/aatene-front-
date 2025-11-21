@@ -76,7 +76,7 @@ export function AddStoreStep1() {
 
                             {/* Icon */}
                             <div className="mb-3">
-                               <img src="/icons/dashboard/shop.svg" alt="" className="" />
+                                <img src="/icons/dashboard/shop.svg" alt="" className="" />
                             </div>
 
                             {/* Label */}
@@ -119,7 +119,7 @@ export function AddStoreStep1() {
 
                             {/* Icon */}
                             <div className="mb-3">
-                               <img src="/icons/dashboard/service.svg" alt="" className="" />
+                                <img src="/icons/dashboard/service.svg" alt="" className="" />
                             </div>
 
                             {/* Label */}

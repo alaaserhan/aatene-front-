@@ -34,7 +34,7 @@ const PhoneNumberInput = React.forwardRef<
     ) => {
         return (
             <div className={cn("space-y-3", containerClassName)}>
-                <label className="block text-sm font-medium text-gray-700 mb-3 ">
+                <label className="block text-sm font-medium mb-2">
                     {label}
                 </label>
                 <div className="flex gap-2">
@@ -49,7 +49,7 @@ const PhoneNumberInput = React.forwardRef<
                         <select
                             value={countryCode}
                             onChange={(e) => onCountryCodeChange(e.target.value)}
-                            className="w-full h-9 px-3 ps-8 bg-white border border-input    rounded-sm text-sm appearance-none cursor-pointer focus:ring-2 focus:ring-[#3A5779] focus:border-transparent"
+                            className={cn("w-full h-9 px-3 ps-8 bg-white border border-gray-300    rounded-sm text-sm appearance-none cursor-pointer focus:ring-2 focus:ring-[#3A5779] focus:border-transparent",className)}
                         >
                             <option value="+20">+20</option>
                             <option value="+966">+966</option>

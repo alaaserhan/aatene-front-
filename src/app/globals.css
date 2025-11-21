@@ -37,7 +37,7 @@
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
   /* --------------------------------------------------------------- */
-  --white-1: #F5F5F5;
+  --white-1: #f9fafb;
   --blue-1: #C8D7E8;
   --blue-2: #38587A;
   --blue-3: #2D496A;
@@ -47,6 +47,7 @@
   --gray-1: #9291A5;
   --gray-2: #717171;
   --gray-3: #AAAAAA;
+  --gray-4: #E3E3E3;
   --black-1: #393939;
   --red-1: #D00416;
   --red-2: #FB37481A;
@@ -99,6 +100,14 @@
 
 .bg-red-2 {
   background-color: var(--red-2);
+}
+
+.bg-gray-3 {
+  background-color: var(--gray-3);
+}
+
+.bg-gray-4{
+  background-color: var(--gray-4);
 }
 
 .border-blue-3 {
