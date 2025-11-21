@@ -6,12 +6,10 @@ import { Input } from "@/src/components/ui/input";
 import { cn } from "@/src/lib/utils";
 import { ChevronDown } from "lucide-react";
 
-interface PhoneNumberInputProps {
+interface PhoneNumberInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     error?: string;
     countryCode: string;
-    placeholder?: string;
-    className?: string;
     onCountryCodeChange: (value: string) => void;
     containerClassName?: string;
 }
@@ -38,7 +36,6 @@ const PhoneNumberInput = React.forwardRef<
                     {label}
                 </label>
                 <div className="flex gap-2">
-
                     <Input
                         type="tel"
                         className={cn("flex-1", className)}
@@ -49,7 +46,7 @@ const PhoneNumberInput = React.forwardRef<
                         <select
                             value={countryCode}
                             onChange={(e) => onCountryCodeChange(e.target.value)}
-                            className={cn("w-full h-9 px-3 ps-8 bg-white border border-gray-300    rounded-sm text-sm appearance-none cursor-pointer focus:ring-2 focus:ring-[#3A5779] focus:border-transparent",className)}
+                            className={cn("w-full h-9 px-3 ps-8 bg-white border border-gray-300 rounded-sm text-sm appearance-none cursor-pointer focus:ring-2 focus:ring-[#3A5779] focus:border-transparent", className)}
                         >
                             <option value="+20">+20</option>
                             <option value="+966">+966</option>

@@ -9,12 +9,13 @@ import { TimePicker } from "./TimePicker";
 import { StoreType, WorkingTime, OpenStatus } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { cn } from "@/src/lib/utils";
+import { Step2FormData, Step5FormData } from "../types";
 
 interface AddStoreStep5Props {
   storeType: StoreType;
-  previousData: any;
-  initialData?: any;
-  onNext: (data: any) => void;
+  previousData: Step2FormData;
+  initialData?: Step5FormData;
+  onNext: (data: Step5FormData) => void;
   onBack: () => void;
 }
 
@@ -41,18 +42,18 @@ export function AddStoreStep5({
 
   const [workingTimes, setWorkingTimes] = useState<WorkingTime[]>(
     initialData?.workingtimes ||
-    DAYS.map((day) => ({
-      day: day.value,
-      from: "08:00",
-      to: "20:00",
-      open_always: false,
-      closed_always: false,
-    }))
+      DAYS.map((day) => ({
+        day: day.value,
+        from: "08:00",
+        to: "20:00",
+        open_always: false,
+        closed_always: false,
+      }))
   );
 
   const steps = [
     { number: 1, label: "البيانات الأساسية", completed: true },
-    { number: 2, label: "الاتصال والسوشيال مديا", completed: true },
+    { number: 2, label: "الاتصال والسوشيال ميديا", completed: true },
     { number: 3, label: "موظفين المتجر", completed: true },
     { number: 4, label: "أوقات العمل و العطلات", completed: false },
     { number: 5, label: "طريقة الشحن", completed: false },
@@ -65,7 +66,6 @@ export function AddStoreStep5({
     { label: "إضافة متجر" },
   ];
 
-  // --- الدالة المحدثة (Type-Safe) ---
   const updateWorkingTime = <K extends keyof WorkingTime>(
     index: number,
     field: K,
@@ -75,7 +75,6 @@ export function AddStoreStep5({
       const newTimes = [...prev];
       const updatedTime = { ...newTimes[index], [field]: value };
 
-      // Logic for mutual exclusivity
       if (field === "open_always" && value === true) {
         updatedTime.closed_always = false;
       }
@@ -87,7 +86,6 @@ export function AddStoreStep5({
       return newTimes;
     });
   };
-  // ----------------------------------
 
   const handleNext = () => {
     onNext({
@@ -177,9 +175,7 @@ export function AddStoreStep5({
                         <div className="col-span-6 md:col-span-3 flex ">
                           <TimePicker
                             value={time.to}
-                            onChange={(val) =>
-                              updateWorkingTime(index, "to", val)
-                            }
+                            onChange={(val) => updateWorkingTime(index, "to", val)}
                             disabled={time.open_always || time.closed_always}
                           />
                         </div>
@@ -216,7 +212,9 @@ export function AddStoreStep5({
                               }
                               className="w-4 h-4 rounded border-gray-300 text-blue-3 focus:ring-blue-3 accent-blue-3"
                             />
-                            <span className="text-sm text-gray-2 font-medium">مغلق</span>
+                            <span className="text-sm text-gray-2 font-medium">
+                              مغلق
+                            </span>
                           </label>
                         </div>
                       </div>
@@ -233,7 +231,7 @@ export function AddStoreStep5({
                 logo: previousData.logo_preview,
                 name: previousData.name,
                 description: previousData.description,
-                coverImages: previousData.cover,
+                coverImages: previousData.cover_previews,
               }}
             />
           </div>
@@ -276,18 +274,10 @@ function OpenStatusOption({
           {selected && <div className="w-2 h-2 rounded-full bg-blue-4" />}
         </div>
       </div>
-      <div >
-        <h4
-          className={cn(
-            "font-bold text-sm mb-1 transition-colors",
-
-          )}
-        >
-          {label}
-        </h4>
+      <div>
+        <h4 className={cn("font-bold text-sm mb-1 transition-colors")}>{label}</h4>
         <p className="text-xs text-gray-1">{description}</p>
       </div>
-
     </div>
   );
 }

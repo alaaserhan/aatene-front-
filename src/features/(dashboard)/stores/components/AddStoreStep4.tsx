@@ -8,18 +8,25 @@ import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
 import { StoreFormActions } from "./StoreFormActions";
-import { StoreType, StoreManager } from "../api";
+import { StoreType, StoreManager, StoreStatus } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
-import { Edit, Trash2 } from "lucide-react";
+import { Step2FormData, Step4FormData } from "../types";
 
 interface AddStoreStep4Props {
   storeType: StoreType;
-  previousData: any;
-  initialData?: any;
-  onNext: (data: any) => void;
+  previousData: Step2FormData;
+  initialData?: Step4FormData;
+  onNext: (data: Step4FormData) => void;
   onBack: () => void;
+}
+
+interface NewManagerForm {
+  name: string;
+  email: string;
+  title: string;
+  status: StoreStatus;
 }
 
 export function AddStoreStep4({
@@ -34,18 +41,18 @@ export function AddStoreStep4({
     initialData?.managers || []
   );
 
-  const [newManager, setNewManager] = useState({
+  const [newManager, setNewManager] = useState<NewManagerForm>({
     name: "",
     email: "",
     title: "",
-    status: "active" as "active" | "not-active",
+    status: "active",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const steps = [
     { number: 1, label: "البيانات الأساسية", completed: true },
-    { number: 2, label: "الاتصال والسوشيال مديا", completed: true },
+    { number: 2, label: "الاتصال والسوشيال ميديا", completed: true },
     { number: 3, label: "موظفين المتجر", completed: false },
     { number: 4, label: "أوقات العمل و العطلات", completed: false },
     { number: 5, label: "طريقة الشحن", completed: false },
@@ -61,7 +68,7 @@ export function AddStoreStep4({
   const jobTitleOptions = [
     { value: "general", label: "مدير عام" },
     { value: "sales", label: "مدير مبيعات" },
-    { value: "products", label: "مسئول طلبات" },
+    { value: "products", label: "مسؤول طلبات" },
     { value: "services", label: "مدير خدمات" },
   ];
 
@@ -89,7 +96,13 @@ export function AddStoreStep4({
 
   const handleAddManager = () => {
     if (validateManager()) {
-      setManagers([...managers, newManager]);
+      const managerToAdd: StoreManager = {
+        email: newManager.email,
+        title: newManager.title,
+        status: newManager.status,
+      };
+
+      setManagers([...managers, managerToAdd]);
       setNewManager({
         name: "",
         email: "",
@@ -132,9 +145,7 @@ export function AddStoreStep4({
         <div className="grid grid-cols-12 gap-6 mt-8">
           <div className="col-span-12 lg:col-span-8">
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-bold mb-6">
-                موظفين المتجر
-              </h2>
+              <h2 className="text-xl font-bold mb-6">موظفين المتجر</h2>
 
               <div className="flex w-full border border-gray-300 rounded overflow-hidden mb-8">
                 <button
@@ -193,7 +204,7 @@ export function AddStoreStep4({
                       onChange={(value) =>
                         setNewManager({ ...newManager, title: value })
                       }
-                      placeholder="مسئول طلبات"
+                      placeholder="مسؤول طلبات"
                       showSelectedLabel={true}
                       className="w-full"
                     />
@@ -212,7 +223,7 @@ export function AddStoreStep4({
                       onChange={(value) =>
                         setNewManager({
                           ...newManager,
-                          status: value as "active" | "not-active",
+                          status: value as StoreStatus,
                         })
                       }
                       placeholder="اختر الحالة"
@@ -240,10 +251,6 @@ export function AddStoreStep4({
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {/* <div className="mb-2">
-                     <span className="text-lg font-bold text-gray-800">الموظفين</span>
-                  </div> */}
-
                   <div className="overflow-x-auto rounded-lg border border-gray-100">
                     <table className="w-full text-sm text-right">
                       <thead className="bg-[#F5F9FC] text-blue-4 font-medium">
@@ -257,62 +264,72 @@ export function AddStoreStep4({
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-100">
                         {managers.length === 0 ? (
-                            <tr>
-                                <td colSpan={5} className="p-8 text-center text-gray-500">
-                                    لا يوجد موظفين مضافين
-                                </td>
-                            </tr>
+                          <tr>
+                            <td colSpan={5} className="p-8 text-center text-gray-500">
+                              لا يوجد موظفين مضافين
+                            </td>
+                          </tr>
                         ) : (
-                            managers.map((manager, index) => {
-                                const displayName = (manager as any).name || (manager.user ? `${manager.user.first_name} ${manager.user.last_name}` : "-");
-                                const displayPhone = manager.user?.phone || "-";
+                          managers.map((manager, index) => {
+                            const displayName =
+                              manager.user
+                                ? `${manager.user.first_name} ${manager.user.last_name}`
+                                : "-";
+                            const displayPhone = manager.user?.phone || "-";
 
-                                return (
-                                  <tr key={index} className="hover:bg-gray-50 text-blue-4">
-                                    <td className="p-4 font-medium ">
-                                        {displayName}
-                                    </td>
-                                    <td className="p-4 ">
-                                        {manager.email}
-                                    </td>
-                                    <td className="p-4 ">
-                                        {displayPhone}
-                                    </td>
-                                    <td className="p-4">
-                                      <div className="">
-                                        <span
-                                          className={cn(
-                                            "px-6 py-1 rounded-full text-xs font-medium",
-                                            manager.status === "active"
-                                              ? "bg-green-100 text-green-600"
-                                              : "bg-red-100 text-red-600"
-                                          )}
-                                        >
-                                          {manager.status === "active" ? "مفعل" : "غير مفعل"}
-                                        </span>
-                                      </div>
-                                    </td>
-                                    <td className="p-4">
-                                      <div className="flex items-center gap-2">
-                                        <button
-                                          onClick={() => handleEditManager(index)}
-                                          className="p-2 bg-[#3A57791A] hover:bg-blue-100 rounded text-[#3A5779] transition-colors"
-                                          title="تعديل"
-                                        >
-                                          <img src="/icons/dashboard/edit.svg" className="w-4 h-4" alt="" />
-                                        </button>
-                                        <button
-                                          onClick={() => handleRemoveManager(index)}
-                                          className="p-2 bg-[#FB37481A] hover:bg-red-100 rounded text-[#FB3748] transition-colors"
-                                          title="حذف"
-                                        >
-                                          <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
-                                        </button>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                );
-                            })
+                            return (
+                              <tr
+                                key={index}
+                                className="hover:bg-gray-50 text-blue-4"
+                              >
+                                <td className="p-4 font-medium ">{displayName}</td>
+                                <td className="p-4 ">{manager.email}</td>
+                                <td className="p-4 ">{displayPhone}</td>
+                                <td className="p-4">
+                                  <div className="">
+                                    <span
+                                      className={cn(
+                                        "px-6 py-1 rounded-full text-xs font-medium",
+                                        manager.status === "active"
+                                          ? "bg-green-100 text-green-600"
+                                          : "bg-red-100 text-red-600"
+                                      )}
+                                    >
+                                      {manager.status === "active"
+                                        ? "مفعل"
+                                        : "غير مفعل"}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td className="p-4">
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => handleEditManager(index)}
+                                      className="p-2 bg-[#3A57791A] hover:bg-blue-100 rounded text-[#3A5779] transition-colors"
+                                      title="تعديل"
+                                    >
+                                      <img
+                                        src="/icons/dashboard/edit.svg"
+                                        className="w-4 h-4"
+                                        alt=""
+                                      />
+                                    </button>
+                                    <button
+                                      onClick={() => handleRemoveManager(index)}
+                                      className="p-2 bg-[#FB37481A] hover:bg-red-100 rounded text-[#FB3748] transition-colors"
+                                      title="حذف"
+                                    >
+                                      <img
+                                        src="/icons/dashboard/trash.svg"
+                                        className="w-4 h-4"
+                                        alt=""
+                                      />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })
                         )}
                       </tbody>
                     </table>
@@ -328,7 +345,7 @@ export function AddStoreStep4({
                 logo: previousData.logo_preview,
                 name: previousData.name,
                 description: previousData.description,
-                coverImages: previousData.cover,
+                coverImages: previousData.cover_previews,
               }}
             />
           </div>

@@ -15,11 +15,12 @@ import { StoreType } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
+import { Step2FormData } from "../types";
 
 interface AddStoreStep2Props {
   storeType: StoreType;
-  initialData?: any;
-  onNext: (data: any) => void;
+  initialData?: Step2FormData;
+  onNext: (data: Step2FormData) => void;
   onBack: () => void;
 }
 
@@ -30,12 +31,12 @@ export function AddStoreStep2({
   onBack,
 }: AddStoreStep2Props) {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Step2FormData>({
     name: initialData?.name || "",
     logo: initialData?.logo || null,
     logo_preview: initialData?.logo_preview || null,
     cover: initialData?.cover || [],
-    cover_previews: initialData?.cover_previews || [], 
+    cover_previews: initialData?.cover_previews || [],
     description: initialData?.description || "",
     email: initialData?.email || "",
     city_id: initialData?.city_id || "",
@@ -52,7 +53,7 @@ export function AddStoreStep2({
 
   const steps = [
     { number: 1, label: "البيانات الأساسية", completed: false },
-    { number: 2, label: "الاتصال والسوشيال مديا", completed: false },
+    { number: 2, label: "الاتصال والسوشيال ميديا", completed: false },
     { number: 3, label: "موظفين المتجر", completed: false },
     { number: 4, label: "أوقات العمل و العطلات", completed: false },
     { number: 5, label: "طريقة الشحن", completed: false },
@@ -147,42 +148,48 @@ export function AddStoreStep2({
                   primaryText="رفع صورة"
                   allowedMediaTypes={["avatar", "image"]}
                   error={errors.logo}
-
                 />
 
                 <div className="space-y-2">
-                   <Label className="block text-sm font-medium text-gray-900">
-                      بنر المتجر (يمكنك إضافة حتى 10 بنرات)
-                   </Label>
-                   <MediaMultiSelect
-                      value={formData.cover}
-                      previewUrls={formData.cover_previews}
-                      onChange={(fileNames, srcs) => {
-                         setFormData({
-                            ...formData,
-                            cover: fileNames,
-                            cover_previews: srcs
-                         })
-                      }}
-                      maxFiles={10}
-                      allowedMediaTypes={["image","gallery"]}
-                      infoText={["المقاسات المناسبة لرفع الصورة 680 × 180 بكسل"]}
-                   />
-                   {errors.cover && <p className="text-xs text-red-500">{errors.cover}</p>}
+                  <Label className="block text-sm font-medium text-gray-900">
+                    بنر المتجر (يمكنك إضافة حتى 10 بنرات)
+                  </Label>
+                  <MediaMultiSelect
+                    value={formData.cover}
+                    previewUrls={formData.cover_previews}
+                    onChange={(fileNames, srcs) => {
+                      setFormData({
+                        ...formData,
+                        cover: fileNames,
+                        cover_previews: srcs,
+                      });
+                    }}
+                    maxFiles={10}
+                    allowedMediaTypes={["image", "gallery"]}
+                    infoText={["المقاسات المناسبة لرفع الصورة 680 × 180 بكسل"]}
+                  />
+                  {errors.cover && (
+                    <p className="text-xs text-red-500">{errors.cover}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="description" className="text-start text-sm font-medium text-gray-900">
-                        وصف المتجر
-                    </Label>
-                    <textarea
-                        id="description"
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        placeholder="هنا مثال لوصف المتجر"
-                        maxLength={300}
-                        className="flex w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px]"
-                    />
+                  <Label
+                    htmlFor="description"
+                    className="text-start text-sm font-medium text-gray-900"
+                  >
+                    وصف المتجر
+                  </Label>
+                  <textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                    placeholder="هنا مثال لوصف المتجر"
+                    maxLength={300}
+                    className="flex w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px]"
+                  />
                 </div>
 
                 <FormInput
@@ -212,30 +219,32 @@ export function AddStoreStep2({
                 />
 
                 <div className="space-y-2">
-                    <Label className="text-start text-sm font-medium text-gray-900">
-                        العنوان
-                    </Label>
-                    <div className="flex items-center gap-3 ps-3 border border-gray-300 rounded-lg focus-within:border-blue-3 bg-white">
-                        <img
-                        src="/icons/dashboard/mark.svg"
-                        alt=""
-                        className="w-5 h-5"
-                        />
-                        <Input
-                        type="text"
-                        value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        className="h-11 border-none shadow-none px-0 focus-visible:ring-0 text-start"
-                        placeholder="شارع الخالد، مصر الجديدة..."
-                        />
-                        <Button
-                        type="button"
-                        variant="link"
-                        className="p-0 px-3 py-0 mx-0.5 text-xs whitespace-nowrap"
-                        >
-                        تحديد من الخريطة
-                        </Button>
-                    </div>
+                  <Label className="text-start text-sm font-medium text-gray-900">
+                    العنوان
+                  </Label>
+                  <div className="flex items-center gap-3 ps-3 border border-gray-300 rounded-lg focus-within:border-blue-3 bg-white">
+                    <img
+                      src="/icons/dashboard/mark.svg"
+                      alt=""
+                      className="w-5 h-5"
+                    />
+                    <Input
+                      type="text"
+                      value={formData.address}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
+                      }
+                      className="h-11 border-none shadow-none px-0 focus-visible:ring-0 text-start"
+                      placeholder="شارع الخالد، مصر الجديدة..."
+                    />
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="p-0 px-3 py-0 mx-0.5 text-xs whitespace-nowrap"
+                    >
+                      تحديد من الخريطة
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -273,13 +282,13 @@ export function AddStoreStep2({
                 logo: formData.logo_preview,
                 name: formData.name,
                 description: formData.description,
-                coverImages: formData.cover_previews, 
+                coverImages: formData.cover_previews,
               }}
             />
           </div>
         </div>
       </div>
-      
+
       <div className="flex gap-4 justify-between mt-6 bg-white shadow-2xl p-6">
         <Button
           type="button"
