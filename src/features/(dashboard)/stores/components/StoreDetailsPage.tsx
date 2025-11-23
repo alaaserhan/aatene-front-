@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Minus, Plus } from "lucide-react";
 import { useGetSingleStore, useDeleteStore, useUpdateStoreStatus } from "../hooks";
 import { Button } from "@/src/components/ui/button";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
@@ -195,7 +195,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
         </div>
 
         <div className="space-y-4 px-0 md:px-4">
-          <h2 className="text-xl font-bold text-gray-900">بيانات الاتصال والسوشيل</h2>
+          <h2 className="text-xl font-bold ">بيانات الاتصال والسوشيل</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {store.whats_app && (
@@ -251,12 +251,12 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
         {store.managers && store.managers.length > 0 && (
           <div className="space-y-4 border border-gray-100 rounded-xl p-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">موظفين المتجر</h2>
+              <h2 className="text-xl font-bold ">موظفين المتجر</h2>
               <button
                 onClick={() => setManagersExpanded(!managersExpanded)}
-                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer"
+                className="w-8 h-8 flex items-center justify-center rounded-full border border-blue-4 cursor-pointer text-blue-4"
               >
-                {managersExpanded ? "-" : "+"}
+                {managersExpanded ? <Minus className="w-5"/> : <Plus className="w-5"/>}
               </button>
             </div>
 
@@ -275,6 +275,11 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
             <h2 className="text-xl font-bold">أوقات عمل المتجر</h2>
 
             <div className="space-y-6">
+              <div className="grid grid-cols-3 gap-4">
+                <p className="text-sm font-medium text-gray-2">اليوم</p>
+                <p className="text-sm font-medium text-gray-2">يفتح في</p>
+                <p className="text-sm font-medium text-gray-2">يغلق في</p>
+              </div>
               {displayedWorkingTimes.map((time, index) => (
                 <WorkingTimeRow key={index} workingTime={time} />
               ))}
@@ -283,22 +288,22 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
             {store.workingtimes.length > 2 && !showAllDays && (
               <button
                 onClick={() => setShowAllDays(true)}
-                className="w-full py-3 px-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2"
+                className="mx-auto py-2 px-4 bg-blue-5 rounded  cursor-pointer flex items-center justify-center gap-2"
               >
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-lg">+</span>
+                <span className="text-sm ">
                   مشاهدة جميع الأيام
                 </span>
-                <span className="text-lg">+</span>
               </button>
             )}
 
             {showAllDays && store.workingtimes.length > 2 && (
               <button
                 onClick={() => setShowAllDays(false)}
-                className="w-full py-3 px-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2"
+                className="mx-auto py-2 px-4 bg-blue-5 rounded cursor-pointer flex items-center justify-center gap-2"
               >
-                <span className="text-sm font-medium text-gray-700">إخفاء</span>
                 <span className="text-lg">-</span>
+                <span className="text-sm ">إخفاء</span>
               </button>
             )}
           </div>
@@ -330,7 +335,7 @@ function DetailRow({ icon, label, value }: DetailRowProps) {
       <div className="flex-shrink-0 rounded border border-gray-200 w-9 h-9 flex justify-center items-center mt-1">{icon}</div>
       <div className="flex-1 min-w-0">
         <p className="text-sm text-gray-2 mb-1">{label}</p>
-        <div className="text-sm font-medium text-gray-900 break-words">
+        <div className="text-sm font-medium  break-words">
           {value}
         </div>
       </div>
@@ -395,50 +400,55 @@ function ManagerRow({ manager }: ManagerRowProps) {
         </div>
       </div>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-bold ">
-            {manager.user
-              ? `${manager.user.first_name} ${manager.user.last_name}`
-              : "موظف"}
+      <div className="flex flex-row gap-4 justify-center items-center">
+        <div className="flex flex-col">
+          <h3 className="font-medium">
+            {/* {manager.user_name} */}
+            احمد محمد
           </h3>
-          <div className="flex items-center gap-2">
-            <a
-              href={`mailto:${manager.user?.email}`}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-gray-100 transition-colors cursor-pointer"
-            >
-              <img src="/icons/dashboard/sms.svg" alt="email" className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <a href={`https://wa.me/${manager.user?.phone}`} className="text-blue-4 font-medium underline">
+              {manager.user?.phone}
             </a>
             <a
               href={`https://wa.me/${manager.user?.phone}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-gray-100 transition-colors cursor-pointer"
+              className="flex items-center justify-center cursor-pointer"
             >
-              <img src="/icons/social/whatsapp.svg" alt="whatsapp" className="w-4 h-4" />
+              <img src="/icons/dashboard/whatsapp.svg" alt="whatsapp" className="w-5 h-5" />
             </a>
             <a
-              href={`tel:${manager.user?.phone}`}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-gray-100 transition-colors cursor-pointer"
+              href={`mailto:${manager.user_email}`}
+              className=" flex items-center justify-center cursor-pointer"
             >
-              <img src="/icons/dashboard/call.svg" alt="phone" className="w-4 h-4" />
+              <div
+                className="w-5 h-5 bg-blue-4"
+                style={{
+                  maskImage: "url(/icons/dashboard/email.svg)",
+                  maskSize: "contain",
+                  maskRepeat: "no-repeat",
+                  maskPosition: "center",
+                }}
+              ></div>
             </a>
+
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 text-xs">
+        <div className="flex flex-row gap-6 text-sm">
           <div>
-            <p className="text-gray-500 mb-1">الدور الوظيفي</p>
+            <p className="text-gray-2 mb-2">الدور الوظيفي</p>
             <p className="font-medium ">
               {getManagerTitle(manager.title)}
             </p>
           </div>
           <div>
-            <p className="text-gray-500 mb-1">البريد الإلكتروني</p>
+            <p className="text-gray-2 mb-2">البريد الإلكتروني</p>
             <p className="font-medium  truncate">{manager.user?.email}</p>
           </div>
           <div>
-            <p className="text-gray-500 mb-1">تاريخ الانضمام</p>
+            <p className="text-gray-2 mb-2">تاريخ الانضمام</p>
             <p className="font-medium ">الاثنين، 18 سبتمبر 2023</p>
           </div>
         </div>
@@ -468,12 +478,10 @@ function WorkingTimeRow({ workingTime }: WorkingTimeRowProps) {
   return (
     <div className="grid grid-cols-3 gap-4">
       <div>
-        <p className="text-sm font-medium text-gray-2">اليوم</p>
-        <p className="text-sm text-gray-600 mt-1">{getDayName(workingTime.day)}</p>
+        <p className="text-sm font-medium mt-1">{getDayName(workingTime.day)}</p>
       </div>
       <div>
-        <p className="text-sm font-medium text-gray-2">يفتح في</p>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-gray-2 mt-1">
           {workingTime.open_always
             ? "مفتوح دائماً"
             : workingTime.closed_always
@@ -482,8 +490,7 @@ function WorkingTimeRow({ workingTime }: WorkingTimeRowProps) {
         </p>
       </div>
       <div>
-        <p className="text-sm font-medium text-gray-2">يغلق في</p>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-gray-2 mt-1">
           {workingTime.open_always
             ? "-"
             : workingTime.closed_always
