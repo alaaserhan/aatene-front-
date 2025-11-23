@@ -37,7 +37,7 @@ const PhoneNumberInput = React.forwardRef<
                 </label>
                 <div className="flex gap-2">
                     <Input
-                        type="tel"
+                        type="number"
                         className={cn("flex-1", className)}
                         ref={ref}
                         {...props}

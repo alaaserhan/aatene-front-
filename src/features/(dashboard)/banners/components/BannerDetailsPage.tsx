@@ -96,16 +96,15 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
                             <div className="flex gap-3">
                                 <Button
                                     onClick={handleEdit}
-                                    variant="outline"
-                                    className="flex items-center gap-2 px-6 py-3 bg-blue-1 text-blue-3 border-blue-200 hover:bg-blue-200 cursor-pointer"
+                                    className="flex items-center rounded-sm gap-2 px-6 py-5 bg-blue-1 text-blue-3  cursor-pointer "
                                 >
-                                    <img src="/icons/dashboard/pin.svg" alt="تعديل" className="w-4 h-4" />
+                                    <img src="/icons/dashboard/edit2.svg" alt="تعديل" className="w-4 h-4" />
                                     تعديل الإعلان
                                 </Button>
                                 <Button
                                     onClick={handleDeleteClick}
                                     disabled={isDeleting}
-                                    className="flex items-center gap-2 px-6 py-3 bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                    className="flex items-center rounded-sm gap-2 px-6 py-5 bg-[#FB3748] text-white cursor-pointer hover:bg-[#FB3748]"
                                 >
                                     {isDeleting && (
                                         <Loader2 className="w-4 h-4 animate-spin" />

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, HelpCircle, Loader2 } from "lucide-react";
+import { Search, HelpCircle, Loader2, Plus } from "lucide-react";
 import { CityModal, CityFormData } from "./CityModal";
 import { ConfirmDeleteModal } from "../../../../components/(dashboard)/ConfirmDeleteModal";
 import { City } from "../api";
@@ -138,7 +138,7 @@ export function CitiesPage() {
             className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 sm:py-3 text-white rounded-sm font-medium  transition-colors"
             style={{ backgroundColor: "var(--blue-3)" }}
           >
-            <HelpCircle className="sm:w-5 sm:h-5 w-4 h-4" />
+            <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
             أضف مدينة جديدة
           </button>
         </div>

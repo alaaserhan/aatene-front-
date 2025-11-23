@@ -1,8 +1,9 @@
+// src/components/ui/accordion.tsx
 "use client"
 
 import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Plus, Minus } from "lucide-react"
 
 import { cn } from "@/src/lib/utils"
 
@@ -20,21 +21,42 @@ const AccordionItem = React.forwardRef<
 ))
 AccordionItem.displayName = "AccordionItem"
 
+// تعريف الـ Interface لإضافة الـ Prop الجديد
+interface AccordionTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {
+  iconStyle?: "chevron" | "plus-minus"; // خاصية للتحكم في شكل الأيقونة
+}
+
 const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
+  AccordionTriggerProps
+>(({ className, children, iconStyle = "chevron", ...props }, ref) => (
   <AccordionPrimitive.Header className="flex">
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between py-4 text-sm font-medium transition-all hover:underline text-left [&[data-state=open]>svg]:rotate-180",
+        // أضفنا كلاس group للتحكم في الأبناء بناءً على حالة الأب
+        "flex flex-1 items-center justify-between py-4 text-sm font-medium transition-all hover:underline text-left group",
+        // تدوير السهم فقط في حالة chevron
+        iconStyle === "chevron" && "[&[data-state=open]>svg]:rotate-180",
         className
       )}
       {...props}
     >
       {children}
-      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
+      
+      {/* الخيار الافتراضي: سهم */}
+      {iconStyle === "chevron" && (
+        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
+      )}
+
+      {/* الخيار الجديد: + و - داخل دائرة */}
+      {iconStyle === "plus-minus" && (
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-blue-4 text-blue-4 cursor-pointer">
+          <Plus className="h-5 w-5 shrink-0 transition-transform duration-200 group-data-[state=open]:hidden" />
+          <Minus className="h-5 w-5 shrink-0 transition-transform duration-200 group-data-[state=closed]:hidden" />
+        </div>
+      )}
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ))

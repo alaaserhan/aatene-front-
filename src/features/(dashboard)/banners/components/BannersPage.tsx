@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, HelpCircle, Loader2, Eye, Pencil, Circle } from "lucide-react";
+import { Search, HelpCircle, Loader2, Eye, Pencil, Circle, Plus } from "lucide-react";
 import { Banner } from "../api";
 import {
   useGetBanners,
@@ -137,7 +137,7 @@ export function BannersPage() {
             className="flex w-full sm:w-auto text-sm items-center gap-2 cursor-pointer px-4 sm:px-6 py-2.5 sm:py-3 text-white rounded-sm font-medium transition-colors whitespace-nowrap"
             style={{ backgroundColor: "var(--blue-3)" }}
           >
-            <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
             أضف بنر إعلاني
           </button>
         </div>
@@ -172,7 +172,6 @@ export function BannersPage() {
                 </button>
               </div>
               <ReusableDropdown
-           
                 placeholder="حالة الإعلان"
                 options={filterOptions}
                 value={filterStatus}

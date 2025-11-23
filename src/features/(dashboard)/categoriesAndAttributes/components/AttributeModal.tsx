@@ -99,11 +99,11 @@ export function AttributeModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0"
+        className="sm:max-w-xl max-h-[90vh] overflow-y-auto p-0"
         dir="rtl"
       >
         <DialogHeader className="p-6 pb-4 text-start">
-          <DialogTitle className="text-xl font-bold text-gray-900">
+          <DialogTitle className="text-xl font-bold ">
             {mode === "edit" ? "تعديل السمة" : "إضافة سمة جديدة"}
           </DialogTitle>
           <p className="text-sm text-gray-500 pt-2">
@@ -139,7 +139,7 @@ export function AttributeModal({
                   value={optionInput}
                   onChange={(e) => setOptionInput(e.target.value)}
                   placeholder="أضف الخيار المتاح"
-                  className="w-full px-4 py-3 border-gray-300 rounded-xs focus:ring-2 focus:ring-blue-3 focus:border-transparent"
+                  className="w-full px-4 py-3  border-gray-300 rounded-xs focus:ring-2 focus:ring-blue-3 focus:border-transparent"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
@@ -150,7 +150,7 @@ export function AttributeModal({
                 <Button
                   type="button"
                   onClick={handleAddOption}
-                  className="px-6 py-3 bg-blue-4 rounded-xs text-white hover:bg-[#2d4460] cursor-pointer"
+                  className="px-6 py-3 bg-blue-4 rounded-sm text-white hover:bg-[#2d4460] cursor-pointer"
                 >
                   إضافة
                 </Button>
@@ -170,10 +170,10 @@ export function AttributeModal({
             </div>
           </div>
 
-          <DialogFooter className="p-6 bg-gray-50 border-t border-gray-200 flex sm:justify-center" >
+          <DialogFooter className="p-4 bg-white border-t border-gray-200 flex sm:justify-center" >
             <Button
               type="submit"
-              className="w-full sm:w-auto px-10 py-3 rounded-xs font-medium transition-colors cursor-pointer bg-blue-4 text-white"
+              className="w-full sm:w-auto px-16 py-3 rounded-sm font-medium transition-colors cursor-pointer bg-blue-4 text-white"
             >
               {mode === "edit" ? "حفظ التعديلات" : "إضافة الفئة"}
             </Button>
@@ -181,7 +181,7 @@ export function AttributeModal({
               type="button"
               onClick={onClose}
               variant="outline"
-              className="w-full sm:w-auto px-10 py-3 bg-white rounded-xs"
+              className="w-full sm:w-auto px-20 py-3 bg-blue-5 border-0 rounded-sm"
             >
               إلغاء
             </Button>

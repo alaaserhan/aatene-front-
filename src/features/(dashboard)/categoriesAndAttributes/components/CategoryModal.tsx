@@ -167,10 +167,10 @@ export function CategoryModal({
           {activeType === "product" && (
             <div className="space-y-3">
               <div className="flex flex-col gap-1">
-                <Label className="block text-sm font-medium text-gray-900">
+                <Label className="block text-sm font-medium ">
                   الصور
                 </Label>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-2">
                   (يمكنك إضافة حتى {4} صور)
                 </span>
               </div>
@@ -198,10 +198,10 @@ export function CategoryModal({
             onClick={handleSave}
             disabled={!formData.name.trim()}
             className={cn(
-              "w-full sm:w-auto px-10 py-3 rounded-xs font-medium transition-colors cursor-pointer",
+              "w-full sm:w-auto px-16 py-3 rounded-sm font-medium transition-colors cursor-pointer",
               formData.name.trim()
                 ? "bg-blue-4  text-white"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gray-300 text-gray-2 cursor-not-allowed"
             )}
           >
             {mode === "edit"
@@ -213,7 +213,7 @@ export function CategoryModal({
           <Button
             onClick={onClose}
             variant="outline"
-            className="w-full sm:w-auto px-10 py-3 bg-white rounded-xs"
+            className="w-full sm:w-auto px-20 py-3 bg-blue-5 border-0 rounded-sm"
           >
             إلغاء
           </Button>

@@ -232,6 +232,8 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               error={errors.city_id}
             />
 
+            
+
             <FormInput
               label="مكان الإعلان"
               value={formData.place}

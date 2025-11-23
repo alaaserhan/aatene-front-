@@ -101,7 +101,7 @@ function AttributeAccordionContent(props: AttributeProps) {
           onClick={() => onEdit(attribute)}
           className="p-3 bg-blue-5  hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
         >
-          <img src="/icons/dashboard/pin.svg" alt="Edit" className="w-4 h-4" />
+          <img src="/icons/dashboard/edit3.svg" alt="Edit" className="w-4 h-4" />
         </button>
 
         <div className={cn("flex items-center gap-0 flex-1 ms-4 justify-end")}>
@@ -191,7 +191,7 @@ function CategoryAccordionContent(props: CategoryProps) {
           onClick={() => onEdit(category)}
           className="p-3 bg-blue-5  hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
         >
-          <img src="/icons/dashboard/pin.svg" alt="Edit" className="w-4 h-4" />
+          <img src="/icons/dashboard/edit3.svg" alt="Edit" className="w-4 h-4" />
         </button>
 
         <button

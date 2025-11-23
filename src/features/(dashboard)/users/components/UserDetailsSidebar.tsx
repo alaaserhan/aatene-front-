@@ -279,7 +279,7 @@ export function UserDetailsSidebar({
               <Input
                 {...register("email")}
                 type="email"
-                placeholder="kerooadel5@gmail.com"
+                placeholder="example@gmail.com"
                 className="w-full"
               />
               {errors.email && (
@@ -291,7 +291,7 @@ export function UserDetailsSidebar({
 
             <PhoneNumberInput
               label="رقم الهاتف"
-              placeholder="0128000000"
+              placeholder="0000000000"
               countryCode={countryCode}
               onCountryCodeChange={setCountryCode}
               {...register("phone")}

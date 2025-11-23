@@ -79,51 +79,47 @@ api.interceptors.request.use(
 
 // --- (4) Response Interceptor (بيشتغل بعد ما الرد يرجع) ---
 api.interceptors.response.use(
-  // (أ) في حالة النجاح: رجّع الرد زي ما هو
   (response: AxiosResponse) => response,
-
-  // (ب) في حالة الفشل: اهندل الخطأ
   async (error: AxiosError) => {
     
-    // (السيناريو الأول) الخطأ 401: التوكن خلص أو مش موجود
     if (error.response?.status === 401) {
-      // شيلنا كل لوجيك الـ refresh
-      // شغالين في المتصفح بس (عشان نـ redirect)
       if (typeof window !== "undefined") {
-        
-        // امنع الـ redirect لو كنا أصلاً في صفحة اللوجن
         if (!window.location.pathname.includes("/login")) {
           toast.error("Your session has expired. Please log in again.");
-          // امسح الكوكي
-          Cookies.remove("token"); // ⭐️ اتأكد من اسم الكوكي
-          // وديه لصفحة اللوجن
+          Cookies.remove("token");
           window.location.href = "/login";
         }
       }
     }
 
-    // (السيناريو الثاني) أي خطأ تاني (400, 404, 500, ...)
     if (error.response && error.response.status !== 401) {
       let message = "An unexpected error occurred.";
 
       const responseData = error.response.data as ErrorResponse;
 
-      if (responseData && responseData.message) {
-        message = responseData.message;
+      // ⭐ أولاً: حاول أخذ أول خطأ من errors object
+      if (responseData?.errors) {
+        const firstErrorKey = Object.keys(responseData.errors)[0];
+        const firstErrorArray = responseData.errors[firstErrorKey];
+        if (firstErrorArray && firstErrorArray.length > 0) {
+          message = firstErrorArray[0];
+        }
       } 
+      // ثانياً: إذا لم يكن هناك errors، استخدم message
+      else if (responseData?.message) {
+        message = responseData.message;
+      }
 
       if (typeof window !== "undefined") {
         toast.error(message);
       }
     }
-    // (السيناريو الثالث) مفيش نت أو السيرفر واقع
     else if (!error.response) {
       if (typeof window !== "undefined") {
         toast.error("Network Error: Please check your connection.");
       }
     }
 
-    // لازم ترمي الخطأ تاني عشان الـ useQuery يحس بيه
     return Promise.reject(error);
   }
 );

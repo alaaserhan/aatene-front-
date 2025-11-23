@@ -157,8 +157,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                         return (
                           <Button
                             key={item.href}
-                            variant={active ? "default" : "ghost"}
-                            className="w-full justify-start gap-3 text-base"
+                            variant={active ? "default" : "default"}
+                            className="w-full justify-start gap-3 text-base hover:bg-blue-3"
                             style={active ? { 
                               backgroundColor: 'var(--blue-3)', 
                               color: 'white' 
@@ -211,7 +211,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                     <Button
                       key={item.href}
                       variant={active ? "default" : "ghost"}
-                      className="gap-2"
+                      className="gap-2 hover:bg-transparent"
                       style={active ? { 
                         backgroundColor: 'var(--blue-3)', 
                         color: 'white' 

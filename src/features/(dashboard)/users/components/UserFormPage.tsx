@@ -174,13 +174,13 @@ export function UserFormPage() {
                 label="البريد الإلكتروني"
                 type="email"
                 {...register("email")}
-                placeholder="kerooadel5@gmail.com"
+                placeholder="example@gmail.com"
                 error={errors.email?.message}
               />
 
               <PhoneNumberInput
                 label="رقم الهاتف"
-                placeholder="0128000000"
+                placeholder="0000000000"
                 countryCode={countryCode}
                 onCountryCodeChange={setCountryCode}
                 {...register("phone")}

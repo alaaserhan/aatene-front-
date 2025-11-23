@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
@@ -15,6 +14,9 @@ import {
 } from "@/src/components/ui/select";
 import { MapModal } from "./MapModal";
 import { MediaSelectButton } from "../../mediaCenter/components/MediaSelectButton";
+// استيراد المكون الجديد
+import { MultiSelectDropdown } from "@/src/components/ui/MultiSelectDropdown";
+import { toast } from "sonner";
 
 interface BasicInfoData {
   siteName: string;
@@ -28,9 +30,9 @@ interface BasicInfoData {
 }
 
 const AVAILABLE_LANGUAGES = [
-  { id: "ar", label: "العربية" },
-  { id: "en", label: "الإنجليزية" },
-  { id: "he", label: "العبرية" },
+  { value: "ar", label: "العربية" },
+  { value: "en", label: "الإنجليزية" },
+  { value: "he", label: "العبرية" },
 ];
 
 interface BasicInfoSectionProps {
@@ -48,16 +50,11 @@ export function BasicInfoSection({
 }: BasicInfoSectionProps) {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
-  const handleToggleLanguage = (langId: string) => {
-    const isSelected = languages.includes(langId);
-    let newLanguages = isSelected
-      ? languages.filter((id) => id !== langId)
-      : [...languages, langId];
-
+  const handleLanguagesUpdate = (newLanguages: string[]) => {
     if (newLanguages.length === 0) {
-      newLanguages = [langId];
+      toast.warning("يجب اختيار لغة واحدة على الأقل للموقع");
+      return;
     }
-
     onLanguagesChange(newLanguages);
   };
 
@@ -91,36 +88,19 @@ export function BasicInfoSection({
               </p>
             </div>
 
+            {/* قسم اختيار اللغة باستخدام المكون الجديد */}
             <div className="space-y-2">
-              <Label className="text-start">
+              <Label className="text-start block">
                 لغة الموقع <span className="text-red-500">*</span>
               </Label>
-              <div className="border border-gray-300 rounded-lg p-4">
-                <div className="flex gap-3">
-                  {AVAILABLE_LANGUAGES.map((lang) => {
-                    const isSelected = languages.includes(lang.id);
-                    return (
-                      <button
-                        key={lang.id}
-                        type="button"
-                        onClick={() => handleToggleLanguage(lang.id)}
-                        className={`flex items-center gap-2 px-3 py-1.5 cursor-pointer rounded-full border transition-colors  ${
-                          isSelected
-                            ? "bg-blue-5 border-blue-4 text-blue-4"
-                            : "bg-gray-100 border-gray-300 text-gray-600"
-                        }`}
-                      >
-                        <span className="text-sm font-normal">
-                          {lang.label}
-                        </span>
-                        {isSelected && (
-                          <X className="w-4 h-4 text-blue-4" strokeWidth={2} />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+
+              <MultiSelectDropdown
+                options={AVAILABLE_LANGUAGES}
+                selectedValues={languages}
+                onChange={handleLanguagesUpdate}
+                placeholder="اختر لغات الموقع..."
+                className="w-full"
+              />
             </div>
 
             <div className="space-y-2">
@@ -143,6 +123,7 @@ export function BasicInfoSection({
               />
             </div>
 
+            {/* بقية الحقول كما هي ... */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-start">
                 البريد الإلكتروني
@@ -170,8 +151,8 @@ export function BasicInfoSection({
               <div className="flex items-center gap-3 ps-3 border border-gray-300 rounded-lg focus-within:border-brand-blue-2">
                 <img
                   src="/icons/dashboard/mark.svg"
-                  alt=""
                   className="w-5 h-5"
+                  alt="mark"
                 />
                 <Input
                   id="address"
@@ -184,7 +165,7 @@ export function BasicInfoSection({
                   type="button"
                   variant="link"
                   onClick={() => setIsMapModalOpen(true)}
-                  className="p-0 px-3 py-0 mx-0.5  text-xs"
+                  className="p-0 px-3 py-0 mx-0.5 text-xs"
                 >
                   تحديد من الخريطة
                 </Button>
@@ -197,6 +178,13 @@ export function BasicInfoSection({
                   الهاتف المحمول
                 </Label>
                 <div className="flex items-center border border-gray-300 rounded-lg focus-within:border-brand-blue-2">
+                  <Input
+                    id="phone"
+                    type="number"
+                    value={data.phone}
+                    onChange={(e) => onChange({ phone: e.target.value })}
+                    className="flex-1 h-10 border-none shadow-none focus-visible:ring-0"
+                  />
                   <Select defaultValue="+20">
                     <SelectTrigger className="w-[90px] border-none shadow-none focus:ring-0">
                       <SelectValue />
@@ -208,13 +196,6 @@ export function BasicInfoSection({
                       <SelectItem value="+971">+971</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={data.phone}
-                    onChange={(e) => onChange({ phone: e.target.value })}
-                    className="flex-1 h-10 border-none shadow-none focus-visible:ring-0"
-                  />
                 </div>
               </div>
 
@@ -223,6 +204,13 @@ export function BasicInfoSection({
                   الواتساب
                 </Label>
                 <div className="flex items-center border border-gray-300 rounded-lg focus-within:border-brand-blue-2">
+                  <Input
+                    id="whatsapp"
+                    type="number"
+                    value={data.whatsapp}
+                    onChange={(e) => onChange({ whatsapp: e.target.value })}
+                    className="flex-1 h-10 border-none shadow-none focus-visible:ring-0"
+                  />
                   <Select defaultValue="+20">
                     <SelectTrigger className="w-[90px] border-none shadow-none focus:ring-0">
                       <SelectValue />
@@ -234,13 +222,6 @@ export function BasicInfoSection({
                       <SelectItem value="+971">+971</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Input
-                    id="whatsapp"
-                    type="tel"
-                    value={data.whatsapp}
-                    onChange={(e) => onChange({ whatsapp: e.target.value })}
-                    className="flex-1 h-10 border-none shadow-none  focus-visible:ring-0"
-                  />
                 </div>
               </div>
             </div>

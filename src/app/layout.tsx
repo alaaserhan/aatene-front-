@@ -73,8 +73,8 @@ export default function RootLayout({
         <QueryProvider>
           <AuthHydrator />
           {children}
-        </QueryProvider>
-        <Toaster richColors />
+        </QueryProvider> 
+        <Toaster richColors dir="rtl"  position="top-right"  />
       </body>
     </html>
   );
