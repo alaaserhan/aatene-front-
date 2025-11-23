@@ -284,6 +284,7 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
             initialData={formData.step2}
             onNext={handleStep2Next}
             onBack={handleStep2Back}
+            barSteps={steps}
           />
         );
     }
