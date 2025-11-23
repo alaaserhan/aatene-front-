@@ -87,7 +87,6 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
               options={statusOptions}
               value={store.status}
               onChange={handleStatusChange}
-              showSelectedLabel={true}
               placeholder="حالة المتجر"
               className="w-full rounded-xs bg-gray-100"
             />

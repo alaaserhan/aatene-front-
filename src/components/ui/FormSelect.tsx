@@ -43,7 +43,7 @@ export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
           <select
             ref={ref}
             className={cn(
-              "w-full px-4 py-3 border rounded-lg  appearance-none cursor-pointer text-sm",
+              "w-full px-4 py-3 border rounded-sm  appearance-none cursor-pointer text-sm",
               "focus:outline-none focus:ring-2 focus:ring-blue-3 focus:border-transparent",
               "transition-all duration-200",
               "bg-white",

@@ -1,7 +1,7 @@
 // src/features/(dashboard)/users/hooks.ts
 "use client";
 
-import { useMutation, useQuery, useQueryClient, useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery, InfiniteData, UseQueryOptions } from "@tanstack/react-query";
 import * as api from "./api";
 import {
   UserCreatePayload,
@@ -37,12 +37,16 @@ const RoleQK = {
 };
 
 const coerceActive = (v: unknown) => v === "1" || v === 1 || v === true;
-
-export const useGetUsers = (params: URLSearchParams) => {
+type GetUsersOptions = Partial<UseQueryOptions<PaginatedUsersResponse, Error, PaginatedUsersResponse>>;
+export const useGetUsers = (
+  params: URLSearchParams,
+  options?: GetUsersOptions 
+) => {
   const key = QK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getUsers(params),
+    ...options, 
   });
 };
 

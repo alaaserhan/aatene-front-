@@ -57,8 +57,8 @@ export function ReusableDropdown({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "w-full flex items-center gap-2 px-4 h-10 border rounded bg-white hover:bg-gray-50 transition-colors cursor-pointer justify-between",
-          error ? "border-red-500" : "border-gray-200",
+          "w-full flex items-center gap-2 px-4 h-10 border rounded-sm bg-white hover:bg-gray-50 transition-colors cursor-pointer justify-between",
+          error ? "border-red-500" : "border-gray-300",
           className
         )}
       >

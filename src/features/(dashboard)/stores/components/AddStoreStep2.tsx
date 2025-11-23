@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
-import { FormSelect } from "@/src/components/ui/FormSelect";
-import { StoreIdentitySelector } from "./StoreIdentitySelector"; // استدعاء المكون الجديد
+import { FormSelect } from "@/src/components/ui/FormSelect"; // سيتم إزالة استخدامه
+import { StoreIdentitySelector } from "./StoreIdentitySelector";
 import { StoreBannerSelector } from "./StoreBannerSelector";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
@@ -17,12 +17,17 @@ import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
 import { Step2FormData } from "../types";
 import { CityMultiSelect } from "./CityMultiSelect";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown"; // يجب استدعاء المكون الجديد
+import { useGetUsers } from "../../users/hooks"; // استدعاء Hook لجلب المستخدمين
+import { cn } from "@/src/lib/utils"; // لدمج الكلاسات (حسب القاعدة 1)
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface AddStoreStep2Props {
   storeType: StoreType;
   initialData?: Step2FormData;
   onNext: (data: Step2FormData) => void;
   onBack: () => void;
+  currentUserId?: string;
 }
 
 export function AddStoreStep2({
@@ -30,8 +35,12 @@ export function AddStoreStep2({
   initialData,
   onNext,
   onBack,
+  currentUserId,
 }: AddStoreStep2Props) {
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+  const userType = user?.user_type;
+  const isAdmin = userType === "admin";
   const [formData, setFormData] = useState<Step2FormData>({
     name: initialData?.name || "",
     logo: initialData?.logo || null,
@@ -42,12 +51,34 @@ export function AddStoreStep2({
     email: initialData?.email || "",
     city_id: initialData?.city_id || [],
     address: initialData?.address || "",
-    owner_id: initialData?.owner_id || "",
+    // تحديد owner_id تلقائيًا في حالة Merchant إذا لم يتم تعيينه مسبقًا
+    owner_id: initialData?.owner_id || (!isAdmin && currentUserId ? currentUserId : ""),
     currency_id: initialData?.currency_id || "",
   });
 
+  console.log(isAdmin);
+
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 1. جلب بيانات المستخدمين فقط إذا كان المستخدم Admin
+  const { data: usersData, isLoading: isUsersLoading } = useGetUsers(
+    new URLSearchParams("per_page=100") // جلب قائمة كبيرة من المستخدمين لتكون خيارات
+    , { enabled: isAdmin }); // تفعيل الجلب فقط لـ Admin
+
+  const ownersOptions = usersData?.data
+    ? usersData.data.map((user) => ({
+      label: `${user.first_name} ${user.last_name} (${user.email})`,
+      value: String(user.id),
+    }))
+    : [];
+
+  // إضافة خيار افتراضي في البداية
+  const ownerDropdownOptions = [
+    { value: "", label: isUsersLoading ? "جاري التحميل..." : "اختر المالك" },
+    ...ownersOptions,
+  ];
 
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
@@ -83,6 +114,11 @@ export function AddStoreStep2({
       newErrors.email = "البريد الإلكتروني غير صالح";
     }
 
+    // في حالة Admin، يجب التحقق من اختيار المالك
+    if (isAdmin && !formData.owner_id) {
+      newErrors.owner_id = "يجب اختيار مالك المتجر";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -111,7 +147,7 @@ export function AddStoreStep2({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="">
       <div className="container mx-auto py-4 px-4">
         <Breadcrumb items={breadcrumbItems} className="mb-4" />
         <StepperProgress currentStep={1} steps={steps} />
@@ -182,8 +218,12 @@ export function AddStoreStep2({
                     }
                     placeholder="هنا مثال لوصف المتجر"
                     maxLength={300}
-                    className="flex w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px]"
+                    className={cn(
+                      "flex w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px]",
+                      { "border-red-500": errors.description } // إضافة حالة الخطأ
+                    )}
                   />
+                  {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
                 </div>
 
                 <FormInput
@@ -234,18 +274,29 @@ export function AddStoreStep2({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormSelect
-                    label="المالك"
-                    value={formData.owner_id}
-                    onChange={(e) =>
-                      setFormData({ ...formData, owner_id: e.target.value })
-                    }
-                    options={[
-                      { value: "", label: "اختر المالك" },
-                      { value: "1", label: "كرلس عادل" },
-                    ]}
-                  />
+                  {/* 3. تطبيق المنطق: إذا كان Admin، اعرض قائمة منسدلة قابلة للاختيار */}
+                  {isAdmin ? (
+                    <div className="flex flex-col">
+                    <label htmlFor="" className="mb-3 text-sm font-medium">المالك</label>
+                    <ReusableDropdown
+                      placeholder={isUsersLoading ? "جاري جلب المالكين..." : "اختر المالك"}
+                      options={ownerDropdownOptions}
+                      value={formData.owner_id}
+                      onChange={(value) =>
+                        setFormData({ ...formData, owner_id: String(value) })
+                      }
+                      error={errors.owner_id}
+                      className="h-11"
+                    />
+                    </div>
+                  ) : (
+                    // 4. في حالة Merchant، إخفاء الحقل وتعيين المالك مسبقًا
+                    <input type="hidden" name="owner_id" value={formData.owner_id} />
+                    // يمكن إضافة عرض للمالك الحالي بطريقة غير قابلة للتعديل إذا لزم الأمر
+                  )}
 
+
+                  {/* تم ترك حقل العملة كما هو باستخدام FormSelect مؤقتاً لحين تعديله إلى ReusableDropdown */}
                   <FormSelect
                     label="العملة"
                     value={formData.currency_id}

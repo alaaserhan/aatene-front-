@@ -98,7 +98,6 @@ export function GenericSidebarList<T extends { id: number | string }>({
             options={filterOptions}
             value={filterValue}
             onChange={onFilterChange}
-            showSelectedLabel={true}
             triggerIcon={
               triggerIcon || (
                 <img

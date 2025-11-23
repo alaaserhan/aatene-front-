@@ -186,7 +186,6 @@ export function BannersPage() {
                 placeholder="ترتيب حسب..."
                 options={sortOptions}
                 value={sortBy}
-                showSelectedLabel={true}
                 onChange={(value) => {
                   setSortBy(value);
                   setCurrentPage(1);
