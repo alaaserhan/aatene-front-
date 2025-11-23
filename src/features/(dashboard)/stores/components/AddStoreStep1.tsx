@@ -29,9 +29,9 @@ export function AddStoreStep1() {
 
     return (
         <div className="min-h-screen ">
-            <div className="py-8 px-4">
+            <div className="py-4 px-4">
                 {/* Breadcrumb */}
-                <Breadcrumb items={breadcrumbItems} className="mb-8" />
+                <Breadcrumb items={breadcrumbItems} className="mb-4" />
 
                 {/* Main Content */}
                 <div className="bg-white rounded p-8">
