@@ -91,7 +91,7 @@ export interface Store {
   owner?: Owner;
   currency_id: string | number;
   currency?: Currency;
-  city_id: number | null;
+  city_id: number[];
   district_id: number | null;
   whats_app: string | null;
   tiktok: string | null;

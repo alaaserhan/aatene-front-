@@ -8,7 +8,7 @@ export interface Step2FormData {
   cover_previews: string[];
   description: string;
   email: string;
-  city_id: string;
+  city_id: number[];
   address: string;
   owner_id: string;
   currency_id: string;

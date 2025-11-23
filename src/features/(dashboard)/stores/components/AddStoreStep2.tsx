@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { FormSelect } from "@/src/components/ui/FormSelect";
-import { MediaSelectButton } from "../../mediaCenter/components/MediaSelectButton";
-import { MediaMultiSelect } from "@/src/components/ui/MediaMultiSelect";
+import { StoreIdentitySelector } from "./StoreIdentitySelector"; // استدعاء المكون الجديد
+import { StoreBannerSelector } from "./StoreBannerSelector";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
 import { useGetCities } from "../../cities/hooks";
@@ -16,6 +16,7 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
 import { Step2FormData } from "../types";
+import { CityMultiSelect } from "./CityMultiSelect";
 
 interface AddStoreStep2Props {
   storeType: StoreType;
@@ -39,7 +40,7 @@ export function AddStoreStep2({
     cover_previews: initialData?.cover_previews || [],
     description: initialData?.description || "",
     email: initialData?.email || "",
-    city_id: initialData?.city_id || "",
+    city_id: initialData?.city_id || [],
     address: initialData?.address || "",
     owner_id: initialData?.owner_id || "",
     currency_id: initialData?.currency_id || "",
@@ -73,6 +74,11 @@ export function AddStoreStep2({
       newErrors.name = "اسم المتجر مطلوب";
     }
 
+    // إضافة تحقق من الصورة إذا كانت مطلوبة
+    if (!formData.logo) {
+      newErrors.logo = "شعار المتجر مطلوب";
+    }
+
     if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "البريد الإلكتروني غير صالح";
     }
@@ -93,7 +99,8 @@ export function AddStoreStep2({
     } else {
       const firstError = Object.keys(errors)[0];
       if (firstError) {
-        const element = document.querySelector(`[name="${firstError}"]`);
+        // Scroll logic slightly adjusted to handle custom components better if needed
+        const element = document.querySelector(`[name="${firstError}"]`) || document.querySelector(".text-red-500");
         element?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
@@ -131,10 +138,8 @@ export function AddStoreStep2({
                   error={errors.name}
                 />
 
-                <MediaSelectButton
-                  label="هوية متجرك"
-                  width={200}
-                  height={200}
+                {/* المكون الجديد لهوية المتجر */}
+                <StoreIdentitySelector
                   value={formData.logo}
                   previewUrl={formData.logo_preview}
                   onChange={(fileName, src) => {
@@ -144,34 +149,23 @@ export function AddStoreStep2({
                       logo_preview: src,
                     });
                   }}
-                  accept="image/png,image/jpeg,image/jpg"
-                  primaryText="رفع صورة"
-                  allowedMediaTypes={["avatar", "image"]}
                   error={errors.logo}
                 />
 
-                <div className="space-y-2">
-                  <Label className="block text-sm font-medium text-gray-900">
-                    بنر المتجر (يمكنك إضافة حتى 10 بنرات)
-                  </Label>
-                  <MediaMultiSelect
-                    value={formData.cover}
-                    previewUrls={formData.cover_previews}
-                    onChange={(fileNames, srcs) => {
-                      setFormData({
-                        ...formData,
-                        cover: fileNames,
-                        cover_previews: srcs,
-                      });
-                    }}
-                    maxFiles={10}
-                    allowedMediaTypes={["image", "gallery"]}
-                    infoText={["المقاسات المناسبة لرفع الصورة 680 × 180 بكسل"]}
-                  />
-                  {errors.cover && (
-                    <p className="text-xs text-red-500">{errors.cover}</p>
-                  )}
-                </div>
+                {/* مكون البنرات الجديد */}
+                <StoreBannerSelector
+                  value={formData.cover}
+                  previews={formData.cover_previews}
+                  onChange={(fileNames, srcs) => {
+                    setFormData({
+                      ...formData,
+                      cover: fileNames,
+                      cover_previews: srcs,
+                    });
+                  }}
+                  maxFiles={10}
+                  error={errors.cover}
+                />
 
                 <div className="space-y-2">
                   <Label
@@ -203,19 +197,11 @@ export function AddStoreStep2({
                   error={errors.email}
                 />
 
-                <FormSelect
-                  label="المدينة"
-                  value={formData.city_id}
-                  onChange={(e) =>
-                    setFormData({ ...formData, city_id: e.target.value })
-                  }
-                  options={[
-                    { value: "", label: "اختر المدينة" },
-                    ...cities.map((city) => ({
-                      value: city.id.toString(),
-                      label: city.name,
-                    })),
-                  ]}
+                <CityMultiSelect
+                  cities={cities}
+                  selectedCityIds={formData.city_id}
+                  onChange={(ids) => setFormData({ ...formData, city_id: ids })}
+                  error={errors.city_id}
                 />
 
                 <div className="space-y-2">

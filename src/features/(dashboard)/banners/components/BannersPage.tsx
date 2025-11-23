@@ -172,9 +172,7 @@ export function BannersPage() {
                 </button>
               </div>
               <ReusableDropdown
-                triggerIcon={
-                  <Circle className="w-4 h-4 text-blue-3 flex-shrink-0" />
-                }
+           
                 placeholder="حالة الإعلان"
                 options={filterOptions}
                 value={filterStatus}
@@ -182,6 +180,7 @@ export function BannersPage() {
                   setFilterStatus(value as FilterStatus);
                   setCurrentPage(1);
                 }}
+                className="min-w-[140px]"
               />
               <ReusableDropdown
                 placeholder="ترتيب حسب..."

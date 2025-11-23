@@ -17,100 +17,104 @@ interface StorePreviewSidebarProps {
 export function StorePreviewSidebar({ data }: StorePreviewSidebarProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 sticky top-6">
-      <h3 className=" font-medium text-blue-4 mb-6 text-center">
+      <h3 className="font-medium text-blue-4 mb-6 text-center text-lg">
         معاينة صفحة المتجر
       </h3>
 
-      {/* Browser Mockup */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      {/* Browser Mockup Container */}
+      <div className="bg-white rounded-lg overflow-hidden ">
         {/* Browser Header */}
-        <div className="bg-[#FFE5E5] px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#FF5F5F]" />
-            <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
-            <div className="w-3 h-3 rounded-full bg-[#27C93F]" />
+        <div className="bg-[#FFE5E5] px-4 h-8 flex items-center justify-between direction-rtl">
+          {/* Dots (Right Side) */}
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-[#FF5F5F]" />
+            <div className="w-2 h-2 rounded-full bg-[#FFBD2E]" />
+            <div className="w-2 h-2 rounded-full bg-[#27C93F]" />
           </div>
-          <div className="flex-1 mx-4 bg-white rounded px-3 py-1">
-            <div className="w-2 h-2 bg-gray-300 rounded" />
-          </div>
+          {/* Fake Address Bar (Left Side) */}
+          <div className="w-24 h-3 bg-white/90 rounded-xs" />
         </div>
 
         {/* Browser Content */}
-        <div className="p-6 bg-gray-50 min-h-[400px]">
-          {/* Store Logo & Info */}
-          <div className="flex items-start gap-4 mb-4">
-            {/* Placeholder boxes */}
-            <div className="space-y-2">
-              <div className="w-16 h-3 bg-gray-200 rounded" />
-              <div className="w-12 h-3 bg-gray-200 rounded" />
-              <div className="w-14 h-3 bg-gray-200 rounded" />
-            </div>
+        <div className="bg-[#FAFAFA] min-h-[450px] pb-8">
+          {/* Cover Area (Twitter Style) */}
+          <div className="h-20 bg-[#F9FAFC] w-full flex items-center justify-center relative mb-2">
+            {/* Cover Placeholder Icon */}
+            <svg
+              className="w-10 h-10 text-gray-200"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+          </div>
 
-            {/* Empty image placeholder on left side */}
-            <div className="flex-shrink-0">
-              <div className="w-20 h-20 bg-gray-200 rounded" />
-            </div>
-
-            {/* Logo with yellow ring */}
-            <div className="relative flex-shrink-0">
-              <div className="w-24 h-24 rounded-full border-4 border-yellow-400 bg-white flex items-center justify-center overflow-hidden">
-                {data.logo ? (
-                  <img
-                    src={data.logo}
-                    alt="Store Logo"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="text-center p-2">
-                    <svg
-                      className="w-12 h-12 text-gray-300 mx-auto"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+          {/* Profile Info Bar (Overlapping Cover) */}
+          <div className="px-6 relative">
+            <div className="flex justify-between items-end -mt-12 mb-6">
+              {/* Right Side: Logo & Name */}
+              <div className="flex items-end gap-2">
+                {/* Logo Container */}
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full border-[2px] border-[#DFB400] bg-gray-200 shadow-sm flex items-center justify-center overflow-hidden">
+                    {data.logo ? (
+                      <img
+                        src={data.logo}
+                        alt="Store Logo"
+                        className="w-full h-full object-cover"
                       />
-                    </svg>
+                    ) : (
+                      <div className="text-3xl font-bold text-gray-800">
+                        {data.name ? data.name.charAt(0).toUpperCase() : "S"}
+                      </div>
+                    )}
                   </div>
-                )}
+                  {/* Verification Badge */}
+                  <div className="absolute bottom-0 left-0 w-6 h-6 bg-[#F4B740] rounded-full flex items-center justify-center border-2 border-white text-white">
+                    <img src="/icons/dashboard/correct.svg" className="w-4 h-4 mt-[1px] me-[1px]" alt="" />
+                  </div>
+                </div>
+
+                {/* Store Name */}
+                <div className="mb-3">
+                  {data.name ? (
+                    <h2 className=" font-medium text-sm leading-tight">
+                      {data.name}
+                    </h2>
+                  ) : (
+                    <h2 className=" font-medium leading-tight">
+                      متجر الأفضل
+                    </h2>
+                  )}
+                </div>
               </div>
-              {/* Yellow edit button */}
-              <div className="absolute bottom-0 right-0 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-white">
-                <svg
-                  className="w-4 h-4 text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                </svg>
+
+              {/* Left Side: Social Placeholders */}
+              <div className="flex flex-col gap-1 mb-3">
+                <div className="flex gap-2">
+                  <div className="w-6 h-6 bg-gray-200 rounded-xs" />
+                  <div className="w-6 h-6 bg-gray-200 rounded-xs" />
+                  <div className="w-6 h-6 bg-gray-200 rounded-xs" />
+                </div>
+                <div className="w-8 h-1 bg-gray-200 rounded-full" />
+                <div className="w-11 h-1 bg-gray-200 rounded-full" />
               </div>
             </div>
-          </div>
 
-          {/* Store Name */}
-          <div className="text-right mb-3">
-            {data.name ? (
-              <h2 className="text-xl font-bold text-gray-900">{data.name}</h2>
-            ) : (
-              <div className="text-lg text-gray-400">متجر الأفضل</div>
-            )}
-          </div>
-
-          {/* Description Box */}
-          <div className="rounded border border-gray-300 p-4 min-h-[150px]">
-            {data.description ? (
-              <p className="text-sm ">
-                {data.description}
-              </p>
-            ) : (
-              <p className="text-sm ">
-                هنا مثال لوصف المتجر
-              </p>
-            )}
+            {/* Description Box */}
+            <div className="border border-gray-200 rounded p-2 min-h-[140px]">
+              {data.description ? (
+                <p className="text-sm leading-relaxed">
+                  {data.description}
+                </p>
+              ) : (
+                <p className="text-sm text-gray-500">هنا مثال لوصف المتجر</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
