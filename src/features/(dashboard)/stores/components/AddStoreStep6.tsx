@@ -20,6 +20,7 @@ interface AddStoreStep6Props {
   initialData?: Step6FormData;
   onNext: (data: Step6FormData) => void;
   onBack: () => void;
+    barSteps: { number: number; label: string; completed: boolean }[];
 }
 
 export function AddStoreStep6({
@@ -28,6 +29,7 @@ export function AddStoreStep6({
   initialData,
   onNext,
   onBack,
+  barSteps
 }: AddStoreStep6Props) {
   const [deliveryType, setDeliveryType] = useState<DeliveryType>(
     initialData?.delivery_type || "shipping"
@@ -44,15 +46,7 @@ export function AddStoreStep6({
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
 
-  const steps = [
-    { number: 1, label: "البيانات الأساسية", completed: true },
-    { number: 2, label: "الاتصال والسوشيال ميديا", completed: true },
-    { number: 3, label: "موظفين المتجر", completed: true },
-    { number: 4, label: "أوقات العمل و العطلات", completed: true },
-    { number: 5, label: "طريقة الشحن", completed: false },
-    { number: 6, label: "الكلمات المفتاحية", completed: false },
-  ];
-
+  const steps = barSteps;
   const breadcrumbItems = [
     { label: "الرئيسية", href: "/admin" },
     { label: "المتاجر", href: "/admin/stores" },

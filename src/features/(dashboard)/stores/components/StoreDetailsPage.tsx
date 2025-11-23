@@ -404,7 +404,7 @@ function ManagerRow({ manager }: ManagerRowProps) {
           </h3>
           <div className="flex items-center gap-2">
             <a
-              href={`mailto:${manager.email}`}
+              href={`mailto:${manager.user?.email}`}
               className="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-gray-100 transition-colors cursor-pointer"
             >
               <img src="/icons/dashboard/sms.svg" alt="email" className="w-4 h-4" />
@@ -435,7 +435,7 @@ function ManagerRow({ manager }: ManagerRowProps) {
           </div>
           <div>
             <p className="text-gray-500 mb-1">البريد الإلكتروني</p>
-            <p className="font-medium  truncate">{manager.email}</p>
+            <p className="font-medium  truncate">{manager.user?.email}</p>
           </div>
           <div>
             <p className="text-gray-500 mb-1">تاريخ الانضمام</p>

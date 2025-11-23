@@ -1,3 +1,4 @@
+"use client"
 import { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/src/components/ui/button";
@@ -14,6 +15,7 @@ interface AddStoreStep3Props {
   initialData?: Step3FormData;
   onNext: (data: Step3FormData) => void;
   onBack: () => void;
+  barSteps: { number: number; label: string; completed: boolean }[];
 }
 
 export function AddStoreStep3({
@@ -22,6 +24,7 @@ export function AddStoreStep3({
   initialData,
   onNext,
   onBack,
+  barSteps,
 }: AddStoreStep3Props) {
   const router = useRouter();
   const [phoneCountryCode, setPhoneCountryCode] = useState("+20");
@@ -37,15 +40,7 @@ export function AddStoreStep3({
     youtube: initialData?.youtube || "",
   });
 
-  const steps = [
-    { number: 1, label: "البيانات الأساسية", completed: true },
-    { number: 2, label: "الاتصال والسوشيال ميديا", completed: false },
-    { number: 3, label: "موظفين المتجر", completed: false },
-    { number: 4, label: "أوقات العمل و العطلات", completed: false },
-    { number: 5, label: "طريقة الشحن", completed: false },
-    { number: 6, label: "الكلمات المفتاحية", completed: false },
-  ];
-
+  const steps = barSteps;
   const breadcrumbItems = [
     { label: "الرئيسية", href: "/admin" },
     { label: "المتاجر", href: "/admin/stores" },

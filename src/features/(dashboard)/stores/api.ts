@@ -35,6 +35,17 @@ export interface Currency {
   status: string;
 }
 
+export interface City {
+  id: number;
+  name: string;
+}
+
+export interface District {
+  id: number;
+  name: string;
+  city_id: number;
+}
+
 export interface WorkingTime {
   id?: number;
   day: string;
@@ -68,6 +79,7 @@ export interface ShippingCompany {
   prices: ShippingPrice[];
 }
 
+// ✅ Store Interface - للـ Response من الـ API
 export interface Store {
   id: number;
   slug: string;
@@ -94,8 +106,10 @@ export interface Store {
   owner?: Owner;
   currency_id: string | number;
   currency?: Currency;
-  city_id: number[];
+  city_id: number | null;  // ✅ في الـ Response قد يكون null
+  city?: City | null;
   district_id: number | null;
+  district?: District | null;
   whats_app: string | null;
   tiktok: string | null;
   facebook: string | null;
@@ -124,6 +138,7 @@ export interface SingleStoreResponse extends BaseResponse {
   record: Store;
 }
 
+// ✅ StoreCreatePayload - للإرسال للـ API
 export interface StoreCreatePayload {
   type: StoreType;
   name: string;
@@ -132,7 +147,7 @@ export interface StoreCreatePayload {
   cover: string[];
   description: string;
   email: string;
-  city_id: number | null;
+  city_id: number[];  // ✅ في الإرسال دائماً array
   district_id: number | null;
   address: string;
   lng: string | null;

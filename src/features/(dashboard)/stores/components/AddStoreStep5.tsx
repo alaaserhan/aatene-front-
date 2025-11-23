@@ -17,6 +17,7 @@ interface AddStoreStep5Props {
   initialData?: Step5FormData;
   onNext: (data: Step5FormData) => void;
   onBack: () => void;
+  barSteps: { number: number; label: string; completed: boolean }[];
 }
 
 const DAYS = [
@@ -35,6 +36,7 @@ export function AddStoreStep5({
   initialData,
   onNext,
   onBack,
+  barSteps,
 }: AddStoreStep5Props) {
   const [openStatus, setOpenStatus] = useState<OpenStatus>(
     initialData?.open_status || "open_with_working_times"
@@ -42,24 +44,16 @@ export function AddStoreStep5({
 
   const [workingTimes, setWorkingTimes] = useState<WorkingTime[]>(
     initialData?.workingtimes ||
-      DAYS.map((day) => ({
-        day: day.value,
-        from: "08:00",
-        to: "20:00",
-        open_always: false,
-        closed_always: false,
-      }))
+    DAYS.map((day) => ({
+      day: day.value,
+      from: "08:00",
+      to: "20:00",
+      open_always: false,
+      closed_always: false,
+    }))
   );
 
-  const steps = [
-    { number: 1, label: "البيانات الأساسية", completed: true },
-    { number: 2, label: "الاتصال والسوشيال ميديا", completed: true },
-    { number: 3, label: "موظفين المتجر", completed: true },
-    { number: 4, label: "أوقات العمل و العطلات", completed: false },
-    { number: 5, label: "طريقة الشحن", completed: false },
-    { number: 6, label: "الكلمات المفتاحية", completed: false },
-  ];
-
+  const steps = barSteps;
   const breadcrumbItems = [
     { label: "الرئيسية", href: "/admin" },
     { label: "المتاجر", href: "/admin/stores" },

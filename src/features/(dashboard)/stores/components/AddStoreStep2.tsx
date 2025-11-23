@@ -28,6 +28,7 @@ interface AddStoreStep2Props {
   onNext: (data: Step2FormData) => void;
   onBack: () => void;
   currentUserId?: string;
+  barSteps: { number: number; label: string; completed: boolean }[];
 }
 
 export function AddStoreStep2({
@@ -36,6 +37,7 @@ export function AddStoreStep2({
   onNext,
   onBack,
   currentUserId,
+  barSteps
 }: AddStoreStep2Props) {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
@@ -83,14 +85,7 @@ export function AddStoreStep2({
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
 
-  const steps = [
-    { number: 1, label: "البيانات الأساسية", completed: false },
-    { number: 2, label: "الاتصال والسوشيال ميديا", completed: false },
-    { number: 3, label: "موظفين المتجر", completed: false },
-    { number: 4, label: "أوقات العمل و العطلات", completed: false },
-    { number: 5, label: "طريقة الشحن", completed: false },
-    { number: 6, label: "الكلمات المفتاحية", completed: false },
-  ];
+  const steps = barSteps
 
   const breadcrumbItems = [
     { label: "الرئيسية", href: "/admin" },
@@ -277,17 +272,17 @@ export function AddStoreStep2({
                   {/* 3. تطبيق المنطق: إذا كان Admin، اعرض قائمة منسدلة قابلة للاختيار */}
                   {isAdmin ? (
                     <div className="flex flex-col">
-                    <label htmlFor="" className="mb-3 text-sm font-medium">المالك</label>
-                    <ReusableDropdown
-                      placeholder={isUsersLoading ? "جاري جلب المالكين..." : "اختر المالك"}
-                      options={ownerDropdownOptions}
-                      value={formData.owner_id}
-                      onChange={(value) =>
-                        setFormData({ ...formData, owner_id: String(value) })
-                      }
-                      error={errors.owner_id}
-                      className="h-11"
-                    />
+                      <label htmlFor="" className="mb-3 text-sm font-medium">المالك</label>
+                      <ReusableDropdown
+                        placeholder={isUsersLoading ? "جاري جلب المالكين..." : "اختر المالك"}
+                        options={ownerDropdownOptions}
+                        value={formData.owner_id}
+                        onChange={(value) =>
+                          setFormData({ ...formData, owner_id: String(value) })
+                        }
+                        error={errors.owner_id}
+                        className="h-11"
+                      />
                     </div>
                   ) : (
                     // 4. في حالة Merchant، إخفاء الحقل وتعيين المالك مسبقًا

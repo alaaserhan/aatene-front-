@@ -18,6 +18,7 @@ interface AddStoreStep7Props {
   onSave: (data: Step7FormData) => Promise<void>;
   onBack: () => void;
   isSubmitting?: boolean;
+  barSteps: { number: number; label: string; completed: boolean }[];
 }
 
 const TooltipContent = ({
@@ -63,18 +64,12 @@ export function AddStoreStep7({
   onSave,
   onBack,
   isSubmitting = false,
+  barSteps
 }: AddStoreStep7Props) {
   const [tags, setTags] = useState<string[]>(initialData?.tags || []);
   const [inputValue, setInputValue] = useState("");
 
-  const steps = [
-    { number: 1, label: "البيانات الأساسية", completed: true },
-    { number: 2, label: "الاتصال والسوشيال ميديا", completed: true },
-    { number: 3, label: "موظفين المتجر", completed: true },
-    { number: 4, label: "أوقات العمل و العطلات", completed: true },
-    { number: 5, label: "طريقة الشحن", completed: true },
-    { number: 6, label: "الكلمات المفتاحية", completed: false },
-  ];
+  const steps = barSteps;
 
   const breadcrumbItems = [
     { label: "الرئيسية", href: "/admin" },

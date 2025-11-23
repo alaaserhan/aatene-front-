@@ -20,6 +20,7 @@ interface AddStoreStep4Props {
   initialData?: Step4FormData;
   onNext: (data: Step4FormData) => void;
   onBack: () => void;
+  barSteps: { number: number; label: string; completed: boolean }[];
 }
 
 interface NewManagerForm {
@@ -35,11 +36,15 @@ export function AddStoreStep4({
   initialData,
   onNext,
   onBack,
+  barSteps
 }: AddStoreStep4Props) {
   const [activeTab, setActiveTab] = useState<"list" | "add">("add");
   const [managers, setManagers] = useState<StoreManager[]>(
     initialData?.managers || []
   );
+
+  // حالة لتتبع الموظف الذي يتم تعديله حالياً (-1 يعني إضافة جديد)
+  const [editingIndex, setEditingIndex] = useState<number>(-1);
 
   const [newManager, setNewManager] = useState<NewManagerForm>({
     name: "",
@@ -50,14 +55,7 @@ export function AddStoreStep4({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const steps = [
-    { number: 1, label: "البيانات الأساسية", completed: true },
-    { number: 2, label: "الاتصال والسوشيال ميديا", completed: true },
-    { number: 3, label: "موظفين المتجر", completed: false },
-    { number: 4, label: "أوقات العمل و العطلات", completed: false },
-    { number: 5, label: "طريقة الشحن", completed: false },
-    { number: 6, label: "الكلمات المفتاحية", completed: false },
-  ];
+  const steps = barSteps;
 
   const breadcrumbItems = [
     { label: "الرئيسية", href: "/admin" },
@@ -94,21 +92,33 @@ export function AddStoreStep4({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleAddManager = () => {
+  const handleSaveManager = () => {
     if (validateManager()) {
-      const managerToAdd: StoreManager = {
-        email: newManager.email,
+      const managerData: StoreManager = {
+        user_email: newManager.email,
         title: newManager.title,
         status: newManager.status,
+        user_name: newManager.name,
       };
 
-      setManagers([...managers, managerToAdd]);
+      if (editingIndex >= 0) {
+        // تحديث موظف موجود
+        const updatedManagers = [...managers];
+        updatedManagers[editingIndex] = managerData;
+        setManagers(updatedManagers);
+      } else {
+        // إضافة موظف جديد
+        setManagers([...managers, managerData]);
+      }
+
+      // إعادة تعيين النموذج
       setNewManager({
         name: "",
         email: "",
         title: "",
         status: "active",
       });
+      setEditingIndex(-1);
       setActiveTab("list");
       setErrors({});
     }
@@ -119,7 +129,17 @@ export function AddStoreStep4({
   };
 
   const handleEditManager = (index: number) => {
-    console.log("Edit manager at index:", index);
+    const managerToEdit = managers[index];
+    setNewManager({
+      name: managerToEdit.user_name || "",
+      email: managerToEdit?.user_email || "",
+      title: managerToEdit.title,
+      status: managerToEdit.status,
+    });
+    setEditingIndex(index);
+    setActiveTab("add");
+    // مسح الأخطاء السابقة عند فتح التعديل
+    setErrors({});
   };
 
   const handleNext = () => {
@@ -133,7 +153,9 @@ export function AddStoreStep4({
       title: "",
       status: "active",
     });
+    setEditingIndex(-1);
     setErrors({});
+    setActiveTab("list");
   };
 
   return (
@@ -160,7 +182,20 @@ export function AddStoreStep4({
                   جدول الموظفين
                 </button>
                 <button
-                  onClick={() => setActiveTab("add")}
+                  onClick={() => {
+                    setActiveTab("add");
+                    // عند الضغط يدوياً على التاب، نعتبرها إضافة جديدة ونصفر التعديل
+                    if (activeTab !== "add") {
+                       setNewManager({
+                          name: "",
+                          email: "",
+                          title: "",
+                          status: "active",
+                       });
+                       setEditingIndex(-1);
+                       setErrors({});
+                    }
+                  }}
                   className={cn(
                     "flex-1 py-3 text-sm font-bold transition-colors border-s border-gray-300",
                     activeTab === "add"
@@ -168,7 +203,7 @@ export function AddStoreStep4({
                       : "bg-white text-gray-2 hover:bg-gray-50"
                   )}
                 >
-                  اضافة الموظفين
+                  {editingIndex >= 0 ? "تعديل بيانات الموظف" : "اضافة الموظفين"}
                 </button>
               </div>
 
@@ -205,7 +240,6 @@ export function AddStoreStep4({
                         setNewManager({ ...newManager, title: value })
                       }
                       placeholder="مسؤول طلبات"
-                      showSelectedLabel={true}
                       className="w-full"
                     />
                     {errors.title && (
@@ -227,7 +261,6 @@ export function AddStoreStep4({
                         })
                       }
                       placeholder="اختر الحالة"
-                      showSelectedLabel={true}
                       className="w-full"
                     />
                   </div>
@@ -241,11 +274,11 @@ export function AddStoreStep4({
                       إلغاء
                     </Button>
                     <Button
-                      onClick={handleAddManager}
+                      onClick={handleSaveManager}
                       className="px-6 py-2 cursor-pointer rounded-sm text-white h-10"
                       style={{ backgroundColor: "#3A5779" }}
                     >
-                      ارسال دعوة
+                      {editingIndex >= 0 ? "حفظ التعديلات" : "ارسال دعوة"}
                     </Button>
                   </div>
                 </div>
@@ -257,7 +290,6 @@ export function AddStoreStep4({
                         <tr>
                           <th className="p-4 text-start">اسم الموظف</th>
                           <th className="p-4 text-start">الايميل</th>
-                          <th className="p-4 text-start">رقم الهاتف</th>
                           <th className="p-4 text-center">حاله الموظف</th>
                           <th className="p-4 text-start">الاجراءات</th>
                         </tr>
@@ -272,10 +304,7 @@ export function AddStoreStep4({
                         ) : (
                           managers.map((manager, index) => {
                             const displayName =
-                              manager.user
-                                ? `${manager.user.first_name} ${manager.user.last_name}`
-                                : "-";
-                            const displayPhone = manager.user?.phone || "-";
+                              manager.user_name || "اسم غير متوفر";
 
                             return (
                               <tr
@@ -283,8 +312,7 @@ export function AddStoreStep4({
                                 className="hover:bg-gray-50 text-blue-4"
                               >
                                 <td className="p-4 font-medium ">{displayName}</td>
-                                <td className="p-4 ">{manager.email}</td>
-                                <td className="p-4 ">{displayPhone}</td>
+                                <td className="p-4 ">{manager.user_email}</td>
                                 <td className="p-4">
                                   <div className="">
                                     <span
@@ -305,7 +333,7 @@ export function AddStoreStep4({
                                   <div className="flex items-center gap-2">
                                     <button
                                       onClick={() => handleEditManager(index)}
-                                      className="p-2 bg-[#3A57791A] hover:bg-blue-100 rounded text-[#3A5779] transition-colors"
+                                      className="p-2 bg-[#3A57791A] hover:bg-blue-100 rounded text-[#3A5779] transition-colors cursor-pointer"
                                       title="تعديل"
                                     >
                                       <img
@@ -316,7 +344,7 @@ export function AddStoreStep4({
                                     </button>
                                     <button
                                       onClick={() => handleRemoveManager(index)}
-                                      className="p-2 bg-[#FB37481A] hover:bg-red-100 rounded text-[#FB3748] transition-colors"
+                                      className="p-2 bg-[#FB37481A] hover:bg-red-100 rounded text-[#FB3748] transition-colors cursor-pointer"
                                       title="حذف"
                                     >
                                       <img
