@@ -62,10 +62,8 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
     setCurrentStep(3);
   };
 
-  // ✅ تعديل: الانتقال من الخطوة 5 (أوقات العمل)
   const handleStep5Next = (data: Step5FormData) => {
     setFormData({ ...formData, step5: data });
-    // إذا كان متجر خدمات، انتقل مباشرة إلى 7 (تخطي 6: الشحن)
     if (storeType === "services") {
       setCurrentStep(7);
     } else {
@@ -101,10 +99,9 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
       return;
     }
 
-    // ✅ نستخدم (!) للتأكيد لـ TypeScript أن البيانات موجودة
     const basePayload = {
       type: updatedFormData.type,
-      name: updatedFormData.step2!.name, // 👈 لاحظ علامة التعجب
+      name: updatedFormData.step2!.name,
       logo: updatedFormData.step2!.logo || "",
       status: "active" as const,
       cover: updatedFormData.step2!.cover,
@@ -117,7 +114,7 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
       lat: null,
       owner_id: Number(updatedFormData.step2!.owner_id),
       currency_id: Number(updatedFormData.step2!.currency_id),
-      phone: updatedFormData.step3!.phone, // 👈 وكذلك هنا للخطوات الأخرى
+      phone: updatedFormData.step3!.phone,
       whats_app: updatedFormData.step3!.whats_app || null,
       tiktok: updatedFormData.step3!.tiktok || null,
       facebook: updatedFormData.step3!.facebook || null,
@@ -136,7 +133,6 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
     if (updatedFormData.type === "products") {
       payload = {
         ...basePayload,
-        // هنا step6 مضمونة الوجود لأننا تحققنا منها في الأعلى
         delivery_type: updatedFormData.step6!.delivery_type,
         shippingCompanies: updatedFormData.step6!.shippingCompanies,
         locationCities: updatedFormData.step2!.city_id,
@@ -145,8 +141,8 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
     } else {
       payload = {
         ...basePayload,
-        locationCities: [],
-        serviceCities: updatedFormData.step2!.city_id,
+        locationCities: updatedFormData.step2!.city_id,
+        serviceCities: updatedFormData.step2!.service_cities || [],
       };
     }
 
@@ -158,11 +154,10 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
     }
   };
   const handleStep7Back = () => {
-    // ✅ تعديل: العودة من الخطوة 7
     if (storeType === "services") {
-      setCurrentStep(5); // عودة إلى أوقات العمل
+      setCurrentStep(5);
     } else {
-      setCurrentStep(6); // عودة إلى الشحن
+      setCurrentStep(6);
     }
   };
 
@@ -240,7 +235,6 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
         );
 
       case 6:
-        // إضافة تحقق إضافي لعدم عرض هذه الخطوة للمتاجر الخدمية
         if (storeType === "services") {
           setCurrentStep(7);
           return null;

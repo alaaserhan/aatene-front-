@@ -15,12 +15,13 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
 import { Step2FormData } from "../types";
-import { CityMultiSelect } from "./CityMultiSelect";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { useGetUsers } from "../../users/hooks";
 import { useGetCurrencies } from "../../currencies/hooks";
 import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { OptionTag } from "@/src/components/ui/OptionTag"; 
+import { CityMultiSelect } from "./CityMultiSelect";
 
 interface AddStoreStep2Props {
   storeType: StoreType;
@@ -43,6 +44,7 @@ export function AddStoreStep2({
   const user = useAuthStore((state) => state.user);
   const userType = user?.user_type;
   const isAdmin = userType === "admin";
+  
   const [formData, setFormData] = useState<Step2FormData>({
     name: initialData?.name || "",
     logo: initialData?.logo || null,
@@ -52,6 +54,7 @@ export function AddStoreStep2({
     description: initialData?.description || "",
     email: initialData?.email || "",
     city_id: initialData?.city_id || [],
+    service_cities: initialData?.service_cities || [],
     address: initialData?.address || "",
     owner_id: initialData?.owner_id || (!isAdmin && currentUserId ? currentUserId : ""),
     currency_id: initialData?.currency_id || "",
@@ -61,8 +64,9 @@ export function AddStoreStep2({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: usersData, isLoading: isUsersLoading } = useGetUsers(
-    new URLSearchParams("per_page=100")
-    , { enabled: isAdmin });
+    new URLSearchParams("per_page=100"), 
+    { enabled: isAdmin }
+  );
 
   const ownersOptions = usersData?.data
     ? usersData.data.map((user) => ({
@@ -90,6 +94,11 @@ export function AddStoreStep2({
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
 
+  const cityOptions = cities.map((city) => ({
+    label: city.name,
+    value: String(city.id),
+  }));
+
   const steps = barSteps;
 
   const breadcrumbItems = [
@@ -113,12 +122,22 @@ export function AddStoreStep2({
       newErrors.email = "البريد الإلكتروني غير صالح";
     }
 
+    if (formData.city_id.length === 0) {
+      newErrors.city_id = "المدينة مطلوبة";
+    }
+
     if (isAdmin && !formData.owner_id) {
       newErrors.owner_id = "يجب اختيار مالك المتجر";
     }
 
     if (!formData.currency_id) {
       newErrors.currency_id = "يجب اختيار العملة";
+    }
+
+    if (storeType === "services") {
+      if (!formData.service_cities || formData.service_cities.length === 0) {
+        newErrors.service_cities = "يجب اختيار منطقة واحدة على الأقل";
+      }
     }
 
     setErrors(newErrors);
@@ -145,6 +164,26 @@ export function AddStoreStep2({
 
   const handleCancel = () => {
     router.push("/admin/stores");
+  };
+
+  const handleAddServiceCity = (cityIdStr: string) => {
+    const cityId = parseInt(cityIdStr);
+    const currentServiceCities = formData.service_cities || [];
+    
+    if (!currentServiceCities.includes(cityId)) {
+      setFormData({
+        ...formData,
+        service_cities: [...currentServiceCities, cityId]
+      });
+    }
+  };
+
+  const handleRemoveServiceCity = (cityId: number) => {
+    const currentServiceCities = formData.service_cities || [];
+    setFormData({
+      ...formData,
+      service_cities: currentServiceCities.filter(id => id !== cityId)
+    });
   };
 
   return (
@@ -236,12 +275,13 @@ export function AddStoreStep2({
                   error={errors.email}
                 />
 
-                <CityMultiSelect
+              <CityMultiSelect
                   cities={cities}
                   selectedCityIds={formData.city_id}
                   onChange={(ids) => setFormData({ ...formData, city_id: ids })}
                   error={errors.city_id}
                 />
+
 
                 <div className="space-y-2">
                   <Label className="text-start text-sm font-medium ">
@@ -271,6 +311,38 @@ export function AddStoreStep2({
                     </Button>
                   </div>
                 </div>
+                
+                {storeType === "services" && (
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">المناطق التي يمكنك العمل بها</Label>
+                    <ReusableDropdown
+                      options={cityOptions.filter(opt => !formData.service_cities?.includes(parseInt(opt.value)))}
+                      value=""
+                      onChange={handleAddServiceCity}
+                      placeholder="أضف مدينة جديدة"
+                      error={errors.service_cities}
+                      className="h-11"
+                      triggerIcon={
+                        <img src="/icons/dashboard/mark.svg" alt="" className="w-5 h-5 opacity-50" />
+                      }
+                    />
+                    
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {formData.service_cities?.map((cityId) => {
+                         const city = cities.find(c => c.id === cityId);
+                         if(!city) return null;
+                         return (
+                           <OptionTag 
+                             key={cityId}
+                             label={city.name}
+                             onRemove={() => handleRemoveServiceCity(cityId)}
+                             showRemoveButton={true}
+                           />
+                         );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {isAdmin ? (
