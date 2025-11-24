@@ -200,7 +200,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {store.whats_app && (
               <SocialRow
-                icon={<img src="/icons/dashboard/phone2.svg" alt="whatsapp" className="w-5 h-5" />}
+                icon={<img src="/icons/dashboard/whatsapp2.svg" alt="whatsapp" className="w-6 h-6" />}
                 label="الواتساب"
                 value={store.whats_app}
               />
@@ -208,7 +208,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
 
             {store.phone && (
               <SocialRow
-                icon={<img src="/icons/dashboard/phone2.svg" alt="phone" className="w-5 h-5" />}
+                icon={<img src="/icons/dashboard/phone3.svg" alt="phone" className="w-5 h-5" />}
                 label="الهاتف المحمول"
                 value={store.phone}
               />
@@ -216,7 +216,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
 
             {store.facebook && (
               <SocialRow
-                icon={<img src="/icons/dashboard/facebook.svg" alt="facebook" className="w-5 h-5" />}
+                icon={<img src="/icons/dashboard/facebook2.svg" alt="facebook" className="w-6 h-6" />}
                 label="فيسبوك"
                 value={store.facebook}
               />
@@ -224,7 +224,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
 
             {store.youtube && (
               <SocialRow
-                icon={<img src="/icons/dashboard/youtube.svg" alt="youtube" className="w-5 h-5" />}
+                icon={<img src="/icons/dashboard/youtube2.svg" alt="youtube" className="w-6 h-6" />}
                 label="يوتيوب"
                 value={store.youtube}
               />
@@ -232,7 +232,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
 
             {store.instagram && (
               <SocialRow
-                icon={<img src="/icons/dashboard/insta.svg" alt="instagram" className="w-5 h-5" />}
+                icon={<img src="/icons/dashboard/insta2.svg" alt="instagram" className="w-6 h-6" />}
                 label="إنستجرام"
                 value={store.instagram}
               />
@@ -240,7 +240,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
 
             {store.tiktok && (
               <SocialRow
-                icon={<img src="/icons/dashboard/ticTok.svg" alt="tiktok" className="w-5 h-5" />}
+                icon={<img src="/icons/dashboard/tiktok.svg" alt="tiktok" className="w-6 h-6" />}
                 label="تيك توك"
                 value={store.tiktok}
               />

@@ -19,8 +19,6 @@ import { Permission } from "../api";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
 import { cn } from "@/src/lib/utils";
 
-// --- المكون الداخلي للفورم ---
-
 interface PermissionFormProps {
   role?: Role | null;
   allPermissions: Permission[];
@@ -66,7 +64,7 @@ function PermissionForm({
       return;
     }
     if (!nameToSave) {
-      toast.error("الاسم البرمجى مطلوب");
+      toast.error("الاسم البرمجي مطلوب");
       return;
     }
 
@@ -120,17 +118,41 @@ function PermissionForm({
                   key={permission.id}
                   className="flex items-center justify-between py-2"
                 >
-                  <label className="flex items-center gap-3 cursor-pointer flex-1">
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => handlePermissionToggle(permission.id)}
-                      className="w-4 h-4 text-blue-3 cursor-pointer accent-blue-3"
-                    />
+                  <div
+                    className="flex items-center gap-3 cursor-pointer flex-1 select-none"
+                    onClick={() => handlePermissionToggle(permission.id)}
+                  >
+                    <button
+                      type="button"
+                      className={cn(
+                        "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer pointer-events-none",
+                        isChecked
+                          ? "bg-blue-5 border-blue-4"
+                          : "bg-white border-gray-300 group-hover:border-gray-500"
+                      )}
+                      aria-checked={isChecked}
+                      role="checkbox"
+                    >
+                      {isChecked && (
+                        <svg
+                          className="w-4 h-4 text-blue-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </button>
                     <span className="text-sm text-gray-700">
                       {permission.title}
                     </span>
-                  </label>
+                  </div>
                   <button
                     type="button"
                     className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded text-gray-500 hover:bg-gray-50 cursor-pointer opacity-50"
@@ -146,7 +168,7 @@ function PermissionForm({
       </div>
 
       <div className="bg-white rounded-lg p-6 mt-6">
-        <div className="flex gap-4 justify-center">
+        <div className="flex gap-4">
           <Button
             type="button"
             onClick={handleSaveClick}
@@ -168,7 +190,7 @@ function PermissionForm({
             variant="outline"
             onClick={onCancel}
             disabled={isMutating}
-            className="px-8 py-3 cursor-pointer text-blue-4 rounded-sm"
+            className="px-14 py-3 cursor-pointer text-blue-4 rounded-sm border-none shadow-none"
             style={{ backgroundColor: "var(--blue-5)" }}
           >
             إلغاء
@@ -178,8 +200,6 @@ function PermissionForm({
     </div>
   );
 }
-
-// --- المكون الرئيسي (الأب) ---
 
 export function PermissionsPage() {
   const [mode, setMode] = useState<"edit" | "create">("edit");
@@ -202,7 +222,7 @@ export function PermissionsPage() {
 
   const filterCategories = useMemo(() => {
     return roles.map((role: RoleListItem) => ({
-      name: role.title || "" ,
+      name: role.title || "",
       value: String(role.id),
     }));
   }, [roles]);

@@ -142,7 +142,7 @@ export function AddStoreStep2({
   };
 
   return (
-    <div className="">
+    <div className="overflow-hidden">
       <div className="container mx-auto py-4 px-4">
         <Breadcrumb items={breadcrumbItems} className="mb-4" />
         <StepperProgress currentStep={1} steps={steps} />
@@ -150,7 +150,7 @@ export function AddStoreStep2({
         <div className="grid grid-cols-12 gap-6 mt-8">
           <div className="col-span-12 lg:col-span-8">
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-8">
+              <h2 className="text-xl font-semibold  mb-8">
                 البيانات الأساسية
               </h2>
 
@@ -201,7 +201,7 @@ export function AddStoreStep2({
                 <div className="space-y-2">
                   <Label
                     htmlFor="description"
-                    className="text-start text-sm font-medium text-gray-900"
+                    className="text-start text-sm font-medium "
                   >
                     وصف المتجر
                   </Label>
@@ -240,7 +240,7 @@ export function AddStoreStep2({
                 />
 
                 <div className="space-y-2">
-                  <Label className="text-start text-sm font-medium text-gray-900">
+                  <Label className="text-start text-sm font-medium ">
                     العنوان
                   </Label>
                   <div className="flex items-center gap-3 ps-3 border border-gray-300 rounded-lg focus-within:border-blue-3 bg-white">
@@ -282,6 +282,7 @@ export function AddStoreStep2({
                         }
                         error={errors.owner_id}
                         className="h-11"
+                        dropdownPosition="top"
                       />
                     </div>
                   ) : (

@@ -326,10 +326,10 @@ export function CategoriesPage() {
                 <button
                   onClick={() => setPageMode("product")}
                   className={cn(
-                    "text-sm font-semibold h-full flex items-center transition-colors",
+                    "text-sm font-semibold h-full flex items-center transition-colors cursor-pointer",
                     pageMode === "product"
-                      ? "text-[#3A5779] border-b-2 border-[#3A5779]"
-                      : "text-gray-500 hover:text-[#3A5779]"
+                      ? "text-blue-3 border-b-2 border-blue-3"
+                      : "text-gray-2 hover:text-blue-3"
                   )}
                 >
                   المنتجات
@@ -339,10 +339,10 @@ export function CategoriesPage() {
                 <button
                   onClick={() => setPageMode("service")}
                   className={cn(
-                    "text-sm font-semibold h-full flex items-center transition-colors",
+                    "text-sm font-semibold h-full flex items-center transition-colors cursor-pointer",
                     pageMode === "service"
-                      ? "text-[#3A5779] border-b-2 border-[#3A5779]"
-                      : "text-gray-500 hover:text-[#3A5779]"
+                      ? "text-blue-3 border-b-2 border-blue-3"
+                      : "text-gray-2 hover:text-blue-3"
                   )}
                 >
                   الخدمات
@@ -445,7 +445,9 @@ export function CategoriesPage() {
                 ) : categories.length === 0 ? (
                   <div className="flex items-center justify-center py-12">
                     <p className="text-sm text-gray-500">
-                      لا توجد فئات لعرضها
+                      {pageMode === "product"
+                        ? "لا توجد فئات لعرضها"
+                        : "لا توجد خدمات لعرضها"}
                     </p>
                   </div>
                 ) : (

@@ -1,7 +1,7 @@
 // src/features/(dashboard)/categoriesAndAttributes/components/CategoryModal.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { cn } from "@/src/lib/utils";
 import { Category, CategorySelectOption } from "../api";
 import {
@@ -91,6 +91,13 @@ export function CategoryModal({
   
   const [previewUrls, setPreviewUrls] = useState<string[]>(initialPreviewUrls);
 
+  useEffect(() => {
+    if (isOpen) {
+        setFormData(initialFormData);
+        setPreviewUrls(initialPreviewUrls);
+    }
+  }, [isOpen, initialFormData, initialPreviewUrls]);
+
   const parentCategoryName = parentName || "";
 
   const dropdownOptions = useMemo(() => {
@@ -106,6 +113,8 @@ export function CategoryModal({
   }, [categoryOptions]);
 
   const activeType = formData.type || currentType;
+  const isProduct = activeType === 'product';
+
 
   const handleSave = () => {
     if (!formData.name.trim()) return;
@@ -122,20 +131,24 @@ export function CategoryModal({
   if (!isOpen) return null;
 
   const getModalTitle = () => {
-    if (mode === "edit") return "تعديل الفئة";
-    if (mode === "addSub" && parentCategoryName)
-      return `إضافة فئة فرعية إلى "${parentCategoryName}"`;
-    if (mode === "addSub") return "إضافة فئة فرعية جديدة";
-    return activeType === "product"
-      ? "إضافة فئة رئيسية جديدة"
-      : "إضافة خدمة جديدة ";
+    const baseLabel = isProduct ? "فئة" : "خدمة";
+    const subItemLabel = isProduct ? "فئة فرعية" : "خدمة فرعية";
+    const mainLabel = isProduct ? "فئة رئيسية" : "خدمة";
+
+    if (mode === "edit") return `تعديل ${baseLabel}`;
+
+    if (mode === "addSub" && parentCategoryName) {
+        return `إضافة ${subItemLabel} إلى "${parentCategoryName}"`;
+    }
+    
+    return `إضافة ${mainLabel} جديدة`;
   };
 
   const getModalDescription = () => {
-    if (activeType === "service") {
-      return "ابدأ بتنظيم متجرك بإنشاء فئة خدمات جديدة. تساعدك الفئات على ترتيب الخدمات داخل متجرك لسهولة التصفح والإدارة، دون أن تؤثر على التصنيفات الرئيسية في المنصة.";
-    }
-    return "ابدأ بتنظيم متجرك بإنشاء فئة منتجات جديدة. تساعدك الفئات على ترتيب المنتجات داخل متجرك لسهولة التصفح والإدارة، دون أن تؤثر على التصنيفات الرئيسية في المنصة.";
+    const actionLabel = isProduct ? "المنتجات" : "الخدمات";
+    const itemLabel = isProduct ? "فئة منتجات" : "خدمة";
+
+    return `ابدأ بتنظيم متجرك بإنشاء ${itemLabel} جديدة. تساعدك ${itemLabel} على ترتيب ${actionLabel} داخل متجرك لسهولة التصفح والإدارة، دون أن تؤثر على التصنيفات الرئيسية في المنصة.`;
   };
 
   return (
@@ -164,7 +177,7 @@ export function CategoryModal({
                 setFormData({ ...formData, name: e.target.value })
               }
               placeholder={
-                activeType === "service" ? "اسم الخدمة" : "اسم الفئة"
+                activeType === "service" ? "ادخل اسم الخدمة" : "ادخل اسم الفئة"
               }
               className="w-full px-4 py-3 border-gray-300 rounded-xs focus:ring-2 focus:ring-blue-3 focus:border-transparent"
             />

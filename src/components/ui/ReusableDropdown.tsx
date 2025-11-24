@@ -12,12 +12,13 @@ interface DropdownOption {
 
 interface ReusableDropdownProps {
   options: DropdownOption[];
-  value?: string | null; // Allow null or undefined
+  value?: string | null;
   onChange: (value: string) => void;
   placeholder?: string;
   triggerIcon?: React.ReactNode;
   className?: string;
-  error?: string; // Add error support
+  error?: string;
+  dropdownPosition?: "top" | "bottom";
 }
 
 export function ReusableDropdown({
@@ -28,13 +29,13 @@ export function ReusableDropdown({
   triggerIcon,
   className,
   error,
+  dropdownPosition = "bottom",
 }: ReusableDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Find selected option only if value exists
-  const selectedOption = value 
-    ? options.find((opt) => opt.value === value) 
+  const selectedOption = value
+    ? options.find((opt) => opt.value === value)
     : null;
 
   useEffect(() => {
@@ -52,7 +53,7 @@ export function ReusableDropdown({
   }, []);
 
   return (
-    <div className={cn("relative ", className)} ref={dropdownRef}>
+    <div className={cn("relative", className)} ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -64,10 +65,12 @@ export function ReusableDropdown({
       >
         <div className="flex items-center gap-2 overflow-hidden">
           {triggerIcon}
-          <span className={cn(
-            "text-sm whitespace-nowrap truncate",
-            selectedOption ? "font-medium " : "text-gray-2"
-          )}>
+          <span
+            className={cn(
+              "text-sm whitespace-nowrap truncate",
+              selectedOption ? "font-medium " : "text-gray-2"
+            )}
+          >
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
@@ -80,7 +83,14 @@ export function ReusableDropdown({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full start-0 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden max-h-[240px] overflow-y-auto">
+        <div
+          className={cn(
+            "absolute start-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden max-h-[240px] overflow-y-auto",
+            dropdownPosition === "top"
+              ? "bottom-full mb-2"
+              : "top-full mt-2"
+          )}
+        >
           <div className="p-1">
             {options.length > 0 ? (
               options.map((option) => {

@@ -148,7 +148,6 @@ export function UserFormPage() {
                 </label>
                 <div className="flex items-center gap-6 ">
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <span className="text-sm">أنثى</span>
                     <input
                       type="radio"
                       value="female"
@@ -156,9 +155,9 @@ export function UserFormPage() {
                       checked={watch("gender") === "female"}
                       className="w-4 h-4 text-blue-3 cursor-pointer"
                     />
+                    <span className="text-sm">أنثى</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <span className="text-sm">ذكر</span>
                     <input
                       type="radio"
                       value="male"
@@ -166,6 +165,7 @@ export function UserFormPage() {
                       checked={watch("gender") === "male"}
                       className="w-4 h-4 text-blue-3 cursor-pointer"
                     />
+                    <span className="text-sm">ذكر</span>
                   </label>
                 </div>
               </div>
@@ -221,7 +221,7 @@ export function UserFormPage() {
               )}
             </div>
           </div>
-          
+
           <div className="flex gap-4 justify-center py-6 bg-white rounded-xl my-4">
             <Button
               type="submit"
