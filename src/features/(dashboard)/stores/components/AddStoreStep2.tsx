@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
-import { FormSelect } from "@/src/components/ui/FormSelect"; // سيتم إزالة استخدامه
 import { StoreIdentitySelector } from "./StoreIdentitySelector";
 import { StoreBannerSelector } from "./StoreBannerSelector";
 import { StepperProgress } from "./StepperProgress";
@@ -17,9 +16,10 @@ import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
 import { Step2FormData } from "../types";
 import { CityMultiSelect } from "./CityMultiSelect";
-import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown"; // يجب استدعاء المكون الجديد
-import { useGetUsers } from "../../users/hooks"; // استدعاء Hook لجلب المستخدمين
-import { cn } from "@/src/lib/utils"; // لدمج الكلاسات (حسب القاعدة 1)
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { useGetUsers } from "../../users/hooks";
+import { useGetCurrencies } from "../../currencies/hooks";
+import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 interface AddStoreStep2Props {
@@ -53,21 +53,16 @@ export function AddStoreStep2({
     email: initialData?.email || "",
     city_id: initialData?.city_id || [],
     address: initialData?.address || "",
-    // تحديد owner_id تلقائيًا في حالة Merchant إذا لم يتم تعيينه مسبقًا
     owner_id: initialData?.owner_id || (!isAdmin && currentUserId ? currentUserId : ""),
     currency_id: initialData?.currency_id || "",
   });
 
-  console.log(isAdmin);
-
-
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. جلب بيانات المستخدمين فقط إذا كان المستخدم Admin
   const { data: usersData, isLoading: isUsersLoading } = useGetUsers(
-    new URLSearchParams("per_page=100") // جلب قائمة كبيرة من المستخدمين لتكون خيارات
-    , { enabled: isAdmin }); // تفعيل الجلب فقط لـ Admin
+    new URLSearchParams("per_page=100")
+    , { enabled: isAdmin });
 
   const ownersOptions = usersData?.data
     ? usersData.data.map((user) => ({
@@ -76,16 +71,26 @@ export function AddStoreStep2({
     }))
     : [];
 
-  // إضافة خيار افتراضي في البداية
   const ownerDropdownOptions = [
     { value: "", label: isUsersLoading ? "جاري التحميل..." : "اختر المالك" },
     ...ownersOptions,
   ];
 
+  const { data: currenciesData, isLoading: isCurrenciesLoading } = useGetCurrencies(
+    new URLSearchParams("status=active&per_page=100")
+  );
+
+  const currencyOptions = currenciesData?.data
+    ? currenciesData.data.map((currency) => ({
+      label: `${currency.name} (${currency.code})`,
+      value: String(currency.id),
+    }))
+    : [];
+
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
 
-  const steps = barSteps
+  const steps = barSteps;
 
   const breadcrumbItems = [
     { label: "الرئيسية", href: "/admin" },
@@ -100,7 +105,6 @@ export function AddStoreStep2({
       newErrors.name = "اسم المتجر مطلوب";
     }
 
-    // إضافة تحقق من الصورة إذا كانت مطلوبة
     if (!formData.logo) {
       newErrors.logo = "شعار المتجر مطلوب";
     }
@@ -109,9 +113,12 @@ export function AddStoreStep2({
       newErrors.email = "البريد الإلكتروني غير صالح";
     }
 
-    // في حالة Admin، يجب التحقق من اختيار المالك
     if (isAdmin && !formData.owner_id) {
       newErrors.owner_id = "يجب اختيار مالك المتجر";
+    }
+
+    if (!formData.currency_id) {
+      newErrors.currency_id = "يجب اختيار العملة";
     }
 
     setErrors(newErrors);
@@ -130,7 +137,6 @@ export function AddStoreStep2({
     } else {
       const firstError = Object.keys(errors)[0];
       if (firstError) {
-        // Scroll logic slightly adjusted to handle custom components better if needed
         const element = document.querySelector(`[name="${firstError}"]`) || document.querySelector(".text-red-500");
         element?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
@@ -169,7 +175,6 @@ export function AddStoreStep2({
                   error={errors.name}
                 />
 
-                {/* المكون الجديد لهوية المتجر */}
                 <StoreIdentitySelector
                   value={formData.logo}
                   previewUrl={formData.logo_preview}
@@ -183,7 +188,6 @@ export function AddStoreStep2({
                   error={errors.logo}
                 />
 
-                {/* مكون البنرات الجديد */}
                 <StoreBannerSelector
                   value={formData.cover}
                   previews={formData.cover_previews}
@@ -215,7 +219,7 @@ export function AddStoreStep2({
                     maxLength={300}
                     className={cn(
                       "flex w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px]",
-                      { "border-red-500": errors.description } // إضافة حالة الخطأ
+                      { "border-red-500": errors.description }
                     )}
                   />
                   {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
@@ -269,10 +273,9 @@ export function AddStoreStep2({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* 3. تطبيق المنطق: إذا كان Admin، اعرض قائمة منسدلة قابلة للاختيار */}
                   {isAdmin ? (
-                    <div className="flex flex-col">
-                      <label htmlFor="" className="mb-3 text-sm font-medium">المالك</label>
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm font-medium">المالك</Label>
                       <ReusableDropdown
                         placeholder={isUsersLoading ? "جاري جلب المالكين..." : "اختر المالك"}
                         options={ownerDropdownOptions}
@@ -286,24 +289,23 @@ export function AddStoreStep2({
                       />
                     </div>
                   ) : (
-                    // 4. في حالة Merchant، إخفاء الحقل وتعيين المالك مسبقًا
                     <input type="hidden" name="owner_id" value={formData.owner_id} />
-                    // يمكن إضافة عرض للمالك الحالي بطريقة غير قابلة للتعديل إذا لزم الأمر
                   )}
 
-
-                  {/* تم ترك حقل العملة كما هو باستخدام FormSelect مؤقتاً لحين تعديله إلى ReusableDropdown */}
-                  <FormSelect
-                    label="العملة"
-                    value={formData.currency_id}
-                    onChange={(e) =>
-                      setFormData({ ...formData, currency_id: e.target.value })
-                    }
-                    options={[
-                      { value: "", label: "اختر العملة" },
-                      { value: "1", label: "شيكل" },
-                    ]}
-                  />
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-sm font-medium">العملة</Label>
+                    <ReusableDropdown
+                      options={currencyOptions}
+                      value={formData.currency_id}
+                      onChange={(value) =>
+                        setFormData({ ...formData, currency_id: value })
+                      }
+                      placeholder={isCurrenciesLoading ? "جاري التحميل..." : "اختر العملة"}
+                      error={errors.currency_id}
+                      className="h-11"
+                      dropdownPosition="top"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

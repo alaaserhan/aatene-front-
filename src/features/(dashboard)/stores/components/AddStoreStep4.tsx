@@ -24,7 +24,6 @@ interface AddStoreStep4Props {
 }
 
 interface NewManagerForm {
-  name: string;
   email: string;
   title: string;
   status: StoreStatus;
@@ -43,11 +42,9 @@ export function AddStoreStep4({
     initialData?.managers || []
   );
 
-  // حالة لتتبع الموظف الذي يتم تعديله حالياً (-1 يعني إضافة جديد)
   const [editingIndex, setEditingIndex] = useState<number>(-1);
 
   const [newManager, setNewManager] = useState<NewManagerForm>({
-    name: "",
     email: "",
     title: "",
     status: "active",
@@ -98,22 +95,17 @@ export function AddStoreStep4({
         user_email: newManager.email,
         title: newManager.title,
         status: newManager.status,
-        user_name: newManager.name,
       };
 
       if (editingIndex >= 0) {
-        // تحديث موظف موجود
         const updatedManagers = [...managers];
         updatedManagers[editingIndex] = managerData;
         setManagers(updatedManagers);
       } else {
-        // إضافة موظف جديد
         setManagers([...managers, managerData]);
       }
 
-      // إعادة تعيين النموذج
       setNewManager({
-        name: "",
         email: "",
         title: "",
         status: "active",
@@ -131,14 +123,12 @@ export function AddStoreStep4({
   const handleEditManager = (index: number) => {
     const managerToEdit = managers[index];
     setNewManager({
-      name: managerToEdit.user_name || "",
-      email: managerToEdit?.user_email || "",
+      email: managerToEdit.user_email,
       title: managerToEdit.title,
       status: managerToEdit.status,
     });
     setEditingIndex(index);
     setActiveTab("add");
-    // مسح الأخطاء السابقة عند فتح التعديل
     setErrors({});
   };
 
@@ -148,7 +138,6 @@ export function AddStoreStep4({
 
   const handleCancelAdd = () => {
     setNewManager({
-      name: "",
       email: "",
       title: "",
       status: "active",
@@ -173,7 +162,7 @@ export function AddStoreStep4({
                 <button
                   onClick={() => setActiveTab("list")}
                   className={cn(
-                    "flex-1 py-3 text-sm font-bold transition-colors",
+                    "flex-1 py-3 text-sm font-bold transition-colors cursor-pointer",
                     activeTab === "list"
                       ? "bg-blue-5 text-blue-4"
                       : "bg-white text-gray-2 hover:bg-gray-50"
@@ -184,20 +173,18 @@ export function AddStoreStep4({
                 <button
                   onClick={() => {
                     setActiveTab("add");
-                    // عند الضغط يدوياً على التاب، نعتبرها إضافة جديدة ونصفر التعديل
                     if (activeTab !== "add") {
-                       setNewManager({
-                          name: "",
-                          email: "",
-                          title: "",
-                          status: "active",
-                       });
-                       setEditingIndex(-1);
-                       setErrors({});
+                      setNewManager({
+                        email: "",
+                        title: "",
+                        status: "active",
+                      });
+                      setEditingIndex(-1);
+                      setErrors({});
                     }
                   }}
                   className={cn(
-                    "flex-1 py-3 text-sm font-bold transition-colors border-s border-gray-300",
+                    "flex-1 py-3 text-sm font-bold transition-colors border-s border-gray-300 cursor-pointer",
                     activeTab === "add"
                       ? "bg-blue-5 text-blue-4"
                       : "bg-white text-gray-2 hover:bg-gray-50"
@@ -209,15 +196,6 @@ export function AddStoreStep4({
 
               {activeTab === "add" ? (
                 <div className="space-y-6 p-3 border border-gray-200 rounded-lg">
-                  <FormInput
-                    label="اسم الموظف"
-                    placeholder="إدخل اسم الموظف"
-                    value={newManager.name}
-                    onChange={(e) =>
-                      setNewManager({ ...newManager, name: e.target.value })
-                    }
-                  />
-
                   <FormInput
                     label="البريد الالكتروني"
                     type="email"
@@ -269,7 +247,7 @@ export function AddStoreStep4({
                     <Button
                       onClick={handleCancelAdd}
                       variant="outline"
-                      className="px-6 py-2 bg-white  border border-gray-300 hover:bg-gray-50 cursor-pointer rounded-sm h-10"
+                      className="px-6 py-2 bg-white  border border-gray-200 shadow-none cursor-pointer rounded-sm h-10"
                     >
                       إلغاء
                     </Button>
@@ -288,8 +266,8 @@ export function AddStoreStep4({
                     <table className="w-full text-sm text-right">
                       <thead className="bg-[#F5F9FC] text-blue-4 font-medium">
                         <tr>
-                          <th className="p-4 text-start">اسم الموظف</th>
                           <th className="p-4 text-start">الايميل</th>
+                          {/* <th className="p-4 text-start">الدور الوظيفي</th> */}
                           <th className="p-4 text-center">حاله الموظف</th>
                           <th className="p-4 text-start">الاجراءات</th>
                         </tr>
@@ -297,24 +275,26 @@ export function AddStoreStep4({
                       <tbody className="bg-white divide-y divide-gray-100">
                         {managers.length === 0 ? (
                           <tr>
-                            <td colSpan={5} className="p-8 text-center text-gray-500">
+                            <td colSpan={4} className="p-8 text-center text-gray-500">
                               لا يوجد موظفين مضافين
                             </td>
                           </tr>
                         ) : (
                           managers.map((manager, index) => {
-                            const displayName =
-                              manager.user_name || "اسم غير متوفر";
+                            const jobLabel =
+                              jobTitleOptions.find(
+                                (opt) => opt.value === manager.title
+                              )?.label || manager.title;
 
                             return (
                               <tr
                                 key={index}
                                 className="hover:bg-gray-50 text-blue-4"
                               >
-                                <td className="p-4 font-medium ">{displayName}</td>
-                                <td className="p-4 ">{manager.user_email}</td>
+                                <td className="p-4 font-medium">{manager.user_email}</td>
+                                {/* <td className="p-4 ">{jobLabel}</td> */}
                                 <td className="p-4">
-                                  <div className="">
+                                  <div className="flex justify-center">
                                     <span
                                       className={cn(
                                         "px-6 py-1 rounded-full text-xs font-medium",

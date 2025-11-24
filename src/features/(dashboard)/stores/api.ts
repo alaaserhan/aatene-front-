@@ -1,7 +1,6 @@
 // src/features/(dashboard)/stores/api.ts
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper"; 
-import { User } from "../users/api";
 
 export type StoreStatus = "active" | "not-active";
 export type StoreType = "products" | "services";
@@ -56,13 +55,11 @@ export interface WorkingTime {
 }
 
 export interface StoreManager {
-  id?: number;
+  user_email: string;
   title: ManagerTitle | string;
   status: StoreStatus;
-  user?: User;
-  user_email?: string;
   user_id?: number;
-  user_name?: string;
+  id?: number;
 }
 
 export interface ShippingPrice {
@@ -79,7 +76,6 @@ export interface ShippingCompany {
   prices: ShippingPrice[];
 }
 
-// ✅ Store Interface - للـ Response من الـ API
 export interface Store {
   id: number;
   slug: string;
@@ -106,7 +102,7 @@ export interface Store {
   owner?: Owner;
   currency_id: string | number;
   currency?: Currency;
-  city_id: number | null;  // ✅ في الـ Response قد يكون null
+  city_id: number | null;
   city?: City | null;
   district_id: number | null;
   district?: District | null;
@@ -138,7 +134,6 @@ export interface SingleStoreResponse extends BaseResponse {
   record: Store;
 }
 
-// ✅ StoreCreatePayload - للإرسال للـ API
 export interface StoreCreatePayload {
   type: StoreType;
   name: string;
@@ -147,7 +142,7 @@ export interface StoreCreatePayload {
   cover: string[];
   description: string;
   email: string;
-  city_id: number[];  // ✅ في الإرسال دائماً array
+  city_id: number[];
   district_id: number | null;
   address: string;
   lng: string | null;

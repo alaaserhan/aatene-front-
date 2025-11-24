@@ -1,6 +1,6 @@
 // src/features/(dashboard)/stores/components/AddShippingCompanyDialog.tsx
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
@@ -8,6 +8,7 @@ import { ShippingCompany, ShippingPrice } from "../api";
 import { useGetCities } from "../../cities/hooks";
 import { toast } from "sonner";
 import { ChevronRight } from "lucide-react";
+import { cn } from "@/src/lib/utils";
 
 interface AddShippingCompanyDialogProps {
   isOpen: boolean;
@@ -30,44 +31,34 @@ export function AddShippingCompanyDialog({
   const [step, setStep] = useState(1);
   
   const [phoneCountryCode, setPhoneCountryCode] = useState("+970");
-  const [companyName, setCompanyName] = useState("");
-  const [selectedCityIds, setSelectedCityIds] = useState<number[]>([]);
-  const [shippingPrices, setShippingPrices] = useState<Record<number, PriceData>>({});
-  const [storeName, setStoreName] = useState("");
-  const [storePhone, setStorePhone] = useState("");
+  
+  const [companyName, setCompanyName] = useState(editingCompany?.name || "");
+  
+  const [selectedCityIds, setSelectedCityIds] = useState<number[]>(() => 
+    editingCompany ? editingCompany.prices.map((p) => p.city_id) : []
+  );
 
-  const { data: citiesData } = useGetCities(new URLSearchParams());
-  const cities = citiesData?.data || [];
-
-  useEffect(() => {
-    if (!isOpen) return;
-
+  const [shippingPrices, setShippingPrices] = useState<Record<number, PriceData>>(() => {
     if (editingCompany) {
-      setCompanyName(editingCompany.name);
-      setStoreName(editingCompany.name);
-      setStorePhone(String(editingCompany.phone).replace("+970", "").replace("+20", "").replace("+966", "").replace("+971", "")); // تنظيف الكود الدولي إذا لزم الأمر
-      
-      const cityIds = editingCompany.prices.map((p) => p.city_id);
-      setSelectedCityIds(cityIds);
-
       const pricesMap: Record<number, PriceData> = {};
       editingCompany.prices.forEach((p) => {
         pricesMap[p.city_id] = { days: p.days, price: p.price };
       });
-      setShippingPrices(pricesMap);
-      
-    } else {
-      setStep(1);
-      setCompanyName("");
-      setSelectedCityIds([]);
-      setShippingPrices({});
-      setStoreName("");
-      setStorePhone("");
-      setPhoneCountryCode("+970");
+      return pricesMap;
     }
-    
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, editingCompany?.id]); 
+    return {};
+  });
+
+  const [storeName, setStoreName] = useState(editingCompany?.name || "");
+  
+  const [storePhone, setStorePhone] = useState(() => 
+    editingCompany 
+      ? String(editingCompany.phone).replace("+970", "").replace("+20", "").replace("+966", "").replace("+971", "")
+      : ""
+  );
+
+  const { data: citiesData } = useGetCities(new URLSearchParams());
+  const cities = citiesData?.data || [];
 
   const handleCityToggle = (cityId: number) => {
     setSelectedCityIds((prev) => {
@@ -172,9 +163,8 @@ export function AddShippingCompanyDialog({
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       <div className="relative bg-white rounded-lg w-full max-w-2xl mx-4 shadow-xl">
-        {/* Header */}
         <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center ">
             <button
               onClick={handleBack}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -185,10 +175,8 @@ export function AddShippingCompanyDialog({
           </div>
         </div>
 
-        {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
           {step === 1 ? (
-            // --- Step 1 ---
             <div className="space-y-6">
               <FormInput
                 label="اسم ملف الشحن"
@@ -201,20 +189,45 @@ export function AddShippingCompanyDialog({
               <div className="space-y-4">
                 <h3 className="font-medium">المدن التي ترسل لها المنتجات؟</h3>
                 <div className="space-y-3">
-                  {cities.map((city) => (
-                    <label
-                      key={city.id}
-                      className="flex items-center gap-3 cursor-pointer group"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedCityIds.includes(city.id)}
-                        onChange={() => handleCityToggle(city.id)}
-                        className="w-3 h-3 rounded border-gray-300 text-blue-600 focus:ring-blue-600 accent-blue-600 cursor-pointer"
-                      />
-                      <span className="text-sm font-medium">{city.name}</span>
-                    </label>
-                  ))}
+                  {cities.map((city) => {
+                    const isSelected = selectedCityIds.includes(city.id);
+                    return (
+                      <div
+                        key={city.id}
+                        onClick={() => handleCityToggle(city.id)}
+                        className="flex items-center gap-3 cursor-pointer group"
+                      >
+                        <button
+                          type="button"
+                          className={cn(
+                            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer",
+                            isSelected
+                              ? "bg-blue-5 border-blue-4"
+                              : "bg-white border-gray-300 group-hover:border-gray-500"
+                          )}
+                          aria-checked={isSelected}
+                          role="checkbox"
+                        >
+                          {isSelected && (
+                            <svg
+                              className="w-4 h-4 text-blue-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={3}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                        <span className="text-sm font-medium">{city.name}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -228,7 +241,6 @@ export function AddShippingCompanyDialog({
               </div>
             </div>
           ) : (
-            // --- Step 2 ---
             <div className="space-y-6">
               <div className="space-y-4">
                 <h3 className="text-base font-semibold">
@@ -311,7 +323,7 @@ export function AddShippingCompanyDialog({
                 </p>
               </div>
 
-              <div className="flex justify-center items-center pt-6">
+              <div className="flex justify-end items-center pt-6">
                 <Button
                   onClick={handleStep2Submit}
                   className="px-12 py-5 rounded-full text-white bg-[#3A5779] hover:bg-[#2c425e]"
