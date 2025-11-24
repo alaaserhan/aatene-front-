@@ -16,21 +16,27 @@ import { Input } from "@/src/components/ui/input";
 import {
   Loader2,
   Trash2,
-  Mail,
-  Phone as PhoneIcon,
-  MessageCircle,
+  Pencil,
 } from "lucide-react";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { cn } from "@/src/lib/utils";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { UserUpdatePayload } from "../api";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/dialog";
+import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
 
 interface UserDetailsSidebarProps {
   selectedUserId: number | null;
   onUserUpdate: () => void;
   onUserDelete: () => void;
   className?: string;
+}
+
+// تعريف MediaItem ليتوافق مع توقيع onSelect
+interface MediaItem {
+  file_name: string;
+  src: string;
 }
 
 const userSchema = z.object({
@@ -44,6 +50,48 @@ const userSchema = z.object({
 
 type UserFormData = z.infer<typeof userSchema>;
 
+// --- قائمة إجراءات الصورة المنبثقة (مكون داخلي) ---
+const ImageActionMenu = ({
+  onClose,
+  onChange,
+  onDelete,
+}: {
+  onClose: () => void;
+  onChange: () => void;
+  onDelete: () => void;
+}) => (
+  <div
+    className="absolute top-1/2 start-full z-20 w-48 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden text-sm"
+    style={{ transform: "translate(8px, -50%)" }}
+  >
+    <button
+      onClick={() => {
+        onChange();
+        onClose();
+      }}
+      className="flex items-center gap-3 w-full px-4 py-2 cursor-pointer "
+    >
+      <div className="bg-blue-1 p-1 rounded">
+        <img src="/icons/dashboard/edit3.svg" className="w-4 h-4 text-blue-4" />
+      </div>
+      تغيير الصورة
+    </button>
+    <button
+      onClick={() => {
+        onDelete();
+        onClose();
+      }}
+      className="flex items-center gap-3 w-full px-4 py-2  cursor-pointer "
+    >
+      <div className="bg-red-2 p-1 rounded">
+        <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
+      </div>
+      حذف الصورة
+    </button>
+  </div>
+);
+// --- نهاية المكون الداخلي ---
+
 export function UserDetailsSidebar({
   selectedUserId,
   onUserUpdate,
@@ -53,11 +101,18 @@ export function UserDetailsSidebar({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [countryCode, setCountryCode] = useState("+20");
 
+  const [showActionMenu, setShowActionMenu] = useState(false);
+  const [showMediaCenter, setShowMediaCenter] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [newAvatarFileName, setNewAvatarFileName] = useState<string | null>(null);
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | null>(null);
+
+
   const {
     data: userData,
     isLoading: isLoadingUser,
     refetch,
-  } = useGetSingleUser(selectedUserId || undefined)
+  } = useGetSingleUser(selectedUserId || undefined);
 
   const { data: rolesData } = useGetRoles(new URLSearchParams());
 
@@ -117,6 +172,8 @@ export function UserDetailsSidebar({
         roles: user.roles?.[0]?.id ? String(user.roles[0].id) : "",
         is_active: user.is_active === "1" || user.is_active === true,
       });
+      setNewAvatarFileName(user.avatar);
+      setCurrentAvatarUrl(user.avatar_url || null);
     } else {
       reset({
         first_name: "",
@@ -126,8 +183,33 @@ export function UserDetailsSidebar({
         roles: "",
         is_active: true,
       });
+      setNewAvatarFileName(null);
+      setCurrentAvatarUrl(null);
     }
   }, [userData, reset]);
+
+  // --- دالة معالجة اختيار الصورة (تم إصلاح التوقيع هنا) ---
+  const handleMediaSelect = (file: MediaItem | MediaItem[]) => {
+    let selectedFile: MediaItem;
+
+    if (Array.isArray(file)) {
+      selectedFile = file[0]; // التعامل مع المصفوفة (على الرغم من أننا نختار صورة واحدة)
+    } else {
+      selectedFile = file;
+    }
+
+    setNewAvatarFileName(selectedFile.file_name);
+    setCurrentAvatarUrl(selectedFile.src);
+    setShowMediaCenter(false);
+  };
+
+  const handleImageDelete = () => {
+    setNewAvatarFileName(null);
+    setCurrentAvatarUrl(null);
+    setShowActionMenu(false);
+  };
+  // --- نهاية دوال إدارة الصورة ---
+
 
   const onSubmit = (data: UserFormData) => {
     if (!selectedUserId || !userData?.record) return;
@@ -135,7 +217,7 @@ export function UserDetailsSidebar({
     const originalUser = userData.record;
 
     const payload: UserUpdatePayload = {
-      avatar: originalUser.avatar,
+      avatar: newAvatarFileName,
       date_of_birth: originalUser.date_of_birth,
       gender: originalUser.gender,
       referral_code: originalUser.referral_code,
@@ -210,13 +292,50 @@ export function UserDetailsSidebar({
   const roleNames =
     user.roles?.map((r) => r.name).join(", ") || "مستخدم عادي";
 
+  const avatarUrl = currentAvatarUrl || "/default-avatar.png";
+
   return (
     <div className={cn("space-y-4 max-h-[calc(100vh-193px)] overflow-y-auto", className)}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-medium text-blue-4 mb-6">
-            بيانات المستخدم
-          </h3>
+
+          {/* --- Profile Picture Area (Matching Figma) --- */}
+          <div className="flex flex-col gap-4 mb-6">
+            <h3 className="text-lg font-medium text-blue-4">
+              بيانات المستخدم
+            </h3>
+
+            {/* Avatar & Actions */}
+            <div className="relative w-fit">
+              <p className="text-sm font-medium mb-2">الصورة الشخصية</p>
+              <img
+                src={avatarUrl}
+                alt={fullName}
+                className="w-32 h-32 rounded-full object-cover border-1 border-gray-50 cursor-pointer"
+                onClick={() => setShowImageModal(true)}
+              />
+
+              {/* Edit Icon/Button - bottom-end of the avatar */}
+              <button
+                type="button"
+                onClick={() => setShowActionMenu(!showActionMenu)}
+                className="absolute bottom-0 end-1 p-1.5 rounded-full bg-blue-3 border border-white shadow-sm text-white hover:bg-gray-50 transition-colors cursor-pointer"
+                aria-label="تغيير الصورة"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+
+              {/* Action Menu Pop-up */}
+              {showActionMenu && (
+                <ImageActionMenu
+                  onClose={() => setShowActionMenu(false)}
+                  onChange={() => setShowMediaCenter(true)} // ✅ Bug Fix: Opens Media Center
+                  onDelete={handleImageDelete}
+                />
+              )}
+            </div>
+          </div>
+          {/* --- End Profile Picture Area --- */}
 
           <div className="space-y-4">
             <div>
@@ -335,7 +454,7 @@ export function UserDetailsSidebar({
                 {deleteUserMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin ml-2" />
                 ) : (
-                  <img src="/icons/dashboard/trash.svg" alt="" />
+                  <Trash2 className="w-4 h-4" />
                 )}
                 حذف المستخدم
               </Button>
@@ -439,6 +558,36 @@ export function UserDetailsSidebar({
         title="هل أنت متأكد من حذف المستخدم؟"
         description="سيتم حذف جميع بيانات المستخدم بشكل نهائي"
       />
+
+      {/* --- نافذة عرض الصورة الكبيرة --- */}
+      <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
+        <DialogContent className="sm:max-w-sm max-h-[90vh] overflow-hidden p-0 gap-0" dir="rtl">
+          <DialogHeader className="p-4">
+            <DialogTitle className="text-xl font-medium">
+              صورة المستخدم
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-3 flex items-center justify-center">
+            <img
+              src={avatarUrl}
+              alt={fullName}
+              className="max-w-full max-h-[70vh] object-contain rounded-sm"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* --- نافذة الميديا سنتر (للتعديل) --- */}
+      {showMediaCenter && (
+        <MediaCenterModal
+          open={showMediaCenter}
+          onOpenChange={() => setShowMediaCenter(false)}
+          onSelect={handleMediaSelect}
+          multiple={false}
+          allowedMediaTypes={["avatar", "image"]}
+          selectionLimit={1}
+        />
+      )}
     </div>
   );
 }
