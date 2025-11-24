@@ -52,6 +52,7 @@ type CategoryProps = {
   onDelete: (categoryId: number) => void;
   onAddSubCategory: (parentId: number, name: string) => void;
   onViewImages: (images: string[]) => void;
+  onToggleStatus: (id: number, isActive: boolean, itemType: "category" | "attribute") => void;
   level: number;
 };
 
@@ -62,6 +63,7 @@ type AttributeProps = {
   onDelete: (attributeId: number) => void;
   onAddOption: (attribute: Attribute) => void;
   onDeleteOption: (optionId: number, attribute: Attribute) => void;
+  onToggleStatus: (id: number, isActive: boolean, itemType: "category" | "attribute") => void;
   level: number;
 };
 
@@ -74,16 +76,21 @@ function AttributeAccordionContent(props: AttributeProps) {
     onDelete,
     onAddOption,
     onDeleteOption,
+    onToggleStatus,
     level,
   } = props;
 
   const [isExpanded, setIsExpanded] = useState(false);
   const hasOptions = attribute.options.length > 0;
 
+  // افتراض وجود خاصية is_active على السمة للمحاكاة
+  const isActive = (attribute as any).is_active === true || (attribute as any).is_active === "1" || false;
+
+
   return (
-    <div>
+    <div className="group">
       <div
-        className="flex items-center gap-1 p-2 border border-input rounded mb-2"
+        className="flex items-center gap-1 p-2 border border-input rounded mb-2 hover:bg-gray-50 transition-colors"
         style={{ marginInlineEnd: `${level * 3.5}rem` }}
       >
         <button
@@ -120,13 +127,42 @@ function AttributeAccordionContent(props: AttributeProps) {
             </button>
           )}
         </div>
+
+        <button
+          type="button"
+          onClick={() => onToggleStatus(attribute.id, !isActive, "attribute")}
+          className={cn(
+            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 flex-shrink-0 cursor-pointer",
+            isActive
+              ? "bg-blue-5 border-blue-4"
+              : "bg-white border-gray-300 group-hover:border-gray-500"
+          )}
+          aria-checked={isActive}
+          role="checkbox"
+        >
+          {isActive && (
+            <svg
+              className="w-4 h-4 text-blue-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={3}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          )}
+        </button>
       </div>
 
       {hasOptions && isExpanded && (
         <div>
-          {attribute.options.map((option) => (
+          {attribute.options.map((option, index) => (
             <AttributeOptionRow
-              key={option.id}
+              key={option.id || index}
               option={option}
               onDelete={() => onDeleteOption(option.id, attribute)}
               level={level + 1}
@@ -147,16 +183,20 @@ function CategoryAccordionContent(props: CategoryProps) {
     onDelete,
     onAddSubCategory,
     onViewImages,
+    onToggleStatus,
     level,
   } = props;
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const imageUrls = category?.images_urls || category?.images || [];
-  const images = imageUrls.filter((img) => img && img.trim() !== "");
+  const rawImageUrls = category?.images_urls || category?.images || [];
+  const validImageUrls = Array.isArray(rawImageUrls) ? rawImageUrls : [];
+  const images = validImageUrls.filter((img) => img && typeof img === 'string' && img.trim() !== "");
 
   const subCategoriesCount = Number(category.sub_categories_count || 0);
   const hasSubCategories = subCategoriesCount > 0;
+
+  const isActive = category.is_active === true || category.is_active === "1";
 
   const {
     data: subCategoriesData,
@@ -171,9 +211,11 @@ function CategoryAccordionContent(props: CategoryProps) {
   );
 
   return (
-    <div>
+    <div
+      className="group"
+    >
       <div
-        className="flex items-center gap-1 p-2 border border-input rounded mb-2"
+        className="flex items-center gap-1 p-2 border border-input rounded mb-2 hover:bg-gray-50 transition-colors"
         style={{ marginInlineEnd: level === 0 ? "0rem" : `${level * 3.5}rem` }}
       >
         <button
@@ -259,6 +301,35 @@ function CategoryAccordionContent(props: CategoryProps) {
             </button>
           )}
         </div>
+
+        <button
+          type="button"
+          onClick={() => onToggleStatus(category.id, !isActive, "category")}
+          className={cn(
+            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 flex-shrink-0 cursor-pointer",
+            isActive
+              ? "bg-blue-5 border-blue-4"
+              : "bg-white border-gray-300 group-hover:border-gray-500"
+          )}
+          aria-checked={isActive}
+          role="checkbox"
+        >
+          {isActive && (
+            <svg
+              className="w-4 h-4 text-blue-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={3}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          )}
+        </button>
       </div>
 
       {hasSubCategories && isExpanded && (
@@ -285,6 +356,7 @@ function CategoryAccordionContent(props: CategoryProps) {
                 onDelete={onDelete}
                 onAddSubCategory={onAddSubCategory}
                 onViewImages={onViewImages}
+                onToggleStatus={onToggleStatus}
                 level={level + 1}
               />
             ))}

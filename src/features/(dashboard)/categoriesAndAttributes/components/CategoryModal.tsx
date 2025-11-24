@@ -56,7 +56,8 @@ export function CategoryModal({
   categoryOptions = [],
   currentType,
 }: CategoryModalProps) {
-  const [formData, setFormData] = useState<CategoryFormData>(() => {
+  
+  const initialFormData = useMemo(() => {
     if (mode === "edit" && category) {
       return {
         id: category.id,
@@ -75,16 +76,20 @@ export function CategoryModal({
       };
     }
     return { ...defaultFormData, type: currentType };
-  });
+  }, [mode, category, parentId, currentType]);
 
-  const [previewUrls, setPreviewUrls] = useState<string[]>(() => {
+  const [formData, setFormData] = useState<CategoryFormData>(initialFormData);
+
+  const initialPreviewUrls = useMemo(() => {
     if (mode === "edit" && category) {
       return (
         Array.isArray(category.images_urls) ? category.images_urls : []
       ).filter((img) => img && img.trim() !== "");
     }
     return [];
-  });
+  }, [mode, category]);
+  
+  const [previewUrls, setPreviewUrls] = useState<string[]>(initialPreviewUrls);
 
   const parentCategoryName = parentName || "";
 
@@ -108,6 +113,7 @@ export function CategoryModal({
     const dataToSave = {
       ...formData,
       images: activeType === "service" ? [] : formData.images,
+      parent_id: mode === "addSub" && parentId ? parentId : formData.parent_id,
     };
 
     onSave(dataToSave);

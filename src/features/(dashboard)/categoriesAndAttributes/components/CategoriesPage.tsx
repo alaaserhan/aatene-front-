@@ -20,6 +20,7 @@ import {
   useCreateAttribute,
   useUpdateAttribute,
   useDeleteAttribute,
+  useUpdateCategoryStatus,
 } from "../hooks";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -112,6 +113,7 @@ export function CategoriesPage() {
   const { mutate: createCategoryMutation } = useCreateCategory();
   const { mutate: updateCategoryMutation } = useUpdateCategory();
   const { mutate: deleteCategoryMutation } = useDeleteCategory();
+  const { mutate: updateCategoryStatusMutation } = useUpdateCategoryStatus();
 
   const { mutate: createAttributeMutation } = useCreateAttribute();
   const { mutate: updateAttributeMutation } = useUpdateAttribute();
@@ -169,6 +171,23 @@ export function CategoriesPage() {
       );
     } else {
       createCategoryMutation(payload, mutationOptions);
+    }
+  };
+
+  const handleToggleStatus = (
+    id: number,
+    isActive: boolean,
+    itemType: "category" | "attribute"
+  ) => {
+    const statusPayload = { is_active: isActive ? "1" : "0" } as api.UpdateStatusPayload;
+
+    if (itemType === "category") {
+      updateCategoryStatusMutation({ id, payload: statusPayload });
+    } else if (itemType === "attribute") {
+      const attributePayload: api.AttributeUpdatePayload = { 
+        is_active: isActive ? "1" : "0" 
+      } as api.AttributeUpdatePayload; 
+      updateAttributeMutation({ id, payload: attributePayload });
     }
   };
 
@@ -418,6 +437,7 @@ export function CategoriesPage() {
                         onDelete={handleDeleteAttributeClick}
                         onAddOption={handleAddOptionClick}
                         onDeleteOption={handleDeleteOptionClick}
+                        onToggleStatus={handleToggleStatus}
                         level={0}
                       />
                     ))
@@ -440,6 +460,7 @@ export function CategoriesPage() {
                       onDelete={handleDeleteCategoryClick}
                       onAddSubCategory={handleAddSubCategory}
                       onViewImages={handleViewImages}
+                      onToggleStatus={handleToggleStatus} 
                       level={0}
                     />
                   ))

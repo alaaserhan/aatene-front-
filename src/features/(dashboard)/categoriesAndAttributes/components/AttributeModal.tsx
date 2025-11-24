@@ -13,8 +13,8 @@ import {
   DialogFooter,
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
+import { FormInput } from "@/src/components/ui/FormInput"; // ✅ استيراد FormInput
+import { Label } from "@/src/components/ui/label"; // لا نزال نحتاج Label لخيار "أضف الخيارات المتاحة"
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { Attribute, AttributeOptionPayload } from "../api";
 import { cn } from "@/src/lib/utils";
@@ -114,43 +114,38 @@ export function AttributeModal({
 
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="px-6 pb-6 space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="attr-name" className="mb-2 block">
-                اسم السمة
-              </Label>
-              <Input
-                id="attr-name"
-                {...register("title")}
-                placeholder="اسم السمة"
-                className="w-full px-4 py-3 border-gray-300 rounded-xs focus:ring-2 focus:ring-blue-3 focus:border-transparent"
-              />
-              {errors.title && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.title.message}
-                </p>
-              )}
-            </div>
+            {/* ✅ استخدام FormInput لاسم السمة */}
+            <FormInput
+              label="اسم السمة"
+              placeholder="اسم السمة"
+              {...register("title")}
+              error={errors.title?.message}
+              className="px-4 py-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-3 focus:border-transparent"
+            />
 
             <div className="space-y-4">
               <Label className="mb-2 block">أضف الخيارات المتاحة</Label>
               <div className="flex gap-2">
-                <Input
+                {/* ✅ استخدام FormInput لخيار الإضافة السريع */}
+                <FormInput
                   type="text"
                   value={optionInput}
                   onChange={(e) => setOptionInput(e.target.value)}
                   placeholder="أضف الخيار المتاح"
-                  className="w-full px-4 py-3  border-gray-300 rounded-xs focus:ring-2 focus:ring-blue-3 focus:border-transparent"
+                  className="px-4 py-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-3 focus:border-transparent"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
                       handleAddOption();
                     }
                   }}
+                  containerClassName="flex-1" // لضمان أخذ المساحة المتبقية
                 />
+                
                 <Button
                   type="button"
                   onClick={handleAddOption}
-                  className="px-6 py-3 bg-blue-4 rounded-sm text-white hover:bg-[#2d4460] cursor-pointer"
+                  className="px-6 py-4 bg-blue-4 rounded-sm text-white hover:bg-[#2d4460] cursor-pointer"
                 >
                   إضافة
                 </Button>
