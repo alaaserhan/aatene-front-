@@ -1,6 +1,7 @@
 // src/features/(dashboard)/stores/api.ts
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper"; 
+import { User } from "../../(web)/auth/types";
 
 export type StoreStatus = "active" | "not-active";
 export type StoreType = "products" | "services";
@@ -60,6 +61,7 @@ export interface StoreManager {
   status: StoreStatus;
   user_id?: number;
   id?: number;
+  user?:User;
 }
 
 export interface ShippingPrice {

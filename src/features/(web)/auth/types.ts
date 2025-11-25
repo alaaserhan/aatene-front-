@@ -5,6 +5,9 @@ export interface User {
   id: number;
   fullname: string;
   avatar: string;
+  avatar_url: string | null;
+  first_name: string;
+  last_name: string;
   email: string;
   phone: string;
   is_active: string | boolean; // API seems inconsistent (string "1" vs boolean true)
