@@ -10,7 +10,7 @@ import { MediaItem } from "../../mediaCenter/api";
 interface StoreIdentitySelectorProps {
   label?: string;
   value?: string | null;
-  previewUrl?: string | null;
+  previewUrl?: string | null ;
   onChange: (fileName: string | null, src: string | null) => void;
   error?: string;
 }

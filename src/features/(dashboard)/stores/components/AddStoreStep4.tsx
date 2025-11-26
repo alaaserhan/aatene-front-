@@ -8,7 +8,7 @@ import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
 import { StoreFormActions } from "./StoreFormActions";
-import { StoreType, StoreManager, StoreStatus } from "../api";
+import { StoreType, StoreManagerPayload, StoreStatus, ManagerTitle } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
@@ -25,7 +25,7 @@ interface AddStoreStep4Props {
 
 interface NewManagerForm {
   email: string;
-  title: string;
+  title: ManagerTitle | "";
   status: StoreStatus;
 }
 
@@ -35,10 +35,10 @@ export function AddStoreStep4({
   initialData,
   onNext,
   onBack,
-  barSteps
+  barSteps,
 }: AddStoreStep4Props) {
   const [activeTab, setActiveTab] = useState<"list" | "add">("add");
-  const [managers, setManagers] = useState<StoreManager[]>(
+  const [managers, setManagers] = useState<StoreManagerPayload[]>(
     initialData?.managers || []
   );
 
@@ -91,9 +91,9 @@ export function AddStoreStep4({
 
   const handleSaveManager = () => {
     if (validateManager()) {
-      const managerData: StoreManager = {
-        user_email: newManager.email,
-        title: newManager.title,
+      const managerData: StoreManagerPayload = {
+        email: newManager.email,
+        title: newManager.title as ManagerTitle,
         status: newManager.status,
       };
 
@@ -123,7 +123,7 @@ export function AddStoreStep4({
   const handleEditManager = (index: number) => {
     const managerToEdit = managers[index];
     setNewManager({
-      email: managerToEdit.user_email,
+      email: managerToEdit.email,
       title: managerToEdit.title,
       status: managerToEdit.status,
     });
@@ -148,7 +148,7 @@ export function AddStoreStep4({
   };
 
   return (
-    <div className=" bg-gray-50">
+    <div className="bg-gray-50">
       <div className="container mx-auto py-4 px-4">
         <Breadcrumb items={breadcrumbItems} className="mb-4" />
         <StepperProgress currentStep={3} steps={steps} />
@@ -215,7 +215,7 @@ export function AddStoreStep4({
                       options={jobTitleOptions}
                       value={newManager.title}
                       onChange={(value) =>
-                        setNewManager({ ...newManager, title: value })
+                        setNewManager({ ...newManager, title: value as ManagerTitle })
                       }
                       placeholder="مسؤول طلبات"
                       className="w-full"
@@ -247,7 +247,7 @@ export function AddStoreStep4({
                     <Button
                       onClick={handleCancelAdd}
                       variant="outline"
-                      className="px-6 py-2 bg-white  border border-gray-200 shadow-none cursor-pointer rounded-sm h-10"
+                      className="px-6 py-2 bg-white border border-gray-200 shadow-none cursor-pointer rounded-sm h-10"
                     >
                       إلغاء
                     </Button>
@@ -267,7 +267,6 @@ export function AddStoreStep4({
                       <thead className="bg-[#F5F9FC] text-blue-4 font-medium">
                         <tr>
                           <th className="p-4 text-start">الايميل</th>
-                          {/* <th className="p-4 text-start">الدور الوظيفي</th> */}
                           <th className="p-4 text-center">حاله الموظف</th>
                           <th className="p-4 text-start">الاجراءات</th>
                         </tr>
@@ -275,7 +274,7 @@ export function AddStoreStep4({
                       <tbody className="bg-white divide-y divide-gray-100">
                         {managers.length === 0 ? (
                           <tr>
-                            <td colSpan={4} className="p-8 text-center text-gray-500">
+                            <td colSpan={3} className="p-8 text-center text-gray-500">
                               لا يوجد موظفين مضافين
                             </td>
                           </tr>
@@ -291,8 +290,7 @@ export function AddStoreStep4({
                                 key={index}
                                 className="hover:bg-gray-50 text-blue-4"
                               >
-                                <td className="p-4 font-medium">{manager.user_email}</td>
-                                {/* <td className="p-4 ">{jobLabel}</td> */}
+                                <td className="p-4 font-medium">{manager.email}</td>
                                 <td className="p-4">
                                   <div className="flex justify-center">
                                     <span

@@ -1,7 +1,9 @@
 // src/features/(dashboard)/stores/api.ts
 import api from "@/src/lib/axios";
-import { getDynamicEndpoint } from "@/src/lib/api-helper"; 
+import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import { User } from "../../(web)/auth/types";
+
+// ============== Enums / Union Types ==============
 
 export type StoreStatus = "active" | "not-active";
 export type StoreType = "products" | "services";
@@ -12,6 +14,8 @@ export type OpenStatus =
   | "closed";
 export type ManagerTitle = "general" | "sales" | "products" | "services";
 export type DeliveryType = "hand_delivery" | "shipping" | "free";
+
+// ============== Base / Shared ==============
 
 export interface BaseResponse {
   status: boolean;
@@ -46,6 +50,9 @@ export interface District {
   city_id: number;
 }
 
+// ============== Working Time ==============
+
+/** GET response format */
 export interface WorkingTime {
   id?: number;
   day: string;
@@ -55,14 +62,30 @@ export interface WorkingTime {
   closed_always: boolean;
 }
 
+/** POST payload format (without id) */
+export type WorkingTimePayload = Omit<WorkingTime, "id">;
+
+// ============== Store Manager ==============
+
+/** GET response format */
 export interface StoreManager {
-  user_email: string;
-  title: ManagerTitle | string;
-  status: StoreStatus;
-  user_id?: number;
   id?: number;
-  user?:User;
+  title: ManagerTitle;
+  user_id?: string;
+  user_name?: string;
+  user_email: string;
+  user?: User;
+  status: StoreStatus;
 }
+
+/** POST payload format */
+export interface StoreManagerPayload {
+  email: string;
+  title: ManagerTitle;
+  status: StoreStatus;
+}
+
+// ============== Shipping ==============
 
 export interface ShippingPrice {
   id?: number;
@@ -71,12 +94,22 @@ export interface ShippingPrice {
   price: number;
 }
 
+export type ShippingPricePayload = Omit<ShippingPrice, "id">;
+
 export interface ShippingCompany {
   id?: number;
   name: string;
   phone: string | number;
   prices: ShippingPrice[];
 }
+
+export interface ShippingCompanyPayload {
+  name: string;
+  phone: string | number;
+  prices: ShippingPricePayload[];
+}
+
+// ============== Store (GET Response) ==============
 
 export interface Store {
   id: number;
@@ -93,6 +126,7 @@ export interface Store {
   review_rate: string;
   reviews_count: number | null;
   followers_count: number | null;
+  view_count?: number;
   am_i_following: boolean;
   is_favorite: boolean;
   lng: string | null;
@@ -100,9 +134,9 @@ export interface Store {
   email: string | null;
   phone: string | null;
   hide_phone: "0" | "1";
-  owner_id: string | number;
-  owner?: Owner;
-  currency_id: string | number;
+  owner_id: string;
+  owner?: Owner | null;
+  currency_id: string;
   currency?: Currency;
   city_id: number | null;
   city?: City | null;
@@ -126,6 +160,8 @@ export interface Store {
   delivery_type?: DeliveryType;
 }
 
+// ============== Paginated Response ==============
+
 export interface PaginatedStoresResponse extends BaseResponse {
   recordsTotal: number;
   recordsFiltered: number;
@@ -136,19 +172,19 @@ export interface SingleStoreResponse extends BaseResponse {
   record: Store;
 }
 
+// ============== Create/Update Payloads ==============
+
 export interface StoreCreatePayload {
   type: StoreType;
   name: string;
-  logo: string;
+  logo?: string | null;
   status: StoreStatus;
-  cover: string[];
-  description: string;
+  cover?: string[];
+  description?: string;
   email: string;
-  city_id: number[];
-  district_id: number | null;
-  address: string;
-  lng: string | null;
-  lat: string | null;
+  address?: string;
+  lng?: string | null;
+  lat?: string | null;
   owner_id: number;
   currency_id: number;
   phone: string;
@@ -160,11 +196,13 @@ export interface StoreCreatePayload {
   youtube?: string | null;
   linkedin?: string | null;
   pinterest?: string | null;
-  managers: StoreManager[];
+  managers?: StoreManagerPayload[];
   open_status: OpenStatus;
-  workingtimes: WorkingTime[];
+  workingtimes?: WorkingTimePayload[];
+  // Products only
   delivery_type?: DeliveryType;
-  shippingCompanies?: ShippingCompany[];
+  shippingCompanies?: ShippingCompanyPayload[];
+  // Location
   locationCities?: number[];
   serviceCities?: number[];
   tags?: string[];
@@ -175,6 +213,8 @@ export type StoreUpdatePayload = Partial<StoreCreatePayload>;
 export interface UpdateStatusPayload {
   status: StoreStatus;
 }
+
+// ============== API Functions ==============
 
 export const getStores = async (
   params: URLSearchParams

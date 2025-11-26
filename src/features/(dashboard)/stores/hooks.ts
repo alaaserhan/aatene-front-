@@ -1,7 +1,13 @@
 // src/features/(dashboard)/stores/hooks.ts
 "use client";
 
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+  InfiniteData,
+} from "@tanstack/react-query";
 import * as api from "./api";
 import { toast } from "sonner";
 import {
@@ -28,7 +34,6 @@ export function useGetStores(params: URLSearchParams) {
   });
 }
 
-// --- هوك التمرير اللانهائي الجديد ---
 export function useInfiniteGetStores(params: URLSearchParams) {
   const key = StoresQK.list(params.toString());
   return useInfiniteQuery({
@@ -39,7 +44,7 @@ export function useInfiniteGetStores(params: URLSearchParams) {
       return api.getStores(newParams);
     },
     getNextPageParam: (lastPage, allPages) => {
-      const totalPages = Math.ceil(lastPage.recordsFiltered / 10); // بافتراض 10 عناصر في الصفحة
+      const totalPages = Math.ceil(lastPage.recordsFiltered / 10);
       const nextPage = allPages.length + 1;
       return nextPage <= totalPages ? nextPage : undefined;
     },
@@ -94,19 +99,21 @@ export function useUpdateStore() {
         id: Number(vars.id),
       } as unknown as Partial<Store>;
 
-      // تحديث الكاش لـ Infinite Data
-      qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>({ queryKey: StoresQK.listAny }, (old) => {
-         if (!old) return undefined;
-         return {
+      qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>(
+        { queryKey: StoresQK.listAny },
+        (old) => {
+          if (!old) return undefined;
+          return {
             ...old,
             pages: old.pages.map((page) => ({
-               ...page,
-               data: page.data.map((s) => 
-                  s.id === Number(vars.id) ? { ...s, ...optimisticPayload } : s
-               )
-            }))
-         };
-      });
+              ...page,
+              data: page.data.map((s) =>
+                s.id === Number(vars.id) ? { ...s, ...optimisticPayload } : s
+              ),
+            })),
+          };
+        }
+      );
 
       if (prevSingle?.record) {
         qc.setQueryData(StoresQK.single(vars.id), {
@@ -124,7 +131,6 @@ export function useUpdateStore() {
 
     onError: (_err, vars, ctx) => {
       toast.error("حدث خطأ أثناء التعديل");
-      // استرجاع الحالة السابقة (يمكن تبسيطه بعمل invalidate مباشرة)
       qc.invalidateQueries({ queryKey: StoresQK.listAny });
     },
 
@@ -156,19 +162,23 @@ export function useUpdateStoreStatus() {
         StoresQK.single(vars.id)
       );
 
-      // تحديث الكاش لـ Infinite Data
-      qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>({ queryKey: StoresQK.listAny }, (old) => {
-         if (!old) return undefined;
-         return {
+      qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>(
+        { queryKey: StoresQK.listAny },
+        (old) => {
+          if (!old) return undefined;
+          return {
             ...old,
             pages: old.pages.map((page) => ({
-               ...page,
-               data: page.data.map((s) => 
-                  s.id === Number(vars.id) ? { ...s, status: vars.payload.status } : s
-               )
-            }))
-         };
-      });
+              ...page,
+              data: page.data.map((s) =>
+                s.id === Number(vars.id)
+                  ? { ...s, status: vars.payload.status }
+                  : s
+              ),
+            })),
+          };
+        }
+      );
 
       if (prevSingle?.record) {
         qc.setQueryData(StoresQK.single(vars.id), {
@@ -204,17 +214,19 @@ export function useDeleteStore() {
     onMutate: async (id) => {
       await qc.cancelQueries({ queryKey: StoresQK.listAny });
 
-      // تحديث الكاش لـ Infinite Data
-      qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>({ queryKey: StoresQK.listAny }, (old) => {
-         if (!old) return undefined;
-         return {
+      qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>(
+        { queryKey: StoresQK.listAny },
+        (old) => {
+          if (!old) return undefined;
+          return {
             ...old,
             pages: old.pages.map((page) => ({
-               ...page,
-               data: page.data.filter((s) => s.id !== Number(id))
-            }))
-         };
-      });
+              ...page,
+              data: page.data.filter((s) => s.id !== Number(id)),
+            })),
+          };
+        }
+      );
 
       qc.removeQueries({ queryKey: StoresQK.single(id) });
     },

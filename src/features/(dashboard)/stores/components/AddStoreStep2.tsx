@@ -20,7 +20,7 @@ import { useGetUsers } from "../../users/hooks";
 import { useGetCurrencies } from "../../currencies/hooks";
 import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { OptionTag } from "@/src/components/ui/OptionTag"; 
+import { OptionTag } from "@/src/components/ui/OptionTag";
 import { CityMultiSelect } from "./CityMultiSelect";
 
 interface AddStoreStep2Props {
@@ -28,7 +28,7 @@ interface AddStoreStep2Props {
   initialData?: Step2FormData;
   onNext: (data: Step2FormData) => void;
   onBack: () => void;
-  currentUserId?: string;
+  currentUserId?: number;
   barSteps: { number: number; label: string; completed: boolean }[];
 }
 
@@ -38,13 +38,13 @@ export function AddStoreStep2({
   onNext,
   onBack,
   currentUserId,
-  barSteps
+  barSteps,
 }: AddStoreStep2Props) {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const userType = user?.user_type;
   const isAdmin = userType === "admin";
-  
+
   const [formData, setFormData] = useState<Step2FormData>({
     name: initialData?.name || "",
     logo: initialData?.logo || null,
@@ -53,26 +53,26 @@ export function AddStoreStep2({
     cover_previews: initialData?.cover_previews || [],
     description: initialData?.description || "",
     email: initialData?.email || "",
-    city_id: initialData?.city_id || [],
-    service_cities: initialData?.service_cities || [],
+    locationCities: initialData?.locationCities || [],
+    serviceCities: initialData?.serviceCities || [],
     address: initialData?.address || "",
-    owner_id: initialData?.owner_id || (!isAdmin && currentUserId ? currentUserId : ""),
-    currency_id: initialData?.currency_id || "",
+    owner_id: initialData?.owner_id || (!isAdmin && currentUserId ? currentUserId : 0),
+    currency_id: initialData?.currency_id || 0,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: usersData, isLoading: isUsersLoading } = useGetUsers(
-    new URLSearchParams("per_page=100"), 
+    new URLSearchParams("per_page=100"),
     { enabled: isAdmin }
   );
 
   const ownersOptions = usersData?.data
     ? usersData.data.map((user) => ({
-      label: `${user.first_name} ${user.last_name} (${user.email})`,
-      value: String(user.id),
-    }))
+        label: `${user.first_name} ${user.last_name} (${user.email})`,
+        value: String(user.id),
+      }))
     : [];
 
   const ownerDropdownOptions = [
@@ -80,15 +80,14 @@ export function AddStoreStep2({
     ...ownersOptions,
   ];
 
-  const { data: currenciesData, isLoading: isCurrenciesLoading } = useGetCurrencies(
-    new URLSearchParams("status=active&per_page=100")
-  );
+  const { data: currenciesData, isLoading: isCurrenciesLoading } =
+    useGetCurrencies(new URLSearchParams("status=active&per_page=100"));
 
   const currencyOptions = currenciesData?.data
     ? currenciesData.data.map((currency) => ({
-      label: `${currency.name} (${currency.code})`,
-      value: String(currency.id),
-    }))
+        label: `${currency.name} (${currency.code})`,
+        value: String(currency.id),
+      }))
     : [];
 
   const { data: citiesData } = useGetCities(new URLSearchParams());
@@ -122,8 +121,8 @@ export function AddStoreStep2({
       newErrors.email = "البريد الإلكتروني غير صالح";
     }
 
-    if (formData.city_id.length === 0) {
-      newErrors.city_id = "المدينة مطلوبة";
+    if (formData.locationCities.length === 0) {
+      newErrors.locationCities = "المدينة مطلوبة";
     }
 
     if (isAdmin && !formData.owner_id) {
@@ -135,8 +134,8 @@ export function AddStoreStep2({
     }
 
     if (storeType === "services") {
-      if (!formData.service_cities || formData.service_cities.length === 0) {
-        newErrors.service_cities = "يجب اختيار منطقة واحدة على الأقل";
+      if (!formData.serviceCities || formData.serviceCities.length === 0) {
+        newErrors.serviceCities = "يجب اختيار منطقة واحدة على الأقل";
       }
     }
 
@@ -156,7 +155,9 @@ export function AddStoreStep2({
     } else {
       const firstError = Object.keys(errors)[0];
       if (firstError) {
-        const element = document.querySelector(`[name="${firstError}"]`) || document.querySelector(".text-red-500");
+        const element =
+          document.querySelector(`[name="${firstError}"]`) ||
+          document.querySelector(".text-red-500");
         element?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
@@ -168,21 +169,21 @@ export function AddStoreStep2({
 
   const handleAddServiceCity = (cityIdStr: string) => {
     const cityId = parseInt(cityIdStr);
-    const currentServiceCities = formData.service_cities || [];
-    
+    const currentServiceCities = formData.serviceCities || [];
+
     if (!currentServiceCities.includes(cityId)) {
       setFormData({
         ...formData,
-        service_cities: [...currentServiceCities, cityId]
+        serviceCities: [...currentServiceCities, cityId],
       });
     }
   };
 
   const handleRemoveServiceCity = (cityId: number) => {
-    const currentServiceCities = formData.service_cities || [];
+    const currentServiceCities = formData.serviceCities || [];
     setFormData({
       ...formData,
-      service_cities: currentServiceCities.filter(id => id !== cityId)
+      serviceCities: currentServiceCities.filter((id) => id !== cityId),
     });
   };
 
@@ -195,9 +196,7 @@ export function AddStoreStep2({
         <div className="grid grid-cols-12 gap-6 mt-8">
           <div className="col-span-12 lg:col-span-8">
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold  mb-8">
-                البيانات الأساسية
-              </h2>
+              <h2 className="text-xl font-semibold mb-8">البيانات الأساسية</h2>
 
               <div className="space-y-6">
                 <FormInput
@@ -216,7 +215,7 @@ export function AddStoreStep2({
 
                 <StoreIdentitySelector
                   value={formData.logo}
-                  previewUrl={formData.logo_preview}
+                  preview={formData.logo_preview}
                   onChange={(fileName, src) => {
                     setFormData({
                       ...formData,
@@ -244,7 +243,7 @@ export function AddStoreStep2({
                 <div className="space-y-2">
                   <Label
                     htmlFor="description"
-                    className="text-start text-sm font-medium "
+                    className="text-start text-sm font-medium"
                   >
                     وصف المتجر
                   </Label>
@@ -261,7 +260,11 @@ export function AddStoreStep2({
                       { "border-red-500": errors.description }
                     )}
                   />
-                  {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
+                  {errors.description && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.description}
+                    </p>
+                  )}
                 </div>
 
                 <FormInput
@@ -275,16 +278,17 @@ export function AddStoreStep2({
                   error={errors.email}
                 />
 
-              <CityMultiSelect
+                <CityMultiSelect
                   cities={cities}
-                  selectedCityIds={formData.city_id}
-                  onChange={(ids) => setFormData({ ...formData, city_id: ids })}
-                  error={errors.city_id}
+                  selectedCityIds={formData.locationCities}
+                  onChange={(ids) =>
+                    setFormData({ ...formData, locationCities: ids })
+                  }
+                  error={errors.locationCities}
                 />
 
-
                 <div className="space-y-2">
-                  <Label className="text-start text-sm font-medium ">
+                  <Label className="text-start text-sm font-medium">
                     العنوان
                   </Label>
                   <div className="flex items-center gap-3 ps-3 border border-gray-300 rounded-lg focus-within:border-blue-3 bg-white">
@@ -311,34 +315,43 @@ export function AddStoreStep2({
                     </Button>
                   </div>
                 </div>
-                
+
                 {storeType === "services" && (
                   <div className="space-y-3">
-                    <Label className="text-sm font-medium">المناطق التي يمكنك العمل بها</Label>
+                    <Label className="text-sm font-medium">
+                      المناطق التي يمكنك العمل بها
+                    </Label>
                     <ReusableDropdown
-                      options={cityOptions.filter(opt => !formData.service_cities?.includes(parseInt(opt.value)))}
+                      options={cityOptions.filter(
+                        (opt) =>
+                          !formData.serviceCities?.includes(parseInt(opt.value))
+                      )}
                       value=""
                       onChange={handleAddServiceCity}
                       placeholder="أضف مدينة جديدة"
-                      error={errors.service_cities}
+                      error={errors.serviceCities}
                       className="h-11"
                       triggerIcon={
-                        <img src="/icons/dashboard/mark.svg" alt="" className="w-5 h-5 opacity-50" />
+                        <img
+                          src="/icons/dashboard/mark.svg"
+                          alt=""
+                          className="w-5 h-5 opacity-50"
+                        />
                       }
                     />
-                    
+
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {formData.service_cities?.map((cityId) => {
-                         const city = cities.find(c => c.id === cityId);
-                         if(!city) return null;
-                         return (
-                           <OptionTag 
-                             key={cityId}
-                             label={city.name}
-                             onRemove={() => handleRemoveServiceCity(cityId)}
-                             showRemoveButton={true}
-                           />
-                         );
+                      {formData.serviceCities?.map((cityId) => {
+                        const city = cities.find((c) => c.id === cityId);
+                        if (!city) return null;
+                        return (
+                          <OptionTag
+                            key={cityId}
+                            label={city.name}
+                            onRemove={() => handleRemoveServiceCity(cityId)}
+                            showRemoveButton={true}
+                          />
+                        );
                       })}
                     </div>
                   </div>
@@ -349,11 +362,16 @@ export function AddStoreStep2({
                     <div className="flex flex-col gap-2">
                       <Label className="text-sm font-medium">المالك</Label>
                       <ReusableDropdown
-                        placeholder={isUsersLoading ? "جاري جلب المالكين..." : "اختر المالك"}
+                        placeholder={
+                          isUsersLoading ? "جاري جلب المالكين..." : "اختر المالك"
+                        }
                         options={ownerDropdownOptions}
-                        value={formData.owner_id}
+                        value={formData.owner_id ? String(formData.owner_id) : ""}
                         onChange={(value) =>
-                          setFormData({ ...formData, owner_id: String(value) })
+                          setFormData({
+                            ...formData,
+                            owner_id: value ? Number(value) : 0,
+                          })
                         }
                         error={errors.owner_id}
                         className="h-11"
@@ -361,18 +379,27 @@ export function AddStoreStep2({
                       />
                     </div>
                   ) : (
-                    <input type="hidden" name="owner_id" value={formData.owner_id} />
+                    <input
+                      type="hidden"
+                      name="owner_id"
+                      value={formData.owner_id}
+                    />
                   )}
 
                   <div className="flex flex-col gap-2">
                     <Label className="text-sm font-medium">العملة</Label>
                     <ReusableDropdown
                       options={currencyOptions}
-                      value={formData.currency_id}
+                      value={formData.currency_id ? String(formData.currency_id) : ""}
                       onChange={(value) =>
-                        setFormData({ ...formData, currency_id: value })
+                        setFormData({
+                          ...formData,
+                          currency_id: value ? Number(value) : 0,
+                        })
                       }
-                      placeholder={isCurrenciesLoading ? "جاري التحميل..." : "اختر العملة"}
+                      placeholder={
+                        isCurrenciesLoading ? "جاري التحميل..." : "اختر العملة"
+                      }
                       error={errors.currency_id}
                       className="h-11"
                       dropdownPosition="top"

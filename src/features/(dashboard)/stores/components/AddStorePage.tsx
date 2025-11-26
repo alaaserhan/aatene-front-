@@ -99,51 +99,55 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
       return;
     }
 
-    const basePayload = {
+    // Build the payload based on StoreCreatePayload interface
+    const payload: StoreCreatePayload = {
+      // Basic info
       type: updatedFormData.type,
       name: updatedFormData.step2!.name,
-      logo: updatedFormData.step2!.logo || "",
-      status: "active" as const,
+      logo: updatedFormData.step2!.logo || undefined,
+      status: "active",
       cover: updatedFormData.step2!.cover,
       description: updatedFormData.step2!.description,
       email: updatedFormData.step2!.email,
-      city_id: updatedFormData.step2!.city_id,
-      district_id: null,
       address: updatedFormData.step2!.address,
       lng: null,
       lat: null,
-      owner_id: Number(updatedFormData.step2!.owner_id),
-      currency_id: Number(updatedFormData.step2!.currency_id),
+      owner_id: updatedFormData.step2!.owner_id,
+      currency_id: updatedFormData.step2!.currency_id,
+
+      // Contact & Social Media
       phone: updatedFormData.step3!.phone,
       whats_app: updatedFormData.step3!.whats_app || null,
       tiktok: updatedFormData.step3!.tiktok || null,
       facebook: updatedFormData.step3!.facebook || null,
       instagram: updatedFormData.step3!.instagram || null,
-      twitter: null,
+      twitter: updatedFormData.step3!.twitter || null,
       youtube: updatedFormData.step3!.youtube || null,
-      linkedin: null,
-      pinterest: null,
+      linkedin: updatedFormData.step3!.linkedin || null,
+      pinterest: updatedFormData.step3!.pinterest || null,
+
+      // Managers - already in correct format (StoreManagerPayload[])
       managers: updatedFormData.step4!.managers,
+
+      // Working times
       open_status: updatedFormData.step5!.open_status,
       workingtimes: updatedFormData.step5!.workingtimes,
+
+      // Tags
       tags: data.tags,
+
+      // Location cities
+      locationCities: updatedFormData.step2!.locationCities,
     };
 
-    let payload: StoreCreatePayload;
+    // Add type-specific fields
     if (updatedFormData.type === "products") {
-      payload = {
-        ...basePayload,
-        delivery_type: updatedFormData.step6!.delivery_type,
-        shippingCompanies: updatedFormData.step6!.shippingCompanies,
-        locationCities: updatedFormData.step2!.city_id,
-        serviceCities: [],
-      };
+      payload.delivery_type = updatedFormData.step6!.delivery_type;
+      payload.shippingCompanies = updatedFormData.step6!.shippingCompanies;
+      payload.serviceCities = [];
     } else {
-      payload = {
-        ...basePayload,
-        locationCities: updatedFormData.step2!.city_id,
-        serviceCities: updatedFormData.step2!.service_cities || [],
-      };
+      // Services type
+      payload.serviceCities = updatedFormData.step2!.serviceCities || [];
     }
 
     try {
@@ -153,6 +157,7 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
       console.error("Error creating store:", error);
     }
   };
+
   const handleStep7Back = () => {
     if (storeType === "services") {
       setCurrentStep(5);
@@ -169,9 +174,12 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
     ...(storeType === "products"
       ? [{ number: 5, label: "طريقة الشحن", completed: false }]
       : []),
-    { number: storeType === "products" ? 6 : 5, label: "الكلمات المفتاحية", completed: false },
+    {
+      number: storeType === "products" ? 6 : 5,
+      label: "الكلمات المفتاحية",
+      completed: false,
+    },
   ];
-
 
   const renderStep = () => {
     switch (currentStep) {

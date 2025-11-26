@@ -1,4 +1,6 @@
-"use client"
+// src/features/(dashboard)/stores/components/AddStoreStep3.tsx
+"use client";
+
 import { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/src/components/ui/button";
@@ -37,7 +39,10 @@ export function AddStoreStep3({
     tiktok: initialData?.tiktok || "",
     facebook: initialData?.facebook || "",
     instagram: initialData?.instagram || "",
+    twitter: initialData?.twitter || "",
     youtube: initialData?.youtube || "",
+    linkedin: initialData?.linkedin || "",
+    pinterest: initialData?.pinterest || "",
   });
 
   const steps = barSteps;
@@ -56,7 +61,7 @@ export function AddStoreStep3({
   };
 
   return (
-    <div className=" bg-gray-50">
+    <div className="bg-gray-50">
       <div className="container mx-auto pb-0 px-4">
         <Breadcrumb items={breadcrumbItems} className="mb-4" />
 
@@ -65,7 +70,7 @@ export function AddStoreStep3({
         <div className="grid grid-cols-12 gap-6 mt-8">
           <div className="col-span-12 lg:col-span-8">
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-bold  mb-8">الاتصال والسوشيال</h2>
+              <h2 className="text-xl font-bold mb-8">الاتصال والسوشيال</h2>
 
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -181,6 +186,58 @@ export function AddStoreStep3({
                     }
                   />
                 </div>
+
+                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <SocialMediaInput
+                    label="تويتر"
+                    icon={
+                      <img
+                        src="/icons/dashboard/twitter.svg"
+                        alt="twitter"
+                        className="w-5 h-5"
+                      />
+                    }
+                    placeholder="https://twitter.com/username"
+                    value={formData.twitter}
+                    onChange={(e) =>
+                      setFormData({ ...formData, twitter: e.target.value })
+                    }
+                  />
+
+                  <SocialMediaInput
+                    label="لينكد إن"
+                    icon={
+                      <img
+                        src="/icons/dashboard/linkedin.svg"
+                        alt="linkedin"
+                        className="w-5 h-5"
+                      />
+                    }
+                    placeholder="https://linkedin.com/company/name"
+                    value={formData.linkedin}
+                    onChange={(e) =>
+                      setFormData({ ...formData, linkedin: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <SocialMediaInput
+                    label="بينترست"
+                    icon={
+                      <img
+                        src="/icons/dashboard/pinterest.svg"
+                        alt="pinterest"
+                        className="w-5 h-5"
+                      />
+                    }
+                    placeholder="https://pinterest.com/username"
+                    value={formData.pinterest}
+                    onChange={(e) =>
+                      setFormData({ ...formData, pinterest: e.target.value })
+                    }
+                  />
+                </div> */}
               </div>
             </div>
           </div>
@@ -208,7 +265,7 @@ export function AddStoreStep3({
         <Button
           onClick={onBack}
           variant="outline"
-          className="px-12 py-5 bg-gray-4 border-none  cursor-pointer rounded-sm"
+          className="px-12 py-5 bg-gray-4 border-none cursor-pointer rounded-sm"
         >
           رجوع
         </Button>

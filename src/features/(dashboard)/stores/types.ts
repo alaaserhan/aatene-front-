@@ -1,4 +1,13 @@
-import { StoreType, OpenStatus, StoreManager, WorkingTime, DeliveryType, ShippingCompany } from "./api";
+// src/features/(dashboard)/stores/types.ts
+
+import {
+  StoreType,
+  OpenStatus,
+  StoreManagerPayload,
+  WorkingTimePayload,
+  DeliveryType,
+  ShippingCompanyPayload,
+} from "./api";
 
 export interface Step2FormData {
   name: string;
@@ -8,11 +17,11 @@ export interface Step2FormData {
   cover_previews: string[];
   description: string;
   email: string;
-  city_id: number[];  
-  service_cities?: number[];
+  locationCities: number[];
+  serviceCities: number[];
   address: string;
-  owner_id: string;
-  currency_id: string;
+  owner_id: number;
+  currency_id: number;
 }
 
 export interface Step3FormData {
@@ -22,21 +31,24 @@ export interface Step3FormData {
   tiktok: string;
   facebook: string;
   instagram: string;
+  twitter: string;
   youtube: string;
+  linkedin: string;
+  pinterest: string;
 }
 
 export interface Step4FormData {
-  managers: StoreManager[];
+  managers: StoreManagerPayload[];
 }
 
 export interface Step5FormData {
   open_status: OpenStatus;
-  workingtimes: WorkingTime[];
+  workingtimes: WorkingTimePayload[];
 }
 
 export interface Step6FormData {
   delivery_type: DeliveryType;
-  shippingCompanies: ShippingCompany[];
+  shippingCompanies: ShippingCompanyPayload[];
 }
 
 export interface Step7FormData {

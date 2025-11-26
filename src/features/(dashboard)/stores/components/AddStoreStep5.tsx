@@ -147,7 +147,7 @@ export function AddStoreStep5({
                   <div className="space-y-8">
                     {workingTimes.map((time, index) => (
                       <div
-                        key={time.day}
+                        key={index}
                         className="grid grid-cols-12 gap-4 items-center"
                       >
                         <div className="col-span-12 md:col-span-2 ">
