@@ -139,7 +139,7 @@ export function ReusableDropdown({
           </div>
         </div>
       )}
-      {error && <p className="text-xs text-red-1">{error}</p>}
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 }

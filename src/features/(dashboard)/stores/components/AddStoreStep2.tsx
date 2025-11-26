@@ -117,6 +117,10 @@ export function AddStoreStep2({
       newErrors.logo = "شعار المتجر مطلوب";
     }
 
+    if(formData.email.trim() === "") {
+      newErrors.email = "البريد الإلكتروني مطلوب";
+    }
+
     if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "البريد الإلكتروني غير صالح";
     }
@@ -276,6 +280,7 @@ export function AddStoreStep2({
                   }
                   placeholder="example@info.com"
                   error={errors.email}
+                  required
                 />
 
                 <CityMultiSelect
