@@ -69,7 +69,7 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
         },
         step3: {
           phone: store.phone || "",
-          hide_phone: store.hide_phone === "1",
+          hide_phone: store.hide_phone,
           whats_app: store.whats_app || "",
           tiktok: store.tiktok || "",
           facebook: store.facebook || "",
