@@ -40,7 +40,7 @@ export function AddStoreStep3({
   const [formData, setFormData] = useState<LocalStep3Data>({
     phone: initialData?.phone || "",
     hide_phone:
-      initialData?.hide_phone === true || initialData?.hide_phone === "1"
+      initialData?.hide_phone === "1"
         ? "1"
         : "0",
     whats_app: initialData?.whats_app || "",
