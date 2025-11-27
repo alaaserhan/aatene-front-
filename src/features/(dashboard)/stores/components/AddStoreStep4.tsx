@@ -3,7 +3,6 @@
 
 import { useState } from "react";
 import { Button } from "@/src/components/ui/button";
-import { FormInput } from "@/src/components/ui/FormInput";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
@@ -13,6 +12,7 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
 import { Step2FormData, Step4FormData } from "../types";
+import { useGetUsers } from "../../users/hooks";
 
 interface AddStoreStep4Props {
   storeType: StoreType;
@@ -51,6 +51,22 @@ export function AddStoreStep4({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const { data: usersData, isLoading: isUsersLoading } = useGetUsers(
+    new URLSearchParams("per_page=1000")
+  );
+
+  const userOptions = usersData?.data
+    ? usersData.data.map((user) => ({
+        label: `${user.first_name} ${user.last_name} (${user.email})`,
+        value: user.email,
+      }))
+    : [];
+
+  const dropdownOptions = [
+    { value: "", label: isUsersLoading ? "جاري التحميل..." : "اختر الموظف" },
+    ...userOptions,
+  ];
 
   const steps = barSteps;
 
@@ -196,16 +212,23 @@ export function AddStoreStep4({
 
               {activeTab === "add" ? (
                 <div className="space-y-6 p-3 border border-gray-200 rounded-lg">
-                  <FormInput
-                    label="البريد الالكتروني"
-                    type="email"
-                    value={newManager.email}
-                    onChange={(e) =>
-                      setNewManager({ ...newManager, email: e.target.value })
-                    }
-                    placeholder="kerooadel5@gmail.com"
-                    error={errors.email}
-                  />
+                  
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-900">
+                      اختر الموظف
+                    </Label>
+                    <ReusableDropdown
+                      options={dropdownOptions}
+                      value={newManager.email}
+                      onChange={(value) =>
+                        setNewManager({ ...newManager, email: value })
+                      }
+                      placeholder={isUsersLoading ? "جاري التحميل..." : "ابحث بالاسم أو البريد"}
+                      className="w-full"
+                      error={errors.email}
+                      dropdownPosition="bottom"
+                    />
+                  </div>
 
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-900">

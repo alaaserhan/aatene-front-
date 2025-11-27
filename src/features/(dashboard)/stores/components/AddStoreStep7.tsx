@@ -66,7 +66,18 @@ export function AddStoreStep7({
   isSubmitting = false,
   barSteps,
 }: AddStoreStep7Props) {
-  const [tags, setTags] = useState<string[]>(initialData?.tags || []);
+  const [tags, setTags] = useState<string[]>(() => {
+    const rawTags = initialData?.tags;
+    
+    if (!rawTags || rawTags.length === 0) return [];
+
+    if (typeof rawTags[0] === "object" && rawTags[0] !== null) {
+      return (rawTags as unknown as { title: string }[]).map((tag) => tag.title || "");
+    }
+
+    return rawTags as string[];
+  });
+
   const [inputValue, setInputValue] = useState("");
 
   const steps = barSteps;
