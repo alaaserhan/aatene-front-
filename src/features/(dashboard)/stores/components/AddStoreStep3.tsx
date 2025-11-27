@@ -10,6 +10,7 @@ import { StorePreviewSidebar } from "./StorePreviewSidebar";
 import { StoreType } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Step2FormData, Step3FormData } from "../types";
+import { cn } from "@/src/lib/utils";
 
 interface AddStoreStep3Props {
   storeType: StoreType;
@@ -18,6 +19,10 @@ interface AddStoreStep3Props {
   onNext: (data: Step3FormData) => void;
   onBack: () => void;
   barSteps: { number: number; label: string; completed: boolean }[];
+}
+
+interface LocalStep3Data extends Omit<Step3FormData, "hide_phone"> {
+  hide_phone: "1" | "0";
 }
 
 export function AddStoreStep3({
@@ -32,9 +37,12 @@ export function AddStoreStep3({
   const [phoneCountryCode, setPhoneCountryCode] = useState("+20");
   const [whatsappCountryCode, setWhatsappCountryCode] = useState("+20");
 
-  const [formData, setFormData] = useState<Step3FormData>({
+  const [formData, setFormData] = useState<LocalStep3Data>({
     phone: initialData?.phone || "",
-    hide_phone: initialData?.hide_phone || false,
+    hide_phone:
+      initialData?.hide_phone === true || initialData?.hide_phone === "1"
+        ? "1"
+        : "0",
     whats_app: initialData?.whats_app || "",
     tiktok: initialData?.tiktok || "",
     facebook: initialData?.facebook || "",
@@ -53,11 +61,18 @@ export function AddStoreStep3({
   ];
 
   const handleNext = () => {
-    onNext(formData);
+    onNext(formData as unknown as Step3FormData);
   };
 
   const handleCancel = () => {
     router.push("/admin/stores");
+  };
+
+  const toggleHidePhone = () => {
+    setFormData({
+      ...formData,
+      hide_phone: formData.hide_phone === "1" ? "0" : "1",
+    });
   };
 
   return (
@@ -86,21 +101,38 @@ export function AddStoreStep3({
                       }
                     />
                     <div className="flex items-center gap-2 pt-2">
-                      <input
-                        type="checkbox"
-                        id="hide_phone"
-                        checked={formData.hide_phone}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            hide_phone: e.target.checked,
-                          })
-                        }
-                        className="w-4 h-4 text-blue-3 rounded cursor-pointer"
-                      />
+                      <button
+                        type="button"
+                        onClick={toggleHidePhone}
+                        className={cn(
+                          "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer",
+                          formData.hide_phone === "1"
+                            ? "bg-blue-5 border-blue-4"
+                            : "bg-white border-gray-300 group-hover:border-gray-500"
+                        )}
+                        aria-checked={formData.hide_phone === "1"}
+                        role="checkbox"
+                      >
+                        {formData.hide_phone === "1" && (
+                          <svg
+                            className="w-4 h-4 text-blue-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={3}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        )}
+                      </button>
+
                       <label
-                        htmlFor="hide_phone"
-                        className="text-sm text-gray-600 cursor-pointer"
+                        onClick={toggleHidePhone}
+                        className="text-sm text-gray-600 cursor-pointer font-normal select-none"
                       >
                         إخفاء رقم الهاتف على الملف الشخصي
                       </label>
@@ -186,58 +218,6 @@ export function AddStoreStep3({
                     }
                   />
                 </div>
-
-                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <SocialMediaInput
-                    label="تويتر"
-                    icon={
-                      <img
-                        src="/icons/dashboard/twitter.svg"
-                        alt="twitter"
-                        className="w-5 h-5"
-                      />
-                    }
-                    placeholder="https://twitter.com/username"
-                    value={formData.twitter}
-                    onChange={(e) =>
-                      setFormData({ ...formData, twitter: e.target.value })
-                    }
-                  />
-
-                  <SocialMediaInput
-                    label="لينكد إن"
-                    icon={
-                      <img
-                        src="/icons/dashboard/linkedin.svg"
-                        alt="linkedin"
-                        className="w-5 h-5"
-                      />
-                    }
-                    placeholder="https://linkedin.com/company/name"
-                    value={formData.linkedin}
-                    onChange={(e) =>
-                      setFormData({ ...formData, linkedin: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <SocialMediaInput
-                    label="بينترست"
-                    icon={
-                      <img
-                        src="/icons/dashboard/pinterest.svg"
-                        alt="pinterest"
-                        className="w-5 h-5"
-                      />
-                    }
-                    placeholder="https://pinterest.com/username"
-                    value={formData.pinterest}
-                    onChange={(e) =>
-                      setFormData({ ...formData, pinterest: e.target.value })
-                    }
-                  />
-                </div> */}
               </div>
             </div>
           </div>

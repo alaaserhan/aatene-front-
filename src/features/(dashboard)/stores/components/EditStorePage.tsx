@@ -38,7 +38,6 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
 
   useEffect(() => {
     if (store && !formData) {
-      // Convert managers from GET format to Payload format
       const managersPayload: StoreManagerPayload[] = (store.managers || []).map(
         (m) => ({
           email: m.user_email,
@@ -47,7 +46,6 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
         })
       );
 
-      // Get location cities
       const locationCities = store.locationCities || [];
       const serviceCities = store.serviceCities || [];
 
@@ -186,10 +184,8 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
       return;
     }
 
-    // Build the payload based on StoreUpdatePayload interface
     const payload: StoreUpdatePayload = {
       type: formData.type,
-      // Basic info
       name: updatedFormData.step2!.name,
       logo: updatedFormData.step2!.logo || undefined,
       cover: updatedFormData.step2!.cover,
@@ -199,8 +195,8 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
       owner_id: updatedFormData.step2!.owner_id,
       currency_id: updatedFormData.step2!.currency_id,
 
-      // Contact & Social Media
       phone: updatedFormData.step3!.phone,
+      hide_phone: updatedFormData.step3!.hide_phone ? "1" : "0",
       whats_app: updatedFormData.step3!.whats_app || null,
       tiktok: updatedFormData.step3!.tiktok || null,
       facebook: updatedFormData.step3!.facebook || null,
@@ -210,27 +206,21 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
       linkedin: updatedFormData.step3!.linkedin || null,
       pinterest: updatedFormData.step3!.pinterest || null,
 
-      // Managers - already in correct format (StoreManagerPayload[])
       managers: updatedFormData.step4!.managers,
 
-      // Working times
       open_status: updatedFormData.step5!.open_status,
       workingtimes: updatedFormData.step5!.workingtimes,
 
-      // Tags
       tags: data.tags,
 
-      // Location cities
       locationCities: updatedFormData.step2!.locationCities,
     };
 
-    // Add type-specific fields
     if (updatedFormData.type === "products") {
       payload.delivery_type = updatedFormData.step6!.delivery_type;
       payload.shippingCompanies = updatedFormData.step6!.shippingCompanies;
       payload.serviceCities = [];
     } else {
-      // Services type
       payload.serviceCities = updatedFormData.step2!.serviceCities || [];
     }
 

@@ -206,6 +206,7 @@ export interface StoreCreatePayload {
   locationCities?: number[];
   serviceCities?: number[];
   tags?: string[];
+  hide_phone?: "0" | "1";
 }
 
 export type StoreUpdatePayload = Partial<StoreCreatePayload>;

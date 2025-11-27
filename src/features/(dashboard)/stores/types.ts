@@ -26,7 +26,7 @@ export interface Step2FormData {
 
 export interface Step3FormData {
   phone: string;
-  hide_phone: boolean;
+  hide_phone: "0" | "1";
   whats_app: string;
   tiktok: string;
   facebook: string;
