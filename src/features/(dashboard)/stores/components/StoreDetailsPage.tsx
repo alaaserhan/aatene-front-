@@ -22,11 +22,14 @@ const statusOptions = [
 export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
   const router = useRouter();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
   const [managersExpanded, setManagersExpanded] = useState(true);
   const [showAllDays, setShowAllDays] = useState(false);
 
-  const { data: storeData, isLoading } = useGetSingleStore(storeId);
   const { mutate: deleteStoreMutation, isPending: isDeleting } = useDeleteStore();
+  const { data: storeData, isLoading } = useGetSingleStore(storeId, {
+    enabled: !isDeleteConfirmed,
+  });
   const { mutate: updateStatusMutation } = useUpdateStoreStatus();
 
   const store = storeData?.record;
@@ -40,10 +43,16 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
   };
 
   const handleConfirmDelete = () => {
+    setIsDeleteConfirmed(true);
+
     deleteStoreMutation(storeId, {
       onSuccess: () => {
         router.push("/admin/stores");
       },
+      onError: () => {
+        // إعادة التفعيل في حال فشل الحذف فقط
+        setIsDeleteConfirmed(false);
+      }
     });
   };
 
@@ -79,7 +88,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
     : store.workingtimes.slice(0, 2);
 
   return (
-    <div className="h-full bg-white rounded-lg overflow-y-auto">
+    <div className="max-h-[calc(100vh-193px)] h-full bg-white rounded-lg border border-gray-200 overflow-auto ">
       <div className="p-6 space-y-6">
         <div className="grid grid-cols-3 gap-3">
           <div className="w-full">
@@ -196,7 +205,11 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
 
         <div className="space-y-4 px-0 md:px-4">
           <h2 className="text-xl font-bold ">بيانات الاتصال والسوشيل</h2>
-
+          {
+            (!store.whats_app && !store.phone && !store.facebook && !store.youtube && !store.instagram && !store.tiktok) && (
+              <p className="text-sm text-gray-500">لا توجد بيانات اتصال أو سوشيل متاحة لهذا المتجر</p>
+            )
+          }
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {store.whats_app && (
               <SocialRow
@@ -256,7 +269,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
                 onClick={() => setManagersExpanded(!managersExpanded)}
                 className="w-8 h-8 flex items-center justify-center rounded-full border border-blue-4 cursor-pointer text-blue-4"
               >
-                {managersExpanded ? <Minus className="w-5"/> : <Plus className="w-5"/>}
+                {managersExpanded ? <Minus className="w-5" /> : <Plus className="w-5" />}
               </button>
             </div>
 

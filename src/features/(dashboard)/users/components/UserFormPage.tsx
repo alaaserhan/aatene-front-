@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
 import { Badge } from "@/src/components/ui/badge";
 import { cn } from "@/src/lib/utils";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 
 const userFormSchema = z.object({
   avatar: z.string().nullable(),
@@ -42,7 +43,10 @@ export function UserFormPage() {
 
   const { data: rolesData } = useGetRoles(new URLSearchParams());
   const roles = rolesData?.data || [];
-
+  const roleOptions = roles.map((role) => ({
+    value: role.id.toString(),
+    label: role.title || role.name,
+  }));
   const createUserMutation = useCreateUser();
   const isMutating = createUserMutation.isPending;
 
@@ -201,17 +205,25 @@ export function UserFormPage() {
                 </div>
               </div>
 
-              <FormSelect
-                label="الدور الوظيفي"
-                {...register("roles")}
-                options={[
-                  { value: "", label: "اختر الدور الوظيفي" },
-                  ...roles.map((role) => ({
-                    value: role.id.toString(),
-                    label: role.title || role.name,
-                  })),
-                ]}
-                error={errors.roles?.message}
+              <Controller
+                control={control}
+                name="roles"
+                render={({ field }) => (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium">
+                      الدور الوظيفي
+                    </label>
+                    <ReusableDropdown
+                      options={roleOptions}
+                      value={field.value}
+                      onChange={(value) => field.onChange(value)}
+                      placeholder="اختر الدور الوظيفي"
+                      error={errors.roles?.message}
+                      className="w-full"
+                      dropdownPosition="top"
+                    />
+                  </div>
+                )}
               />
 
               {roleDetailsData?.record && (

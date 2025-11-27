@@ -6,7 +6,7 @@ import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
 import { StoreFormActions } from "./StoreFormActions";
 import { TimePicker } from "./TimePicker";
-import { StoreType, WorkingTime, OpenStatus } from "../api";
+import { StoreType, WorkingTimePayload, OpenStatus } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { cn } from "@/src/lib/utils";
 import { Step2FormData, Step5FormData } from "../types";
@@ -42,7 +42,7 @@ export function AddStoreStep5({
     initialData?.open_status || "open_with_working_times"
   );
 
-  const [workingTimes, setWorkingTimes] = useState<WorkingTime[]>(
+  const [workingTimes, setWorkingTimes] = useState<WorkingTimePayload[]>(
     initialData?.workingtimes ||
     DAYS.map((day) => ({
       day: day.value,
@@ -60,10 +60,10 @@ export function AddStoreStep5({
     { label: "إضافة متجر" },
   ];
 
-  const updateWorkingTime = <K extends keyof WorkingTime>(
+  const updateWorkingTime = <K extends keyof WorkingTimePayload>(
     index: number,
     field: K,
-    value: WorkingTime[K]
+    value: WorkingTimePayload[K]
   ) => {
     setWorkingTimes((prev) => {
       const newTimes = [...prev];
@@ -89,7 +89,7 @@ export function AddStoreStep5({
   };
 
   return (
-    <div className=" bg-gray-50">
+    <div className="bg-gray-50">
       <div className="container mx-auto py-4 px-4">
         <Breadcrumb items={breadcrumbItems} className="mb-4" />
         <StepperProgress currentStep={4} steps={steps} />
@@ -97,7 +97,7 @@ export function AddStoreStep5({
         <div className="grid grid-cols-12 gap-6 mt-8">
           <div className="col-span-12 lg:col-span-8">
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold  mb-6 ">
+              <h2 className="text-xl font-semibold mb-6">
                 أوقات العمل و العطلات
               </h2>
 
@@ -138,9 +138,9 @@ export function AddStoreStep5({
               {openStatus === "open_with_working_times" && (
                 <div className="mt-8">
                   <div className="grid grid-cols-12 gap-4 mb-4 text-sm font-medium text-gray-3 px-2">
-                    <div className="col-span-2 ">اليوم</div>
-                    <div className="col-span-4 ">يفتح في</div>
-                    <div className="col-span-4 ">يغلق في</div>
+                    <div className="col-span-2">اليوم</div>
+                    <div className="col-span-4">يفتح في</div>
+                    <div className="col-span-4">يغلق في</div>
                     <div className="col-span-2"></div>
                   </div>
 
@@ -150,13 +150,13 @@ export function AddStoreStep5({
                         key={index}
                         className="grid grid-cols-12 gap-4 items-center"
                       >
-                        <div className="col-span-12 md:col-span-2 ">
+                        <div className="col-span-12 md:col-span-2">
                           <span className="text-sm font-medium">
                             {DAYS.find((d) => d.value === time.day)?.label}
                           </span>
                         </div>
 
-                        <div className="col-span-6 md:col-span-3 flex ">
+                        <div className="col-span-6 md:col-span-3 flex">
                           <TimePicker
                             value={time.from}
                             onChange={(val) =>
@@ -166,15 +166,17 @@ export function AddStoreStep5({
                           />
                         </div>
 
-                        <div className="col-span-6 md:col-span-3 flex ">
+                        <div className="col-span-6 md:col-span-3 flex">
                           <TimePicker
                             value={time.to}
-                            onChange={(val) => updateWorkingTime(index, "to", val)}
+                            onChange={(val) =>
+                              updateWorkingTime(index, "to", val)
+                            }
                             disabled={time.open_always || time.closed_always}
                           />
                         </div>
 
-                        <div className="col-span-12 md:col-span-4 flex flex-row gap-2 ">
+                        <div className="col-span-12 md:col-span-4 flex flex-row gap-2">
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
                               type="checkbox"
@@ -261,7 +263,7 @@ function OpenStatusOption({
           className={cn(
             "w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all",
             selected
-              ? "border-blue-4 "
+              ? "border-blue-4"
               : "border-gray-300 group-hover:border-gray-400"
           )}
         >
@@ -269,7 +271,9 @@ function OpenStatusOption({
         </div>
       </div>
       <div>
-        <h4 className={cn("font-bold text-sm mb-1 transition-colors")}>{label}</h4>
+        <h4 className={cn("font-bold text-sm mb-1 transition-colors")}>
+          {label}
+        </h4>
         <p className="text-xs text-gray-1">{description}</p>
       </div>
     </div>

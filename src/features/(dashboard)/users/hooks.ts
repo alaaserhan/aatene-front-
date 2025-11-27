@@ -68,11 +68,11 @@ export const useInfiniteGetUsers = (params: URLSearchParams) => {
   });
 };
 
-export const useGetSingleUser = (id: string | number | undefined) => {
+export const useGetSingleUser = (id: string | number | undefined, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: QK.single(id ?? ""),
     queryFn: () => api.getSingleUser(id!),
-    enabled: !!id,
+    enabled: !!id && (options?.enabled ?? true),
   });
 };
 
@@ -206,7 +206,7 @@ export const useDeleteUser = () => {
          };
       });
 
-      qc.removeQueries({ queryKey: QK.single(id) });
+      // qc.removeQueries({ queryKey: QK.single(id) });
     },
 
     onSuccess: (data: BaseResponse) => {

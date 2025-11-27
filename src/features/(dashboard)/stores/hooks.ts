@@ -52,11 +52,12 @@ export function useInfiniteGetStores(params: URLSearchParams) {
   });
 }
 
-export function useGetSingleStore(id?: string | number) {
+export function useGetSingleStore(id?: string | number, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: StoresQK.single(id ?? ""),
     queryFn: () => api.getSingleStore(id!),
-    enabled: !!id,
+    // دمج الشرط الأصلي مع الشرط الجديد
+    enabled: !!id && (options?.enabled ?? true),
   });
 }
 
@@ -212,8 +213,6 @@ export function useDeleteStore() {
     mutationFn: (id: string | number) => api.deleteStore(id),
 
     onMutate: async (id) => {
-      await qc.cancelQueries({ queryKey: StoresQK.listAny });
-
       qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>(
         { queryKey: StoresQK.listAny },
         (old) => {
@@ -228,7 +227,7 @@ export function useDeleteStore() {
         }
       );
 
-      qc.removeQueries({ queryKey: StoresQK.single(id) });
+      // qc.removeQueries({ queryKey: StoresQK.single(id) });
     },
 
     onSuccess: (data) => {

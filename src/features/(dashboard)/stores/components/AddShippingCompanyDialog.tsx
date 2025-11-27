@@ -1,10 +1,10 @@
 // src/features/(dashboard)/stores/components/AddShippingCompanyDialog.tsx
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
-import { ShippingCompany, ShippingPrice } from "../api";
+import { ShippingCompanyPayload, ShippingPricePayload } from "../api";
 import { useGetCities } from "../../cities/hooks";
 import { toast } from "sonner";
 import { ChevronRight } from "lucide-react";
@@ -13,8 +13,8 @@ import { cn } from "@/src/lib/utils";
 interface AddShippingCompanyDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (company: ShippingCompany) => void;
-  editingCompany?: ShippingCompany | null;
+  onSave: (company: ShippingCompanyPayload) => void;
+  editingCompany?: ShippingCompanyPayload | null;
 }
 
 interface PriceData {
@@ -29,36 +29,54 @@ export function AddShippingCompanyDialog({
   editingCompany,
 }: AddShippingCompanyDialogProps) {
   const [step, setStep] = useState(1);
-  
+
   const [phoneCountryCode, setPhoneCountryCode] = useState("+970");
-  
-  const [companyName, setCompanyName] = useState(editingCompany?.name || "");
-  
-  const [selectedCityIds, setSelectedCityIds] = useState<number[]>(() => 
-    editingCompany ? editingCompany.prices.map((p) => p.city_id) : []
-  );
 
-  const [shippingPrices, setShippingPrices] = useState<Record<number, PriceData>>(() => {
-    if (editingCompany) {
-      const pricesMap: Record<number, PriceData> = {};
-      editingCompany.prices.forEach((p) => {
-        pricesMap[p.city_id] = { days: p.days, price: p.price };
-      });
-      return pricesMap;
-    }
-    return {};
-  });
+  const [companyName, setCompanyName] = useState("");
 
-  const [storeName, setStoreName] = useState(editingCompany?.name || "");
-  
-  const [storePhone, setStorePhone] = useState(() => 
-    editingCompany 
-      ? String(editingCompany.phone).replace("+970", "").replace("+20", "").replace("+966", "").replace("+971", "")
-      : ""
-  );
+  const [selectedCityIds, setSelectedCityIds] = useState<number[]>([]);
+
+  const [shippingPrices, setShippingPrices] = useState<
+    Record<number, PriceData>
+  >({});
+
+  const [storeName, setStoreName] = useState("");
+
+  const [storePhone, setStorePhone] = useState("");
 
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
+
+  // Reset form when dialog opens/closes or editingCompany changes
+  useEffect(() => {
+    if (isOpen) {
+      if (editingCompany) {
+        setCompanyName(editingCompany.name || "");
+        setStoreName(editingCompany.name || "");
+        setStorePhone(
+          String(editingCompany.phone)
+            .replace("+970", "")
+            .replace("+20", "")
+            .replace("+966", "")
+            .replace("+971", "")
+        );
+        setSelectedCityIds(editingCompany.prices.map((p) => p.city_id));
+        const pricesMap: Record<number, PriceData> = {};
+        editingCompany.prices.forEach((p) => {
+          pricesMap[p.city_id] = { days: p.days, price: p.price };
+        });
+        setShippingPrices(pricesMap);
+      } else {
+        // Reset to defaults for new company
+        setCompanyName("");
+        setStoreName("");
+        setStorePhone("");
+        setSelectedCityIds([]);
+        setShippingPrices({});
+      }
+      setStep(1);
+    }
+  }, [isOpen, editingCompany]);
 
   const handleCityToggle = (cityId: number) => {
     setSelectedCityIds((prev) => {
@@ -82,15 +100,15 @@ export function AddShippingCompanyDialog({
     }
 
     setShippingPrices((prev) => {
-        const newPrices: Record<number, PriceData> = { ...prev };
-        selectedCityIds.forEach((cityId) => {
-          if (!newPrices[cityId]) {
-            newPrices[cityId] = { days: 3, price: 20.0 };
-          }
-        });
-        return newPrices;
+      const newPrices: Record<number, PriceData> = { ...prev };
+      selectedCityIds.forEach((cityId) => {
+        if (!newPrices[cityId]) {
+          newPrices[cityId] = { days: 3, price: 20.0 };
+        }
+      });
+      return newPrices;
     });
-    
+
     setStep(2);
   };
 
@@ -113,18 +131,13 @@ export function AddShippingCompanyDialog({
       }
     }
 
-    const prices: ShippingPrice[] = selectedCityIds.map((cityId) => {
-      const existingPrice = editingCompany?.prices.find((p) => p.city_id === cityId);
-      return {
-        id: existingPrice?.id, 
-        city_id: cityId,
-        days: shippingPrices[cityId].days,
-        price: shippingPrices[cityId].price,
-      };
-    });
+    const prices: ShippingPricePayload[] = selectedCityIds.map((cityId) => ({
+      city_id: cityId,
+      days: shippingPrices[cityId].days,
+      price: shippingPrices[cityId].price,
+    }));
 
-    const company: ShippingCompany = {
-      id: editingCompany?.id,
+    const company: ShippingCompanyPayload = {
       name: storeName,
       phone: `${phoneCountryCode}${storePhone}`,
       prices,
@@ -164,14 +177,16 @@ export function AddShippingCompanyDialog({
 
       <div className="relative bg-white rounded-lg w-full max-w-2xl mx-4 shadow-xl">
         <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center ">
+          <div className="flex items-center">
             <button
               onClick={handleBack}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
-            <h2 className="text-xl font-bold">إضافة بيانات شركة الشحن</h2>
+            <h2 className="text-xl font-bold">
+              {editingCompany ? "تعديل شركة الشحن" : "إضافة بيانات شركة الشحن"}
+            </h2>
           </div>
         </div>
 
@@ -231,7 +246,7 @@ export function AddShippingCompanyDialog({
                 </div>
               </div>
 
-              <div className="flex justify-center items-center pt-6">
+              <div className="flex items-center pt-6">
                 <Button
                   onClick={handleStep1Next}
                   className="px-12 py-5 rounded-full text-white bg-[#3A5779] hover:bg-[#2c425e]"
@@ -252,7 +267,10 @@ export function AddShippingCompanyDialog({
                   if (!city) return null;
 
                   return (
-                    <div key={cityId} className="grid grid-cols-8 gap-4 items-end border-b border-gray-100 pb-4 last:border-0">
+                    <div
+                      key={cityId}
+                      className="grid grid-cols-8 gap-4 items-end border-b border-gray-100 pb-4 last:border-0"
+                    >
                       <div className="col-span-2">
                         <label className="block text-xs text-gray-500 mb-2">
                           المدينة
@@ -264,14 +282,19 @@ export function AddShippingCompanyDialog({
 
                       <div className="col-span-3">
                         <label className="block text-xs text-gray-500 mb-2">
-                          موعد التسليم (بالأيام) <span className="text-red-500">*</span>
+                          موعد التسليم (بالأيام){" "}
+                          <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="number"
                           min="1"
                           value={shippingPrices[cityId]?.days || 3}
                           onChange={(e) =>
-                            updateShippingPrice(cityId, "days", parseInt(e.target.value) || 0)
+                            updateShippingPrice(
+                              cityId,
+                              "days",
+                              parseInt(e.target.value) || 0
+                            )
                           }
                           className="w-full px-4 py-2 border text-sm border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#3A5779] transition-shadow"
                         />
@@ -287,7 +310,11 @@ export function AddShippingCompanyDialog({
                           step="0.01"
                           value={shippingPrices[cityId]?.price || 20.0}
                           onChange={(e) =>
-                            updateShippingPrice(cityId, "price", parseFloat(e.target.value) || 0)
+                            updateShippingPrice(
+                              cityId,
+                              "price",
+                              parseFloat(e.target.value) || 0
+                            )
                           }
                           className="w-full px-4 py-2 border text-sm border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#3A5779] transition-shadow"
                         />
@@ -308,7 +335,7 @@ export function AddShippingCompanyDialog({
 
                 <PhoneNumberInput
                   label="رقم الهاتف"
-                  placeholder="01289022985"
+                  placeholder="000000000"
                   countryCode={phoneCountryCode}
                   onCountryCodeChange={setPhoneCountryCode}
                   value={storePhone}
@@ -318,7 +345,7 @@ export function AddShippingCompanyDialog({
               </div>
 
               <div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-2">
                   • المدن التي لن يتم إضافتها في الملف لا تستطيع الشراء منك
                 </p>
               </div>

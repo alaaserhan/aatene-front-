@@ -47,7 +47,7 @@ const Tooltip = ({
 
   return (
     <div
-      className="relative inline-block "
+      className="relative inline-block"
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
     >
@@ -64,7 +64,7 @@ export function AddStoreStep7({
   onSave,
   onBack,
   isSubmitting = false,
-  barSteps
+  barSteps,
 }: AddStoreStep7Props) {
   const [tags, setTags] = useState<string[]>(initialData?.tags || []);
   const [inputValue, setInputValue] = useState("");
@@ -118,7 +118,7 @@ export function AddStoreStep7({
 
         <div className="grid grid-cols-12 gap-6 mt-8">
           <div className="col-span-12 lg:col-span-8">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 ">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
               <div className="p-6 flex justify-between items-center">
                 <h2 className="text-xl font-medium">الكلمات المفتاحية</h2>
               </div>
@@ -136,7 +136,7 @@ export function AddStoreStep7({
                       </div>
                     }
                     content={
-                      <p className="text-xs text-gray-500 leading-relaxed">
+                      <p className="text-xs text-gray-2 leading-relaxed">
                         {keywordsDescription}
                       </p>
                     }

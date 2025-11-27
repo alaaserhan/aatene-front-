@@ -23,7 +23,11 @@ export function CityMultiSelect({
   onChange,
   error,
 }: CityMultiSelectProps) {
+
   
+        console.log(selectedCityIds)
+        console.log(cities);
+        
   // تحويل البيانات لكي تناسب ReusableDropdown
   // نستبعد المدن المختارة بالفعل
   const dropdownOptions = cities

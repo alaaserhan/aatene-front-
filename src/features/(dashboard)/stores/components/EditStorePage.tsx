@@ -8,7 +8,7 @@ import { AddStoreStep4 } from "./AddStoreStep4";
 import { AddStoreStep5 } from "./AddStoreStep5";
 import { AddStoreStep6 } from "./AddStoreStep6";
 import { AddStoreStep7 } from "./AddStoreStep7";
-import { StoreType, StoreUpdatePayload } from "../api";
+import { StoreType, StoreUpdatePayload, StoreManagerPayload } from "../api";
 import { useUpdateStore, useGetSingleStore } from "../hooks";
 import {
   CompleteStoreFormData,
@@ -38,11 +38,18 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
 
   useEffect(() => {
     if (store && !formData) {
-      const cityIds = store.city_id
-        ? Array.isArray(store.city_id)
-          ? store.city_id
-          : [store.city_id]
-        : store.locationCities || store.serviceCities || [];
+      // Convert managers from GET format to Payload format
+      const managersPayload: StoreManagerPayload[] = (store.managers || []).map(
+        (m) => ({
+          email: m.user_email,
+          title: m.title,
+          status: m.status,
+        })
+      );
+
+      // Get location cities
+      const locationCities = store.locationCities || [];
+      const serviceCities = store.serviceCities || [];
 
       const initialFormData: CompleteStoreFormData = {
         type: store.type as StoreType,
@@ -56,10 +63,11 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
           ),
           description: store.description || "",
           email: store.email || "",
-          city_id: cityIds,
+          locationCities: locationCities,
+          serviceCities: serviceCities,
           address: store.address || "",
-          owner_id: String(store.owner_id),
-          currency_id: String(store.currency_id),
+          owner_id: Number(store.owner_id),
+          currency_id: Number(store.currency_id),
         },
         step3: {
           phone: store.phone || "",
@@ -68,18 +76,35 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
           tiktok: store.tiktok || "",
           facebook: store.facebook || "",
           instagram: store.instagram || "",
+          twitter: store.twitter || "",
           youtube: store.youtube || "",
+          linkedin: store.linkedin || "",
+          pinterest: store.pinterest || "",
         },
         step4: {
-          managers: store.managers || [],
+          managers: managersPayload,
         },
         step5: {
           open_status: store.open_status,
-          workingtimes: store.workingtimes || [],
+          workingtimes: (store.workingtimes || []).map((wt) => ({
+            day: wt.day,
+            from: wt.from,
+            to: wt.to,
+            open_always: wt.open_always,
+            closed_always: wt.closed_always,
+          })),
         },
         step6: {
           delivery_type: store.delivery_type || "shipping",
-          shippingCompanies: store.shippingCompanies || [],
+          shippingCompanies: (store.shippingCompanies || []).map((sc) => ({
+            name: sc.name,
+            phone: sc.phone,
+            prices: sc.prices.map((p) => ({
+              city_id: p.city_id,
+              days: p.days,
+              price: p.price,
+            })),
+          })),
         },
         step7: {
           tags: store.tags || [],
@@ -88,7 +113,7 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
 
       setFormData(initialFormData);
     }
-  }, [store]);
+  }, [store, formData]);
 
   const handleStep2Next = (data: Step2FormData) => {
     if (!formData) return;
@@ -161,43 +186,52 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
       return;
     }
 
-    const basePayload = {
+    // Build the payload based on StoreUpdatePayload interface
+    const payload: StoreUpdatePayload = {
+      type: formData.type,
+      // Basic info
       name: updatedFormData.step2!.name,
-      logo: updatedFormData.step2!.logo || "",
+      logo: updatedFormData.step2!.logo || undefined,
       cover: updatedFormData.step2!.cover,
       description: updatedFormData.step2!.description,
       email: updatedFormData.step2!.email,
-      city_id: updatedFormData.step2!.city_id,
       address: updatedFormData.step2!.address,
-      owner_id: Number(updatedFormData.step2!.owner_id),
-      currency_id: Number(updatedFormData.step2!.currency_id),
+      owner_id: updatedFormData.step2!.owner_id,
+      currency_id: updatedFormData.step2!.currency_id,
+
+      // Contact & Social Media
       phone: updatedFormData.step3!.phone,
       whats_app: updatedFormData.step3!.whats_app || null,
       tiktok: updatedFormData.step3!.tiktok || null,
       facebook: updatedFormData.step3!.facebook || null,
       instagram: updatedFormData.step3!.instagram || null,
+      twitter: updatedFormData.step3!.twitter || null,
       youtube: updatedFormData.step3!.youtube || null,
+      linkedin: updatedFormData.step3!.linkedin || null,
+      pinterest: updatedFormData.step3!.pinterest || null,
+
+      // Managers - already in correct format (StoreManagerPayload[])
       managers: updatedFormData.step4!.managers,
+
+      // Working times
       open_status: updatedFormData.step5!.open_status,
       workingtimes: updatedFormData.step5!.workingtimes,
+
+      // Tags
       tags: data.tags,
+
+      // Location cities
+      locationCities: updatedFormData.step2!.locationCities,
     };
 
-    let payload: StoreUpdatePayload;
+    // Add type-specific fields
     if (updatedFormData.type === "products") {
-      payload = {
-        ...basePayload,
-        delivery_type: updatedFormData.step6!.delivery_type,
-        shippingCompanies: updatedFormData.step6!.shippingCompanies,
-        locationCities: updatedFormData.step2!.city_id,
-        serviceCities: [],
-      };
+      payload.delivery_type = updatedFormData.step6!.delivery_type;
+      payload.shippingCompanies = updatedFormData.step6!.shippingCompanies;
+      payload.serviceCities = [];
     } else {
-      payload = {
-        ...basePayload,
-        locationCities: [],
-        serviceCities: updatedFormData.step2!.city_id,
-      };
+      // Services type
+      payload.serviceCities = updatedFormData.step2!.serviceCities || [];
     }
 
     try {
@@ -234,9 +268,7 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="text-center">
-          <p className="text-xl text-gray-600 mb-4">
-            لم يتم العثور على المتجر
-          </p>
+          <p className="text-xl text-gray-600 mb-4">لم يتم العثور على المتجر</p>
         </div>
       </div>
     );

@@ -53,8 +53,17 @@ export function AddStoreStep2({
     cover_previews: initialData?.cover_previews || [],
     description: initialData?.description || "",
     email: initialData?.email || "",
-    locationCities: initialData?.locationCities || [],
-    serviceCities: initialData?.serviceCities || [],
+    locationCities: initialData?.locationCities
+      ? (initialData.locationCities as unknown as (number | { id: number })[]).map((item) =>
+          typeof item === "object" ? item.id : item
+        )
+      : [],
+
+    serviceCities: initialData?.serviceCities
+      ? (initialData.serviceCities as unknown as (number | { id: number })[]).map((item) =>
+          typeof item === "object" ? item.id : item
+        )
+      : [],
     address: initialData?.address || "",
     owner_id: initialData?.owner_id || (!isAdmin && currentUserId ? currentUserId : 0),
     currency_id: initialData?.currency_id || 0,
@@ -219,7 +228,7 @@ export function AddStoreStep2({
 
                 <StoreIdentitySelector
                   value={formData.logo}
-                  preview={formData.logo_preview}
+                  previewUrl={formData.logo_preview}
                   onChange={(fileName, src) => {
                     setFormData({
                       ...formData,

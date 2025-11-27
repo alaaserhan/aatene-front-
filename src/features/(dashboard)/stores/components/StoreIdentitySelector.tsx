@@ -39,10 +39,10 @@ export function StoreIdentitySelector({
       {/* Header Section */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-1">
-          <label className="text-sm font-medium text-gray-900">{label}</label>
+          <label className="text-sm font-medium ">{label}</label>
           <span className="text-red-500">*</span>
         </div>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-2">
           ستظهر هوية متجرك في صفحة المتجر
         </p>
       </div>
@@ -113,7 +113,7 @@ export function StoreIdentitySelector({
         onOpenChange={setIsModalOpen}
         onSelect={handleSelect}
         multiple={false}
-        allowedMediaTypes={["image", "avatar"]}
+        allowedMediaTypes={["image", "avatar","gallery"]}
         accept="image/png,image/jpeg,image/jpg,image/svg+xml"
       />
     </div>

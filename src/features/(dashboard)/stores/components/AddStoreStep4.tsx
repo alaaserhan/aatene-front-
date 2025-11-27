@@ -37,7 +37,7 @@ export function AddStoreStep4({
   onBack,
   barSteps,
 }: AddStoreStep4Props) {
-  const [activeTab, setActiveTab] = useState<"list" | "add">("add");
+  const [activeTab, setActiveTab] = useState<"list" | "add">("list");
   const [managers, setManagers] = useState<StoreManagerPayload[]>(
     initialData?.managers || []
   );

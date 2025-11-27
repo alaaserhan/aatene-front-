@@ -99,6 +99,7 @@ export function UserDetailsSidebar({
   className,
 }: UserDetailsSidebarProps) {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
   const [countryCode, setCountryCode] = useState("+20");
 
   const [showActionMenu, setShowActionMenu] = useState(false);
@@ -112,7 +113,9 @@ export function UserDetailsSidebar({
     data: userData,
     isLoading: isLoadingUser,
     refetch,
-  } = useGetSingleUser(selectedUserId || undefined);
+  } = useGetSingleUser(selectedUserId || undefined, {
+    enabled: !isDeleteConfirmed,
+  });
 
   const { data: rolesData } = useGetRoles(new URLSearchParams());
 
@@ -247,13 +250,24 @@ export function UserDetailsSidebar({
     );
   };
 
+  useEffect(() => {
+    setIsDeleteConfirmed(false);
+  }, [selectedUserId]);
+
   const handleDelete = () => {
     if (!selectedUserId) return;
+
+    setIsDeleteConfirmed(true);
+
     deleteUserMutation.mutate(selectedUserId, {
       onSuccess: () => {
         setDeleteModalOpen(false);
         onUserDelete();
+        setIsDeleteConfirmed(false);
       },
+      onError: () => {
+        setIsDeleteConfirmed(false);
+      }
     });
   };
 
