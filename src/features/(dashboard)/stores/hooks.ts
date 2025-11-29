@@ -7,6 +7,7 @@ import {
   useQueryClient,
   useInfiniteQuery,
   InfiniteData,
+  UseQueryOptions,
 } from "@tanstack/react-query";
 import * as api from "./api";
 import { toast } from "sonner";
@@ -26,13 +27,18 @@ const StoresQK = {
   single: (id: string | number) => ["stores", "single", String(id)] as const,
 };
 
-export function useGetStores(params: URLSearchParams) {
+export function useGetStores(
+  params: URLSearchParams,
+  options?: Partial<UseQueryOptions<PaginatedStoresResponse, Error>>
+) {
   const key = StoresQK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getStores(params),
+    ...options, 
   });
 }
+
 
 export function useInfiniteGetStores(params: URLSearchParams) {
   const key = StoresQK.list(params.toString());
@@ -56,7 +62,6 @@ export function useGetSingleStore(id?: string | number, options?: { enabled?: bo
   return useQuery({
     queryKey: StoresQK.single(id ?? ""),
     queryFn: () => api.getSingleStore(id!),
-    // دمج الشرط الأصلي مع الشرط الجديد
     enabled: !!id && (options?.enabled ?? true),
   });
 }
@@ -88,7 +93,7 @@ export function useUpdateStore() {
     onMutate: async (vars) => {
       await qc.cancelQueries({ queryKey: StoresQK.any });
 
-      const prevLists = qc.getQueriesData<PaginatedStoresResponse>({
+      const prevLists = qc.getQueriesData<PaginatedStoresResponse | InfiniteData<PaginatedStoresResponse>>({
         queryKey: StoresQK.listAny,
       });
       const prevSingle = qc.getQueryData<SingleStoreResponse>(
@@ -100,19 +105,33 @@ export function useUpdateStore() {
         id: Number(vars.id),
       } as unknown as Partial<Store>;
 
-      qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>(
+      qc.setQueriesData<PaginatedStoresResponse | InfiniteData<PaginatedStoresResponse>>(
         { queryKey: StoresQK.listAny },
         (old) => {
           if (!old) return undefined;
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              data: page.data.map((s) =>
+
+          if ("pages" in old) {
+            return {
+              ...old,
+              pages: old.pages.map((page) => ({
+                ...page,
+                data: page.data.map((s) =>
+                  s.id === Number(vars.id) ? { ...s, ...optimisticPayload } : s
+                ),
+              })),
+            };
+          }
+
+          if ("data" in old && Array.isArray(old.data)) {
+            return {
+              ...old,
+              data: old.data.map((s) =>
                 s.id === Number(vars.id) ? { ...s, ...optimisticPayload } : s
               ),
-            })),
-          };
+            };
+          }
+
+          return old;
         }
       );
 
@@ -156,28 +175,44 @@ export function useUpdateStoreStatus() {
     onMutate: async (vars) => {
       await qc.cancelQueries({ queryKey: StoresQK.any });
 
-      const prevLists = qc.getQueriesData<PaginatedStoresResponse>({
+      const prevLists = qc.getQueriesData<PaginatedStoresResponse | InfiniteData<PaginatedStoresResponse>>({
         queryKey: StoresQK.listAny,
       });
       const prevSingle = qc.getQueryData<SingleStoreResponse>(
         StoresQK.single(vars.id)
       );
 
-      qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>(
+      qc.setQueriesData<PaginatedStoresResponse | InfiniteData<PaginatedStoresResponse>>(
         { queryKey: StoresQK.listAny },
         (old) => {
           if (!old) return undefined;
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              data: page.data.map((s) =>
+
+          if ("pages" in old) {
+            return {
+              ...old,
+              pages: old.pages.map((page) => ({
+                ...page,
+                data: page.data.map((s) =>
+                  s.id === Number(vars.id)
+                    ? { ...s, status: vars.payload.status }
+                    : s
+                ),
+              })),
+            };
+          }
+
+          if ("data" in old && Array.isArray(old.data)) {
+            return {
+              ...old,
+              data: old.data.map((s) =>
                 s.id === Number(vars.id)
                   ? { ...s, status: vars.payload.status }
                   : s
               ),
-            })),
-          };
+            };
+          }
+
+          return old;
         }
       );
 
@@ -213,21 +248,33 @@ export function useDeleteStore() {
     mutationFn: (id: string | number) => api.deleteStore(id),
 
     onMutate: async (id) => {
-      qc.setQueriesData<InfiniteData<PaginatedStoresResponse>>(
+      await qc.cancelQueries({ queryKey: StoresQK.listAny });
+
+      qc.setQueriesData<PaginatedStoresResponse | InfiniteData<PaginatedStoresResponse>>(
         { queryKey: StoresQK.listAny },
         (old) => {
           if (!old) return undefined;
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              data: page.data.filter((s) => s.id !== Number(id)),
-            })),
-          };
+
+          if ("pages" in old) {
+            return {
+              ...old,
+              pages: old.pages.map((page) => ({
+                ...page,
+                data: page.data.filter((s) => s.id !== Number(id)),
+              })),
+            };
+          }
+
+          if ("data" in old && Array.isArray(old.data)) {
+            return {
+              ...old,
+              data: old.data.filter((s) => s.id !== Number(id)),
+            };
+          }
+
+          return old;
         }
       );
-
-      // qc.removeQueries({ queryKey: StoresQK.single(id) });
     },
 
     onSuccess: (data) => {

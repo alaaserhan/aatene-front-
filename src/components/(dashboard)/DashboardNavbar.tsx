@@ -3,28 +3,19 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import Image from "next/image"; // ⭐️ (1)
+import Image from "next/image";
 import {
-  Home,
   Users,
   Store,
-  Shirt,
   MoreHorizontal,
-  Search,
-  MessageSquare,
-  Bell,
-  ChevronDown,
-  LogOut,
   Settings,
   Package,
-  ShoppingCart,
-  LayoutDashboard,
   Menu,
   LucideIcon,
   X,
   Map,
-  GalleryVertical,
-  GalleryVerticalEnd, // ⭐️ (2)
+  GalleryVerticalEnd,
+  LogOut,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -34,13 +25,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuLabel, // ⭐️ (3)
+  DropdownMenuLabel,
 } from "@/src/components/ui/dropdown-menu";
 import { Badge } from "@/src/components/ui/badge";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/src/components/ui/sheet"; // ⭐️ (4)
-import { Button } from "@/src/components/ui/button"; // ⭐️ (5)
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"; // ⭐️ (6)
-import { Separator } from "@/src/components/ui/separator"; // ⭐️ (7)
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/src/components/ui/sheet";
+import { Button } from "@/src/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
+import { Separator } from "@/src/components/ui/separator";
+import { DashboardUserMenu } from "./DashboardUserMenu"; // ⭐️ استدعاء المكون الجديد (تأكد من المسار)
 
 interface NavItem {
   label: string;
@@ -67,52 +59,46 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { mutate: logout } = useLogout();
-  
+
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
   const isAdmin = user?.user_type === "admin";
   const isMerchant = user?.user_type === "merchant";
 
-  
-
   const isActive = (path: string) => {
     const fullPath = `${navPrefix}${path}`;
-    // الصفحة الرئيسية لازم تطابق بالضبط
     if (fullPath === navPrefix && pathname === fullPath) return true;
-    // الصفحات التانية تطابق البداية
     if (fullPath !== navPrefix && pathname?.startsWith(fullPath)) return true;
     return false;
   };
 
   const allNavItems: NavItem[] = [
-    // { label: "الرئيسية", icon: Home, href: "", show: true },
     { label: "المستخدمين", icon: Users, href: "/users", show: true },
     { label: "المتاجر", icon: Store, href: "/stores", show: true },
-    // { label: "المنتجات", icon: Shirt, href: "/products", show: true },
-    // { label: "مقدمي الخدمات", icon: LayoutDashboard, href: "/service-providers", show: isAdmin },
-    // { label: "الطلبات", icon: ShoppingCart, href: "/orders", show: isMerchant },
     { label: "الفئات", icon: Package, href: "/categories", show: true },
     { label: "الإعدادات", icon: Settings, href: "/settings", show: true },
     { label: "مدن الشحن", icon: Map, href: "/cities", show: true },
-    { label: "البنرات الإعلانية", icon:GalleryVerticalEnd, href: "/banners", show: true }
+    { label: "الاقسام", icon: Map, href: "/sections", show: isMerchant },
+    { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: true }
   ];
 
   const mainNavItems = allNavItems.slice(0, 5);
   const moreMenuItems = allNavItems.slice(5);
 
   const notifications: Notification[] = [];
-  const unreadCount = 0; // بيانات وهمية
+  const unreadCount = 0;
 
   return (
-    <nav 
-      dir="rtl" 
+    <nav
+      dir="rtl"
       className="w-full p-2 shadow-sm"
       style={{ backgroundColor: "var(--blue-1)" }}
     >
       <div className="max-w-[1400px] mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-6">
+            {/* Mobile Menu */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="lg:hidden p-2 hover:bg-white/20">
@@ -138,10 +124,10 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                         </p>
                       </div>
                     </div>
-                     <SheetClose asChild>
-                       <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/20">
-                         <X className="w-5 h-5" style={{ color: "var(--blue-3)" }} />
-                       </Button>
+                    <SheetClose asChild>
+                      <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/20">
+                        <X className="w-5 h-5" style={{ color: "var(--blue-3)" }} />
+                      </Button>
                     </SheetClose>
                   </SheetTitle>
                 </SheetHeader>
@@ -153,15 +139,15 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                       .map((item) => {
                         const href = `${navPrefix}${item.href}`;
                         const active = isActive(item.href);
-                        
+
                         return (
                           <Button
                             key={item.href}
                             variant={active ? "default" : "default"}
                             className="w-full justify-start gap-3 text-base hover:bg-blue-3"
-                            style={active ? { 
-                              backgroundColor: 'var(--blue-3)', 
-                              color: 'white' 
+                            style={active ? {
+                              backgroundColor: 'var(--blue-3)',
+                              color: 'white'
                             } : {
                               color: 'var(--blue-3)'
                             }}
@@ -196,25 +182,27 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               </SheetContent>
             </Sheet>
 
+            {/* Logo */}
             <Link href={`/${lang}`} className="flex items-center gap-2">
               <Image src="/black.svg" width={80} height={32} alt="logo" className="h-8 lg:h-8 w-auto" />
             </Link>
 
+            {/* Desktop Menu Items */}
             <div className="hidden lg:flex items-center gap-2">
               {mainNavItems
                 .filter((item) => item.show)
                 .map((item) => {
                   const href = `${navPrefix}${item.href}`;
                   const active = isActive(item.href);
-                  
+
                   return (
                     <Button
                       key={item.href}
                       variant={active ? "default" : "ghost"}
                       className="gap-2 hover:bg-transparent"
-                      style={active ? { 
-                        backgroundColor: 'var(--blue-3)', 
-                        color: 'white' 
+                      style={active ? {
+                        backgroundColor: 'var(--blue-3)',
+                        color: 'white'
                       } : {
                         color: 'var(--blue-3)'
                       }}
@@ -228,7 +216,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                   );
                 })}
 
-              <DropdownMenu>
+              <DropdownMenu dir="rtl" >
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
@@ -239,7 +227,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                     المزيد
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-48 border-gray-200">
                   {moreMenuItems
                     .filter((item) => item.show)
                     .map((item) => (
@@ -278,12 +266,6 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
             >
               <Link href={`${navPrefix}/chat`}>
                 <img src="/icons/chat.svg" className="w-5 h-5" alt="chat" />
-                {/* <Badge 
-                  className="absolute text-white -top-1 -right-1 h-4 w-4 justify-center p-0 text-[10px]"
-                  variant="destructive"
-                >
-                  1
-                </Badge> */}
               </Link>
             </Button>
 
@@ -295,9 +277,9 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                   className="rounded-lg hover:bg-white/20 relative"
                   aria-label="الإشعارات"
                 >
-                  <img src="/icons/ring.svg" className="w-5 h-5" alt="notifications"  />
+                  <img src="/icons/ring.svg" className="w-5 h-5" alt="notifications" />
                   {unreadCount > 0 && (
-                    <Badge 
+                    <Badge
                       className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0 text-[10px]"
                       variant="destructive"
                     >
@@ -308,7 +290,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
                 <DropdownMenuLabel>
-                   <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-lg" style={{ color: "var(--blue-3)" }}>
                       الإشعارات
                     </h3>
@@ -320,37 +302,22 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                 <Separator />
                 <div className="p-2 max-h-[400px] overflow-y-auto">
                   {notifications.length === 0 ? (
-                     <p className="p-4 text-center text-sm text-brand-gray-1">
-                       لا توجد إشعارات جديدة
-                     </p>
+                    <p className="p-4 text-center text-sm text-brand-gray-1">
+                      لا توجد إشعارات جديدة
+                    </p>
                   ) : (
                     notifications.map((notification) => (
                       <DropdownMenuItem key={notification.id} className="p-3 rounded-lg data-[highlighted]:bg-brand-blue-1">
-                        <div className="flex items-start gap-3">
-                          <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${
-                            notification.unread ? "bg-blue-500" : "bg-gray-300"
-                          }`} />
-                          <div className="flex-1">
-                            <p className="font-medium text-sm" style={{ color: "var(--blue-3)" }}>
-                              {notification.title}
-                            </p>
-                            <p className="text-xs text-gray-600 mt-1">
-                              {notification.message}
-                            </p>
-                            <p className="text-xs mt-1" style={{ color: "var(--gray-1)" }}>
-                              {notification.time}
-                            </p>
-                          </div>
-                        </div>
+                        {/* Notification content */}
                       </DropdownMenuItem>
                     ))
                   )}
                 </div>
                 <Separator />
                 <DropdownMenuItem asChild>
-                  <Link 
-                    href={`${navPrefix}/notifications`} 
-                    className="w-full text-center justify-center text-sm py-2 cursor-pointer" 
+                  <Link
+                    href={`${navPrefix}/notifications`}
+                    className="w-full text-center justify-center text-sm py-2 cursor-pointer"
                     style={{ color: "var(--blue-3)" }}
                   >
                     عرض جميع الإشعارات
@@ -359,73 +326,11 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               </DropdownMenuContent>
             </DropdownMenu>
 
+            {/* ⭐️ تم استبدال القائمة القديمة بالمكون الجديد هنا ⭐️ */}
             <div className="hidden lg:block">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-transparent h-auto"
-                    
-                  >
-                    <Avatar className="w-10 h-10 border-2 border-white">
-                      <AvatarImage src={user?.avatar} alt={user?.fullname} />
-                      <AvatarFallback style={{ backgroundColor: "var(--blue-3)", color: "white" }}>
-                        {user?.fullname?.[0]?.toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col items-start">
-                      <span className="text-sm font-semibold" style={{ color: "var(--blue-3)" }}>
-                        {user?.fullname}
-                      </span>
-                      <span 
-                        className="text-xs px-2 py-0.5 rounded-full mt-0.5"
-                        style={{ 
-                          color: "var(--blue-3)",
-                          border: "1px solid var(--blue-3)"
-                        }}
-                      >
-                        {isAdmin ? "مدير" : "تاجر"}
-                      </span>
-                    </div>
-                    <ChevronDown className="w-4 h-4" style={{ color: "var(--blue-3)" }} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium" style={{ color: "var(--blue-3)" }}>
-                        {user?.fullname}
-                      </p>
-                      <p className="text-xs" style={{ color: "var(--gray-1)" }}>
-                        {user?.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <Separator />
-                  <DropdownMenuItem asChild>
-                    <Link href={`${navPrefix}/profile`} className="cursor-pointer">
-                      <Settings className="w-4 h-4 ml-2" />
-                      الملف الشخصي
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href={`${navPrefix}/settings`} className="cursor-pointer">
-                      <Settings className="w-4 h-4 ml-2" />
-                      الإعدادات
-                    </Link>
-                  </DropdownMenuItem>
-                  <Separator />
-                  <DropdownMenuItem
-                    className="text-red-600 focus:text-red-600 cursor-pointer"
-                    onClick={() => logout()}
-                  >
-                    <LogOut className="w-4 h-4 ml-2" />
-                    تسجيل الخروج
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <DashboardUserMenu />
             </div>
-            
+
             <Button
               className="lg:hidden px-3 py-2 text-xs h-auto"
               style={{

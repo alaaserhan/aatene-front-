@@ -135,7 +135,7 @@ export function CitiesPage() {
 
           <button
             onClick={handleAddCity}
-            className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 sm:py-3 text-white rounded-sm font-medium  transition-colors"
+            className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2  text-white rounded-xs font-medium  transition-colors"
             style={{ backgroundColor: "var(--blue-3)" }}
           >
             <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
@@ -143,8 +143,8 @@ export function CitiesPage() {
           </button>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
+        <div className="bg-white rounded overflow-hidden border border-gray-200">
+          <div className="p-3 sm:p-5 ">
             <div className="flex gap-3">
               <div className="relative flex-1">
                 <input
@@ -153,14 +153,14 @@ export function CitiesPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                   placeholder="ابحث بإسم المدينة"
-                  className="w-full px-4 py-2.5 pr-12 border border-gray-300 rounded-sm focus:outline-none focus:border-brand-blue-2 text-right"
+                  className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-sm focus:outline-none focus:border-brand-blue-2 text-right"
                   dir="rtl"
                 />
                 <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
               <button
                 onClick={handleSearch}
-                className="px-6 py-2.5 cursor-pointer bg-white border border-gray-300 text-gray-700 rounded-sm font-medium hover:bg-gray-50 transition-colors"
+                className="px-6 py-2.5 cursor-pointer bg-white border border-gray-200 text-gray-1 rounded-sm font-medium hover:bg-gray-50 transition-colors"
               >
                 بحث
               </button>
@@ -170,14 +170,14 @@ export function CitiesPage() {
           <div className="overflow-x-auto">
             <table className="w-full table-fixed">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-2 py-4 text-start text-sm font-medium text-gray-700 w-5/12 md:w-4/5">
+                <tr className="bg-gray-50 ">
+                  <th className="px-2 py-4 text-start text-sm font-medium text-gray-1 w-5/12 md:w-4/5">
                     اسم المدينة
                   </th>
-                  <th className="px-2 py-4 text-start text-sm font-medium text-gray-700 w-3/12 md:w-1/5">
+                  <th className="px-2 py-4 text-start text-sm font-medium text-gray-1 w-3/12 md:w-1/5">
                     حالة التفعيل
                   </th>
-                  <th className="px-2 py-4 text-start text-sm font-medium text-gray-700 w-3/12 md:w-1/5">
+                  <th className="px-2 py-4 text-start text-sm font-medium text-gray-1 w-3/12 md:w-1/5">
                     عمليات
                   </th>
                 </tr>
@@ -208,7 +208,7 @@ export function CitiesPage() {
                   cities.map((city) => (
                     <tr
                       key={city.id}
-                      className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                      className="border-b border-gray-200 hover:bg-gray-50 last:border-b-0 transition-colors"
                     >
                       <td className="px-2 py-4">
                         <span className="text-sm font-medium ">
