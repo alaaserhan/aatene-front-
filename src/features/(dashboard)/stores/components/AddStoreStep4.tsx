@@ -13,6 +13,7 @@ import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
 import { Step2FormData, Step4FormData } from "../types";
 import { useGetUsers } from "../../users/hooks";
+import { toast } from "sonner";
 
 interface AddStoreStep4Props {
   storeType: StoreType;
@@ -28,6 +29,18 @@ interface NewManagerForm {
   title: ManagerTitle | "";
   status: StoreStatus;
 }
+
+const JOB_TITLE_OPTIONS = [
+  { value: "general", label: "مدير عام" },
+  { value: "sales", label: "مدير مبيعات" },
+  { value: "products", label: "مسؤول طلبات" },
+  { value: "services", label: "مدير خدمات" },
+];
+
+const STATUS_OPTIONS = [
+  { value: "active", label: "نشط" },
+  { value: "not-active", label: "غير نشط" },
+];
 
 export function AddStoreStep4({
   storeType,
@@ -74,18 +87,6 @@ export function AddStoreStep4({
     { label: "الرئيسية", href: "/admin" },
     { label: "المتاجر", href: "/admin/stores" },
     { label: "إضافة متجر" },
-  ];
-
-  const jobTitleOptions = [
-    { value: "general", label: "مدير عام" },
-    { value: "sales", label: "مدير مبيعات" },
-    { value: "products", label: "مسؤول طلبات" },
-    { value: "services", label: "مدير خدمات" },
-  ];
-
-  const statusOptions = [
-    { value: "active", label: "نشط" },
-    { value: "not-active", label: "غير نشط" },
   ];
 
   const validateManager = () => {
@@ -149,7 +150,29 @@ export function AddStoreStep4({
   };
 
   const handleNext = () => {
-    onNext({ managers });
+    if (activeTab === "add" && (newManager.email || newManager.title)) {
+      if (validateManager()) {
+        const managerData: StoreManagerPayload = {
+          email: newManager.email,
+          title: newManager.title as ManagerTitle,
+          status: newManager.status,
+        };
+
+        let updatedManagers = [...managers];
+        
+        if (editingIndex >= 0) {
+          updatedManagers[editingIndex] = managerData;
+        } else {
+          updatedManagers = [...updatedManagers, managerData];
+        }
+
+        onNext({ managers: updatedManagers });
+      } else {
+        toast.error("يرجى حفظ بيانات الموظف بشكل صحيح قبل المتابعة");
+      }
+    } else {
+      onNext({ managers });
+    }
   };
 
   const handleCancelAdd = () => {
@@ -221,7 +244,7 @@ export function AddStoreStep4({
                       options={dropdownOptions}
                       value={newManager.email}
                       onChange={(value) =>
-                        setNewManager({ ...newManager, email: value })
+                        setNewManager((prev) => ({ ...prev, email: value }))
                       }
                       placeholder={isUsersLoading ? "جاري التحميل..." : "ابحث بالاسم أو البريد"}
                       className="w-full"
@@ -235,10 +258,10 @@ export function AddStoreStep4({
                       الدور الوظيفي
                     </Label>
                     <ReusableDropdown
-                      options={jobTitleOptions}
+                      options={JOB_TITLE_OPTIONS}
                       value={newManager.title}
                       onChange={(value) =>
-                        setNewManager({ ...newManager, title: value as ManagerTitle })
+                        setNewManager((prev) => ({ ...prev, title: value as ManagerTitle }))
                       }
                       placeholder="مسؤول طلبات"
                       className="w-full"
@@ -253,13 +276,13 @@ export function AddStoreStep4({
                       حالة الموظف
                     </Label>
                     <ReusableDropdown
-                      options={statusOptions}
+                      options={STATUS_OPTIONS}
                       value={newManager.status}
                       onChange={(value) =>
-                        setNewManager({
-                          ...newManager,
+                        setNewManager((prev) => ({
+                          ...prev,
                           status: value as StoreStatus,
-                        })
+                        }))
                       }
                       placeholder="اختر الحالة"
                       className="w-full"
@@ -304,7 +327,7 @@ export function AddStoreStep4({
                         ) : (
                           managers.map((manager, index) => {
                             const jobLabel =
-                              jobTitleOptions.find(
+                              JOB_TITLE_OPTIONS.find(
                                 (opt) => opt.value === manager.title
                               )?.label || manager.title;
 
