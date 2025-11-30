@@ -51,6 +51,7 @@ export function AddShippingCompanyDialog({
   useEffect(() => {
     if (isOpen) {
       if (editingCompany) {
+        
         setCompanyName(editingCompany.name || "");
         setStoreName(editingCompany.name || "");
         setStorePhone(
@@ -60,12 +61,23 @@ export function AddShippingCompanyDialog({
             .replace("+966", "")
             .replace("+971", "")
         );
-        setSelectedCityIds(editingCompany.prices.map((p) => p.city_id));
+        
+        // --- التصحيح هنا: تحويل القيم النصية إلى أرقام ---
+        const cityIds = editingCompany.prices.map((p) => Number(p.city_id));
+        setSelectedCityIds(cityIds);
+
         const pricesMap: Record<number, PriceData> = {};
         editingCompany.prices.forEach((p) => {
-          pricesMap[p.city_id] = { days: p.days, price: p.price };
+          // استخدام Number() لضمان التحويل الصحيح حتى لو كانت القيمة string
+          const cityId = Number(p.city_id);
+          pricesMap[cityId] = { 
+            days: Number(p.days), 
+            price: Number(p.price) 
+          };
         });
         setShippingPrices(pricesMap);
+        // -------------------------------------------------
+
       } else {
         // Reset to defaults for new company
         setCompanyName("");
@@ -125,7 +137,7 @@ export function AddShippingCompanyDialog({
 
     for (const cityId of selectedCityIds) {
       const priceData = shippingPrices[cityId];
-      if (!priceData || priceData.price <= 0 || priceData.days <= 0) {
+      if (!priceData || priceData.price < 0 || priceData.days <= 0) {
         toast.error("يجب إدخال سعر وموعد تسليم صحيح لجميع المدن");
         return;
       }
