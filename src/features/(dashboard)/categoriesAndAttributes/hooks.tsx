@@ -32,26 +32,26 @@ const coerceActive = (v: unknown) => v === "1" || v === 1 || v === true;
 
 export function useGetCategories(
   params: URLSearchParams,
-  options: { enabled?: boolean } = {} // <-- تم التعديل هنا
+  options: { enabled?: boolean } = {}
 ) {
   const key = CategoryQK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getCategories(params),
-    enabled: options.enabled ?? true, // <-- وتمت الإضافة هنا
+    enabled: options.enabled ?? true,
   });
 }
 
 export function useGetParentCategories(
   params: URLSearchParams,
-  options: { enabled?: boolean } = {} // <-- تم التعديل هنا
+  options: { enabled?: boolean } = {}
 ) {
   params.set("only_parent", "true");
   const key = CategoryQK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getCategories(params),
-    enabled: options.enabled ?? true, // <-- وتمت الإضافة هنا
+    enabled: options.enabled ?? true,
   });
 }
 
@@ -307,13 +307,13 @@ export function useDeleteCategory() {
 
 export function useGetAttributes(
   params: URLSearchParams,
-  options: { enabled?: boolean } = {} // <-- تم التعديل هنا
+  options: { enabled?: boolean } = {}
 ) {
   const key = AttributeQK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getAttributes(params),
-    enabled: options.enabled ?? true, // <-- وتمت الإضافة هنا
+    enabled: options.enabled ?? true,
   });
 }
 
@@ -388,6 +388,69 @@ export function useUpdateAttribute() {
 
     onError: (_err, vars, ctx) => {
       toast.error("حدث خطأ أثناء التعديل");
+      ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
+      if (ctx?.prevSingle)
+        qc.setQueryData(AttributeQK.single(vars.id), ctx.prevSingle);
+    },
+
+    onSettled: (_data, _err, vars) => {
+      qc.invalidateQueries({ queryKey: AttributeQK.listAny });
+      qc.invalidateQueries({ queryKey: AttributeQK.single(vars.id) });
+    },
+  });
+}
+
+export function useUpdateAttributeStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string | number;
+      payload: api.UpdateStatusPayload;
+    }) => api.updateAttributeStatus(id, payload),
+
+    onMutate: async (vars) => {
+      await qc.cancelQueries({ queryKey: AttributeQK.any });
+
+      const nextActive = coerceActive(vars.payload.is_active);
+
+      const prevLists = qc.getQueriesData<PaginatedAttributesResponse>({
+        queryKey: AttributeQK.listAny,
+      });
+      const prevSingle = qc.getQueryData<SingleAttributeResponse>(
+        AttributeQK.single(vars.id)
+      );
+
+      prevLists.forEach(([key]) => {
+        qc.setQueryData(key, (old: PaginatedAttributesResponse | undefined) => {
+          if (!old?.data) return old;
+          return {
+            ...old,
+            data: old.data.map((a: Attribute) =>
+              a.id === vars.id ? { ...a, is_active: nextActive } : a
+            ),
+          };
+        });
+      });
+
+      if (prevSingle?.record) {
+        qc.setQueryData(AttributeQK.single(vars.id), {
+          ...prevSingle,
+          record: { ...prevSingle.record, is_active: nextActive },
+        });
+      }
+
+      return { prevLists, prevSingle };
+    },
+
+    onSuccess: (data) => {
+      toast.success(data.message || "تم تحديث الحالة بنجاح");
+    },
+
+    onError: (_err, vars, ctx) => {
+      toast.error("حدث خطأ أثناء تحديث الحالة");
       ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
       if (ctx?.prevSingle)
         qc.setQueryData(AttributeQK.single(vars.id), ctx.prevSingle);

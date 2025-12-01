@@ -83,8 +83,7 @@ function AttributeAccordionContent(props: AttributeProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const hasOptions = attribute.options.length > 0;
 
-  // افتراض وجود خاصية is_active على السمة للمحاكاة
-  const isActive = (attribute as any).is_active === true || (attribute as any).is_active === "1" || false;
+  const isActive = attribute.is_active === true || attribute.is_active === "1";
 
 
   return (

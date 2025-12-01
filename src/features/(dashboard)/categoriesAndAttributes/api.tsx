@@ -191,6 +191,7 @@ export interface Attribute {
   id: number;
   title: string;
   options: AttributeOption[];
+  is_active?: boolean | "0" | "1";
 }
 
 export interface PaginatedAttributesResponse extends BaseResponse {
@@ -216,6 +217,7 @@ export interface AttributeCreatePayload {
 export interface AttributeUpdatePayload {
   title?: string;
   options?: AttributeOptionPayload[];
+  is_active?: "0" | "1";
 }
 
 export const getAttributes = async (
@@ -269,6 +271,22 @@ export const updateAttribute = async (
   payload: AttributeUpdatePayload
 ): Promise<SingleAttributeResponse> => {
   const endpoint = getDynamicEndpoint(`/attributes/${id}`);
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.post<SingleAttributeResponse>(endpoint, payload, {
+    headers,
+  });
+  return data;
+};
+
+export const updateAttributeStatus = async (
+  id: string | number,
+  payload: UpdateStatusPayload
+): Promise<SingleAttributeResponse> => {
+  const endpoint = getDynamicEndpoint(`/attributes/${id}/update-status`);
   const userType = Cookies.get("user_type");
   const storeId = Cookies.get("current_store_id");
 

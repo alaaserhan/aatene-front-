@@ -21,6 +21,7 @@ import {
   useUpdateAttribute,
   useDeleteAttribute,
   useUpdateCategoryStatus,
+  useUpdateAttributeStatus, // 1. استيراد الهوك الجديد
 } from "../hooks";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -118,6 +119,7 @@ export function CategoriesPage() {
   const { mutate: createAttributeMutation } = useCreateAttribute();
   const { mutate: updateAttributeMutation } = useUpdateAttribute();
   const { mutate: deleteAttributeMutation } = useDeleteAttribute();
+  const { mutate: updateAttributeStatusMutation } = useUpdateAttributeStatus(); // 2. تعريف دالة التعديل
 
   const categories = categoriesData?.data || [];
   const attributes = attributesData?.data || [];
@@ -184,10 +186,7 @@ export function CategoriesPage() {
     if (itemType === "category") {
       updateCategoryStatusMutation({ id, payload: statusPayload });
     } else if (itemType === "attribute") {
-      const attributePayload: api.AttributeUpdatePayload = { 
-        is_active: isActive ? "1" : "0" 
-      } as api.AttributeUpdatePayload; 
-      updateAttributeMutation({ id, payload: attributePayload });
+      updateAttributeStatusMutation({ id, payload: statusPayload });
     }
   };
 
