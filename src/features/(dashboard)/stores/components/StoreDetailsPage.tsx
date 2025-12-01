@@ -204,7 +204,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
         </div>
 
         <div className="space-y-4 px-0 md:px-4">
-          <h2 className="text-xl font-bold ">بيانات الاتصال والسوشيل</h2>
+          <h2 className="text-xl font-bold ">بيانات الاتصال والسوشيال</h2>
           {
             (!store.whats_app && !store.phone && !store.facebook && !store.youtube && !store.instagram && !store.tiktok) && (
               <p className="text-sm text-gray-500">لا توجد بيانات اتصال أو سوشيل متاحة لهذا المتجر</p>

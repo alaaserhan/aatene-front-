@@ -158,14 +158,14 @@ export function ProductsPage() {
   };
 
   const handleEditClick = (product: Product) => {
-    router.push(`/dashboard/products/${product.id}/edit`);
+    router.push(`/admin/products/${product.id}/edit`);
   };
 
   const renderHeaderAction = () => {
     if (pageMode === "service") {
       return (
         <Link
-          href="/dashboard/services/add"
+          href="/admin/services/add"
           className="flex items-center gap-2 px-4 py-2 bg-[#3A5779] rounded-sm text-white text-sm font-semibold cursor-pointer hover:bg-[#2d4460] transition-colors"
         >
           <Plus className="w-5 h-5" />
@@ -177,7 +177,7 @@ export function ProductsPage() {
     if (isMerchant && !isLoadingSections && !hasSections) {
       return (
         <Link
-          href="/dashboard/sections"
+          href="/admin/sections"
           className="flex items-center gap-2 px-4 py-2 bg-[#3A5779] rounded-sm text-white text-sm font-semibold cursor-pointer hover:bg-[#2d4460] transition-colors"
         >
           <Plus className="w-5 h-5" />
@@ -191,8 +191,8 @@ export function ProductsPage() {
 
     if (showAddProduct) {
       const href = isAdmin
-        ? "/dashboard/products/add"
-        : `/dashboard/products/add?section_id=${selectedSectionId}`;
+        ? "/admin/products/add"
+        : `/admin/products/add?section_id=${selectedSectionId}`;
 
       return (
         <Link

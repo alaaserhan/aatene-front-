@@ -15,12 +15,12 @@ interface BaseInputProps {
   containerClassName?: string;
 }
 
-type InputProps = BaseInputProps & 
+type InputProps = BaseInputProps &
   Omit<InputHTMLAttributes<HTMLInputElement>, 'className'> & {
     multiline?: false;
   };
 
-type TextareaProps = BaseInputProps & 
+type TextareaProps = BaseInputProps &
   Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'className'> & {
     multiline: true;
   };
@@ -30,7 +30,7 @@ type FormInputProps = InputProps | TextareaProps;
 export const FormInput = forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   FormInputProps
->(({ 
+>(({
   label,
   error,
   hint,
@@ -49,9 +49,9 @@ export const FormInput = forwardRef<
     "w-full px-4 py-3 border rounded-sm text-[13px]  ",
     "focus:outline-none focus:ring-0 focus:ring-blue-3",
     "transition-all duration-200",
-    error 
-      ? "border-red-500 focus:ring-red-500" 
-      : "border-gray-300 focus:ring-blue-3",
+    error
+      ? "border-red-500 focus:ring-red-500"
+      : "border-gray-200 focus:ring-blue-3",
     "disabled:bg-gray-100 disabled:cursor-not-allowed",
     className
   );
@@ -83,27 +83,33 @@ export const FormInput = forwardRef<
         />
       )}
 
+
+
       {/* Counter, Hint, Error */}
-      { error &&
+      {error &&
         <div className="flex items-center justify-between gap-2 min-h-[20px]">
-        {/* Hint or Error */}
-        <div className="flex-1">
-          {error && (
-            <p className="text-xs text-red-500">{error}</p>
-          )}
-          {!error && hint && (
-            <p className="text-xs text-gray-500">{hint}</p>
+          {/* Hint or Error */}
+          <div className="flex-1">
+            {error && (
+              <p className="text-xs text-red-500">{error}</p>
+            )}
+          </div>
+        </div>
+      }
+
+      {
+        !error && (hint || (maxLength && showCounter)) &&
+        <div className="flex items-center justify-between gap-2 min-h-[20px]">
+          <p className="text-xs text-gray-3">{hint}</p>
+          {/* Character Counter */}
+          {(showCounter || maxLength) && (
+            <p className="text-xs text-gray-3 whitespace-nowrap">
+              {currentLength}/{maxLength || '∞'}
+            </p>
           )}
         </div>
-
-        {/* Character Counter */}
-        {(showCounter || maxLength) && (
-          <p className="text-xs text-gray-500 whitespace-nowrap">
-            {currentLength}/{maxLength || '∞'}
-          </p>
-        )}
-      </div>
       }
+
     </div>
   );
 });

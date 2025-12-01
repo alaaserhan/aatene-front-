@@ -67,7 +67,7 @@ const settingsItems = [
   },
   {
     id: "social-media",
-    title: "بيانات السوشيل ميديا",
+    title: "بيانات السوشيال ميديا",
     isCompleted: true,
   },
   {

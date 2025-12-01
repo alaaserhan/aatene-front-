@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
 interface DropdownOption {
@@ -19,6 +19,8 @@ interface ReusableDropdownProps {
   className?: string;
   error?: string;
   dropdownPosition?: "top" | "bottom";
+  onReachEnd?: () => void;
+  isLoadingMore?: boolean;
 }
 
 export function ReusableDropdown({
@@ -30,9 +32,12 @@ export function ReusableDropdown({
   className,
   error,
   dropdownPosition = "bottom",
+  onReachEnd,
+  isLoadingMore = false,
 }: ReusableDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = value
     ? options.find((opt) => opt.value === value)
@@ -51,6 +56,15 @@ export function ReusableDropdown({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop <= clientHeight + 20) {
+      if (onReachEnd && !isLoadingMore) {
+        onReachEnd();
+      }
+    }
+  };
 
   return (
     <div className={cn("relative", className)} ref={dropdownRef}>
@@ -85,52 +99,63 @@ export function ReusableDropdown({
       {isOpen && (
         <div
           className={cn(
-            "absolute start-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden max-h-[240px] overflow-y-auto",
+            "absolute start-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden max-h-[240px] flex flex-col",
             dropdownPosition === "top"
               ? "bottom-full mb-2"
               : "top-full mt-2"
           )}
         >
-          <div className="p-1">
+          <div 
+            className="overflow-y-auto p-1 flex-1"
+            onScroll={handleScroll}
+            ref={listRef}
+          >
             {options.length > 0 ? (
-              options.map((option) => {
-                const isSelected = option.value === value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => {
-                      onChange(option.value);
-                      setIsOpen(false);
-                    }}
-                    className={cn(
-                      "w-full flex items-center gap-3 px-3 py-2 text-start rounded-md hover:bg-gray-50 transition-colors cursor-pointer",
-                      isSelected && "bg-blue-50"
-                    )}
-                  >
-                    <div
+              <>
+                {options.map((option) => {
+                  const isSelected = option.value === value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        onChange(option.value);
+                        setIsOpen(false);
+                      }}
                       className={cn(
-                        "w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0",
-                        isSelected
+                        "w-full flex items-center gap-3 px-3 py-2.5 text-start rounded-md hover:bg-gray-50 transition-colors cursor-pointer",
+                        isSelected && "bg-blue-50"
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
+                          isSelected
                           ? "border-blue-3 bg-blue-3"
-                          : "border-gray-300 bg-white"
-                      )}
-                    >
-                      {isSelected && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                      )}
-                    </div>
-                    <span
-                      className={cn(
-                        "text-sm font-medium",
+                            : "border-gray-300 bg-white"
+                        )}
+                      >
+                        {isSelected && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                        )}
+                      </div>
+                      <span
+                        className={cn(
+                          "text-sm font-medium",
                         isSelected ? "text-blue-3" : "text-gray-700"
-                      )}
-                    >
-                      {option.label}
-                    </span>
-                  </button>
-                );
-              })
+                        )}
+                      >
+                        {option.label}
+                      </span>
+                    </button>
+                  );
+                })}
+                {isLoadingMore && (
+                  <div className="flex justify-center py-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-blue-4" />
+                  </div>
+                )}
+              </>
             ) : (
               <div className="p-3 text-center text-sm text-gray-2">
                 لا توجد خيارات

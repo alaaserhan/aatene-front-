@@ -24,12 +24,8 @@ export function CityMultiSelect({
   error,
 }: CityMultiSelectProps) {
 
-  
-        console.log(selectedCityIds)
-        console.log(cities);
-        
-  // تحويل البيانات لكي تناسب ReusableDropdown
-  // نستبعد المدن المختارة بالفعل
+
+
   const dropdownOptions = cities
     .filter((city) => !selectedCityIds.includes(city.id))
     .map((city) => ({
@@ -41,7 +37,7 @@ export function CityMultiSelect({
     // عند الاختيار نحول النص لرقم مرة أخرى
     const cityId = parseInt(cityIdString, 10);
     if (!isNaN(cityId)) {
-        onChange([...selectedCityIds, cityId]);
+      onChange([...selectedCityIds, cityId]);
     }
   };
 
@@ -91,7 +87,7 @@ export function CityMultiSelect({
                     onClick={() => handleRemove(id)}
                     className="w-8 h-8 flex items-center justify-center rounded-md bg-[#FFF5F5] text-red-500 hover:bg-red-100 transition-colors cursor-pointer"
                   >
-                   <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
+                    <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
                   </button>
                 </div>
               );
