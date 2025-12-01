@@ -46,7 +46,7 @@ export function ProductTable({
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px] bg-white rounded-lg border border-gray-200">
+            <div className="flex items-center justify-center min-h-[500px] bg-white rounded-lg border border-gray-200">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
             </div>
         );
@@ -54,7 +54,7 @@ export function ProductTable({
 
     if (products.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] bg-white rounded-lg border border-gray-200">
+            <div className="flex flex-col min-h-[500px] items-center justify-center  bg-white rounded-lg border border-gray-200">
                 <p className="text-gray-500">لا توجد منتجات للعرض</p>
             </div>
         );
@@ -107,7 +107,7 @@ export function ProductTable({
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
-                                            <div className="w-full h-full  text-gray-300 text-xs">
+                                            <div className="flex items-center justify-center h-full text-gray-2 text-xs">
                                                 No IMG
                                             </div>
                                         )}

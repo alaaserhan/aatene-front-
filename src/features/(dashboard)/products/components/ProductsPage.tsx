@@ -312,7 +312,7 @@ export function ProductsPage() {
             <div className="h-32 w-32 bg-gray-50 rounded-full flex items-center justify-center mb-4">
               <Store className="h-16 w-16 text-gray-300" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold  mb-2">
               إدارة الخدمات
             </h3>
             <p className="text-gray-500">سيتم عرض الخدمات هنا قريباً.</p>

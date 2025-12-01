@@ -80,12 +80,10 @@ export function ShareProductModal({
           <DialogTitle>شارك هذا المنتج</DialogTitle>
         </VisuallyHidden>
         <div className="p-6 relative">
-          <DialogClose className="absolute left-4 top-4 rounded-full p-1 hover:bg-gray-100 transition-colors cursor-pointer outline-none">
-            <X className="h-5 w-5 text-gray-500" />
-          </DialogClose>
+
 
           <div className="text-center space-y-2 mt-2">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold ">
               شارك هذا المنتج مع أصدقائك
             </h2>
             <p className="text-sm text-gray-500">
