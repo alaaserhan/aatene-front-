@@ -89,7 +89,7 @@ export function GenericSidebarList<T extends { id: number | string }>({
             placeholder="ابحث..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pr-10 pl-3 py-3 h-10 border-gray-300 rounded-sm text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#3A5779] focus:border-transparent"
+            className="w-full pr-10 pl-3 py-3 h-10 border-gray-200 rounded-sm text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#3A5779] focus:border-transparent"
           />
         </div>
 

@@ -142,7 +142,7 @@ export function BannersPage() {
           </button>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl  overflow-hidden">
           <div className="p-4 sm:p-6 border-b border-gray-200 flex flex-col lg:flex-row sm:justify-between gap-3">
             <div>
               <p className="text-xl font-bold">
@@ -159,7 +159,7 @@ export function BannersPage() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                     placeholder="البحث"
-                    className="w-full px-4 py-2 ps-12 border border-gray-300 rounded-s-sm focus:outline-none  text-start"
+                    className="w-full px-4 py-2 ps-12 border border-gray-200 rounded-s-sm focus:outline-none  text-start"
                   />
                   <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 </div>
@@ -255,7 +255,7 @@ export function BannersPage() {
                   banners.map((banner) => (
                     <tr
                       key={banner.id}
-                      className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                      className="border-b border-gray-200  last:border-0 "
                     >
                       <td className="px-4 py-4">
                         <span className="text-sm font-medium text-gray-900">

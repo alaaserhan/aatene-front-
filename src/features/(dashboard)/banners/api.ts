@@ -1,5 +1,6 @@
 // src/features/(dashboard)/banners/api.ts
 import api from "@/src/lib/axios";
+import { getDynamicEndpoint } from "@/src/lib/api-helper";
 
 export interface City {
   id: number;
@@ -74,8 +75,9 @@ export interface UpdateStatusPayload {
 export const getBanners = async (
   params: URLSearchParams
 ): Promise<PaginatedBannersResponse> => {
+  const endpoint = getDynamicEndpoint("/banners");
   const { data } = await api.get<PaginatedBannersResponse>(
-    `/admin/banners?${params.toString()}`
+    `${endpoint}?${params.toString()}`
   );
   return data;
 };
@@ -83,17 +85,16 @@ export const getBanners = async (
 export const getSingleBanner = async (
   id: string | number
 ): Promise<SingleBannerResponse> => {
-  const { data } = await api.get<SingleBannerResponse>(`/admin/banners/${id}`);
+  const endpoint = getDynamicEndpoint(`/banners/${id}`);
+  const { data } = await api.get<SingleBannerResponse>(endpoint);
   return data;
 };
 
 export const createBanner = async (
   payload: BannerCreatePayload
 ): Promise<SingleBannerResponse> => {
-  const { data } = await api.post<SingleBannerResponse>(
-    "/admin/banners",
-    payload
-  );
+  const endpoint = getDynamicEndpoint("/banners");
+  const { data } = await api.post<SingleBannerResponse>(endpoint, payload);
   return data;
 };
 
@@ -101,10 +102,8 @@ export const updateBanner = async (
   id: string | number,
   payload: BannerUpdatePayload
 ): Promise<SingleBannerResponse> => {
-  const { data } = await api.post<SingleBannerResponse>(
-    `/admin/banners/${id}`,
-    payload
-  );
+  const endpoint = getDynamicEndpoint(`/banners/${id}`);
+  const { data } = await api.post<SingleBannerResponse>(endpoint, payload);
   return data;
 };
 
@@ -112,16 +111,15 @@ export const updateBannerStatus = async (
   id: string | number,
   payload: UpdateStatusPayload
 ): Promise<SingleBannerResponse> => {
-  const { data } = await api.post<SingleBannerResponse>(
-    `/admin/banners/${id}/update-status`,
-    payload
-  );
+  const endpoint = getDynamicEndpoint(`/banners/${id}/update-status`);
+  const { data } = await api.post<SingleBannerResponse>(endpoint, payload);
   return data;
 };
 
 export const deleteBanner = async (
   id: string | number
 ): Promise<BaseResponse> => {
-  const { data } = await api.delete<BaseResponse>(`/admin/banners/${id}`);
+  const endpoint = getDynamicEndpoint(`/banners/${id}`);
+  const { data } = await api.delete<BaseResponse>(endpoint);
   return data;
 };

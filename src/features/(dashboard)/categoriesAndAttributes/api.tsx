@@ -1,5 +1,7 @@
 // src/features/(dashboard)/categoriesAndAttributes/api.ts
 import api from "@/src/lib/axios";
+import { getDynamicEndpoint } from "@/src/lib/api-helper";
+import Cookies from "js-cookie";
 
 export interface Category {
   id: number;
@@ -62,38 +64,60 @@ export interface UpdateParentPayload {
   categories: { id: number; parent_id: number | null }[];
 }
 
+// --- Categories Functions ---
+
 export const getCategories = async (
   params: URLSearchParams
 ): Promise<PaginatedCategoriesResponse> => {
+  const endpoint = getDynamicEndpoint("/categories");
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
   const { data } = await api.get<PaginatedCategoriesResponse>(
-    `/admin/categories?${params.toString()}`
+    `${endpoint}?${params.toString()}`,
+    { headers }
   );
   return data;
 };
 
 export const getCategoryOptions = async (): Promise<SelectOptionsResponse> => {
-  const { data } = await api.get<SelectOptionsResponse>(
-    "/admin/categories/select"
-  );
+  const endpoint = getDynamicEndpoint("/categories/select");
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.get<SelectOptionsResponse>(endpoint, { headers });
   return data;
 };
 
 export const getSingleCategory = async (
   id: string | number
 ): Promise<SingleCategoryResponse> => {
-  const { data } = await api.get<SingleCategoryResponse>(
-    `/admin/categories/${id}`
-  );
+  const endpoint = getDynamicEndpoint(`/categories/${id}`);
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.get<SingleCategoryResponse>(endpoint, { headers });
   return data;
 };
 
 export const createCategory = async (
   payload: CategoryCreatePayload
 ): Promise<SingleCategoryResponse> => {
-  const { data } = await api.post<SingleCategoryResponse>(
-    "/admin/categories",
-    payload
-  );
+  const endpoint = getDynamicEndpoint("/categories");
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.post<SingleCategoryResponse>(endpoint, payload, {
+    headers,
+  });
   return data;
 };
 
@@ -101,10 +125,15 @@ export const updateCategory = async (
   id: string | number,
   payload: CategoryUpdatePayload
 ): Promise<SingleCategoryResponse> => {
-  const { data } = await api.post<SingleCategoryResponse>(
-    `/admin/categories/${id}`,
-    payload
-  );
+  const endpoint = getDynamicEndpoint(`/categories/${id}`);
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.post<SingleCategoryResponse>(endpoint, payload, {
+    headers,
+  });
   return data;
 };
 
@@ -112,29 +141,45 @@ export const updateCategoryStatus = async (
   id: string | number,
   payload: UpdateStatusPayload
 ): Promise<SingleCategoryResponse> => {
-  const { data } = await api.post<SingleCategoryResponse>(
-    `/admin/categories/${id}/update-status`,
-    payload
-  );
+  const endpoint = getDynamicEndpoint(`/categories/${id}/update-status`);
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.post<SingleCategoryResponse>(endpoint, payload, {
+    headers,
+  });
   return data;
 };
 
 export const updateCategoryParent = async (
   payload: UpdateParentPayload
 ): Promise<BaseResponse> => {
-  const { data } = await api.post<BaseResponse>(
-    "/admin/categories/update-parent",
-    payload
-  );
+  const endpoint = getDynamicEndpoint("/categories/update-parent");
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.post<BaseResponse>(endpoint, payload, { headers });
   return data;
 };
 
 export const deleteCategory = async (
   id: string | number
 ): Promise<BaseResponse> => {
-  const { data } = await api.delete<BaseResponse>(`/admin/categories/${id}`);
+  const endpoint = getDynamicEndpoint(`/categories/${id}`);
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.delete<BaseResponse>(endpoint, { headers });
   return data;
 };
+
+// --- Attributes Functions ---
 
 export interface AttributeOption {
   id: number;
@@ -176,8 +221,15 @@ export interface AttributeUpdatePayload {
 export const getAttributes = async (
   params: URLSearchParams
 ): Promise<PaginatedAttributesResponse> => {
+  const endpoint = getDynamicEndpoint("/attributes");
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
   const { data } = await api.get<PaginatedAttributesResponse>(
-    `/admin/attributes?${params.toString()}`
+    `${endpoint}?${params.toString()}`,
+    { headers }
   );
   return data;
 };
@@ -185,19 +237,30 @@ export const getAttributes = async (
 export const getSingleAttribute = async (
   id: string | number
 ): Promise<SingleAttributeResponse> => {
-  const { data } = await api.get<SingleAttributeResponse>(
-    `/admin/attributes/${id}`
-  );
+  const endpoint = getDynamicEndpoint(`/attributes/${id}`);
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.get<SingleAttributeResponse>(endpoint, {
+    headers,
+  });
   return data;
 };
 
 export const createAttribute = async (
   payload: AttributeCreatePayload
 ): Promise<SingleAttributeResponse> => {
-  const { data } = await api.post<SingleAttributeResponse>(
-    "/admin/attributes",
-    payload
-  );
+  const endpoint = getDynamicEndpoint("/attributes");
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.post<SingleAttributeResponse>(endpoint, payload, {
+    headers,
+  });
   return data;
 };
 
@@ -205,16 +268,27 @@ export const updateAttribute = async (
   id: string | number,
   payload: AttributeUpdatePayload
 ): Promise<SingleAttributeResponse> => {
-  const { data } = await api.post<SingleAttributeResponse>(
-    `/admin/attributes/${id}`,
-    payload
-  );
+  const endpoint = getDynamicEndpoint(`/attributes/${id}`);
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.post<SingleAttributeResponse>(endpoint, payload, {
+    headers,
+  });
   return data;
 };
 
 export const deleteAttribute = async (
   id: string | number
 ): Promise<BaseResponse> => {
-  const { data } = await api.delete<BaseResponse>(`/admin/attributes/${id}`);
+  const endpoint = getDynamicEndpoint(`/attributes/${id}`);
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.delete<BaseResponse>(endpoint, { headers });
   return data;
 };

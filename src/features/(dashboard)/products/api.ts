@@ -1,6 +1,7 @@
 // src/features/(dashboard)/products/api.ts
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
+import Cookies from "js-cookie";
 
 export type ProductType = "simple" | "variation";
 export type ProductCondition = "new" | "used" | "refurbished";
@@ -15,6 +16,10 @@ export interface Category {
 export interface Section {
   id: number;
   name: string;
+  status: ProductStatus;
+  image: string | null;
+  image_url: string | null;
+  store_id: string | null;
 }
 
 export interface VariationOption {
@@ -54,7 +59,7 @@ export interface Product {
   category_id?: number | string;
   category?: Category;
   section_id?: number | string;
-  section?: Section;
+  section?: Section | null; 
   status?: ProductStatus;
   end_date?: string | null;
   shown: boolean;
@@ -93,7 +98,7 @@ export interface ProductCreatePayload {
   short_description?: string;
   description?: string;
   cover: string;
-  gallary?: string[]; 
+  gallary?: string[];
   type: ProductType;
   condition: ProductCondition;
   category_id: number;
@@ -122,12 +127,21 @@ export interface ProductShownPayload {
   shown: boolean;
 }
 
+// --- Helper to get headers ---
+const getHeaders = () => {
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+  return userType === "merchant" && storeId ? { storeId } : undefined;
+};
+
 export const getProducts = async (
   params: URLSearchParams
 ): Promise<PaginatedProductsResponse> => {
   const endpoint = getDynamicEndpoint("/products");
+  const headers = getHeaders();
   const { data } = await api.get<PaginatedProductsResponse>(
-    `${endpoint}?${params.toString()}`
+    `${endpoint}?${params.toString()}`,
+    { headers }
   );
   return data;
 };
@@ -136,7 +150,8 @@ export const getSingleProduct = async (
   id: string | number
 ): Promise<SingleProductResponse> => {
   const endpoint = getDynamicEndpoint(`/products/${id}`);
-  const { data } = await api.get<SingleProductResponse>(endpoint);
+  const headers = getHeaders();
+  const { data } = await api.get<SingleProductResponse>(endpoint, { headers });
   return data;
 };
 
@@ -144,7 +159,8 @@ export const createProduct = async (
   payload: ProductCreatePayload
 ): Promise<SingleProductResponse> => {
   const endpoint = getDynamicEndpoint("/products");
-  const { data } = await api.post<SingleProductResponse>(endpoint, payload);
+  const headers = getHeaders();
+  const { data } = await api.post<SingleProductResponse>(endpoint, payload, { headers });
   return data;
 };
 
@@ -153,7 +169,8 @@ export const updateProduct = async (
   payload: ProductUpdatePayload
 ): Promise<SingleProductResponse> => {
   const endpoint = getDynamicEndpoint(`/products/${id}`);
-  const { data } = await api.post<SingleProductResponse>(endpoint, payload);
+  const headers = getHeaders();
+  const { data } = await api.post<SingleProductResponse>(endpoint, payload, { headers });
   return data;
 };
 
@@ -161,7 +178,8 @@ export const deleteProduct = async (
   id: string | number
 ): Promise<BaseResponse> => {
   const endpoint = getDynamicEndpoint(`/products/${id}`);
-  const { data } = await api.delete<BaseResponse>(endpoint);
+  const headers = getHeaders();
+  const { data } = await api.delete<BaseResponse>(endpoint, { headers });
   return data;
 };
 
@@ -170,7 +188,8 @@ export const updateProductStatus = async (
   payload: ProductStatusPayload
 ): Promise<BaseResponse> => {
   const endpoint = getDynamicEndpoint(`/products/${id}/update-status`);
-  const { data } = await api.post<BaseResponse>(endpoint, payload);
+  const headers = getHeaders();
+  const { data } = await api.post<BaseResponse>(endpoint, payload, { headers });
   return data;
 };
 
@@ -179,6 +198,7 @@ export const updateProductShown = async (
   payload: ProductShownPayload
 ): Promise<BaseResponse> => {
   const endpoint = getDynamicEndpoint(`/products/${id}/update-shown`);
-  const { data } = await api.post<BaseResponse>(endpoint, payload);
+  const headers = getHeaders();
+  const { data } = await api.post<BaseResponse>(endpoint, payload, { headers });
   return data;
 };

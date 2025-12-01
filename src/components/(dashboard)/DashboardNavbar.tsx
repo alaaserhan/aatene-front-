@@ -74,13 +74,14 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   };
 
   const allNavItems: NavItem[] = [
-    { label: "المستخدمين", icon: Users, href: "/users", show: true },
+    { label: "المستخدمين", icon: Users, href: "/users", show: isAdmin },
     { label: "المتاجر", icon: Store, href: "/stores", show: true },
     { label: "الفئات", icon: Package, href: "/categories", show: true },
-    { label: "الإعدادات", icon: Settings, href: "/settings", show: true },
+    { label: "الإعدادات", icon: Settings, href: "/settings", show: isAdmin },
     { label: "مدن الشحن", icon: Map, href: "/cities", show: true },
     { label: "الاقسام", icon: Map, href: "/sections", show: isMerchant },
-    { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: true }
+    { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin },
+    { label: "المنتجات", icon: Package, href: "/products", show: true },
   ];
 
   const mainNavItems = allNavItems.slice(0, 5);

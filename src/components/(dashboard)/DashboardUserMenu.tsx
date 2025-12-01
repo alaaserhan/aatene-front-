@@ -160,23 +160,7 @@ export function DashboardUserMenu() {
                     </div>
                 )}
 
-                {/* --- Header Section (ADMIN: Show User Data) --- */}
-                {isAdmin && (
-                    <div className="bg-white p-4 flex flex-row gap-3">
-                        <Avatar className="w-12 h-12">
-                            <AvatarImage src={user?.avatar} />
-                            <AvatarFallback className="bg-blue-4 text-white text-xl">
-                                {user?.fullname?.[0]}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                            <h3 className="font-medium text-blue-4 mb-1">{user?.fullname}</h3>
-                            <span className="text-xs font-medium text-blue-4 bg-blue-5 border border-blue-4 px-4 py-1 pt-0.5 w-fit rounded-full">
-                                مدير النظام
-                            </span>
-                        </div>
-                    </div>
-                )}
+
 
                 {/* ================= MERCHANT MENU ================= */}
                 {isMerchant && (
