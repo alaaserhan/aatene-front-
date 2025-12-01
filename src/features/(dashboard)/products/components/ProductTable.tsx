@@ -20,7 +20,7 @@ interface ProductTableProps {
     currentPage: number;
     totalPages: number;
     onPageChange: (page: number) => void;
-    onToggleStatus: (product: Product) => void;
+    onToggleShown: (product: Product) => void; // تم تغيير الاسم ليعكس الوظيفة الصحيحة (Shown)
     onEdit: (product: Product) => void;
     onDelete: (product: Product) => void;
 }
@@ -31,7 +31,7 @@ export function ProductTable({
     currentPage,
     totalPages,
     onPageChange,
-    onToggleStatus,
+    onToggleShown,
     onEdit,
     onDelete,
 }: ProductTableProps) {
@@ -127,9 +127,10 @@ export function ProductTable({
                                 </td>
                                 <td className="px-6 py-4 text-center">
                                     <div className="flex justify-center">
+                                        {/* تصحيح: استخدام product.shown بدلاً من status للعمود "مرئي" */}
                                         <ToggleSwitch
-                                            enabled={product.status === "active"}
-                                            onChange={() => onToggleStatus(product)}
+                                            enabled={product.shown}
+                                            onChange={() => onToggleShown(product)}
                                         />
                                     </div>
                                 </td>
@@ -137,7 +138,8 @@ export function ProductTable({
                                     <div className="flex items-center justify-center gap-2">
                                         <DropdownMenu dir="rtl">
                                             <DropdownMenuTrigger asChild>
-                                                <button className="w-8 h-8 flex items-center justify-center rounded-xs text-blue-3 bg-blue-5  cursor-pointer">
+                                                {/* تصحيح: إضافة type="button" لمنع الـ submit العرضي */}
+                                                <button type="button" className="w-8 h-8 flex items-center justify-center rounded-xs text-blue-3 bg-blue-5  cursor-pointer">
                                                     <MoreHorizontal className="w-5" />
                                                 </button>
                                             </DropdownMenuTrigger>
@@ -148,14 +150,20 @@ export function ProductTable({
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     className="cursor-pointer gap-2 "
-                                                    onClick={() => onEdit(product)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onEdit(product);
+                                                    }}
                                                 >
                                                     <Pencil className="w-4 h-4" />
                                                     <span>تعديل المنتج</span>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
-                                                    className="cursor-pointer gap-2 "
-                                                    onClick={() => onDelete(product)}
+                                                    className="cursor-pointer gap-2 text-red-600 focus:text-red-600"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onDelete(product);
+                                                    }}
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                     <span>حذف المنتج</span>
@@ -164,6 +172,7 @@ export function ProductTable({
                                         </DropdownMenu>
                                         
                                         <button 
+                                            type="button"
                                             onClick={() => handleShareClick(product)}
                                             className="w-8 h-8 flex items-center justify-center rounded-xs bg-[#E5FBFF] text-[#1298B2] cursor-pointer hover:bg-[#d0f5fc] transition-colors"
                                         >
