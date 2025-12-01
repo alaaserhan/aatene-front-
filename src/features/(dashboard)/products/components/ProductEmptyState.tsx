@@ -40,18 +40,10 @@ export function ProductEmptyState({ type }: ProductEmptyStateProps) {
 
             <Link href={isNoSections ? "/admin/sections" : "/admin/products/add"}>
                 <Button
-                    className="bg-blue-3 text-white px-16 py-5 cursor-pointer rounded-xs"
+                    className="bg-blue-3 text-white  py-5 cursor-pointer rounded-xs"
                 >
                     <Plus className="w-5 h-5" />
-                    {isNoSections ? (
-                        <>
-                            إضافة قسم جديد
-                        </>
-                    ) : (
-                        <>
-                         إضافة منتج جديد 
-                        </>
-                    )}
+                    {isNoSections ? " إضافة قسم جديد" : "إضافة منتج جديد"}
                 </Button>
             </Link>
         </div>
