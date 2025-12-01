@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
-import { RichTextEditor } from "./RichTextEditor";
+import { RichTextEditor } from "../../../../components/ui/RichTextEditor";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
@@ -273,10 +273,7 @@ export function TermsSection({
             }
             accept="image/png,image/jpeg,image/jpg"
             primaryText="أضف صورة للشرط"
-            infoText={[
-              // "الأفضل أن تكون الصورة بعرض 700 بكسل وطول 400 بكسل.",
-              // "الحجم يجب أن لا يتعدى 2 ميغابايت.",
-            ]}
+            infoText={[]}
             allowedMediaTypes={["gallery", "image"]}
           />
         </div>
@@ -323,7 +320,10 @@ export function TermsSection({
               })
             }
             placeholder="أضف وصف مميز..."
-            isRtl={languageTab === "ar" || languageTab === "he"}
+            dir={languageTab === "en" ? "ltr" : "rtl"}
+            label=""
+            helpText=""
+            helpTooltip=""
           />
         </div>
 

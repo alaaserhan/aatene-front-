@@ -11,6 +11,7 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
+import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
 import { Step1FormData } from "../types";
 import { cn } from "@/src/lib/utils";
 import { useGetCategories } from "../../categoriesAndAttributes/hooks";
@@ -172,7 +173,7 @@ export function AddProductStep1({
             cover: newCover,
             cover_preview: newCoverUrl,
             gallery: newGallery,
-            gallery_previews: newGalleryUrls
+            gallery_previews: newGalleryUrls,
         });
     };
 
@@ -195,10 +196,8 @@ export function AddProductStep1({
                                 <h2 className="text-xl font-semibold">المعلومات الأساسية</h2>
                             </div>
 
-                            {/* Selected Category Card UI */}
                             {selectedCategory && (
                                 <div className="bg-[#F8F8F8] rounded-md p-6 mb-8 flex items-center justify-between">
-
                                     <div className="flex flex-col gap-1">
                                         <h3 className="text-sm font-medium ">{selectedCategory.name}</h3>
                                         <p className="text-xs text-gray-3">منتجات خاصة بـ {selectedCategory.name} ومتعلقاتها</p>
@@ -256,9 +255,6 @@ export function AddProductStep1({
                                                 errors.price ? "border-red-500" : "border-gray-200"
                                             )}
                                         />
-                                        {/* <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium bg-gray-100 px-2 py-0.5 rounded">
-                      ₪
-                    </span> */}
                                     </div>
                                     {errors.price && <p className="text-xs text-red-500 mt-1">{errors.price}</p>}
                                 </div>
@@ -333,30 +329,14 @@ export function AddProductStep1({
                                 </div>
 
                                 <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <Label className="text-sm font-medium">وصف المنتج</Label>
-                                        <Tooltip
-                                            trigger={
-                                                <div className="flex items-center gap-1 text-blue-4 cursor-pointer">
-                                                    <HelpCircle className="w-3.5 h-3.5" />
-                                                    <span className="text-xs font-medium">ماهو وصف المنتج</span>
-                                                </div>
-                                            }
-                                            content="اكتب وصفًا تفصيليًا يشرح مميزات المنتج، خامته، طريقة استخدامه، والمعلومات الإضافية التي قد تساعد العميل في اتخاذ قرار الشراء. يمكنك استخدام فقرات أو نقاط مرتبة لتوضيح التفاصيل."
-                                        />
-                                    </div>
-                                    <div className="border border-gray-200 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
-                                        <div className="flex items-center gap-1 p-2 bg-gray-50 border-b border-gray-200">
-                                            <span className="text-xs text-gray-400 px-2">أدوات التنسيق...</span>
-                                        </div>
-                                        <textarea
-                                            value={formData.description}
-                                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                            placeholder="...نص المحتوى"
-                                            rows={6}
-                                            className="w-full px-4 py-3 focus:outline-none text-sm resize-none bg-white"
-                                        />
-                                    </div>
+                                    <RichTextEditor
+                                        value={formData.description}
+                                        onChange={(val) => setFormData({ ...formData, description: val })}
+                                        label="وصف المنتج"
+                                        placeholder="...نص المحتوى"
+                                        helpText="ماهو وصف المنتج"
+                                        helpTooltip="اكتب وصفًا تفصيليًا يشرح مميزات المنتج، خامته، طريقة استخدامه، والمعلومات الإضافية التي قد تساعد العميل في اتخاذ قرار الشراء. يمكنك استخدام فقرات أو نقاط مرتبة لتوضيح التفاصيل."
+                                    />
                                 </div>
                             </div>
                         </div>
