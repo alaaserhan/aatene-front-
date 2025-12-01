@@ -1,6 +1,7 @@
 // src/features/(dashboard)/products/components/ProductTable.tsx
 "use client";
 
+import { useState } from "react";
 import { MoreHorizontal, Share2, Eye, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Product } from "../api";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
@@ -11,6 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import { Pagination } from "@/src/components/ui/Pagination";
+import { ShareProductModal } from "./ShareProductModal";
 
 interface ProductTableProps {
     products: Product[];
@@ -33,6 +35,15 @@ export function ProductTable({
     onEdit,
     onDelete,
 }: ProductTableProps) {
+    // State for Share Modal
+    const [shareModalOpen, setShareModalOpen] = useState(false);
+    const [selectedProductForShare, setSelectedProductForShare] = useState<Product | null>(null);
+
+    const handleShareClick = (product: Product) => {
+        setSelectedProductForShare(product);
+        setShareModalOpen(true);
+    };
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px] bg-white rounded-lg border border-gray-200">
@@ -151,7 +162,11 @@ export function ProductTable({
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-                                        <button className="w-8 h-8 flex items-center justify-center rounded-xs bg-[#E5FBFF] text-[#1298B2]  cursor-pointer">
+                                        
+                                        <button 
+                                            onClick={() => handleShareClick(product)}
+                                            className="w-8 h-8 flex items-center justify-center rounded-xs bg-[#E5FBFF] text-[#1298B2] cursor-pointer hover:bg-[#d0f5fc] transition-colors"
+                                        >
                                             <Share2 className="w-4 h-4" />
                                         </button>
                                     </div>
@@ -171,6 +186,14 @@ export function ProductTable({
                     />
                 </div>
             )}
+
+            {/* Share Modal */}
+            <ShareProductModal 
+                isOpen={shareModalOpen}
+                onClose={() => setShareModalOpen(false)}
+                // Use actual product link, assuming structure like /products/[slug] or [id]
+                productUrl={selectedProductForShare ? `${window.location.origin}/products/${selectedProductForShare.id}` : ""}
+            />
         </div>
     );
 }
