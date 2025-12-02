@@ -23,6 +23,9 @@ interface AddProductStep1Props {
     onSaveDraft?: () => void;
     barSteps: { number: number; label: string; completed: boolean }[];
     storeId?: string;
+    breadcrumbItems?: { label: string; href?: string }[];
+    onStepClick?: (step: number) => void;
+    showSaveDraft?: boolean;
 }
 
 const CONDITION_OPTIONS = [
@@ -64,6 +67,9 @@ export function AddProductStep1({
     onSaveDraft,
     barSteps,
     storeId,
+    breadcrumbItems,
+    onStepClick,
+    showSaveDraft = true,
 }: AddProductStep1Props) {
     const [formData, setFormData] = useState<Step1FormData>({
         category_id: initialData?.category_id || 0,
@@ -122,25 +128,38 @@ export function AddProductStep1({
 
     const selectedCategory = allCategories.find((c) => c.id === formData.category_id);
 
-    const breadcrumbItems = [
+    const defaultBreadcrumbItems = [
         { label: "المنتجات", href: "/dashboard/products" },
         { label: "انشاء منتج جديد" },
     ];
 
     const validate = () => {
         const newErrors: Record<string, string> = {};
-        if (!formData.name.trim()) newErrors.name = "اسم المنتج مطلوب";
-        if (!formData.cover) newErrors.cover = "صورة المنتج مطلوبة (يجب إضافة صورة واحدة على الأقل)";
-        if (!formData.category_id) newErrors.category_id = "الفئة مطلوبة";
-        if (!formData.short_description.trim()) newErrors.short_description = "الوصف الموجز مطلوب";
 
-        // --- التحقق الجديد ---
-        if (!formData.description.trim() || formData.description === "<p><br></p>") {
+        if (!formData.name.trim()) {
+            newErrors.name = "اسم المنتج مطلوب";
+        }
+
+        if (!formData.cover) {
+            newErrors.cover = "صورة المنتج مطلوبة (يجب إضافة صورة واحدة على الأقل)";
+        }
+
+        if (!formData.category_id) {
+            newErrors.category_id = "الفئة مطلوبة";
+        }
+
+        if (!formData.short_description.trim()) {
+            newErrors.short_description = "الوصف الموجز مطلوب";
+        }
+
+        const isDescriptionEmpty = !formData.description.trim() || formData.description === "<p><br></p>";
+        if (isDescriptionEmpty) {
             newErrors.description = "وصف المنتج مطلوب";
         }
-        // -------------------
 
-        if (formData.price <= 0) newErrors.price = "السعر مطلوب";
+        if (formData.price <= 0) {
+            newErrors.price = "السعر مطلوب";
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -193,8 +212,12 @@ export function AddProductStep1({
     return (
         <div className="overflow-hidden">
             <div className="container mx-auto py-4 px-4">
-                <Breadcrumb items={breadcrumbItems} className="mb-4" />
-                <ProductStepperProgress currentStep={1} steps={barSteps} />
+                <Breadcrumb items={breadcrumbItems || defaultBreadcrumbItems} className="mb-4" />
+                <ProductStepperProgress
+                    currentStep={1}
+                    steps={barSteps}
+                    onStepClick={onStepClick}
+                />
 
                 <div className="grid grid-cols-12 gap-4 mt-8">
                     <div className="col-span-12 lg:col-span-9">
@@ -352,7 +375,7 @@ export function AddProductStep1({
                                         maxWords={70}
                                         value={formData.description}
                                         onChange={(val) => setFormData({ ...formData, description: val })}
-                                        label="" // تم إخفاء العنوان الداخلي للمكون لأننا أضفناه أعلاه
+                                        label="" 
                                         placeholder="...نص المحتوى"
                                         helpText="ماهو وصف المنتج"
                                         helpTooltip="اكتب وصفًا تفصيليًا يشرح مميزات المنتج، خامته، طريقة استخدامه، والمعلومات الإضافية التي قد تساعد العميل في اتخاذ قرار الشراء. يمكنك استخدام فقرات أو نقاط مرتبة لتوضيح التفاصيل."
@@ -382,6 +405,7 @@ export function AddProductStep1({
                 onSaveDraft={onSaveDraft}
                 showBack={false}
                 showCancel={true}
+                showSaveDraft={showSaveDraft}
             />
         </div>
     );

@@ -9,7 +9,7 @@ import {
   useGetProducts, 
   useUpdateProductStatus, 
   useDeleteProduct, 
-  useUpdateProductShown // 1. استيراد هوك تعديل الظهور
+  useUpdateProductShown
 } from "../hooks";
 import { useGetSections } from "../../sections/hooks";
 import { useGetStores } from "../../stores/hooks";
@@ -78,6 +78,13 @@ export function ProductsPage() {
   const sections = sectionsData?.data || [];
   const hasSections = (sectionsData?.recordsTotal || 0) > 0;
 
+  // --- Auto-select First Section for Merchants ---
+  useEffect(() => {
+    if (isMerchant && sections.length > 0 && !selectedSectionId) {
+      setSelectedSectionId(String(sections[0].id));
+    }
+  }, [isMerchant, sections, selectedSectionId]);
+
   const productsQueryParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("page", String(currentPage));
@@ -119,7 +126,7 @@ export function ProductsPage() {
 
   // --- Mutations ---
   const { mutate: updateStatusMutation } = useUpdateProductStatus();
-  const { mutate: updateShown } = useUpdateProductShown(); // استخدام هوك الظهور
+  const { mutate: updateShown } = useUpdateProductShown();
   const { mutate: deleteProduct } = useDeleteProduct();
 
   // --- Handlers ---
@@ -148,7 +155,6 @@ export function ProductsPage() {
     }
   };
 
-  // 2. دالة التعامل مع تغيير حالة "مرئي"
   const handleToggleShown = (product: Product) => {
     const newShown = !product.shown;
     updateShown({ id: product.id, payload: { shown: newShown } });
@@ -350,14 +356,13 @@ export function ProductsPage() {
               ) : isNoProductsEmptyState ? (
                 <ProductEmptyState type="no-products" />
               ) : (
-                // 3. تمرير onToggleShown
                 <ProductTable
                   products={products}
                   isLoading={isLoadingProducts}
                   currentPage={currentPage}
                   totalPages={totalPages}
                   onPageChange={setCurrentPage}
-                  onToggleShown={handleToggleShown} // تصحيح الاسم هنا
+                  onToggleShown={handleToggleShown}
                   onEdit={handleEditClick}
                   onDelete={handleDeleteClick}
                   onToggleStatus={handleToggleStatus}

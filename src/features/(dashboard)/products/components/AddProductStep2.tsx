@@ -18,7 +18,6 @@ import { cn } from "@/src/lib/utils";
 import { toast } from "sonner";
 import { Label } from "@/src/components/ui/label";
 
-// تحديث Interface البيانات ليشمل section_id
 interface ExtendedStep2FormData extends Step2FormData {
   section_id?: number;
 }
@@ -30,6 +29,9 @@ interface AddProductStep2Props {
   onBack: () => void;
   onSaveDraft?: () => void;
   barSteps: { number: number; label: string; completed: boolean }[];
+  breadcrumbItems?: { label: string; href?: string }[];
+  onStepClick?: (step: number) => void;
+  showSaveDraft?: boolean;
 }
 
 export function AddProductStep2({
@@ -39,6 +41,9 @@ export function AddProductStep2({
   onBack,
   onSaveDraft,
   barSteps,
+  breadcrumbItems,
+  onStepClick,
+  showSaveDraft = true,
 }: AddProductStep2Props) {
   const userType = Cookies.get("user_type");
   const currentStoreId = Cookies.get("current_store_id");
@@ -53,7 +58,6 @@ export function AddProductStep2({
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // --- Stores Logic (Admin Only) ---
   const [storesPage, setStoresPage] = useState(1);
   const [allStores, setAllStores] = useState<{ id: number; name: string }[]>([]);
 
@@ -95,17 +99,17 @@ export function AddProductStep2({
     label: store.name,
   }));
 
-  // --- Sections Logic ---
   const [sectionsPage, setSectionsPage] = useState(1);
   const [allSections, setAllSections] = useState<{ id: number; name: string }[]>([]);
-
 
   const sectionsQueryParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("per_page", "10");
     params.set("page", String(sectionsPage));
     params.set("status", "active");
-    params.set("store_id", String(formData.store_id));
+    if (formData.store_id) {
+      params.set("store_id", String(formData.store_id));
+    }
     return params;
   }, [sectionsPage, formData.store_id]);
 
@@ -141,21 +145,17 @@ export function AddProductStep2({
     label: section.name,
   }));
 
-  // --- UI Logic ---
-
-  // دالة جديدة للتعامل مع تغيير المتجر
   const handleStoreChange = (value: string) => {
     setFormData({
       ...formData,
       store_id: Number(value),
-      section_id: 0 // تصفير القسم فقط عند تغيير المتجر يدوياً
+      section_id: 0, 
     });
-    // إعادة تعيين بيانات الأقسام
     setSectionsPage(1);
     setAllSections([]);
   };
 
-  const breadcrumbItems = [
+  const defaultBreadcrumbItems = [
     { label: "المنتجات", href: "/admin/products" },
     { label: "انشاء منتج جديد" },
   ];
@@ -177,6 +177,8 @@ export function AddProductStep2({
       onNext(formData);
     } else {
       const firstError = Object.keys(errors)[0];
+      const element = document.querySelector(`[name="${firstError}"]`);
+      element?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
@@ -217,8 +219,12 @@ export function AddProductStep2({
   return (
     <div className="overflow-hidden">
       <div className="container mx-auto py-4 px-4">
-        <Breadcrumb items={breadcrumbItems} className="mb-4" />
-        <ProductStepperProgress currentStep={2} steps={barSteps} />
+        <Breadcrumb items={breadcrumbItems || defaultBreadcrumbItems} className="mb-4" />
+        <ProductStepperProgress
+          currentStep={2}
+          steps={barSteps}
+          onStepClick={onStepClick}
+        />
 
         <div className="grid grid-cols-12 gap-4 mt-8">
           <div className="col-span-12 lg:col-span-9">
@@ -228,7 +234,6 @@ export function AddProductStep2({
               </h2>
 
               <div className="space-y-8">
-                {/* Store Selection (Visible only for Admin) */}
                 {isAdmin && (
                   <div className="space-y-2">
                     <Label className="text-sm font-medium flex items-center gap-1">
@@ -238,7 +243,7 @@ export function AddProductStep2({
                     <ReusableDropdown
                       options={storeOptions}
                       value={formData.store_id ? String(formData.store_id) : ""}
-                      onChange={handleStoreChange} // استخدام الدالة الجديدة هنا
+                      onChange={handleStoreChange}
                       placeholder="اختر المتجر..."
                       error={errors.store_id}
                       className="h-11"
@@ -248,8 +253,7 @@ export function AddProductStep2({
                   </div>
                 )}
 
-                {/* Section Selection */}
-                {(formData.store_id > 0) && (
+                {formData.store_id > 0 && (
                   <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
                     <Label className="text-sm font-medium flex items-center gap-1">
                       القسم
@@ -266,11 +270,15 @@ export function AddProductStep2({
                       className="h-11"
                       onReachEnd={handleLoadMoreSections}
                       isLoadingMore={isSectionsLoading && sectionsPage > 1}
+                      searchPlaceholder="ابحث عن اسم القسم..."
+                      emptyText="لا توجد أقسام في هذا المتجر"
                     />
+                    <p className="text-xs text-gray-400">
+                      حدد القسم الذي ينتمي إليه هذا المنتج داخل المتجر.
+                    </p>
                   </div>
                 )}
 
-                {/* Keywords (Tags) */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">
@@ -310,7 +318,6 @@ export function AddProductStep2({
                     </button>
                   </div>
 
-                  {/* Tags List */}
                   {formData.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {formData.tags.map((tag, index) => (
@@ -345,6 +352,7 @@ export function AddProductStep2({
         onNext={handleNext}
         onBack={onBack}
         onSaveDraft={onSaveDraft}
+        showSaveDraft={showSaveDraft}
       />
     </div>
   );

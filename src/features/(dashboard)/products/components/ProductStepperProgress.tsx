@@ -13,9 +13,10 @@ interface Step {
 interface ProductStepperProgressProps {
   currentStep: number;
   steps: Step[];
+  onStepClick?: (step: number) => void;
 }
 
-export function ProductStepperProgress({ currentStep, steps }: ProductStepperProgressProps) {
+export function ProductStepperProgress({ currentStep, steps, onStepClick }: ProductStepperProgressProps) {
   return (
     <div className="w-full py-8" dir="rtl">
       <div className="container mx-auto px-4">
@@ -23,10 +24,17 @@ export function ProductStepperProgress({ currentStep, steps }: ProductStepperPro
           {steps.map((step, index) => {
             const isCompleted = step.completed || currentStep > step.number;
             const isActive = currentStep === step.number;
+            const isClickable = !!onStepClick;
 
             return (
               <React.Fragment key={step.number}>
-                <div className="flex flex-col items-center relative z-10">
+                <div 
+                  className={cn(
+                    "flex flex-col items-center relative z-10",
+                    isClickable ? "cursor-pointer group" : ""
+                  )}
+                  onClick={() => isClickable && onStepClick(step.number)}
+                >
                   <div
                     className={cn(
                       "w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-200",
@@ -34,7 +42,7 @@ export function ProductStepperProgress({ currentStep, steps }: ProductStepperPro
                         ? "bg-blue-4 border-blue-4"
                         : isActive
                         ? "bg-[#D5DEE7] border-blue-4"
-                        : "bg-white border-blue-4"
+                        : "bg-white border-blue-4 group-hover:border-blue-4/70"
                     )}
                   >
                     {isCompleted ? (
@@ -52,20 +60,29 @@ export function ProductStepperProgress({ currentStep, steps }: ProductStepperPro
                         />
                       </svg>
                     ) : (
-                      <span className="text-lg font-bold text-blue-4">
+                      <span className={cn(
+                        "text-lg font-bold",
+                         isActive ? "text-blue-4" : "text-blue-4"
+                      )}>
                         {step.number}
                       </span>
                     )}
                   </div>
                   
-                  <p className="mt-3 text-sm font-medium text-blue-4 whitespace-nowrap">
+                  <p className={cn(
+                    "mt-3 text-sm font-medium whitespace-nowrap transition-colors",
+                    isActive ? "text-blue-4" : "text-gray-500 group-hover:text-blue-4"
+                  )}>
                     {step.label}
                   </p>
                 </div>
 
                 {index < steps.length - 1 && (
                   <div className="flex-1 flex items-center self-start pt-6 px-2">
-                    <div className="w-full h-[2px] bg-blue-4" />
+                    <div className={cn(
+                      "w-full h-[2px] transition-colors duration-300",
+                      isCompleted ? "bg-blue-4" : "bg-gray-200"
+                    )} />
                   </div>
                 )}
               </React.Fragment>

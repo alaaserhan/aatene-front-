@@ -72,9 +72,9 @@ export function ProductFormActions({
                         onClick={onSaveDraft}
                         variant="outline"
                         disabled={isSubmitting}
-                        className="px-6 py-5 border-blue-4 bg-transparent text-blue-4 hover:bg-transparent cursor-pointer rounded-sm flex items-center gap-2"
+                        className="px-6 py-5 border-blue-6 bg-transparent text-blue-4 hover:bg-transparent cursor-pointer rounded-sm flex items-center gap-2"
                     >
-                        <Bookmark className="w-4 h-4" />
+                        <img src="/icons/dashboard/Bookmark.svg" className="w-3" alt="Bookmark" />
                         حفظ كمسودة
                     </Button>
                 )}

@@ -129,10 +129,10 @@ export function SelectProductsModal({
                       key={product.id}
                       onClick={() => handleToggleProduct(product.id)}
                       className={cn(
-                        "flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all border",
+                        "flex items-center justify-between p-3 rounded-xs cursor-pointer transition-all border-b border-gray-100 last:border-0",
                         isSelected
-                          ? "bg-blue-50 border-blue-200"
-                          : "bg-white border-transparent hover:bg-gray-50 hover:border-gray-100"
+                          ? "bg-blue-5 "
+                          : "bg-white"
                       )}
                     >
                       {/* Right Side: Checkbox + Image + Info */}
@@ -140,14 +140,11 @@ export function SelectProductsModal({
                         {/* Checkbox */}
                         <div
                           className={cn(
-                            "w-5 h-5 rounded-sm border flex items-center justify-center transition-colors flex-shrink-0",
-                            isSelected
-                              ? "bg-blue-3 border-blue-3"
-                              : "bg-white border-gray-300"
+                            "w-4 h-4 rounded-xs border border-blue-4 flex items-center justify-center transition-colors flex-shrink-0 bg-white",
                           )}
                         >
                           {isSelected && (
-                            <Check className="w-3.5 h-3.5 text-white" />
+                            <Check className="w-3.5 h-3.5 text-blue-4" />
                           )}
                         </div>
 

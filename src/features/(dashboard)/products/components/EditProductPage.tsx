@@ -1,9 +1,10 @@
 // src/features/(dashboard)/products/components/EditProductPage.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 import { AddProductStep1 } from "./AddProductStep1";
 import { AddProductStep2 } from "./AddProductStep2";
 import { AddProductStep3 } from "./AddProductStep3";
@@ -20,7 +21,6 @@ import {
   VariationRow,
   RelatedProduct,
 } from "../types";
-import { toast } from "sonner";
 
 interface EditProductPageProps {
   productId: number;
@@ -36,14 +36,11 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   const [mappingError, setMappingError] = useState(false);
 
   useEffect(() => {
-    // استخدام ApiProduct مباشرة بدلاً من الواجهة الفارغة
-    // نتأكد من التعامل مع كلا الاحتمالين (record أو data) حسب هيكل الاستجابة
     const responseData = productData as unknown as { record?: ApiProduct; data?: ApiProduct };
     const product = responseData?.record || responseData?.data;
 
     if (product && !formData) {
       try {
-        // 1. Map Variations
         const variationRows: VariationRow[] = (product.variations || []).map((v: Variation) => {
           const attributeValues: Record<string, string> = {};
           
@@ -60,12 +57,11 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             attributeValues: attributeValues,
             price: Number(v.price) || 0,
             images: v.image ? [v.image] : [],
-            image_previews: v.image ? [v.image] : [], // assuming same URL for preview
+            image_previews: v.image ? [v.image] : [],
             enabled: true,
           };
         });
 
-        // 2. Map Cross Sells
         const crossSellsData: RelatedProduct[] = (product.crossSells || []).map((cs: CrossSellProduct) => ({
           id: cs.id,
           name: cs.name,
@@ -74,8 +70,6 @@ export function EditProductPage({ productId }: EditProductPageProps) {
           price: Number(cs.price) || 0,
         }));
 
-        // 3. Initial Form Data
-        // تنظيف مصفوفة الصور من القيم الفارغة أو null
         const validGallery = (product.gallery || []).filter(img => img && img.trim() !== "");
         const validGalleryUrls = (product.gallery_url || []).filter(url => url && url.trim() !== "");
 
@@ -99,7 +93,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
           },
           step3: {
             hasVariations: product.type === "variation",
-            attributes: [], // سيتم تحميل السمات داخل Step 3 بناءً على البيانات
+            attributes: [],
             variations: variationRows,
           },
           step4: {
@@ -120,7 +114,14 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     }
   }, [productData, formData]);
 
-  // --- Handlers ---
+  const breadcrumbItems = useMemo(() => [
+    { label: "المنتجات", href: "/admin/products" },
+    { label: "تعديل منتج" },
+  ], []);
+
+  const handleStepClick = (step: number) => {
+    setCurrentStep(step);
+  };
 
   const handleStep1Next = (data: Step1FormData) => {
     if (!formData) return;
@@ -204,19 +205,12 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       });
       router.push("/admin/products");
     } catch (error) {
-      // Error handling is usually managed by the mutation hook
     }
   };
 
   const handleStep4Back = () => {
     setCurrentStep(3);
   };
-
-  const handleSaveDraft = () => {
-    toast.info("تم حفظ المسودة");
-  };
-
-  // --- Render Logic ---
 
   if (isLoading) {
     return (
@@ -276,8 +270,10 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             initialData={formData.step1}
             onNext={handleStep1Next}
             onCancel={handleStep1Cancel}
-            onSaveDraft={handleSaveDraft}
             barSteps={steps}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
+            showSaveDraft={false}
           />
         );
       case 2:
@@ -291,8 +287,10 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             initialData={formData.step2}
             onNext={handleStep2Next}
             onBack={handleStep2Back}
-            onSaveDraft={handleSaveDraft}
             barSteps={steps}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
+            showSaveDraft={false}
           />
         );
       case 3:
@@ -306,8 +304,10 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             initialData={formData.step3}
             onNext={handleStep3Next}
             onBack={handleStep3Back}
-            onSaveDraft={handleSaveDraft}
             barSteps={steps}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
+            showSaveDraft={false}
           />
         );
       case 4:
@@ -321,9 +321,11 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             initialData={formData.step4}
             onSave={handleStep4Save}
             onBack={handleStep4Back}
-            onSaveDraft={handleSaveDraft}
             isSubmitting={updateProductMutation.isPending}
             barSteps={steps}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
+            showSaveDraft={false}
           />
         );
       default:
@@ -332,8 +334,10 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             initialData={formData.step1}
             onNext={handleStep1Next}
             onCancel={handleStep1Cancel}
-            onSaveDraft={handleSaveDraft}
             barSteps={steps}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
+            showSaveDraft={false}
           />
         );
     }

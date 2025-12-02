@@ -1,7 +1,7 @@
 // src/features/(dashboard)/products/components/AddProductPage.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import { AddProductStep1 } from "./AddProductStep1";
@@ -24,12 +24,11 @@ export function AddProductPage() {
   const searchParams = useSearchParams();
   const sectionIdFromUrl = searchParams.get("section_id");
   const storeId = Cookies.get("current_store_id");
+  const toastShownRef = useRef(false);
 
   const createProductMutation = useCreateProduct();
 
   const [currentStep, setCurrentStep] = useState(1);
-  
-  // Initialize formData with section_id in step2 if present in URL
   const [formData, setFormData] = useState<CompleteProductFormData>({
     step2: sectionIdFromUrl ? { 
         store_id: Number(storeId) || 0, 
@@ -38,8 +37,73 @@ export function AddProductPage() {
     } : undefined
   });
 
+  const breadcrumbItems = useMemo(() => [
+    { label: "المنتجات", href: "/admin/products" },
+    { label: "انشاء منتج جديد" },
+  ], []);
+
+  useEffect(() => {
+    if (toastShownRef.current) return;
+    
+    const savedDraft = localStorage.getItem("product_draft");
+    if (savedDraft) {
+      toastShownRef.current = true;
+      try {
+        const parsedDraft = JSON.parse(savedDraft);
+        toast("يوجد مسودة سابقة", {
+          description: "هل تريد استكمال آخر جلسة؟",
+          action: {
+            label: "نعم، استكمل",
+            onClick: () => {
+                setFormData(parsedDraft);
+                if (parsedDraft.step3) setCurrentStep(4);
+                else if (parsedDraft.step2) setCurrentStep(3);
+                else if (parsedDraft.step1) setCurrentStep(2);
+            },
+          },
+          cancel: {
+            label: "لا، ابدأ من جديد",
+            onClick: () => {
+                localStorage.removeItem("product_draft");
+            }
+          },
+          duration: 10000,
+        });
+      } catch (error) {
+        console.error("Failed to parse draft", error);
+      }
+    }
+  }, []);
+
+  const handleSaveDraft = (currentStepData?: any) => {
+    try {
+        const dataToSave = { ...formData };
+        
+        if (currentStepData) {
+            if (currentStep === 1) dataToSave.step1 = currentStepData;
+            if (currentStep === 2) dataToSave.step2 = currentStepData;
+            if (currentStep === 3) dataToSave.step3 = currentStepData;
+            if (currentStep === 4) dataToSave.step4 = currentStepData;
+            setFormData(dataToSave); 
+        }
+
+        localStorage.setItem("product_draft", JSON.stringify(dataToSave));
+        toast.success("تم حفظ المسودة بنجاح");
+    } catch (error) {
+        toast.error("فشل حفظ المسودة");
+    }
+  };
+
+  const handleStepClick = (step: number) => {
+    if (step === 1) setCurrentStep(1);
+    else if (step === 2 && formData.step1) setCurrentStep(2);
+    else if (step === 3 && formData.step1 && formData.step2) setCurrentStep(3);
+    else if (step === 4 && formData.step1 && formData.step2 && formData.step3) setCurrentStep(4);
+  };
+
   const handleStep1Next = (data: Step1FormData) => {
-    setFormData({ ...formData, step1: data });
+    const newData = { ...formData, step1: data };
+    setFormData(newData);
     setCurrentStep(2);
   };
 
@@ -78,7 +142,6 @@ export function AddProductPage() {
       return;
     }
 
-    // Prepare Payload
     const payload: ProductCreatePayload = {
       sku: `SKU-${Date.now()}`,
       name: updatedFormData.step1!.name,
@@ -89,11 +152,8 @@ export function AddProductPage() {
       type: updatedFormData.step3!.hasVariations ? "variation" : "simple",
       condition: updatedFormData.step1!.condition,
       category_id: updatedFormData.step1!.category_id,
-      
-      // FIX: Get store_id and section_id from step2
       store_id: updatedFormData.step2!.store_id,
       section_id: updatedFormData.step2!.section_id || 0, 
-      
       price: updatedFormData.step1!.price,
       status: "active",
       tags: updatedFormData.step2!.tags,
@@ -110,13 +170,14 @@ export function AddProductPage() {
           image: v.images[0] || "",
           attributeOptions: Object.entries(v.attributeValues).map(([attrId, value]) => ({
             attribute_id: Number(attrId) || 0,
-            option_id: 0, // You might need logic here if option IDs are actual IDs
+            option_id: 0, 
           })),
         }));
     }
 
     try {
       await createProductMutation.mutateAsync(payload);
+      localStorage.removeItem("product_draft");
       router.push("/admin/products");
     } catch (error) {
       console.error("Error creating product:", error);
@@ -125,10 +186,6 @@ export function AddProductPage() {
 
   const handleStep4Back = () => {
     setCurrentStep(3);
-  };
-
-  const handleSaveDraft = () => {
-    toast.info("تم حفظ المسودة");
   };
 
   const steps = [
@@ -146,9 +203,11 @@ export function AddProductPage() {
             initialData={formData.step1}
             onNext={handleStep1Next}
             onCancel={handleStep1Cancel}
-            onSaveDraft={handleSaveDraft}
+            onSaveDraft={() => handleSaveDraft(null)} // Step 1 handles its own state usually, but can pass if needed.
             barSteps={steps}
             storeId={storeId}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
           />
         );
 
@@ -163,8 +222,10 @@ export function AddProductPage() {
             initialData={formData.step2}
             onNext={handleStep2Next}
             onBack={handleStep2Back}
-            onSaveDraft={handleSaveDraft}
+            onSaveDraft={() => handleSaveDraft(null)}
             barSteps={steps}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
           />
         );
 
@@ -179,8 +240,10 @@ export function AddProductPage() {
             initialData={formData.step3}
             onNext={handleStep3Next}
             onBack={handleStep3Back}
-            onSaveDraft={handleSaveDraft}
+            onSaveDraft={handleSaveDraft} 
             barSteps={steps}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
           />
         );
 
@@ -198,6 +261,9 @@ export function AddProductPage() {
             onSaveDraft={handleSaveDraft}
             isSubmitting={createProductMutation.isPending}
             barSteps={steps}
+            isEditMode={false}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
           />
         );
 
@@ -207,9 +273,11 @@ export function AddProductPage() {
             initialData={formData.step1}
             onNext={handleStep1Next}
             onCancel={handleStep1Cancel}
-            onSaveDraft={handleSaveDraft}
+            onSaveDraft={() => handleSaveDraft(null)}
             barSteps={steps}
             storeId={storeId}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
           />
         );
     }

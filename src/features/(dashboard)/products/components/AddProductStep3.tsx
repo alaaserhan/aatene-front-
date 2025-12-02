@@ -2,7 +2,9 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Search, X, Plus, Image as ImageIcon, Trash2, Check, UploadCloud, HelpCircle } from "lucide-react";
+import { Search, X, Plus, Image as ImageIcon, UploadCloud, HelpCircle, Check } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { ProductStepperProgress } from "./ProductStepperProgress";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { ProductFormActions } from "./ProductFormActions";
@@ -11,13 +13,10 @@ import { Button } from "@/src/components/ui/button";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { cn } from "@/src/lib/utils";
 import { Step1FormData, Step3FormData } from "../types";
-import { useQuery } from "@tanstack/react-query";
 import * as api from "../../categoriesAndAttributes/api";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
 import { MediaItem } from "../../mediaCenter/api";
-import { toast } from "sonner";
-import { Tooltip } from "@/src/components/ui/Tooltip";
 import {
     Dialog,
     DialogContent,
@@ -26,8 +25,8 @@ import {
     DialogFooter,
 } from "@/src/components/ui/dialog";
 import { Input } from "@/src/components/ui/input";
+import { Tooltip } from "@/src/components/ui/Tooltip";
 
-// --- Hooks ---
 const useGetAttributes = (params: URLSearchParams) => {
     return useQuery({
         queryKey: ["attributes", params.toString()],
@@ -40,15 +39,18 @@ interface AddProductStep3Props {
     initialData?: Step3FormData;
     onNext: (data: Step3FormData) => void;
     onBack: () => void;
-    onSaveDraft?: () => void;
+    onSaveDraft?: (data: Step3FormData) => void;
     barSteps: { number: number; label: string; completed: boolean }[];
+    breadcrumbItems?: { label: string; href?: string }[];
+    onStepClick?: (step: number) => void;
+    showSaveDraft?: boolean;
 }
 
 interface VariationRow {
     id: string;
     attributeValues: Record<string, string>;
     price: number;
-    images: string[]; // Changed to array for multiple images
+    images: string[];
     enabled: boolean;
 }
 
@@ -59,8 +61,10 @@ export function AddProductStep3({
     onBack,
     onSaveDraft,
     barSteps,
+    breadcrumbItems,
+    onStepClick,
+    showSaveDraft = true,
 }: AddProductStep3Props) {
-    // --- States ---
     const [hasVariations, setHasVariations] = useState<boolean>(
         initialData?.hasVariations || false
     );
@@ -70,12 +74,21 @@ export function AddProductStep3({
         initialData?.variations || []
     );
 
-    // Modals
+    useEffect(() => {
+        if (initialData) {
+            setHasVariations(initialData.hasVariations);
+            setVariations(initialData.variations || []);
+            if (initialData.attributes) {
+                const ids = initialData.attributes.map((attr) => Number(attr.id));
+                setSelectedAttributeIds(ids);
+            }
+        }
+    }, [initialData]);
+
     const [isAttrModalOpen, setIsAttrModalOpen] = useState(false);
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
     const [activeRowIdForImage, setActiveRowIdForImage] = useState<string | null>(null);
 
-    // --- Fetch Attributes ---
     const { data: attributesData } = useGetAttributes(
         new URLSearchParams("per_page=100&is_active=1")
     );
@@ -86,7 +99,6 @@ export function AddProductStep3({
         return allAttributes.filter((attr) => selectedAttributeIds.includes(attr.id));
     }, [allAttributes, selectedAttributeIds]);
 
-    // --- Handlers ---
     const handleToggleHasVariations = (val: boolean) => {
         setHasVariations(val);
         if (!val) {
@@ -134,10 +146,6 @@ export function AddProductStep3({
     const handleImageSelect = (items: MediaItem | MediaItem[]) => {
         if (activeRowIdForImage) {
             const selectedImages = Array.isArray(items) ? items.map(i => i.src) : [items.src];
-
-            // If single selection was expected but we want to support multiple, we append or replace?
-            // Based on design "5 صور", it implies replacement or accumulation. 
-            // Usually in this context, it replaces the current set for that row.
             updateVariationRow(activeRowIdForImage, "images", selectedImages);
         }
         setIsMediaModalOpen(false);
@@ -153,6 +161,25 @@ export function AddProductStep3({
                 return { ...row, attributeValues: newAttrValues };
             })
         );
+    };
+
+    const prepareCurrentData = (): Step3FormData => {
+        return {
+            hasVariations,
+            attributes: selectedAttributesFull.map((a) => ({
+                id: String(a.id),
+                name: a.title,
+                options: a.options.map((o) => o.title),
+            })),
+            variations: variations.map((v) => ({
+                id: v.id,
+                attributeValues: v.attributeValues,
+                price: v.price,
+                images: v.images,
+                image_previews: v.images,
+                enabled: v.enabled,
+            })),
+        };
     };
 
     const handleNext = () => {
@@ -180,52 +207,52 @@ export function AddProductStep3({
             }
         }
 
-        onNext({
-            hasVariations,
-            attributes: selectedAttributesFull.map((a) => ({
-                id: String(a.id),
-                name: a.title,
-                options: a.options.map((o) => o.title),
-            })),
-            variations: variations.map((v) => ({
-                id: v.id,
-                attributeValues: v.attributeValues,
-                price: v.price,
-                images: v.images,
-                image_previews: v.images,
-                enabled: v.enabled,
-            })),
-        });
+        onNext(prepareCurrentData());
     };
 
-    const breadcrumbItems = [
+    const handleManualSaveDraft = () => {
+        if (onSaveDraft) {
+            onSaveDraft(prepareCurrentData());
+        }
+    };
+
+    const defaultBreadcrumbItems = [
         { label: "المنتجات", href: "/admin/products" },
         { label: "انشاء منتج جديد" },
     ];
 
-    const variationsTooltip = "يمكنك إضافة اختلافات للمنتج مثل اللون، المقاس، أو النوع. سيتمكن العميل من اختيار هذه الخصائص عند الشراء.";
-
     return (
         <div className="overflow-hidden">
             <div className="container mx-auto py-4 px-4">
-                <Breadcrumb items={breadcrumbItems} className="mb-4" />
-                <ProductStepperProgress currentStep={3} steps={barSteps} />
+                <Breadcrumb items={breadcrumbItems || defaultBreadcrumbItems} className="mb-4" />
+                <ProductStepperProgress
+                    currentStep={3}
+                    steps={barSteps}
+                    onStepClick={onStepClick}
+                />
 
                 <div className="grid grid-cols-12 gap-4 mt-8">
                     <div className="col-span-12 lg:col-span-9">
-                        <div className="bg-white rounded-xl p-6 border border-gray-200 ">
+                        <div className="bg-white rounded-xl p-6 border border-gray-200">
                             <div className="flex items-center justify-between mb-8">
                                 <h2 className="text-xl font-bold">الاختلافات و الكميات</h2>
                             </div>
 
-                            {/* Yes/No Toggle */}
                             <div className="flex flex-col gap-4 mb-8">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center justify-between gap-2">
                                     <label className="text-base font-medium text-gray-900">
                                         هل يوجد اختلافات من المنتج
                                     </label>
-                                    <div className="text-gray-400 cursor-pointer hover:text-gray-600">
-                                        <HelpCircle className="w-4 h-4" />
+                                    <div className="flex items-center gap-2">
+                                        <Tooltip
+                                            trigger={
+                                                <div className="flex items-center gap-1 text-blue-4 cursor-pointer transition-colors">
+                                                    <HelpCircle className="w-4 h-4" />
+                                                    <span className="text-xs font-medium">ماهي اختلافات المنتج</span>
+                                                </div>
+                                            }
+                                            content={"الاختلافات هي نسخ مختلفة من نفس المنتج تختلف في سمات معينة مثل الحجم أو اللون."}
+                                        />
                                     </div>
                                 </div>
 
@@ -268,7 +295,6 @@ export function AddProductStep3({
 
                             {hasVariations ? (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
-                                    {/* Selected Attributes Tags */}
                                     <div className="flex flex-col flex-wrap items-start gap-3">
                                         <Button
                                             onClick={() => setIsAttrModalOpen(true)}
@@ -292,7 +318,6 @@ export function AddProductStep3({
                                         )}
                                     </div>
 
-                                    {/* Variations Table */}
                                     {selectedAttributeIds.length > 0 ? (
                                         <div className="space-y-4">
                                             <div className="flex items-center justify-between mt-8 mb-4">
@@ -309,9 +334,8 @@ export function AddProductStep3({
                                                 </Button>
                                             </div>
 
-                                            {/* Table Header */}
                                             <div
-                                                className="bg-blue-5  rounded-sm p-4 grid gap-4 items-center text-sm font-bold text-blue-4 mb-2"
+                                                className="bg-blue-5 rounded-sm p-4 grid gap-4 items-center text-sm font-bold text-blue-4 mb-2"
                                                 style={{
                                                     gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px`,
                                                 }}
@@ -326,7 +350,6 @@ export function AddProductStep3({
                                                 <div className="text-center">الاجراءات</div>
                                             </div>
 
-                                            {/* Rows */}
                                             <div className="space-y-3">
                                                 {variations.map((row) => (
                                                     <div
@@ -336,7 +359,6 @@ export function AddProductStep3({
                                                             gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px`,
                                                         }}
                                                     >
-                                                        {/* Attribute Dropdowns */}
                                                         {selectedAttributesFull.map((attr) => {
                                                             const options = attr.options.map((opt) => ({
                                                                 value: String(opt.id),
@@ -355,12 +377,11 @@ export function AddProductStep3({
                                                                         )
                                                                     }
                                                                     placeholder={attr.title}
-                                                                    className="h-9 text-sm rounded-full  border-blue-3 bg-blue-5"
+                                                                    className="h-9 text-sm rounded-full border-blue-3 bg-blue-5"
                                                                 />
                                                             );
                                                         })}
 
-                                                        {/* Price Input */}
                                                         <div className="relative">
                                                             <input
                                                                 type="number"
@@ -380,7 +401,6 @@ export function AddProductStep3({
                                                             </span>
                                                         </div>
 
-                                                        {/* Image Upload (Multi) */}
                                                         <div>
                                                             <button
                                                                 onClick={() => {
@@ -417,9 +437,7 @@ export function AddProductStep3({
                                                             </button>
                                                         </div>
 
-                                                        {/* Actions (Toggle + Delete) */}
                                                         <div className="flex items-center justify-center gap-3">
-                                                            {/* Toggle */}
                                                             <button
                                                                 onClick={() =>
                                                                     updateVariationRow(row.id, "enabled", !row.enabled)
@@ -437,7 +455,6 @@ export function AddProductStep3({
                                                                 />
                                                             </button>
 
-                                                            {/* Delete */}
                                                             <button
                                                                 onClick={() => handleRemoveVariationRow(row.id)}
                                                                 className="w-8 h-8 flex items-center justify-center cursor-pointer bg-[#FFE5E5] text-[#FF4D4F] rounded-md hover:bg-[#ffd1d1] transition-colors"
@@ -465,14 +482,6 @@ export function AddProductStep3({
                                                     alt="empty"
                                                     className="w-40"
                                                 />
-                                                {/* Fallback SVG if image not present */}
-                                                <div className="hidden">
-                                                    <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#e5e7eb" strokeWidth="1">
-                                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                                        <line x1="3" y1="9" x2="21" y2="9"></line>
-                                                        <line x1="9" y1="21" x2="9" y2="9"></line>
-                                                    </svg>
-                                                </div>
                                             </div>
                                             <h3 className="text-lg font-bold mb-2">
                                                 لم يتم اضافة اي سمات بعد!
@@ -480,9 +489,7 @@ export function AddProductStep3({
                                         </div>
                                     )}
                                 </div>
-                            ) : (
-                                <p></p>
-                            )}
+                            ) : null}
                         </div>
                     </div>
 
@@ -502,7 +509,9 @@ export function AddProductStep3({
             <ProductFormActions
                 onNext={handleNext}
                 onBack={onBack}
-                onSaveDraft={onSaveDraft}
+                onSaveDraft={handleManualSaveDraft}
+                showSaveDraft={showSaveDraft}
+
             />
 
             <AttributeSelectionModal
@@ -526,8 +535,6 @@ export function AddProductStep3({
         </div>
     );
 }
-
-// --- Attribute Selection Modal ---
 
 interface AttributeSelectionModalProps {
     isOpen: boolean;
@@ -573,79 +580,78 @@ function AttributeSelectionModal({
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="px-4">
-                    <div className="relative mb-4">
-                        <Input
-                            type="text"
-                            placeholder="ابحث عن سمة..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                        />
-                        <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <div className="flex flex-col h-[300px]">
+                    <div className="p-4 border-b border-gray-100">
+                        <div className="relative">
+                            <Input
+                                type="text"
+                                placeholder="ابحث عن سمة..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                            />
+                            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        </div>
                     </div>
 
-                    <div className="max-h-[300px] overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                         {filteredAttributes.length > 0 ? (
-                            filteredAttributes.map((attr) => {
-                                const isSelected = localSelected.includes(attr.id);
-                                return (
-                                    <div
-                                        key={attr.id}
-                                        onClick={() => toggleSelect(attr.id)}
-                                        className={cn(
-                                            "flex items-center gap-2 p-1 rounded-xs cursor-pointer transition-colors ",
-                                            isSelected
-                                                ? "bg-blue-6 "
-                                                : ""
-                                        )}
-                                    >
-
+                            <div className="space-y-1">
+                                {filteredAttributes.map((attr) => {
+                                    const isSelected = localSelected.includes(attr.id);
+                                    return (
                                         <div
+                                            key={attr.id}
+                                            onClick={() => toggleSelect(attr.id)}
                                             className={cn(
-                                                "w-4 h-4 rounded-xs border flex items-center justify-center transition-colors",
-                                                isSelected
-                                                    ? "bg-white border-blue-3"
-                                                    : "bg-white border-blue-3"
+                                                "flex items-center gap-3 p-2 rounded-xs cursor-pointer transition-colors border-b border-gray-100 last:border-0",
+                                                isSelected ? "bg-blue-5" : "bg-white hover:bg-gray-50"
                                             )}
                                         >
-                                            {isSelected && (
-                                                <Check className="w-3.5 h-3.5 text-blue-3" />
-                                            )}
+                                            <div
+                                                className={cn(
+                                                    "w-4 h-4 rounded-xs border border-blue-4 flex items-center justify-center transition-colors flex-shrink-0 bg-white"
+                                                )}
+                                            >
+                                                {isSelected && <Check className="w-3.5 h-3.5 text-blue-4" />}
+                                            </div>
+                                            <span className={cn("text-sm")}>{attr.title}</span>
                                         </div>
-                                        <span
-                                            className={cn(
-                                                "text-sm",
-
-                                            )}
-                                        >
-                                            {attr.title}
-                                        </span>
-                                    </div>
-                                );
-                            })
+                                    );
+                                })}
+                            </div>
                         ) : (
-                            <div className="text-center py-8 text-gray-400 text-sm">
-                                لا توجد سمات مطابقة للبحث
+                            <div className="flex flex-col items-center justify-center h-full gap-4">
+                                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center">
+                                    <Search className="w-8 h-8 text-gray-300" />
+                                </div>
+                                <div className="text-center text-gray-400 text-sm">
+                                    لا توجد سمات مطابقة للبحث
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <DialogFooter className="p-6 border-t border-gray-100 bg-gray-50 flex gap-3 sm:justify-between w-full">
-                    <Button
-                        onClick={() => onConfirm(localSelected)}
-                        className="flex-1 py-3 bg-blue-3 text-white hover:bg-[#2c425e] rounded-lg h-auto"
-                    >
-                        تاكيد
-                    </Button>
-                    <Button
-                        onClick={onClose}
-                        variant="outline"
-                        className="flex-1 py-3 bg-[#E5E7EB] border-0 text-gray-700 hover:bg-gray-200 rounded-lg h-auto"
-                    >
-                        الغاء
-                    </Button>
+                <DialogFooter className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between sm:justify-between w-full">
+                    <div className="text-sm font-bold text-gray-900">
+                        {localSelected.length} سمات مختارة
+                    </div>
+                    <div className="flex gap-3">
+                        <Button
+                            onClick={() => onConfirm(localSelected)}
+                            className="px-8 h-10 bg-blue-3 text-white hover:bg-[#2c425e] font-medium rounded-md"
+                        >
+                            تأكيد
+                        </Button>
+                        <Button
+                            onClick={onClose}
+                            variant="outline"
+                            className="px-6 h-10 bg-gray-4 border-0 hover:bg-gray-200 font-medium rounded-md"
+                        >
+                            إلغاء
+                        </Button>
+                    </div>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
