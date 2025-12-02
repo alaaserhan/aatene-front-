@@ -72,10 +72,10 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
                         {displayImages.length > 0 && (
                             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
                                 {/* Fake dots simulation to match design */}
-                                <div className="w-6 h-2 rounded-full bg-[#3A5779]"></div>
-                                <div className="w-2 h-2 rounded-full bg-white/80"></div>
-                                <div className="w-2 h-2 rounded-full bg-white/80"></div>
-                                <div className="w-2 h-2 rounded-full bg-white/80"></div>
+                                <div className="w-6 h-2 rounded-full bg-blue-3"></div>
+                                <div className="w-2 h-2 rounded-full bg-white/80 border border-blue-1"></div>
+                                <div className="w-2 h-2 rounded-full bg-white/80 border border-blue-1"></div>
+                                <div className="w-2 h-2 rounded-full bg-white/80 border border-blue-1"></div>
                             </div>
                         )}
                     </div>
@@ -83,8 +83,8 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
                     {/* 2. Product Info (Centered) */}
                     <div className=" w-full space-y-2 mb-8">
                         {/* Title */}
-                        <h2 className="text-xl font-bold  leading-tight">
-                            {data.name || "حذاء رياضي نيو"}
+                        <h2 className="text-lg font-medium  leading-tight">
+                            {data.name || "اسم المنتج"}
                         </h2>
 
                         {/* Rating */}

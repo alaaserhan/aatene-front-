@@ -99,28 +99,19 @@ export function AddProductStep2({
   const [sectionsPage, setSectionsPage] = useState(1);
   const [allSections, setAllSections] = useState<{ id: number; name: string }[]>([]);
 
-  // Reset sections when store changes
-  useEffect(() => {
-    setSectionsPage(1);
-    setAllSections([]);
-    if (isAdmin) {
-        // If admin changes store, reset selected section
-        setFormData(prev => ({ ...prev, section_id: 0 }));
-    }
-  }, [formData.store_id, isAdmin]);
 
   const sectionsQueryParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("per_page", "10");
     params.set("page", String(sectionsPage));
-    params.set("status", "active"); 
+    params.set("status", "active");
     params.set("store_id", String(formData.store_id));
     return params;
-  }, [sectionsPage , formData.store_id]);
+  }, [sectionsPage, formData.store_id]);
 
   const { data: sectionsData, isLoading: isSectionsLoading } = useGetSections(
     sectionsQueryParams,
-    formData.store_id || undefined, 
+    formData.store_id || undefined,
     { enabled: !!formData.store_id }
   );
 
@@ -141,7 +132,7 @@ export function AddProductStep2({
 
   const handleLoadMoreSections = () => {
     if (sectionsData && sectionsPage < Math.ceil(sectionsData.recordsFiltered / 10)) {
-        setSectionsPage((prev) => prev + 1);
+      setSectionsPage((prev) => prev + 1);
     }
   };
 
@@ -151,6 +142,18 @@ export function AddProductStep2({
   }));
 
   // --- UI Logic ---
+
+  // دالة جديدة للتعامل مع تغيير المتجر
+  const handleStoreChange = (value: string) => {
+    setFormData({
+      ...formData,
+      store_id: Number(value),
+      section_id: 0 // تصفير القسم فقط عند تغيير المتجر يدوياً
+    });
+    // إعادة تعيين بيانات الأقسام
+    setSectionsPage(1);
+    setAllSections([]);
+  };
 
   const breadcrumbItems = [
     { label: "المنتجات", href: "/admin/products" },
@@ -163,7 +166,7 @@ export function AddProductStep2({
       newErrors.store_id = "يجب اختيار المتجر";
     }
     if (!formData.section_id) {
-        newErrors.section_id = "يجب اختيار القسم";
+      newErrors.section_id = "يجب اختيار القسم";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -174,7 +177,6 @@ export function AddProductStep2({
       onNext(formData);
     } else {
       const firstError = Object.keys(errors)[0];
-      // Scroll to error logic can be added here if elements have matching name/id
     }
   };
 
@@ -236,9 +238,7 @@ export function AddProductStep2({
                     <ReusableDropdown
                       options={storeOptions}
                       value={formData.store_id ? String(formData.store_id) : ""}
-                      onChange={(value) =>
-                        setFormData({ ...formData, store_id: Number(value) })
-                      }
+                      onChange={handleStoreChange} // استخدام الدالة الجديدة هنا
                       placeholder="اختر المتجر..."
                       error={errors.store_id}
                       className="h-11"
@@ -248,26 +248,26 @@ export function AddProductStep2({
                   </div>
                 )}
 
-                {/* Section Selection (Visible if Store is selected or user is merchant) */}
+                {/* Section Selection */}
                 {(formData.store_id > 0) && (
-                    <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <Label className="text-sm font-medium flex items-center gap-1">
-                            القسم
-                            <span className="text-red-500">*</span>
-                        </Label>
-                        <ReusableDropdown
-                            options={sectionOptions}
-                            value={formData.section_id ? String(formData.section_id) : ""}
-                            onChange={(value) =>
-                                setFormData({ ...formData, section_id: Number(value) })
-                            }
-                            placeholder="اختر القسم..."
-                            error={errors.section_id}
-                            className="h-11"
-                            onReachEnd={handleLoadMoreSections}
-                            isLoadingMore={isSectionsLoading && sectionsPage > 1}
-                        />
-                    </div>
+                  <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <Label className="text-sm font-medium flex items-center gap-1">
+                      القسم
+                      <span className="text-red-500">*</span>
+                    </Label>
+                    <ReusableDropdown
+                      options={sectionOptions}
+                      value={formData.section_id ? String(formData.section_id) : ""}
+                      onChange={(value) =>
+                        setFormData({ ...formData, section_id: Number(value) })
+                      }
+                      placeholder="اختر القسم..."
+                      error={errors.section_id}
+                      className="h-11"
+                      onReachEnd={handleLoadMoreSections}
+                      isLoadingMore={isSectionsLoading && sectionsPage > 1}
+                    />
+                  </div>
                 )}
 
                 {/* Keywords (Tags) */}
@@ -309,7 +309,7 @@ export function AddProductStep2({
                       اضافة
                     </button>
                   </div>
-                  
+
                   {/* Tags List */}
                   {formData.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">

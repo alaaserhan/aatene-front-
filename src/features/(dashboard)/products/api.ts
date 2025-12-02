@@ -23,15 +23,15 @@ export interface Section {
 }
 
 export interface VariationOption {
-  id: number;
-  option_id: number;
-  attribute_id: number;
+  id?: number;
+  option_id: number | string;
+  attribute_id: number | string;
 }
 
 export interface Variation {
   id: number;
-  price: number;
-  image: string;
+  price: number | string;
+  image: string | null;
   attributeOptions: VariationOption[];
 }
 
@@ -40,7 +40,8 @@ export interface CrossSellProduct {
   name: string;
   sku: string;
   price: string | number;
-  cover_url: string;
+  cover_url: string | null;
+  category_name?: string; // Added to match frontend usage
 }
 
 export interface Product {
@@ -50,10 +51,10 @@ export interface Product {
   slug?: string | null;
   short_description?: string | null;
   description?: string | null;
-  cover: string;
-  cover_url: string;
+  cover: string | null;
+  cover_url: string | null;
   gallery?: string[];
-  gallery_url?: string[];
+  gallery_url?: string[] | null;
   type?: ProductType;
   condition?: ProductCondition;
   category_id?: number | string;

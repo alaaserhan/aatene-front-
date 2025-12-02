@@ -199,30 +199,21 @@ export function AddProductStep4({
                                                     return (
                                                         <div
                                                             key={product.id}
-                                                            className="flex items-center justify-between p-4 bg-[#F8F8F8] rounded-lg border border-transparent hover:border-gray-200 transition-colors"
+                                                            className="flex items-center justify-between p-4 bg-[#F5F5F5] rounded-lg border border-transparent hover:border-gray-200 transition-colors"
                                                         >
-                                                            {/* Delete Button (Left) */}
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleRemoveProduct(product.id)}
-                                                                className="w-9 h-9 flex items-center justify-center bg-[#FFE5E5] text-[#FF4D4F] rounded-lg hover:bg-[#ffd1d1] transition-colors"
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                            </button>
+
 
                                                             {/* Product Details (Middle & Right) */}
-                                                            <div className="flex items-center gap-4 flex-1 justify-end">
-                                                                <div className="text-right">
-                                                                    <h4 className="font-bold text-sm ">{product.name}</h4>
-                                                                    <div className="flex items-center justify-end gap-3 text-xs text-gray-500 mt-1">
-                                                                        <span className="flex items-center gap-1">
-                                                                            <span className="font-sans font-medium">{product.price}</span>
-                                                                            <Tag className="w-3 h-3" />
-                                                                        </span>
-                                                                        <span>{product.category_name}</span>
-                                                                    </div>
+                                                            <div className="flex items-center gap-4 flex-1 ">
+                                                                {/* Checkbox (Rightmost) */}
+                                                                <div
+                                                                    onClick={() => handleToggleListSelection(product.id)}
+                                                                    className={cn(
+                                                                        "w-4 h-4 rounded-xs border-blue-1 bg-blue-5 border flex items-center justify-center transition-colors cursor-pointer",
+                                                                    )}
+                                                                >
+                                                                    {isSelected && <Check className="w-3.5 h-3.5 text-blue-4" />}
                                                                 </div>
-
                                                                 {/* Image */}
                                                                 <div className="w-12 h-12 rounded-lg bg-white border border-gray-200 overflow-hidden flex-shrink-0">
                                                                     {product.cover_url ? (
@@ -237,20 +228,28 @@ export function AddProductStep4({
                                                                         </div>
                                                                     )}
                                                                 </div>
-
-                                                                {/* Checkbox (Rightmost) */}
-                                                                <div
-                                                                    onClick={() => handleToggleListSelection(product.id)}
-                                                                    className={cn(
-                                                                        "w-5 h-5 rounded-xs border flex items-center justify-center transition-colors cursor-pointer",
-                                                                        isSelected
-                                                                            ? "bg-blue-5 border-blue-4"
-                                                                            : "bg-white border-gray-300"
-                                                                    )}
-                                                                >
-                                                                    {isSelected && <Check className="w-3.5 h-3.5 text-blue-4" />}
+                                                                <div className="">
+                                                                    <h4 className="font-medium text-sm ">{product.name}</h4>
+                                                                    <div className="flex items-center  gap-3 text-xs text-gray-2 mt-1">
+                                                                        <span className="flex items-center gap-1">
+                                                                            <Tag className="w-3 h-3" />
+                                                                            <span className="font-sans font-medium">{product.price}</span>
+                                                                        </span>
+                                                                        <span>{product.category_name}</span>
+                                                                    </div>
                                                                 </div>
+
+
+
+
                                                             </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleRemoveProduct(product.id)}
+                                                                className="w-9 h-9 flex items-center justify-center bg-[#FFE5E5] text-[#FF4D4F] rounded-lg hover:bg-[#ffd1d1] transition-colors"
+                                                            >
+                                                                <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
+                                                            </button>
                                                         </div>
                                                     );
                                                 })}
@@ -372,8 +371,8 @@ function DiscountModal({ isOpen, onClose, onConfirm, selectedProducts }: Discoun
             <DialogContent className="sm:max-w-lg p-0 overflow-hidden bg-white" dir="rtl">
 
                 {/* Header */}
-                <DialogHeader className="p-6 border-b border-gray-100 flex flex-row items-center justify-between">
-                    <DialogTitle className="text-lg font-bold ">
+                <DialogHeader className="p-4 border-b border-gray-100 flex flex-row items-center justify-between">
+                    <DialogTitle className="text-base font-medium ">
                         اضافة خصم علي الكوليكشن
                     </DialogTitle>
                     {/* <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
@@ -381,9 +380,9 @@ function DiscountModal({ isOpen, onClose, onConfirm, selectedProducts }: Discoun
                     </button> */}
                 </DialogHeader>
 
-                <div className="p-8">
+                <div className="p-4">
                     {/* Total Price Display */}
-                    <div className="text-center mb-8">
+                    <div className="text-center mb-4">
                         <p className="text-sm text-gray-500 font-medium mb-1">السعر الاصلي</p>
                         <div className="text-4xl font-bold  flex items-center justify-center gap-2">
                             <span>{totalOriginalPrice.toFixed(2)}</span>
@@ -432,23 +431,23 @@ function DiscountModal({ isOpen, onClose, onConfirm, selectedProducts }: Discoun
                 </div>
 
                 {/* Footer */}
-                <DialogFooter className="p-6 bg-gray-50 flex items-center justify-between w-full border-t border-gray-100">
-                    <div className="text-sm font-bold ">
+                <DialogFooter className="p-4 bg-gray-50 flex items-center flex-col gap-2 sm:flex-row sm:justify-between w-full border-t border-gray-100">
+                    <div className="text-sm font-medium ">
                         الخصم علي {selectedProducts.length} من المنتجات
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 justify-end">
+                        <Button
+                            onClick={handleConfirm}
+                            className="px-8 py-2 bg-blue-3 text-white  rounded-md font-bold"
+                        >
+                            تأكيد
+                        </Button>
                         <Button
                             onClick={onClose}
                             variant="outline"
-                            className="px-8 py-2 bg-[#E5E7EB] border-0 text-gray-700 hover:bg-gray-200 rounded-md font-bold"
+                            className="px-8 py-2 bg-gray-4 border-0  hover:bg-gray-200 rounded-md font-bold"
                         >
                             إلغاء
-                        </Button>
-                        <Button
-                            onClick={handleConfirm}
-                            className="px-8 py-2 bg-blue-3 text-white hover:bg-[#2c425e] rounded-md font-bold"
-                        >
-                            تأكيد
                         </Button>
                     </div>
                 </DialogFooter>

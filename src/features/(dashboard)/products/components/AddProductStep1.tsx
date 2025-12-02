@@ -133,7 +133,15 @@ export function AddProductStep1({
         if (!formData.cover) newErrors.cover = "صورة المنتج مطلوبة (يجب إضافة صورة واحدة على الأقل)";
         if (!formData.category_id) newErrors.category_id = "الفئة مطلوبة";
         if (!formData.short_description.trim()) newErrors.short_description = "الوصف الموجز مطلوب";
+
+        // --- التحقق الجديد ---
+        if (!formData.description.trim() || formData.description === "<p><br></p>") {
+            newErrors.description = "وصف المنتج مطلوب";
+        }
+        // -------------------
+
         if (formData.price <= 0) newErrors.price = "السعر مطلوب";
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -260,7 +268,9 @@ export function AddProductStep1({
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2" ref={categoryDropdownRef}>
-                                        <Label className="text-sm font-medium">الفئات</Label>
+                                        <Label className="text-sm font-medium flex items-center gap-1">
+                                            الفئات <span className="text-red-500">*</span>
+                                        </Label>
                                         <ReusableDropdown
                                             options={categoryOptions}
                                             value={formData.category_id ? String(formData.category_id) : ""}
@@ -332,15 +342,21 @@ export function AddProductStep1({
                                 </div>
 
                                 <div className="space-y-2">
+                                    <div className="flex items-center gap-1">
+                                        <Label className="text-sm font-medium">وصف المنتج</Label>
+                                        <span className="text-red-500">*</span>
+                                    </div>
+
                                     <RichTextEditor
                                         maxLength={300}
                                         maxWords={70}
                                         value={formData.description}
                                         onChange={(val) => setFormData({ ...formData, description: val })}
-                                        label="وصف المنتج"
+                                        label="" // تم إخفاء العنوان الداخلي للمكون لأننا أضفناه أعلاه
                                         placeholder="...نص المحتوى"
                                         helpText="ماهو وصف المنتج"
                                         helpTooltip="اكتب وصفًا تفصيليًا يشرح مميزات المنتج، خامته، طريقة استخدامه، والمعلومات الإضافية التي قد تساعد العميل في اتخاذ قرار الشراء. يمكنك استخدام فقرات أو نقاط مرتبة لتوضيح التفاصيل."
+                                        error={errors.description}
                                     />
                                 </div>
                             </div>
