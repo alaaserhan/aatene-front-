@@ -251,7 +251,7 @@ export function AddProductStep1({
                                             onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
                                             placeholder="السعر"
                                             className={cn(
-                                                "w-full px-4 py-3 border rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm ",
+                                                "w-full px-4 py-3 border rounded-sm focus:outline-none  text-sm ",
                                                 errors.price ? "border-red-500" : "border-gray-200"
                                             )}
                                         />
@@ -315,7 +315,7 @@ export function AddProductStep1({
                                         maxLength={300}
                                         rows={3}
                                         className={cn(
-                                            "w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm resize-none placeholder:text-gray-400",
+                                            "w-full px-4 py-3 border rounded-lg focus:outline-none  text-sm resize-none placeholder:text-gray-400",
                                             errors.short_description ? "border-red-500" : "border-gray-200"
                                         )}
                                     />
