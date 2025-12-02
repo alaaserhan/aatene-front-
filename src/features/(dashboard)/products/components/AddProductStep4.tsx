@@ -55,6 +55,7 @@ export function AddProductStep4({
     breadcrumbItems,
     onStepClick,
     showSaveDraft = true,
+    isEditMode = false,
 }: AddProductStep4Props) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -143,7 +144,7 @@ export function AddProductStep4({
             ...formData,
             hasDiscount: true,
             cross_sells_price: price,
-            cross_sells_due_date: date.toISOString(),
+             cross_sells_due_date: format(date, "yyyy-MM-dd"), 
         });
         setIsDiscountModalOpen(false);
         toast.success("تم تطبيق الخصم بنجاح");
@@ -329,7 +330,7 @@ export function AddProductStep4({
                 onNext={handleSave}
                 onBack={handleBackInternal}
                 onSaveDraft={handleManualSaveDraft}
-                nextLabel="إضافة المنتج"
+                nextLabel={isEditMode ? "حفظ المنتج" : "إضافة المنتج"}
                 isSubmitting={isSubmitting}
                 showSaveDraft={showSaveDraft}
             />

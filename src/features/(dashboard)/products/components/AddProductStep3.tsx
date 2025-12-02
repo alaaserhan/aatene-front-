@@ -531,7 +531,7 @@ export function AddProductStep3({
                 onOpenChange={setIsMediaModalOpen}
                 onSelect={handleImageSelect}
                 multiple={true}
-                allowedMediaTypes={["image"]}
+                allowedMediaTypes={["image", "gallery", "avatar"]}
             />
         </div>
     );
@@ -634,7 +634,7 @@ function AttributeSelectionModal({
                     </div>
                 </div>
 
-                <DialogFooter className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between sm:justify-between w-full">
+                <DialogFooter className="p-4 border-t border-gray-100 bg-white shadow-2xl flex items-center justify-between sm:justify-between w-full">
                     <div className="text-sm font-bold ">
                         {localSelected.length} سمات مختارة
                     </div>

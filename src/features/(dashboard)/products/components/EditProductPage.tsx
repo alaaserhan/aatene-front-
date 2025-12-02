@@ -26,6 +26,15 @@ interface EditProductPageProps {
   productId: number;
 }
 
+interface AttributeOption {
+  attribute_id?: number | string;
+  option_id?: number | string;
+  attribute?: {
+    id: number;
+    title: string;
+  };
+}
+
 export function EditProductPage({ productId }: EditProductPageProps) {
   const router = useRouter();
   const updateProductMutation = useUpdateProduct();
@@ -41,13 +50,26 @@ export function EditProductPage({ productId }: EditProductPageProps) {
 
     if (product && !formData) {
       try {
+        const attributesMap = new Map<string, { id: string; name: string; options: string[] }>();
+
         const variationRows: VariationRow[] = (product.variations || []).map((v: Variation) => {
           const attributeValues: Record<string, string> = {};
           
           if (v.attributeOptions && Array.isArray(v.attributeOptions)) {
-            v.attributeOptions.forEach((opt) => {
+            v.attributeOptions.forEach((opt: AttributeOption) => {
               if (opt.attribute_id && opt.option_id) {
                 attributeValues[String(opt.attribute_id)] = String(opt.option_id);
+              }
+
+              if (opt.attribute) {
+                const attrId = String(opt.attribute.id);
+                if (!attributesMap.has(attrId)) {
+                    attributesMap.set(attrId, {
+                        id: attrId,
+                        name: opt.attribute.title,
+                        options: [] 
+                    });
+                }
               }
             });
           }
@@ -61,6 +83,8 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             enabled: true,
           };
         });
+
+        const extractedAttributes = Array.from(attributesMap.values());
 
         const crossSellsData: RelatedProduct[] = (product.crossSells || []).map((cs: CrossSellProduct) => ({
           id: cs.id,
@@ -93,7 +117,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
           },
           step3: {
             hasVariations: product.type === "variation",
-            attributes: [],
+            attributes: extractedAttributes,
             variations: variationRows,
           },
           step4: {
@@ -112,7 +136,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
         toast.error("حدث خطأ أثناء معالجة بيانات المنتج");
       }
     }
-  }, [productData, formData]);
+  }, [productData]); 
 
   const breadcrumbItems = useMemo(() => [
     { label: "المنتجات", href: "/admin/products" },
@@ -205,7 +229,6 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       });
       router.push("/admin/products");
     } catch (error) {
-      // Handled by mutation hook
     }
   };
 
@@ -330,6 +353,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             breadcrumbItems={breadcrumbItems}
             onStepClick={handleStepClick}
             showSaveDraft={false}
+            isEditMode
           />
         );
       default:
