@@ -1,17 +1,20 @@
 // src/features/(dashboard)/products/components/AddProductStep2.tsx
 "use client";
 
-import { useState, KeyboardEvent } from "react";
-import { HelpCircle, X } from "lucide-react";
+import { useState, KeyboardEvent, useMemo, useEffect } from "react";
+import { HelpCircle } from "lucide-react";
 import { ProductStepperProgress } from "./ProductStepperProgress";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { Tooltip } from "@/src/components/ui/Tooltip";
+import { OptionTag } from "@/src/components/ui/OptionTag";
 import { useGetStores } from "../../stores/hooks";
 import { Step1FormData, Step2FormData } from "../types";
 import { cn } from "@/src/lib/utils";
 import { toast } from "sonner";
+import { Label } from "@/src/components/ui/label";
 
 interface AddProductStep2Props {
   previousData: Step1FormData;
@@ -38,13 +41,51 @@ export function AddProductStep2({
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { data: storesData } = useGetStores(new URLSearchParams("per_page=100"));
-  const stores = storesData?.data || [];
+  // --- Logic for Stores Pagination (10 by 10) ---
+  const [storesPage, setStoresPage] = useState(1);
+  const [allStores, setAllStores] = useState<{ id: number; name: string }[]>(
+    []
+  );
 
-  const storeOptions = stores.map((store) => ({
+  const storesQueryParams = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("per_page", "10");
+    params.set("page", String(storesPage));
+    return params;
+  }, [storesPage]);
+
+  const { data: storesData, isLoading: isStoresLoading } =
+    useGetStores(storesQueryParams);
+
+  useEffect(() => {
+    if (storesData?.data) {
+      if (storesPage === 1) {
+        setAllStores(storesData.data);
+      } else {
+        setAllStores((prev) => {
+          const newStores = storesData.data.filter(
+            (s) => !prev.some((p) => p.id === s.id)
+          );
+          return [...prev, ...newStores];
+        });
+      }
+    }
+  }, [storesData, storesPage]);
+
+  const handleLoadMoreStores = () => {
+    if (
+      storesData &&
+      storesPage < Math.ceil(storesData.recordsFiltered / 10)
+    ) {
+      setStoresPage((prev) => prev + 1);
+    }
+  };
+
+  const storeOptions = allStores.map((store) => ({
     value: String(store.id),
     label: store.name,
   }));
+  // ---------------------------------------------
 
   const breadcrumbItems = [
     { label: "المنتجات", href: "/admin/products" },
@@ -53,11 +94,9 @@ export function AddProductStep2({
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-
     if (!formData.store_id) {
       newErrors.store_id = "يجب اختيار المتجر";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -65,12 +104,15 @@ export function AddProductStep2({
   const handleNext = () => {
     if (validate()) {
       onNext(formData);
+    } else {
+        const firstError = Object.keys(errors)[0];
+        const element = document.querySelector(`[name="${firstError}"]`); // Generic selector if name attr exists
+        element?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
   const handleAddTag = () => {
     const newTag = tagInput.trim();
-
     if (!newTag) return;
 
     if (formData.tags.includes(newTag)) {
@@ -101,81 +143,94 @@ export function AddProductStep2({
     });
   };
 
+  const keywordsDescription = `الكلمات المفتاحية هي مصطلحات أو عبارات تصف محتوى الصفحة أو الموضوع. وتستخدم لتحسين البحث والوصول للمحتوى بسهولة. مثل: "موبايل", "سامسونج", "الكترونيات".`;
+
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="overflow-hidden">
       <div className="container mx-auto py-4 px-4">
         <Breadcrumb items={breadcrumbItems} className="mb-4" />
         <ProductStepperProgress currentStep={2} steps={barSteps} />
 
         <div className="grid grid-cols-12 gap-6 mt-8">
           <div className="col-span-12 lg:col-span-8">
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h2 className="text-xl font-bold mb-8">المعلومات المتقدمة</h2>
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+              <h2 className="text-xl font-bold mb-8 text-gray-900">
+                المعلومات المتقدمة
+              </h2>
 
               <div className="space-y-8">
+                {/* Store Selection */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium flex items-center gap-1">
+                  <Label className="text-sm font-medium flex items-center gap-1">
                     إظهار المنتج في متجر
                     <span className="text-red-500">*</span>
-                  </label>
+                  </Label>
                   <ReusableDropdown
                     options={storeOptions}
                     value={formData.store_id ? String(formData.store_id) : ""}
                     onChange={(value) =>
                       setFormData({ ...formData, store_id: Number(value) })
                     }
-                    placeholder="المتجر الرئيسي"
+                    placeholder="اختر المتجر..."
                     error={errors.store_id}
-                    className="h-12"
+                    className="h-11"
+                    onReachEnd={handleLoadMoreStores}
+                    isLoadingMore={isStoresLoading && storesPage > 1}
                   />
+                  <p className="text-xs text-gray-400">
+                    حدد المتجر الذي سيتم عرض هذا المنتج فيه.
+                  </p>
                 </div>
 
+                {/* Keywords (Tags) */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">الكلمات المفتاحية</label>
-                    <button
-                      type="button"
-                      className="flex items-center gap-1 text-sm text-blue-4"
-                    >
-                      <HelpCircle className="w-4 h-4" />
-                      ماهي الكلمات المفتاحية
-                    </button>
+                    <Label className="text-sm font-medium">
+                      الكلمات المفتاحية
+                    </Label>
+                    <Tooltip
+                      trigger={
+                        <div className="flex items-center gap-1 text-blue-4 cursor-pointer hover:text-blue-500 transition-colors">
+                          <HelpCircle className="w-3.5 h-3.5" />
+                          <span className="text-xs font-medium">
+                            ماهي الكلمات المفتاحية
+                          </span>
+                        </div>
+                      }
+                      content={keywordsDescription}
+                    />
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <input
-                      type="text"
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="اضف الوسم ثم اضغط على اضافة"
-                      className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-3 text-sm"
-                    />
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="اكتب الوسم هنا..."
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm transition-all"
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={handleAddTag}
-                      className="px-6 py-3 bg-blue-4 text-white rounded-lg text-sm font-medium hover:bg-blue-500 transition-colors"
+                      disabled={!tagInput.trim()}
+                      className="px-6 py-2.5 bg-blue-4 text-white rounded-lg text-sm font-medium hover:bg-[#2c425e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       اضافة
                     </button>
                   </div>
-
+                  {/* Tags List using OptionTag */}
                   {formData.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 mt-2">
                       {formData.tags.map((tag, index) => (
-                        <div
+                        <OptionTag
                           key={index}
-                          className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-full text-sm"
-                        >
-                          <span>{tag}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveTag(tag)}
-                            className="w-4 h-4 flex items-center justify-center hover:text-red-500 transition-colors"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
+                          label={tag}
+                          onRemove={() => handleRemoveTag(tag)}
+                          showRemoveButton={true}
+                        />
                       ))}
                     </div>
                   )}
@@ -191,8 +246,6 @@ export function AddProductStep2({
                 price: previousData.price,
                 coverImage: previousData.cover_preview,
                 galleryImages: previousData.gallery_previews,
-                rating: 4.0,
-                oldPrice: previousData.price > 0 ? previousData.price * 1.15 : undefined,
               }}
             />
           </div>

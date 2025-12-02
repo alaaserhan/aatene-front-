@@ -1,187 +1,145 @@
 // src/features/(dashboard)/products/components/ProductPreviewSidebar.tsx
 "use client";
 
-import { useMemo, useState } from "react";
-import { Heart, Image as ImageIcon, Star } from "lucide-react";
 import { cn } from "@/src/lib/utils";
-
-interface ProductPreviewData {
-  name?: string;
-  price?: number; // final price
-  coverImage?: string;
-  galleryImages?: string[];
-}
+import { Heart, Star, Share2, ChevronRight } from "lucide-react";
 
 interface ProductPreviewSidebarProps {
-  data?: ProductPreviewData | null;
+    data: {
+        name: string;
+        price: number;
+        coverImage: string;
+        galleryImages: string[];
+    };
 }
 
 export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
+    // دمج صورة الغلاف مع المعرض
+    const allImages = [data.coverImage, ...data.galleryImages].filter(Boolean);
+    const displayImages = allImages.length > 0 ? allImages : [""];
 
-  // review is dummy
-  const dummyRating = 4.0;
-  // old price dummy (زي التصميم)
-  const dummyOldPrice = 230.0;
+    // تنسيق السعر الحالي
+    const formattedPrice = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD", // تم التغيير لـ $ ليطابق الصورة المرفقة، يمكنك إعادتها لـ ILS
+        minimumFractionDigits: 2,
+    }).format(data.price || 0);
 
-  const allImages = useMemo(() => {
-    const imgs = [data?.coverImage, ...(data?.galleryImages || [])].filter(
-      (x): x is string => Boolean(x && x.trim())
-    );
-    return imgs;
-  }, [data?.coverImage, data?.galleryImages]);
+    // سعر وهمي قديم (لأغراض العرض مثل التصميم)
+    const fakeOldPrice = data.price ? data.price * 1.15 : 0;
+    const formattedOldPrice = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+    }).format(fakeOldPrice);
 
-  // =========================
-  // IMPORTANT: Empty detection
-  // =========================
-  const rawName = (data?.name ?? "").trim();
-  const isMeaningfulName = rawName.length > 0 && rawName !== "اسم المنتج";
-  const isMeaningfulPrice =
-    typeof data?.price === "number" && data.price > 0;
-  const hasImages = allImages.length > 0;
+    return (
+        <div className="sticky top-6">
+            <h3 className="font-medium text-blue-4 mb-6 text-center text-xl">
+                معاينة المنتج
+            </h3>
 
-  // “فيه داتا” فقط لو (صورة) أو (اسم حقيقي) أو (سعر > 0)
-  const hasAnyData = hasImages || isMeaningfulName || isMeaningfulPrice;
+            {/* Mobile Frame Simulation */}
+            <div className="mx-auto w-full max-w-[320px] bg-white rounded-[2.1rem] border-[7px] border-gray-900 overflow-hidden shadow-2xl relative">
 
-  // display fallbacks (للـ data state فقط)
-  const displayName = isMeaningfulName ? rawName : "اسم المنتج";
-  const displayPrice =
-    typeof data?.price === "number" ? data.price : 0;
+                {/* Mobile Status Bar (Fake) */}
+                <div className="h-7 bg-white flex items-center justify-between px-6 text-[10px] font-medium text-gray-900 z-20 relative">
+                    <span>9:41</span>
+                    <div className="flex gap-1.5">
+                        <div className="w-3 h-3 bg-gray-900 rounded-full opacity-20"></div>
+                        <div className="w-3 h-3 bg-gray-900 rounded-full opacity-20"></div>
+                        <div className="w-3 h-3 bg-gray-800 rounded-full"></div>
+                    </div>
+                </div>
 
-  return (
-    <div className="sticky top-6 w-full max-w-sm mx-auto">
-      {/* =======================
-          EMPTY STATE (NO DATA) - like c050
-         ======================= */}
-      {!hasAnyData ? (
-        <div className="w-full flex flex-col items-center justify-center text-center pt-20 pb-16 px-6">
-          <div className="relative w-full flex items-center justify-center">
-            {/* soft blob */}
-            <div className="absolute -z-10 w-[420px] max-w-full h-[260px] rounded-[120px] bg-gray-50 opacity-80" />
+                {/* Header (Back & Share) - Optional per design, kept for "App feel" */}
+                <div className="absolute top-10 left-0 right-0 z-10 px-5 flex justify-between items-center pointer-events-none">
+                    {/* Buttons hidden or made subtle to focus on the card as per image */}
+                    <div className="w-8 h-8 pointer-events-auto"></div>
+                    <div className="w-8 h-8 pointer-events-auto"></div>
+                </div>
 
-            {/* illustration frame */}
-            <div className="w-[310px] max-w-full h-[210px] rounded-[28px] bg-white border border-gray-200 shadow-[0_18px_40px_rgba(0,0,0,0.06)] flex items-center justify-center">
-              <div className="w-[210px] h-[150px] rounded-[22px] bg-gray-50 border border-gray-100 flex items-center justify-center">
-                <ImageIcon className="w-14 h-14 text-gray-300" />
-              </div>
+                {/* Content Area */}
+                <div className="bg-white min-h-[500px] flex flex-col items-center pt-8 px-6 pb-8">
+
+                    {/* --- Product Card Design Start --- */}
+
+                    {/* 1. Image Container */}
+                    <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden shadow-sm mb-5 bg-gray-50">
+                        {/* Favorite Button (Top Left) */}
+                        <button className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
+                            <Heart className="w-5 h-5 text-gray-800" strokeWidth={1.5} />
+                        </button>
+
+                        {/* Main Image */}
+                        {data.coverImage ? (
+                            <img
+                                src={data.coverImage}
+                                alt="Product Cover"
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-300">
+                                <span className="text-xs font-medium">No Image</span>
+                            </div>
+                        )}
+
+                        {/* Pagination Dots (Bottom Center inside Image) */}
+                        {displayImages.length > 0 && (
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                                {/* Fake dots simulation to match design */}
+                                <div className="w-6 h-2 rounded-full bg-[#3A5779]"></div>
+                                <div className="w-2 h-2 rounded-full bg-white/80"></div>
+                                <div className="w-2 h-2 rounded-full bg-white/80"></div>
+                                <div className="w-2 h-2 rounded-full bg-white/80"></div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 2. Product Info (Centered) */}
+                    <div className="text-center w-full space-y-2 mb-8">
+                        {/* Title */}
+                        <h2 className="text-xl font-bold  leading-tight">
+                            {data.name || "حذاء رياضي نيو"}
+                        </h2>
+
+                        {/* Rating */}
+                        <div className="flex items-center justify-center gap-1.5">
+                            <div className="flex gap-0.5">
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                    <Star key={i} className="w-3.5 h-3.5 fill-[#F6AD55] text-[#F6AD55]" />
+                                ))}
+                            </div>
+                            <span className="text-sm text-[#F6AD55]">5.0</span>
+                        </div>
+
+                        {/* Price */}
+                        <div className="flex items-center justify-center gap-3 mt-1">
+                            <span className=" font-bold ">
+                                {formattedPrice}
+                            </span>
+                            <span className="text-gray-400 text-sm line-through decoration-gray-400">
+                                {formattedOldPrice}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* --- Product Card Design End --- */}
+
+                    {/* Feature Description (As per image) */}
+                    <div className="mt-auto text-center space-y-2">
+                        <h4 className="text-lg font-bold ">
+                            ميزة معاينة المنتج
+                        </h4>
+                        <p className="text-xs text-gray-3 leading-relaxed px-2">
+                            توفر لك هذه الميزة معاينة مسبقة للمنتج لتتمكن من مشاهدته كما يظهر علي الموقع الخاص بنا
+                        </p>
+                    </div>
+
+                    {/* Bottom Home Indicator */}
+                    <div className="w-1/3 h-1 bg-gray-200 rounded-full mt-6 mb-2"></div>
+                </div>
             </div>
-          </div>
-
-          <h3 className="mt-10 text-2xl font-extrabold text-[#4A5568]">
-            ميزة معاينة المنتج
-          </h3>
-
-          <p className="mt-4 text-sm text-[#A0AEC0] leading-relaxed max-w-[320px]">
-            قم بإضافة تفاصيل المنتج و سنقوم بعرض شكل المنتج ف الموقع
-          </p>
         </div>
-      ) : (
-        /* =======================
-           DATA STATE (HAS DATA) - like a789
-           ======================= */
-        <>
-          <div className="w-full bg-white rounded-[28px] shadow-[0_18px_40px_rgba(0,0,0,0.08)] overflow-hidden">
-            {/* Image Area */}
-            <div className="relative h-[440px] w-full bg-[#F7F7F7]">
-              {/* Favorite Button */}
-              <button
-                type="button"
-                onClick={() => setIsFavorite((v) => !v)}
-                className="absolute top-6 left-6 z-10 w-12 h-12 rounded-full bg-[#F3F3F3] shadow-md flex items-center justify-center hover:bg-white transition-all"
-              >
-                <Heart
-                  className={cn(
-                    "w-6 h-6 text-gray-700 stroke-[1.5px]",
-                    isFavorite ? "fill-red-500 text-red-500" : ""
-                  )}
-                />
-              </button>
-
-              {/* Image */}
-              {hasImages ? (
-                <img
-                  src={allImages[Math.min(currentImageIndex, allImages.length - 1)]}
-                  alt="Product Preview"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center gap-3">
-                  <div className="w-16 h-16 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center">
-                    <ImageIcon className="w-8 h-8 text-gray-300" />
-                  </div>
-                  <span className="text-sm text-gray-400 font-medium">
-                    صورة المنتج
-                  </span>
-                </div>
-              )}
-
-              {/* Dots */}
-              {allImages.length > 1 && (
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                  {allImages.map((_, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setCurrentImageIndex(idx)}
-                      className={cn(
-                        "h-2.5 rounded-full transition-all",
-                        idx === currentImageIndex
-                          ? "w-8 bg-[#2B74B9]"
-                          : "w-2.5 bg-[#F1E8D6]"
-                      )}
-                      aria-label={`preview image ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Details */}
-            <div className="bg-white px-6 py-6 text-center">
-              <h3 className="text-2xl font-extrabold text-[#2D3748] mb-2 line-clamp-1">
-                {displayName}
-              </h3>
-
-              {/* Rating (dummy) */}
-              <div className="flex items-center justify-center gap-1.5 mb-4">
-                <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star
-                      key={s}
-                      className="w-4 h-4 fill-[#FF9500] text-[#FF9500]"
-                    />
-                  ))}
-                </div>
-                <span className="text-sm font-bold text-[#FF9500] pt-0.5">
-                  {dummyRating.toFixed(1)}
-                </span>
-              </div>
-
-              {/* Price */}
-              <div className="flex items-center justify-center gap-4 text-lg">
-                <span className="text-gray-400 line-through font-medium">
-                  ${dummyOldPrice.toFixed(2)}
-                </span>
-                <span className="font-extrabold text-black">
-                  ${displayPrice.toFixed(2)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom text (زي الصورة a789) */}
-          <div className="mt-10 text-center space-y-2 px-2">
-            <h4 className="text-2xl font-bold text-[#4A5568]">
-              ميزة معاينة المنتج
-            </h4>
-            <p className="text-sm text-[#A0AEC0] leading-relaxed max-w-[300px] mx-auto font-normal">
-              توفر لك هذه الميزة معاينة مسبقة للمنتج لتتمكن من مشاهدته كما يظهر
-              علي الموقع الخاص بنا
-            </p>
-          </div>
-        </>
-      )}
-    </div>
-  );
+    );
 }

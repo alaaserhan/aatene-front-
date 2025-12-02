@@ -319,10 +319,14 @@ export function AddProductStep1({
                                             errors.short_description ? "border-red-500" : "border-gray-200"
                                         )}
                                     />
-                                    <div className="flex justify-between text-xs text-gray-3">
-                                        <span>عدد الكلمات المتاحة في الوصف هي 70 كلمة </span>
-                                        <span>{formData.short_description.length}/300</span>
-                                    </div>
+                                    {
+                                        !errors.short_description && (
+                                            <div className="flex justify-between text-xs text-gray-3">
+                                                <span>عدد الكلمات المتاحة في الوصف هي 70 كلمة </span>
+                                                <span>{formData.short_description.length}/300</span>
+                                            </div>
+                                        )
+                                    }
                                     {errors.short_description && (
                                         <p className="text-xs text-red-500">{errors.short_description}</p>
                                     )}
@@ -330,6 +334,8 @@ export function AddProductStep1({
 
                                 <div className="space-y-2">
                                     <RichTextEditor
+                                        maxLength={300}
+                                        maxWords={70}
                                         value={formData.description}
                                         onChange={(val) => setFormData({ ...formData, description: val })}
                                         label="وصف المنتج"
