@@ -2,8 +2,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, HelpCircle, Percent, Tag, Check, Image as ImageIcon } from "lucide-react";
+import { Plus, HelpCircle, Percent, Tag, Check, Image as ImageIcon, Calendar as CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { arSA } from "date-fns/locale";
 import { ProductStepperProgress } from "./ProductStepperProgress";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { ProductFormActions } from "./ProductFormActions";
@@ -21,12 +23,18 @@ import {
     DialogFooter,
 } from "@/src/components/ui/dialog";
 import { Input } from "@/src/components/ui/input";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/src/components/ui/popover";
+import { Calendar } from "@/src/components/ui/calendar"; // تأكد من وجود هذا المكون أو قم بتثبيته عبر shadcn
 
 interface AddProductStep4Props {
     previousData: Step1FormData;
     initialData?: Step4FormData;
     onSave: (data: Step4FormData) => Promise<void>;
-    onBack: () => void;
+    onBack: (data: Step4FormData) => void;
     onSaveDraft?: (data: Step4FormData) => void;
     isSubmitting?: boolean;
     barSteps: { number: number; label: string; completed: boolean }[];
@@ -130,12 +138,12 @@ export function AddProductStep4({
         }
     };
 
-    const handleApplyDiscount = (price: number, date: string) => {
+    const handleApplyDiscount = (price: number, date: Date) => {
         setFormData({
             ...formData,
             hasDiscount: true,
             cross_sells_price: price,
-            cross_sells_due_date: date
+            cross_sells_due_date: date.toISOString(),
         });
         setIsDiscountModalOpen(false);
         toast.success("تم تطبيق الخصم بنجاح");
@@ -143,6 +151,10 @@ export function AddProductStep4({
 
     const handleSave = async () => {
         await onSave(formData);
+    };
+
+    const handleBackInternal = () => {
+        onBack(formData);
     };
 
     const handleManualSaveDraft = () => {
@@ -157,10 +169,10 @@ export function AddProductStep4({
         <div className="">
             <div className="container mx-auto py-4 px-4">
                 <Breadcrumb items={breadcrumbItems || defaultBreadcrumbItems} className="mb-4" />
-                <ProductStepperProgress 
-                    currentStep={4} 
-                    steps={barSteps} 
-                    onStepClick={onStepClick} 
+                <ProductStepperProgress
+                    currentStep={4}
+                    steps={barSteps}
+                    onStepClick={onStepClick}
                 />
 
                 <div className="grid grid-cols-12 gap-4 mt-8">
@@ -315,7 +327,7 @@ export function AddProductStep4({
 
             <ProductFormActions
                 onNext={handleSave}
-                onBack={onBack}
+                onBack={handleBackInternal}
                 onSaveDraft={handleManualSaveDraft}
                 nextLabel="إضافة المنتج"
                 isSubmitting={isSubmitting}
@@ -334,21 +346,34 @@ export function AddProductStep4({
                 onClose={() => setIsDiscountModalOpen(false)}
                 onConfirm={handleApplyDiscount}
                 selectedProducts={formData.crossSellsData.filter(p => selectedInListIds.includes(p.id))}
+                initialPrice={formData.cross_sells_price}
+                initialDate={formData.cross_sells_due_date}
             />
         </div>
     );
 }
 
+// --- Updated Discount Modal Component ---
+
 interface DiscountModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onConfirm: (price: number, date: string) => void;
+    onConfirm: (price: number, date: Date) => void;
     selectedProducts: RelatedProduct[];
+    initialPrice?: number;
+    initialDate?: string;
 }
 
-function DiscountModal({ isOpen, onClose, onConfirm, selectedProducts }: DiscountModalProps) {
-    const [price, setPrice] = useState<string>("");
-    const [date, setDate] = useState<string>("");
+function DiscountModal({
+    isOpen,
+    onClose,
+    onConfirm,
+    selectedProducts,
+    initialPrice,
+    initialDate
+}: DiscountModalProps) {
+    const [price, setPrice] = useState<string>(initialPrice ? String(initialPrice) : "");
+    const [date, setDate] = useState<Date | undefined>(initialDate ? new Date(initialDate) : undefined);
 
     const totalOriginalPrice = selectedProducts.reduce((sum, p) => sum + Number(p.price), 0);
 
@@ -371,25 +396,35 @@ function DiscountModal({ isOpen, onClose, onConfirm, selectedProducts }: Discoun
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-lg p-0 overflow-hidden bg-white" dir="rtl">
-                <DialogHeader className="p-4 border-b border-gray-100 flex flex-row items-center justify-between">
-                    <DialogTitle className="text-base font-medium ">
-                        اضافة خصم علي الكوليكشن
-                    </DialogTitle>
-                </DialogHeader>
+            <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden bg-white" dir="rtl">
 
-                <div className="p-4">
-                    <div className="text-center mb-4">
-                        <p className="text-sm text-gray-500 font-medium mb-1">السعر الاصلي</p>
-                        <div className="text-4xl font-bold flex items-center justify-center gap-2">
-                            <span>{totalOriginalPrice.toFixed(2)}</span>
-                            <span className="text-2xl font-sans">₪</span>
+                {/* Header with simple styling */}
+                <div className="p-4 pb-2">
+                    <DialogHeader>
+                        <DialogTitle className="text-base font-medium  border-b border-gray-100 pb-4 ">
+                            اضافة خصم علي الكوليكشن
+                        </DialogTitle>
+                    </DialogHeader>
+                </div>
+
+                <div className="px-8 py-2">
+                    {/* Original Price Display */}
+                    <div className="flex flex-col items-start mb-8 gap-2">
+                        <p className="text-sm  font-medium">السعر الاصلي</p>
+                        <div className="flex items-center gap-2" dir="ltr">
+                            <span className="text-4xl font-normal">₪</span>
+                            <span className="text-5xl font-medium tracking-tight">
+                                {totalOriginalPrice.toFixed(2)}
+                            </span>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
+                    {/* Inputs Grid */}
+                    <div className="grid grid-cols-2 gap-8 mb-6">
+
+                        {/* Discount Price Input */}
                         <div className="space-y-2">
-                            <label className="text-xs text-gray-500 font-medium block text-right">
+                            <label className="text-xs font-medium text-gray-1  block ">
                                 السعر المخفض
                             </label>
                             <div className="relative">
@@ -398,51 +433,79 @@ function DiscountModal({ isOpen, onClose, onConfirm, selectedProducts }: Discoun
                                     value={price}
                                     onChange={(e) => setPrice(e.target.value)}
                                     placeholder="00.00"
-                                    className="h-12 text-center text-lg font-bold border-gray-200 focus:border-blue-500 focus:ring-0"
+                                    className="h-10  px-4 pe-6  font-medium border-gray-200 bg-white shadow-none rounded-sm  focus:ring-0 "
                                 />
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-sans">₪</span>
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-1 font-sans text-lg ">₪</span>
                             </div>
-                            <p className="text-[10px] text-gray-400 text-right">
+                            <p className="text-xs text-gray-2  mt-1">
                                 يجب ان يكون اقل من السعر الاصلي
                             </p>
                         </div>
 
+                        {/* Date Picker (Custom Component) */}
                         <div className="space-y-2">
-                            <label className="text-xs text-gray-500 font-medium block text-right">
-                                تاريخ انتهاء الخصم
+                            <label className="text-xs font-medium text-gray-1 block ">
+                                تاريخ انتهاء العرض
                             </label>
-                            <div className="relative">
-                                <Input
-                                    type="date"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                    className="h-12 text-center text-sm font-medium border-gray-200 focus:border-blue-500 focus:ring-0 pr-10"
-                                />
-                            </div>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full h-10 border-gray-200 bg-white hover:bg-gray-50 flex justify-between rounded-sm  shadow-none",
+                                            !date && "text-muted-foreground"
+                                        )}
+                                    >
+                                        {date ? (
+                                            <span className="text-sm font-medium ">
+                                                {format(date, "PPP p", { locale: arSA })}
+                                            </span>
+                                        ) : (
+                                            <span>اختر التاريخ</span>
+                                        )}
+                                        <CalendarIcon className="ml-2 h-4 w-4 " />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={date}
+                                        onSelect={setDate}
+                                        initialFocus
+                                        locale={arSA}
+                                    />
+                                </PopoverContent>
+                            </Popover>
                         </div>
+
                     </div>
                 </div>
 
-                <DialogFooter className="p-4 bg-gray-50 flex items-center flex-col gap-2 sm:flex-row sm:justify-between w-full border-t border-gray-100">
-                    <div className="text-sm font-medium ">
+                {/* Footer matching image style */}
+                <DialogFooter className="p-4 bg-whit shadow-2xl border-gray-100 border-t flex flex-row-reverse items-center justify-between w-full">
+
+                    <div className="text-sm font-bold  flex-1 ">
                         الخصم علي {selectedProducts.length} من المنتجات
                     </div>
-                    <div className="flex gap-3 justify-end">
+
+                    <div className="flex gap-3 justify-end flex-1">
                         <Button
                             onClick={handleConfirm}
-                            className="px-8 py-2 bg-blue-3 text-white rounded-md font-bold"
+                            className="px-8 h-10 bg-blue-3 text-white hover:bg-[#2c4460] rounded-md font-bold text-sm"
                         >
                             تأكيد
                         </Button>
                         <Button
                             onClick={onClose}
-                            variant="outline"
-                            className="px-8 py-2 bg-gray-4 border-0 hover:bg-gray-200 rounded-md font-bold"
+                            variant="secondary"
+                            className="px-8 h-10 bg-gray-4 text-gray-700 hover:bg-gray-300 rounded-md font-bold text-sm border-0"
                         >
                             إلغاء
                         </Button>
+
                     </div>
                 </DialogFooter>
+
             </DialogContent>
         </Dialog>
     );

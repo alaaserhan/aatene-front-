@@ -184,7 +184,8 @@ export function AddProductPage() {
     }
   };
 
-  const handleStep4Back = () => {
+  const handleStep4Back = (data: Step4FormData) => {
+    setFormData({ ...formData, step4: data }); // Save current Step 4 data
     setCurrentStep(3);
   };
 
@@ -203,7 +204,7 @@ export function AddProductPage() {
             initialData={formData.step1}
             onNext={handleStep1Next}
             onCancel={handleStep1Cancel}
-            onSaveDraft={() => handleSaveDraft(null)} // Step 1 handles its own state usually, but can pass if needed.
+            onSaveDraft={() => handleSaveDraft(null)}
             barSteps={steps}
             storeId={storeId}
             breadcrumbItems={breadcrumbItems}
@@ -257,7 +258,7 @@ export function AddProductPage() {
             previousData={formData.step1}
             initialData={formData.step4}
             onSave={handleStep4Save}
-            onBack={handleStep4Back}
+            onBack={handleStep4Back} // Pass the handler
             onSaveDraft={handleSaveDraft}
             isSubmitting={createProductMutation.isPending}
             barSteps={steps}

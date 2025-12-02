@@ -205,10 +205,14 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       });
       router.push("/admin/products");
     } catch (error) {
+      // Handled by mutation hook
     }
   };
 
-  const handleStep4Back = () => {
+  const handleStep4Back = (data: Step4FormData) => {
+    if (formData) {
+        setFormData({ ...formData, step4: data });
+    }
     setCurrentStep(3);
   };
 
