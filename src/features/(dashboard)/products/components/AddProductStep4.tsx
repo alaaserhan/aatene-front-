@@ -138,7 +138,7 @@ export function AddProductStep4({
 
                 <div className="grid grid-cols-12 gap-4 mt-8">
                     <div className="col-span-12 lg:col-span-9">
-                        <div className="bg-white rounded-xl border border-gray-200 p-6 min-h-[500px]">
+                        <div className="bg-white rounded-xl border border-gray-200 p-6">
 
                             {/* Header */}
                             <div className="flex items-center justify-between mb-4">
@@ -182,7 +182,7 @@ export function AddProductStep4({
                                             <button
                                                 type="button"
                                                 onClick={handleRemoveAll}
-                                                className="text-sm text-blue-3 hover:underline font-medium"
+                                                className="text-sm text-blue-3 hover:underline font-medium cursor-pointer"
                                             >
                                                 حذف الكل
                                             </button>
@@ -246,7 +246,7 @@ export function AddProductStep4({
                                                             <button
                                                                 type="button"
                                                                 onClick={() => handleRemoveProduct(product.id)}
-                                                                className="w-9 h-9 flex items-center justify-center bg-[#FFE5E5] text-[#FF4D4F] rounded-lg hover:bg-[#ffd1d1] transition-colors"
+                                                                className="w-9 h-9 flex items-center justify-center bg-red-2 text-[#FF4D4F] cursor-pointer rounded-lg hover:bg-[#ffd1d1] transition-colors"
                                                             >
                                                                 <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
                                                             </button>
@@ -265,7 +265,7 @@ export function AddProductStep4({
                                                     }
                                                     setIsDiscountModalOpen(true);
                                                 }}
-                                                className="w-full flex items-center justify-center gap-2 h-12 border border-blue-4 text-blue-4 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors"
+                                                className="w-full flex items-center justify-center gap-2 h-12 bg-blue-5 cursor-pointer border border-blue-3 text-blue-3 rounded-md text-sm font-medium hover:bg-blue-50 transition-colors"
                                             >
                                                 <Percent className="w-4 h-4" />
                                                 {formData.hasDiscount

@@ -2,7 +2,6 @@
 
 export interface Step1FormData {
   category_id: number;
-  // section_id removed from here or ignored
   cover: string;
   cover_preview: string;
   gallery: string[];
@@ -16,7 +15,7 @@ export interface Step1FormData {
 
 export interface Step2FormData {
   store_id: number;
-  section_id?: number; // Added section_id here
+  section_id?: number;
   tags: string[];
 }
 
@@ -41,10 +40,11 @@ export interface Step3FormData {
   variations: VariationRow[];
 }
 
+// تعديل cover_url ليقبل string | null
 export interface RelatedProduct {
   id: number;
   name: string;
-  cover_url: string;
+  cover_url: string | null; 
   category_name: string;
   price: number;
 }

@@ -36,8 +36,10 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   const [mappingError, setMappingError] = useState(false);
 
   useEffect(() => {
-    // Access the data property directly as per the API response structure
-    const product: ApiProduct | undefined = productData?.data;
+    // استخدام ApiProduct مباشرة بدلاً من الواجهة الفارغة
+    // نتأكد من التعامل مع كلا الاحتمالين (record أو data) حسب هيكل الاستجابة
+    const responseData = productData as unknown as { record?: ApiProduct; data?: ApiProduct };
+    const product = responseData?.record || responseData?.data;
 
     if (product && !formData) {
       try {
@@ -58,23 +60,22 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             attributeValues: attributeValues,
             price: Number(v.price) || 0,
             images: v.image ? [v.image] : [],
-            image_previews: v.image ? [v.image] : [],
+            image_previews: v.image ? [v.image] : [], // assuming same URL for preview
             enabled: true,
           };
         });
 
         // 2. Map Cross Sells
-        // Ensure strictly typed mapping from API CrossSellProduct to RelatedProduct
         const crossSellsData: RelatedProduct[] = (product.crossSells || []).map((cs: CrossSellProduct) => ({
           id: cs.id,
           name: cs.name,
-          cover_url: cs.cover_url || "",
+          cover_url: cs.cover_url,
           category_name: cs.category_name || "",
           price: Number(cs.price) || 0,
         }));
 
         // 3. Initial Form Data
-        // Handle Gallery: API returns [""] sometimes, we need to filter valid strings
+        // تنظيف مصفوفة الصور من القيم الفارغة أو null
         const validGallery = (product.gallery || []).filter(img => img && img.trim() !== "");
         const validGalleryUrls = (product.gallery_url || []).filter(url => url && url.trim() !== "");
 
@@ -98,7 +99,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
           },
           step3: {
             hasVariations: product.type === "variation",
-            attributes: [], // Attributes will be loaded within Step3 based on selections
+            attributes: [], // سيتم تحميل السمات داخل Step 3 بناءً على البيانات
             variations: variationRows,
           },
           step4: {
@@ -112,6 +113,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
 
         setFormData(initialFormData);
       } catch (error) {
+        console.error(error);
         setMappingError(true);
         toast.error("حدث خطأ أثناء معالجة بيانات المنتج");
       }
@@ -159,7 +161,8 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       return;
     }
 
-    const product = productData?.data;
+    const responseData = productData as unknown as { record?: ApiProduct; data?: ApiProduct };
+    const product = responseData?.record || responseData?.data;
 
     const payload: ProductUpdatePayload = {
       sku: product?.sku || `SKU-${Date.now()}`,
@@ -201,7 +204,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       });
       router.push("/admin/products");
     } catch (error) {
-      // Error is handled by the mutation hook toast
+      // Error handling is usually managed by the mutation hook
     }
   };
 
@@ -226,9 +229,10 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     );
   }
 
-  const product = productData?.data;
+  const responseData = productData as unknown as { record?: ApiProduct; data?: ApiProduct };
+  const hasData = responseData?.record || responseData?.data;
 
-  if (isError || !product || mappingError) {
+  if (isError || !hasData || mappingError) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50 p-4">
         <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 text-center max-w-md w-full">
