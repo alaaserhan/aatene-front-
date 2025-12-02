@@ -2,7 +2,7 @@
 
 export interface Step1FormData {
   category_id: number;
-  section_id: number;
+  // section_id removed from here or ignored
   cover: string;
   cover_preview: string;
   gallery: string[];
@@ -16,6 +16,7 @@ export interface Step1FormData {
 
 export interface Step2FormData {
   store_id: number;
+  section_id?: number; // Added section_id here
   tags: string[];
 }
 

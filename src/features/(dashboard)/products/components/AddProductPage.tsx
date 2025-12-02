@@ -28,7 +28,15 @@ export function AddProductPage() {
   const createProductMutation = useCreateProduct();
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<CompleteProductFormData>({});
+  
+  // Initialize formData with section_id in step2 if present in URL
+  const [formData, setFormData] = useState<CompleteProductFormData>({
+    step2: sectionIdFromUrl ? { 
+        store_id: Number(storeId) || 0, 
+        tags: [], 
+        section_id: Number(sectionIdFromUrl) 
+    } : undefined
+  });
 
   const handleStep1Next = (data: Step1FormData) => {
     setFormData({ ...formData, step1: data });
@@ -70,6 +78,7 @@ export function AddProductPage() {
       return;
     }
 
+    // Prepare Payload
     const payload: ProductCreatePayload = {
       sku: `SKU-${Date.now()}`,
       name: updatedFormData.step1!.name,
@@ -80,8 +89,11 @@ export function AddProductPage() {
       type: updatedFormData.step3!.hasVariations ? "variation" : "simple",
       condition: updatedFormData.step1!.condition,
       category_id: updatedFormData.step1!.category_id,
+      
+      // FIX: Get store_id and section_id from step2
       store_id: updatedFormData.step2!.store_id,
-      section_id: updatedFormData.step1!.section_id || Number(sectionIdFromUrl) || 0,
+      section_id: updatedFormData.step2!.section_id || 0, 
+      
       price: updatedFormData.step1!.price,
       status: "active",
       tags: updatedFormData.step2!.tags,
@@ -98,7 +110,7 @@ export function AddProductPage() {
           image: v.images[0] || "",
           attributeOptions: Object.entries(v.attributeValues).map(([attrId, value]) => ({
             attribute_id: Number(attrId) || 0,
-            option_id: 0,
+            option_id: 0, // You might need logic here if option IDs are actual IDs
           })),
         }));
     }

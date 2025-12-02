@@ -1,15 +1,15 @@
-// src/features/(dashboard)/products/components/EditProductPage.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle, ArrowRight } from "lucide-react";
 import { AddProductStep1 } from "./AddProductStep1";
 import { AddProductStep2 } from "./AddProductStep2";
 import { AddProductStep3 } from "./AddProductStep3";
 import { AddProductStep4 } from "./AddProductStep4";
 import { ProductUpdatePayload } from "../api";
 import { useUpdateProduct, useGetSingleProduct } from "../hooks";
+import { Button } from "@/src/components/ui/button";
 import {
   CompleteProductFormData,
   Step1FormData,
@@ -25,70 +25,116 @@ interface EditProductPageProps {
 }
 
 export function EditProductPage({ productId }: EditProductPageProps) {
+  // 1️⃣ Debug: التأكد من وصول الـ ID للصفحة
+  console.log("🚀 [EditProductPage] Component Rendered");
+  console.log("🔑 [EditProductPage] Received productId:", productId, "Type:", typeof productId);
+
   const router = useRouter();
   const updateProductMutation = useUpdateProduct();
-  const { data: productData, isLoading } = useGetSingleProduct(productId);
+  
+  // 2️⃣ Debug: متابعة حالة الـ Query
+  const { data: productData, isLoading, isError, error, isFetched } = useGetSingleProduct(productId);
+
+  console.log("📡 [React Query] State:", { 
+    isLoading, 
+    isError, 
+    isFetched, 
+    hasData: !!productData,
+    errorObject: error 
+  });
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<CompleteProductFormData | null>(null);
-
-  const product = productData?.data;
+  const [mappingError, setMappingError] = useState(false);
 
   useEffect(() => {
+    // 3️⃣ Debug: هل الـ useEffect يعمل؟
+    console.log("⚡ [useEffect] Triggered");
+    
+    // @ts-ignore
+    const product = productData?.record || productData?.data;
+    
+    console.log("📦 [useEffect] Extracted Product:", product);
+    console.log("📝 [useEffect] Current formData:", formData);
+
     if (product && !formData) {
-      const variationRows: VariationRow[] = (product.variations || []).map((v) => ({
-        id: String(v.id),
-        attributeValues: {},
-        price: v.price,
-        images: v.image ? [v.image] : [],
-        image_previews: v.image ? [v.image] : [],
-        enabled: true,
-      }));
+      console.log("✅ [useEffect] Starting Data Mapping...");
 
-      const crossSellsData = (product.crossSells || []).map((cs) => ({
-        id: cs.id,
-        name: cs.name,
-        cover_url: cs.cover_url,
-        category_name: "",
-        price: Number(cs.price) || 0,
-      }));
+      try {
+        const variationRows: VariationRow[] = (product.variations || []).map((v: any) => {
+            const attributeValues: Record<string, string> = {};
+            if (v.attributeOptions && Array.isArray(v.attributeOptions)) {
+                v.attributeOptions.forEach((opt: any) => {
+                    if (opt.attribute_id && opt.option_id) {
+                        attributeValues[String(opt.attribute_id)] = String(opt.option_id);
+                    }
+                });
+            }
 
-      const initialFormData: CompleteProductFormData = {
-        step1: {
-          category_id: Number(product.category_id) || 0,
-          section_id: Number(product.section_id) || 0,
-          cover: product.cover,
-          cover_preview: product.cover_url,
-          gallery: product.gallery || [],
-          gallery_previews: product.gallery_url || [],
-          name: product.name,
-          price: Number(product.price) || 0,
-          condition: product.condition || "new",
-          short_description: product.short_description || "",
-          description: product.description || "",
-        },
-        step2: {
-          store_id: Number(product.store_id) || 0,
-          tags: product.tags || [],
-        },
-        step3: {
-          hasVariations: product.type === "variation",
-          attributes: [],
-          variations: variationRows,
-        },
-        step4: {
-          crossSells: crossSellsData.map((cs) => cs.id),
-          crossSellsData: crossSellsData,
-          cross_sells_price: Number(product.cross_sells_price) || 0,
-          cross_sells_due_date: product.cross_sells_due_date || "",
-          hasDiscount: !!product.cross_sells_price,
-        },
-      };
+            return {
+                id: String(v.id),
+                attributeValues: attributeValues, 
+                price: Number(v.price) || 0,
+                images: v.image ? [v.image] : [],
+                image_previews: v.image ? [v.image] : [],
+                enabled: true,
+            };
+        });
 
-      setFormData(initialFormData);
+        const crossSellsData = (product.crossSells || []).map((cs: any) => ({
+          id: cs.id,
+          name: cs.name,
+          cover_url: cs.cover_url,
+          category_name: "",
+          price: Number(cs.price) || 0,
+        }));
+
+        const initialFormData: CompleteProductFormData = {
+          step1: {
+            category_id: Number(product.category_id) || 0,
+            cover: product.cover || "",
+            cover_preview: product.cover_url || "",
+            gallery: product.gallery || [],
+            gallery_previews: product.gallery_url || [],
+            name: product.name || "",
+            price: Number(product.price) || 0,
+            condition: product.condition || "new",
+            short_description: product.short_description || "",
+            description: product.description || "",
+          },
+          step2: {
+            store_id: Number(product.store_id) || 0,
+            section_id: Number(product.section_id) || 0,
+            tags: product.tags || [],
+          },
+          step3: {
+            hasVariations: product.type === "variation",
+            attributes: [],
+            variations: variationRows,
+          },
+          step4: {
+            crossSells: crossSellsData.map((cs) => cs.id),
+            crossSellsData: crossSellsData,
+            cross_sells_price: Number(product.cross_sells_price) || 0,
+            cross_sells_due_date: product.cross_sells_due_date || "",
+            hasDiscount: !!product.cross_sells_price,
+          },
+        };
+
+        console.log("🎉 [useEffect] Data Mapped Successfully:", initialFormData);
+        setFormData(initialFormData);
+      } catch (error) {
+        console.error("❌ [useEffect] Error mapping product data:", error);
+        setMappingError(true);
+        toast.error("حدث خطأ أثناء معالجة بيانات المنتج");
+      }
+    } else {
+        console.log("⚠️ [useEffect] Skipped Mapping because product is missing or formData exists");
     }
-  }, [product, formData]);
+  }, [productData, formData]);
 
+  // --- Handlers ---
+  // (باقي الهاندلرز كما هي بدون تغيير...)
   const handleStep1Next = (data: Step1FormData) => {
     if (!formData) return;
     setFormData({ ...formData, step1: data });
@@ -120,22 +166,18 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   };
 
   const handleStep4Save = async (data: Step4FormData) => {
+    // ... (نفس كود الحفظ السابق)
     if (!formData) return;
-
     const updatedFormData = { ...formData, step4: data };
 
-    const isMissingSteps =
-      !updatedFormData.step1 ||
-      !updatedFormData.step2 ||
-      !updatedFormData.step3;
-
-    if (isMissingSteps) {
+    if (!updatedFormData.step1 || !updatedFormData.step2 || !updatedFormData.step3) {
       toast.error("يرجى إكمال جميع الخطوات المطلوبة");
       return;
     }
 
     const payload: ProductUpdatePayload = {
-      sku: product?.sku || `SKU-${Date.now()}`,
+      // @ts-ignore
+      sku: productData?.record?.sku || productData?.data?.sku || `SKU-${Date.now()}`,
       name: updatedFormData.step1!.name,
       short_description: updatedFormData.step1!.short_description,
       description: updatedFormData.step1!.description,
@@ -145,9 +187,10 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       condition: updatedFormData.step1!.condition,
       category_id: updatedFormData.step1!.category_id,
       store_id: updatedFormData.step2!.store_id,
-      section_id: updatedFormData.step1!.section_id,
+      section_id: updatedFormData.step2!.section_id || 0,
       price: updatedFormData.step1!.price,
-      status: product?.status || "active",
+      // @ts-ignore
+      status: productData?.record?.status || productData?.data?.status || "active",
       tags: updatedFormData.step2!.tags,
       crossSells: data.crossSells,
       cross_sells_price: data.cross_sells_price,
@@ -160,9 +203,9 @@ export function EditProductPage({ productId }: EditProductPageProps) {
         .map((v) => ({
           price: v.price,
           image: v.images[0] || "",
-          attributeOptions: Object.entries(v.attributeValues).map(([attrId]) => ({
+          attributeOptions: Object.entries(v.attributeValues).map(([attrId, optionId]) => ({
             attribute_id: Number(attrId) || 0,
-            option_id: 0,
+            option_id: Number(optionId) || 0,
           })),
         }));
     }
@@ -186,27 +229,56 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     toast.info("تم حفظ المسودة");
   };
 
-  if (isLoading || !formData) {
+  // --- Render Logic ---
+
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="flex items-center gap-2">
-          <Loader2 className="w-6 h-6 animate-spin text-blue-3" />
-          <span>جاري تحميل البيانات...</span>
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-10 h-10 animate-spin text-[#3A5779]" />
+          <span className="text-gray-500 font-medium">جاري تحميل بيانات المنتج... (ID: {productId})</span>
         </div>
       </div>
     );
   }
 
-  if (!product) {
+  // @ts-ignore
+  const hasData = productData?.record || productData?.data;
+
+  if (isError || !hasData || mappingError) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="text-center">
-          <p className="text-xl text-gray-600 mb-4">لم يتم العثور على المنتج</p>
+      <div className="flex items-center justify-center h-screen bg-gray-50 p-4">
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 text-center max-w-md w-full">
+          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-8 h-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">عذراً، حدث خطأ ما</h2>
+          <p className="text-gray-500 mb-8 leading-relaxed">
+            {mappingError 
+              ? "حدث خطأ أثناء معالجة بيانات المنتج."
+              : "لم يتم العثور على المنتج أو حدث خطأ في الاتصال."
+            }
+          </p>
+          <Button onClick={() => router.push("/admin/products")} variant="outline">
+            العودة للقائمة
+          </Button>
         </div>
       </div>
     );
   }
 
+  if (!formData) {
+     return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="flex flex-col items-center gap-2">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
+            <span className="text-xs text-gray-400">جاري معالجة البيانات...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Render Steps... (نفس الكود السابق)
   const steps = [
     { number: 1, label: "المعلومات الاساسية", completed: currentStep > 1 },
     { number: 2, label: "المعلومات المتقدمة", completed: currentStep > 2 },
@@ -226,12 +298,8 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             barSteps={steps}
           />
         );
-
       case 2:
-        if (!formData.step1) {
-          setCurrentStep(1);
-          return null;
-        }
+        if (!formData.step1) { setCurrentStep(1); return null; }
         return (
           <AddProductStep2
             previousData={formData.step1}
@@ -242,12 +310,8 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             barSteps={steps}
           />
         );
-
       case 3:
-        if (!formData.step1) {
-          setCurrentStep(1);
-          return null;
-        }
+        if (!formData.step1) { setCurrentStep(1); return null; }
         return (
           <AddProductStep3
             previousData={formData.step1}
@@ -258,12 +322,8 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             barSteps={steps}
           />
         );
-
       case 4:
-        if (!formData.step1) {
-          setCurrentStep(1);
-          return null;
-        }
+        if (!formData.step1) { setCurrentStep(1); return null; }
         return (
           <AddProductStep4
             previousData={formData.step1}
@@ -275,17 +335,8 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             barSteps={steps}
           />
         );
-
       default:
-        return (
-          <AddProductStep1
-            initialData={formData.step1}
-            onNext={handleStep1Next}
-            onCancel={handleStep1Cancel}
-            onSaveDraft={handleSaveDraft}
-            barSteps={steps}
-          />
-        );
+        return <AddProductStep1 initialData={formData.step1} onNext={handleStep1Next} onCancel={handleStep1Cancel} onSaveDraft={handleSaveDraft} barSteps={steps} />;
     }
   };
 
