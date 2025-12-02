@@ -270,8 +270,6 @@ export function AddProductStep2({
                       className="h-11"
                       onReachEnd={handleLoadMoreSections}
                       isLoadingMore={isSectionsLoading && sectionsPage > 1}
-                      searchPlaceholder="ابحث عن اسم القسم..."
-                      emptyText="لا توجد أقسام في هذا المتجر"
                     />
                     <p className="text-xs text-gray-400">
                       حدد القسم الذي ينتمي إليه هذا المنتج داخل المتجر.
