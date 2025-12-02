@@ -118,6 +118,7 @@ export function ProductsPage() {
   const totalPages = Math.ceil((productsData?.recordsFiltered || 0) / 10);
 
   // --- Mutations ---
+  const { mutate: updateStatusMutation } = useUpdateProductStatus();
   const { mutate: updateShown } = useUpdateProductShown(); // استخدام هوك الظهور
   const { mutate: deleteProduct } = useDeleteProduct();
 
@@ -126,6 +127,15 @@ export function ProductsPage() {
     setStatusFilter(value);
     setCurrentPage(1);
   };
+
+  const handleToggleStatus = (product: Product) => {
+        const newStatus = product.status === "active" ? "not-active" : "active";
+        
+        updateStatusMutation({
+            id: product.id,
+            payload: { status: newStatus }
+        });
+    };
 
   const handleMerchantSectionChange = (value: string) => {
     setSelectedSectionId(value);
@@ -350,6 +360,7 @@ export function ProductsPage() {
                   onToggleShown={handleToggleShown} // تصحيح الاسم هنا
                   onEdit={handleEditClick}
                   onDelete={handleDeleteClick}
+                  onToggleStatus={handleToggleStatus}
                 />
               )}
             </div>

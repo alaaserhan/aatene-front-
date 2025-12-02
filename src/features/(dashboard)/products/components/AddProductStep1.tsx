@@ -188,9 +188,9 @@ export function AddProductStep1({
                 <Breadcrumb items={breadcrumbItems} className="mb-4" />
                 <ProductStepperProgress currentStep={1} steps={barSteps} />
 
-                <div className="grid grid-cols-12 gap-6 mt-8">
-                    <div className="col-span-12 lg:col-span-8">
-                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="grid grid-cols-12 gap-4 mt-8">
+                    <div className="col-span-12 lg:col-span-9">
+                        <div className="bg-white rounded-xl p-6 border border-gray-200">
                             <div className="flex items-center justify-between mb-8">
                                 <h2 className="text-xl font-semibold">المعلومات الأساسية</h2>
                             </div>
@@ -347,7 +347,7 @@ export function AddProductStep1({
                         </div>
                     </div>
 
-                    <div className="col-span-12 lg:col-span-4">
+                    <div className="col-span-12 lg:col-span-3">
                         <ProductPreviewSidebar
                             data={{
                                 name: formData.name,

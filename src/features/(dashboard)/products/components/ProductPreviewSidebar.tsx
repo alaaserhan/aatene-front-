@@ -35,37 +35,21 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
 
     return (
         <div className="sticky top-6">
-            <h3 className="font-medium text-blue-4 mb-6 text-center text-xl">
-                معاينة المنتج
-            </h3>
+
 
             {/* Mobile Frame Simulation */}
-            <div className="mx-auto w-full max-w-[320px] bg-white rounded-[2.1rem] border-[7px] border-gray-900 overflow-hidden shadow-2xl relative">
-
-                {/* Mobile Status Bar (Fake) */}
-                <div className="h-7 bg-white flex items-center justify-between px-6 text-[10px] font-medium text-gray-900 z-20 relative">
-                    <span>9:41</span>
-                    <div className="flex gap-1.5">
-                        <div className="w-3 h-3 bg-gray-900 rounded-full opacity-20"></div>
-                        <div className="w-3 h-3 bg-gray-900 rounded-full opacity-20"></div>
-                        <div className="w-3 h-3 bg-gray-800 rounded-full"></div>
-                    </div>
-                </div>
-
-                {/* Header (Back & Share) - Optional per design, kept for "App feel" */}
-                <div className="absolute top-10 left-0 right-0 z-10 px-5 flex justify-between items-center pointer-events-none">
-                    {/* Buttons hidden or made subtle to focus on the card as per image */}
-                    <div className="w-8 h-8 pointer-events-auto"></div>
-                    <div className="w-8 h-8 pointer-events-auto"></div>
-                </div>
+            <div className="mx-auto w-full  bg-white rounded-xl overflow-hidden border border-gray-200 relative">
+                <h3 className="font-medium text-blue-4 my-4 text-center text-xl">
+                    معاينة المنتج
+                </h3>
 
                 {/* Content Area */}
-                <div className="bg-white min-h-[500px] flex flex-col items-center pt-8 px-6 pb-8">
+                <div className="bg-white min-h-[300px] flex flex-col items-center px-6 pb-8">
 
                     {/* --- Product Card Design Start --- */}
 
                     {/* 1. Image Container */}
-                    <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden shadow-sm mb-5 bg-gray-50">
+                    <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden shadow-sm mb-5 bg-gray-50">
                         {/* Favorite Button (Top Left) */}
                         <button className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
                             <Heart className="w-5 h-5 text-gray-800" strokeWidth={1.5} />
@@ -97,14 +81,14 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
                     </div>
 
                     {/* 2. Product Info (Centered) */}
-                    <div className="text-center w-full space-y-2 mb-8">
+                    <div className=" w-full space-y-2 mb-8">
                         {/* Title */}
                         <h2 className="text-xl font-bold  leading-tight">
                             {data.name || "حذاء رياضي نيو"}
                         </h2>
 
                         {/* Rating */}
-                        <div className="flex items-center justify-center gap-1.5">
+                        <div className="flex items-center gap-1.5">
                             <div className="flex gap-0.5">
                                 {[1, 2, 3, 4, 5].map((i) => (
                                     <Star key={i} className="w-3.5 h-3.5 fill-[#F6AD55] text-[#F6AD55]" />
@@ -114,7 +98,7 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
                         </div>
 
                         {/* Price */}
-                        <div className="flex items-center justify-center gap-3 mt-1">
+                        <div className="flex items-center  gap-3 mt-1">
                             <span className=" font-bold ">
                                 {formattedPrice}
                             </span>
@@ -136,8 +120,6 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
                         </p>
                     </div>
 
-                    {/* Bottom Home Indicator */}
-                    <div className="w-1/3 h-1 bg-gray-200 rounded-full mt-6 mb-2"></div>
                 </div>
             </div>
         </div>

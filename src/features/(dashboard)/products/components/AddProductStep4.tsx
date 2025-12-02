@@ -131,14 +131,14 @@ export function AddProductStep4({
     const crossSellsTooltip = "المنتجات المرتبطة تظهر للعميل كاقتراحات إضافية عند تصفح هذا المنتج، مما يزيد من فرص البيع.";
 
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="">
             <div className="container mx-auto py-4 px-4">
                 <Breadcrumb items={breadcrumbItems} className="mb-4" />
                 <ProductStepperProgress currentStep={4} steps={barSteps} />
 
-                <div className="grid grid-cols-12 gap-6 mt-8">
-                    <div className="col-span-12 lg:col-span-8">
-                        <div className="bg-white rounded-xl shadow-sm p-6 min-h-[500px]">
+                <div className="grid grid-cols-12 gap-4 mt-8">
+                    <div className="col-span-12 lg:col-span-9">
+                        <div className="bg-white rounded-xl border border-gray-200 p-6 min-h-[500px]">
 
                             {/* Header */}
                             <div className="flex items-center justify-between mb-4">
@@ -182,7 +182,7 @@ export function AddProductStep4({
                                             <button
                                                 type="button"
                                                 onClick={handleRemoveAll}
-                                                className="text-sm text-[#3A5779] hover:underline font-medium"
+                                                className="text-sm text-blue-3 hover:underline font-medium"
                                             >
                                                 حذف الكل
                                             </button>
@@ -297,7 +297,7 @@ export function AddProductStep4({
                         </div>
                     </div>
 
-                    <div className="col-span-12 lg:col-span-4">
+                    <div className="col-span-12 lg:col-span-3">
                         <ProductPreviewSidebar
                             data={{
                                 name: previousData.name,
@@ -446,7 +446,7 @@ function DiscountModal({ isOpen, onClose, onConfirm, selectedProducts }: Discoun
                         </Button>
                         <Button
                             onClick={handleConfirm}
-                            className="px-8 py-2 bg-[#3A5779] text-white hover:bg-[#2c425e] rounded-md font-bold"
+                            className="px-8 py-2 bg-blue-3 text-white hover:bg-[#2c425e] rounded-md font-bold"
                         >
                             تأكيد
                         </Button>

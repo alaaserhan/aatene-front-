@@ -1,7 +1,7 @@
 // src/features/(dashboard)/products/components/ProductTable.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MoreHorizontal, Share2, Eye, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Product } from "../api";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
@@ -13,6 +13,7 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ShareProductModal } from "./ShareProductModal";
+import Cookies from "js-cookie";
 
 interface ProductTableProps {
     products: Product[];
@@ -20,7 +21,8 @@ interface ProductTableProps {
     currentPage: number;
     totalPages: number;
     onPageChange: (page: number) => void;
-    onToggleShown: (product: Product) => void; // تم تغيير الاسم ليعكس الوظيفة الصحيحة (Shown)
+    onToggleShown: (product: Product) => void;
+    onToggleStatus?: (product: Product) => void; // New Prop for Admin Status Toggle
     onEdit: (product: Product) => void;
     onDelete: (product: Product) => void;
 }
@@ -32,12 +34,19 @@ export function ProductTable({
     totalPages,
     onPageChange,
     onToggleShown,
+    onToggleStatus,
     onEdit,
     onDelete,
 }: ProductTableProps) {
     // State for Share Modal
     const [shareModalOpen, setShareModalOpen] = useState(false);
     const [selectedProductForShare, setSelectedProductForShare] = useState<Product | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        const userType = Cookies.get("user_type");
+        setIsAdmin(userType === "admin");
+    }, []);
 
     const handleShareClick = (product: Product) => {
         setSelectedProductForShare(product);
@@ -84,6 +93,14 @@ export function ProductTable({
                             <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
                                 عدد التواصلات
                             </th>
+
+                            {/* Admin Column: Status */}
+                            {isAdmin && (
+                                <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
+                                    الحالة
+                                </th>
+                            )}
+
                             <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
                                 مرئي
                             </th>
@@ -125,9 +142,21 @@ export function ProductTable({
                                 <td className="px-6 py-4 text-sm  text-center font-medium">
                                     {product.messages_count || 0}
                                 </td>
+
+                                {/* Admin Column: Status Toggle */}
+                                {isAdmin && (
+                                    <td className="px-6 py-4 text-center">
+                                        <div className="flex justify-center">
+                                            <ToggleSwitch
+                                                enabled={product.status === "active"}
+                                                onChange={() => onToggleStatus && onToggleStatus(product)}
+                                            />
+                                        </div>
+                                    </td>
+                                )}
+
                                 <td className="px-6 py-4 text-center">
                                     <div className="flex justify-center">
-                                        {/* تصحيح: استخدام product.shown بدلاً من status للعمود "مرئي" */}
                                         <ToggleSwitch
                                             enabled={product.shown}
                                             onChange={() => onToggleShown(product)}
@@ -138,12 +167,11 @@ export function ProductTable({
                                     <div className="flex items-center justify-center gap-2">
                                         <DropdownMenu dir="rtl">
                                             <DropdownMenuTrigger asChild>
-                                                {/* تصحيح: إضافة type="button" لمنع الـ submit العرضي */}
                                                 <button type="button" className="w-8 h-8 flex items-center justify-center rounded-xs text-blue-3 bg-blue-5  cursor-pointer">
                                                     <MoreHorizontal className="w-5" />
                                                 </button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="start" className="w-40 border-none text-blue-3 font-medium">
+                                            <DropdownMenuContent align="end" className="w-40 border-none text-blue-3 font-medium">
                                                 <DropdownMenuItem className="cursor-pointer gap-2 ">
                                                     <Eye className="w-4 h-4" />
                                                     <span>مشاهدة المنتج</span>
@@ -159,7 +187,7 @@ export function ProductTable({
                                                     <span>تعديل المنتج</span>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
-                                                    className="cursor-pointer gap-2 text-red-600 focus:text-red-600"
+                                                    className="cursor-pointer gap-2 "
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         onDelete(product);
@@ -170,8 +198,8 @@ export function ProductTable({
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-                                        
-                                        <button 
+
+                                        <button
                                             type="button"
                                             onClick={() => handleShareClick(product)}
                                             className="w-8 h-8 flex items-center justify-center rounded-xs bg-[#E5FBFF] text-[#1298B2] cursor-pointer hover:bg-[#d0f5fc] transition-colors"
@@ -197,10 +225,9 @@ export function ProductTable({
             )}
 
             {/* Share Modal */}
-            <ShareProductModal 
+            <ShareProductModal
                 isOpen={shareModalOpen}
                 onClose={() => setShareModalOpen(false)}
-                // Use actual product link, assuming structure like /products/[slug] or [id]
                 productUrl={selectedProductForShare ? `${window.location.origin}/products/${selectedProductForShare.id}` : ""}
             />
         </div>

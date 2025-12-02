@@ -113,7 +113,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             variations: variationRows,
           },
           step4: {
-            crossSells: crossSellsData.map((cs) => cs.id),
+            crossSells: crossSellsData.map((cs ) => cs.id),
             crossSellsData: crossSellsData,
             cross_sells_price: Number(product.cross_sells_price) || 0,
             cross_sells_due_date: product.cross_sells_due_date || "",

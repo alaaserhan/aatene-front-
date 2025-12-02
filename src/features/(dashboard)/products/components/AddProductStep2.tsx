@@ -218,9 +218,9 @@ export function AddProductStep2({
         <Breadcrumb items={breadcrumbItems} className="mb-4" />
         <ProductStepperProgress currentStep={2} steps={barSteps} />
 
-        <div className="grid grid-cols-12 gap-6 mt-8">
-          <div className="col-span-12 lg:col-span-8">
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="grid grid-cols-12 gap-4 mt-8">
+          <div className="col-span-12 lg:col-span-9">
+            <div className="bg-white rounded-xl p-6 border border-gray-200">
               <h2 className="text-xl font-bold mb-8 text-gray-900">
                 المعلومات المتقدمة
               </h2>
@@ -328,7 +328,7 @@ export function AddProductStep2({
             </div>
           </div>
 
-          <div className="col-span-12 lg:col-span-4">
+          <div className="col-span-12 lg:col-span-3">
             <ProductPreviewSidebar
               data={{
                 name: previousData.name,

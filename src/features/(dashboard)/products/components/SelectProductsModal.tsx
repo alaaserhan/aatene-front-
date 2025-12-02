@@ -80,10 +80,10 @@ export function SelectProductsModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl p-0 overflow-hidden" dir="rtl">
-        
+
         {/* Header */}
-        <DialogHeader className="p-6 border-b border-gray-100">
-          <DialogTitle className="text-xl font-bold text-gray-900 text-center">
+        <DialogHeader className="p-4 border-b border-gray-100">
+          <DialogTitle className="text-lg font-medium">
             اختيار منتجات مرتبطة
           </DialogTitle>
         </DialogHeader>
@@ -108,13 +108,13 @@ export function SelectProductsModal({
           <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center h-full gap-2">
-                <Loader2 className="w-8 h-8 animate-spin text-[#3A5779]" />
+                <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
                 <p className="text-sm text-gray-500">جاري تحميل المنتجات...</p>
               </div>
             ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4">
                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center">
-                    <Search className="w-8 h-8 text-gray-300" />
+                  <Search className="w-8 h-8 text-gray-300" />
                 </div>
                 <p className="text-gray-500">لا توجد منتجات مطابقة</p>
               </div>
@@ -142,7 +142,7 @@ export function SelectProductsModal({
                           className={cn(
                             "w-5 h-5 rounded-sm border flex items-center justify-center transition-colors flex-shrink-0",
                             isSelected
-                              ? "bg-[#3A5779] border-[#3A5779]"
+                              ? "bg-blue-3 border-blue-3"
                               : "bg-white border-gray-300"
                           )}
                         >
@@ -168,7 +168,7 @@ export function SelectProductsModal({
 
                         {/* Text Info */}
                         <div className="flex flex-col gap-1">
-                          <h4 className={cn("text-sm font-bold text-gray-900 line-clamp-1", isSelected && "text-[#3A5779]")}>
+                          <h4 className={cn("text-sm font-bold  line-clamp-1", isSelected && "text-blue-3")}>
                             {product.name}
                           </h4>
                           <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -182,9 +182,9 @@ export function SelectProductsModal({
 
                       {/* Left Side: Price */}
                       <div className="text-left pl-2">
-                        <div className="text-sm font-bold text-gray-900 ltr flex items-center gap-1">
-                           <span>₪</span>
-                           <span>{Number(product.price).toFixed(2)}</span>
+                        <div className="text-sm font-bold text-gray-1  flex items-center gap-1">
+                          <span>{Number(product.price).toFixed(2)}</span>
+                          <span className="text-xl mb-1">₪</span>
                         </div>
                       </div>
                     </div>
@@ -197,22 +197,22 @@ export function SelectProductsModal({
 
         {/* Footer */}
         <DialogFooter className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between sm:justify-between w-full">
-          <div className="text-sm font-bold text-gray-700">
-             {localSelectedIds.length} منتجات مختارة
+          <div className="text-sm font-bold ">
+            {localSelectedIds.length} منتجات مختارة
           </div>
           <div className="flex gap-3">
             <Button
-                onClick={onClose}
-                variant="outline"
-                className="px-6 h-10 bg-white border-gray-300 text-gray-700 hover:bg-gray-50 font-medium"
+              onClick={handleConfirm}
+              className="px-8 h-10 bg-blue-3 text-white hover:bg-[#2c425e] font-medium"
             >
-                إلغاء
+              تأكيد 
             </Button>
             <Button
-                onClick={handleConfirm}
-                className="px-8 h-10 bg-[#3A5779] text-white hover:bg-[#2c425e] font-medium"
+              onClick={onClose}
+              variant="outline"
+              className="px-6 h-10 bg-gray-4   font-medium"
             >
-                تأكيد الاختيار
+              إلغاء
             </Button>
           </div>
         </DialogFooter>
