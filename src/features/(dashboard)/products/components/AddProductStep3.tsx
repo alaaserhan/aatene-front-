@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Search, X, Plus, Image as ImageIcon, Trash2 } from "lucide-react";
+import { Search, X, Plus, Image as ImageIcon, Trash2, Check, UploadCloud, HelpCircle } from "lucide-react";
 import { ProductStepperProgress } from "./ProductStepperProgress";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { ProductFormActions } from "./ProductFormActions";
@@ -10,15 +10,24 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Button } from "@/src/components/ui/button";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { cn } from "@/src/lib/utils";
-import { Step2FormData, Step3FormData } from "../types";
+import { Step1FormData, Step3FormData } from "../types";
 import { useQuery } from "@tanstack/react-query";
 import * as api from "../../categoriesAndAttributes/api";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
 import { MediaItem } from "../../mediaCenter/api";
 import { toast } from "sonner";
+import { Tooltip } from "@/src/components/ui/Tooltip";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/src/components/ui/dialog";
+import { Input } from "@/src/components/ui/input";
 
-// --- Hooks (Local definition since file wasn't provided, standard React Query) ---
+// --- Hooks ---
 const useGetAttributes = (params: URLSearchParams) => {
     return useQuery({
         queryKey: ["attributes", params.toString()],
@@ -27,7 +36,7 @@ const useGetAttributes = (params: URLSearchParams) => {
 };
 
 interface AddProductStep3Props {
-    previousData: Step2FormData;
+    previousData: Step1FormData;
     initialData?: Step3FormData;
     onNext: (data: Step3FormData) => void;
     onBack: () => void;
@@ -35,12 +44,11 @@ interface AddProductStep3Props {
     barSteps: { number: number; label: string; completed: boolean }[];
 }
 
-// Interface for a single variation row
 interface VariationRow {
-    id: string; // Temporary ID for UI handling
-    attributeValues: Record<string, string>; // { attributeId: optionId }
+    id: string;
+    attributeValues: Record<string, string>;
     price: number;
-    image: string | null;
+    images: string[]; // Changed to array for multiple images
     enabled: boolean;
 }
 
@@ -53,13 +61,14 @@ export function AddProductStep3({
     barSteps,
 }: AddProductStep3Props) {
     // --- States ---
-    const [hasVariations, setHasVariations] = useState<boolean>(false);
+    const [hasVariations, setHasVariations] = useState<boolean>(
+        initialData?.hasVariations || false
+    );
 
-    // Selected Attributes (Global for the product) e.g., [Color, Size]
     const [selectedAttributeIds, setSelectedAttributeIds] = useState<number[]>([]);
-
-    // The rows of variations
-    const [variations, setVariations] = useState<VariationRow[]>([]);
+    const [variations, setVariations] = useState<VariationRow[]>(
+        initialData?.variations || []
+    );
 
     // Modals
     const [isAttrModalOpen, setIsAttrModalOpen] = useState(false);
@@ -67,20 +76,17 @@ export function AddProductStep3({
     const [activeRowIdForImage, setActiveRowIdForImage] = useState<string | null>(null);
 
     // --- Fetch Attributes ---
-    const { data: attributesData, isLoading: isAttributesLoading } = useGetAttributes(
+    const { data: attributesData } = useGetAttributes(
         new URLSearchParams("per_page=100&is_active=1")
     );
 
     const allAttributes = attributesData?.data || [];
 
-    // Filter full objects of selected attributes to get their options
     const selectedAttributesFull = useMemo(() => {
         return allAttributes.filter((attr) => selectedAttributeIds.includes(attr.id));
     }, [allAttributes, selectedAttributeIds]);
 
-
     // --- Handlers ---
-
     const handleToggleHasVariations = (val: boolean) => {
         setHasVariations(val);
         if (!val) {
@@ -99,7 +105,7 @@ export function AddProductStep3({
             id: Math.random().toString(36).substr(2, 9),
             attributeValues: {},
             price: 0,
-            image: null,
+            images: [],
             enabled: true,
         };
         setVariations([...variations, newRow]);
@@ -125,9 +131,14 @@ export function AddProductStep3({
         );
     };
 
-    const handleImageSelect = (item: MediaItem | MediaItem[]) => {
-        if (activeRowIdForImage && !Array.isArray(item)) {
-            updateVariationRow(activeRowIdForImage, "image", item.src);
+    const handleImageSelect = (items: MediaItem | MediaItem[]) => {
+        if (activeRowIdForImage) {
+            const selectedImages = Array.isArray(items) ? items.map(i => i.src) : [items.src];
+
+            // If single selection was expected but we want to support multiple, we append or replace?
+            // Based on design "5 صور", it implies replacement or accumulation. 
+            // Usually in this context, it replaces the current set for that row.
+            updateVariationRow(activeRowIdForImage, "images", selectedImages);
         }
         setIsMediaModalOpen(false);
         setActiveRowIdForImage(null);
@@ -135,16 +146,16 @@ export function AddProductStep3({
 
     const handleRemoveAttribute = (attrId: number) => {
         setSelectedAttributeIds((prev) => prev.filter((id) => id !== attrId));
-        // Also clear values for this attribute from all rows
-        setVariations((prev) => prev.map(row => {
-            const newAttrValues = { ...row.attributeValues };
-            delete newAttrValues[attrId];
-            return { ...row, attributeValues: newAttrValues };
-        }));
+        setVariations((prev) =>
+            prev.map((row) => {
+                const newAttrValues = { ...row.attributeValues };
+                delete newAttrValues[attrId];
+                return { ...row, attributeValues: newAttrValues };
+            })
+        );
     };
 
     const handleNext = () => {
-        // Basic validation
         if (hasVariations) {
             if (selectedAttributeIds.length === 0) {
                 toast.error("الرجاء اختيار سمات للمنتج");
@@ -155,10 +166,9 @@ export function AddProductStep3({
                 return;
             }
 
-            // Check for empty required fields in rows
             let isValid = true;
-            variations.forEach(row => {
-                selectedAttributeIds.forEach(attrId => {
+            variations.forEach((row) => {
+                selectedAttributeIds.forEach((attrId) => {
                     if (!row.attributeValues[attrId]) isValid = false;
                 });
                 if (row.price <= 0) isValid = false;
@@ -170,23 +180,21 @@ export function AddProductStep3({
             }
         }
 
-        // Prepare data for next step (simplified for now, adjust based on Step3FormData)
         onNext({
             hasVariations,
-            // Map to your types structure
-            attributes: selectedAttributesFull.map(a => ({
+            attributes: selectedAttributesFull.map((a) => ({
                 id: String(a.id),
                 name: a.title,
-                options: a.options.map(o => o.title)
+                options: a.options.map((o) => o.title),
             })),
-            variations: variations.map(v => ({
+            variations: variations.map((v) => ({
                 id: v.id,
                 attributeValues: v.attributeValues,
                 price: v.price,
-                images: v.image ? [v.image] : [],
-                image_previews: v.image ? [v.image] : [],
-                enabled: v.enabled
-            }))
+                images: v.images,
+                image_previews: v.images,
+                enabled: v.enabled,
+            })),
         });
     };
 
@@ -195,70 +203,66 @@ export function AddProductStep3({
         { label: "انشاء منتج جديد" },
     ];
 
+    const variationsTooltip = "يمكنك إضافة اختلافات للمنتج مثل اللون، المقاس، أو النوع. سيتمكن العميل من اختيار هذه الخصائص عند الشراء.";
+
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="overflow-hidden">
             <div className="container mx-auto py-4 px-4">
                 <Breadcrumb items={breadcrumbItems} className="mb-4" />
                 <ProductStepperProgress currentStep={3} steps={barSteps} />
 
                 <div className="grid grid-cols-12 gap-6 mt-8">
                     <div className="col-span-12 lg:col-span-8">
-                        <div className="bg-white rounded-xl shadow-sm p-6 ">
+                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 min-h-[500px]">
                             <div className="flex items-center justify-between mb-8">
                                 <h2 className="text-xl font-bold">الاختلافات و الكميات</h2>
                             </div>
 
                             {/* Yes/No Toggle */}
                             <div className="flex flex-col gap-4 mb-8">
-                                <label className="text-base font-medium text-gray-700">
-                                    هل يوجد اختلافات من المنتج
-                                </label>
-                                <div className="flex items-center gap-6">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <div
-                                            className={cn(
-                                                "w-5 h-5 rounded-full border-2 flex items-center justify-center",
-                                                hasVariations
-                                                    ? "border-blue-500"
-                                                    : "border-gray-300"
-                                            )}
-                                        >
-                                            {hasVariations && (
-                                                <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                                            )}
-                                        </div>
-                                        <input
-                                            type="radio"
-                                            name="hasVariations"
-                                            className="hidden"
-                                            checked={hasVariations}
-                                            onChange={() => handleToggleHasVariations(true)}
-                                        />
-                                        <span className="text-sm font-medium">نعم</span>
+                                <div className="flex items-center gap-2">
+                                    <label className="text-base font-medium text-gray-900">
+                                        هل يوجد اختلافات من المنتج
                                     </label>
+                                    <div className="text-gray-400 cursor-pointer hover:text-gray-600">
+                                        <HelpCircle className="w-4 h-4" />
+                                    </div>
+                                </div>
 
-                                    <label className="flex items-center gap-2 cursor-pointer">
+                                <div className="flex items-center gap-6">
+                                    <div
+                                        onClick={() => handleToggleHasVariations(true)}
+                                        className="flex items-center gap-2 cursor-pointer group"
+                                    >
                                         <div
                                             className={cn(
-                                                "w-5 h-5 rounded-full border-2 flex items-center justify-center",
-                                                !hasVariations
-                                                    ? "border-blue-500"
-                                                    : "border-gray-300"
+                                                "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
+                                                hasVariations
+                                                    ? "border-blue-4 bg-white"
+                                                    : "border-gray-300 bg-white group-hover:border-gray-400"
                                             )}
                                         >
-                                            {!hasVariations && (
-                                                <div className="w-2.5 h-2.5 rounded-full bg-blue-4" />
-                                            )}
+                                            {hasVariations && <div className="w-2.5 h-2.5 rounded-full bg-blue-4" />}
                                         </div>
-                                        <input
-                                            type="radio"
-                                            name="hasVariations"
-                                            className="hidden"
-                                            checked={!hasVariations}
-                                            onChange={() => handleToggleHasVariations(false)}
-                                        />
+                                        <span className="text-sm font-medium">نعم</span>
+                                    </div>
+
+                                    <div
+                                        onClick={() => handleToggleHasVariations(false)}
+                                        className="flex items-center gap-2 cursor-pointer group"
+                                    >
+                                        <div
+                                            className={cn(
+                                                "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
+                                                !hasVariations
+                                                    ? "border-blue-4 bg-white"
+                                                    : "border-gray-300 bg-white group-hover:border-gray-400"
+                                            )}
+                                        >
+                                            {!hasVariations && <div className="w-2.5 h-2.5 rounded-full bg-blue-4" />}
+                                        </div>
                                         <span className="text-sm font-medium">لا</span>
-                                    </label>
+                                    </div>
                                 </div>
                             </div>
 
@@ -275,16 +279,20 @@ export function AddProductStep3({
                                             إضافة سمة جديدة
                                         </Button>
 
-                                        {selectedAttributesFull.map((attr) => (
-                                            <OptionTag
-                                                key={attr.id}
-                                                label={attr.title}
-                                                onRemove={() => handleRemoveAttribute(attr.id)}
-                                            />
-                                        ))}
+                                        {selectedAttributesFull.length > 0 && (
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {selectedAttributesFull.map((attr) => (
+                                                    <OptionTag
+                                                        key={attr.id}
+                                                        label={attr.title}
+                                                        onRemove={() => handleRemoveAttribute(attr.id)}
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
 
-                                    {/* Variations Table/List */}
+                                    {/* Variations Table */}
                                     {selectedAttributeIds.length > 0 ? (
                                         <div className="space-y-4">
                                             <div className="flex items-center justify-between mt-8 mb-4">
@@ -301,16 +309,21 @@ export function AddProductStep3({
                                                 </Button>
                                             </div>
 
-                                            {/* Header */}
-                                            <div className="bg-blue-5 rounded-sm p-4 grid gap-4 items-center text-xs font-medium text-gray-2 mb-2"
-                                                style={{ gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1fr 100px 50px` }}>
-                                                {selectedAttributesFull.map(attr => (
-                                                    <div key={attr.id} className="text-center">{attr.title}</div>
+                                            {/* Table Header */}
+                                            <div
+                                                className="bg-blue-5  rounded-sm p-4 grid gap-4 items-center text-sm font-bold text-blue-4 mb-2"
+                                                style={{
+                                                    gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px`,
+                                                }}
+                                            >
+                                                {selectedAttributesFull.map((attr) => (
+                                                    <div key={attr.id} className="text-center">
+                                                        {attr.title}
+                                                    </div>
                                                 ))}
                                                 <div className="text-center">السعر</div>
                                                 <div className="text-center">الصور</div>
-                                                <div className="text-center">الحالة</div>
-                                                <div></div>
+                                                <div className="text-center">الاجراءات</div>
                                             </div>
 
                                             {/* Rows */}
@@ -318,22 +331,33 @@ export function AddProductStep3({
                                                 {variations.map((row) => (
                                                     <div
                                                         key={row.id}
-                                                        className="bg-white border border-gray-100 rounded-sm p-4 grid gap-4 items-center  transition-shadow"
-                                                        style={{ gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1fr 100px 50px` }}
+                                                        className="bg-white border-b border-gray-100 p-4 grid gap-4 items-center last:border-0"
+                                                        style={{
+                                                            gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px`,
+                                                        }}
                                                     >
                                                         {/* Attribute Dropdowns */}
-                                                        {selectedAttributesFull.map(attr => {
-                                                            const options = attr.options.map(opt => ({ value: String(opt.id), label: opt.title }));
+                                                        {selectedAttributesFull.map((attr) => {
+                                                            const options = attr.options.map((opt) => ({
+                                                                value: String(opt.id),
+                                                                label: opt.title,
+                                                            }));
                                                             return (
                                                                 <ReusableDropdown
                                                                     key={`${row.id}-${attr.id}`}
                                                                     options={options}
                                                                     value={row.attributeValues[attr.id] || ""}
-                                                                    onChange={(val) => updateVariationAttributeValue(row.id, String(attr.id), val)}
+                                                                    onChange={(val) =>
+                                                                        updateVariationAttributeValue(
+                                                                            row.id,
+                                                                            String(attr.id),
+                                                                            val
+                                                                        )
+                                                                    }
                                                                     placeholder={attr.title}
-                                                                    className="h-9 text-xs"
+                                                                    className="h-9 text-sm rounded-full  border-blue-3 bg-blue-5"
                                                                 />
-                                                            )
+                                                            );
                                                         })}
 
                                                         {/* Price Input */}
@@ -341,56 +365,84 @@ export function AddProductStep3({
                                                             <input
                                                                 type="number"
                                                                 value={row.price || ""}
-                                                                onChange={(e) => updateVariationRow(row.id, "price", Number(e.target.value))}
-                                                                className="w-full h-9 px-2 border rounded-md text-xs text-center focus:ring-1 focus:ring-blue-300 outline-none"
+                                                                onChange={(e) =>
+                                                                    updateVariationRow(
+                                                                        row.id,
+                                                                        "price",
+                                                                        Number(e.target.value)
+                                                                    )
+                                                                }
+                                                                className="w-full h-10 px-3 border border-gray-200 rounded-md text-sm text-center focus:ring-1 focus:ring-blue-300 outline-none"
                                                                 placeholder="0.00"
                                                             />
-                                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">₪</span>
+                                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-sans">
+                                                                ₪
+                                                            </span>
                                                         </div>
 
-                                                        {/* Image Upload */}
+                                                        {/* Image Upload (Multi) */}
                                                         <div>
-                                                            {row.image ? (
-                                                                <div className="relative w-full h-9 rounded-md overflow-hidden border cursor-pointer group" onClick={() => { setActiveRowIdForImage(row.id); setIsMediaModalOpen(true); }}>
-                                                                    <img src={row.image} alt="" className="w-full h-full object-cover" />
-                                                                    <div className="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center">
-                                                                        <ImageIcon className="w-4 h-4 text-white" />
-                                                                    </div>
-                                                                </div>
-                                                            ) : (
-                                                                <button
-                                                                    onClick={() => { setActiveRowIdForImage(row.id); setIsMediaModalOpen(true); }}
-                                                                    className="w-full h-9 border border-dashed border-blue-300 bg-blue-50 text-blue-500 rounded-md flex items-center justify-center gap-1 text-[10px] hover:bg-blue-100 transition-colors"
-                                                                >
-                                                                    <ImageIcon className="w-3 h-3" />
-                                                                    رفع صورة
-                                                                </button>
-                                                            )}
-                                                        </div>
-
-                                                        {/* Toggle */}
-                                                        <div className="flex justify-center">
                                                             <button
-                                                                onClick={() => updateVariationRow(row.id, "enabled", !row.enabled)}
+                                                                onClick={() => {
+                                                                    setActiveRowIdForImage(row.id);
+                                                                    setIsMediaModalOpen(true);
+                                                                }}
                                                                 className={cn(
-                                                                    "w-10 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out",
-                                                                    row.enabled ? "bg-green-500" : "bg-gray-300"
+                                                                    "w-full h-10 rounded-md flex items-center justify-center gap-2 text-sm transition-colors border",
+                                                                    row.images.length > 0
+                                                                        ? "bg-[#E6F0F9] border-[#3A5779]/20 text-[#3A5779]"
+                                                                        : "bg-[#E6F0F9] border-transparent text-[#3A5779] hover:bg-[#dbe9f5]"
                                                                 )}
                                                             >
-                                                                <div className={cn(
-                                                                    "w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ease-in-out",
-                                                                    row.enabled ? "-translate-x-4" : "translate-x-0"
-                                                                )} />
+                                                                {row.images.length > 0 ? (
+                                                                    <>
+                                                                        <div
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                updateVariationRow(row.id, "images", []);
+                                                                            }}
+                                                                            className="hover:text-red-500 cursor-pointer"
+                                                                        >
+                                                                            <X className="w-4 h-4" />
+                                                                        </div>
+                                                                        <span>{row.images.length} صور</span>
+                                                                        <ImageIcon className="w-4 h-4" />
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <UploadCloud className="w-4 h-4" />
+                                                                        <span>قم برفع الصور</span>
+                                                                    </>
+                                                                )}
                                                             </button>
                                                         </div>
 
-                                                        {/* Delete */}
-                                                        <div className="flex justify-center">
+                                                        {/* Actions (Toggle + Delete) */}
+                                                        <div className="flex items-center justify-center gap-3">
+                                                            {/* Toggle */}
+                                                            <button
+                                                                onClick={() =>
+                                                                    updateVariationRow(row.id, "enabled", !row.enabled)
+                                                                }
+                                                                className={cn(
+                                                                    "w-11 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out relative",
+                                                                    row.enabled ? "bg-green-500" : "bg-gray-200"
+                                                                )}
+                                                            >
+                                                                <div
+                                                                    className={cn(
+                                                                        "w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ease-in-out",
+                                                                        row.enabled ? "-translate-x-5" : "translate-x-0"
+                                                                    )}
+                                                                />
+                                                            </button>
+
+                                                            {/* Delete */}
                                                             <button
                                                                 onClick={() => handleRemoveVariationRow(row.id)}
-                                                                className="w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-md hover:bg-red-100 transition-colors"
+                                                                className="w-8 h-8 flex items-center justify-center cursor-pointer bg-[#FFE5E5] text-[#FF4D4F] rounded-md hover:bg-[#ffd1d1] transition-colors"
                                                             >
-                                                                <img src="/icons/dashboard/trash.svg" alt="" className="w-4" />
+                                                                <img src="/icons/dashboard/trash.svg" alt="" className="w-3.5" />
                                                             </button>
                                                         </div>
                                                     </div>
@@ -399,24 +451,44 @@ export function AddProductStep3({
 
                                             {variations.length === 0 && (
                                                 <div className="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                                    <p className="text-sm text-gray-400">اضغط على "قيمة جديدة" لإضافة اختلافات</p>
+                                                    <p className="text-sm text-gray-400">
+                                                        اضغط على "قيمة جديدة" لإضافة اختلافات
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>
                                     ) : (
-                                        <div className="flex flex-col items-center justify-center py-8 text-center">
-                                            <div className="flex items-center justify-center mb-4">
-                                                <img src="/icons/dashboard/empty1.svg" alt="empty" className="w-" />
+                                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                                            <div className="flex items-center justify-center mb-6">
+                                                <img
+                                                    src="/icons/dashboard/empty1.svg"
+                                                    alt="empty"
+                                                    className="w-40"
+                                                />
+                                                {/* Fallback SVG if image not present */}
+                                                <div className="hidden">
+                                                    <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#e5e7eb" strokeWidth="1">
+                                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                                                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                                                    </svg>
+                                                </div>
                                             </div>
-                                            <h3 className="text-xl font-medium">
+                                            <h3 className="text-lg font-bold mb-2">
                                                 لم يتم اضافة اي سمات بعد!
                                             </h3>
-
                                         </div>
                                     )}
                                 </div>
                             ) : (
-                                <p></p>
+                                <div className="flex flex-col items-center justify-center py-20 opacity-50">
+                                    <img
+                                        src="/icons/dashboard/no-variations.svg"
+                                        alt=""
+                                        className="w-40 h-40 grayscale opacity-50 mb-4"
+                                    />
+                                    <p className="text-gray-400">لا يوجد اختلافات لهذا المنتج</p>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -440,7 +512,6 @@ export function AddProductStep3({
                 onSaveDraft={onSaveDraft}
             />
 
-            {/* Attribute Selection Modal */}
             <AttributeSelectionModal
                 isOpen={isAttrModalOpen}
                 onClose={() => setIsAttrModalOpen(false)}
@@ -452,19 +523,18 @@ export function AddProductStep3({
                 }}
             />
 
-            {/* Media Picker Modal */}
             <MediaCenterModal
                 open={isMediaModalOpen}
                 onOpenChange={setIsMediaModalOpen}
                 onSelect={handleImageSelect}
-                multiple={false}
+                multiple={true}
                 allowedMediaTypes={["image"]}
             />
         </div>
     );
 }
 
-// --- Sub-Components ---
+// --- Attribute Selection Modal ---
 
 interface AttributeSelectionModalProps {
     isOpen: boolean;
@@ -501,30 +571,28 @@ function AttributeSelectionModal({
         );
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                <div className="p-6 border-b border-gray-100">
-                    <h3 className="text-lg font-bold  text-center">
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-lg p-0 overflow-hidden" dir="rtl">
+                <DialogHeader className="p-4 border-b border-gray-100">
+                    <DialogTitle className=" font-bold">
                         اختر السمات لاستخدامها في الاختلافات
-                    </h3>
-                </div>
+                    </DialogTitle>
+                </DialogHeader>
 
-                <div className="p-4">
+                <div className="px-4">
                     <div className="relative mb-4">
-                        <input
+                        <Input
                             type="text"
                             placeholder="ابحث عن سمة..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                         />
                         <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     </div>
 
-                    <div className="max-h-[300px] overflow-y-auto space-y-1 pr-1">
+                    <div className="max-h-[300px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
                         {filteredAttributes.length > 0 ? (
                             filteredAttributes.map((attr) => {
                                 const isSelected = localSelected.includes(attr.id);
@@ -533,27 +601,33 @@ function AttributeSelectionModal({
                                         key={attr.id}
                                         onClick={() => toggleSelect(attr.id)}
                                         className={cn(
-                                            "flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors",
-                                            isSelected ? "bg-blue-50 border border-blue-200" : "hover:bg-gray-50 border border-transparent"
+                                            "flex items-center gap-2 p-1 rounded-xs cursor-pointer transition-colors ",
+                                            isSelected
+                                                ? "bg-blue-6 "
+                                                : ""
                                         )}
                                     >
-                                        <span className={cn("text-sm font-medium", isSelected ? "text-blue-700" : "text-gray-700")}>
-                                            {attr.title}
-                                        </span>
+
                                         <div
                                             className={cn(
-                                                "w-5 h-5 rounded border flex items-center justify-center transition-colors",
+                                                "w-4 h-4 rounded-xs border flex items-center justify-center transition-colors",
                                                 isSelected
-                                                    ? "bg-blue-600 border-blue-600"
-                                                    : "bg-white border-gray-300"
+                                                    ? "bg-white border-blue-3"
+                                                    : "bg-white border-blue-3"
                                             )}
                                         >
                                             {isSelected && (
-                                                <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                </svg>
+                                                <Check className="w-3.5 h-3.5 text-blue-3" />
                                             )}
                                         </div>
+                                        <span
+                                            className={cn(
+                                                "text-sm",
+
+                                            )}
+                                        >
+                                            {attr.title}
+                                        </span>
                                     </div>
                                 );
                             })
@@ -565,22 +639,22 @@ function AttributeSelectionModal({
                     </div>
                 </div>
 
-                <div className="p-4 border-t border-gray-100 bg-gray-50 flex gap-3">
+                <DialogFooter className="p-6 border-t border-gray-100 bg-gray-50 flex gap-3 sm:justify-between w-full">
                     <Button
                         onClick={onClose}
                         variant="outline"
-                        className="flex-1 h-11 border-gray-300 hover:bg-white text-gray-700 font-medium"
+                        className="flex-1 py-3 bg-[#E5E7EB] border-0 text-gray-700 hover:bg-gray-200 rounded-lg h-auto"
                     >
-                        إلغاء
+                        إلغاء و إغلاق
                     </Button>
                     <Button
                         onClick={() => onConfirm(localSelected)}
-                        className="flex-1 h-11 bg-[#3A5779] hover:bg-[#2c425e] text-white font-medium"
+                        className="flex-1 py-3 bg-blue-3 text-white hover:bg-[#2c425e] rounded-lg h-auto"
                     >
-                        تأكيد {localSelected.length > 0 && `(${localSelected.length})`}
+                        حفظ
                     </Button>
-                </div>
-            </div>
-        </div>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }
