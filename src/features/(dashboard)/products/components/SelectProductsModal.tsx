@@ -1,12 +1,20 @@
 // src/features/(dashboard)/products/components/SelectProductsModal.tsx
 "use client";
 
-import { useState, useMemo } from "react";
-import { X, Search, Loader2 } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Search, Loader2, Check, Image as ImageIcon, Tag } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { useGetProducts } from "../hooks";
 import { RelatedProduct } from "../types";
 import { cn } from "@/src/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/src/components/ui/dialog";
+import { Input } from "@/src/components/ui/input";
 
 interface SelectProductsModalProps {
   isOpen: boolean;
@@ -23,6 +31,14 @@ export function SelectProductsModal({
 }: SelectProductsModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [localSelectedIds, setLocalSelectedIds] = useState<number[]>(selectedIds);
+
+  // تحديث الحالة المحلية عند فتح المودال
+  useEffect(() => {
+    if (isOpen) {
+      setLocalSelectedIds(selectedIds);
+      setSearchQuery("");
+    }
+  }, [isOpen, selectedIds]);
 
   const queryParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -61,132 +77,146 @@ export function SelectProductsModal({
     onSelect(selectedProducts);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-2xl p-0 overflow-hidden" dir="rtl">
+        
+        {/* Header */}
+        <DialogHeader className="p-6 border-b border-gray-100">
+          <DialogTitle className="text-xl font-bold text-gray-900 text-center">
+            اختيار منتجات مرتبطة
+          </DialogTitle>
+        </DialogHeader>
 
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
-          <h2 className="text-xl font-bold">اختيار منتجات مرتبطة</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="p-4 border-b border-gray-100">
-          <div className="relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث عن منتج..."
-              className="w-full pr-10 pl-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-3 text-sm"
-            />
+        {/* Content */}
+        <div className="flex flex-col h-[500px]">
+          {/* Search Bar */}
+          <div className="p-4 border-b border-gray-100">
+            <div className="relative">
+              <Input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="ابحث عن منتج..."
+                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              />
+              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            </div>
           </div>
-        </div>
 
-        <div className="flex-1 overflow-y-auto p-4">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-4" />
-            </div>
-          ) : products.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">لا توجد منتجات</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {products.map((product) => {
-                const isSelected = localSelectedIds.includes(product.id);
-                const isDisabled = selectedIds.includes(product.id);
+          {/* Products List */}
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center h-full gap-2">
+                <Loader2 className="w-8 h-8 animate-spin text-[#3A5779]" />
+                <p className="text-sm text-gray-500">جاري تحميل المنتجات...</p>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full gap-4">
+                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center">
+                    <Search className="w-8 h-8 text-gray-300" />
+                </div>
+                <p className="text-gray-500">لا توجد منتجات مطابقة</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {products.map((product) => {
+                  const isSelected = localSelectedIds.includes(product.id);
+                  // const isDisabled = selectedIds.includes(product.id); // Optional: if you want to lock pre-selected
 
-                return (
-                  <div
-                    key={product.id}
-                    onClick={() => !isDisabled && handleToggleProduct(product.id)}
-                    className={cn(
-                      "flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-colors",
-                      isSelected
-                        ? "border-blue-4 bg-blue-50"
-                        : "border-gray-100 hover:bg-gray-50",
-                      isDisabled && "opacity-50 cursor-not-allowed"
-                    )}
-                  >
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => {}}
-                        disabled={isDisabled}
-                        className="w-5 h-5 rounded border-gray-300 text-blue-4 focus:ring-blue-3"
-                      />
-                    </label>
-
-                    <div className="w-14 h-14 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                      {product.cover_url ? (
-                        <img
-                          src={product.cover_url}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-                          صورة
-                        </div>
+                  return (
+                    <div
+                      key={product.id}
+                      onClick={() => handleToggleProduct(product.id)}
+                      className={cn(
+                        "flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all border",
+                        isSelected
+                          ? "bg-blue-50 border-blue-200"
+                          : "bg-white border-transparent hover:bg-gray-50 hover:border-gray-100"
                       )}
-                    </div>
+                    >
+                      {/* Right Side: Checkbox + Image + Info */}
+                      <div className="flex items-center gap-4">
+                        {/* Checkbox */}
+                        <div
+                          className={cn(
+                            "w-5 h-5 rounded-sm border flex items-center justify-center transition-colors flex-shrink-0",
+                            isSelected
+                              ? "bg-[#3A5779] border-[#3A5779]"
+                              : "bg-white border-gray-300"
+                          )}
+                        >
+                          {isSelected && (
+                            <Check className="w-3.5 h-3.5 text-white" />
+                          )}
+                        </div>
 
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-sm truncate">{product.name}</h4>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                        <span>{product.category?.name || "غير مصنف"}</span>
-                        <span>•</span>
-                        <span>{product.price} ج.م</span>
+                        {/* Image */}
+                        <div className="w-12 h-12 rounded-md bg-gray-100 border border-gray-100 overflow-hidden flex-shrink-0">
+                          {product.cover_url ? (
+                            <img
+                              src={product.cover_url}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-300">
+                              <ImageIcon className="w-5 h-5" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Text Info */}
+                        <div className="flex flex-col gap-1">
+                          <h4 className={cn("text-sm font-bold text-gray-900 line-clamp-1", isSelected && "text-[#3A5779]")}>
+                            {product.name}
+                          </h4>
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <Tag className="w-3 h-3" />
+                            <span>{product.category?.name || "عام"}</span>
+                            {/* <span className="mx-1">•</span>
+                            <span>{product.sku || "#SKU"}</span> */}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Left Side: Price */}
+                      <div className="text-left pl-2">
+                        <div className="text-sm font-bold text-gray-900 ltr flex items-center gap-1">
+                           <span>₪</span>
+                           <span>{Number(product.price).toFixed(2)}</span>
+                        </div>
                       </div>
                     </div>
-
-                    {isDisabled && (
-                      <span className="text-xs text-gray-400">مضاف مسبقاً</span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between p-4 border-t border-gray-100">
-          <span className="text-sm text-gray-500">
-            {localSelectedIds.length} منتج محدد
-          </span>
-
-          <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="px-6"
-            >
-              إلغاء
-            </Button>
-            <Button
-              type="button"
-              onClick={handleConfirm}
-              className="px-6"
-              style={{ backgroundColor: "var(--blue-3)" }}
-            >
-              تأكيد الاختيار
-            </Button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
-      </div>
-    </div>
+
+        {/* Footer */}
+        <DialogFooter className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between sm:justify-between w-full">
+          <div className="text-sm font-bold text-gray-700">
+             {localSelectedIds.length} منتجات مختارة
+          </div>
+          <div className="flex gap-3">
+            <Button
+                onClick={onClose}
+                variant="outline"
+                className="px-6 h-10 bg-white border-gray-300 text-gray-700 hover:bg-gray-50 font-medium"
+            >
+                إلغاء
+            </Button>
+            <Button
+                onClick={handleConfirm}
+                className="px-8 h-10 bg-[#3A5779] text-white hover:bg-[#2c425e] font-medium"
+            >
+                تأكيد الاختيار
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

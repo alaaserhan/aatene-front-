@@ -452,7 +452,7 @@ export function AddProductStep3({
                                             {variations.length === 0 && (
                                                 <div className="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-200">
                                                     <p className="text-sm text-gray-400">
-                                                        اضغط على "قيمة جديدة" لإضافة اختلافات
+                                                        اضغط على قيمة جديدة لإضافة اختلافات
                                                     </p>
                                                 </div>
                                             )}
@@ -568,7 +568,7 @@ function AttributeSelectionModal({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-lg p-0 overflow-hidden" dir="rtl">
                 <DialogHeader className="p-4 border-b border-gray-100">
-                    <DialogTitle className=" font-bold">
+                    <DialogTitle className="text-base font-medium">
                         اختر السمات لاستخدامها في الاختلافات
                     </DialogTitle>
                 </DialogHeader>
@@ -585,7 +585,7 @@ function AttributeSelectionModal({
                         <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     </div>
 
-                    <div className="max-h-[300px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                    <div className="max-h-[300px] overflow-y-auto space-y-1 pr-1 custom-scrollbar">
                         {filteredAttributes.length > 0 ? (
                             filteredAttributes.map((attr) => {
                                 const isSelected = localSelected.includes(attr.id);
@@ -634,17 +634,17 @@ function AttributeSelectionModal({
 
                 <DialogFooter className="p-6 border-t border-gray-100 bg-gray-50 flex gap-3 sm:justify-between w-full">
                     <Button
+                        onClick={() => onConfirm(localSelected)}
+                        className="flex-1 py-3 bg-blue-3 text-white hover:bg-[#2c425e] rounded-lg h-auto"
+                    >
+                        تاكيد
+                    </Button>
+                    <Button
                         onClick={onClose}
                         variant="outline"
                         className="flex-1 py-3 bg-[#E5E7EB] border-0 text-gray-700 hover:bg-gray-200 rounded-lg h-auto"
                     >
-                        إلغاء و إغلاق
-                    </Button>
-                    <Button
-                        onClick={() => onConfirm(localSelected)}
-                        className="flex-1 py-3 bg-blue-3 text-white hover:bg-[#2c425e] rounded-lg h-auto"
-                    >
-                        حفظ
+                        الغاء
                     </Button>
                 </DialogFooter>
             </DialogContent>
