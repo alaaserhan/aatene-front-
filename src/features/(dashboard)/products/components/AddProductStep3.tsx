@@ -213,7 +213,7 @@ export function AddProductStep3({
 
                 <div className="grid grid-cols-12 gap-6 mt-8">
                     <div className="col-span-12 lg:col-span-8">
-                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 min-h-[500px]">
+                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 ">
                             <div className="flex items-center justify-between mb-8">
                                 <h2 className="text-xl font-bold">الاختلافات و الكميات</h2>
                             </div>
@@ -481,14 +481,7 @@ export function AddProductStep3({
                                     )}
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center py-20 opacity-50">
-                                    <img
-                                        src="/icons/dashboard/no-variations.svg"
-                                        alt=""
-                                        className="w-40 h-40 grayscale opacity-50 mb-4"
-                                    />
-                                    <p className="text-gray-400">لا يوجد اختلافات لهذا المنتج</p>
-                                </div>
+                                <p></p>
                             )}
                         </div>
                     </div>
