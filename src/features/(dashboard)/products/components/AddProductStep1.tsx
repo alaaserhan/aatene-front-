@@ -67,7 +67,6 @@ export function AddProductStep1({
 }: AddProductStep1Props) {
     const [formData, setFormData] = useState<Step1FormData>({
         category_id: initialData?.category_id || 0,
-        section_id: initialData?.section_id || 0,
         cover: initialData?.cover || "",
         cover_preview: initialData?.cover_preview || "",
         gallery: initialData?.gallery || [],
