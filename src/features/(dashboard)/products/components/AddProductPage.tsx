@@ -170,7 +170,7 @@ export function AddProductPage() {
           image: v.images[0] || "",
           attributeOptions: Object.entries(v.attributeValues).map(([attrId, value]) => ({
             attribute_id: Number(attrId) || 0,
-            option_id: 0, 
+            option_id: Number(value) || 0,
           })),
         }));
     }
@@ -185,7 +185,7 @@ export function AddProductPage() {
   };
 
   const handleStep4Back = (data: Step4FormData) => {
-    setFormData({ ...formData, step4: data }); // Save current Step 4 data
+    setFormData({ ...formData, step4: data }); 
     setCurrentStep(3);
   };
 
@@ -258,7 +258,7 @@ export function AddProductPage() {
             previousData={formData.step1}
             initialData={formData.step4}
             onSave={handleStep4Save}
-            onBack={handleStep4Back} // Pass the handler
+            onBack={handleStep4Back}
             onSaveDraft={handleSaveDraft}
             isSubmitting={createProductMutation.isPending}
             barSteps={steps}

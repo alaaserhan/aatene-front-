@@ -144,8 +144,9 @@ export function AddProductStep3({
     };
 
     const handleImageSelect = (items: MediaItem | MediaItem[]) => {
+        
         if (activeRowIdForImage) {
-            const selectedImages = Array.isArray(items) ? items.map(i => i.src) : [items.src];
+            const selectedImages = Array.isArray(items) ? items.map(i => i.file_name) : [items.file_name];
             updateVariationRow(activeRowIdForImage, "images", selectedImages);
         }
         setIsMediaModalOpen(false);
@@ -240,7 +241,7 @@ export function AddProductStep3({
 
                             <div className="flex flex-col gap-4 mb-8">
                                 <div className="flex items-center justify-between gap-2">
-                                    <label className="text-base font-medium text-gray-900">
+                                    <label className="text-base font-medium ">
                                         هل يوجد اختلافات من المنتج
                                     </label>
                                     <div className="flex items-center gap-2">
@@ -634,7 +635,7 @@ function AttributeSelectionModal({
                 </div>
 
                 <DialogFooter className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between sm:justify-between w-full">
-                    <div className="text-sm font-bold text-gray-900">
+                    <div className="text-sm font-bold ">
                         {localSelected.length} سمات مختارة
                     </div>
                     <div className="flex gap-3">

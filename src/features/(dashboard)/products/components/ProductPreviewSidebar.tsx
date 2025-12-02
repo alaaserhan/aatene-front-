@@ -39,7 +39,7 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
 
             {/* Mobile Frame Simulation */}
             <div className="mx-auto w-full  bg-white rounded-xl overflow-hidden border border-gray-200 relative">
-                <h3 className="font-medium text-blue-4 my-4 text-center text-xl">
+                <h3 className="font-medium text-blue-4 my-4 text-center text-lg">
                     معاينة المنتج
                 </h3>
 
