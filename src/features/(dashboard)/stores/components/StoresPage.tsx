@@ -161,7 +161,7 @@ export function StoresPage() {
                                 <div className="bg-white rounded-lg border border-gray-200 h-full flex items-center justify-center">
                                     <div className="text-center p-6">
                                         <div className="h-44 mx-auto mb-2 flex items-center justify-center">
-                                            <img src="/icons/dashboard/nostore.svg" className="h-44" alt="placeholder" />
+                                            <img src="/icons/dashboard/noStore.svg" className="h-44" alt="placeholder" />
                                         </div>
                                         <h3 className="text-xl font-bold">لم يتم اختيار متجر</h3>
                                         <p className="text-gray-3 text-sm mt-1">

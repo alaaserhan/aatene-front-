@@ -5,10 +5,10 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { Plus, Loader2, Store } from "lucide-react";
-import { 
-  useGetProducts, 
-  useUpdateProductStatus, 
-  useDeleteProduct, 
+import {
+  useGetProducts,
+  useUpdateProductStatus,
+  useDeleteProduct,
   useUpdateProductShown
 } from "../hooks";
 import { useGetSections } from "../../sections/hooks";
@@ -35,7 +35,6 @@ export function ProductsPage() {
   const isAdmin = user?.user_type === "admin";
   const isMerchant = user?.user_type === "merchant";
 
-  const [pageMode, setPageMode] = useState<"product" | "service">("product");
   const [storeId, setStoreId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -48,16 +47,17 @@ export function ProductsPage() {
     }
   }, [isMerchant]);
 
+  // --- States ---
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-
   const [productToDelete, setProductToDelete] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const detailsRef = useRef<HTMLDivElement>(null);
 
+  // --- Data Fetching ---
   const { data: storesData, isLoading: isLoadingStores } = useGetStores(
     new URLSearchParams("per_page=100"),
     { enabled: isAdmin && isMounted }
@@ -78,7 +78,7 @@ export function ProductsPage() {
   const sections = sectionsData?.data || [];
   const hasSections = (sectionsData?.recordsTotal || 0) > 0;
 
-  // --- Auto-select First Section for Merchants ---
+  // Auto-select first section for Merchant
   useEffect(() => {
     if (isMerchant && sections.length > 0 && !selectedSectionId) {
       setSelectedSectionId(String(sections[0].id));
@@ -90,19 +90,13 @@ export function ProductsPage() {
     params.set("page", String(currentPage));
     params.set("per_page", "10");
 
-    if (isAdmin) {
-      if (statusFilter !== "all") {
-        params.set("status", statusFilter);
-      }
+    if (isAdmin && statusFilter !== "all") {
+      params.set("status", statusFilter);
     }
 
     if (isMerchant) {
-      if (storeId) {
-        params.set("store_id", storeId);
-      }
-      if (selectedSectionId) {
-        params.set("section_id", selectedSectionId);
-      }
+      if (storeId) params.set("store_id", storeId);
+      if (selectedSectionId) params.set("section_id", selectedSectionId);
     }
 
     if (searchQuery) {
@@ -136,22 +130,18 @@ export function ProductsPage() {
   };
 
   const handleToggleStatus = (product: Product) => {
-        const newStatus = product.status === "active" ? "not-active" : "active";
-        
-        updateStatusMutation({
-            id: product.id,
-            payload: { status: newStatus }
-        });
-    };
+    const newStatus = product.status === "active" ? "not-active" : "active";
+    updateStatusMutation({
+      id: product.id,
+      payload: { status: newStatus }
+    });
+  };
 
   const handleMerchantSectionChange = (value: string) => {
     setSelectedSectionId(value);
     setCurrentPage(1);
     if (window.innerWidth < 1024) {
-      detailsRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+      detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -178,32 +168,20 @@ export function ProductsPage() {
   };
 
   const renderHeaderAction = () => {
-    if (pageMode === "service") {
-      return (
-        <Link
-          href="/admin/services/add"
-          className="flex items-center gap-2 px-4 py-2 bg-[#3A5779] rounded-sm text-white text-sm font-semibold cursor-pointer hover:bg-[#2d4460] transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          خدمة جديدة
-        </Link>
-      );
-    }
-
     if (isMerchant && !isLoadingSections && !hasSections) {
       return (
         <Link
           href="/admin/sections"
-          className="flex items-center gap-2 px-4 py-2 bg-[#3A5779] rounded-sm text-white text-sm font-semibold cursor-pointer hover:bg-[#2d4460] transition-colors"
+          className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-xs font-medium transition-colors"
+          style={{ backgroundColor: "var(--blue-3)" }}
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
           إضافة قسم
         </Link>
       );
     }
 
-    const showAddProduct =
-      isAdmin || (isMerchant && hasSections && selectedSectionId);
+    const showAddProduct = isAdmin || (isMerchant && hasSections && selectedSectionId);
 
     if (showAddProduct) {
       const href = isAdmin
@@ -213,9 +191,10 @@ export function ProductsPage() {
       return (
         <Link
           href={href}
-          className="flex items-center gap-2 px-4 py-2 bg-[#3A5779] rounded-sm text-white text-sm font-semibold cursor-pointer hover:bg-[#2d4460] transition-colors"
+          className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-xs font-medium transition-colors"
+          style={{ backgroundColor: "var(--blue-3)" }}
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
           منتج جديد
         </Link>
       );
@@ -239,9 +218,7 @@ export function ProductsPage() {
           <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <Store className="w-8 h-8 text-blue-4" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            لم يتم اختيار متجر
-          </h2>
+          <h2 className="text-xl font-bold mb-2">لم يتم اختيار متجر</h2>
           <p className="text-gray-500 mb-6">
             يرجى اختيار المتجر الذي تريد إدارة منتجاته من القائمة العلوية.
           </p>
@@ -251,11 +228,7 @@ export function ProductsPage() {
   }
 
   const isNoSectionsEmptyState = isMerchant && !isLoadingSections && !hasSections;
-  const isNoProductsEmptyState =
-    isMerchant &&
-    selectedSectionId &&
-    !isLoadingProducts &&
-    products.length === 0;
+  const isNoProductsEmptyState = isMerchant && selectedSectionId && !isLoadingProducts && products.length === 0;
 
   const merchantSectionOptions = sections.map((s) => ({
     name: s.name,
@@ -264,54 +237,23 @@ export function ProductsPage() {
 
   return (
     <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col">
-      <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
-        <div className="flex items-center justify-between h-16 px-6">
-          <nav className="flex items-center h-full">
-            <ul className="flex items-center gap-8 h-full">
-              <li className="h-full flex items-center">
-                <button
-                  onClick={() => setPageMode("product")}
-                  className={cn(
-                    "text-sm font-semibold h-full flex items-center transition-colors cursor-pointer px-1",
-                    pageMode === "product"
-                      ? "text-blue-4 border-b-2 border-blue-4"
-                      : "text-gray-400 hover:text-blue-4"
-                  )}
-                >
-                  المنتجات
-                </button>
-              </li>
-              <li className="h-full flex items-center">
-                <button
-                  onClick={() => setPageMode("service")}
-                  className={cn(
-                    "text-sm font-semibold h-full flex items-center transition-colors cursor-pointer px-1",
-                    pageMode === "service"
-                      ? "text-blue-4 border-b-2 border-blue-4"
-                      : "text-gray-400 hover:text-blue-4"
-                  )}
-                >
-                  الخدمات
-                </button>
-              </li>
-            </ul>
-          </nav>
+      {/* Header Updated to Match CitiesPage Style */}
+      <header className="w-full bg-transparent p-6 pb-0">
+        <div className="flex flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl md:text-2xl sm:text-2xl font-bold text-brand-black-1">
+              إدارة المنتجات
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              عرض وإدارة جميع المنتجات المتاحة
+            </p>
+          </div>
           {renderHeaderAction()}
         </div>
       </header>
 
       <main className="flex-1 p-6 min-h-[calc(100vh-145px)] overflow-hidden">
-        {pageMode === "service" ? (
-          <div className="flex flex-col items-center justify-center h-full bg-white rounded-lg border border-gray-200 p-8 text-center shadow-sm">
-            <div className="h-32 w-32 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-              <Store className="h-16 w-16 text-gray-300" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
-              إدارة الخدمات
-            </h3>
-            <p className="text-gray-500">سيتم عرض الخدمات هنا قريباً.</p>
-          </div>
-        ) : isNoSectionsEmptyState ? (
+        {isNoSectionsEmptyState ? (
           <ProductEmptyState type="no-sections" />
         ) : (
           <div className="grid grid-cols-12 gap-4 h-full">
@@ -346,10 +288,8 @@ export function ProductsPage() {
                       alt="placeholder"
                     />
                   </div>
-                  <h3 className="text-xl font-bold mb-2 ">
-                    لم يتم اختيار قسم
-                  </h3>
-                  <p className="text-gray-3 text-sm">
+                  <h3 className="text-xl font-bold mb-2">لم يتم اختيار قسم</h3>
+                  <p className="text-gray-400 text-sm">
                     قم باختيار قسم من القائمة الجانبية لعرض المنتجات الخاصة به
                   </p>
                 </div>
