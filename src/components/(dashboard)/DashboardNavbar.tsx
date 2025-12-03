@@ -16,6 +16,7 @@ import {
   Map,
   GalleryVerticalEnd,
   LogOut,
+  Bot,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -82,6 +83,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الاقسام", icon: Map, href: "/sections", show: isMerchant },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin },
     { label: "المنتجات", icon: Package, href: "/products", show: true },
+    { label: "مقدمي الخدمات", icon: Users, href: "/services", show: true },
+    {label: "مساعدي", icon: Bot, href: "/mosa3edy", show: true },
   ];
 
   const mainNavItems = allNavItems.slice(0, 5);
@@ -92,8 +95,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
 
   return (
     <nav
-      dir="rtl"
-      className="w-full p-2 shadow-sm"
+      className="w-full p-2 shadow-sm sticky top-0 z-50"
       style={{ backgroundColor: "var(--blue-1)" }}
     >
       <div className="max-w-[1400px] mx-auto px-4">
