@@ -45,7 +45,7 @@ export function HomePage() {
             <div className="lg:grid lg:grid-cols-[270px_1fr] flex flex-col gap-4 items-start">
 
                 {/* Sidebar */}
-                <div className="hidden lg:block w-full sticky top-6">
+                <div className="hidden lg:block w-full sticky top-25">
                     <Mosa3edySidebar />
                 </div>
 
