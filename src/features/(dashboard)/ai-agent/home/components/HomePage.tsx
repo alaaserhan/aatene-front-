@@ -59,7 +59,7 @@ export function HomePage() {
                         <StatCard
                             title="محادثات Live"
                             value={data.total_users || 0}
-                            icon={MessageCircle}
+                            icon={"chat"}
                             trend="+20"
                             iconColor="text-blue-500"
                             iconBg="bg-blue-50"
@@ -67,7 +67,7 @@ export function HomePage() {
                         <StatCard
                             title="جميع الرسائل"
                             value={data.total_messages || 0}
-                            icon={MessageCircle}
+                            icon={"chat"}
                             trend="+20"
                             iconColor="text-[#3A5779]"
                             iconBg="bg-[#EBF1F5]"
@@ -75,7 +75,7 @@ export function HomePage() {
                         <StatCard
                             title="قاعدة المعرفة"
                             value={20} // Static value for now
-                            icon={Database}
+                            icon={"database"}
                             iconColor="text-green-500"
                             iconBg="bg-green-50"
                         />

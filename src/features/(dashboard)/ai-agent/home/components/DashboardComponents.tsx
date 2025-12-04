@@ -4,62 +4,78 @@
 import { cn } from "@/src/lib/utils";
 import { Star, Phone, Instagram, Facebook, Globe, Download, MessageSquare, MessageCircle, Database } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
-import { OverviewData } from "../../ai-agent/api";
+import { OverviewData } from "../../api";
 
 // --- 1. Stat Card ---
 interface StatCardProps {
     title: string;
     value: string | number;
-    icon: React.ElementType;
+    icon: string;
     trend?: string;
     iconColor?: string;
     iconBg?: string;
 }
 
-export function StatCard({ title, value, icon: Icon, trend, iconColor, iconBg }: StatCardProps) {
+export function StatCard({ title, value, icon, trend, iconColor, iconBg }: StatCardProps) {
     return (
-        <div className="bg-white rounded-lg p-4 border border-gray-200 flex flex-col justify-between h-[140px]">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 flex flex-col justify-between h-[120px]">
             <div className="flex justify-center items-start">
                 {/* Right Side: Icon & Title */}
                 <div className="flex items-center justify-center gap-3">
                     <div className={cn("p-2 rounded-full", iconBg)}>
-                        <Icon className={cn("w-5 h-5", iconColor)} />
+                        <img src={`/icons/dashboard/${icon}.svg`} className="w-5 h-5" alt="" />
                     </div>
                     <span className="text-gray-2 text-sm font-medium">{title}</span>
                 </div>
-
             </div>
 
             {/* Center Bottom: Value */}
-            <div className="text-3xl font-bold  mt-2 text-center">{value}</div>
+            <div className="text-3xl font-bold text-center">{value}</div>
         </div>
     );
 }
 
-// --- 2. Chart Card (Full Pie - No Hole) ---
-interface SessionsChartCardProps {
-    data?: OverviewData['conversation_types']; // جعلناها اختيارية لتجنب الخطأ
-}
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+    const RADIAN = Math.PI / 180;
+    // ضربنا في 0.6 عشان النص يكون في نص الشريحة بالظبط مش على الطرف
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.6;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
+    if (percent === 0) return null;
+
+    return (
+        <text
+            x={x}
+            y={y}
+            fill="white" // الأفضل أبيض للخلفيات الغامقة (الأزرق والبرتقالي)
+            textAnchor="middle" // تعديل مهم: توسيط النص
+            dominantBaseline="central"
+            className="text-lg font-bold drop-shadow-md" // إضافة ظل لتحسين القراءة
+        >
+            {`${(percent * 100).toFixed(0)}%`}
+        </text>
+    );
+};
+
+// --- 2. Chart Card ---
+interface SessionsChartCardProps {
+    data?: OverviewData['conversation_types'];
+}
 export function SessionsChartCard({ data }: SessionsChartCardProps) {
-    // استخدام القيم الافتراضية 0 في حال كانت البيانات غير موجودة
     const needsHuman = data?.needs_human_true || 0;
     const botReply = data?.needs_human_false || 0;
 
     const chartData = [
-        { name: "البوت يرد", value: botReply, color: "#6366F1" }, // Purple
-        { name: "يحتاج الي موظف", value: needsHuman, color: "#D97706" }, // Orange/Gold
+        { name: "يحتاج الي موظف", value: needsHuman, color: "#D97706" },
+        { name: "البوت يرد", value: botReply, color: "#6366F1" },
     ];
-
-    const total = botReply + needsHuman;
-    const botPercent = total > 0 ? Math.round((botReply / total) * 100) : 0;
-    const humanPercent = total > 0 ? Math.round((needsHuman / total) * 100) : 0;
 
     return (
         <div className="bg-white rounded-lg p-4 border border-gray-200 h-full flex flex-col">
             <div className="flex flex-col items-start mb-4">
-                <h3 className="text-lg font-bold ">جلسات الشات بوت</h3>
-                <p className="text-xs text-gray-3 mt-1">توزيع أنواع الجلسات</p>
+                <h3 className="text-xl font-medium ">جلسات الشات بوت</h3>
+                <p className="text-xs text-gray-2 mt-1">توزيع أنواع الجلسات</p>
             </div>
 
             <div className="flex-1 min-h-[200px] relative flex items-center justify-center">
@@ -69,12 +85,13 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
                             data={chartData}
                             cx="50%"
                             cy="50%"
+                            labelLine={false}
+                            label={renderCustomizedLabel} // استخدام الدالة المحسنة
+                            outerRadius={110}
+                            fill="#8884d8"
+                            dataKey="value"
                             startAngle={90}
                             endAngle={-270}
-                            innerRadius={0} // 0 = Full Pie (No Hole)
-                            outerRadius={100}
-                            paddingAngle={0}
-                            dataKey="value"
                             stroke="white"
                             strokeWidth={2}
                         >
@@ -85,32 +102,23 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
                         <RechartsTooltip />
                     </PieChart>
                 </ResponsiveContainer>
-
-                {/* Labels Overlay */}
-                {total > 0 && (
-                    <>
-                        <div className="absolute top-[40%] right-[20%] text-white font-bold text-xl drop-shadow-md">{humanPercent}%</div>
-                        <div className="absolute bottom-[40%] left-[25%] text-white font-bold text-xl drop-shadow-md">{botPercent}%</div>
-                    </>
-                )}
             </div>
 
             {/* Legend */}
-            <div className="grid grid-cols-2  mt-6 rounded-lg p-4 border-t border-gray-50 bg-[#F9F9F9]">
+            <div className="grid grid-cols-2 mt-6 rounded-lg p-4 border-t border-gray-50 bg-[#F9F9F9]">
                 {chartData.map((item) => (
                     <div key={item.name} className="flex flex-col items-center gap-1">
                         <div className="flex items-center gap-2">
                             <span className="w-3 h-3 rounded-xs" style={{ backgroundColor: item.color }} />
-                            <span className="text-xs text-gray-2 font-medium">{item.name}</span>
+                            <span className="text-xs text-gray-500 font-medium">{item.name}</span>
                         </div>
-                        <span className="text-sm font-medium ">{item.value}</span>
+                        <span className="text-sm font-bold ">{item.value}</span>
                     </div>
                 ))}
             </div>
         </div>
     );
 }
-
 // --- 3. Sources Card ---
 interface SourcesCardProps {
     usersPerPlatform?: OverviewData['users_per_platform'];
@@ -130,9 +138,9 @@ export function SourcesCard({ usersPerPlatform = [] }: SourcesCardProps) {
     // Helper to map API platform names
     const getPlatformDetails = (platformName: string) => {
         switch (platformName.toLowerCase()) {
-            case 'whatsapp': return { name: 'الواتساب', icon: <Phone className="w-4 h-4 text-[#25D366]" />, color: 'text-[#25D366]' };
-            case 'instagram': return { name: 'الانستجرام', icon: <Instagram className="w-4 h-4 text-[#E1306C]" />, color: 'text-[#E1306C]' };
-            case 'messenger': return { name: 'الماسنجر', icon: <div className="font-bold text-[#0084FF] text-[10px]">N</div>, color: 'text-[#0084FF]' };
+            case 'whatsapp': return { name: 'الواتساب', icon: <img src="/icons/dashboard/whatsapp2.svg" className="w-5 h-5" alt="" /> };
+            case 'instagram': return { name: 'الانستجرام', icon: <img src="/icons/dashboard/instagram2.svg" className="w-4 h-4" alt="" /> };
+            case 'messenger': return { name: 'الماسنجر', icon: <img src="/icons/dashboard/messenger.svg" className="w-4 h-4" alt="" /> };
             default: return { name: platformName, icon: <Globe className="w-4 h-4 text-gray-500" />, color: 'text-gray-500' };
         }
     };
@@ -163,14 +171,14 @@ export function SourcesCard({ usersPerPlatform = [] }: SourcesCardProps) {
                 </div>
             </div>
 
-            <div className="space-y-4 flex-1">
+            <div className="space-y-2 flex-1">
                 {usersPerPlatform?.map((item, index) => {
                     const details = getPlatformDetails(item.platform);
                     return (
-                        <div key={index} className="flex items-center justify-between p-2 border-b border-gray-50 last:border-0">
+                        <div key={index} className="flex items-center justify-between p-2 pb-3 border-b border-gray-100 last:border-0">
                             {/* Right Side: Icon + Name */}
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-transparent border border-gray-200">
+                                <div className="w-7 h-7 rounded-sm flex items-center justify-center bg-transparent border border-blue-1">
                                     {details.icon}
                                 </div>
                                 <span className="text-sm text-gray-600 font-bold">{details.name}</span>
@@ -193,38 +201,60 @@ interface RatingSourceCardProps {
 }
 
 export function RatingSourceCard({ ratings = [] }: RatingSourceCardProps) {
-    const getIcon = (platform: string) => {
+
+    // دالة مساعدة لترجمة الأسماء وتحديد الأيقونات
+    const getPlatformDetails = (platform: string) => {
         switch (platform.toLowerCase()) {
-            case 'whatsapp': return <Phone className="w-4 h-4 text-gray-600" />;
-            case 'instagram': return <Instagram className="w-4 h-4 text-gray-600" />;
-            case 'messenger': return <MessageCircle className="w-4 h-4 text-gray-600" />;
-            default: return <Globe className="w-4 h-4 text-gray-600" />;
+            case 'whatsapp':
+                return { name: "واتساب", icon: <img src="/icons/dashboard/whatsapp3.svg" className="w-6 h-6" alt="" /> };
+            case 'instagram':
+                return { name: "انستجرام", icon: <img src="/icons/dashboard/instagram.svg" className="w-6 h-6" alt="" /> };
+            case 'messenger':
+            case 'facebook':
+                return { name: "فيسبوك", icon: <img src="/icons/dashboard/facebook3.svg" className="w-6 h-6" alt="" /> };
+            default: // Aatene / Website
+                return {
+                    name: "أعطيني",
+                    icon: <div className="w-5 h-5 rounded-full border border-gray-400 flex items-center justify-center text-[10px] font-bold text-gray-600">A</div>
+                };
         }
     };
 
     return (
-        <div className="bg-white rounded-lg p-4 border border-gray-200 h-full">
-            <h3 className="text-lg font-bold  mb-6 text-center">مصدر التقييم</h3>
-            <div className="space-y-5">
-                {ratings?.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between">
-                        {/* Right: Text + Icon */}
-                        <div className="flex items-center gap-2">
-                            {getIcon(item.platform)}
-                            <span className="text-sm font-bold  capitalize">{item.platform}</span>
-                        </div>
+        <div className="bg-white rounded-lg p-6 border border-gray-200 h-full shadow-sm">
+            <div className="flex items-center justify-center gap-2 mb-6">
+                <h3 className="text-xl font-medium">مصدر التقييم</h3>
+            </div>
 
-                        {/* Left: Rating Badge */}
-                        <div className="bg-blue-3 text-white text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1 min-w-[50px] justify-center">
-                            <Star className="w-3 h-3 fill-white" /> {item.average_rating}
+            <div className="space-y-3">
+                {ratings?.map((item, i) => {
+                    const details = getPlatformDetails(item.platform);
+
+                    return (
+                        <div
+                            key={i}
+                            className="flex items-center justify-between pb-3 border-b border-gray-100 last:border-0 last:pb-0"
+                        >
+                            {/* Right: Text + Icon */}
+                            <div className="flex items-center gap-2">
+                                <div className="">
+                                    {details.icon}
+                                </div>
+                                <span className="text-sm font-medium ">{details.name}</span>
+                            </div>
+
+                            {/* Left: Rating Badge */}
+                            <div className="bg-blue-3 text-white text-sm font-medium px-1 py-1 rounded-sm flex items-center gap-2 min-w-[60px] justify-center shadow-sm">
+                                {item.average_rating}
+                                <img src="/icons/dashboard/star.svg" className="w-4 h-4" alt="" />
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );
 }
-
 interface RatingClassificationCardProps {
     breakdown?: OverviewData['review_stars_breakdown'];
     totalReviews: number;
@@ -241,7 +271,7 @@ export function RatingClassificationCard({ breakdown, totalReviews }: RatingClas
 
     return (
         <div className="bg-white rounded-lg p-4 border border-gray-200 h-full">
-            <h3 className="text-lg font-bold  mb-6 text-center">تصنيف التقييم</h3>
+            <h3 className="text-xl font-medium  mb-6 text-center">تصنيف التقييم</h3>
             <div className="space-y-4">
                 {starMap.map((item) => {
                     // Safe access with default 0
@@ -281,7 +311,7 @@ interface AverageRatingCardProps {
 export function AverageRatingCard({ average = 0, total = 0 }: AverageRatingCardProps) {
     return (
         <div className="bg-white rounded-lg p-4 border border-gray-200 h-full flex flex-col items-center">
-            <h3 className="text-lg font-bold  mb-6">متوسط تقييم العملاء</h3>
+            <h3 className="text-xl font-medium  mb-6">متوسط تقييم العملاء</h3>
 
             <div className="w-20 h-20 rounded-full bg-blue-3 flex items-center justify-center text-white text-3xl font-bold mb-6 shadow-none">
                 {average.toFixed(1)}
