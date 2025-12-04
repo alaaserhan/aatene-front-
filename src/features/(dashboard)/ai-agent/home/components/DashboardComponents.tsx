@@ -18,7 +18,7 @@ interface StatCardProps {
 
 export function StatCard({ title, value, icon, trend, iconColor, iconBg }: StatCardProps) {
     return (
-        <div className="bg-white rounded-lg p-4 border border-gray-200 flex flex-col justify-between h-[120px]">
+        <div className="bg-white rounded-md p-4 border border-gray-200 flex flex-col justify-between h-[120px]">
             <div className="flex justify-center items-start">
                 {/* Right Side: Icon & Title */}
                 <div className="flex items-center justify-center gap-3">
@@ -72,7 +72,7 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
     ];
 
     return (
-        <div className="bg-white rounded-lg p-4 border border-gray-200 h-full flex flex-col">
+        <div className="bg-white rounded-md p-4 border border-gray-200 h-full flex flex-col">
             <div className="flex flex-col items-start mb-4">
                 <h3 className="text-xl font-medium ">جلسات الشات بوت</h3>
                 <p className="text-xs text-gray-2 mt-1">توزيع أنواع الجلسات</p>
@@ -105,7 +105,7 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
             </div>
 
             {/* Legend */}
-            <div className="grid grid-cols-2 mt-6 rounded-lg p-4 border-t border-gray-50 bg-[#F9F9F9]">
+            <div className="grid grid-cols-2 mt-6 rounded-md p-4 border-t border-gray-50 bg-[#F9F9F9]">
                 {chartData.map((item) => (
                     <div key={item.name} className="flex flex-col items-center gap-1">
                         <div className="flex items-center gap-2">
@@ -148,7 +148,7 @@ export function SourcesCard({ usersPerPlatform = [] }: SourcesCardProps) {
     const topPlatformName = getPlatformDetails(maxPlatform.platform).name;
 
     return (
-        <div className="bg-white rounded-lg p-4 border border-gray-200 h-full flex flex-col">
+        <div className="bg-white rounded-md p-4 border border-gray-200 h-full flex flex-col">
             <div className=" mb-8">
                 <h3 className="text-xl font-medium  mb-1">مصدر المحادثات</h3>
                 <div className="flex items-center gap-8">
@@ -221,7 +221,7 @@ export function RatingSourceCard({ ratings = [] }: RatingSourceCardProps) {
     };
 
     return (
-        <div className="bg-white rounded-lg p-6 border border-gray-200 h-full shadow-sm">
+        <div className="bg-white rounded-md p-4 border border-gray-200 h-full ">
             <div className="flex items-center justify-center gap-2 mb-6">
                 <h3 className="text-xl font-medium">مصدر التقييم</h3>
             </div>
@@ -270,7 +270,7 @@ export function RatingClassificationCard({ breakdown, totalReviews }: RatingClas
     ];
 
     return (
-        <div className="bg-white rounded-lg p-4 border border-gray-200 h-full">
+        <div className="bg-white rounded-md p-4 border border-gray-200 h-full">
             <h3 className="text-xl font-medium  mb-6 text-center">تصنيف التقييم</h3>
             <div className="space-y-4">
                 {starMap.map((item) => {
@@ -310,10 +310,10 @@ interface AverageRatingCardProps {
 
 export function AverageRatingCard({ average = 0, total = 0 }: AverageRatingCardProps) {
     return (
-        <div className="bg-white rounded-lg p-4 border border-gray-200 h-full flex flex-col items-center">
-            <h3 className="text-xl font-medium  mb-6">متوسط تقييم العملاء</h3>
+        <div className="bg-white rounded-md p-4 border border-gray-200 h-full flex flex-col items-center">
+            <h3 className="text-xl font-medium  mb-5">متوسط تقييم العملاء</h3>
 
-            <div className="w-20 h-20 rounded-full bg-blue-3 flex items-center justify-center text-white text-3xl font-bold mb-6 shadow-none">
+            <div className="w-20 h-20 rounded-full bg-blue-3 flex items-center justify-center text-white text-3xl font-bold mb-5 shadow-none">
                 {average.toFixed(1)}
             </div>
 
@@ -323,7 +323,7 @@ export function AverageRatingCard({ average = 0, total = 0 }: AverageRatingCardP
                         key={s}
                         className={cn(
                             "w-5 h-5",
-                            s <= Math.round(average) ? "fill-[#FFD700] text-[#FFD700]" : "text-gray-300 fill-gray-100"
+                            s <= Math.round(average) ? "fill-[#FFD700] text-[#FFD700]" : "text-[#CECDC8] fill-[#CECDC8]"
                         )}
                     />
                 ))}
@@ -338,8 +338,8 @@ export function PageHeader() {
     return (
         <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold ">الرئيسية</h1>
-            <button className="flex items-center gap-2 px-4 py-2 border border-blue-3 text-blue-3 rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm">
-                <Download className="w-4 h-4" />
+            <button className="flex items-center gap-2 px-4 py-2 border border-blue-4 text-blue-3 cursor-pointer rounded-md transition-colors font-medium text-sm">
+               <img src="/icons/dashboard/export.svg" className="w-3.5" alt="" />
                 تصدير التقرير
             </button>
         </div>
