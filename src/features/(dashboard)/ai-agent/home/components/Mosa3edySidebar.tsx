@@ -18,14 +18,14 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
     {
       icon: Home,
       label: "الرئيسية",
-      href: "/admin/dashboard",
-      isActive: pathname === "/admin/dashboard" || pathname === "/admin"
+      href: "/admin/mosa3edy",
+      isActive: pathname === "/admin/mosa3edy" || pathname === "/admin/mosa3edy/"
     },
     {
       icon: Database,
       label: "قاعدة المعرفة",
-      href: "/admin/knowledge-base",
-      isActive: pathname.includes("knowledge-base")
+      href: "/admin/mosa3edy/KnowledgeBase",
+      isActive: pathname.includes("KnowledgeBase")
     },
     {
       icon: FileText,

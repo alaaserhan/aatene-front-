@@ -3,6 +3,7 @@ import axios, { InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
 
 const BASE_URL_5000 = "http://72.61.155.9:5000/api";
+const BASE_URL_5005 = "http://72.61.155.9:5005";
 
 const authInterceptor = (config: InternalAxiosRequestConfig) => {
     const token = Cookies.get("token");
@@ -16,6 +17,10 @@ const authInterceptor = (config: InternalAxiosRequestConfig) => {
 
 const api5000 = axios.create({ baseURL: BASE_URL_5000 });
 api5000.interceptors.request.use(authInterceptor);
+
+
+const api5005 = axios.create({ baseURL: BASE_URL_5005 });
+api5005.interceptors.request.use(authInterceptor);
 
 export interface Pagination {
     limit: number;
@@ -180,5 +185,65 @@ export const getOverview = async (): Promise<OverviewResponse> => {
 
 export const getUsersStats = async (): Promise<StatsResponse> => {
     const { data } = await api5000.get<StatsResponse>("/users/stats");
+    return data;
+};
+
+//------------------------------------------------------------------------------
+
+export interface DriveFile {
+    id: string;
+    name: string;
+    mime_type: string;
+    size: number;
+    size_mb: number;
+    created_time: string;
+    modified_time: string;
+    web_link: string;
+}
+
+export interface FilesResponse {
+    success: boolean;
+    count: number;
+    files: DriveFile[];
+}
+
+export interface UploadResponse {
+    success: boolean;
+    message: string;
+    file: {
+        id: string;
+        name: string;
+        size: number;
+        created_time: string;
+        web_link: string;
+    };
+}
+
+export interface DeleteFileResponse {
+    success: boolean;
+    message: string;
+    file_id: string;
+}
+
+
+export const getDriveFiles = async (): Promise<FilesResponse> => {
+    const { data } = await api5005.get<FilesResponse>("/files");
+    return data;
+};
+
+export const uploadDriveFile = async (file: File): Promise<UploadResponse> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const { data } = await api5005.post<UploadResponse>("/upload", formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return data;
+};
+
+export const deleteDriveFile = async (fileId: string): Promise<DeleteFileResponse> => {
+    const { data } = await api5005.delete<DeleteFileResponse>(`/delete/${fileId}`);
     return data;
 };

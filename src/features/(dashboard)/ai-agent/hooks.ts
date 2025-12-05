@@ -89,3 +89,62 @@ export function useGetAgentStats() {
     queryFn: api.getUsersStats,
   });
 }
+
+
+
+// ----------------------------------------------------------------------
+
+
+export function useGetDriveFiles() {
+    return useQuery({
+        queryKey: ["agent-files"],
+        queryFn: api.getDriveFiles,
+    });
+}
+
+export function useUploadDriveFile() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: api.uploadDriveFile,
+        onSuccess: (data) => {
+            toast.success(data.message || "تم رفع الملف بنجاح");
+            queryClient.invalidateQueries({ queryKey: ["agent-files"] });
+        },
+        onError: (error: AxiosError<{ error: string }>) => {
+            toast.error(error.response?.data?.error || "فشل رفع الملف");
+        },
+    });
+}
+
+export function useDeleteDriveFile() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: api.deleteDriveFile,
+        onMutate: async (fileId) => {
+            await queryClient.cancelQueries({ queryKey: ["agent-files"] });
+            const previousFiles = queryClient.getQueryData<api.FilesResponse>(["agent-files"]);
+
+            if (previousFiles) {
+                queryClient.setQueryData<api.FilesResponse>(["agent-files"], {
+                    ...previousFiles,
+                    files: previousFiles.files.filter((f) => f.id !== fileId),
+                    count: previousFiles.count - 1,
+                });
+            }
+
+            return { previousFiles };
+        },
+        onSuccess: (data) => {
+            toast.success(data.message || "تم حذف الملف بنجاح");
+        },
+        onError: (error: AxiosError<{ error: string }>, fileId, context) => {
+            if (context?.previousFiles) {
+                queryClient.setQueryData(["agent-files"], context.previousFiles);
+            }
+            toast.error(error.response?.data?.error || "فشل حذف الملف");
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["agent-files"] });
+        },
+    });
+}

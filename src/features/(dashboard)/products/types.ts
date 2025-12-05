@@ -63,3 +63,12 @@ export interface CompleteProductFormData {
   step3?: Step3FormData;
   step4?: Step4FormData;
 }
+
+export type KnowledgeFileStatus = "trained" | "training" | "failed";
+
+export interface KnowledgeFile {
+  id: string;
+  name: string;
+  status: KnowledgeFileStatus;
+  last_trained: string; 
+}
