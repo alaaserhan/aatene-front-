@@ -79,7 +79,7 @@ export function InstructionsPage() {
                         <Button
                             onClick={handleSave}
                             disabled={isSaving || !currentPlatform || isFetching}
-                            className="bg-blue-4 hover:bg-[#2c4460] text-white px-10 h-12 rounded-full font-bold text-sm min-w-[100px] "
+                            className="bg-blue-4  text-white px-10 h-12 rounded-full font-bold text-sm min-w-[100px] "
                         >
                             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ"}
                         </Button>
