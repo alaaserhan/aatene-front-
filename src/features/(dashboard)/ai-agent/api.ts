@@ -264,7 +264,7 @@ export interface InstructionResponse {
 }
 
 export interface UpdateInstructionPayload {
-    mode: "append" | "overwrite";
+    mode: "append" | "replace";
     system_message: string;
 }
 

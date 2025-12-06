@@ -7,15 +7,15 @@ import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
 import { PlatformsSidebar } from "../components/PlatformsSidebar";
 import { Button } from "@/src/components/ui/button";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { useGetInstruction, useUpdateInstruction } from "../hooks";
 import { PlatformType } from "../api";
 
 export function InstructionsPage() {
-    // Default to whatsapp as it is a valid PlatformType
     const [activePlatform, setActivePlatform] = useState<string>("whatsapp");
     const [editorContent, setEditorContent] = useState("");
+    const [isSuccessOpen, setIsSuccessOpen] = useState(false);
 
-    // Helper to check if the selected platform is supported by the API
     const isSupportedPlatform = (platform: string): platform is PlatformType => {
         return ["whatsapp", "instagram", "messenger"].includes(platform);
     };
@@ -25,7 +25,7 @@ export function InstructionsPage() {
     const { data: instructionData, isLoading: isFetching } = useGetInstruction(
         currentPlatform as PlatformType
     );
-    
+
     const { mutate: updateInstruction, isPending: isSaving } = useUpdateInstruction();
 
     useEffect(() => {
@@ -38,32 +38,38 @@ export function InstructionsPage() {
 
     const handleSave = () => {
         if (currentPlatform) {
-            updateInstruction({
-                platform: currentPlatform,
-                payload: {
-                    mode: "replace",
-                    system_message: editorContent,
+            updateInstruction(
+                {
+                    platform: currentPlatform,
+                    payload: {
+                        mode: "replace",
+                        system_message: editorContent,
+                    },
                 },
-            });
+                {
+                    onSuccess: () => {
+                        setIsSuccessOpen(true);
+                    },
+                }
+            );
         }
     };
 
     return (
-        <div className=" p-5" >
-            <div className="flex flex-col lg:flex-row gap-4 items-start ">
-                {/* 1. Main Application Sidebar (Rightmost) */}
+        <div className="p-5" >
+            <div className="flex flex-col lg:flex-row gap-4 items-start">
+
                 <div className="hidden lg:block shrink-0 sticky top-6">
                     <Mosa3edySidebar isCollapsed />
                 </div>
 
-                {/* 2. Platforms Sidebar (Middle) */}
-                    <PlatformsSidebar
-                        activePlatform={activePlatform}
-                        onSelect={setActivePlatform}
-                    />
+                <PlatformsSidebar
+                    activePlatform={activePlatform}
+                    onSelect={setActivePlatform}
+                />
 
                 <div className="flex-1 w-full bg-white rounded-2xl border border-gray-200 p-8  h-[calc(100vh-124px)] flex flex-col">
-                    
+
                     <div className="flex justify-between items-start mb-6">
                         <div>
                             <h1 className="text-2xl font-bold mb-2">التعليمات العامة</h1>
@@ -73,7 +79,7 @@ export function InstructionsPage() {
                         <Button
                             onClick={handleSave}
                             disabled={isSaving || !currentPlatform || isFetching}
-                            className="bg-blue-4 hover:bg-[#2c4460] text-white px-10 h-12 rounded-full font-bold text-sm "
+                            className="bg-blue-4 hover:bg-[#2c4460] text-white px-10 h-12 rounded-full font-bold text-sm min-w-[100px] "
                         >
                             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ"}
                         </Button>
@@ -89,28 +95,30 @@ export function InstructionsPage() {
                         ) : null}
 
                         {!currentPlatform ? (
-                            <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-gray-400 border border-dashed border-gray-200 rounded-xl">
-                                <p>هذه المنصة غير مدعومة حالياً للتعديل المباشر</p>
+                            <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-gray-2 border border-dashed border-gray-200 rounded-xl">
+                                <p>هذه المنصة غير مدعومة حالياً  </p>
                             </div>
                         ) : (
-                            <>
-                                <RichTextEditor
-                                    value={editorContent}
-                                    onChange={setEditorContent}
-                                    label=""
-                                    placeholder="اكتب التعليمات هنا..."
-                                    rows={20}
-                                    helpTooltip=""
-                                />
-                                {/* <div className="mt-3 text-left text-xs text-gray-400 font-sans" dir="ltr">
-                                    {editorContent.replace(/<[^>]*>/g, '').length}/2000 حرف
-                                </div> */}
-                            </>
+                            <RichTextEditor
+                                value={editorContent}
+                                onChange={setEditorContent}
+                                label=""
+                                placeholder="اكتب التعليمات هنا..."
+                                rows={20}
+                                helpTooltip=""
+                            />
                         )}
                     </div>
                 </div>
-
             </div>
+
+            <SuccessModal
+                isOpen={isSuccessOpen}
+                onClose={() => setIsSuccessOpen(false)}
+                title="تم الحفظ بنجاح"
+                message="تم تحديث تعليمات المساعد الذكي لهذه المنصة بنجاح."
+                buttonText="تم"
+            />
         </div>
     );
 }
