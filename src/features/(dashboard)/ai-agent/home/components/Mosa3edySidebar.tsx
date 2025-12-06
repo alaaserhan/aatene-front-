@@ -30,7 +30,7 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
     {
       icon: FileText,
       label: "التعليمات العامة",
-      href: "/admin/instructions",
+      href: "/admin/mosa3edy/instructions",
       isActive: pathname.includes("instructions")
     },
     {

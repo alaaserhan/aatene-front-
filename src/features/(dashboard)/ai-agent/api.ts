@@ -3,6 +3,7 @@ import axios, { InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
 
 const BASE_URL_5000 = "http://72.61.155.9:5000/api";
+const BASE_URL_5002 = "http://72.61.155.9:5002/api";
 const BASE_URL_5005 = "http://72.61.155.9:5005";
 
 const authInterceptor = (config: InternalAxiosRequestConfig) => {
@@ -18,6 +19,8 @@ const authInterceptor = (config: InternalAxiosRequestConfig) => {
 const api5000 = axios.create({ baseURL: BASE_URL_5000 });
 api5000.interceptors.request.use(authInterceptor);
 
+const api5002 = axios.create({ baseURL: BASE_URL_5002 });
+api5002.interceptors.request.use(authInterceptor);
 
 const api5005 = axios.create({ baseURL: BASE_URL_5005 });
 api5005.interceptors.request.use(authInterceptor);
@@ -245,5 +248,36 @@ export const uploadDriveFile = async (file: File): Promise<UploadResponse> => {
 
 export const deleteDriveFile = async (fileId: string): Promise<DeleteFileResponse> => {
     const { data } = await api5005.delete<DeleteFileResponse>(`/delete/${fileId}`);
+    return data;
+};
+
+
+// --------------------------------------
+export interface InstructionResponse {
+    success: boolean;
+    agent_name: string;
+    system_message: string;
+    workflow: string;
+    message?: string;
+    updated_message?: string;
+    mode?: string;
+}
+
+export interface UpdateInstructionPayload {
+    mode: "append" | "overwrite";
+    system_message: string;
+}
+
+export type PlatformType = "whatsapp" | "instagram" | "messenger";
+export const getInstruction = async (platform: PlatformType): Promise<InstructionResponse> => {
+    const { data } = await api5002.get<InstructionResponse>(`/${platform}/maya-agent`);
+    return data;
+};
+
+export const updateInstruction = async (
+    platform: PlatformType,
+    payload: UpdateInstructionPayload
+): Promise<InstructionResponse> => {
+    const { data } = await api5002.put<InstructionResponse>(`/${platform}/maya-agent`, payload);
     return data;
 };
