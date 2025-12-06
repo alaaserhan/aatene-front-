@@ -17,7 +17,7 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 h-[600px] p-6 w-[240px] flex flex-col">
+    <div className="bg-white rounded-xl border border-gray-200  h-[calc(100vh-124px)] p-4 py-6 w-[220px] flex flex-col">
       <h3 className="text-lg font-bold  mb-2 border-b border-gray-100 pb-4 text-center">
         منصات التواصل
       </h3>

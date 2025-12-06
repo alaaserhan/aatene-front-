@@ -50,8 +50,8 @@ export function KnowledgeBasePage() {
   const filteredFiles = files.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] p-6" dir="rtl">
-      <div className="lg:grid lg:grid-cols-[280px_1fr] flex flex-col gap-6 items-start">
+    <div className="p-5">
+      <div className="lg:grid lg:grid-cols-[280px_1fr] flex flex-col gap-4 items-start">
         
         <div className="hidden lg:block w-full sticky top-6">
              <Mosa3edySidebar />

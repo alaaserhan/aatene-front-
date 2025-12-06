@@ -50,7 +50,7 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
       )}
     >
       <div className={cn(
-        "flex items-center py-8",
+        "flex items-center py-6",
         isCollapsed ? "justify-center px-0" : "gap-2 px-8"
       )}>
         <div>
