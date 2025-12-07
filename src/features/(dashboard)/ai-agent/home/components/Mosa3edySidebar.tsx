@@ -36,7 +36,7 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
     {
       icon: MessageCircle,
       label: "المحادثات",
-      href: "/admin/conversations",
+      href: "/admin/mosa3edy/messages",
       isActive: pathname.includes("conversations")
     },
   ];
@@ -50,7 +50,7 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
       )}
     >
       <div className={cn(
-        "flex items-center py-6",
+        "flex items-center py-3 pt-4",
         isCollapsed ? "justify-center px-0" : "gap-2 px-8"
       )}>
         <div>
