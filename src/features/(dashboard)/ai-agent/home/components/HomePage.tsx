@@ -1,7 +1,7 @@
 // src/features/(dashboard)/home/components/HomePage.tsx
 "use client";
 
-import { useGetAgentOverview } from "../../hooks";
+import { useGetAgentOverview, useGetDriveFiles } from "../../hooks";
 import {
     StatCard,
     SessionsChartCard,
@@ -16,6 +16,8 @@ import { Database, MessageSquare, MessageCircle, Loader2 } from "lucide-react";
 
 export function HomePage() {
     const { data: overviewResponse, isLoading, isError } = useGetAgentOverview();
+      const { data: filesData } = useGetDriveFiles();
+    
     const data = overviewResponse?.overview;
 
     if (isLoading) {
@@ -74,7 +76,7 @@ export function HomePage() {
                         />
                         <StatCard
                             title="قاعدة المعرفة"
-                            value={20} // Static value for now
+                            value={filesData?.count || 0} // Static value for now
                             icon={"database"}
                             iconColor="text-green-500"
                             iconBg="bg-green-50"

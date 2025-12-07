@@ -67,8 +67,8 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
     const botReply = data?.needs_human_false || 0;
 
     const chartData = [
-        { name: "يحتاج الي موظف", value: needsHuman, color: "#D97706" },
-        { name: "البوت يرد", value: botReply, color: "#6366F1" },
+        { name: "يحتاج الي موظف", value: needsHuman, color: "#E8E8E8" },
+        { name: "البوت يرد", value: botReply, color: "#4D79A8" },
     ];
 
     return (
@@ -86,7 +86,7 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
                             cx="50%"
                             cy="50%"
                             labelLine={false}
-                            label={renderCustomizedLabel} // استخدام الدالة المحسنة
+                            label={renderCustomizedLabel} 
                             outerRadius={110}
                             fill="#8884d8"
                             dataKey="value"

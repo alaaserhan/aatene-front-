@@ -46,6 +46,14 @@ export interface Message {
     created_at: string;
 }
 
+export interface LastMessage {
+    message_id: number;
+    message_text: string | null;
+    message_type: string;
+    bot_response: string | null;
+    created_at: string;
+}
+
 export interface UserInfo {
     chat_id: string;
     first_name: string;
@@ -53,7 +61,7 @@ export interface UserInfo {
     phone_number: string;
     platform: string;
     total_messages: number;
-    username: string;
+    username: string | null;
 }
 
 export interface Review {
@@ -71,12 +79,25 @@ export interface AgentUser {
     reviews?: Review[];
 }
 
+export interface AgentUserSummary {
+    conversation_status: ConversationStatus;
+    last_message: LastMessage | null;
+    user_info: UserInfo;
+}
+
 export interface UsersResponse {
     success: boolean;
     platform?: string;
     pagination: Pagination;
     users?: AgentUser[];
     urgent_users?: AgentUser[];
+}
+
+export interface UsersInfoResponse {
+    success: boolean;
+    platform: string;
+    pagination: Pagination;
+    users: AgentUserSummary[];
 }
 
 export interface SingleUserResponse {
@@ -89,6 +110,19 @@ export interface ResolveResponse {
     message: string;
     chat_id: string;
     updated_status: ConversationStatus;
+}
+
+export interface SendMessagePayload {
+    chat_id: string;
+    message_text: string;
+    bot_response?: string;
+}
+
+export interface SendMessageResponse {
+    success: boolean;
+    message: string;
+    chat_id: string;
+    message_id: number;
 }
 
 export interface ReviewsSummary {
@@ -161,6 +195,16 @@ export const getPlatformUsers = async (params: GetUsersParams): Promise<UsersRes
     return data;
 };
 
+export const getPlatformUsersInfo = async (params: GetUsersParams): Promise<UsersInfoResponse> => {
+    const queryParams = new URLSearchParams();
+    if (params.limit) queryParams.set("limit", String(params.limit));
+    if (params.offset) queryParams.set("offset", String(params.offset));
+    if (params.needs_human !== undefined) queryParams.set("needs_human", String(params.needs_human));
+
+    const { data } = await api5000.get<UsersInfoResponse>(`/users/platform/${params.platform}/info?${queryParams.toString()}`);
+    return data;
+};
+
 export const getUrgentUsers = async (limit: number = 100, offset: number = 0): Promise<UsersResponse> => {
     const { data } = await api5000.get<UsersResponse>(`/users/urgent?limit=${limit}&offset=${offset}`);
     return data;
@@ -173,6 +217,11 @@ export const getSingleUser = async (chatId: string): Promise<SingleUserResponse>
 
 export const resolveConversation = async (chatId: string): Promise<ResolveResponse> => {
     const { data } = await api5000.put<ResolveResponse>(`/user/${encodeURIComponent(chatId)}/resolve`);
+    return data;
+};
+
+export const sendMessage = async (payload: SendMessagePayload): Promise<SendMessageResponse> => {
+    const { data } = await api5000.post<SendMessageResponse>("/messages/send", payload);
     return data;
 };
 
@@ -190,8 +239,6 @@ export const getUsersStats = async (): Promise<StatsResponse> => {
     const { data } = await api5000.get<StatsResponse>("/users/stats");
     return data;
 };
-
-//------------------------------------------------------------------------------
 
 export interface DriveFile {
     id: string;
@@ -228,7 +275,6 @@ export interface DeleteFileResponse {
     file_id: string;
 }
 
-
 export const getDriveFiles = async (): Promise<FilesResponse> => {
     const { data } = await api5005.get<FilesResponse>("/files");
     return data;
@@ -251,8 +297,6 @@ export const deleteDriveFile = async (fileId: string): Promise<DeleteFileRespons
     return data;
 };
 
-
-// --------------------------------------
 export interface InstructionResponse {
     success: boolean;
     agent_name: string;

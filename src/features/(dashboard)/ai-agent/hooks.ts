@@ -11,6 +11,13 @@ export function useGetPlatformUsers(params: api.GetUsersParams) {
   });
 }
 
+export function useGetPlatformUsersInfo(params: api.GetUsersParams) {
+  return useQuery({
+    queryKey: ["agent-users-info", params.platform, params.limit, params.offset, params.needs_human],
+    queryFn: () => api.getPlatformUsersInfo(params),
+  });
+}
+
 export function useGetUrgentUsers(limit?: number, offset?: number) {
   return useQuery({
     queryKey: ["agent-users-urgent", limit, offset],
@@ -55,6 +62,7 @@ export function useResolveConversation() {
     onSuccess: (data) => {
       toast.success(data.message || "تم إنهاء المحادثة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["agent-users"] });
+      queryClient.invalidateQueries({ queryKey: ["agent-users-info"] });
       queryClient.invalidateQueries({ queryKey: ["agent-users-urgent"] });
       queryClient.invalidateQueries({ queryKey: ["agent-stats"] });
       queryClient.invalidateQueries({ queryKey: ["agent-overview"] });
@@ -64,6 +72,22 @@ export function useResolveConversation() {
         queryClient.setQueryData(["agent-user", chatId], context.previousUser);
       }
       toast.error(error.message || "فشل في تحديث حالة المحادثة");
+    },
+  });
+}
+
+export function useSendMessage() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: api.sendMessage,
+    onSuccess: (data, variables) => {
+      toast.success("تم إرسال الرسالة بنجاح");
+      queryClient.invalidateQueries({ queryKey: ["agent-user", variables.chat_id] });
+      queryClient.invalidateQueries({ queryKey: ["agent-users-info"] });
+    },
+    onError: (error: AxiosError<{ error: string }>) => {
+      toast.error(error.response?.data?.error || "فشل إرسال الرسالة");
     },
   });
 }
@@ -89,11 +113,6 @@ export function useGetAgentStats() {
     queryFn: api.getUsersStats,
   });
 }
-
-
-
-// ----------------------------------------------------------------------
-
 
 export function useGetDriveFiles() {
   return useQuery({
@@ -148,7 +167,6 @@ export function useDeleteDriveFile() {
     },
   });
 }
-
 
 export function useGetInstruction(platform: api.PlatformType) {
   return useQuery({
