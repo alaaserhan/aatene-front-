@@ -1,17 +1,14 @@
 // src/features/(dashboard)/ai-agent/pages/UserProfilePage.tsx
 "use client";
 
+import { useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { 
   MessageSquare, 
   Star, 
   Gauge, 
-  ArrowLeft, 
-  Phone, 
-  Calendar,
   MessageCircle,
   Search,
-  ChevronDown
 } from "lucide-react";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
 import { Button } from "@/src/components/ui/button";
@@ -21,6 +18,7 @@ import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
 import { cn } from "@/src/lib/utils";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown"; // تأكد من المسار الصحيح
 
 export function UserProfilePage() {
   const params = useParams();
@@ -29,7 +27,69 @@ export function UserProfilePage() {
 
   const { data, isLoading } = useGetUserReviews(chatId);
 
-  if (isLoading) {
+  // States for filtering and sorting
+  const [ratingFilter, setRatingFilter] = useState("all");
+  const [sortOption, setSortOption] = useState("newest");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Dropdown Options based on image_712d5a.png
+  const ratingOptions = [
+    { value: "all", label: "جميع التقييمات" },
+    { value: "5", label: "5 نجوم" },
+    { value: "4", label: "4 نجوم" },
+    { value: "3", label: "3 نجوم" },
+    { value: "2", label: "نجمتان" },
+    { value: "1", label: "نجمة واحدة" },
+  ];
+
+  const sortOptions = [
+    { value: "newest", label: "أحدث التقييمات" },
+    { value: "oldest", label: "أقدم التقييمات" },
+    { value: "highest", label: "الأعلى تقييماً" },
+    { value: "lowest", label: "الأقل تقييماً" },
+  ];
+
+  // Logic to process reviews
+  const processedReviews = useMemo(() => {
+    if (!data?.reviews) return [];
+
+    let result = [...data.reviews];
+
+    // 1. Filter by Rating
+    if (ratingFilter !== "all") {
+      const targetRating = parseInt(ratingFilter);
+      result = result.filter(r => Math.round(r.rating) === targetRating);
+    }
+
+    // 2. Filter by Search (Mock search in review text if available, or date)
+    if (searchQuery) {
+        result = result.filter(r => 
+            r.review?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            format(new Date(r.timestamp), "yyyy-MM-dd").includes(searchQuery)
+        );
+    }
+
+    // 3. Sort
+    result.sort((a, b) => {
+      switch (sortOption) {
+        case "newest":
+          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+        case "oldest":
+          return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+        case "highest":
+          return b.rating - a.rating;
+        case "lowest":
+          return a.rating - b.rating;
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [data?.reviews, ratingFilter, sortOption, searchQuery]);
+
+
+  if (isLoading || !chatId) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#F8F9FA]">
         <Loader2 className="w-10 h-10 text-[#3A5779] animate-spin" />
@@ -39,17 +99,16 @@ export function UserProfilePage() {
 
   if (!data?.success) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-[#F8F9FA]">
-         <p className="text-gray-500 mb-4">لم يتم العثور على بيانات المستخدم</p>
-         <Button onClick={() => router.back()}>العودة للخلف</Button>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#F8F9FA] gap-4">
+         <p className="text-gray-500 font-bold">لم يتم العثور على بيانات المستخدم</p>
+         <Button onClick={() => router.back()} variant="outline">العودة للخلف</Button>
       </div>
     );
   }
 
-  const { user_info, reviews, reviews_summary } = data;
+  const { user_info, reviews_summary } = data;
   const starBreakdown = reviews_summary.star_breakdown;
 
-  // حساب النسب المئوية لأشرطة التقدم
   const getPercentage = (count: number) => {
     if (reviews_summary.total_reviews === 0) return 0;
     return (count / reviews_summary.total_reviews) * 100;
@@ -73,10 +132,7 @@ export function UserProfilePage() {
                     <h2 className="text-[#3A5779] text-xl font-bold mb-4">معلومات المستخدم</h2>
                     <div className="flex items-center gap-4">
                         <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                             {/* Placeholder Avatar */}
-                             <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                             </svg>
+                             <img src="/icons/dashboard/user.svg" className="w-8 h-8 opacity-50" alt="User" />
                         </div>
                         <div>
                             <h3 className="text-xl font-bold text-gray-900 mb-1">
@@ -111,8 +167,6 @@ export function UserProfilePage() {
 
             {/* 2. Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                {/* Total Reviews */}
                 <div className="bg-white rounded-2xl p-6 border border-gray-100 flex flex-col items-center justify-center text-center">
                     <div className="w-12 h-12 rounded-full bg-yellow-50 flex items-center justify-center mb-3">
                         <Star className="w-6 h-6 text-yellow-500 fill-current" />
@@ -124,7 +178,6 @@ export function UserProfilePage() {
                     </div>
                 </div>
 
-                {/* Total Messages */}
                 <div className="bg-white rounded-2xl p-6 border border-gray-100 flex flex-col items-center justify-center text-center">
                     <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-3">
                         <MessageSquare className="w-6 h-6 text-blue-500 fill-current" />
@@ -136,7 +189,6 @@ export function UserProfilePage() {
                     </div>
                 </div>
 
-                {/* Avg Rating */}
                 <div className="bg-white rounded-2xl p-6 border border-gray-100 flex flex-col items-center justify-center text-center">
                     <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mb-3">
                         <Gauge className="w-6 h-6 text-green-500" />
@@ -179,46 +231,62 @@ export function UserProfilePage() {
             <div className="bg-white rounded-2xl p-8 border border-gray-100">
                 <h2 className="text-[#3A5779] text-xl font-bold mb-6">عرض التقييمات</h2>
                 
-                {/* Filters */}
+                {/* Filters & Search Row */}
                 <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                    <div className="relative w-full sm:w-64">
-                         <div className="flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-lg cursor-pointer">
-                            <span className="text-sm">أحدث التقييمات</span>
-                            <ChevronDown className="w-4 h-4 text-gray-400" />
-                         </div>
+                    
+                    {/* Sort Dropdown (Right in LTR / Left in RTL logic, but per design Order) */}
+                    <div className="w-full sm:w-[240px]">
+                         <ReusableDropdown 
+                            options={sortOptions}
+                            value={sortOption}
+                            onChange={setSortOption}
+                            placeholder="ترتيب حسب"
+                            className="bg-white h-11 border-gray-200"
+                         />
                     </div>
-                     <div className="relative w-full sm:w-64">
-                         <div className="flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-lg cursor-pointer">
-                            <span className="text-sm">جميع التقييمات</span>
-                            <ChevronDown className="w-4 h-4 text-gray-400" />
-                         </div>
+
+                     {/* Filter Dropdown */}
+                    <div className="w-full sm:w-[240px]">
+                         <ReusableDropdown 
+                            options={ratingOptions}
+                            value={ratingFilter}
+                            onChange={setRatingFilter}
+                            placeholder="تصنيف التقييم"
+                            className="bg-white h-11 border-gray-200"
+                         />
                     </div>
+                    
+                    {/* Search */}
                     <div className="relative flex-1">
                         <Input 
                             placeholder="بحث..." 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             className="bg-white border-gray-200 h-11 text-right pr-10"
                         />
                         <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
                     </div>
                 </div>
 
-                {/* List */}
+                {/* Reviews List Items */}
                 <div className="space-y-4">
-                    {reviews.map((review, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl bg-white hover:bg-gray-50 transition-colors">
-                            <span className="font-medium text-gray-900 dir-ltr">
+                    {processedReviews.map((review, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-4 px-6 border border-gray-100 rounded-xl bg-white hover:bg-gray-50 transition-colors h-[72px]">
+                            {/* Left: Date (LTR) */}
+                            <span className="font-medium text-gray-900 dir-ltr font-sans text-base">
                                 {format(new Date(review.timestamp), "dd-MM-yyyy")}
                             </span>
                             
-                            <div className="flex items-center gap-2">
-                                <span className="font-bold text-gray-900 text-lg">{review.rating.toFixed(1)}</span>
-                                <div className="flex gap-1">
+                            {/* Right: Stars + Rating */}
+                            <div className="flex items-center gap-3">
+                                <span className="font-bold text-gray-900 text-lg pt-1">{review.rating.toFixed(1)}</span>
+                                <div className="flex gap-1.5">
                                     {[...Array(5)].map((_, i) => (
                                         <Star 
                                             key={i} 
                                             className={cn(
-                                                "w-5 h-5",
-                                                i < Math.round(review.rating) ? "text-yellow-400 fill-current" : "text-gray-200 fill-current"
+                                                "w-6 h-6",
+                                                i < Math.round(review.rating) ? "text-[#FFC107] fill-[#FFC107]" : "text-gray-200 fill-gray-200"
                                             )} 
                                         />
                                     ))}
@@ -227,18 +295,12 @@ export function UserProfilePage() {
                         </div>
                     ))}
 
-                    {reviews.length === 0 && (
-                        <div className="text-center py-10 text-gray-400">لا توجد تقييمات لعرضها</div>
+                    {processedReviews.length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                            <Star className="w-12 h-12 text-gray-200 mb-2" />
+                            <p>لا توجد تقييمات مطابقة</p>
+                        </div>
                     )}
-                </div>
-
-                {/* Pagination (Static Mock as per UI) */}
-                <div className="flex justify-center gap-2 mt-8 dir-ltr">
-                    <button className="w-8 h-8 rounded-full bg-[#3A5779] text-white flex items-center justify-center text-sm font-bold">1</button>
-                    <button className="w-8 h-8 rounded-full bg-blue-100 text-[#3A5779] flex items-center justify-center text-sm font-bold">2</button>
-                    <span className="flex items-end px-2 text-gray-400">...</span>
-                    <button className="w-8 h-8 rounded-full bg-blue-100 text-[#3A5779] flex items-center justify-center text-sm font-bold">3</button>
-                    <button className="w-8 h-8 rounded-full bg-blue-100 text-[#3A5779] flex items-center justify-center text-sm font-bold">4</button>
                 </div>
             </div>
 
