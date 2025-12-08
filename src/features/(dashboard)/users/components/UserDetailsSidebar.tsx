@@ -306,7 +306,7 @@ export function UserDetailsSidebar({
   const roleNames =
     user.roles?.map((r) => r.name).join(", ") || "مستخدم عادي";
 
-  const avatarUrl = currentAvatarUrl || "/default-avatar.png";
+  const avatarUrl = currentAvatarUrl || "https://aatene.dev/main/user.png";
 
   return (
     <div className={cn("space-y-4 max-h-[calc(100vh-193px)] overflow-y-auto", className)}>
