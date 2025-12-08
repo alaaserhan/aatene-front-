@@ -43,14 +43,15 @@ export function AddStoreStep5({
   );
 
   const [workingTimes, setWorkingTimes] = useState<WorkingTimePayload[]>(
-    initialData?.workingtimes ||
-    DAYS.map((day) => ({
-      day: day.value,
-      from: "08:00",
-      to: "20:00",
-      open_always: false,
-      closed_always: false,
-    }))
+    (initialData?.workingtimes && initialData.workingtimes.length > 0)
+      ? initialData.workingtimes
+      : DAYS.map((day) => ({
+          day: day.value,
+          from: "08:00",
+          to: "20:00",
+          open_always: false,
+          closed_always: false,
+        }))
   );
 
   const steps = barSteps;
