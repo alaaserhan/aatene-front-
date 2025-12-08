@@ -188,15 +188,13 @@ function CategoryAccordionContent(props: CategoryProps) {
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // --- التعديل هنا: التعامل مع الصور سواء كانت مصفوفة أو نص ---
-  const rawImageUrls = category?.images_urls || category?.images;
-  
+  const rawImageUrls = (category?.images_urls || category?.images) as string | string[] | null | undefined;
+
   let validImageUrls: string[] = [];
-  
+
   if (Array.isArray(rawImageUrls)) {
     validImageUrls = rawImageUrls;
   } else if (typeof rawImageUrls === 'string' && rawImageUrls.trim() !== "") {
-    // إذا كانت نصاً واحداً، نضعها داخل مصفوفة
     validImageUrls = [rawImageUrls];
   }
 
