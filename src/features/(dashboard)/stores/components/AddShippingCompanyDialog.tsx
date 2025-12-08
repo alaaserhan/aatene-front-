@@ -9,6 +9,12 @@ import { useGetCities } from "../../cities/hooks";
 import { toast } from "sonner";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/src/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/src/components/ui/dialog";
 
 interface AddShippingCompanyDialogProps {
   isOpen: boolean;
@@ -29,29 +35,22 @@ export function AddShippingCompanyDialog({
   editingCompany,
 }: AddShippingCompanyDialogProps) {
   const [step, setStep] = useState(1);
-
   const [phoneCountryCode, setPhoneCountryCode] = useState("+970");
-
   const [companyName, setCompanyName] = useState("");
-
   const [selectedCityIds, setSelectedCityIds] = useState<number[]>([]);
-
-  const [shippingPrices, setShippingPrices] = useState<
-    Record<number, PriceData>
-  >({});
-
+  const [shippingPrices, setShippingPrices] = useState<Record<number, PriceData>>({});
   const [storeName, setStoreName] = useState("");
-
   const [storePhone, setStorePhone] = useState("");
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
 
-  // Reset form when dialog opens/closes or editingCompany changes
   useEffect(() => {
     if (isOpen) {
+      setErrors({});
       if (editingCompany) {
-        
         setCompanyName(editingCompany.name || "");
         setStoreName(editingCompany.name || "");
         setStorePhone(
@@ -61,25 +60,21 @@ export function AddShippingCompanyDialog({
             .replace("+966", "")
             .replace("+971", "")
         );
-        
-        // --- التصحيح هنا: تحويل القيم النصية إلى أرقام ---
+
         const cityIds = editingCompany.prices.map((p) => Number(p.city_id));
         setSelectedCityIds(cityIds);
 
         const pricesMap: Record<number, PriceData> = {};
         editingCompany.prices.forEach((p) => {
-          // استخدام Number() لضمان التحويل الصحيح حتى لو كانت القيمة string
           const cityId = Number(p.city_id);
-          pricesMap[cityId] = { 
-            days: Number(p.days), 
-            price: Number(p.price) 
+          pricesMap[cityId] = {
+            days: Number(p.days),
+            price: Number(p.price)
           };
         });
         setShippingPrices(pricesMap);
-        // -------------------------------------------------
 
       } else {
-        // Reset to defaults for new company
         setCompanyName("");
         setStoreName("");
         setStorePhone("");
@@ -92,22 +87,33 @@ export function AddShippingCompanyDialog({
 
   const handleCityToggle = (cityId: number) => {
     setSelectedCityIds((prev) => {
-      if (prev.includes(cityId)) {
-        return prev.filter((id) => id !== cityId);
-      } else {
-        return [...prev, cityId];
+      const newSelection = prev.includes(cityId)
+        ? prev.filter((id) => id !== cityId)
+        : [...prev, cityId];
+
+      if (newSelection.length > 0 && errors.cities) {
+        setErrors(prevErr => ({ ...prevErr, cities: "" }));
       }
+      return newSelection;
     });
   };
 
   const handleStep1Next = () => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+
     if (!companyName.trim()) {
-      toast.error("يجب إدخال اسم ملف الشحن");
-      return;
+      newErrors.companyName = "يجب إدخال اسم ملف الشحن";
+      isValid = false;
     }
 
     if (selectedCityIds.length === 0) {
-      toast.error("يجب اختيار مدينة واحدة على الأقل");
+      newErrors.cities = "يجب اختيار مدينة واحدة على الأقل";
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setErrors(newErrors);
       return;
     }
 
@@ -125,13 +131,21 @@ export function AddShippingCompanyDialog({
   };
 
   const handleStep2Submit = () => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+
     if (!storeName.trim()) {
-      toast.error("يجب إدخال اسم شركة الشحن");
-      return;
+      newErrors.storeName = "يجب إدخال اسم شركة الشحن";
+      isValid = false;
     }
 
     if (!storePhone.trim()) {
-      toast.error("يجب إدخال رقم الهاتف");
+      newErrors.storePhone = "يجب إدخال رقم الهاتف";
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setErrors(newErrors);
       return;
     }
 
@@ -181,41 +195,46 @@ export function AddShippingCompanyDialog({
     }));
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-
-      <div className="relative bg-white rounded-lg w-full max-w-2xl mx-4 shadow-xl">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0" dir="rtl">
+        <DialogHeader className="p-6 border-b border-gray-200">
+          <div className="flex items-center gap-2">
             <button
               onClick={handleBack}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors -mr-2"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
-            <h2 className="text-xl font-bold">
+            <DialogTitle className="text-xl font-bold">
               {editingCompany ? "تعديل شركة الشحن" : "إضافة بيانات شركة الشحن"}
-            </h2>
+            </DialogTitle>
           </div>
-        </div>
+        </DialogHeader>
 
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <div className="p-6">
           {step === 1 ? (
             <div className="space-y-6">
               <FormInput
                 label="اسم ملف الشحن"
                 value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
+                onChange={(e) => {
+                  setCompanyName(e.target.value);
+                  if (errors.companyName) setErrors({ ...errors, companyName: "" });
+                }}
                 placeholder="اكتب اسم الملف هنا"
                 className="rounded-full h-10"
+                error={errors.companyName}
               />
 
               <div className="space-y-4">
                 <h3 className="font-medium">المدن التي ترسل لها المنتجات؟</h3>
-                <div className="space-y-3">
+                <div
+                  className={cn(
+                    "space-y-3 p-2 rounded-lg transition-colors",
+                    errors.cities ? "border border-red-500 bg-red-50" : ""
+                  )}
+                >
                   {cities.map((city) => {
                     const isSelected = selectedCityIds.includes(city.id);
                     return (
@@ -256,6 +275,9 @@ export function AddShippingCompanyDialog({
                     );
                   })}
                 </div>
+                {errors.cities && (
+                  <p className="text-xs text-red-500 mt-1">{errors.cities}</p>
+                )}
               </div>
 
               <div className="flex items-center pt-6">
@@ -300,12 +322,12 @@ export function AddShippingCompanyDialog({
                         <input
                           type="number"
                           min="1"
-                          value={shippingPrices[cityId]?.days || 3}
+                          value={shippingPrices[cityId]?.days}
                           onChange={(e) =>
                             updateShippingPrice(
                               cityId,
                               "days",
-                              parseInt(e.target.value) || 0
+                              e.target.value === "" ? 0 : parseInt(e.target.value)
                             )
                           }
                           className="w-full px-4 py-2 border text-sm border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#3A5779] transition-shadow"
@@ -320,12 +342,12 @@ export function AddShippingCompanyDialog({
                           type="number"
                           min="0"
                           step="0.01"
-                          value={shippingPrices[cityId]?.price || 20.0}
+                          value={shippingPrices[cityId]?.price}
                           onChange={(e) =>
                             updateShippingPrice(
                               cityId,
                               "price",
-                              parseFloat(e.target.value) || 0
+                              e.target.value === "" ? 0 : parseFloat(e.target.value)
                             )
                           }
                           className="w-full px-4 py-2 border text-sm border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#3A5779] transition-shadow"
@@ -340,9 +362,13 @@ export function AddShippingCompanyDialog({
                 <FormInput
                   label="اسم شركة الشحن"
                   value={storeName}
-                  onChange={(e) => setStoreName(e.target.value)}
+                  onChange={(e) => {
+                    setStoreName(e.target.value);
+                    if (errors.storeName) setErrors({ ...errors, storeName: "" });
+                  }}
                   placeholder="أدخل اسم الشركة"
                   className="h-10 rounded-full"
+                  error={errors.storeName}
                 />
 
                 <PhoneNumberInput
@@ -351,8 +377,12 @@ export function AddShippingCompanyDialog({
                   countryCode={phoneCountryCode}
                   onCountryCodeChange={setPhoneCountryCode}
                   value={storePhone}
-                  onChange={(e) => setStorePhone(e.target.value)}
+                  onChange={(e) => {
+                    setStorePhone(e.target.value);
+                    if (errors.storePhone) setErrors({ ...errors, storePhone: "" });
+                  }}
                   className="rounded-full h-10"
+                  error={errors.storePhone}
                 />
               </div>
 
@@ -373,7 +403,7 @@ export function AddShippingCompanyDialog({
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
