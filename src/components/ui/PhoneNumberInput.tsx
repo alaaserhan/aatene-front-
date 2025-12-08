@@ -12,6 +12,7 @@ interface PhoneNumberInputProps extends React.InputHTMLAttributes<HTMLInputEleme
     countryCode: string;
     onCountryCodeChange: (value: string) => void;
     containerClassName?: string;
+    maxLength?: number;
 }
 
 const PhoneNumberInput = React.forwardRef<
@@ -26,10 +27,18 @@ const PhoneNumberInput = React.forwardRef<
             onCountryCodeChange,
             className,
             containerClassName,
+            maxLength = 12,
+            value,
+            onChange,
             ...props
         },
         ref
     ) => {
+
+        const isMaxLengthExceeded = String(value || "").length > maxLength;
+
+        const errorMessage = error || (isMaxLengthExceeded ? `رقم الهاتف لا يجب أن يتجاوز ${maxLength} رقمًا` : null);
+
         return (
             <div className={cn("space-y-3", containerClassName)}>
                 <label className="block text-sm font-medium mb-2">
@@ -38,8 +47,14 @@ const PhoneNumberInput = React.forwardRef<
                 <div className="flex gap-2">
                     <Input
                         type="number"
-                        className={cn("flex-1", className)}
+                        className={cn(
+                            "flex-1",
+                            errorMessage ? "border-red-500 focus-visible:ring-0" : "",
+                            className
+                        )}
                         ref={ref}
+                        value={value}
+                        onChange={onChange}
                         {...props}
                     />
                     <div className="relative w-24">
@@ -55,8 +70,8 @@ const PhoneNumberInput = React.forwardRef<
                         <ChevronDown className="w-4 h-4 text-gray-400 absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                 </div>
-                {error && (
-                    <p className="text-xs text-red-500 mt-1 ">{error}</p>
+                {errorMessage && (
+                    <p className="text-xs text-red-500 mt-1 ">{errorMessage}</p>
                 )}
             </div>
         );

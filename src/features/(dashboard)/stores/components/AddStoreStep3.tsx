@@ -25,6 +25,19 @@ interface LocalStep3Data extends Omit<Step3FormData, "hide_phone"> {
   hide_phone: "1" | "0";
 }
 
+const isValidUrl = (url: string) => {
+  if (!url) return true;
+  try {
+    const hasProtocol = /^https?:\/\//i.test(url);
+    const urlToCheck = hasProtocol ? url : `https://${url}`;
+
+    const parsed = new URL(urlToCheck);
+    return parsed.hostname.includes(".");
+  } catch {
+    return false;
+  }
+};
+
 export function AddStoreStep3({
   storeType,
   previousData,
@@ -39,10 +52,7 @@ export function AddStoreStep3({
 
   const [formData, setFormData] = useState<LocalStep3Data>({
     phone: initialData?.phone || "",
-    hide_phone:
-      initialData?.hide_phone === "1"
-        ? "1"
-        : "0",
+    hide_phone: initialData?.hide_phone === "1" ? "1" : "0",
     whats_app: initialData?.whats_app || "",
     tiktok: initialData?.tiktok || "",
     facebook: initialData?.facebook || "",
@@ -53,6 +63,8 @@ export function AddStoreStep3({
     pinterest: initialData?.pinterest || "",
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const steps = barSteps;
   const breadcrumbItems = [
     { label: "الرئيسية", href: "/admin" },
@@ -60,8 +72,33 @@ export function AddStoreStep3({
     { label: "إضافة متجر" },
   ];
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+
+    const urlFields: (keyof LocalStep3Data)[] = [
+      "tiktok",
+      "facebook",
+      "instagram",
+      "youtube",
+    ];
+
+    urlFields.forEach((field) => {
+      const value = formData[field];
+      if (value && !isValidUrl(value)) {
+        newErrors[field] = "يرجى ادخال رابط صحيح";
+        isValid = false;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleNext = () => {
-    onNext(formData as unknown as Step3FormData);
+    if (validateForm()) {
+      onNext(formData as unknown as Step3FormData);
+    }
   };
 
   const handleCancel = () => {
@@ -163,9 +200,11 @@ export function AddStoreStep3({
                     }
                     placeholder="أدخل رابط تيك توك"
                     value={formData.tiktok}
-                    onChange={(e) =>
-                      setFormData({ ...formData, tiktok: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, tiktok: e.target.value });
+                      if (errors.tiktok) setErrors((prev) => ({ ...prev, tiktok: "" }));
+                    }}
+                    error={errors.tiktok}
                   />
 
                   <SocialMediaInput
@@ -179,9 +218,11 @@ export function AddStoreStep3({
                     }
                     placeholder="ادخل رابط فيسبوك"
                     value={formData.facebook}
-                    onChange={(e) =>
-                      setFormData({ ...formData, facebook: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, facebook: e.target.value });
+                      if (errors.facebook) setErrors((prev) => ({ ...prev, facebook: "" }));
+                    }}
+                    error={errors.facebook}
                   />
                 </div>
 
@@ -197,9 +238,11 @@ export function AddStoreStep3({
                     }
                     placeholder="ادخل رابط انستجرام"
                     value={formData.instagram}
-                    onChange={(e) =>
-                      setFormData({ ...formData, instagram: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, instagram: e.target.value });
+                      if (errors.instagram) setErrors((prev) => ({ ...prev, instagram: "" }));
+                    }}
+                    error={errors.instagram}
                   />
 
                   <SocialMediaInput
@@ -213,9 +256,11 @@ export function AddStoreStep3({
                     }
                     placeholder="أدخل رابط يوتيوب"
                     value={formData.youtube}
-                    onChange={(e) =>
-                      setFormData({ ...formData, youtube: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, youtube: e.target.value });
+                      if (errors.youtube) setErrors((prev) => ({ ...prev, youtube: "" }));
+                    }}
+                    error={errors.youtube}
                   />
                 </div>
               </div>
@@ -260,6 +305,7 @@ interface SocialMediaInputProps {
   placeholder: string;
   value: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  error?: string;
 }
 
 function SocialMediaInput({
@@ -268,6 +314,7 @@ function SocialMediaInput({
   placeholder,
   value,
   onChange,
+  error,
 }: SocialMediaInputProps) {
   return (
     <div className="flex flex-col gap-2">
@@ -278,10 +325,16 @@ function SocialMediaInput({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 text-sm focus:ring-blue-3"
+          className={cn(
+            "w-full pl-12 pr-4 py-3 border rounded-lg text-sm transition-all duration-200 focus:outline-none",
+            error
+              ? "border-red-500 focus:ring-1 focus:ring-red-500"
+              : "border-gray-200 focus:ring-2 focus:ring-blue-3"
+          )}
         />
         <div className="absolute left-4 top-1/2 -translate-y-1/2">{icon}</div>
       </div>
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );
 }
