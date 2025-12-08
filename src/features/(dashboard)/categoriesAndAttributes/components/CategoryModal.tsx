@@ -56,13 +56,13 @@ export function CategoryModal({
   categoryOptions = [],
   currentType,
 }: CategoryModalProps) {
-  
+
   const initialFormData = useMemo(() => {
     if (mode === "edit" && category) {
       return {
         id: category.id,
         name: category.name,
-        images: category.images || [],
+        images: (category.images || []).filter(img => img && img.trim() !== ""),
         is_active: category.is_active === "1" || category.is_active === true,
         parent_id: category.parent_id ? Number(category.parent_id) : null,
         type: category.type,
@@ -82,36 +82,30 @@ export function CategoryModal({
 
   const initialPreviewUrls = useMemo(() => {
     if (mode === "edit" && category) {
-      return (
-        Array.isArray(category.images_urls) ? category.images_urls : []
-      ).filter((img) => img && img.trim() !== "");
+      let urls: string[] = [];
+
+      if (Array.isArray(category.images_urls)) {
+        urls = category.images_urls;
+      }
+      else if (typeof category.images_urls === 'string' && category.images_urls) {
+        urls = [category.images_urls];
+      }
+
+      return urls.filter((img) => img && img.trim() !== "");
     }
     return [];
   }, [mode, category]);
-  
+
   const [previewUrls, setPreviewUrls] = useState<string[]>(initialPreviewUrls);
 
   useEffect(() => {
     if (isOpen) {
-        setFormData(initialFormData);
-        setPreviewUrls(initialPreviewUrls);
+      setFormData(initialFormData);
+      setPreviewUrls(initialPreviewUrls);
     }
   }, [isOpen, initialFormData, initialPreviewUrls]);
 
   const parentCategoryName = parentName || "";
-
-  const dropdownOptions = useMemo(() => {
-    const baseOptions = [{ value: "", label: "فئة رئيسية" }];
-    const parentOptions =
-      categoryOptions
-        .filter((opt) => opt.parent_id === null)
-        .map((opt) => ({
-          value: String(opt.id),
-          label: opt.name,
-        })) || [];
-    return [...baseOptions, ...parentOptions];
-  }, [categoryOptions]);
-
   const activeType = formData.type || currentType;
   const isProduct = activeType === 'product';
 
@@ -119,9 +113,11 @@ export function CategoryModal({
   const handleSave = () => {
     if (!formData.name.trim()) return;
 
+    const cleanImages = formData.images.filter(img => img && img.trim() !== "");
+
     const dataToSave = {
       ...formData,
-      images: activeType === "service" ? [] : formData.images,
+      images: activeType === "service" ? [] : cleanImages,
       parent_id: mode === "addSub" && parentId ? parentId : formData.parent_id,
     };
 
@@ -138,9 +134,9 @@ export function CategoryModal({
     if (mode === "edit") return `تعديل ${baseLabel}`;
 
     if (mode === "addSub" && parentCategoryName) {
-        return `إضافة ${subItemLabel} إلى "${parentCategoryName}"`;
+      return `إضافة ${subItemLabel} إلى "${parentCategoryName}"`;
     }
-    
+
     return `إضافة ${mainLabel} جديدة`;
   };
 
@@ -198,8 +194,11 @@ export function CategoryModal({
                 value={formData.images}
                 previewUrls={previewUrls}
                 onChange={(fileNames, srcs) => {
-                  setFormData((prev) => ({ ...prev, images: fileNames }));
-                  setPreviewUrls(srcs);
+                  const cleanFileNames = fileNames.filter(f => f && f.trim() !== "");
+                  const cleanSrcs = srcs.filter(s => s && s.trim() !== "");
+
+                  setFormData((prev) => ({ ...prev, images: cleanFileNames }));
+                  setPreviewUrls(cleanSrcs);
                 }}
                 maxFiles={4}
                 allowedMediaTypes={["gallery", "image"]}

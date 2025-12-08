@@ -188,9 +188,20 @@ function CategoryAccordionContent(props: CategoryProps) {
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const rawImageUrls = category?.images_urls || category?.images || [];
-  const validImageUrls = Array.isArray(rawImageUrls) ? rawImageUrls : [];
+  // --- التعديل هنا: التعامل مع الصور سواء كانت مصفوفة أو نص ---
+  const rawImageUrls = category?.images_urls || category?.images;
+  
+  let validImageUrls: string[] = [];
+  
+  if (Array.isArray(rawImageUrls)) {
+    validImageUrls = rawImageUrls;
+  } else if (typeof rawImageUrls === 'string' && rawImageUrls.trim() !== "") {
+    // إذا كانت نصاً واحداً، نضعها داخل مصفوفة
+    validImageUrls = [rawImageUrls];
+  }
+
   const images = validImageUrls.filter((img) => img && typeof img === 'string' && img.trim() !== "");
+  // -------------------------------------------------------------
 
   const subCategoriesCount = Number(category.sub_categories_count || 0);
   const hasSubCategories = subCategoriesCount > 0;
