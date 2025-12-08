@@ -128,7 +128,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
             <img
               src={store.cover_urls[0]}
               alt="Store Cover"
-              className=" h-full o"
+              className=" h-full w-full object-cover"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-teal-400 to-teal-600" />
@@ -154,7 +154,17 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
             <DetailRow
-              icon={<img src="/icons/dashboard/mark2.svg" alt="name" className="w-5 h-5" />}
+              icon={<div
+                className="w-5 h-5 bg-black/90"
+                style={{
+                  WebkitMaskImage: `url(/icons/dashboard/mark2.svg)`,
+                  WebkitMaskRepeat: "no-repeat",
+                  WebkitMaskSize: "contain",
+                  maskImage: `url(/icons/dashboard/mark2.svg)`,
+                  maskRepeat: "no-repeat",
+                  maskSize: "contain",
+                }}
+              ></div>}
               label="اسم المتجر"
               value={store.name}
             />
