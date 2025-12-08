@@ -12,15 +12,16 @@ interface ChatListSidebarProps {
   platform: string;
   selectedChatId: string | null;
   onSelectChat: (chatId: string) => void;
+  needsHuman: boolean;
 }
 
-export function ChatListSidebar({ platform, selectedChatId, onSelectChat }: ChatListSidebarProps) {
-  // Only fetch if it's a valid platform type for the API, otherwise we might need different handling for "transferred"
+export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsHuman }: ChatListSidebarProps) {
   const isApiPlatform = ["whatsapp", "instagram", "messenger"].includes(platform);
   
   const { data, isLoading } = useGetPlatformUsersInfo({
-    platform: (isApiPlatform ? platform : "whatsapp") as PlatformType, // Default fallback or handle differently
+    platform: (isApiPlatform ? platform : "whatsapp") as PlatformType,
     limit: 50,
+    needs_human: needsHuman, 
   });
 
   if (isLoading) {
@@ -56,14 +57,12 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat }: Chat
               isSelected ? "bg-gary-100 " : "bg-white"
             )}
           >
-            {/* Avatar */}
             <div className="relative shrink-0">
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                    <User className="w-6 h-6 text-gray-400" />
+                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-blue-4">
+                    <img src="/icons/dashboard/user.svg" className="w-12" />
                 </div>
             </div>
 
-            {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-center mb-1">
                 <h4 className="text-sm font-bold  truncate">
@@ -81,9 +80,11 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat }: Chat
                     {lastMessage}
                 </p>
                 
-                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#D97706] text-[10px] font-bold text-white shrink-0">
-                     2
+                 {user.conversation_status.needs_human && (
+                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#D97706] text-[10px] font-bold text-white shrink-0">
+                     !
                  </span>
+                 )}
               </div>
             </div>
           </div>
