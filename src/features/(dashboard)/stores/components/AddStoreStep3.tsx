@@ -92,7 +92,7 @@ export function AddStoreStep3({
                   <div className="space-y-2">
                     <PhoneNumberInput
                       label="الهاتف المحمول"
-                      placeholder="01289022985"
+                      placeholder="ادخل رقم الهاتف المحمول"
                       countryCode={phoneCountryCode}
                       onCountryCodeChange={setPhoneCountryCode}
                       value={formData.phone}
@@ -141,7 +141,7 @@ export function AddStoreStep3({
 
                   <PhoneNumberInput
                     label="الواتساب"
-                    placeholder="01289022985"
+                    placeholder="ادخل رقم الواتساب"
                     countryCode={whatsappCountryCode}
                     onCountryCodeChange={setWhatsappCountryCode}
                     value={formData.whats_app}
@@ -177,7 +177,7 @@ export function AddStoreStep3({
                         className="w-5 h-5"
                       />
                     }
-                    placeholder="https://www.facebook.com/aateneofficial"
+                    placeholder="ادخل رابط فيسبوك"
                     value={formData.facebook}
                     onChange={(e) =>
                       setFormData({ ...formData, facebook: e.target.value })
@@ -195,7 +195,7 @@ export function AddStoreStep3({
                         className="w-5 h-5"
                       />
                     }
-                    placeholder="https://www.instagram.com/aatene_official/"
+                    placeholder="ادخل رابط انستجرام"
                     value={formData.instagram}
                     onChange={(e) =>
                       setFormData({ ...formData, instagram: e.target.value })
