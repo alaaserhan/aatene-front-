@@ -219,7 +219,7 @@ export function AddStoreStep2({
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  placeholder="متجر الأفضل"
+                  placeholder=" ادخل اسم المتجر"
                   required
                   maxLength={50}
                   showCounter

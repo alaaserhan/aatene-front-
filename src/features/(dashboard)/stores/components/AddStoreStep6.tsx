@@ -140,14 +140,14 @@ export function AddStoreStep6({
           <div className="col-span-12 lg:col-span-8">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold ">
                   اختيار طريقة الشحن
                 </h2>
               </div>
 
               <div className="p-6">
                 <div className="mb-8">
-                  <h3 className="text-base font-medium text-gray-900 mb-4 text-right">
+                  <h3 className="text-base font-medium  mb-4 text-right">
                     كيف تود شحن المنتجات؟
                   </h3>
 

@@ -6,7 +6,7 @@ import { FormInput } from "@/src/components/ui/FormInput";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
 import { ShippingCompanyPayload, ShippingPricePayload } from "../api";
 import { useGetCities } from "../../cities/hooks";
-import { toast } from "sonner";
+// import { toast } from "sonner"; // Removed as requested
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import {
@@ -120,8 +120,9 @@ export function AddShippingCompanyDialog({
     setShippingPrices((prev) => {
       const newPrices: Record<number, PriceData> = { ...prev };
       selectedCityIds.forEach((cityId) => {
+        // إذا لم تكن البيانات موجودة (سواء جديد أو تعديل وتمت إضافة مدينة جديدة)
         if (!newPrices[cityId]) {
-          newPrices[cityId] = { days: 3, price: 20.0 };
+          newPrices[cityId] = { days: 0, price: 0};
         }
       });
       return newPrices;
@@ -134,6 +135,7 @@ export function AddShippingCompanyDialog({
     const newErrors: Record<string, string> = {};
     let isValid = true;
 
+    // Validate Company Name & Phone
     if (!storeName.trim()) {
       newErrors.storeName = "يجب إدخال اسم شركة الشحن";
       isValid = false;
@@ -144,17 +146,30 @@ export function AddShippingCompanyDialog({
       isValid = false;
     }
 
-    if (!isValid) {
-      setErrors(newErrors);
-      return;
-    }
-
+    // Validate Prices and Days for each city
     for (const cityId of selectedCityIds) {
       const priceData = shippingPrices[cityId];
-      if (!priceData || priceData.price < 0 || priceData.days <= 0) {
-        toast.error("يجب إدخال سعر وموعد تسليم صحيح لجميع المدن");
-        return;
+      
+      // التحقق من الأيام (يجب أن تكون أكبر من 0)
+      if (!priceData || priceData.days <= 0) {
+        newErrors[`days_${cityId}`] = "يجب تحديد مدة التوصيل";
+        isValid = false;
       }
+
+      // التحقق من السعر (يمكن أن يكون 0 للشحن المجاني، ولكن لا يجب أن يكون فارغاً أو سالباً إذا كان الإدخال يسمح بذلك)
+      // ملاحظة: بما أننا نستخدم input type number و state number، القيمة الفارغة تتحول لـ 0 في الـ onChange
+      // لذا إذا كنت تريد منع السعر 0، استخدم condition: priceData.price <= 0
+      // الكود السابق كان price < 0 مما يسمح بـ 0. سنلتزم بذلك ما لم يكن المطلوب منع المجاني.
+      if (priceData && priceData.price < 0) {
+         newErrors[`price_${cityId}`] = "سعر غير صحيح";
+         isValid = false;
+      }
+    }
+
+    if (!isValid) {
+      setErrors(newErrors);
+      // toast.error("يجب إدخال البيانات المطلوبة بشكل صحيح"); // Optional general message
+      return;
     }
 
     const prices: ShippingPricePayload[] = selectedCityIds.map((cityId) => ({
@@ -193,6 +208,14 @@ export function AddShippingCompanyDialog({
         [field]: value,
       },
     }));
+
+    // Clear error for this field when user types
+    setErrors((prev) => {
+        const newErrors = { ...prev };
+        // Clear specific error key based on field
+        delete newErrors[`${field}_${cityId}`];
+        return newErrors;
+    });
   };
 
   return (
@@ -300,12 +323,15 @@ export function AddShippingCompanyDialog({
                   const city = cities.find((c) => c.id === cityId);
                   if (!city) return null;
 
+                  const daysError = errors[`days_${cityId}`];
+                  const priceError = errors[`price_${cityId}`];
+
                   return (
                     <div
                       key={cityId}
-                      className="grid grid-cols-8 gap-4 items-end border-b border-gray-100 pb-4 last:border-0"
+                      className="grid grid-cols-8 gap-4 items-start border-b border-gray-100 pb-4 last:border-0"
                     >
-                      <div className="col-span-2">
+                      <div className="col-span-2 pt-6">
                         <label className="block text-xs text-gray-500 mb-2">
                           المدينة
                         </label>
@@ -330,8 +356,16 @@ export function AddShippingCompanyDialog({
                               e.target.value === "" ? 0 : parseInt(e.target.value)
                             )
                           }
-                          className="w-full px-4 py-2 border text-sm border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#3A5779] transition-shadow"
+                          className={cn(
+                            "w-full px-4 py-2 border text-sm rounded-full focus:outline-none focus:ring-2 transition-shadow",
+                            daysError 
+                              ? "border-red-500 focus:ring-red-200" 
+                              : "border-gray-300 focus:ring-[#3A5779]"
+                          )}
                         />
+                        {daysError && (
+                          <p className="text-xs text-red-500 mt-1">{daysError}</p>
+                        )}
                       </div>
 
                       <div className="col-span-3">
@@ -350,8 +384,16 @@ export function AddShippingCompanyDialog({
                               e.target.value === "" ? 0 : parseFloat(e.target.value)
                             )
                           }
-                          className="w-full px-4 py-2 border text-sm border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#3A5779] transition-shadow"
+                           className={cn(
+                            "w-full px-4 py-2 border text-sm rounded-full focus:outline-none focus:ring-2 transition-shadow",
+                            priceError 
+                              ? "border-red-500 focus:ring-red-200" 
+                              : "border-gray-300 focus:ring-[#3A5779]"
+                          )}
                         />
+                        {priceError && (
+                          <p className="text-xs text-red-500 mt-1">{priceError}</p>
+                        )}
                       </div>
                     </div>
                   );
