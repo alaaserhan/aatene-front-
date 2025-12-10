@@ -189,6 +189,14 @@ export function AddStoreStep2({
         ...formData,
         serviceCities: [...currentServiceCities, cityId],
       });
+      
+      if (errors.serviceCities) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.serviceCities;
+          return newErrors;
+        });
+      }
     }
   };
 
@@ -216,9 +224,10 @@ export function AddStoreStep2({
                   label="اسم المتجر"
                   name="name"
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, name: e.target.value });
+                    if (errors.name) setErrors({ ...errors, name: "" });
+                  }}
                   placeholder=" ادخل اسم المتجر"
                   required
                   maxLength={50}
@@ -235,6 +244,7 @@ export function AddStoreStep2({
                       logo: fileName,
                       logo_preview: src,
                     });
+                     if (errors.logo) setErrors({ ...errors, logo: "" });
                   }}
                   error={errors.logo}
                 />
@@ -284,9 +294,10 @@ export function AddStoreStep2({
                   label="البريد الإلكتروني"
                   type="email"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                     if (errors.email) setErrors({ ...errors, email: "" });
+                  }}
                   placeholder="example@info.com"
                   error={errors.email}
                   required
@@ -295,9 +306,10 @@ export function AddStoreStep2({
                 <CityMultiSelect
                   cities={cities}
                   selectedCityIds={formData.locationCities}
-                  onChange={(ids) =>
-                    setFormData({ ...formData, locationCities: ids })
-                  }
+                  onChange={(ids) => {
+                    setFormData({ ...formData, locationCities: ids });
+                    if (errors.locationCities) setErrors({ ...errors, locationCities: "" });
+                  }}
                   error={errors.locationCities}
                 />
 
@@ -381,12 +393,13 @@ export function AddStoreStep2({
                         }
                         options={ownerDropdownOptions}
                         value={formData.owner_id ? String(formData.owner_id) : ""}
-                        onChange={(value) =>
+                        onChange={(value) => {
                           setFormData({
                             ...formData,
                             owner_id: value ? Number(value) : 0,
-                          })
-                        }
+                          });
+                           if (errors.owner_id) setErrors({ ...errors, owner_id: "" });
+                        }}
                         error={errors.owner_id}
                         className="h-11"
                         dropdownPosition="top"
@@ -405,12 +418,13 @@ export function AddStoreStep2({
                     <ReusableDropdown
                       options={currencyOptions}
                       value={formData.currency_id ? String(formData.currency_id) : ""}
-                      onChange={(value) =>
+                      onChange={(value) => {
                         setFormData({
                           ...formData,
                           currency_id: value ? Number(value) : 0,
-                        })
-                      }
+                        });
+                        if (errors.currency_id) setErrors({ ...errors, currency_id: "" });
+                      }}
                       placeholder={
                         isCurrenciesLoading ? "جاري التحميل..." : "اختر العملة"
                       }

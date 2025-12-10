@@ -12,7 +12,8 @@ import {
 } from "../hooks";
 import { useGetRoles } from "../../roles/hooks";
 import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
+import { FormInput } from "@/src/components/ui/FormInput";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown"; // استخدام ReusableDropdown
 import {
   Loader2,
   Trash2,
@@ -33,7 +34,6 @@ interface UserDetailsSidebarProps {
   className?: string;
 }
 
-// تعريف MediaItem ليتوافق مع توقيع onSelect
 interface MediaItem {
   file_name: string;
   src: string;
@@ -50,7 +50,6 @@ const userSchema = z.object({
 
 type UserFormData = z.infer<typeof userSchema>;
 
-// --- قائمة إجراءات الصورة المنبثقة (مكون داخلي) ---
 const ImageActionMenu = ({
   onClose,
   onChange,
@@ -69,10 +68,10 @@ const ImageActionMenu = ({
         onChange();
         onClose();
       }}
-      className="flex items-center gap-3 w-full px-4 py-2 cursor-pointer "
+      className="flex items-center gap-3 w-full px-4 py-2 cursor-pointer hover:bg-gray-50 transition-colors"
     >
       <div className="bg-blue-1 p-1 rounded">
-        <img src="/icons/dashboard/edit3.svg" className="w-4 h-4 text-blue-4" />
+        <img src="/icons/dashboard/edit3.svg" className="w-4 h-4 text-blue-4" alt="edit" />
       </div>
       تغيير الصورة
     </button>
@@ -81,16 +80,15 @@ const ImageActionMenu = ({
         onDelete();
         onClose();
       }}
-      className="flex items-center gap-3 w-full px-4 py-2  cursor-pointer "
+      className="flex items-center gap-3 w-full px-4 py-2 cursor-pointer hover:bg-gray-50 transition-colors"
     >
       <div className="bg-red-2 p-1 rounded">
-        <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
+        <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="delete" />
       </div>
       حذف الصورة
     </button>
   </div>
 );
-// --- نهاية المكون الداخلي ---
 
 export function UserDetailsSidebar({
   selectedUserId,
@@ -108,7 +106,6 @@ export function UserDetailsSidebar({
   const [newAvatarFileName, setNewAvatarFileName] = useState<string | null>(null);
   const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | null>(null);
 
-
   const {
     data: userData,
     isLoading: isLoadingUser,
@@ -117,10 +114,10 @@ export function UserDetailsSidebar({
     enabled: !isDeleteConfirmed,
   });
 
-  const { data: rolesData } = useGetRoles(new URLSearchParams());
+  const { data: rolesData, isLoading: isLoadingRoles } = useGetRoles(new URLSearchParams());
 
   const dynamicRoleOptions = useMemo(() => {
-    const baseOptions = [{ value: "", label: "مستخدم " }];
+    const baseOptions: { value: string; label: string }[] = [];
 
     if (!rolesData?.data) {
       return baseOptions;
@@ -157,6 +154,8 @@ export function UserDetailsSidebar({
   });
 
   const isActive = watch("is_active");
+  const selectedRole = watch("roles"); 
+  const phoneValue = watch("phone");
 
   useEffect(() => {
     if (selectedUserId) {
@@ -191,12 +190,11 @@ export function UserDetailsSidebar({
     }
   }, [userData, reset]);
 
-  // --- دالة معالجة اختيار الصورة (تم إصلاح التوقيع هنا) ---
   const handleMediaSelect = (file: MediaItem | MediaItem[]) => {
     let selectedFile: MediaItem;
 
     if (Array.isArray(file)) {
-      selectedFile = file[0]; // التعامل مع المصفوفة (على الرغم من أننا نختار صورة واحدة)
+      selectedFile = file[0];
     } else {
       selectedFile = file;
     }
@@ -211,8 +209,6 @@ export function UserDetailsSidebar({
     setCurrentAvatarUrl(null);
     setShowActionMenu(false);
   };
-  // --- نهاية دوال إدارة الصورة ---
-
 
   const onSubmit = (data: UserFormData) => {
     if (!selectedUserId || !userData?.record) return;
@@ -313,13 +309,12 @@ export function UserDetailsSidebar({
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
 
-          {/* --- Profile Picture Area (Matching Figma) --- */}
+          {/* --- Profile Picture Area --- */}
           <div className="flex flex-col gap-4 mb-6">
             <h3 className="text-lg font-medium text-blue-4">
               بيانات المستخدم
             </h3>
 
-            {/* Avatar & Actions */}
             <div className="relative w-fit">
               <p className="text-sm font-medium mb-2">الصورة الشخصية</p>
               <img
@@ -329,7 +324,6 @@ export function UserDetailsSidebar({
                 onClick={() => setShowImageModal(true)}
               />
 
-              {/* Edit Icon/Button - bottom-end of the avatar */}
               <button
                 type="button"
                 onClick={() => setShowActionMenu(!showActionMenu)}
@@ -339,88 +333,53 @@ export function UserDetailsSidebar({
                 <Pencil className="w-4 h-4" />
               </button>
 
-              {/* Action Menu Pop-up */}
               {showActionMenu && (
                 <ImageActionMenu
                   onClose={() => setShowActionMenu(false)}
-                  onChange={() => setShowMediaCenter(true)} // ✅ Bug Fix: Opens Media Center
+                  onChange={() => setShowMediaCenter(true)}
                   onDelete={handleImageDelete}
                 />
               )}
             </div>
           </div>
-          {/* --- End Profile Picture Area --- */}
 
+          {/* --- Form Fields --- */}
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium  mb-2">
-                الاسم الأول
-              </label>
-              <Input
-                {...register("first_name")}
-                placeholder="الاسم الأول"
-                className="w-full"
+
+            <FormInput
+              label="الاسم الأول"
+              placeholder="الاسم الأول"
+              {...register("first_name")}
+              error={errors.first_name?.message}
+            />
+
+            <FormInput
+              label="الاسم الأخير"
+              placeholder="الاسم الأخير"
+              {...register("last_name")}
+              error={errors.last_name?.message}
+            />
+
+            {/* تم استبدال FormSelect بـ ReusableDropdown مع Label مخصص */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium mb-2">الدور</label>
+              <ReusableDropdown
+                options={dynamicRoleOptions}
+                value={selectedRole}
+                onChange={(val) => setValue("roles", val, { shouldValidate: true })}
+                placeholder={isLoadingRoles ? "جاري التحميل..." : "اختر الدور"}
+                error={errors.roles?.message}
+                className="h-[46px]" // تعديل الطول ليتناسب مع FormInput
               />
-              {errors.first_name && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.first_name.message}
-                </p>
-              )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium  mb-2">
-                الاسم الأخير
-              </label>
-              <Input
-                {...register("last_name")}
-                placeholder="الاسم الأخير"
-                className="w-full"
-              />
-              {errors.last_name && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.last_name.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium  mb-2">
-                الدور
-              </label>
-              <select
-                {...register("roles")}
-                className="w-full h-10 px-3 pr-8 bg-white border border-gray-300 rounded-lg text-sm appearance-none cursor-pointer focus:ring-2 focus:ring-[#3A5779] focus:border-transparent"
-              >
-                {dynamicRoleOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              {errors.roles && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.roles.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium  mb-2">
-                البريد الالكتروني
-              </label>
-              <Input
-                {...register("email")}
-                type="email"
-                placeholder="example@gmail.com"
-                className="w-full"
-              />
-              {errors.email && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+            <FormInput
+              label="البريد الالكتروني"
+              type="email"
+              placeholder="example@gmail.com"
+              {...register("email")}
+              error={errors.email?.message}
+            />
 
             <PhoneNumberInput
               label="رقم الهاتف"
@@ -428,11 +387,12 @@ export function UserDetailsSidebar({
               countryCode={countryCode}
               onCountryCodeChange={setCountryCode}
               {...register("phone")}
+              value={phoneValue} // <--- هذا السطر هو الحل
               error={errors.phone?.message}
             />
 
             <div className="flex flex-col gap-3 pt-2">
-              <label className="text-sm font-medium ">
+              <label className="text-sm font-medium">
                 تفعيل الحساب
               </label>
               <div className="flex items-center gap-2">
@@ -451,7 +411,7 @@ export function UserDetailsSidebar({
               <Button
                 type="submit"
                 disabled={updateUserMutation.isPending}
-                className="px-6 bg-blue-6  text-blue-4 cursor-pointer rounded-xs"
+                className="px-6 bg-blue-6 text-blue-4 cursor-pointer rounded-xs"
               >
                 {updateUserMutation.isPending && (
                   <Loader2 className="w-4 h-4 animate-spin ml-2" />
@@ -463,7 +423,7 @@ export function UserDetailsSidebar({
                 variant="outline"
                 onClick={() => setDeleteModalOpen(true)}
                 disabled={deleteUserMutation.isPending}
-                className="px-6 rounded-xs  bg-[#FB37481A] border-red-200 text-red-600 hover:text-red-600 hover:bg-red-100 cursor-pointer"
+                className="px-6 rounded-xs bg-[#FB37481A] border-red-200 text-red-600 hover:text-red-600 hover:bg-red-100 cursor-pointer"
               >
                 {deleteUserMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin ml-2" />
@@ -476,6 +436,7 @@ export function UserDetailsSidebar({
           </div>
         </div>
 
+        {/* --- User Info Card (Read Only) --- */}
         <div className="bg-white rounded-lg border border-gray-200 p-6 flex flex-col gap-6">
           <h3 className="text-lg font-medium text-blue-4">
             معلومات المستخدم
@@ -573,7 +534,6 @@ export function UserDetailsSidebar({
         description="سيتم حذف جميع بيانات المستخدم بشكل نهائي"
       />
 
-      {/* --- نافذة عرض الصورة الكبيرة --- */}
       <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
         <DialogContent className="sm:max-w-sm max-h-[90vh] overflow-hidden p-0 gap-0" dir="rtl">
           <DialogHeader className="p-4">
@@ -591,7 +551,6 @@ export function UserDetailsSidebar({
         </DialogContent>
       </Dialog>
 
-      {/* --- نافذة الميديا سنتر (للتعديل) --- */}
       {showMediaCenter && (
         <MediaCenterModal
           open={showMediaCenter}

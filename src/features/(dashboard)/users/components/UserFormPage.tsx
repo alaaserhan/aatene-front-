@@ -14,7 +14,6 @@ import { useGetRoles, useGetSingleRole } from "../../roles/hooks";
 import { Loader2 } from "lucide-react";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { UserCreatePayload } from "../api";
-import { FormSelect } from "@/src/components/ui/FormSelect";
 import { MediaSelectButton } from "../../mediaCenter/components/MediaSelectButton";
 import { Permission } from "../../permissions/api";
 import { toast } from "sonner";
@@ -75,6 +74,8 @@ export function UserFormPage() {
   const selectedRoleId = watch("roles");
   const avatarPreview = watch("avatar_preview");
   const isActive = watch("is_active");
+  const gender = watch("gender");
+  const phoneValue = watch("phone"); // [تعديل هام] مراقبة قيمة الهاتف لتفعيل التحقق
 
   const { data: roleDetailsData } = useGetSingleRole(
     selectedRoleId ? Number(selectedRoleId) : undefined
@@ -127,7 +128,7 @@ export function UserFormPage() {
                   setValue("avatar_preview", src);
                 }}
                 accept="image/png,image/jpeg,image/jpg,image/svg+xml"
-                primaryText="اظافة صورة شخصية"
+                primaryText="إضافة صورة شخصية"
                 infoText={[]}
                 allowedMediaTypes={["avatar"]}
               />
@@ -146,30 +147,54 @@ export function UserFormPage() {
                 error={errors.last_name?.message}
               />
 
+              {/* [تعديل] Custom Radio Button Design */}
               <div className="space-y-3">
-                <label className="block text-sm font-medium ">
-                  الجنس
-                </label>
-                <div className="flex items-center gap-6 ">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                <label className="block text-sm font-medium">الجنس</label>
+                <div className="flex items-center gap-6">
+                  {/* خيار أنثى */}
+                  <label className="flex items-center gap-2 cursor-pointer group select-none">
                     <input
                       type="radio"
                       value="female"
                       {...register("gender")}
-                      checked={watch("gender") === "female"}
-                      className="w-4 h-4 text-blue-3 cursor-pointer"
+                      className="sr-only" // إخفاء العنصر الأصلي
                     />
-                    <span className="text-sm">أنثى</span>
+                    <div
+                      className={cn(
+                        "w-4 h-4 rounded-full border flex items-center justify-center transition-all",
+                        gender === "female"
+                          ? "bg-blue-5 border-blue-4" // نفس ألوان الـ Checkbox المخصص
+                          : "bg-white border-gray-300 group-hover:border-gray-400"
+                      )}
+                    >
+                      {gender === "female" && (
+                        <div className="w-2 h-2 rounded-full bg-blue-4" />
+                      )}
+                    </div>
+                    <span className="text-sm text-gray-700">أنثى</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+
+                  {/* خيار ذكر */}
+                  <label className="flex items-center gap-2 cursor-pointer group select-none">
                     <input
                       type="radio"
                       value="male"
                       {...register("gender")}
-                      checked={watch("gender") === "male"}
-                      className="w-4 h-4 text-blue-3 cursor-pointer"
+                      className="sr-only" // إخفاء العنصر الأصلي
                     />
-                    <span className="text-sm">ذكر</span>
+                    <div
+                      className={cn(
+                        "w-4 h-4 rounded-full border flex items-center justify-center transition-all",
+                        gender === "male"
+                          ? "bg-blue-5 border-blue-4" // نفس ألوان الـ Checkbox المخصص
+                          : "bg-white border-gray-300 group-hover:border-gray-400"
+                      )}
+                    >
+                      {gender === "male" && (
+                        <div className="w-2 h-2 rounded-full bg-blue-4" />
+                      )}
+                    </div>
+                    <span className="text-sm text-gray-700">ذكر</span>
                   </label>
                 </div>
               </div>
@@ -182,12 +207,14 @@ export function UserFormPage() {
                 error={errors.email?.message}
               />
 
+              {/* [تعديل] تمرير value لتفعيل التحقق من الأخطاء */}
               <PhoneNumberInput
                 label="رقم الهاتف"
                 placeholder="0000000000"
                 countryCode={countryCode}
                 onCountryCodeChange={setCountryCode}
                 {...register("phone")}
+                value={phoneValue} // هذا السطر ضروري لظهور أخطاء الـ min/max length
                 error={errors.phone?.message}
               />
 
@@ -270,26 +297,25 @@ interface PermissionsPreviewProps {
 }
 
 function PermissionsPreview({ permissions }: PermissionsPreviewProps) {
-
   return (
     <div className="space-y-4">
-      <h2 className=" font-semibold text-sm ">
-        معاينة الصلاحيات
-      </h2>
+      <h2 className=" font-semibold text-sm ">معاينة الصلاحيات</h2>
 
-      {permissions.length === 0 ? <p className="text-sm text-gray-2">لا يوجد صلاحيات</p> :
+      {permissions.length === 0 ? (
+        <p className="text-sm text-gray-2">لا يوجد صلاحيات</p>
+      ) : (
         <div className="flex gap-2 overflow-x-auto pb-2">
           {permissions.map((per, index) => (
             <Badge
               key={index}
               variant="outline"
-              className="px-4 py-2 text-sm bg-blue-5  text-blue-3 border-none"
+              className="px-4 py-2 text-sm bg-blue-5 text-blue-3 border-none"
             >
               {per.title}
             </Badge>
           ))}
         </div>
-      }
+      )}
     </div>
   );
 }
