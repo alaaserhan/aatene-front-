@@ -1,7 +1,7 @@
 // src/features/(dashboard)/ai-agent/pages/UserProfilePage.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react"; // تمت إزالة useMemo
 import { useParams, useRouter } from "next/navigation";
 import {
     MessageSquare,
@@ -19,7 +19,7 @@ import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
 import { cn } from "@/src/lib/utils";
-import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown"; // تأكد من المسار الصحيح
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 
 export function UserProfilePage() {
     const params = useParams();
@@ -33,7 +33,6 @@ export function UserProfilePage() {
     const [sortOption, setSortOption] = useState("newest");
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Dropdown Options based on image_712d5a.png
     const ratingOptions = [
         { value: "all", label: "جميع التقييمات" },
         { value: "5", label: "5 نجوم" },
@@ -50,45 +49,38 @@ export function UserProfilePage() {
         { value: "lowest", label: "الأقل تقييماً" },
     ];
 
-    // Logic to process reviews
-    const processedReviews = useMemo(() => {
-        if (!data?.reviews) return [];
+    // Logic to process reviews (بدون useMemo - المترجم سيقوم بذلك تلقائياً)
+    let processedReviews = data?.reviews ? [...data.reviews] : [];
 
-        let result = [...data.reviews];
+    // 1. Filter by Rating
+    if (ratingFilter !== "all") {
+        const targetRating = parseInt(ratingFilter);
+        processedReviews = processedReviews.filter(r => Math.round(r.rating) === targetRating);
+    }
 
-        // 1. Filter by Rating
-        if (ratingFilter !== "all") {
-            const targetRating = parseInt(ratingFilter);
-            result = result.filter(r => Math.round(r.rating) === targetRating);
+    // 2. Filter by Search
+    if (searchQuery) {
+        processedReviews = processedReviews.filter(r =>
+            r.review?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            format(new Date(r.timestamp), "yyyy-MM-dd").includes(searchQuery)
+        );
+    }
+
+    // 3. Sort
+    processedReviews.sort((a, b) => {
+        switch (sortOption) {
+            case "newest":
+                return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+            case "oldest":
+                return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+            case "highest":
+                return b.rating - a.rating;
+            case "lowest":
+                return a.rating - b.rating;
+            default:
+                return 0;
         }
-
-        // 2. Filter by Search (Mock search in review text if available, or date)
-        if (searchQuery) {
-            result = result.filter(r =>
-                r.review?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                format(new Date(r.timestamp), "yyyy-MM-dd").includes(searchQuery)
-            );
-        }
-
-        // 3. Sort
-        result.sort((a, b) => {
-            switch (sortOption) {
-                case "newest":
-                    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-                case "oldest":
-                    return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
-                case "highest":
-                    return b.rating - a.rating;
-                case "lowest":
-                    return a.rating - b.rating;
-                default:
-                    return 0;
-            }
-        });
-
-        return result;
-    }, [data?.reviews, ratingFilter, sortOption, searchQuery]);
-
+    });
 
     if (isLoading || !chatId) {
         return (
@@ -137,10 +129,10 @@ export function UserProfilePage() {
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-medium  mb-1">
-                                        {user_info.first_name || "اسم العميل"}
+                                        {user_info.username || "اسم العميل"}
                                     </h3>
-                                    <div className="flex items-center gap-2 text-gray-500 text-sm">
-                                        <span dir="ltr">{user_info.phone_number}</span>
+                                    <div className="flex items-center gap-2 text-blue-4 font-medium text-sm">
+                                        <span >{user_info.chat_id}</span>
                                         <img src="/icons/dashboard/whatsapp.svg" className="w-5 h-5" alt="Phone" />
                                     </div>
                                 </div>
@@ -204,8 +196,6 @@ export function UserProfilePage() {
                         {/* بطاقة متوسط التقييمات */}
                         <div className="bg-white rounded-lg p-6 border border-gray-100  flex flex-col justify-between min-h-[150px]">
                             <div className="flex items-center justify-center gap-3 w-full">
-                                {/* الجزء الأيمن: العنوان */}
-
                                 <div className="w-10 h-10 rounded-full bg-[#E7F8F0] flex items-center justify-center border border-green-100">
                                     <Star className="w-5 h-5 text-[#10B981]" />
                                 </div>
@@ -262,7 +252,7 @@ export function UserProfilePage() {
                                 />
                                 <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
                             </div>
-                            {/* Sort Dropdown (Right in LTR / Left in RTL logic, but per design Order) */}
+                            {/* Sort Dropdown */}
                             <div className="w-full sm:w-[240px]">
                                 <ReusableDropdown
                                     options={sortOptions}
@@ -283,15 +273,12 @@ export function UserProfilePage() {
                                     className="bg-white h-11 border-gray-200"
                                 />
                             </div>
-
-
                         </div>
 
                         {/* Reviews List Items */}
                         <div className="space-y-4">
                             {processedReviews.map((review, idx) => (
                                 <div key={idx} className="flex items-center justify-between px-6 border border-gray-100 rounded-md bg-[#FCFCFC] hover:bg-gray-50 transition-colors p-3">
-
                                     {/* Right: Stars + Rating */}
                                     <div className="flex items-center gap-3">
                                         <div className="flex gap-1.5">
@@ -311,7 +298,6 @@ export function UserProfilePage() {
                                     <span className="font-medium  dir-ltr font-sans text-base">
                                         {format(new Date(review.timestamp), "dd-MM-yyyy")}
                                     </span>
-
                                 </div>
                             ))}
 
