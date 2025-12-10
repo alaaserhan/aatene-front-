@@ -177,42 +177,22 @@ export function AddStoreStep5({
                           />
                         </div>
 
-                        <div className="col-span-12 md:col-span-4 flex flex-row gap-2">
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={time.open_always}
-                              onChange={(e) =>
-                                updateWorkingTime(
-                                  index,
-                                  "open_always",
-                                  e.target.checked
-                                )
-                              }
-                              className="w-4 h-4 rounded border-gray-300 text-blue-3 focus:ring-blue-3 accent-blue-3"
-                            />
-                            <span className="text-sm text-gray-2 font-medium">
-                              مفتوح 24 ساعة
-                            </span>
-                          </label>
+                        <div className="col-span-12 md:col-span-4 flex flex-row gap-4">
+                          <CustomCheckbox
+                            label="مفتوح 24 ساعة"
+                            checked={time.open_always || false}
+                            onChange={(checked) =>
+                              updateWorkingTime(index, "open_always", checked)
+                            }
+                          />
 
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={time.closed_always}
-                              onChange={(e) =>
-                                updateWorkingTime(
-                                  index,
-                                  "closed_always",
-                                  e.target.checked
-                                )
-                              }
-                              className="w-4 h-4 rounded border-gray-300 text-blue-3 focus:ring-blue-3 accent-blue-3"
-                            />
-                            <span className="text-sm text-gray-2 font-medium">
-                              مغلق
-                            </span>
-                          </label>
+                          <CustomCheckbox
+                            label="مغلق"
+                            checked={time.closed_always || false}
+                            onChange={(checked) =>
+                              updateWorkingTime(index, "closed_always", checked)
+                            }
+                          />
                         </div>
                       </div>
                     ))}
@@ -277,6 +257,50 @@ function OpenStatusOption({
         </h4>
         <p className="text-xs text-gray-1">{description}</p>
       </div>
+    </div>
+  );
+}
+
+interface CustomCheckboxProps {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}
+
+function CustomCheckbox({ label, checked, onChange }: CustomCheckboxProps) {
+  return (
+    <div
+      className="flex items-center gap-2 cursor-pointer group select-none"
+      onClick={() => onChange(!checked)}
+    >
+      <button
+        type="button"
+        className={cn(
+          "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer",
+          checked
+            ? "bg-blue-5 border-blue-4"
+            : "bg-white border-gray-300 group-hover:border-gray-500"
+        )}
+        aria-checked={checked}
+        role="checkbox"
+      >
+        {checked && (
+          <svg
+            className="w-4 h-4 text-blue-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={3}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        )}
+      </button>
+      <span className="text-sm text-gray-2 font-medium">{label}</span>
     </div>
   );
 }
