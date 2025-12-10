@@ -262,7 +262,7 @@ export function AddProductStep1({
                                     name="name"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    placeholder="مثال: ايفون 15 برو ماكس - تيتانيوم"
+                                    placeholder="ادخل اسم المنتج"
                                     hint="قم بتضمين الكلمات الرئيسية التي يستخدمها المشترون للبحث عن هذا العنصر."
                                     required
                                     maxLength={140}
@@ -279,7 +279,7 @@ export function AddProductStep1({
                                             type="number"
                                             value={formData.price || ""}
                                             onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                                            placeholder="السعر"
+                                            placeholder="ادخل سعر المنتج"
                                             className={cn(
                                                 "w-full px-4 py-3 border rounded-sm focus:outline-none  text-sm ",
                                                 errors.price ? "border-red-500" : "border-gray-200"

@@ -193,7 +193,7 @@ export function AddStoreStep3({
                     label="تيك توك"
                     icon={
                       <img
-                        src="/icons/dashboard/tictok.svg"
+                        src="/icons/dashboard/ticTok.svg"
                         alt="tiktok"
                         className="w-5 h-5"
                       />
