@@ -42,16 +42,28 @@ const PhoneNumberInput = React.forwardRef<
         const inputValue = String(value || "");
         const currentLength = inputValue.length;
 
-        let lengthError = null;
+        // منطق التحقق الجديد
+        let customError = null;
+
         if (currentLength > 0) {
-            if (currentLength < currentRule.min) {
-                lengthError = `رقم الهاتف يجب أن يكون ${currentRule.min} أرقام على الأقل`;
-            } else if (currentLength > currentRule.max) {
-                lengthError = `رقم الهاتف لا يجب أن يتجاوز ${currentRule.max} رقمًا`;
+            // 1. التحقق من أن المدخلات أرقام فقط
+            // Regex: ^\d+$ تعني أن النص يجب أن يتكون من أرقام فقط من البداية للنهاية
+            const isNumeric = /^\d+$/.test(inputValue);
+
+            if (!isNumeric) {
+                customError = "يجب إدخال أرقام فقط";
+            } else {
+                // 2. إذا كانت أرقاماً، نتحقق من الطول
+                if (currentLength < currentRule.min) {
+                    customError = `رقم الهاتف يجب أن يكون ${currentRule.min} أرقام على الأقل`;
+                } else if (currentLength > currentRule.max) {
+                    customError = `رقم الهاتف لا يجب أن يتجاوز ${currentRule.max} رقمًا`;
+                }
             }
         }
 
-        const errorMessage = error || lengthError;
+        // الأولوية للخطأ القادم من الخارج (مثل react-hook-form) ثم خطأ التحقق الداخلي
+        const errorMessage = error || customError;
 
         return (
             <div className={cn("space-y-2", containerClassName)}>
@@ -59,19 +71,16 @@ const PhoneNumberInput = React.forwardRef<
                     {label}
                 </label>
                 
-                {/* الحاوية الرئيسية بتصميم موحد */}
                 <div 
                     className={cn(
                         "flex items-center w-full h-10 border rounded-lg bg-white overflow-hidden transition-all",
-                        // تلوين الإطار بالكامل عند التركيز أو الخطأ
                         errorMessage 
                             ? "border-red-500 focus-within:ring-1 focus-within:ring-red-200" 
                             : "border-gray-300 focus-within:border-[#3A5779] focus-within:ring-1 focus-within:ring-[#3A5779]/20"
                     )} 
-                    dir="ltr" // لضمان ظهور الكود يسار والرقم يمين بشكل منطقي للأرقام
+                    dir="ltr"
                 >
-                   
-                    {/* قائمة الدول - بدون إطار خاص */}
+                    {/* القائمة */}
                     <div className="relative h-full border-r border-gray-200 bg-gray-50/50">
                         <select
                             value={countryCode}
@@ -85,9 +94,10 @@ const PhoneNumberInput = React.forwardRef<
                         <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
 
-                     {/* حقل الإدخال - بدون إطار ويأخذ المساحة المتبقية */}
+                     {/* حقل الإدخال */}
                      <Input
-                        type="number"
+                        // التغيير هنا: جعلناه tel ليقبل الكتابة بحرية ويفتح لوحة الأرقام في الموبايل
+                        type="tel" 
                         className={cn(
                             "flex-1 h-full border-none shadow-none focus-visible:ring-0 rounded-none font-sans text-left ltr bg-transparent",
                             className
@@ -101,7 +111,7 @@ const PhoneNumberInput = React.forwardRef<
                 </div>
 
                 {errorMessage && (
-                    <p className="text-xs text-red-500 mt-1 font-medium">{errorMessage}</p>
+                    <p className="text-xs text-red-500 mt-1 font-medium ">{errorMessage}</p>
                 )}
             </div>
         );

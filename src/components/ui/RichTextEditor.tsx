@@ -23,6 +23,16 @@ interface RichTextEditorProps {
 
 type ModalType = "link" | "image" | "table" | "color" | "hiliteColor" | null;
 
+// دالة مساعدة للتحقق من صحة الرابط
+const isValidUrl = (url: string) => {
+  try {
+    new URL(url);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
 export function RichTextEditor({
   value,
   onChange,
@@ -46,6 +56,7 @@ export function RichTextEditor({
   const [savedRange, setSavedRange] = useState<Range | null>(null);
 
   const [urlInput, setUrlInput] = useState("");
+  const [urlError, setUrlError] = useState(""); // حالة لرسالة خطأ الرابط
   const [textInput, setTextInput] = useState("");
   const [rowsInput, setRowsInput] = useState(2);
   const [colsInput, setColsInput] = useState(2);
@@ -108,6 +119,7 @@ export function RichTextEditor({
     setModalType(type);
 
     setUrlInput("");
+    setUrlError(""); // تصفير الخطأ عند الفتح
     setTextInput("");
     setRowsInput(2);
     setColsInput(2);
@@ -125,10 +137,18 @@ export function RichTextEditor({
   const handleModalSave = () => {
     restoreSelection();
 
-    if (modalType === "link") {
-      if (urlInput) execCommand("createLink", urlInput);
-    } else if (modalType === "image") {
-      if (urlInput) execCommand("insertImage", urlInput);
+    if (modalType === "link" || modalType === "image") {
+      // التحقق من صحة الرابط
+      if (!urlInput || !isValidUrl(urlInput)) {
+        setUrlError("الرجاء إدخال رابط صحيح (مثال: https://example.com)");
+        return; // إيقاف العملية إذا كان الرابط غير صالح
+      }
+
+      if (modalType === "link") {
+        execCommand("createLink", urlInput);
+      } else {
+        execCommand("insertImage", urlInput);
+      }
     } else if (modalType === "color") {
       execCommand("foreColor", colorInput);
     } else if (modalType === "hiliteColor") {
@@ -368,11 +388,18 @@ export function RichTextEditor({
                   <input
                     type="url"
                     value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
+                    onChange={(e) => {
+                      setUrlInput(e.target.value);
+                      if (urlError) setUrlError(""); // إخفاء الخطأ عند الكتابة
+                    }}
                     placeholder="https://example.com"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm ltr"
+                    className={cn(
+                      "w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm ltr",
+                      urlError ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-blue-500"
+                    )}
                     autoFocus
                   />
+                  {urlError && <p className="text-xs text-red-500 mt-1">{urlError}</p>}
                 </div>
               )}
 
@@ -424,16 +451,16 @@ export function RichTextEditor({
 
             <div className="px-6 py-4 bg-gray-50 flex items-center justify-between gap-3">
               <button
-                onClick={closeModal}
-                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
-              >
-                إلغاء
-              </button>
-              <button
                 onClick={handleModalSave}
                 className="px-6 py-2 bg-[#3A5779] text-white rounded-lg text-sm font-medium hover:bg-[#2c425e] transition-colors"
               >
                 حفظ
+              </button>
+              <button
+                onClick={closeModal}
+                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
+              >
+                إلغاء
               </button>
             </div>
           </div>
