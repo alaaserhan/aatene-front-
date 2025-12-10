@@ -15,6 +15,7 @@ interface ChatListSidebarProps {
   needsHuman: boolean;
 }
 
+
 export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsHuman }: ChatListSidebarProps) {
   const isApiPlatform = ["whatsapp", "instagram", "messenger"].includes(platform);
   
@@ -80,11 +81,11 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsH
                     {lastMessage}
                 </p>
                 
-                 {user.conversation_status.needs_human && (
+                 {/* {user.conversation_status.needs_human && (
                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#D97706] text-[10px] font-bold text-white shrink-0">
                      !
                  </span>
-                 )}
+                 )} */}
               </div>
             </div>
           </div>

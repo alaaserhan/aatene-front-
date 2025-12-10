@@ -17,7 +17,7 @@ export function MessagesPage() {
     const searchParams = useSearchParams();
 
     // استخراج القيم من الرابط أو استخدام القيم الافتراضية
-    const activePlatform = searchParams.get("platform") || "website";
+    const activePlatform = searchParams.get("platform") || "whatsapp";
     const selectedChatId = searchParams.get("chatId");
     
     // حالة الفلتر يمكن أن تبقى محلية أو تضاف للرابط أيضاً (هنا تركتها محلية للتبسيط كما طلبت)
@@ -25,11 +25,10 @@ export function MessagesPage() {
 
     const getPlatformTitle = (id: string) => {
         switch(id) {
-            case "website": return "رسائل الموقع الالكتروني";
+            // case "website": return "رسائل الموقع الالكتروني";
             case "whatsapp": return "رسائل وتساب";
             case "messenger": return "رسائل ماسنجر";
             case "instagram": return "رسائل انستجرام";
-            case "transferred": return "مراسلات محولة";
             default: return "الرسائل";
         }
     };
@@ -53,7 +52,7 @@ export function MessagesPage() {
         <div className="p-5" dir="rtl">
             <div className="flex flex-col lg:flex-row gap-4 items-start">
 
-                <div className="hidden lg:block shrink-0 sticky top-6">
+                <div className="hidden lg:block shrink-0 sticky top-25">
                     <Mosa3edySidebar isCollapsed />
                 </div>
 

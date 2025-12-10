@@ -1,7 +1,7 @@
+// src/features/(dashboard)/ai-agent/components/PlatformsSidebar.tsx
 "use client";
 
 import { cn } from "@/src/lib/utils";
-import { LayoutDashboard, Phone, Facebook, Instagram } from "lucide-react";
 
 interface PlatformsSidebarProps {
   activePlatform: string;
@@ -9,16 +9,29 @@ interface PlatformsSidebarProps {
 }
 
 export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarProps) {
+  // قمنا بتغيير الهيكلية لنحتفظ بمسار الصورة فقط كنص، بدلاً من عنصر JSX
+  // هذا يسمح لنا بالتحكم في التنسيق برمجياً
   const platforms = [
-    { id: "website", label: "الموقع الالكتروني", icon: LayoutDashboard },
-    { id: "whatsapp", label: "وتساب", icon: Phone }, // Using Phone as generic or custom SVG if available
-    { id: "messenger", label: "ماسنجر", icon: Facebook },
-    { id: "instagram", label: "انستجرام", icon: Instagram },
+    { 
+      id: "whatsapp", 
+      label: "واتساب", 
+      iconPath: "/icons/dashboard/whatsapp4.svg" 
+    },
+    { 
+      id: "messenger", 
+      label: "فيسبوك", 
+      iconPath: "/icons/dashboard/facebook.svg" 
+    },
+    { 
+      id: "instagram", 
+      label: "انستجرام", 
+      iconPath: "/icons/dashboard/insta.svg" 
+    },
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200  h-[calc(100vh-124px)] p-4 py-6 w-[220px] flex flex-col">
-      <h3 className="text-lg font-bold  mb-2 border-b border-gray-100 pb-4 ">
+    <div className="bg-white rounded-xl border border-gray-200 h-[calc(100vh-124px)] p-4 py-6 w-[220px] flex flex-col shrink-0">
+      <h3 className="text-lg font-bold mb-2 border-b border-gray-100 pb-4">
         منصات التواصل
       </h3>
       
@@ -30,19 +43,33 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
               key={platform.id}
               onClick={() => onSelect(platform.id)}
               className={cn(
-                "w-full flex items-center  gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer",
+                "group w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer",
                 isActive 
-                  ? "text-[#D97706] " // Active Orange/Gold style
-                  : "text-gray-600 hover:bg-gray-50 "
+                  ? "text-[#D97706] bg-orange-50/50" // إضافة خلفية خفيفة جداً عند النشاط لجمالية أكثر
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               )}
             >
-              <platform.icon 
+              {/* هنا السحر: نستخدم div بدلاً من img 
+                ونقوم بتلوين الخلفية (bg) بناءً على الحالة
+                ونستخدم الصورة كـ Mask
+              */}
+              <div 
                 className={cn(
-                  "w-5 h-5",
-                  isActive ? "text-[#D97706]" : "text-gray-500"
-                )} 
-                strokeWidth={1.5} 
+                  "w-5 h-5 transition-colors duration-200",
+                  isActive ? "bg-[#D97706]" : "bg-black-1"
+                )}
+                style={{
+                  maskImage: `url(${platform.iconPath})`,
+                  maskRepeat: "no-repeat",
+                  maskPosition: "center",
+                  maskSize: "contain",
+                  WebkitMaskImage: `url(${platform.iconPath})`, // لدعم متصفحات Chrome/Safari القديمة
+                  WebkitMaskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
+                  WebkitMaskSize: "contain",
+                }}
               />
+              
               <span>{platform.label}</span>
             </button>
           );

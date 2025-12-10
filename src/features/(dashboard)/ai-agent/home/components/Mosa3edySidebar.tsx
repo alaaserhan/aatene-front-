@@ -118,7 +118,7 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
         ))}
       </nav>
 
-      <div className="w-4/5 mx-auto h-[1px] bg-blue-5 mt-auto mb-6" />
+      {/* <div className="w-4/5 mx-auto h-[1px] bg-blue-5 mt-auto mb-6" />
 
       <div className="px-4 pb-8">
         <button
@@ -140,7 +140,7 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
             </span>
           )}
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }
