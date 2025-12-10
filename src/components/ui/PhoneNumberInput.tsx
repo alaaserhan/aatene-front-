@@ -105,7 +105,7 @@ const PhoneNumberInput = React.forwardRef<
                         ref={ref}
                         value={value}
                         onChange={onChange}
-                        placeholder={countryCode === "+20" ? "01xxxxxxxxx" : "5xxxxxxxx"}
+                        placeholder={"0000000000"}
                         {...props}
                     />
                 </div>
