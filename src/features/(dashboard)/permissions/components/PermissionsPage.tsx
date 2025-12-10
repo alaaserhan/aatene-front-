@@ -46,6 +46,9 @@ function PermissionForm({
     role?.permissions?.map((p: Permission) => p.id) || []
   );
 
+  // حالة لتخزين الأخطاء
+  const [errors, setErrors] = useState<{ title?: string; name?: string }>({});
+
   const handlePermissionToggle = (permissionId: number) => {
     setSelectedPermissions((prev) => {
       if (prev.includes(permissionId)) {
@@ -58,15 +61,28 @@ function PermissionForm({
   const handleSaveClick = () => {
     const titleToSave = roleTitleInput.trim();
     const nameToSave = roleNameInput.trim();
+    
+    // إعادة تعيين الأخطاء
+    const newErrors: { title?: string; name?: string } = {};
+    let hasError = false;
 
     if (!titleToSave) {
-      toast.error("اسم الدور الوظيفي مطلوب");
-      return;
+      newErrors.title = "اسم الدور الوظيفي مطلوب";
+      hasError = true;
     }
+    
     if (!nameToSave) {
-      toast.error("الاسم البرمجي مطلوب");
+      newErrors.name = "الاسم البرمجي مطلوب";
+      hasError = true;
+    }
+
+    if (hasError) {
+      setErrors(newErrors);
       return;
     }
+
+    // مسح الأخطاء عند النجاح
+    setErrors({});
 
     onSave({
       title: titleToSave,
@@ -89,18 +105,28 @@ function PermissionForm({
           <FormInput
             label="اسم الدور الوظيفي"
             value={roleTitleInput}
-            onChange={(e) => setRoleTitleInput(e.target.value)}
+            onChange={(e) => {
+              setRoleTitleInput(e.target.value);
+              // إخفاء الخطأ عند الكتابة
+              if (errors.title) setErrors((prev) => ({ ...prev, title: undefined }));
+            }}
             placeholder="ادخل اسم الدور الوظيفي (مثال: مدير النظام)"
+            error={errors.title} // تمرير رسالة الخطأ
           />
 
           <FormInput
             label="الاسم البرمجي"
             value={roleNameInput}
-            onChange={(e) => setRoleNameInput(e.target.value)}
+            onChange={(e) => {
+              setRoleNameInput(e.target.value);
+              // إخفاء الخطأ عند الكتابة
+              if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+            }}
             placeholder="ادخل الاسم البرمجي (مثال: admin)"
             readOnly={mode === "edit"}
             disabled={mode === "edit"}
             className={cn(mode === "edit" && "bg-gray-100 text-gray-500")}
+            error={errors.name} // تمرير رسالة الخطأ
           />
         </div>
       </div>

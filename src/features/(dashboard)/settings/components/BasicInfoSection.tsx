@@ -5,18 +5,12 @@ import { useState } from "react";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/src/components/ui/select";
 import { MapModal } from "./MapModal";
 import { MediaSelectButton } from "../../mediaCenter/components/MediaSelectButton";
-// استيراد المكون الجديد
 import { MultiSelectDropdown } from "@/src/components/ui/MultiSelectDropdown";
 import { toast } from "sonner";
+// استيراد مكون الهاتف المحدث
+import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
 
 interface BasicInfoData {
   siteName: string;
@@ -49,6 +43,10 @@ export function BasicInfoSection({
   onLanguagesChange,
 }: BasicInfoSectionProps) {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  
+  // إضافة حالة لإدارة كود الدولة للهاتف والواتساب بشكل منفصل
+  const [phoneCountryCode, setPhoneCountryCode] = useState("+20");
+  const [whatsappCountryCode, setWhatsappCountryCode] = useState("+20");
 
   const handleLanguagesUpdate = (newLanguages: string[]) => {
     if (newLanguages.length === 0) {
@@ -88,7 +86,6 @@ export function BasicInfoSection({
               </p>
             </div>
 
-            {/* قسم اختيار اللغة باستخدام المكون الجديد */}
             <div className="space-y-2">
               <Label className="text-start block">
                 لغة الموقع <span className="text-red-500">*</span>
@@ -123,7 +120,6 @@ export function BasicInfoSection({
               />
             </div>
 
-            {/* بقية الحقول كما هي ... */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-start">
                 البريد الإلكتروني
@@ -173,57 +169,25 @@ export function BasicInfoSection({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-start">
-                  الهاتف المحمول
-                </Label>
-                <div className="flex items-center border border-gray-300 rounded-lg focus-within:border-brand-blue-2">
-                  <Input
-                    id="phone"
-                    type="number"
-                    value={data.phone}
-                    onChange={(e) => onChange({ phone: e.target.value })}
-                    className="flex-1 h-10 border-none shadow-none focus-visible:ring-0"
-                  />
-                  <Select defaultValue="+20">
-                    <SelectTrigger className="w-[90px] border-none shadow-none focus:ring-0">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="+20">+20</SelectItem>
-                      <SelectItem value="+1">+1</SelectItem>
-                      <SelectItem value="+44">+44</SelectItem>
-                      <SelectItem value="+971">+971</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              {/* استبدال حقل الهاتف اليدوي بالمكون الموحد */}
+              <PhoneNumberInput
+                label="الهاتف المحمول"
+                value={data.phone}
+                onChange={(e) => onChange({ phone: e.target.value })}
+                countryCode={phoneCountryCode}
+                onCountryCodeChange={setPhoneCountryCode}
+                placeholder="0000000000"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="whatsapp" className="text-start">
-                  الواتساب
-                </Label>
-                <div className="flex items-center border border-gray-300 rounded-lg focus-within:border-brand-blue-2">
-                  <Input
-                    id="whatsapp"
-                    type="number"
-                    value={data.whatsapp}
-                    onChange={(e) => onChange({ whatsapp: e.target.value })}
-                    className="flex-1 h-10 border-none shadow-none focus-visible:ring-0"
-                  />
-                  <Select defaultValue="+20">
-                    <SelectTrigger className="w-[90px] border-none shadow-none focus:ring-0">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="+20">+20</SelectItem>
-                      <SelectItem value="+1">+1</SelectItem>
-                      <SelectItem value="+44">+44</SelectItem>
-                      <SelectItem value="+971">+971</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              {/* استبدال حقل الواتساب اليدوي بالمكون الموحد */}
+              <PhoneNumberInput
+                label="الواتساب"
+                value={data.whatsapp}
+                onChange={(e) => onChange({ whatsapp: e.target.value })}
+                countryCode={whatsappCountryCode}
+                onCountryCodeChange={setWhatsappCountryCode}
+                placeholder="0000000000"
+              />
             </div>
           </div>
         </div>
