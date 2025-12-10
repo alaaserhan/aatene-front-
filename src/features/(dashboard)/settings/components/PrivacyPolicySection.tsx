@@ -324,6 +324,7 @@ export function PrivacyPolicySection({
             label=""
             helpText=""
             helpTooltip=""
+            className="max-h-[400px]"
           />
         </div>
 

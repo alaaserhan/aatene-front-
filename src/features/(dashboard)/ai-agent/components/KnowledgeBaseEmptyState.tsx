@@ -8,7 +8,7 @@ interface KnowledgeBaseEmptyStateProps {
 
 export function KnowledgeBaseEmptyState({ onAddClick }: KnowledgeBaseEmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl h-[600px]">
+    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl h-full">
       {/* Empty State Illustration or Placeholder */}
       {/* Since no specific icon was provided in the image other than text, we center the text layout */}
       

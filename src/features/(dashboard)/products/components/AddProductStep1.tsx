@@ -380,6 +380,7 @@ export function AddProductStep1({
                                         helpText="ماهو وصف المنتج"
                                         helpTooltip="اكتب وصفًا تفصيليًا يشرح مميزات المنتج، خامته، طريقة استخدامه، والمعلومات الإضافية التي قد تساعد العميل في اتخاذ قرار الشراء. يمكنك استخدام فقرات أو نقاط مرتبة لتوضيح التفاصيل."
                                         error={errors.description}
+                                        className="max-h-[400px] min-h-[200px]"
                                     />
                                 </div>
                             </div>

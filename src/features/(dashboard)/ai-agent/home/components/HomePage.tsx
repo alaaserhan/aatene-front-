@@ -42,7 +42,7 @@ export function HomePage() {
         : 0;
 
     return (
-        <div className="min-h-screen bg-[#F8F9FA] p-6" >
+        <div className="min-h-screen bg-[#F8F9FA] p-5" >
 
             <div className="lg:grid lg:grid-cols-[270px_1fr] flex flex-col gap-4 items-start">
 

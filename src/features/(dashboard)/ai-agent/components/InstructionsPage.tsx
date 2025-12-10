@@ -1,4 +1,4 @@
-// src/features/(dashboard)/ai-agent/pages/InstructionsPage.tsx
+// src/features/(dashboard)/ai-agent/components/InstructionsPage.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -59,14 +59,15 @@ export function InstructionsPage() {
         <div className="p-5" >
             <div className="flex flex-col lg:flex-row gap-4 items-start">
 
-                <div className="hidden lg:block shrink-0 sticky top-6">
+                <div className="hidden lg:block shrink-0 sticky top-25">
                     <Mosa3edySidebar isCollapsed />
                 </div>
-
-                <PlatformsSidebar
-                    activePlatform={activePlatform}
-                    onSelect={setActivePlatform}
-                />
+                <div className="hidden lg:block shrink-0 sticky top-25">
+                    <PlatformsSidebar
+                        activePlatform={activePlatform}
+                        onSelect={setActivePlatform}
+                    />
+                </div>
 
                 <div className="flex-1 w-full bg-white rounded-2xl border border-gray-200 p-8  h-[calc(100vh-124px)] flex flex-col">
 
@@ -87,7 +88,7 @@ export function InstructionsPage() {
 
                     <div className="w-full h-[1px] bg-gray-100 mb-4" />
 
-                    <div className="flex-1 bg-white relative">
+                    <div className="flex-1 bg-white relative flex flex-col min-h-0 overflow-hidden">
                         {isFetching ? (
                             <div className="absolute inset-0 z-10 bg-white/50 flex items-center justify-center min-h-[400px]">
                                 <Loader2 className="w-8 h-8 text-[#3A5779] animate-spin" />
@@ -104,8 +105,8 @@ export function InstructionsPage() {
                                 onChange={setEditorContent}
                                 label=""
                                 placeholder="اكتب التعليمات هنا..."
-                                rows={20}
                                 helpTooltip=""
+                                className="h-full"
                             />
                         )}
                     </div>

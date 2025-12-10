@@ -53,11 +53,11 @@ export function KnowledgeBasePage() {
     <div className="p-5">
       <div className="lg:grid lg:grid-cols-[280px_1fr] flex flex-col gap-4 items-start">
         
-        <div className="hidden lg:block w-full sticky top-6">
+        <div className="hidden lg:block w-full sticky top-25">
              <Mosa3edySidebar />
         </div>
 
-        <div className="w-full space-y-6 min-w-0">
+        <div className="w-full space-y-6 min-w-0 h-[calc(100vh-124px)]">
           
           <div className="flex justify-between items-end border-b border-gray-200 pb-6">
             <div>

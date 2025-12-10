@@ -4,7 +4,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/src/lib/utils";
-import { Home, Database, FileText, MessageCircle, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 interface Mosa3edySidebarProps {
   isCollapsed?: boolean;
@@ -14,37 +14,42 @@ interface Mosa3edySidebarProps {
 export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySidebarProps) {
   const pathname = usePathname();
 
+  // 1. تعديل المصفوفة لتحتوي على المسارات فقط لتسهيل التحكم في الستايل
   const menuItems = [
     {
-      icon: Home,
+      iconPath: "/icons/dashboard/homeAi.svg",
       label: "الرئيسية",
       href: "/admin/mosa3edy",
       isActive: pathname === "/admin/mosa3edy" || pathname === "/admin/mosa3edy/"
     },
     {
-      icon: Database,
+      iconPath: "/icons/dashboard/databaseAi.svg",
       label: "قاعدة المعرفة",
       href: "/admin/mosa3edy/KnowledgeBase",
       isActive: pathname.includes("KnowledgeBase")
     },
     {
-      icon: FileText,
+      iconPath: "/icons/dashboard/fileAi.svg",
       label: "التعليمات العامة",
       href: "/admin/mosa3edy/instructions",
       isActive: pathname.includes("instructions")
     },
     {
-      icon: MessageCircle,
+      iconPath: "/icons/dashboard/chatAi.svg",
       label: "المحادثات",
       href: "/admin/mosa3edy/messages",
-      isActive: pathname.includes("conversations")
+      isActive: pathname.includes("messages") // تأكد من المسار الصحيح (messages أو conversations حسب الراوتر)
     },
   ];
+
+  // فلتر اللون الذهبي (#D97706) تقريباً
+  // هذا الفلتر يحول اللون الأسود إلى اللون الذهبي
+  const activeIconFilter = "brightness-0 saturate-100 invert-[56%] sepia-[68%] saturate-[2087%] hue-rotate-[1deg] brightness-[96%] contrast-[96%]";
 
   return (
     <div
       className={cn(
-        "bg-white border border-gray-200 rounded-lg flex flex-col transition-all duration-300 ease-in-out overflow-hidden  h-[calc(100vh-124px)] ",
+        "bg-white border border-gray-200 rounded-lg flex flex-col transition-all duration-300 ease-in-out overflow-hidden h-[calc(100vh-124px)] sticky top-6",
         isCollapsed ? "w-[90px]" : "w-full max-w-[270px]",
         className
       )}
@@ -54,10 +59,14 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
         isCollapsed ? "justify-center px-0" : "gap-2 px-8"
       )}>
         <div>
-          <img src="/icons/dashboard/Mosaady.svg" alt="Mosaady" className={cn("transition-all", isCollapsed ? "w-10 h-10" : "w-12")} />
+          <img
+            src="/icons/dashboard/Mosaady.svg"
+            alt="Mosaady"
+            className={cn("transition-all object-contain", isCollapsed ? "w-10 h-10" : "w-12")}
+          />
         </div>
         {!isCollapsed && (
-          <h2 className="text-3xl font-medium">مُساعدي</h2>
+          <h2 className="text-3xl font-medium ">مُساعدي</h2>
         )}
       </div>
 
@@ -69,26 +78,37 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
             key={index}
             href={item.href}
             className={cn(
-              "flex items-center group transition-colors duration-200",
-              isCollapsed ? "justify-center" : "gap-2 px-4",
-              "py-2"
+              "flex items-center group transition-colors duration-200 rounded-lg",
+              isCollapsed ? "justify-center" : "gap-3 px-4",
+              "py-3 hover:bg-gray-50",
+              // خلفية خفيفة عند التفعيل (اختياري)
+              item.isActive && "bg-orange-50/50"
             )}
           >
-            <item.icon
-              className={cn(
-                "transition-colors",
-                isCollapsed ? "w-6 h-6" : "w-5 h-5",
-                item.isActive
-                  ? "text-gold-1"
-                  : "group-hover:text-gold-1"
-              )}
-              strokeWidth={1.5}
-            />
+            {/* 2. عرض الصورة مع تطبيق الفلتر عند التفعيل */}
+            <div className="relative flex items-center justify-center">
+              <img
+                src={item.iconPath}
+                alt={item.label}
+                className={cn(
+                  "transition-all duration-200 object-contain",
+                  isCollapsed ? "w-5 h-5" : "w-4 h-4",
+                  // تطبيق الفلتر إذا كان نشطاً، وإلا جعلها رمادية قليلاً وتغميقها عند الهوفر
+                  item.isActive
+                    ? activeIconFilter
+                    : ""
+                )}
+                style={item.isActive ? { filter: "invert(47%) sepia(76%) saturate(1476%) hue-rotate(3deg) brightness(97%) contrast(92%)" } : undefined}
+              />
+            </div>
+
             {!isCollapsed && (
               <span
                 className={cn(
                   "text-sm font-medium transition-colors",
-                  item.isActive ? "text-gold-1" : "group-hover:text-gold-1"
+                  item.isActive
+                    ? "text-[#D97706]" // اللون الذهبي للنص
+                    : ""
                 )}
               >
                 {item.label}
@@ -103,19 +123,19 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
       <div className="px-4 pb-8">
         <button
           className={cn(
-            "w-full flex items-center group transition-colors duration-200",
-            isCollapsed ? "justify-center" : "gap-2 px-4"
+            "w-full flex items-center group transition-colors duration-200 p-2 ",
+            isCollapsed ? "justify-center" : "gap-3 px-4"
           )}
         >
-          <LogOut
+          <img
+            src={"/icons/dashboard/logout.svg"}
             className={cn(
-              "group-hover:text-red-600 transition-colors",
-              isCollapsed ? "w-6 h-6" : "w-5 h-5"
+              "",
+              isCollapsed ? "w-5 h-5" : "w-4 h-4"
             )}
-            strokeWidth={1.5}
           />
           {!isCollapsed && (
-            <span className="text-sm font-medium group-hover:text-red-600 transition-colors cursor-pointer">
+            <span className="text-sm font-medium cursor-pointer">
               تسجيل خروج
             </span>
           )}

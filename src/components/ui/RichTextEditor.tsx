@@ -30,9 +30,8 @@ export function RichTextEditor({
   placeholder = "...نص المحتوى",
   helpText = "ماهو وصف المنتج",
   helpTooltip = "اكتب وصفًا تفصيليًا يشرح مميزات المنتج، خامته، طريقة استخدامه، والمعلومات الإضافية التي قد تساعد العميل في اتخاذ قرار الشراء. يمكنك استخدام فقرات أو نقاط مرتبة لتوضيح التفاصيل.",
-  maxLength ,
-  maxWords ,
-  rows = 6,
+  maxLength,
+  maxWords,
   error,
   className,
   dir: initialDir = "rtl",
@@ -46,9 +45,8 @@ export function RichTextEditor({
   const [modalType, setModalType] = useState<ModalType>(null);
   const [savedRange, setSavedRange] = useState<Range | null>(null);
 
-  // Modal Inputs State
   const [urlInput, setUrlInput] = useState("");
-  const [textInput, setTextInput] = useState(""); // For future use if needed
+  const [textInput, setTextInput] = useState("");
   const [rowsInput, setRowsInput] = useState(2);
   const [colsInput, setColsInput] = useState(2);
   const [colorInput, setColorInput] = useState("#000000");
@@ -109,7 +107,6 @@ export function RichTextEditor({
     saveSelection();
     setModalType(type);
 
-    // Reset inputs
     setUrlInput("");
     setTextInput("");
     setRowsInput(2);
@@ -157,8 +154,8 @@ export function RichTextEditor({
   const charCount = value.replace(/<[^>]*>/g, "").length;
 
   return (
-    <div className={cn("space-y-2 relative", className)}>
-      <div className="flex items-center justify-between">
+    <div className={cn("space-y-2 relative flex flex-col", className)}>
+      <div className="flex items-center justify-between shrink-0">
         <div className="flex flex-col">
           {label && <label className="text-sm font-medium">{label}</label>}
           {
@@ -192,14 +189,14 @@ export function RichTextEditor({
 
       <div
         className={cn(
-          "border rounded-lg overflow-hidden transition-all",
+          "border rounded-lg overflow-hidden transition-all flex flex-col flex-1 min-h-0",
           isFocused
             ? "border-blue-500 ring-2 ring-blue-500/20"
             : "border-gray-200",
           error && "border-red-500"
         )}
       >
-        <div className="flex items-center p-2 bg-gray-50 border-b border-gray-200 overflow-x-auto" dir="rtl">
+        <div className="flex items-center p-2 bg-gray-50 border-b border-gray-200 overflow-x-auto shrink-0" dir="rtl">
           <div className="flex items-center gap-0.5 flex-nowrap">
             <ToolbarButton onClick={() => execCommand("bold")} title="عريض">
               <span className="font-bold">B</span>
@@ -314,16 +311,15 @@ export function RichTextEditor({
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative flex-1 overflow-hidden flex flex-col min-h-0">
           <div
             ref={editorRef}
             contentEditable
             dir={currentDir}
             className={cn(
-              "w-full px-4 py-3 focus:outline-none text-sm bg-white overflow-auto min-h-[144px]",
+              "w-full px-4 py-3 focus:outline-none text-sm bg-white overflow-y-auto flex-1 h-full",
               currentDir === "rtl" ? "text-right" : "text-left"
             )}
-            style={{ minHeight: `${rows * 24}px` }}
             onInput={handleInput}
             onPaste={handlePaste}
             onFocus={() => setIsFocused(true)}
@@ -344,11 +340,9 @@ export function RichTextEditor({
 
       {error && <p className="text-xs text-red-500">{error}</p>}
 
-      {/* Custom Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            {/* Header */}
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h3 className="text-lg font-bold text-gray-900">
                 {modalType === "link" && "إضافة رابط"}
@@ -365,7 +359,6 @@ export function RichTextEditor({
               </button>
             </div>
 
-            {/* Body */}
             <div className="p-6 space-y-4">
               {(modalType === "link" || modalType === "image") && (
                 <div className="space-y-2">
@@ -429,7 +422,6 @@ export function RichTextEditor({
               )}
             </div>
 
-            {/* Footer */}
             <div className="px-6 py-4 bg-gray-50 flex items-center justify-between gap-3">
               <button
                 onClick={closeModal}

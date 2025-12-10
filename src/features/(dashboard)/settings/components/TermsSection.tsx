@@ -324,6 +324,7 @@ export function TermsSection({
             label=""
             helpText=""
             helpTooltip=""
+            className="max-h-[400px]"
           />
         </div>
 
