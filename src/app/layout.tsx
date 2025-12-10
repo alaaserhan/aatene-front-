@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import React from "react";
 import localFont from "next/font/local";
 import "@/src/app/globals.css";
+import { getCurrentLocale } from "../i18n/server";
 
 const pingAr = localFont({
   src: [
@@ -57,24 +58,29 @@ const pingAr = localFont({
   variable: "--font-ping-ar",
 });
 
-export default function RootLayout({
+
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getCurrentLocale();
+  const direction = (locale === "ar" || locale === "he") ? "rtl" : "ltr";
+
   return (
     <html
-      lang="en"
-      dir="ltr"
+      lang={locale}
+      dir={direction}
       className={pingAr.variable}
-      suppressHydrationWarning
+      suppressHydrationWarning={true} 
     >
-      <body>
+      <body suppressHydrationWarning={true}>
         <QueryProvider>
           <AuthHydrator />
           {children}
-        </QueryProvider> 
-        <Toaster richColors dir="rtl"  position="top-right"  />
+        </QueryProvider>
+        <Toaster richColors dir={direction} position={direction === 'rtl' ? "top-right" : "top-left"} />
       </body>
     </html>
   );

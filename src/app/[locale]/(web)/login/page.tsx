@@ -8,11 +8,13 @@ export const metadata: Metadata = {
   title: 'تسجيل الدخول',
 };
 
-export default function LoginPage({
-  params: { locale }
+export default async function LoginPage({
+  params
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+
   setStaticParamsLocale(locale);
 
   return (

@@ -5,7 +5,8 @@ import { createI18nMiddleware } from "next-international/middleware";
 const I18nMiddleware = createI18nMiddleware({
   locales: ["en", "ar", "he"],
   defaultLocale: "ar",
-  urlMappingStrategy: "rewriteDefault", 
+  urlMappingStrategy: "rewriteDefault",
+  resolveLocaleFromRequest: () => "ar", 
 });
 
 export default function proxy(request: NextRequest) {
