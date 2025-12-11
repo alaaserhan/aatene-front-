@@ -83,7 +83,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الاقسام", icon: Map, href: "/sections", show: isMerchant },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin },
     { label: "المنتجات", icon: Package, href: "/products", show: true },
-    { label: "مقدمي الخدمات", icon: Users, href: "/services", show: true },
+    { label: "مقدمي الخدمات", icon: Users, href: "/serviceProviders", show: true },
     {label: "مساعدي", icon: Bot, href: "/mosa3edy", show: true },
   ];
 

@@ -158,6 +158,7 @@ export interface Store {
   serviceCities?: number[];
   tags?: string[];
   delivery_type?: DeliveryType;
+  services_count?: number;
 }
 
 // ============== Paginated Response ==============

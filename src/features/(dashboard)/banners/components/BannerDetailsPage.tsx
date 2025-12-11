@@ -35,13 +35,13 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
     const handleConfirmDelete = () => {
         deleteBannerMutation(bannerId, {
             onSuccess: () => {
-                router.push("/dashboard/banners");
+                router.push("/admin/banners");
             },
         });
     };
 
     const breadcrumbItems = [
-        { label: "بنرات إعلانية", href: "/dashboard/banners" },
+        { label: "بنرات إعلانية", href: "/admin/banners" },
         { label: `إعلان رقم #${bannerId}` },
     ];
 
@@ -65,7 +65,7 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
                 <div className="text-center">
                     <p className="text-xl text-gray-600 mb-4">لم يتم العثور على الإعلان</p>
                     <Button
-                        onClick={() => router.push("/dashboard/banners")}
+                        onClick={() => router.push("/admin/banners")}
                         style={{ backgroundColor: "var(--blue-3)" }}
                     >
                         العودة للقائمة

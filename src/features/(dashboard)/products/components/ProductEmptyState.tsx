@@ -16,19 +16,15 @@ export function ProductEmptyState({ type }: ProductEmptyStateProps) {
         <div className="flex flex-col items-center justify-center h-full bg-white rounded-lg p-8 text-center border border-gray-200 min-h-[400px]">
             <div className="mb-6 relative">
                 <div className="h-40 w-40  flex items-center justify-center mx-auto mb-2">
-                    {isNoSections ? (
-                        <Layers className="h-20 w-20 text-blue-4 opacity-50" />
-                    ) : (
-                        <img
-                            src="/icons/dashboard/nostore.svg"
-                            className="h-44 w-44 "
-                            alt="placeholder"
-                        />
-                    )}
+                    <img
+                        src="/icons/dashboard/nostore.svg"
+                        className="h-44 w-44 "
+                        alt="placeholder"
+                    />
                 </div>
             </div>
 
-            <h3 className="text-xl font-bold mb-2 ">
+            <h3 className="text-xl font-medium mb-2 ">
                 {isNoSections ? "لا يوجد لديك أي أقسام" : "لا يوجد لديك أي منتجات"}
             </h3>
 

@@ -111,7 +111,7 @@ export function UserFormPage() {
         <Breadcrumb items={breadcrumbItems} className="" />
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="bg-white rounded-xl  p-6  mt-4">
+          <div className="bg-white rounded-sm  p-4  mt-4">
             <h1 className="text-xl font-bold text-blue-4 mb-6 ">
               المعلومات الأساسية
             </h1>
@@ -261,11 +261,11 @@ export function UserFormPage() {
             </div>
           </div>
 
-          <div className="flex gap-4 justify-center py-6 bg-white rounded-xl my-4">
+          <div className="flex gap-4 justify-between p-4 bg-white rounded-sm my-4">
             <Button
               type="submit"
               disabled={isMutating}
-              className="px-8 py-3 cursor-pointer rounded-xs"
+              className="px-8 py-3 cursor-pointer rounded-sm"
               style={{ backgroundColor: "var(--blue-3)" }}
             >
               {isMutating ? (
@@ -281,7 +281,7 @@ export function UserFormPage() {
               type="button"
               variant="outline"
               onClick={handleCancel}
-              className="px-8 py-3 cursor-pointer rounded-xs"
+              className="px-8 py-3 cursor-pointer rounded-sm shadow-none"
             >
               إلغاء
             </Button>
