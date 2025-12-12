@@ -84,6 +84,7 @@ export function UserListSidebar({
         const isSelected = selectedUserId === user.id;
         const fullName =
           `${user.first_name || ""} ${user.last_name || ""}`.trim();
+          
         const roleName = user.roles?.[0]?.name || "مستخدم";
         const status = getStatusProps(user);
 
@@ -106,7 +107,7 @@ export function UserListSidebar({
 
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate mb-1.5">
-                {user.first_name}
+                {fullName}
               </p>
               <p className="text-xs text-gray-2 truncate">{roleName}</p>
             </div>

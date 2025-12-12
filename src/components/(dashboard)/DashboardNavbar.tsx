@@ -1,6 +1,7 @@
+// src/features/(dashboard)/home/components/DashboardNavbar.tsx
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
@@ -33,13 +34,20 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose 
 import { Button } from "@/src/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Separator } from "@/src/components/ui/separator";
-import { DashboardUserMenu } from "./DashboardUserMenu"; // ⭐️ استدعاء المكون الجديد (تأكد من المسار)
+import { DashboardUserMenu } from "./DashboardUserMenu";
+import { cn } from "@/src/lib/utils";
 
 interface NavItem {
   label: string;
-  icon: LucideIcon;
+  icon: LucideIcon | React.ReactNode;
   href: string;
   show: boolean;
+}
+
+// تعريف واجهة لخصائص الأيقونة لتجنب استخدام any
+interface IconProps {
+  className?: string;
+  [key: string]: unknown;
 }
 
 interface Notification {
@@ -75,16 +83,17 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   };
 
   const allNavItems: NavItem[] = [
-    { label: "المستخدمين", icon: Users, href: "/users", show: isAdmin },
-    { label: "المتاجر", icon: Store, href: "/stores", show: true },
+    { label: "الرئيسة", icon: <img src={"/icons/dashboard/nav_home.svg"} alt="" />, href: "/home", show: true },
+    { label: "المستخدمين", icon: <img src={"/icons/dashboard/nav_users.svg"} alt="" />, href: "/users", show: isAdmin },
+    { label: "المتاجر", icon: <img src={"/icons/dashboard/nav_stores.svg"} alt="" />, href: "/stores", show: true },
+    { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: true },
+    { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: isAdmin },
     { label: "الفئات", icon: Package, href: "/categories", show: true },
     { label: "الإعدادات", icon: Settings, href: "/settings", show: isAdmin },
     { label: "مدن الشحن", icon: Map, href: "/cities", show: true },
     { label: "الاقسام", icon: Map, href: "/sections", show: isMerchant },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin },
-    { label: "المنتجات", icon: Package, href: "/products", show: true },
-    { label: "مقدمي الخدمات", icon: Users, href: "/serviceProviders", show: true },
-    {label: "مساعدي", icon: Bot, href: "/mosa3edy", show: true },
+    { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: true },
   ];
 
   const mainNavItems = allNavItems.slice(0, 5);
@@ -92,6 +101,31 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
 
   const notifications: Notification[] = [];
   const unreadCount = 0;
+
+  // دالة مساعدة لرسم الأيقونة
+  const renderIcon = (
+    icon: LucideIcon | React.ReactNode,
+    isActiveItem: boolean, // معامل جديد لتحديد حالة النشاط
+    className: string = "w-6 h-6"
+  ) => {
+    if (React.isValidElement(icon)) {
+      // استخراج الخصائص مع تحديد النوع بدلاً من any
+      const iconProps = icon.props as IconProps;
+      
+      return React.cloneElement(icon as React.ReactElement<IconProps>, {
+        className: cn(
+          className,
+          iconProps.className,
+          // تطبيق فلتر يقلب الألوان ويجعلها بيضاء عند النشاط
+          isActiveItem ? "brightness-0 invert" : "" 
+        ),
+      });
+    }
+    
+    const Icon = icon as LucideIcon;
+    // للأيقونات من نوع Lucide، اللون يتم التحكم به عبر CSS color للأب، فلا نحتاج لفلتر هنا
+    return <Icon className={className} />;
+  };
 
   return (
     <nav
@@ -108,7 +142,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                   <Menu className="w-6 h-6" style={{ color: "var(--blue-3)" }} />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-72 p-0 flex flex-col border-none" >
+              <SheetContent side="right" className="w-72 p-0 flex flex-col border-none">
                 <SheetHeader className="p-4 border-b" style={{ borderColor: "var(--blue-2)" }}>
                   <SheetTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -160,7 +194,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                               href={href}
                               onClick={() => setMobileMenuOpen(false)}
                             >
-                              <item.icon className="w-5 h-5" />
+                              {renderIcon(item.icon, active, "w-6 h-6")}
                               {item.label}
                             </Link>
                           </Button>
@@ -191,7 +225,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
             </Link>
 
             {/* Desktop Menu Items */}
-            <div className="hidden lg:flex items-center gap-2">
+            <div className="hidden lg:flex items-center gap-1">
               {mainNavItems
                 .filter((item) => item.show)
                 .map((item) => {
@@ -212,14 +246,14 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                       asChild
                     >
                       <Link href={href}>
-                        <item.icon className="w-4 h-4" />
+                        {renderIcon(item.icon, active, "w-5 h-5")}
                         {item.label}
                       </Link>
                     </Button>
                   );
                 })}
 
-              <DropdownMenu dir="rtl" >
+              <DropdownMenu dir="rtl">
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
@@ -233,17 +267,21 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                 <DropdownMenuContent align="end" className="w-48 border-gray-200">
                   {moreMenuItems
                     .filter((item) => item.show)
-                    .map((item) => (
-                      <DropdownMenuItem key={item.href} asChild>
-                        <Link
-                          href={`${navPrefix}${item.href}`}
-                          className="flex items-center gap-2 cursor-pointer"
-                        >
-                          <item.icon className="w-4 h-4" />
-                          {item.label}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
+                    .map((item) => {
+                      const active = isActive(item.href);
+                      return (
+                        <DropdownMenuItem key={item.href} asChild>
+                          <Link
+                            href={`${navPrefix}${item.href}`}
+                            className="flex items-center gap-2 cursor-pointer"
+                            style={active ? { color: 'var(--blue-3)', fontWeight: 'bold' } : {}}
+                          >
+                            {renderIcon(item.icon, active, "w-4 h-4")}
+                            {item.label}
+                          </Link>
+                        </DropdownMenuItem>
+                      );
+                    })}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -329,7 +367,6 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* ⭐️ تم استبدال القائمة القديمة بالمكون الجديد هنا ⭐️ */}
             <div className="hidden lg:block">
               <DashboardUserMenu />
             </div>

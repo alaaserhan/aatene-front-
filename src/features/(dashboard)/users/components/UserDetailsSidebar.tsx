@@ -423,12 +423,12 @@ export function UserDetailsSidebar({
                 variant="outline"
                 onClick={() => setDeleteModalOpen(true)}
                 disabled={deleteUserMutation.isPending}
-                className="px-6 rounded-xs bg-[#FB37481A] border-red-200 text-red-600 hover:text-red-600 hover:bg-red-100 cursor-pointer"
+                className="px-6 rounded-xs bg-red-2 text-red-1 border-0 cursor-pointer"
               >
                 {deleteUserMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin ml-2" />
                 ) : (
-                  <Trash2 className="w-4 h-4" />
+                  <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
                 )}
                 حذف المستخدم
               </Button>

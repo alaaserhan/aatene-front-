@@ -142,7 +142,7 @@ export function BannersPage() {
           </button>
         </div>
 
-        <div className="bg-white rounded-xl  overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-200  overflow-hidden">
           <div className="p-4 sm:p-6 border-b border-gray-200 flex flex-col lg:flex-row sm:justify-between gap-3">
             <div>
               <p className="text-xl font-bold">
@@ -198,31 +198,31 @@ export function BannersPage() {
             <table className="w-full min-w-[1200px]">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-700 ">
+                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1 ">
                     رقم الإعلان
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-700 w-48">
+                  <th className="px-4 py-4 text-center text-sm font-medium text-gray-1 w-48">
                     صورة الإعلان
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-700">
+                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">
                     مكان العرض
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-700">
+                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">
                     الرابط
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-700 ">
+                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1 ">
                     تاريخ البدء والانتهاء
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-700 ">
+                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1 ">
                     تاريخ الانشاء
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-700">
+                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">
                     ترتيب العرض
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-700 ">
+                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1 ">
                     فعال
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-700 min-w-40">
+                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1 min-w-40">
                     عمليات
                   </th>
                 </tr>
@@ -258,12 +258,12 @@ export function BannersPage() {
                       className="border-b border-gray-200  last:border-0 "
                     >
                       <td className="px-4 py-4">
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm font-medium ">
                           #{banner.id}
                         </span>
                       </td>
 
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-4 flex justify-center items-center">
                         <img
                           src={banner.labtop_banner_url}
                           alt={banner.title}

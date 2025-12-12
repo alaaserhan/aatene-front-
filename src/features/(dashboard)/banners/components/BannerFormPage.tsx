@@ -1,4 +1,3 @@
-// src/features/(dashboard)/banners/components/BannerFormPage.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,8 +11,8 @@ import { useGetCities } from "../../cities/hooks";
 import { Loader2 } from "lucide-react";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { BannerCreatePayload, BannerUpdatePayload } from "../api";
-import { FormSelect } from "@/src/components/ui/FormSelect";
 import { MediaSelectButton } from "../../mediaCenter/components/MediaSelectButton";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 
 interface BannerFormData {
   title: string;
@@ -89,6 +88,57 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
     }
   }, [mode, bannerData]);
 
+  useEffect(() => {
+    const newErrors = { ...errors };
+    let hasChanges = false;
+
+    if (errors.title && formData.title.trim()) {
+      delete newErrors.title;
+      hasChanges = true;
+    }
+
+    if (errors.city_id && formData.city_id) {
+      delete newErrors.city_id;
+      hasChanges = true;
+    }
+
+    if (errors.url && isValidUrl(formData.url)) {
+      delete newErrors.url;
+      hasChanges = true;
+    }
+
+    if (errors.start_date && formData.start_date) {
+      delete newErrors.start_date;
+      hasChanges = true;
+    }
+    if (errors.end_date && formData.end_date) {
+      delete newErrors.end_date;
+      hasChanges = true;
+    }
+
+    if (errors.labtop_banner && formData.labtop_banner) {
+      delete newErrors.labtop_banner;
+      hasChanges = true;
+    }
+    if (errors.mobile_banner && formData.mobile_banner) {
+      delete newErrors.mobile_banner;
+      hasChanges = true;
+    }
+
+    if (hasChanges) {
+      setErrors(newErrors);
+    }
+  }, [formData, errors]);
+
+  const isValidUrl = (urlStr: string) => {
+    try {
+      new URL(urlStr);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof BannerFormData, string>> = {};
 
@@ -96,8 +146,14 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
       newErrors.title = "عنوان البانر مطلوب";
     }
 
+    if (!formData.city_id) {
+      newErrors.city_id = "المدينة مطلوبة";
+    }
+
     if (!formData.url.trim()) {
       newErrors.url = "رابط URL مطلوب";
+    } else if (!isValidUrl(formData.url)) {
+      newErrors.url = "الرابط غير صحيح (يجب أن يبدأ بـ http:// أو https://)";
     }
 
     if (!formData.start_date) {
@@ -184,7 +240,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
       <div className="container mx-auto py-8 px-4">
         <Breadcrumb items={breadcrumbItems} className="" />
 
-        <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8">
+        <div className="bg-white rounded-lg border border-gray-200 mb-4 p-6 ">
           <h1 className="text-2xl font-bold text-blue-4 mb-8 text-right">
             {mode === "create" ? "إضافة إعلان جديد" : "تعديل إعلان"}
           </h1>
@@ -216,23 +272,26 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               error={errors.description}
             />
 
-            <FormSelect
-              label="المدينة المراد ظهور الإعلان لسكانه"
-              value={formData.city_id}
-              onChange={(e) =>
-                setFormData({ ...formData, city_id: e.target.value })
-              }
-              options={[
-                { value: "", label: "الكل" },
-                ...cities.map((city) => ({
-                  value: city.id.toString(),
-                  label: city.name,
-                })),
-              ]}
-              error={errors.city_id}
-            />
-
-            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                المدينة المراد ظهور الإعلان لسكانه
+              </label>
+              <ReusableDropdown
+                value={formData.city_id}
+                onChange={(value) =>
+                  setFormData({ ...formData, city_id: value })
+                }
+                options={[
+                  { value: "", label: "الكل" },
+                  ...cities.map((city) => ({
+                    value: city.id.toString(),
+                    label: city.name,
+                  })),
+                ]}
+                error={errors.city_id}
+                placeholder="اختر المدينة"
+              />
+            </div>
 
             <FormInput
               label="مكان الإعلان"
@@ -341,19 +400,12 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               allowedMediaTypes={["gallery", "image"]}
             />
 
-            <div className="flex gap-4 justify-center pt-6">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCancel}
-                className="px-8 py-3 cursor-pointer"
-              >
-                إلغاء وإغلاق
-              </Button>
+            <div className="flex gap-4 justify-between pt-6">
               <Button
                 type="submit"
                 disabled={
-                  createBannerMutation.isPending || updateBannerMutation.isPending
+                  createBannerMutation.isPending ||
+                  updateBannerMutation.isPending
                 }
                 className="px-8 py-3 cursor-pointer"
                 style={{ backgroundColor: "var(--blue-3)" }}
@@ -367,6 +419,14 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
                 ) : (
                   "حفظ وإضافة"
                 )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancel}
+                className="px-8 py-3 cursor-pointer"
+              >
+                إلغاء وإغلاق
               </Button>
             </div>
           </form>

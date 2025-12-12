@@ -82,14 +82,14 @@ export function MediaSelectButton({
         <div
           onClick={handleOpenModal}
           className={cn(
-            "border-2 border-dashed rounded-lg p-8 cursor-pointer transition-colors h-52 flex items-center justify-center",
-            "hover:border-blue-3 hover:bg-blue-50",
-            error ? "border-red-500" : "border-gray-300"
+            "border border-dashed rounded-lg p-8 cursor-pointer transition-colors h-52 flex items-center justify-center",
+            "hover:border-blue-3 hover:bg-gray-50",
+            error ? "border-red-500" : "border-gray-200"
           )}
         >
           <div className="flex flex-col items-center justify-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-              <Plus className="w-6 h-6 text-gray-400" />
+            <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center">
+              <Plus className="w-6 h-6 text-gray-2" />
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-600 mb-1">{primaryText}</p>
@@ -98,7 +98,7 @@ export function MediaSelectButton({
           </div>
         </div>
       ) : (
-        <div className="relative h-52 flex justify-center items-center  border-2 border-gray-200 rounded-lg overflow-hidden">
+        <div className="relative h-52 flex justify-center items-center  border border-gray-200 rounded-lg overflow-hidden">
           <img
             src={preview}
             alt="Preview"
