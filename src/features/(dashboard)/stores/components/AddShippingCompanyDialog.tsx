@@ -331,11 +331,11 @@ export function AddShippingCompanyDialog({
                       key={cityId}
                       className="grid grid-cols-8 gap-4 items-start border-b border-gray-100 pb-4 last:border-0"
                     >
-                      <div className="col-span-2 pt-6">
+                      <div className="col-span-2">
                         <label className="block text-xs text-gray-500 mb-2">
                           المدينة
                         </label>
-                        <div className="text-sm font-medium h-[38px] flex items-center text-gray-700">
+                        <div className="text-sm font-medium h-[38px]  text-gray-700">
                           {city.name}
                         </div>
                       </div>
