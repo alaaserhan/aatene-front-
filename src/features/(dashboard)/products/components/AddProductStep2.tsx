@@ -1,4 +1,3 @@
-// src/features/(dashboard)/products/components/AddProductStep2.tsx
 "use client";
 
 import { useState, KeyboardEvent, useMemo, useEffect } from "react";
@@ -14,7 +13,6 @@ import { OptionTag } from "@/src/components/ui/OptionTag";
 import { useGetStores } from "../../stores/hooks";
 import { useGetSections } from "../../sections/hooks";
 import { Step1FormData, Step2FormData } from "../types";
-import { cn } from "@/src/lib/utils";
 import { toast } from "sonner";
 import { Label } from "@/src/components/ui/label";
 
@@ -58,60 +56,37 @@ export function AddProductStep2({
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const [storesPage, setStoresPage] = useState(1);
-  const [allStores, setAllStores] = useState<{ id: number; name: string }[]>([]);
-
+  // تم تغيير per_page إلى 1000 لجلب كل المتاجر مرة واحدة وحل مشكلة التعديل
   const storesQueryParams = useMemo(() => {
     const params = new URLSearchParams();
-    params.set("per_page", "10");
-    params.set("page", String(storesPage));
+    params.set("per_page", "1000");
     return params;
-  }, [storesPage]);
+  }, []);
 
   const { data: storesData, isLoading: isStoresLoading } = useGetStores(
     storesQueryParams,
     { enabled: isAdmin }
   );
 
-  useEffect(() => {
-    if (isAdmin && storesData?.data) {
-      if (storesPage === 1) {
-        setAllStores(storesData.data);
-      } else {
-        setAllStores((prev) => {
-          const newStores = storesData.data.filter(
-            (s) => !prev.some((p) => p.id === s.id)
-          );
-          return [...prev, ...newStores];
-        });
-      }
-    }
-  }, [storesData, storesPage, isAdmin]);
+  const storeOptions = useMemo(() => {
+    return (
+      storesData?.data?.map((store) => ({
+        value: String(store.id),
+        label: store.name,
+      })) || []
+    );
+  }, [storesData]);
 
-  const handleLoadMoreStores = () => {
-    if (storesData && storesPage < Math.ceil(storesData.recordsFiltered / 10)) {
-      setStoresPage((prev) => prev + 1);
-    }
-  };
-
-  const storeOptions = allStores.map((store) => ({
-    value: String(store.id),
-    label: store.name,
-  }));
-
-  const [sectionsPage, setSectionsPage] = useState(1);
-  const [allSections, setAllSections] = useState<{ id: number; name: string }[]>([]);
-
+  // تم تغيير per_page إلى 1000 لجلب كل الأقسام مرة واحدة
   const sectionsQueryParams = useMemo(() => {
     const params = new URLSearchParams();
-    params.set("per_page", "10");
-    params.set("page", String(sectionsPage));
+    params.set("per_page", "1000");
     params.set("status", "active");
     if (formData.store_id) {
       params.set("store_id", String(formData.store_id));
     }
     return params;
-  }, [sectionsPage, formData.store_id]);
+  }, [formData.store_id]);
 
   const { data: sectionsData, isLoading: isSectionsLoading } = useGetSections(
     sectionsQueryParams,
@@ -119,41 +94,43 @@ export function AddProductStep2({
     { enabled: !!formData.store_id }
   );
 
-  useEffect(() => {
-    if (sectionsData?.data) {
-      if (sectionsPage === 1) {
-        setAllSections(sectionsData.data);
-      } else {
-        setAllSections((prev) => {
-          const newSections = sectionsData.data.filter(
-            (s) => !prev.some((p) => p.id === s.id)
-          );
-          return [...prev, ...newSections];
-        });
-      }
-    }
-  }, [sectionsData, sectionsPage]);
-
-  const handleLoadMoreSections = () => {
-    if (sectionsData && sectionsPage < Math.ceil(sectionsData.recordsFiltered / 10)) {
-      setSectionsPage((prev) => prev + 1);
-    }
-  };
-
-  const sectionOptions = allSections.map((section) => ({
-    value: String(section.id),
-    label: section.name,
-  }));
+  const sectionOptions = useMemo(() => {
+    return (
+      sectionsData?.data?.map((section) => ({
+        value: String(section.id),
+        label: section.name,
+      })) || []
+    );
+  }, [sectionsData]);
 
   const handleStoreChange = (value: string) => {
     setFormData({
       ...formData,
       store_id: Number(value),
-      section_id: 0, 
+      section_id: 0,
     });
-    setSectionsPage(1);
-    setAllSections([]);
   };
+
+  // --- Watch Logic: مراقبة التغييرات لحذف الأخطاء ---
+  useEffect(() => {
+    const newErrors = { ...errors };
+    let hasChanges = false;
+
+    if (errors.store_id && formData.store_id) {
+      delete newErrors.store_id;
+      hasChanges = true;
+    }
+
+    if (errors.section_id && formData.section_id) {
+      delete newErrors.section_id;
+      hasChanges = true;
+    }
+
+    if (hasChanges) {
+      setErrors(newErrors);
+    }
+  }, [formData.store_id, formData.section_id, errors]);
+  // --------------------------------------------------
 
   const defaultBreadcrumbItems = [
     { label: "المنتجات", href: "/admin/products" },
@@ -219,7 +196,10 @@ export function AddProductStep2({
   return (
     <div className="overflow-hidden">
       <div className="container mx-auto py-4 px-4">
-        <Breadcrumb items={breadcrumbItems || defaultBreadcrumbItems} className="mb-4" />
+        <Breadcrumb
+          items={breadcrumbItems || defaultBreadcrumbItems}
+          className="mb-4"
+        />
         <ProductStepperProgress
           currentStep={2}
           steps={barSteps}
@@ -229,9 +209,7 @@ export function AddProductStep2({
         <div className="grid grid-cols-12 gap-4 mt-8">
           <div className="col-span-12 lg:col-span-9">
             <div className="bg-white rounded-xl p-6 border border-gray-200">
-              <h2 className="text-xl font-bold mb-8 text-gray-900">
-                المعلومات المتقدمة
-              </h2>
+              <h2 className="text-xl font-bold mb-8 ">المعلومات المتقدمة</h2>
 
               <div className="space-y-8">
                 {isAdmin && (
@@ -244,11 +222,11 @@ export function AddProductStep2({
                       options={storeOptions}
                       value={formData.store_id ? String(formData.store_id) : ""}
                       onChange={handleStoreChange}
-                      placeholder="اختر المتجر..."
+                      placeholder={
+                        isStoresLoading ? "جاري التحميل..." : "اختر المتجر..."
+                      }
                       error={errors.store_id}
                       className="h-11"
-                      onReachEnd={handleLoadMoreStores}
-                      isLoadingMore={isStoresLoading && storesPage > 1}
                     />
                   </div>
                 )}
@@ -261,19 +239,23 @@ export function AddProductStep2({
                     </Label>
                     <ReusableDropdown
                       options={sectionOptions}
-                      value={formData.section_id ? String(formData.section_id) : ""}
+                      value={
+                        formData.section_id ? String(formData.section_id) : ""
+                      }
                       onChange={(value) =>
                         setFormData({ ...formData, section_id: Number(value) })
                       }
-                      placeholder="اختر القسم..."
+                      placeholder={
+                        isSectionsLoading ? "جاري التحميل..." : "اختر القسم..."
+                      }
                       error={errors.section_id}
                       className="h-11"
-                      onReachEnd={handleLoadMoreSections}
-                      isLoadingMore={isSectionsLoading && sectionsPage > 1}
                     />
-                    <p className="text-xs text-gray-400">
-                      حدد القسم الذي ينتمي إليه هذا المنتج داخل المتجر.
-                    </p>
+                    {!errors.section_id && (
+                      <p className="text-xs text-gray-400">
+                        حدد القسم الذي ينتمي إليه هذا المنتج داخل المتجر.
+                      </p>
+                    )}
                   </div>
                 )}
 
