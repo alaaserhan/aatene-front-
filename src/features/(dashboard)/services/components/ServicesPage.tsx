@@ -137,7 +137,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 {store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "جاري التحميل..."}
                             </h1>
                             <p className="text-sm text-gray-2 font-medium">
-                                {servicesData?.recordsTotal || 0} خدمات
+                                {servicesData?.data.length || 0} خدمات
                             </p>
                         </div>
                     </div>
