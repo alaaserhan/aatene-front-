@@ -76,6 +76,28 @@ export function useResolveConversation() {
   });
 }
 
+export function useDeleteConversation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: api.deleteConversation,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["agent-users"] });
+      queryClient.invalidateQueries({ queryKey: ["agent-users-info"] });
+      queryClient.invalidateQueries({ queryKey: ["agent-users-urgent"] });
+      queryClient.invalidateQueries({ queryKey: ["agent-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["agent-overview"] });
+      
+      if (data.chat_id) {
+         queryClient.invalidateQueries({ queryKey: ["agent-user", data.chat_id] });
+      }
+    },
+    onError: (error: AxiosError<{ error: string }>) => {
+      toast.error(error.response?.data?.error || "فشل حذف المحادثة");
+    },
+  });
+}
+
 export function useSendMessage() {
   const queryClient = useQueryClient();
   

@@ -36,6 +36,7 @@ export interface ConversationStatus {
     current_state: string;
     needs_human: boolean;
     survey_sent_at: string | null;
+    is_deleted?: boolean; 
 }
 
 export interface Message {
@@ -110,6 +111,15 @@ export interface ResolveResponse {
     message: string;
     chat_id: string;
     updated_status: ConversationStatus;
+}
+
+export interface DeleteConversationResponse {
+    chat_id: string;
+    message: string;
+    success: boolean;
+    updated_status: {
+        is_deleted: boolean;
+    };
 }
 
 export interface SendMessagePayload {
@@ -217,6 +227,11 @@ export const getSingleUser = async (chatId: string): Promise<SingleUserResponse>
 
 export const resolveConversation = async (chatId: string): Promise<ResolveResponse> => {
     const { data } = await api5000.put<ResolveResponse>(`/user/${encodeURIComponent(chatId)}/resolve`);
+    return data;
+};
+
+export const deleteConversation = async (chatId: string): Promise<DeleteConversationResponse> => {
+    const { data } = await api5000.delete<DeleteConversationResponse>(`/user/${encodeURIComponent(chatId)}`);
     return data;
 };
 

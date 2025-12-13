@@ -54,7 +54,7 @@ export function SuccessModal({
         <DialogFooter className="flex-col sm:justify-center pt-4">
           <Button
             type="button"
-            className="w-full cursor-pointer bg-blue-3 hover:bg-[#2c4460]"
+            className="w-full cursor-pointer bg-blue-4 hover:bg-[#2c4460]"
             onClick={onClose}
           >
             {buttonText}

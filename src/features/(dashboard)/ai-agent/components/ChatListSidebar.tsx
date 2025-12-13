@@ -15,7 +15,6 @@ interface ChatListSidebarProps {
   needsHuman: boolean;
 }
 
-
 export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsHuman }: ChatListSidebarProps) {
   const isApiPlatform = ["whatsapp", "instagram", "messenger"].includes(platform);
   
@@ -33,7 +32,7 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsH
     );
   }
 
-  const users = data?.users || [];
+  const users = (data?.users || []).filter(user => !user.conversation_status.is_deleted);
 
   if (users.length === 0) {
     return (
@@ -60,7 +59,7 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsH
           >
             <div className="relative shrink-0">
                 <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-blue-4">
-                    <img src="/icons/dashboard/user.svg" className="w-12" />
+                    <img src="/icons/dashboard/user.svg" className="w-12" alt="User" />
                 </div>
             </div>
 
@@ -80,12 +79,6 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsH
                 <p className="text-xs text-gray-2 truncate line-clamp-1 w-[80%]">
                     {lastMessage}
                 </p>
-                
-                 {/* {user.conversation_status.needs_human && (
-                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#D97706] text-[10px] font-bold text-white shrink-0">
-                     !
-                 </span>
-                 )} */}
               </div>
             </div>
           </div>
