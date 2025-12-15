@@ -81,7 +81,7 @@ export function ServiceProvidersPage() {
     };
 
      const handleShowClick = (store: Store) => {
-        router.push(`/admin/services/${store.id}`);
+        router.push(`/admin/serviceProviders/${store.id}`);
     };
 
     return (

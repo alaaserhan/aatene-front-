@@ -123,7 +123,6 @@ export function ServicesPage({ storeId }: { storeId: number }) {
             {/* --- Header Section (Breadcrumb & Store Info) --- */}
             <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
             <header className=" p-4 pb-0">
-                {/* Row 1: Breadcrumb */}
 
                 {/* Row 2: Store Profile & Add Button */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-4">
@@ -148,7 +147,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 انشئ خدمة جديدة
                             </Button>
                         </Link>
-                        <Link href={`/admin/reports/${storeId}`}>
+                        <Link href={`/admin/serviceProviders/reports/${storeId}`}>
                             <Button className="bg-red-2 text-red-1 px-6 gap-2">
                                الإبلاغات
                             </Button>

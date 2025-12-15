@@ -1,7 +1,8 @@
 // src/features/(dashboard)/users/components/UsersPage.tsx
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation"; // 1. استيراد الـ Hooks الخاصة بالراوتر
 import { useInfiniteGetUsers } from "../hooks";
 import { useGetRoles } from "../../roles/hooks";
 import { User } from "../api";
@@ -12,7 +13,14 @@ import Link from "next/link";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
 
 export function UsersPage() {
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // 2. قراءة الـ ID من الرابط بدلاً من State
+  const userIdParam = searchParams.get("userId");
+  const selectedUserId = userIdParam ? Number(userIdParam) : null;
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeRoleName, setActiveRoleName] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -50,7 +58,6 @@ export function UsersPage() {
     return params;
   }, [searchQuery, activeRoleName, statusFilter]);
 
-  // استخدام useInfiniteGetUsers بدلاً من useGetUsers
   const {
     data,
     isLoading,
@@ -60,41 +67,58 @@ export function UsersPage() {
     isFetchingNextPage,
   } = useInfiniteGetUsers(queryParams);
 
-  // دمج الصفحات في مصفوفة واحدة
   const allUsers = useMemo(() => {
     return data?.pages.flatMap((page) => page.data) || [];
   }, [data]);
 
-  const handleSelectUser = (user: User) => {
-    setSelectedUserId(user.id);
+  // 3. دالة مساعدة لتحديث الرابط
+  const updateUrl = (key: string, value: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
-    if (window.innerWidth < 1024) {
+  const handleSelectUser = (user: User) => {
+    // تحديث الرابط عند اختيار مستخدم
+    updateUrl("userId", String(user.id));
+  };
+
+  // تأثير للتمرير (Scroll) في وضع الموبايل عند تغيير المستخدم في الرابط
+  useEffect(() => {
+    if (selectedUserId && window.innerWidth < 1024) {
       detailsRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
     }
+  }, [selectedUserId]);
+
+  const handleUserUpdate = () => {
+     // يمكن هنا إعادة جلب البيانات إذا لزم الأمر
   };
 
-  const handleUserUpdate = () => {};
-
   const handleUserDelete = () => {
-    setSelectedUserId(null);
+    // إزالة المستخدم من الرابط عند الحذف
+    updateUrl("userId", null);
   };
 
   const handleRoleFilterChange = (roleName: string) => {
     setActiveRoleName(roleName);
-    setSelectedUserId(null);
+    updateUrl("userId", null); // إلغاء التحديد عند تغيير الفلتر
   };
 
   const handleStatusFilterChange = (status: string) => {
     setStatusFilter(status);
-    setSelectedUserId(null);
+    updateUrl("userId", null);
   };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-    setSelectedUserId(null);
+    updateUrl("userId", null);
   };
 
   return (
@@ -145,17 +169,16 @@ export function UsersPage() {
 
           <div className="col-span-12 lg:col-span-3 h-full">
             <UserListSidebar
-              users={allUsers} // تمرير البيانات المدمجة
+              users={allUsers}
               isLoading={isLoading}
               isError={isError}
-              selectedUserId={selectedUserId}
+              selectedUserId={selectedUserId} // يتم تمرير الـ ID المأخوذ من الرابط
               onSelectUser={handleSelectUser}
               searchQuery={searchQuery}
               onSearchChange={handleSearchChange}
               className="h-full"
               statusFilter={statusFilter}
               onStatusFilterChange={handleStatusFilterChange}
-              // --- تمرير دوال Infinite Scroll ---
               onLoadMore={fetchNextPage}
               hasNextPage={hasNextPage}
               isFetchingNextPage={isFetchingNextPage}
@@ -164,7 +187,7 @@ export function UsersPage() {
 
           <div className="col-span-12 lg:col-span-7 h-full" ref={detailsRef}>
             <UserDetailsSidebar
-              selectedUserId={selectedUserId}
+              selectedUserId={selectedUserId} // الكومبوننت سيقوم بجلب البيانات تلقائياً بناءً على هذا الـ ID
               onUserUpdate={handleUserUpdate}
               onUserDelete={handleUserDelete}
               className="h-full"
