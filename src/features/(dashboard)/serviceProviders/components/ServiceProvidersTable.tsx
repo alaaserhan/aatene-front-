@@ -125,7 +125,7 @@ export function ServiceProvidersTable({
                                         <div className="flex items-center justify-center gap-2">
                                             <button
                                                 onClick={() => onEdit(store)}
-                                                className="w-8 h-8 flex items-center justify-center rounded-xs bg-blue-5 text-[#3A5779] hover:bg-[#e0eaff] transition-colors"
+                                                className="w-8 h-8  cursor-pointer flex items-center justify-center rounded-xs bg-blue-5 text-[#3A5779] hover:bg-[#e0eaff] transition-colors"
                                                 title="تعديل"
                                             >
                                                 <img src="/icons/dashboard/edit3.svg" className="w-4 h-4" alt="edit" />
@@ -133,14 +133,14 @@ export function ServiceProvidersTable({
 
                                             <button
                                                 onClick={() => onDelete(store)}
-                                                className="w-8 h-8 flex items-center justify-center rounded-xs bg-[#FFE5E7] text-[#FF4D4F] hover:bg-[#ffe0e2] transition-colors"
+                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#FFE5E7] text-[#FF4D4F] hover:bg-[#ffe0e2] transition-colors"
                                                 title="حذف"
                                             >
                                                 <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="delete" />
                                             </button>
                                             <button
                                                 onClick={() => onShow(store)}
-                                                className="w-8 h-8 flex items-center justify-center rounded-xs bg-[#E5FBFF] text-[#1298B2] hover:bg-[#d0f5fc] transition-colors"
+                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E5FBFF] text-[#1298B2] hover:bg-[#d0f5fc] transition-colors"
                                                 title="عرض التفاصيل"
                                             >
                                                 <Eye className="w-4 h-4" />

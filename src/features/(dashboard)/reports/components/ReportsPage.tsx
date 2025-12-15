@@ -85,7 +85,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
     return (
         <div>
 
-            <div className=" px-6 py-1 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 border-b border-gray-200">
+            <div className=" px-6 py-1 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                 <Breadcrumb items={breadcrumbItems} className="" />
 
                 <Link href="/admin/users/add">
@@ -220,7 +220,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center">
                                                 <span className="text-sm  font-medium" dir="ltr">
-                                                    {format(new Date(report.created_at), "dd/MM/yyyy - hh:mma aa", { locale: arSA }).replace("AM", "صباحاً").replace("PM", "مساءً")}
+                                                    {format(new Date(report.created_at), "dd/MM/yyyy - hh:mm aa", { locale: arSA })}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center">

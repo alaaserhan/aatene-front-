@@ -56,7 +56,7 @@ interface MediaFile {
 
 export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
   const router = useRouter();
-  
+
   // States
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [showMediaModal, setShowMediaModal] = useState(false);
@@ -111,21 +111,21 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
     // Optionally update the report immediately with new media
     // mapping to the structure expected by backend
     // This part depends on how your backend expects 'media' update
-     updateReport({
-         id: reportId,
-         payload: {
-             ...report,
-             // @ts-ignore
-             media: updatedAttachments.map(f => f.src) // Sending URLs or IDs
-         }
-     });
+    updateReport({
+      id: reportId,
+      payload: {
+        ...report,
+        // @ts-ignore
+        media: updatedAttachments.map(f => f.src) // Sending URLs or IDs
+      }
+    });
   };
 
   const handleSendReply = () => {
-      if(!replyText.trim()) return;
-      // Implement send reply logic here, or map it to updateReport content if that's the intention
-      toast.success("تم إرسال الرد بنجاح (محاكاة)");
-      setReplyText("");
+    if (!replyText.trim()) return;
+    // Implement send reply logic here, or map it to updateReport content if that's the intention
+    toast.success("تم إرسال الرد بنجاح (محاكاة)");
+    setReplyText("");
   };
 
   if (isLoading) {
@@ -139,160 +139,165 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
   if (!report) return <div>التقرير غير موجود</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 font-sans" dir="rtl">
-      <Breadcrumb items={breadcrumbItems} className="mb-6" />
+    <div className="p-4">
+      <Breadcrumb items={breadcrumbItems} className="mb-4" />
+      <main className="p-4 bg-white rounded-lg">
 
-      {/* --- Header Card --- */}
-      <div className="bg-[#F8F9FC] rounded-t-xl border border-gray-200 border-b-0 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-            <h1 className="text-2xl font-bold text-[#3A5779] mb-2 flex items-center gap-2">
-                شكوى رقم: {report.id}
+        {/* --- Header Card --- */}
+        <div className="bg-blue-6 rounded-md  p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-blue-3  flex items-center gap-2 mb-4">
+              شكوى رقم: {report.id}
             </h1>
-            <div className="flex items-center gap-3 text-sm">
-                 <span className="text-gray-500">نوع البلاغ:</span>
-                 <span className="font-medium text-gray-800">{report.report_type?.name}</span>
-                 <span className={cn("px-2 py-0.5 rounded text-xs border", STATUS_STYLES[report.status])}>
-                    {STATUS_OPTIONS.find(o => o.value === report.status)?.label || report.status}
-                 </span>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-2">حاله الشكوى</span>
+              <span className={cn("px-2 py-0.5 rounded-full  text-xs border font-medium", STATUS_STYLES[report.status])}>
+                {STATUS_OPTIONS.find(o => o.value === report.status)?.label || report.status}
+              </span>
+              <span className="text-gray-2">نوع البلاغ:</span>
+              <span className="font-medium ">{report.report_type?.name}</span>
             </div>
-        </div>
+          </div>
 
-        <div className="flex items-center gap-3">
-            <div className="w-[180px]">
-                <ReusableDropdown
-                    options={STATUS_OPTIONS}
-                    value={report.status}
-                    onChange={handleStatusChange}
-                    placeholder="تغيير الحالة"
-                    className="bg-white"
-                />
-            </div>
-            <Button 
-                variant="destructive" 
-                onClick={() => setDeleteModalOpen(true)}
-                className="bg-red-500 hover:bg-red-600 text-white gap-2"
+          <div className="flex items-center gap-2">
+            <ReusableDropdown
+              options={STATUS_OPTIONS}
+              value={report.status}
+              onChange={handleStatusChange}
+              placeholder="تغيير الحالة"
+              className="rounded-md"
+            />
+            <Button
+              variant="destructive"
+              onClick={() => setDeleteModalOpen(true)}
+              className="bg-red-500 hover:bg-red-600 text-white "
             >
-                <Trash2 className="w-4 h-4" />
-                حذف الشكوى
+              حذف الشكوى
             </Button>
+          </div>
         </div>
-      </div>
 
-      {/* --- Details Body --- */}
-      <div className="bg-white rounded-b-xl border border-gray-200 p-8 shadow-sm space-y-8">
-        
-        {/* Info Grid */}
-        <div className="grid grid-cols-1 gap-6">
-            
+        {/* --- Details Body --- */}
+        <div className=" p-8 space-y-6">
+
+          {/* Info Grid */}
+          <div className="grid grid-cols-1 gap-6">
+
             {/* Row 1 */}
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-                <div className="flex items-center gap-2 text-gray-500 w-1/3">
-                    <Tag className="w-5 h-5" />
-                    <span>نوع الشكوى</span>
-                </div>
-                <div className="text-gray-900 font-medium w-2/3 text-left">
-                    {report.report_type?.name}
-                </div>
+              <div className="flex items-center gap-2 text-gray-2 w-1/5">
+                <img src="/icons/dashboard/mark2.svg" className="w-5" alt="" />
+                <span>نوع الشكوى</span>
+              </div>
+              <div className=" font-medium w-4/5 ">
+                {report.report_type?.name}
+              </div>
             </div>
 
             {/* Row 2 */}
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-                <div className="flex items-center gap-2 text-gray-500 w-1/3">
-                    <Calendar className="w-5 h-5" />
-                    <span>تاريخ الشكوى</span>
-                </div>
-                <div className="text-gray-900 font-medium w-2/3 text-left" dir="ltr">
-                    {format(new Date(report.created_at), "yyyy-MM-dd HH:mm:ss")}
-                </div>
+              <div className="flex items-center gap-2 text-gray-2 w-1/5">
+                <img src="/icons/dashboard/calender.svg" className="w-5" alt="" />
+                <span>تاريخ الشكوى</span>
+              </div>
+              <div className=" font-medium w-4/5 " >
+                {format(new Date(report.created_at), "yyyy-MM-dd HH:mm:ss")}
+              </div>
             </div>
 
-             {/* Row 3 */}
-             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-                <div className="flex items-center gap-2 text-gray-500 w-1/3">
-                    <User className="w-5 h-5" />
-                    <span>العميل</span>
-                </div>
-                <div className="text-gray-900 font-medium w-2/3 text-left flex justify-end items-center gap-2 cursor-pointer hover:text-blue-600" onClick={() => router.push(`/admin/users?userId=${report.user.id}`)}>
-                    <span>{report.user.fullname}</span>
-                    <User className="w-4 h-4 text-gray-400" />
-                </div>
+            {/* Row 3 */}
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div className="flex items-center gap-2 text-gray-2 w-1/5">
+                <User className="w-5 h-5" />
+                <span>العميل</span>
+              </div>
+              <div className=" font-medium w-4/5  flex items-center gap-2 cursor-pointer hover:text-blue-600" onClick={() => router.push(`/admin/users?userId=${report.user.id}`)}>
+                <span>{report.user.fullname}</span>
+              </div>
             </div>
 
-             {/* Row 4 */}
-             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-                <div className="flex items-center gap-2 text-gray-500 w-1/3">
-                    <Hash className="w-5 h-5" />
-                    <span>رقم {report.product ? "المنتج" : "الطلب"}</span>
-                </div>
-                <div className="text-gray-900 font-medium w-2/3 text-left">
-                    {report.product?.id || report.id}
-                </div>
+            {/* Row 4 */}
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <div className="flex items-center gap-2 text-gray-2 w-1/5">
+                <Hash className="w-5 h-5" />
+                <span>رقم {report.product ? "المنتج" : "الطلب"}</span>
+              </div>
+              <div className=" font-medium w-4/5 ">
+                {report.product?.id || report.id}
+              </div>
             </div>
 
-        </div>
+          </div>
 
-        {/* Description Section */}
-        <div className="space-y-2">
-             <h3 className="text-sm text-gray-500 font-medium mb-2">وصف المشكلة</h3>
-             <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 text-gray-700 leading-relaxed min-h-[100px]">
-                {report.content || "لا يوجد وصف متاح لهذه المشكلة."}
-             </div>
-        </div>
+          {/* Description Section */}
+          <div className="space-y-2">
+            <h3 className="text-sm text-gray-2 font-medium mb-2">وصف المشكلة</h3>
+            <div className=" p-4 rounded-lg border border-gray-100  leading-relaxed min-h-[100px]">
+              {report.content || "لا يوجد وصف متاح لهذه المشكلة."}
+            </div>
+          </div>
 
-        {/* Attachments Section */}
-        <div className="flex items-center justify-between border-t border-gray-100 pt-6">
-            <div className="flex items-center gap-2 text-gray-500">
-                <Paperclip className="w-5 h-5" />
-                <span>المرفقات</span>
+          {/* Attachments Section */}
+          <div className="flex items-center  border-t border-gray-100 pt-6">
+            <div className="flex items-center gap-2 text-gray-2 w-1/5">
+              <img src="/icons/dashboard/gallery.svg" className="w-5" alt="" />
+              <span>المرفقات</span>
             </div>
 
-            <div className="flex items-center gap-3 flex-wrap justify-end">
+            <div className="w-4/5 flex items-center justify-between">
+              <div className="flex items-center gap-3 flex-wrap  ">
                 {attachments.map((file, idx) => (
-                    <div key={idx} className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200">
-                         {file.mime_type?.includes('image') || file.src?.match(/\.(jpeg|jpg|gif|png)$/) ? (
-                             <ImageIcon className="w-4 h-4 text-blue-500" />
-                         ) : (
-                             <FileIcon className="w-4 h-4 text-orange-500" />
-                         )}
-                         <span className="text-xs font-medium text-gray-700 max-w-[100px] truncate">
-                            {file.file_name || "مرفق"}
-                         </span>
-                    </div>
+                  <div key={idx} title={file.file_name} className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200">
+                    {file.mime_type?.includes('image') || file.src?.match(/\.(jpeg|jpg|gif|png)$/) ? (
+                      <img src="/icons/dashboard/gallery.svg" className="w-4" alt="" />
+                    ) : (
+                      <FileIcon className="w-4 h-4 " />
+                    )}
+                    <span className="text-xs font-medium text-gray-2  max-w-[100px] truncate" dir="ltr">
+                      {file.file_name || "مرفق"}
+                    </span>
+                  </div>
                 ))}
-                
-                <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setShowMediaModal(true)}
-                    className="gap-2 bg-gray-50 hover:bg-gray-100 border-dashed border-gray-300 text-gray-600 rounded-full px-4"
-                >
-                    <Plus className="w-4 h-4" />
-                    ارفاق ملفات
-                </Button>
-            </div>
-        </div>
-        
-        {/* Reply Section (Visual Placeholder based on UI) */}
-        <div className="pt-6 border-t border-gray-100">
-            <div className="relative">
-                <textarea 
-                    className="w-full h-32 p-4 bg-white border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all text-sm"
-                    placeholder="اضافة رد ....."
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                ></textarea>
-                <div className="absolute bottom-4 left-4">
-                     <Button 
-                        onClick={handleSendReply}
-                        className="bg-[#3A5779] hover:bg-[#2c4460] text-white px-6"
-                     >
-                        اضافة
-                     </Button>
-                </div>
-            </div>
-        </div>
+              </div>
 
-      </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowMediaModal(true)}
+                className="gap-2 bg-gray-50 hover:bg-gray-100 border-dashed border-gray-300 text-gray-600 rounded-full px-4"
+              >
+                <Plus className="w-4 h-4" />
+                ارفاق ملفات
+              </Button>
+            </div>
+          </div>
+
+
+
+
+
+          {/* Reply Section (Visual Placeholder based on UI) */}
+          <div className="pt-6 border-t border-gray-100">
+            <div className="relative">
+              <textarea
+                className="w-full h-32 p-4 bg-white border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all text-sm"
+                placeholder="اضافة رد ....."
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+              ></textarea>
+              <div className="absolute bottom-4 left-4">
+                <Button
+                  onClick={handleSendReply}
+                  className="bg-[#3A5779] hover:bg-[#2c4460] text-white px-6"
+                >
+                  اضافة
+                </Button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
 
       <ConfirmDeleteModal
         isOpen={deleteModalOpen}

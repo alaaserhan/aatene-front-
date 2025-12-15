@@ -19,7 +19,7 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
     },
     { 
       id: "messenger", 
-      label: "فيسبوك", 
+      label: "ماسنجر", 
       iconPath: "/icons/dashboard/facebook.svg" 
     },
     { 
