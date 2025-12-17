@@ -59,19 +59,19 @@ export function ServicesTable({
     }
 
     return (
-        <div className="flex flex-col h-full rounded-lg overflow-hidden border border-gray-200">
+        <div className="flex flex-col h-full ">
             <div className="overflow-x-auto">
                 <table className="w-full ">
                     <thead className="bg-[#EEF2F6] border-b border-gray-200">
                         <tr>
-                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">كود الخدمة</th>
-                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">صورة الخدمة</th>
-                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-right w-1/4">عنوان الخدمة</th>
-                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">مشاهدات</th>
-                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">عدد التواصل</th>
-                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">للمفضلة</th>
-                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">مرئي</th>
-                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">عمليات</th>
+                            <th className="px-6 py-4 text-xs font-medium text-center">كود الخدمة</th>
+                            <th className="px-6 py-4 text-xs font-medium text-center">صورة الخدمة</th>
+                            <th className="px-6 py-4 text-xs font-medium text-right w-1/4">عنوان الخدمة</th>
+                            <th className="px-6 py-4 text-xs font-medium text-center">مشاهدات</th>
+                            <th className="px-6 py-4 text-xs font-medium text-center">عدد التواصل</th>
+                            <th className="px-6 py-4 text-xs font-medium text-center">للمفضلة</th>
+                            <th className="px-6 py-4 text-xs font-medium text-center">مرئي</th>
+                            <th className="px-6 py-4 text-xs font-medium text-center">عمليات</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
