@@ -26,6 +26,7 @@ interface AddServicePageProps {
 }
 
 export function AddServicePage({ storeId }: AddServicePageProps) {
+  
   const router = useRouter();
   const toastShownRef = useRef(false);
 
@@ -92,6 +93,8 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
       slug: `service-${Date.now()}`,
       title: formData.step1.title,
       category_id: formData.step1.category_id,
+      section_id: formData.step1.section_id,
+      store_id: Number(storeId),
       tags: formData.step1.tags,
       specialties: formData.step1.specialties,
       
@@ -105,7 +108,6 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
       questions: formData.step4.questions,
       
       status: "pending",
-      section_id: 0 // Optional
     };
 
     try {

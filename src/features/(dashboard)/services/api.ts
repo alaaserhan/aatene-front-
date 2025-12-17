@@ -3,7 +3,7 @@ import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import Cookies from "js-cookie";
 
-export type ServiceStatus = "pending" | "draft" | "rejected" | "approved";
+export type ServiceStatus = "pending" | "rejected" | "approved";
 export type ExecuteType = "min" | "hour" | "day" | "week" | "month" | "year";
 
 export interface ServiceExtra {
@@ -24,10 +24,14 @@ export interface Service {
   title: string;
   price: string | number;
   description: string;
-  images: string[];
-  images_urls: string[];
+  images: string; // تحديث بناءً على JSON
+  images_url: string; // تحديث بناءً على JSON
   execute_type: ExecuteType;
   execute_count: string | number;
+  shown: boolean; // جديد
+  favorites_count: string | number; // جديد
+  messages_count: string | number; // جديد
+  view_count: string | number; // جديد
   section_id: string | number;
   category_id: string | number;
   store_id: string | number;
@@ -39,7 +43,6 @@ export interface Service {
   extras?: ServiceExtra[];
   questions?: ServiceQuestion[];
 }
-
 export interface BaseResponse {
   status: boolean;
   message: string;
@@ -60,6 +63,7 @@ export interface ServicePayload {
   title: string;
   section_id: number | string;
   category_id: number | string;
+  store_id?: number | string;
   specialties?: string[];
   tags?: string[];
   status: ServiceStatus;
@@ -141,7 +145,7 @@ export const deleteService = async (
 
 export const updateServiceStatus = async (
   id: number | string,
-  payload: ServiceStatusPayload,
+  payload: { status?: ServiceStatus; shown?: boolean },
   storeId?: number | string
 ): Promise<BaseResponse> => {
   const endpoint = getDynamicEndpoint(`/services/${id}/update-status`);

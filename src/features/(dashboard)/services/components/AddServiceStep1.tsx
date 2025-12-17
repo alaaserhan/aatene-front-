@@ -13,6 +13,7 @@ import { HelpCircle } from "lucide-react";
 import { Step1ServiceData } from "../types";
 import { cn } from "@/src/lib/utils";
 import { useGetCategories } from "../../categoriesAndAttributes/hooks";
+import { useGetSections } from "../../sections/hooks"; // استيراد هوك الأقسام
 import { Stepper } from "@/src/components/ui/Stepper";
 import { ServicePreviewSidebar } from "./ServicePreviewSidebar";
 import { useGetSingleStore } from "../../stores/hooks";
@@ -45,13 +46,13 @@ export function AddServiceStep1({
   const { data: storeData } = useGetSingleStore(storeId, { enabled: !!storeId });
   const store = storeData?.record;
 
-  // Ref for the category dropdown to control scroll and open state
   const categoryDropdownRef = useRef<DropdownRef>(null);
   const categorySectionRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState<Step1ServiceData>({
     title: initialData?.title || "",
     category_id: initialData?.category_id || "",
+    section_id: initialData?.section_id || "", // تهيئة القسم
     tags: initialData?.tags || [],
     specialties: initialData?.specialties || [],
     price: initialData?.price || 0,
@@ -66,6 +67,7 @@ export function AddServiceStep1({
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // --- Fetch Categories ---
   const categoriesQueryParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("per_page", "1000");
@@ -86,6 +88,29 @@ export function AddServiceStep1({
     );
   }, [categoriesData]);
 
+  // --- Fetch Sections ---
+  const sectionsQueryParams = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("per_page", "1000");
+    params.set("store_id", String(storeId));
+    return params;
+  }, [storeId]);
+
+  const { data: sectionsData, isLoading: isSectionsLoading } = useGetSections(
+    sectionsQueryParams,
+    storeId,
+    { enabled: !!storeId }
+  );
+
+  const sectionOptions = useMemo(() => {
+    return (
+      sectionsData?.data?.map((sec) => ({
+        value: String(sec.id),
+        label: sec.name,
+      })) || []
+    );
+  }, [sectionsData]);
+
   const selectedCategoryName = useMemo(() => {
     return categoriesData?.data?.find(c => String(c.id) === String(formData.category_id))?.name || "تصنيف غير محدد";
   }, [categoriesData, formData.category_id]);
@@ -100,6 +125,10 @@ export function AddServiceStep1({
     }
     if (errors.category_id && formData.category_id) {
       delete newErrors.category_id;
+      hasChanges = true;
+    }
+    if (errors.section_id && formData.section_id) {
+      delete newErrors.section_id;
       hasChanges = true;
     }
 
@@ -134,12 +163,6 @@ export function AddServiceStep1({
     setFormData(prev => ({ ...prev, specialties: prev.specialties.filter(i => i !== itemToRemove) }));
   };
 
-  const addSuggestionSpecialty = (sug: string) => {
-    if (!formData.specialties.includes(sug)) {
-      setFormData(prev => ({ ...prev, specialties: [...prev.specialties, sug] }));
-    }
-  };
-
   const handleAddTag = () => {
     const val = tagInput.trim();
     if (!val) return;
@@ -166,16 +189,11 @@ export function AddServiceStep1({
     setFormData(prev => ({ ...prev, tags: prev.tags.filter(i => i !== itemToRemove) }));
   };
 
-  const addSuggestionTag = (sug: string) => {
-    if (!formData.tags.includes(sug)) {
-      setFormData(prev => ({ ...prev, tags: [...prev.tags, sug] }));
-    }
-  };
-
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.title.trim()) newErrors.title = "عنوان الخدمة مطلوب";
     if (!formData.category_id) newErrors.category_id = "التصنيف الرئيسي مطلوب";
+    if (!formData.section_id) newErrors.section_id = "القسم مطلوب"; // التحقق من القسم
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -185,8 +203,14 @@ export function AddServiceStep1({
       onNext(formData);
     } else {
       const firstError = Object.keys(errors)[0];
-      const element = document.querySelector(`[name="${firstError}"]`);
+      // التمرير إلى العنصر الذي يحتوي على الخطأ أو اسم الحقل
+      const element = document.getElementsByName(firstError)[0] || document.getElementById(firstError); 
       element?.scrollIntoView({ behavior: "smooth", block: "center" });
+      
+      // Fallback scroll if specific element not found (e.g. dropdowns sometimes don't have name attr on container)
+      if(!element) {
+         window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   };
 
@@ -245,6 +269,7 @@ export function AddServiceStep1({
 
               <div className="space-y-6">
 
+                {/* Title */}
                 <div className="space-y-1">
                   <FormInput
                     label="عنوان الخدمة"
@@ -261,7 +286,8 @@ export function AddServiceStep1({
                   </p>
                 </div>
 
-                <div className="space-y-2" ref={categorySectionRef}>
+                {/* Category Dropdown */}
+                <div className="space-y-2" ref={categorySectionRef} id="category_id">
                   <Label className="text-sm font-medium flex items-center gap-1">
                     التصنيف الرئيسي <span className="text-red-500">*</span>
                   </Label>
@@ -276,10 +302,26 @@ export function AddServiceStep1({
                   />
                 </div>
 
+                {/* Section Dropdown (New) */}
+                <div className="space-y-2" id="section_id">
+                  <Label className="text-sm font-medium flex items-center gap-1">
+                    القسم <span className="text-red-500">*</span>
+                  </Label>
+                  <ReusableDropdown
+                    options={sectionOptions}
+                    value={formData.section_id ? String(formData.section_id) : ""}
+                    onChange={(value) => setFormData({ ...formData, section_id: value })}
+                    placeholder={isSectionsLoading ? "جاري التحميل..." : "اختر القسم"}
+                    error={errors.section_id}
+                    className="h-12"
+                  />
+                </div>
+
+                {/* Specialties */}
                 <div className="space-y-4 pt-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium text-gray-900">
-                      تخصصات أو مجالات العمل
+                        تخصصات أو مجالات العمل
                     </Label>
                     <Tooltip
                       trigger={
@@ -327,6 +369,7 @@ export function AddServiceStep1({
                   )}
                 </div>
 
+                {/* Keywords */}
                 <div className="space-y-4 pt-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium text-gray-900">
@@ -392,7 +435,7 @@ export function AddServiceStep1({
               storeInfo={{
                 name: store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "",
                 avatar: store?.owner?.avatar_url || "",
-                address: store?.address || ""
+                location: store?.city?.name
               }}
             />
           </div>

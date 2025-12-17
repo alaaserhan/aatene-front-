@@ -48,6 +48,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
           step1: {
             title: service.title,
             category_id: service.category_id,
+            section_id: service.section_id,
             tags: service.tags || [],
             specialties: service.specialties || [],
           },
@@ -125,6 +126,8 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
       slug: serviceResponse?.data.slug || "", 
       title: step1.title,
       category_id: step1.category_id,
+      section_id: step1.section_id,
+      store_id: Number(storeId),
       tags: step1.tags,
       specialties: step1.specialties,
       
@@ -138,7 +141,6 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
       questions: step4.questions,
       
       status: serviceResponse?.data.status || "pending",
-      section_id: 0,
     };
 
     try {

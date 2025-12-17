@@ -5,12 +5,17 @@ import { ExecuteType, ServiceExtra, ServiceQuestion } from "./api";
 export interface Step1ServiceData {
   title: string;
   category_id: number | string;
+  section_id: number | string; // تمت الإضافة
   tags: string[];
   specialties: string[];
+  
+  // حقول اختيارية للتوافق
   price?: number;
   description?: string;
   images?: string[];
   images_previews?: string[];
+  execute_count?: number;
+  execute_type?: ExecuteType;
 }
 
 export interface Step2ServiceData {
@@ -30,7 +35,6 @@ export interface Step4ServiceData {
   questions: ServiceQuestion[];
 }
 
-// بيانات الخطوة 5 (مجرد حالة للموافقات)
 export interface Step5ServiceData {
   termsAgreed: boolean;
   privacyAgreed: boolean;

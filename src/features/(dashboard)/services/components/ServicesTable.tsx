@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Pencil, Trash2, Loader2, MoreHorizontal } from "lucide-react";
+import { Pencil, Trash2, Loader2, MoreHorizontal, Share2, Eye, MessageSquare, Heart } from "lucide-react";
 import { Service } from "../api";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import {
@@ -12,6 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import { Pagination } from "@/src/components/ui/Pagination";
+import { toast } from "sonner";
 
 interface ServicesTableProps {
     services: Service[];
@@ -19,7 +20,7 @@ interface ServicesTableProps {
     currentPage: number;
     totalPages: number;
     onPageChange: (page: number) => void;
-    onToggleStatus: (service: Service) => void;
+    onToggleShown: (service: Service) => void;
     onEdit: (service: Service) => void;
     onDelete: (service: Service) => void;
 }
@@ -30,101 +31,125 @@ export function ServicesTable({
     currentPage,
     totalPages,
     onPageChange,
-    onToggleStatus,
+    onToggleShown,
     onEdit,
     onDelete,
 }: ServicesTableProps) {
 
+    const handleShare = (slug: string) => {
+        const url = `${window.location.origin}/services/${slug}`;
+        navigator.clipboard.writeText(url);
+        toast.success("تم نسخ رابط الخدمة");
+    };
+
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px] bg-white rounded-lg border border-gray-200">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="w-8 h-8 animate-spin text-[#3A5779]" />
             </div>
         );
     }
 
     if (services.length === 0) {
         return (
-            <div className="flex flex-col min-h-[400px] items-center justify-center bg-white rounded-lg border border-gray-200">
-                <p className="text-gray-500">لا توجد خدمات للعرض</p>
+            <div className="flex flex-col min-h-[300px] items-center justify-center">
+                <p className="text-gray-500">لا توجد خدمات في هذا القسم</p>
             </div>
         );
     }
 
-    // دالة مساعدة لترجمة نوع التنفيذ
-    const getExecuteTypeLabel = (type: string) => {
-        const map: Record<string, string> = {
-            min: "دقيقة",
-            hour: "ساعة",
-            day: "يوم",
-            week: "أسبوع",
-            month: "شهر",
-            year: "سنة",
-        };
-        return map[type] || type;
-    };
-
     return (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col h-full">
+        <div className="flex flex-col h-full rounded-lg overflow-hidden border border-gray-200">
             <div className="overflow-x-auto">
-                <table className="w-full text-right">
-                    <thead className="bg-[#F0F0F0] border-b border-gray-200">
+                <table className="w-full ">
+                    <thead className="bg-[#EEF2F6] border-b border-gray-200">
                         <tr>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">ID</th>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-start">الخدمة</th>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">السعر</th>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">مدة التنفيذ</th>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">الحالة</th>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">عمليات</th>
+                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">كود الخدمة</th>
+                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">صورة الخدمة</th>
+                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-right w-1/4">عنوان الخدمة</th>
+                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">مشاهدات</th>
+                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">عدد التواصل</th>
+                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">للمفضلة</th>
+                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">مرئي</th>
+                            <th className="px-6 py-4 text-xs font-bold text-gray-600 text-center">عمليات</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-gray-100 bg-white">
                         {services.map((service) => (
-                            <tr key={service.id} className="hover:bg-gray-50/50">
-                                <td className="px-6 py-4 text-sm font-medium text-center text-gray-500">
+                            <tr key={service.id} className="hover:bg-gray-50/50 transition-colors">
+                                
+                                {/* Code */}
+                                <td className="px-6 py-4 text-sm font-medium text-center ">
                                     #{service.id}
                                 </td>
+
+                                {/* Image */}
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden shrink-0 border border-gray-200">
-                                            {service.images_urls?.[0] ? (
+                                    <div className="flex justify-center">
+                                        <div className="w-16 h-12 rounded bg-gray-100 overflow-hidden relative">
+                                            {service.images_url ? (
                                                 <img
-                                                    src={service.images_urls[0]}
+                                                    src={service.images_url}
                                                     alt={service.title}
                                                     className="w-full h-full object-cover"
                                                 />
                                             ) : (
-                                                <div className="flex items-center justify-center h-full text-gray-400 text-xs">
-                                                    No IMG
+                                                <div className="flex items-center justify-center h-full text-gray-300">
+                                                    <span className="text-[10px]">No Img</span>
                                                 </div>
                                             )}
                                         </div>
-                                        <span className="text-sm font-medium text-gray-900 line-clamp-2 max-w-[200px]">
-                                            {service.title}
-                                        </span>
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 text-sm font-bold text-center text-blue-600">
-                                    {Number(service.price).toLocaleString()} ر.س
+
+                                {/* Title */}
+                                <td className="px-6 py-4">
+                                    <span className="text-sm font-medium line-clamp-2 leading-relaxed">
+                                        {service.title}
+                                    </span>
                                 </td>
-                                <td className="px-6 py-4 text-sm text-center text-gray-600">
-                                    {service.execute_count} {getExecuteTypeLabel(service.execute_type)}
+
+                                {/* Views */}
+                                <td className="px-6 py-4 text-center">
+                                    <span className="text-sm ">{service.view_count || 0}</span>
+                                </td>
+
+                                {/* Contacts (Messages) */}
+                                <td className="px-6 py-4 text-center">
+                                    <span className="text-sm ">{service.messages_count || 0}</span>
+                                </td>
+
+                                {/* Favorites */}
+                                <td className="px-6 py-4 text-center">
+                                    <span className="text-sm ">{service.favorites_count || 0}</span>
                                 </td>
                                 
+                                {/* Visible Toggle */}
                                 <td className="px-6 py-4 text-center">
                                     <div className="flex justify-center">
                                         <ToggleSwitch
-                                            enabled={service.status === "approved"}
-                                            onChange={() => onToggleStatus(service)}
+                                            enabled={service.shown}
+                                            onChange={() => onToggleShown(service)}
                                         />
                                     </div>
                                 </td>
 
+                                {/* Actions */}
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center justify-center">
+                                    <div className="flex items-center justify-center gap-2">
+                                        {/* Share Button (Cyan/Blue bg) */}
+                                        <button 
+                                            onClick={() => handleShare(service.slug)}
+                                            className="w-8 h-8 flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
+                                            title="مشاركة"
+                                        >
+                                            <Share2 className="w-4 h-4" />
+                                        </button>
+
+                                        {/* More Actions (Grey bg) */}
                                         <DropdownMenu dir="rtl">
                                             <DropdownMenuTrigger asChild>
-                                                <button type="button" className="w-8 h-8 flex items-center justify-center rounded-xs text-blue-3 bg-blue-5 cursor-pointer hover:bg-blue-100 transition-colors">
+                                                <button type="button" className="w-8 h-8 flex items-center justify-center rounded-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
                                                     <MoreHorizontal className="w-5 h-5" />
                                                 </button>
                                             </DropdownMenuTrigger>
@@ -154,7 +179,7 @@ export function ServicesTable({
             </div>
 
             {totalPages > 1 && (
-                <div className="p-4 border-t border-gray-200 mt-auto">
+                <div className="p-4 border-t border-gray-100 mt-auto">
                     <Pagination
                         totalPages={totalPages}
                         currentPage={currentPage}
