@@ -81,6 +81,7 @@ export function ProductsPage() {
   // Auto-select first section for Merchant
   useEffect(() => {
     if (isMerchant && sections.length > 0 && !selectedSectionId) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       setSelectedSectionId(String(sections[0].id));
     }
   }, [isMerchant, sections, selectedSectionId]);

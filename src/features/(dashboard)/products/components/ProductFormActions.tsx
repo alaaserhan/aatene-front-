@@ -29,7 +29,7 @@ export function ProductFormActions({
     isSubmitting = false,
     showBack = true,
     showCancel = false,
-    showSaveDraft = true,
+    showSaveDraft = false,
 }: ProductFormActionsProps) {
     return (
         <div className="flex gap-4 justify-between mt-6 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)] p-6">

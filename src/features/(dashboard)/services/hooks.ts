@@ -8,17 +8,17 @@ import { AxiosError } from "axios";
 import * as api from "./api";
 import { toast } from "sonner";
 
-export function useGetServices(params: URLSearchParams) {
+export function useGetServices(params: URLSearchParams, storeId?: number | string) {
   return useQuery({
-    queryKey: ["services", params.toString()],
-    queryFn: () => api.getServices(params),
+    queryKey: ["services", params.toString(), storeId],
+    queryFn: () => api.getServices(params, storeId),
   });
 }
 
-export function useGetService(id: number | string) {
+export function useGetService(id: number | string, storeId?: number | string) {
   return useQuery({
-    queryKey: ["services", id],
-    queryFn: () => api.getSingleService(id),
+    queryKey: ["services", id, storeId],
+    queryFn: () => api.getSingleService(id, storeId),
     enabled: !!id,
   });
 }
@@ -43,10 +43,12 @@ export function useUpdateService() {
     mutationFn: ({
       id,
       payload,
+      storeId
     }: {
       id: number | string;
       payload: api.ServicePayload;
-    }) => api.updateService(id, payload),
+      storeId?: number | string;
+    }) => api.updateService(id, payload, storeId),
     onSuccess: (data) => {
       toast.success("تم تعديل الخدمة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["services"] });
@@ -61,8 +63,9 @@ export function useUpdateService() {
 export function useDeleteService() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: api.deleteService,
-    onMutate: async (id) => {
+    mutationFn: ({ id, storeId }: { id: number | string; storeId?: number | string }) => 
+      api.deleteService(id, storeId),
+    onMutate: async ({ id }) => {
       await queryClient.cancelQueries({ queryKey: ["services"] });
 
       const previousData = queryClient.getQueriesData({ queryKey: ["services"] });
@@ -85,7 +88,7 @@ export function useDeleteService() {
     onSuccess: () => {
       toast.success("تم حذف الخدمة بنجاح");
     },
-    onError: (error: AxiosError<api.BaseResponse>, id, context) => {
+    onError: (error: AxiosError<api.BaseResponse>, vars, context) => {
       if (context?.previousData) {
         context.previousData.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);
@@ -105,10 +108,12 @@ export function useUpdateServiceStatus() {
     mutationFn: ({
       id,
       payload,
+      storeId
     }: {
       id: number | string;
       payload: api.ServiceStatusPayload;
-    }) => api.updateServiceStatus(id, payload),
+      storeId?: number | string;
+    }) => api.updateServiceStatus(id, payload, storeId),
     onMutate: async ({ id, payload }) => {
       await queryClient.cancelQueries({ queryKey: ["services"] });
       

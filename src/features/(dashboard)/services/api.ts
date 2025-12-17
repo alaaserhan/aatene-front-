@@ -77,16 +77,17 @@ export interface ServiceStatusPayload {
   reason?: string;
 }
 
-const getHeaders = () => {
-  const storeId = Cookies.get("current_store_id");
-  return storeId ? { storeId } : undefined;
+const getHeaders = (storeId?: number | string) => {
+  const currentStoreId = storeId || Cookies.get("current_store_id");
+  return currentStoreId ? { storeId: String(currentStoreId) } : undefined;
 };
 
 export const getServices = async (
-  params: URLSearchParams
+  params: URLSearchParams,
+  storeId?: number | string
 ): Promise<ServicesResponse> => {
   const endpoint = getDynamicEndpoint("/services");
-  const headers = getHeaders();
+  const headers = getHeaders(storeId);
   const { data } = await api.get<ServicesResponse>(
     `${endpoint}?${params.toString()}`,
     { headers }
@@ -95,19 +96,20 @@ export const getServices = async (
 };
 
 export const getSingleService = async (
-  id: number | string
+  id: number | string,
+  storeId?: number | string
 ): Promise<SingleServiceResponse> => {
   const endpoint = getDynamicEndpoint(`/services/${id}`);
-  const headers = getHeaders();
+  const headers = getHeaders(storeId);
   const { data } = await api.get<SingleServiceResponse>(endpoint, { headers });
   return data;
 };
 
 export const createService = async (
-  payload: ServicePayload
+  { payload, storeId }: { payload: ServicePayload; storeId?: number | string }
 ): Promise<SingleServiceResponse> => {
   const endpoint = getDynamicEndpoint("/services");
-  const headers = getHeaders();
+  const headers = getHeaders(storeId);
   const { data } = await api.post<SingleServiceResponse>(endpoint, payload, {
     headers,
   });
@@ -116,10 +118,11 @@ export const createService = async (
 
 export const updateService = async (
   id: number | string,
-  payload: ServicePayload
+  payload: ServicePayload,
+  storeId?: number | string
 ): Promise<SingleServiceResponse> => {
   const endpoint = getDynamicEndpoint(`/services/${id}`);
-  const headers = getHeaders();
+  const headers = getHeaders(storeId);
   const { data } = await api.post<SingleServiceResponse>(endpoint, payload, {
     headers,
   });
@@ -127,20 +130,22 @@ export const updateService = async (
 };
 
 export const deleteService = async (
-  id: number | string
+  id: number | string,
+  storeId?: number | string
 ): Promise<BaseResponse> => {
   const endpoint = getDynamicEndpoint(`/services/${id}`);
-  const headers = getHeaders();
+  const headers = getHeaders(storeId);
   const { data } = await api.delete<BaseResponse>(endpoint, { headers });
   return data;
 };
 
 export const updateServiceStatus = async (
   id: number | string,
-  payload: ServiceStatusPayload
+  payload: ServiceStatusPayload,
+  storeId?: number | string
 ): Promise<BaseResponse> => {
   const endpoint = getDynamicEndpoint(`/services/${id}/update-status`);
-  const headers = getHeaders();
+  const headers = getHeaders(storeId);
   const { data } = await api.post<BaseResponse>(endpoint, payload, { headers });
   return data;
 };

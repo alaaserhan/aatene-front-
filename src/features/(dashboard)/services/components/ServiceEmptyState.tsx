@@ -38,7 +38,7 @@ export function ServiceEmptyState({ type, storeId }: ServiceEmptyStateProps) {
             <Link
                 href={isNoSections
                     ? `/admin/sections?store_id=${storeId}`
-                    : `/admin/services/add?store_id=${storeId}`
+                    : `/admin/serviceProviders/services/add/${storeId}`
                 }
             >
                 <Button className="bg-blue-3 text-white py-5 cursor-pointer rounded-xs">

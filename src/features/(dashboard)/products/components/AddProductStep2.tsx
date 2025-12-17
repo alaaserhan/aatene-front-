@@ -3,7 +3,6 @@
 import { useState, KeyboardEvent, useMemo, useEffect } from "react";
 import { HelpCircle } from "lucide-react";
 import Cookies from "js-cookie";
-import { ProductStepperProgress } from "./ProductStepperProgress";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -15,6 +14,7 @@ import { useGetSections } from "../../sections/hooks";
 import { Step1FormData, Step2FormData } from "../types";
 import { toast } from "sonner";
 import { Label } from "@/src/components/ui/label";
+import { Stepper } from "@/src/components/ui/Stepper";
 
 interface ExtendedStep2FormData extends Step2FormData {
   section_id?: number;
@@ -127,6 +127,7 @@ export function AddProductStep2({
     }
 
     if (hasChanges) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       setErrors(newErrors);
     }
   }, [formData.store_id, formData.section_id, errors]);
@@ -200,7 +201,7 @@ export function AddProductStep2({
           items={breadcrumbItems || defaultBreadcrumbItems}
           className="mb-4"
         />
-        <ProductStepperProgress
+        <Stepper
           currentStep={2}
           steps={barSteps}
           onStepClick={onStepClick}

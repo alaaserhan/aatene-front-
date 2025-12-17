@@ -1,0 +1,149 @@
+// src/features/(dashboard)/services/components/AddServiceStep3.tsx
+"use client";
+
+import { useState, useMemo } from "react";
+import { ProductFormActions } from "../../products/components/ProductFormActions";
+import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { Stepper } from "@/src/components/ui/Stepper";
+import { ServicePreviewSidebar } from "./ServicePreviewSidebar";
+import { useGetSingleStore } from "../../stores/hooks";
+import { Step1ServiceData, Step2ServiceData, Step3ServiceData } from "../types";
+import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
+import { toast } from "sonner";
+import Cookies from "js-cookie";
+
+interface AddServiceStep3Props {
+    previousDataStep1: Step1ServiceData;
+    previousDataStep2: Step2ServiceData;
+    initialData?: Step3ServiceData;
+    onNext: (data: Step3ServiceData) => void;
+    onBack: () => void;
+    onSaveDraft?: () => void;
+    barSteps: { number: number; label: string; completed: boolean }[];
+    breadcrumbItems?: { label: string; href?: string }[];
+    onStepClick?: (step: number) => void;
+    showSaveDraft?: boolean;
+}
+
+export function AddServiceStep3({
+    previousDataStep1,
+    previousDataStep2,
+    initialData,
+    onNext,
+    onBack,
+    onSaveDraft,
+    barSteps,
+    breadcrumbItems,
+    onStepClick,
+    showSaveDraft = false,
+}: AddServiceStep3Props) {
+
+    const storeId = Cookies.get("current_store_id");
+    const { data: storeData } = useGetSingleStore(storeId!, { enabled: !!storeId });
+    const store = storeData?.record;
+
+    const [images, setImages] = useState<string[]>(initialData?.images || []);
+    const [imagesPreviews, setImagesPreviews] = useState<string[]>(initialData?.images_previews || []);
+    const [error, setError] = useState<string>("");
+
+    const handleImagesChange = (files: string[], urls: string[]) => {
+        setImages(files);
+        setImagesPreviews(urls);
+        if (files.length > 0) setError("");
+    };
+
+    const validate = () => {
+        if (images.length === 0) {
+            setError("يجب إضافة صورة واحدة على الأقل للخدمة");
+            return false;
+        }
+        return true;
+    };
+
+    const handleNext = () => {
+        if (validate()) {
+            onNext({
+                images,
+                images_previews: imagesPreviews,
+            });
+        } else {
+            toast.error("يرجى رفع صور للخدمة");
+        }
+    };
+
+    const defaultBreadcrumbItems = [
+        { label: "الخدمات", href: "/admin/serviceProviders" },
+        { label: "انشاء خدمة جديدة" },
+    ];
+
+    return (
+        <div className="overflow-hidden">
+            <div className="container mx-auto py-4 px-4">
+
+                <Breadcrumb
+                    items={breadcrumbItems || defaultBreadcrumbItems}
+                    className="mb-4"
+                />
+
+                <Stepper
+                    currentStep={3}
+                    steps={barSteps}
+                    onStepClick={onStepClick}
+                />
+
+                <div className="grid grid-cols-12 gap-6 mt-8">
+
+                    {/* Right Side: Image Upload */}
+                    <div className="col-span-12 lg:col-span-8">
+                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+
+                            <div className="mb-8">
+                                <h2 className="text-xl font-bold text-gray-900 mb-1">صور الخدمة</h2>
+                            </div>
+
+                            <div className="space-y-6">
+                                <ImageGallerySelector
+                                    label="الصور"
+                                    subLabel="يمكنك إضافة حتى (10) صور و (1) فيديو"
+                                    value={images}
+                                    previews={imagesPreviews}
+                                    onChange={handleImagesChange}
+                                    maxFiles={10}
+                                    error={error}
+                                    showMainSelector={true} // لتحديد الصورة الرئيسية
+                                    mainImageLabel="الصورة الاساسية"
+                                    showDragHint={true}
+                                    allowedMediaTypes={["image", "gallery"]}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Left Side: Preview */}
+                    <div className="col-span-12 lg:col-span-4">
+                        <ServicePreviewSidebar
+                            data={{
+                                title: previousDataStep1.title,
+                                price: previousDataStep2.price,
+                                coverImage: imagesPreviews[0] || ""
+                            }}
+                            storeInfo={{
+                                name: store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "",
+                                avatar: store?.owner?.avatar_url || "",
+                                address: store?.address || ""
+                            }}
+                        />
+                    </div>
+
+                </div>
+            </div>
+
+            <ProductFormActions
+                onNext={handleNext}
+                onBack={onBack}
+                onSaveDraft={onSaveDraft}
+                showSaveDraft={showSaveDraft}
+            />
+        </div>
+    );
+}

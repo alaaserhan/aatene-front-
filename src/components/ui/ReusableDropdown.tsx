@@ -1,13 +1,19 @@
 // src/components/ui/ReusableDropdown.tsx
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from "react";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
 interface DropdownOption {
   value: string;
   label: string;
+}
+
+export interface DropdownRef {
+  open: () => void;
+  close: () => void;
+  toggle: () => void;
 }
 
 interface ReusableDropdownProps {
@@ -23,7 +29,7 @@ interface ReusableDropdownProps {
   isLoadingMore?: boolean;
 }
 
-export function ReusableDropdown({
+export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>(({
   options,
   value,
   onChange,
@@ -34,10 +40,16 @@ export function ReusableDropdown({
   dropdownPosition = "bottom",
   onReachEnd,
   isLoadingMore = false,
-}: ReusableDropdownProps) {
+}, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    open: () => setIsOpen(true),
+    close: () => setIsOpen(false),
+    toggle: () => setIsOpen((prev) => !prev),
+  }));
 
   const selectedOption = value
     ? options.find((opt) => opt.value === value)
@@ -167,4 +179,6 @@ export function ReusableDropdown({
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
-}
+});
+
+ReusableDropdown.displayName = "ReusableDropdown";

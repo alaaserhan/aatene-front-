@@ -141,7 +141,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                         </div>
                     </div>
                     <div className="flex flex-row gap-2">
-                        <Link href={`/admin/services/add?store_id=${storeId}`}>
+                        <Link href={`/admin/serviceProviders/services/add/${storeId}`}>
                             <Button className="bg-blue-3  text-white px-6 gap-2">
                                 <Plus className="w-5 h-5" />
                                 انشئ خدمة جديدة

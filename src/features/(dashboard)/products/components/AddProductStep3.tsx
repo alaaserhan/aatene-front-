@@ -5,7 +5,6 @@ import { useState, useMemo, useEffect } from "react";
 import { Search, X, Plus, Image as ImageIcon, UploadCloud, HelpCircle, Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ProductStepperProgress } from "./ProductStepperProgress";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -26,6 +25,7 @@ import {
 } from "@/src/components/ui/dialog";
 import { Input } from "@/src/components/ui/input";
 import { Tooltip } from "@/src/components/ui/Tooltip";
+import { Stepper } from "@/src/components/ui/Stepper";
 
 const useGetAttributes = (params: URLSearchParams) => {
     return useQuery({
@@ -76,6 +76,7 @@ export function AddProductStep3({
 
     useEffect(() => {
         if (initialData) {
+            // eslint-disable-next-line react-hooks/exhaustive-deps
             setHasVariations(initialData.hasVariations);
             setVariations(initialData.variations || []);
             if (initialData.attributes) {
@@ -126,7 +127,6 @@ export function AddProductStep3({
     const handleRemoveVariationRow = (id: string) => {
         setVariations(variations.filter((v) => v.id !== id));
     };
-
     const updateVariationRow = (id: string, field: keyof VariationRow, value: any) => {
         setVariations((prev) =>
             prev.map((row) => (row.id === id ? { ...row, [field]: value } : row))
@@ -144,7 +144,7 @@ export function AddProductStep3({
     };
 
     const handleImageSelect = (items: MediaItem | MediaItem[]) => {
-        
+
         if (activeRowIdForImage) {
             const selectedImages = Array.isArray(items) ? items.map(i => i.file_name) : [items.file_name];
             updateVariationRow(activeRowIdForImage, "images", selectedImages);
@@ -226,12 +226,11 @@ export function AddProductStep3({
         <div className="overflow-hidden">
             <div className="container mx-auto py-4 px-4">
                 <Breadcrumb items={breadcrumbItems || defaultBreadcrumbItems} className="mb-4" />
-                <ProductStepperProgress
+                <Stepper
                     currentStep={3}
                     steps={barSteps}
                     onStepClick={onStepClick}
                 />
-
                 <div className="grid grid-cols-12 gap-4 mt-8">
                     <div className="col-span-12 lg:col-span-9">
                         <div className="bg-white rounded-xl p-6 border border-gray-200">
@@ -557,6 +556,8 @@ function AttributeSelectionModal({
 
     useEffect(() => {
         if (isOpen) {
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+
             setLocalSelected(selectedIds);
             setSearch("");
         }

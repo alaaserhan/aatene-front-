@@ -6,7 +6,6 @@ import { Plus, HelpCircle, Percent, Tag, Check, Image as ImageIcon, Calendar as 
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
-import { ProductStepperProgress } from "./ProductStepperProgress";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -29,6 +28,7 @@ import {
     PopoverTrigger,
 } from "@/src/components/ui/popover";
 import { Calendar } from "@/src/components/ui/calendar"; // تأكد من وجود هذا المكون أو قم بتثبيته عبر shadcn
+import { Stepper } from "@/src/components/ui/Stepper";
 
 interface AddProductStep4Props {
     previousData: Step1FormData;
@@ -72,6 +72,7 @@ export function AddProductStep4({
 
     useEffect(() => {
         if (initialData) {
+            // eslint-disable-next-line react-hooks/exhaustive-deps
             setFormData({
                 crossSells: initialData.crossSells || [],
                 crossSellsData: initialData.crossSellsData || [],
@@ -144,7 +145,7 @@ export function AddProductStep4({
             ...formData,
             hasDiscount: true,
             cross_sells_price: price,
-             cross_sells_due_date: format(date, "yyyy-MM-dd"), 
+            cross_sells_due_date: format(date, "yyyy-MM-dd"),
         });
         setIsDiscountModalOpen(false);
         toast.success("تم تطبيق الخصم بنجاح");
@@ -170,12 +171,11 @@ export function AddProductStep4({
         <div className="">
             <div className="container mx-auto py-4 px-4">
                 <Breadcrumb items={breadcrumbItems || defaultBreadcrumbItems} className="mb-4" />
-                <ProductStepperProgress
+                <Stepper
                     currentStep={4}
                     steps={barSteps}
                     onStepClick={onStepClick}
                 />
-
                 <div className="grid grid-cols-12 gap-4 mt-8">
                     <div className="col-span-12 lg:col-span-9">
                         <div className="bg-white rounded-xl border border-gray-200 p-6">

@@ -3,7 +3,6 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { HelpCircle } from "lucide-react";
-import { ProductStepperProgress } from "./ProductStepperProgress";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { ProductFormActions } from "./ProductFormActions";
 import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
@@ -15,6 +14,7 @@ import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
 import { Step1FormData } from "../types";
 import { cn } from "@/src/lib/utils";
 import { useGetCategories } from "../../categoriesAndAttributes/hooks";
+import { Stepper } from "@/src/components/ui/Stepper";
 
 interface AddProductStep1Props {
   initialData?: Step1FormData;
@@ -155,6 +155,7 @@ export function AddProductStep1({
     }
 
     if (hasChanges) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       setErrors(newErrors);
     }
   }, [formData, errors]);
@@ -249,7 +250,9 @@ export function AddProductStep1({
           items={breadcrumbItems || defaultBreadcrumbItems}
           className="mb-4"
         />
-        <ProductStepperProgress
+
+
+        <Stepper
           currentStep={1}
           steps={barSteps}
           onStepClick={onStepClick}

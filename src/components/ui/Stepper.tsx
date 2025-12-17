@@ -1,26 +1,40 @@
-// src/features/(dashboard)/products/components/ProductStepperProgress.tsx
+// src/components/ui/Stepper.tsx
 "use client";
 
-import { cn } from "@/src/lib/utils";
 import React from "react";
+import { cn } from "@/src/lib/utils";
+import { Check } from "lucide-react";
 
-interface Step {
+export interface StepItem {
   number: number;
   label: string;
-  completed: boolean;
+  completed?: boolean;
 }
 
-interface ProductStepperProgressProps {
+interface StepperProps {
   currentStep: number;
-  steps: Step[];
+  steps: StepItem[];
   onStepClick?: (step: number) => void;
+  className?: string;
+  containerClassName?: string;
 }
 
-export function ProductStepperProgress({ currentStep, steps, onStepClick }: ProductStepperProgressProps) {
+export function Stepper({
+  currentStep,
+  steps,
+  onStepClick,
+  className,
+  containerClassName,
+}: StepperProps) {
   return (
-    <div className="w-full py-8" dir="rtl">
+    <div className={cn("w-full py-8", className)} dir="rtl">
       <div className="container mx-auto px-4">
-        <div className="flex items-start justify-between max-w-4xl mx-auto">
+        <div
+          className={cn(
+            "flex items-start justify-between mx-auto",
+            containerClassName || "max-w-4xl"
+          )}
+        >
           {steps.map((step, index) => {
             const isCompleted = step.completed || currentStep > step.number;
             const isActive = currentStep === step.number;
@@ -28,7 +42,8 @@ export function ProductStepperProgress({ currentStep, steps, onStepClick }: Prod
 
             return (
               <React.Fragment key={step.number}>
-                <div 
+                {/* Step Circle & Label */}
+                <div
                   className={cn(
                     "flex flex-col items-center relative z-10",
                     isClickable ? "cursor-pointer group" : ""
@@ -46,43 +61,42 @@ export function ProductStepperProgress({ currentStep, steps, onStepClick }: Prod
                     )}
                   >
                     {isCompleted ? (
-                      <svg
-                        className="w-6 h-6 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
+                      <Check className="w-6 h-6 text-white" strokeWidth={3} />
                     ) : (
-                      <span className={cn(
-                        "text-lg font-bold",
-                         isActive ? "text-blue-4" : "text-blue-4"
-                      )}>
+                      <span
+                        className={cn(
+                          "text-lg font-bold",
+                          "text-blue-4"
+                        )}
+                      >
                         {step.number}
                       </span>
                     )}
                   </div>
-                  
-                  <p className={cn(
-                    "mt-3 text-sm font-medium whitespace-nowrap transition-colors",
-                    isActive ? "text-blue-4" : "text-gray-500 group-hover:text-blue-4"
-                  )}>
+
+                  <p
+                    className={cn(
+                      "mt-3 text-sm font-medium whitespace-nowrap transition-colors",
+                      isActive
+                        ? "text-blue-4"
+                        : isCompleted
+                        ? "text-blue-4"
+                        : "text-gray-500 group-hover:text-blue-4"
+                    )}
+                  >
                     {step.label}
                   </p>
                 </div>
 
+                {/* Connector Line */}
                 {index < steps.length - 1 && (
                   <div className="flex-1 flex items-center self-start pt-6 px-2">
-                    <div className={cn(
-                      "w-full h-[2px] transition-colors duration-300",
-                      isCompleted ? "bg-blue-4" : "bg-gray-200"
-                    )} />
+                    <div
+                      className={cn(
+                        "w-full h-[2px] transition-colors duration-300",
+                        isCompleted ? "bg-blue-4" : "bg-gray-200"
+                      )}
+                    />
                   </div>
                 )}
               </React.Fragment>

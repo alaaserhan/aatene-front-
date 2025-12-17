@@ -10,7 +10,6 @@ export { ProductsPage } from "./ProductsPage";
 export { ProductTable } from "./ProductTable";
 export { ProductEmptyState } from "./ProductEmptyState";
 export { ProductPreviewSidebar } from "./ProductPreviewSidebar";
-export { ProductStepperProgress } from "./ProductStepperProgress";
 export { ProductFormActions } from "./ProductFormActions";
 export { ProductImageSelector } from "./ProductImageSelector";
 export { SelectProductsModal } from "./SelectProductsModal";
