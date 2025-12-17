@@ -90,7 +90,6 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
     }
 
     const payload: ServicePayload = {
-      slug: `service-${Date.now()}`,
       title: formData.step1.title,
       category_id: formData.step1.category_id,
       section_id: formData.step1.section_id,

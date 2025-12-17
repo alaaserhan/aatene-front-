@@ -59,7 +59,6 @@ export interface SingleServiceResponse extends BaseResponse {
 }
 
 export interface ServicePayload {
-  slug: string;
   title: string;
   section_id: number | string;
   category_id: number | string;

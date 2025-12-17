@@ -237,7 +237,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 totalPages={totalPages}
                                 onPageChange={setCurrentPage}
                                 onToggleShown={handleToggleStatus}
-                                onEdit={(service) => router.push(`/admin/services/${service.id}/edit`)}
+                                onEdit={(service) => router.push(`/admin/serviceProviders/services/edit/${service.id}/${storeId}`)}
                                 onDelete={handleDeleteClick}
                             />
                         )}

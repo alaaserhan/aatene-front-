@@ -123,7 +123,6 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
     }
     
     const payload: ServicePayload = {
-      slug: serviceResponse?.data.slug || "", 
       title: step1.title,
       category_id: step1.category_id,
       section_id: step1.section_id,
