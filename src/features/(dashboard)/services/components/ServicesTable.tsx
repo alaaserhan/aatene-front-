@@ -23,6 +23,7 @@ interface ServicesTableProps {
     onToggleShown: (service: Service) => void;
     onEdit: (service: Service) => void;
     onDelete: (service: Service) => void;
+    onReview: (service: Service) => void;
 }
 
 export function ServicesTable({
@@ -32,6 +33,7 @@ export function ServicesTable({
     totalPages,
     onPageChange,
     onToggleShown,
+    onReview,
     onEdit,
     onDelete,
 }: ServicesTableProps) {
@@ -140,7 +142,7 @@ export function ServicesTable({
                                         {/* Share Button (Cyan/Blue bg) */}
                                         <button
                                             onClick={() => handleShare(service.slug)}
-                                            className="w-8 h-8 flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
+                                            className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
                                             title="مشاركة"
                                         >
                                             <Share2 className="w-4 h-4" />
@@ -149,13 +151,20 @@ export function ServicesTable({
                                         {/* More Actions (Grey bg) */}
                                         <DropdownMenu dir="rtl">
                                             <DropdownMenuTrigger asChild>
-                                                <button type="button" className="w-8 h-8 flex items-center justify-center rounded-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                                                <button type="button" className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
                                                     <MoreHorizontal className="w-5 h-5" />
                                                 </button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-40 border-gray-100 shadow-lg">
                                                 <DropdownMenuItem
-                                                    className="cursor-pointer gap-2 text-gray-700 focus:text-blue-600 focus:bg-blue-50"
+                                                    className="cursor-pointer gap-2 text-blue-3 focus:text-blue-4 focus:bg-blue-50"
+                                                    onClick={() => onReview(service)}
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                    <span>مشاهده</span>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    className="cursor-pointer gap-2 text-blue-3 focus:text-blue-4 focus:bg-blue-50"
                                                     onClick={() => onEdit(service)}
                                                 >
                                                     <Pencil className="w-4 h-4" />

@@ -193,7 +193,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                                 </div>
                                                 {/* التحقق مما إذا كان item كائن أو نص */}
                                                 {typeof item === 'object' ? item.title : item}
-                                            </li>
+                                            </li> 
                                         ))}
                                     </ul>
                                 </div>

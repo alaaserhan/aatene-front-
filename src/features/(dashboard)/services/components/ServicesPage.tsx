@@ -200,7 +200,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                         </div>
                     )}
 
-                    <div className={`col-span-12 ${!isLoadingSections && sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
+                    <div className={`col-span-12 ${!isLoadingSections && sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col`}>
                         <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
                             {statusTabs.map((tab) => (
                                 <button
@@ -236,9 +236,10 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 currentPage={currentPage}
                                 totalPages={totalPages}
                                 onPageChange={setCurrentPage}
-                                onToggleShown={handleToggleShown} // ✅ تمرير دالة التبديل الصحيحة
+                                onToggleShown={handleToggleShown}
                                 onEdit={(service) => router.push(`/admin/serviceProviders/services/edit/${service.id}/${storeId}`)}
                                 onDelete={handleDeleteClick}
+                                onReview={(service) => router.push(`/admin/serviceProviders/services/details/${service.id}/${storeId}`)}
                             />
                         )}
                     </div>
