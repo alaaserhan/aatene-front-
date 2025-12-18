@@ -7,8 +7,8 @@ import Link from "next/link";
 import { Plus, Search } from "lucide-react";
 import {
     useGetServices,
-    useUpdateServiceStatus,
     useDeleteService,
+    useUpdateServiceShown,
 } from "../hooks";
 import { useGetSections } from "../../sections/hooks";
 import { useGetSingleStore } from "../../stores/hooks";
@@ -61,10 +61,12 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         const params = new URLSearchParams();
         params.set("page", String(currentPage));
         params.set("per_page", "10");
+
         if (storeId) params.set("store_id", String(storeId));
         if (selectedSectionId) params.set("section_id", selectedSectionId);
         if (searchQuery) params.set("search", searchQuery);
         if (activeStatus) params.set("status", activeStatus);
+
         return params;
     }, [storeId, selectedSectionId, searchQuery, currentPage, activeStatus]);
 
@@ -72,14 +74,14 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     const services = servicesData?.data || [];
     const totalPages = Math.ceil((servicesData?.recordsFiltered || 0) / 10);
 
-    const { mutate: updateStatus } = useUpdateServiceStatus();
     const { mutate: deleteService } = useDeleteService();
+    const { mutate: updateShown } = useUpdateServiceShown();
 
-    const handleToggleStatus = (service: Service) => {
-        const newStatus: ServiceStatus = service.status === "approved" ? "rejected" : "approved";
-        updateStatus({
+    const handleToggleShown = (service: Service) => {
+        updateShown({
             id: service.id,
-            payload: { status: newStatus },
+            shown: !service.shown,
+            storeId
         });
     };
 
@@ -107,23 +109,23 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     }));
 
     const statusTabs: { key: ServiceStatus; label: string; activeClass: string; badgeClass: string }[] = [
-        { 
-            key: "approved", 
-            label: "تمت الموافقة عليه", 
-            activeClass: "border-emerald-500 text-emerald-500", 
-            badgeClass: "bg-emerald-500" 
+        {
+            key: "approved",
+            label: "تمت الموافقة عليه",
+            activeClass: "border-emerald-500 text-emerald-500",
+            badgeClass: "bg-emerald-500"
         },
-        { 
-            key: "pending", 
-            label: "قيد المراجعة", 
-            activeClass: "border-amber-400 text-amber-400", 
-            badgeClass: "bg-amber-400" 
+        {
+            key: "pending",
+            label: "قيد المراجعة",
+            activeClass: "border-amber-400 text-amber-400",
+            badgeClass: "bg-amber-400"
         },
-        { 
-            key: "rejected", 
-            label: "مرفوض", 
-            activeClass: "border-red-500 text-red-500", 
-            badgeClass: "bg-red-500" 
+        {
+            key: "rejected",
+            label: "مرفوض",
+            activeClass: "border-red-500 text-red-500",
+            badgeClass: "bg-red-500"
         },
     ];
 
@@ -134,7 +136,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     return (
         <div className="flex flex-col">
             <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
-            
+
             <header className="p-4 pb-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-4">
                     <div className="flex items-center gap-4">
@@ -160,7 +162,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                         </Link>
                         <Link href={`/admin/serviceProviders/reports/${storeId}`}>
                             <Button className="bg-red-2 text-red-1 px-6 gap-2">
-                               الإبلاغات
+                                الإبلاغات
                             </Button>
                         </Link>
                     </div>
@@ -198,8 +200,8 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                         </div>
                     )}
 
-                    <div className={`col-span-12 ${!isLoadingSections && sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200  overflow-hidden flex flex-col`}>
-                        <div className="flex items-center gap-8 pt-4 border-b border-gray-100">
+                    <div className={`col-span-12 ${!isLoadingSections && sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex flex-col`}>
+                        <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
                             {statusTabs.map((tab) => (
                                 <button
                                     key={tab.key}
@@ -207,20 +209,18 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                         setActiveStatus(tab.key);
                                         setCurrentPage(1);
                                     }}
-                                    className={`flex items-center gap-2 px-3 pb-3 border-b-[3px] transition-all duration-200 cursor-pointer ${
-                                        activeStatus === tab.key
-                                            ? tab.activeClass
-                                            : "border-transparent text-gray-400 hover:text-gray-600"
-                                    }`}
-                                >
-                                    <span
-                                        className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-xs font-bold text-white ${
-                                            activeStatus === tab.key ? tab.badgeClass : "bg-gray-400"
+                                    className={`flex items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${activeStatus === tab.key
+                                        ? tab.activeClass
+                                        : "border-transparent text-gray-400 hover:text-gray-600"
                                         }`}
-                                        >
-                                        {activeStatus === tab.key ? servicesData?.recordsTotal || 0 : 0}
+                                >
+                                    <span className="font-bold text-sm">{tab.label}</span>
+                                    <span
+                                        className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-xs font-bold text-white ${activeStatus === tab.key ? tab.badgeClass : "bg-gray-400"
+                                            }`}
+                                    >
+                                        {activeStatus === tab.key ? servicesData?.recordsFiltered || 0 : 0}
                                     </span>
-                                    <span className="font-medium text-sm">{tab.label}</span>
                                 </button>
                             ))}
                         </div>
@@ -236,7 +236,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 currentPage={currentPage}
                                 totalPages={totalPages}
                                 onPageChange={setCurrentPage}
-                                onToggleShown={handleToggleStatus}
+                                onToggleShown={handleToggleShown} // ✅ تمرير دالة التبديل الصحيحة
                                 onEdit={(service) => router.push(`/admin/serviceProviders/services/edit/${service.id}/${storeId}`)}
                                 onDelete={handleDeleteClick}
                             />

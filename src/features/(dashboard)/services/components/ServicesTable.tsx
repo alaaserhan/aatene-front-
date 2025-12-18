@@ -77,10 +77,10 @@ export function ServicesTable({
                     <tbody className="divide-y divide-gray-100 bg-white">
                         {services.map((service) => (
                             <tr key={service.id} className="hover:bg-gray-50/50 transition-colors">
-                                
+
                                 {/* Code */}
                                 <td className="px-6 py-4 text-sm font-medium text-center ">
-                                    #{service.id}
+                                    {service.id}#
                                 </td>
 
                                 {/* Image */}
@@ -123,7 +123,7 @@ export function ServicesTable({
                                 <td className="px-6 py-4 text-center">
                                     <span className="text-sm ">{service.favorites_count || 0}</span>
                                 </td>
-                                
+
                                 {/* Visible Toggle */}
                                 <td className="px-6 py-4 text-center">
                                     <div className="flex justify-center">
@@ -138,7 +138,7 @@ export function ServicesTable({
                                 <td className="px-6 py-4">
                                     <div className="flex items-center justify-center gap-2">
                                         {/* Share Button (Cyan/Blue bg) */}
-                                        <button 
+                                        <button
                                             onClick={() => handleShare(service.slug)}
                                             className="w-8 h-8 flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
                                             title="مشاركة"
@@ -154,14 +154,14 @@ export function ServicesTable({
                                                 </button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-40 border-gray-100 shadow-lg">
-                                                <DropdownMenuItem 
+                                                <DropdownMenuItem
                                                     className="cursor-pointer gap-2 text-gray-700 focus:text-blue-600 focus:bg-blue-50"
                                                     onClick={() => onEdit(service)}
                                                 >
                                                     <Pencil className="w-4 h-4" />
                                                     <span>تعديل</span>
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem 
+                                                <DropdownMenuItem
                                                     className="cursor-pointer gap-2 text-red-600 focus:text-red-700 focus:bg-red-50"
                                                     onClick={() => onDelete(service)}
                                                 >

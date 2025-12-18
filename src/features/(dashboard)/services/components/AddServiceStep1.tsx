@@ -53,8 +53,8 @@ export function AddServiceStep1({
     title: initialData?.title || "",
     category_id: initialData?.category_id || "",
     section_id: initialData?.section_id || "", // تهيئة القسم
-    tags: initialData?.tags || [],
-    specialties: initialData?.specialties || [],
+    tags: initialData?.tags?.map((t: string | { title: string }) => (typeof t === 'object' ? t.title : t)) || [],
+    specialties: initialData?.specialties?.map((s: string | { title: string }) => (typeof s === 'object' ? s.title : s)) || [],
     price: initialData?.price || 0,
     description: initialData?.description || "",
     images: initialData?.images || [],
@@ -408,7 +408,7 @@ export function AddServiceStep1({
                   </div>
 
                   {formData.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-20">
+                    <div className="flex flex-wrap gap-2 mt-2 ">
                       {formData.tags.map((tag, index) => (
                         <OptionTag
                           key={index}
@@ -435,7 +435,7 @@ export function AddServiceStep1({
               storeInfo={{
                 name: store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "",
                 avatar: store?.owner?.avatar_url || "",
-                location: store?.city?.name
+                address: store?.address || ""
               }}
             />
           </div>

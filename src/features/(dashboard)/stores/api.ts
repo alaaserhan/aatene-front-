@@ -30,6 +30,7 @@ export interface Owner {
   phone: string;
   avatar: string | null;
   avatar_url: string | null;
+  created_at : string;
 }
 
 export interface Currency {
@@ -109,6 +110,12 @@ export interface ShippingCompanyPayload {
   prices: ShippingPricePayload[];
 }
 
+export interface Cities{
+  id?: number;
+  name: string;
+  is_active: boolean
+}
+
 // ============== Store (GET Response) ==============
 
 export interface Store {
@@ -155,7 +162,7 @@ export interface Store {
   managers: StoreManager[];
   shippingCompanies?: ShippingCompany[];
   locationCities?: number[];
-  serviceCities?: number[];
+  serviceCities?:   number[];
   tags?: string[];
   delivery_type?: DeliveryType;
   services_count?: number;

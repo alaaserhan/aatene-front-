@@ -86,28 +86,28 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
   };
 
   const handleStep1Next = (data: Step1ServiceData) => {
-    if(!formData) return;
+    if (!formData) return;
     setFormData({ ...formData, step1: data });
     setCurrentStep(2);
   };
   const handleStep1Cancel = () => router.push("/admin/serviceProviders");
 
   const handleStep2Next = (data: Step2ServiceData) => {
-    if(!formData) return;
+    if (!formData) return;
     setFormData({ ...formData, step2: data });
     setCurrentStep(3);
   };
   const handleStep2Back = () => setCurrentStep(1);
 
   const handleStep3Next = (data: Step3ServiceData) => {
-    if(!formData) return;
+    if (!formData) return;
     setFormData({ ...formData, step3: data });
     setCurrentStep(4);
   };
   const handleStep3Back = () => setCurrentStep(2);
 
   const handleStep4Next = (data: Step4ServiceData) => {
-    if(!formData) return;
+    if (!formData) return;
     setFormData({ ...formData, step4: data });
     setCurrentStep(5);
   };
@@ -121,7 +121,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
       toast.error("يرجى إكمال جميع الخطوات السابقة");
       return;
     }
-    
+
     const payload: ServicePayload = {
       title: step1.title,
       category_id: step1.category_id,
@@ -129,16 +129,16 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
       store_id: Number(storeId),
       tags: step1.tags,
       specialties: step1.specialties,
-      
+
       price: step2.price,
       execute_count: step2.execute_count,
       execute_type: step2.execute_type,
       extras: step2.extras,
-      
+
       images: step3.images,
       description: step4.description,
       questions: step4.questions,
-      
+
       status: serviceResponse?.data.status || "pending",
     };
 
@@ -150,7 +150,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
       });
       setShowSuccessModal(true);
     } catch (error) {
-        // Error handled in hook
+      // Error handled in hook
     }
   };
   const handleStep5Back = () => setCurrentStep(4);
@@ -185,14 +185,14 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
 
   return (
     <>
-        {renderStep()}
-        <SuccessModal 
-            isOpen={showSuccessModal}
-            onClose={() => router.push("/admin/serviceProviders")}
-            title="تم تعديل الخدمة بنجاح"
-            message="تم تحديث بيانات الخدمة بنجاح."
-            buttonText="قائمة الخدمات"
-        />
+      {renderStep()}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => router.push(`/admin/serviceProviders/${storeId}`)}
+        title="تم تعديل الخدمة بنجاح"
+        message="تم تعديل الخدمة بنجاح، وهي الآن قيد المراجعة من قبل الفريق المختص. سنوافيكم بالرد خلال 24 إلى 48 ساعة."
+        buttonText="قائمة الخدمات"
+      />
     </>
   );
 }

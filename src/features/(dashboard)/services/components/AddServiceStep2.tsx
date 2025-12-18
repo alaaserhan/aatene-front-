@@ -186,7 +186,7 @@ export function AddServiceStep2({
                                 "w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all text-sm", // text-left to keep number align with icon if needed, usually right for arabic
                                 errors.price ? "border-red-500" : "border-gray-200"
                             )}
-                            placeholder="50.00"
+                            placeholder="0.00"
                         />
                         <span className="absolute left-8 top-1  font-bold text-2xl">₪</span>
                     </div>
@@ -212,7 +212,7 @@ export function AddServiceStep2({
                                     "w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all text-sm text-center",
                                     errors.executeCount ? "border-red-500" : "border-gray-200"
                                 )}
-                                placeholder="1"
+                                placeholder="0"
                                 min={1}
                             />
                         </div>
@@ -280,7 +280,7 @@ export function AddServiceStep2({
                                         <Input
                                             type="number"
                                             className="bg-white border-gray-200 h-11 text-left px-8"
-                                            placeholder="50.00"
+                                            placeholder="0.00"
                                             value={newExtraPrice}
                                             onChange={(e) => setNewExtraPrice(e.target.value)}
                                         />
@@ -290,7 +290,7 @@ export function AddServiceStep2({
                                         <Input
                                             type="number"
                                             className="bg-white border-gray-200 h-11 text-center"
-                                            placeholder="2"
+                                            placeholder="0"
                                             value={newExtraDuration}
                                             onChange={(e) => setNewExtraDuration(e.target.value)}
                                         />
@@ -300,7 +300,7 @@ export function AddServiceStep2({
                                             options={EXECUTE_TYPE_OPTIONS}
                                             value={newExtraDurationType}
                                             onChange={(val) => setNewExtraDurationType(val as ExecuteType)}
-                                            className="h-11 bg-white"
+                                            className="h-11 "
                                         />
                                     </div>
                                 </div>

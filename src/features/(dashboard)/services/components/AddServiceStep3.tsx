@@ -98,10 +98,10 @@ export function AddServiceStep3({
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
 
                             <div className="mb-8">
-                                <h2 className="text-xl font-bold text-gray-900 mb-1">صور الخدمة</h2>
+                                <h2 className="text-xl font-bold  mb-1">صور الخدمة</h2>
                             </div>
 
-                            <div className="space-y-6">
+                            <div >
                                 <ImageGallerySelector
                                     label="الصور"
                                     subLabel="يمكنك إضافة حتى (10) صور و (1) فيديو"

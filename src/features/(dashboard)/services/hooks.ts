@@ -150,3 +150,53 @@ export function useUpdateServiceStatus() {
     },
   });
 }
+
+export function useUpdateServiceShown() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      shown,
+      storeId
+    }: {
+      id: number | string;
+      shown: number | boolean;
+      storeId?: number | string;
+    }) => api.updateServiceShown(id, shown, storeId),
+    onMutate: async ({ id, shown }) => {
+      await queryClient.cancelQueries({ queryKey: ["services"] });
+      
+      const previousData = queryClient.getQueriesData({ queryKey: ["services"] });
+
+      queryClient.setQueriesData(
+        { queryKey: ["services"] },
+        (old: api.ServicesResponse | undefined) => {
+          if (!old) return old;
+          const newShown = !!shown; 
+          return {
+            ...old,
+            data: old.data.map((item) =>
+              item.id === id ? { ...item, shown: newShown } : item
+            ),
+          };
+        }
+      );
+
+      return { previousData };
+    },
+    onSuccess: () => {
+      toast.success("تم تحديث حالة الظهور بنجاح");
+    },
+    onError: (error: AxiosError<api.BaseResponse>, vars, context) => {
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+      toast.error(error.response?.data?.message || "حدث خطأ أثناء التحديث");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["services"] });
+    },
+  });
+}

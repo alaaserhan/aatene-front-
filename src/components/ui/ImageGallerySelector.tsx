@@ -23,7 +23,7 @@ interface ImageGallerySelectorProps {
     dragHintText?: string;
     itemWidth?: number;
     itemHeight?: number;
-    containerMinHeight?: number;
+    // containerMinHeight?: number; // لم نعد بحاجة لهذا الـ Prop بالشكل القديم
     allowedMediaTypes?: ("image" | "gallery" | "avatar")[];
     className?: string;
 }
@@ -44,7 +44,7 @@ export function ImageGallerySelector({
     dragHintText = "يمكنك سحب و افلات الصورة لإعادة ترتيب الصور",
     itemWidth = 240,
     itemHeight = 120,
-    containerMinHeight = 190,
+    // containerMinHeight = 190, // تم إزالته
     allowedMediaTypes = ["image", "gallery"],
     className,
 }: ImageGallerySelectorProps) {
@@ -152,8 +152,7 @@ export function ImageGallerySelector({
             )}
 
             <div
-                className="flex gap-4 overflow-x-auto pb-4 items-start"
-                style={{ minHeight: `${containerMinHeight}px` }}
+                className="flex gap-4 overflow-x-auto pb-2 items-start scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
             >
                 {items.map((item, index) => (
                     <div
@@ -226,8 +225,7 @@ export function ImageGallerySelector({
                         </div>
                     </div>
                 ))}
-
-                {items.length < maxFiles && (
+                {items.length < maxFiles ? (
                     <div
                         onClick={() => setIsModalOpen(true)}
                         className={cn(
@@ -245,7 +243,7 @@ export function ImageGallerySelector({
                         </span>
                         <span className="text-xs text-gray-3">{emptyStateSubText}</span>
                     </div>
-                )}
+                ) : null}
             </div>
 
             {error && <p className="text-xs text-red-500">{error}</p>}

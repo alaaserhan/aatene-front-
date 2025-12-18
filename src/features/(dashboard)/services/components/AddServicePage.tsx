@@ -211,7 +211,7 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
         {renderStep()}
         <SuccessModal 
             isOpen={showSuccessModal}
-            onClose={() => router.push("/admin/serviceProviders")}
+            onClose={() => router.push(`/admin/serviceProviders/${storeId}`)}
             title="تم رفع الخدمة بنجاح"
             message="تم رفع الخدمة بنجاح، وهي الآن قيد المراجعة من قبل الفريق المختص. سنوافيك بالرد خلال 24 إلى 48 ساعة."
             buttonText="قائمة الخدمات"

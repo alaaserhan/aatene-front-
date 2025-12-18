@@ -62,7 +62,7 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
           description: store.description || "",
           email: store.email || "",
           locationCities: locationCities,
-          serviceCities: serviceCities,
+          serviceCities: serviceCities ,
           address: store.address || "",
           owner_id: Number(store.owner_id),
           currency_id: Number(store.currency_id),
