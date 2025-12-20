@@ -1,7 +1,7 @@
 // src/features/(dashboard)/services/components/ServiceDetailsPage.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // ✅ إضافة useEffect
 import { useRouter } from "next/navigation";
 import {
     Phone,
@@ -18,7 +18,8 @@ import { RejectServiceModal } from "./RejectServiceModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { toast } from "sonner";
 import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
-import { ShareModal } from "@/src/components/ui/ShareModal"; // ✅ استيراد المكون
+import { ShareModal } from "@/src/components/ui/ShareModal";
+import { cn } from "@/src/lib/utils"; // ✅ لاستخدام الكلاسات الشرطية بسهولة
 
 interface ServiceDetailsPageProps {
     serviceId: number;
@@ -31,7 +32,10 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     // States for Modals
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-    const [isShareModalOpen, setIsShareModalOpen] = useState(false); // ✅ حالة مودال المشاركة
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+    // ✅ State للصورة المختارة
+    const [activeImage, setActiveImage] = useState<string>("");
 
     // جلب بيانات الخدمة
     const { data: serviceData, isLoading } = useGetService(serviceId, storeId);
@@ -42,6 +46,18 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     const store = storeData?.record;
 
     const { mutate: updateStatus, isPending: isUpdating } = useUpdateServiceStatus();
+
+    // ✅ معالجة الصور وتعيين الصورة الافتراضية عند تحميل البيانات
+    const imagesList = service ? (Array.isArray(service.images_urls) ? service.images_urls : (service.images_urls ? [service.images_urls] : [])) : [];
+
+    useEffect(() => {
+        if (imagesList.length > 0 && !activeImage) {
+            setActiveImage(imagesList[0]);
+        }
+    }, [imagesList, activeImage]);
+
+    // الصورة التي سيتم عرضها (المختارة أو الأولى أو صورة بديلة)
+    const displayImage = activeImage || (imagesList.length > 0 ? imagesList[0] : "/placeholder-service.jpg");
 
     const handleApprove = () => {
         updateStatus({
@@ -86,10 +102,6 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
         { label: service.title, href: `/admin/serviceProviders/services/${storeId}/${service.id}` },
     ];
 
-    // معالجة الصور (التأكد من أنها مصفوفة)
-    const imagesList = Array.isArray(service.images_urls) ? service.images_urls : (service.images_urls ? [service.images_urls] : []);
-    const mainImage = imagesList.length > 0 ? imagesList[0] : "/placeholder-service.jpg";
-
     return (
         <div className="flex flex-col pb-10">
             {/* Header Area */}
@@ -132,8 +144,9 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     {service.title}
                                 </h1>
                                 <div className="flex gap-4 text-gray-400">
-                                    {/* زر المشاركة المحدث */}
-                                    <button onClick={() => setIsShareModalOpen(true)} className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer hover:text-blue-600"
+                                    <button
+                                        onClick={() => setIsShareModalOpen(true)}
+                                        className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer hover:text-blue-600"
                                     >
                                         <Share2 className="w-4 h-4" />
                                         <span className="text-sm font-medium">مشاركة الخدمة</span>
@@ -145,31 +158,40 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
                             </div>
 
-                            {/* Main Image */}
-                            <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 border border-gray-100 bg-gray-50 ">
+                            {/* Main Image Display */}
+                            <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 border border-gray-100 bg-gray-50">
                                 <img
-                                    src={mainImage}
+                                    src={displayImage} // ✅ استخدام الصورة المختارة
                                     alt={service.title}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover transition-opacity duration-300"
                                 />
                             </div>
 
                             {/* Thumbnails */}
                             {imagesList.length > 1 && (
-                                <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
+                                <div className="flex gap-4 mb-8 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-200">
                                     {imagesList.map((img, idx) => (
-                                        <div key={idx} className="w-24 h-16 rounded-lg overflow-hidden border border-gray-200 shrink-0 cursor-pointer hover:border-blue-500 transition-colors">
+                                        <div
+                                            key={idx}
+                                            onClick={() => setActiveImage(img)} // ✅ تحديث الصورة عند الضغط
+                                            className={cn(
+                                                "w-24 h-16 rounded-lg overflow-hidden border shrink-0 cursor-pointer transition-all duration-200",
+                                                activeImage === img
+                                                    ? "border-blue-500 ring-2 ring-blue-100 opacity-100"
+                                                    : "border-gray-200 opacity-70 hover:opacity-100 hover:border-blue-300"
+                                            )}
+                                        >
                                             <img
                                                 src={img}
                                                 alt={`thumb-${idx}`}
-                                                className="w-full h-full object-cover opacity-80 hover:opacity-100"
+                                                className="w-full h-full object-cover"
                                             />
                                         </div>
                                     ))}
                                 </div>
                             )}
 
-                            {/* Provider Info Card (Reusable Component) */}
+                            {/* Provider Info Card */}
                             {store && (
                                 <div className="mb-6">
                                     <ProviderInfoCard store={store} />
@@ -315,7 +337,6 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 title="تم رفض الخدمة بنجاح"
             />
 
-            {/* ✅ مكون المشاركة */}
             <ShareModal
                 isOpen={isShareModalOpen}
                 onClose={() => setIsShareModalOpen(false)}
