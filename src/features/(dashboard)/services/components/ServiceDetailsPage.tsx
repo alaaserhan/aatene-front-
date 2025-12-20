@@ -1,7 +1,7 @@
 // src/features/(dashboard)/services/components/ServiceDetailsPage.tsx
 "use client";
 
-import { useState, useEffect } from "react"; // ✅ إضافة useEffect
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
     Phone,
@@ -19,7 +19,9 @@ import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { toast } from "sonner";
 import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
 import { ShareModal } from "@/src/components/ui/ShareModal";
-import { cn } from "@/src/lib/utils"; // ✅ لاستخدام الكلاسات الشرطية بسهولة
+import { cn } from "@/src/lib/utils";
+import Cookies from "js-cookie"; // ✅ للتحقق من الصلاحيات
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ServiceDetailsPageProps {
     serviceId: number;
@@ -28,26 +30,31 @@ interface ServiceDetailsPageProps {
 
 export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPageProps) {
     const router = useRouter();
+    const queryClient = useQueryClient();
 
-    // States for Modals
+    // --- States ---
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-
-    // ✅ State للصورة المختارة
     const [activeImage, setActiveImage] = useState<string>("");
+    const [isAdmin, setIsAdmin] = useState(false); // ✅ حالة الأدمن
 
-    // جلب بيانات الخدمة
+    // التحقق من صلاحية الأدمن عند التحميل
+    useEffect(() => {
+        const userType = Cookies.get("user_type");
+        setIsAdmin(userType === "admin");
+    }, []);
+
+    // --- Data Fetching ---
     const { data: serviceData, isLoading } = useGetService(serviceId, storeId);
     const service = serviceData?.data;
 
-    // جلب بيانات المتجر
     const { data: storeData } = useGetSingleStore(storeId);
     const store = storeData?.record;
 
     const { mutate: updateStatus, isPending: isUpdating } = useUpdateServiceStatus();
 
-    // ✅ معالجة الصور وتعيين الصورة الافتراضية عند تحميل البيانات
+    // --- Image Handling ---
     const imagesList = service ? (Array.isArray(service.images_urls) ? service.images_urls : (service.images_urls ? [service.images_urls] : [])) : [];
 
     useEffect(() => {
@@ -56,8 +63,9 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
         }
     }, [imagesList, activeImage]);
 
-    // الصورة التي سيتم عرضها (المختارة أو الأولى أو صورة بديلة)
     const displayImage = activeImage || (imagesList.length > 0 ? imagesList[0] : "/placeholder-service.jpg");
+
+    // --- Handlers ---
 
     const handleApprove = () => {
         updateStatus({
@@ -66,8 +74,10 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
             storeId
         }, {
             onSuccess: () => {
+                // تحديث البيانات فوراً لإخفاء الشريط
+                queryClient.invalidateQueries({ queryKey: ["services"] });
+                queryClient.invalidateQueries({ queryKey: ["services", serviceId] }); // تحديث الخدمة الحالية
                 toast.success("تم قبول الخدمة بنجاح");
-                router.refresh();
             }
         });
     };
@@ -89,6 +99,8 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
             onSuccess: () => {
                 setIsRejectModalOpen(false);
                 setIsSuccessModalOpen(true);
+                queryClient.invalidateQueries({ queryKey: ["services"] });
+                queryClient.invalidateQueries({ queryKey: ["services", serviceId] });
             }
         });
     };
@@ -108,28 +120,30 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
             <div>
                 <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
 
-                {/* Action Bar */}
-                <div className="container mx-auto mt-4 px-4 md:px-0">
-                    <div className="px-6 py-4 flex items-center justify-between border border-gray-100 bg-white rounded-lg">
-                        <h2 className="text-lg font-bold ">اختر الاجراء المناسب للخدمة</h2>
-                        <div className="flex gap-3">
-                            <Button
-                                onClick={handleApprove}
-                                disabled={isUpdating}
-                                className="bg-[#34D399] hover:bg-[#2cb683] text-white px-8 h-10 font-bold rounded "
-                            >
-                                قبول الخدمة
-                            </Button>
-                            <Button
-                                onClick={handleRejectClick}
-                                disabled={isUpdating}
-                                className="bg-[#EF4444] hover:bg-[#d93838] text-white px-8 h-10 font-bold rounded "
-                            >
-                                رفض الخدمة
-                            </Button>
+                {/* ✅ Action Bar: يظهر فقط للأدمن وعندما تكون الحالة pending */}
+                {isAdmin && service.status === "pending" && (
+                    <div className="container mx-auto mt-4 px-4 md:px-0">
+                        <div className="px-6 py-4 flex items-center justify-between border border-gray-100 bg-white rounded-lg">
+                            <h2 className="text-lg font-bold ">اختر الاجراء المناسب للخدمة</h2>
+                            <div className="flex gap-3">
+                                <Button
+                                    onClick={handleApprove}
+                                    disabled={isUpdating}
+                                    className="bg-[#34D399] hover:bg-[#2cb683] text-white px-8 h-10 font-bold rounded "
+                                >
+                                    {isUpdating ? "جاري التحديث..." : "قبول الخدمة"}
+                                </Button>
+                                <Button
+                                    onClick={handleRejectClick}
+                                    disabled={isUpdating}
+                                    className="bg-[#EF4444] hover:bg-[#d93838] text-white px-8 h-10 font-bold rounded "
+                                >
+                                    رفض الخدمة
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
 
             <div className="container mx-auto px-4 md:px-0 mt-6">
@@ -161,7 +175,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                             {/* Main Image Display */}
                             <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 border border-gray-100 bg-gray-50">
                                 <img
-                                    src={displayImage} // ✅ استخدام الصورة المختارة
+                                    src={displayImage}
                                     alt={service.title}
                                     className="w-full h-full object-cover transition-opacity duration-300"
                                 />
@@ -173,7 +187,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     {imagesList.map((img, idx) => (
                                         <div
                                             key={idx}
-                                            onClick={() => setActiveImage(img)} // ✅ تحديث الصورة عند الضغط
+                                            onClick={() => setActiveImage(img)}
                                             className={cn(
                                                 "w-24 h-16 rounded-lg overflow-hidden border shrink-0 cursor-pointer transition-all duration-200",
                                                 activeImage === img
@@ -332,7 +346,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 isOpen={isSuccessModalOpen}
                 onClose={() => {
                     setIsSuccessModalOpen(false);
-                    router.push('/admin/serviceProviders');
+                    router.push(`/admin/serviceProviders/${storeId}`);
                 }}
                 title="تم رفض الخدمة بنجاح"
             />

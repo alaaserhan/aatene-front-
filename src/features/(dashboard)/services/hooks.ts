@@ -52,6 +52,7 @@ export function useUpdateService() {
     onSuccess: (data) => {
       toast.success("تم تعديل الخدمة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["services"] });
+      // تحديث بيانات الخدمة المحددة في الكاش
       queryClient.setQueryData(["services", data.data.id], data);
     },
     onError: (error: AxiosError<api.BaseResponse>) => {
@@ -65,39 +66,12 @@ export function useDeleteService() {
   return useMutation({
     mutationFn: ({ id, storeId }: { id: number | string; storeId?: number | string }) => 
       api.deleteService(id, storeId),
-    onMutate: async ({ id }) => {
-      await queryClient.cancelQueries({ queryKey: ["services"] });
-
-      const previousData = queryClient.getQueriesData({ queryKey: ["services"] });
-
-      queryClient.setQueriesData(
-        { queryKey: ["services"] },
-        (old: api.ServicesResponse | undefined) => {
-          if (!old) return old;
-          return {
-            ...old,
-            data: old.data.filter((item) => item.id !== id),
-            recordsTotal: old.recordsTotal - 1,
-            recordsFiltered: old.recordsFiltered - 1,
-          };
-        }
-      );
-
-      return { previousData };
-    },
     onSuccess: () => {
       toast.success("تم حذف الخدمة بنجاح");
-    },
-    onError: (error: AxiosError<api.BaseResponse>, vars, context) => {
-      if (context?.previousData) {
-        context.previousData.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
-      toast.error(error.response?.data?.message || "حدث خطأ أثناء الحذف");
-    },
-    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
+    },
+    onError: (error: AxiosError<api.BaseResponse>) => {
+      toast.error(error.response?.data?.message || "حدث خطأ أثناء الحذف");
     },
   });
 }
@@ -114,39 +88,14 @@ export function useUpdateServiceStatus() {
       payload: api.ServiceStatusPayload;
       storeId?: number | string;
     }) => api.updateServiceStatus(id, payload, storeId),
-    onMutate: async ({ id, payload }) => {
-      await queryClient.cancelQueries({ queryKey: ["services"] });
-      
-      const previousData = queryClient.getQueriesData({ queryKey: ["services"] });
-
-      queryClient.setQueriesData(
-        { queryKey: ["services"] },
-        (old: api.ServicesResponse | undefined) => {
-          if (!old) return old;
-          return {
-            ...old,
-            data: old.data.map((item) =>
-              item.id === id ? { ...item, status: payload.status } : item
-            ),
-          };
-        }
-      );
-
-      return { previousData };
-    },
+    // ✅ تم إزالة onMutate لمنع الأخطاء الناتجة عن اختلاف هيكل البيانات
     onSuccess: () => {
       toast.success("تم تحديث الحالة بنجاح");
-    },
-    onError: (error: AxiosError<api.BaseResponse>, vars, context) => {
-      if (context?.previousData) {
-        context.previousData.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
-      toast.error(error.response?.data?.message || "حدث خطأ أثناء تحديث الحالة");
-    },
-    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
+    },
+    onError: (error: AxiosError<api.BaseResponse>) => {
+      console.error("Update Status Error:", error);
+      toast.error(error.response?.data?.message || "حدث خطأ أثناء تحديث الحالة");
     },
   });
 }
@@ -163,40 +112,21 @@ export function useUpdateServiceShown() {
       shown: number | boolean;
       storeId?: number | string;
     }) => api.updateServiceShown(id, shown, storeId),
-    onMutate: async ({ id, shown }) => {
-      await queryClient.cancelQueries({ queryKey: ["services"] });
-      
-      const previousData = queryClient.getQueriesData({ queryKey: ["services"] });
-
-      queryClient.setQueriesData(
-        { queryKey: ["services"] },
-        (old: api.ServicesResponse | undefined) => {
-          if (!old) return old;
-          const newShown = !!shown; 
-          return {
-            ...old,
-            data: old.data.map((item) =>
-              item.id === id ? { ...item, shown: newShown } : item
-            ),
-          };
-        }
-      );
-
-      return { previousData };
-    },
+    // ✅ تم إزالة onMutate هنا أيضاً للأمان
     onSuccess: () => {
       toast.success("تم تحديث حالة الظهور بنجاح");
-    },
-    onError: (error: AxiosError<api.BaseResponse>, vars, context) => {
-      if (context?.previousData) {
-        context.previousData.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
-      toast.error(error.response?.data?.message || "حدث خطأ أثناء التحديث");
-    },
-    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
     },
+    onError: (error: AxiosError<api.BaseResponse>) => {
+      toast.error(error.response?.data?.message || "حدث خطأ أثناء التحديث");
+    },
   });
+}
+
+// إضافة هوك لجلب أسباب الرفض (مطلوب لـ RejectServiceModal)
+export function useGetRejectionReasons() {
+    return useQuery({
+        queryKey: ["rejection-reasons"],
+        queryFn: api.getRejectionReasons,
+    });
 }
