@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Trash2, Loader2, MoreHorizontal, Share2, Eye, MessageSquare, Heart } from "lucide-react";
+import { Pencil, Trash2, Loader2, MoreHorizontal, Share2, Eye } from "lucide-react";
 import { Service } from "../api";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import {
@@ -12,7 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import { Pagination } from "@/src/components/ui/Pagination";
-import { toast } from "sonner";
+import { ShareModal } from "@/src/components/ui/ShareModal"; // ✅ استيراد المكون
 
 interface ServicesTableProps {
     services: Service[];
@@ -38,10 +38,14 @@ export function ServicesTable({
     onDelete,
 }: ServicesTableProps) {
 
-    const handleShare = (slug: string) => {
-        const url = `${window.location.origin}/services/${slug}`;
-        navigator.clipboard.writeText(url);
-        toast.success("تم نسخ رابط الخدمة");
+    // ✅ تعريف الـ State للمودال
+    const [shareModalOpen, setShareModalOpen] = useState(false);
+    const [selectedServiceForShare, setSelectedServiceForShare] = useState<Service | null>(null);
+
+    // ✅ دالة فتح المودال عند الضغط على زر المشاركة
+    const handleShareClick = (service: Service) => {
+        setSelectedServiceForShare(service);
+        setShareModalOpen(true);
     };
 
     if (isLoading) {
@@ -130,7 +134,7 @@ export function ServicesTable({
                                 <td className="px-6 py-4 text-center">
                                     <div className="flex justify-center">
                                         <ToggleSwitch
-                                            enabled={service.shown}
+                                            enabled={service.shown || false}
                                             onChange={() => onToggleShown(service)}
                                         />
                                     </div>
@@ -141,7 +145,7 @@ export function ServicesTable({
                                     <div className="flex items-center justify-center gap-2">
                                         {/* Share Button (Cyan/Blue bg) */}
                                         <button
-                                            onClick={() => handleShare(service.slug)}
+                                            onClick={() => handleShareClick(service)} // ✅ استخدام الدالة الجديدة
                                             className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
                                             title="مشاركة"
                                         >
@@ -155,13 +159,13 @@ export function ServicesTable({
                                                     <MoreHorizontal className="w-5 h-5" />
                                                 </button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-40 border-gray-100 shadow-lg">
+                                            <DropdownMenuContent align="end" className="w-40 border-gray-100 shadow-lg bg-white">
                                                 <DropdownMenuItem
                                                     className="cursor-pointer gap-2 text-blue-3 focus:text-blue-4 focus:bg-blue-50"
                                                     onClick={() => onReview(service)}
                                                 >
                                                     <Eye className="w-4 h-4" />
-                                                    <span>مشاهده</span>
+                                                    <span>مشاهدة</span>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     className="cursor-pointer gap-2 text-blue-3 focus:text-blue-4 focus:bg-blue-50"
@@ -195,6 +199,17 @@ export function ServicesTable({
                         onPageChange={onPageChange}
                     />
                 </div>
+            )}
+
+            {/* ✅ إضافة مكون المشاركة */}
+            {selectedServiceForShare && (
+                <ShareModal
+                    isOpen={shareModalOpen}
+                    onClose={() => setShareModalOpen(false)}
+                    shareUrl={`${window.location.origin}/services/${selectedServiceForShare.slug}`}
+                    title="شارك هذه الخدمة"
+                    description="هل أعجبتك هذه الخدمة؟ شاركها الآن مع أصدقائك."
+                />
             )}
         </div>
     );

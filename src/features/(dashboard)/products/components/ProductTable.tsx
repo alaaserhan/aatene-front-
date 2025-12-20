@@ -14,6 +14,7 @@ import {
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ShareProductModal } from "./ShareProductModal";
 import Cookies from "js-cookie";
+import { ShareModal } from "@/src/components/ui/ShareModal";
 
 interface ProductTableProps {
     products: Product[];
@@ -224,12 +225,15 @@ export function ProductTable({
                 </div>
             )}
 
-            {/* Share Modal */}
-            <ShareProductModal
-                isOpen={shareModalOpen}
-                onClose={() => setShareModalOpen(false)}
-                productUrl={selectedProductForShare ? `${window.location.origin}/products/${selectedProductForShare.id}` : ""}
-            />
+            {selectedProductForShare && (
+                <ShareModal
+                    isOpen={shareModalOpen} // استخدام اسم الـ state الصحيح
+                    onClose={() => setShareModalOpen(false)}
+                    shareUrl={`${window.location.origin}/products/${selectedProductForShare.slug}`} // استخدام المنتج المختار
+                    title="شارك هذا المنتج"
+                    description="إذا أعجبك هذا المنتج، شاركه مع أصدقائك."
+                />
+            )}
         </div>
     );
 }

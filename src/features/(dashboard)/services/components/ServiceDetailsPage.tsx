@@ -10,6 +10,7 @@ import {
     PenLine,
     Check,
     CheckCircle2,
+    Pen,
 } from "lucide-react";
 import { useGetService, useUpdateServiceStatus } from "../hooks";
 import { useGetSingleStore } from "../../stores/hooks";
@@ -95,20 +96,20 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                 {/* Action Bar */}
                 <div className="container mx-auto mt-4 px-4 md:px-0">
-                    <div className="px-6 py-4 flex items-center justify-between border border-gray-100 bg-white rounded-lg shadow-sm">
-                        <h2 className="text-lg font-bold text-[#1A2D42]">اختر الاجراء المناسب للخدمة</h2>
+                    <div className="px-6 py-4 flex items-center justify-between border border-gray-100 bg-white rounded-lg">
+                        <h2 className="text-lg font-bold ">اختر الاجراء المناسب للخدمة</h2>
                         <div className="flex gap-3">
                             <Button
                                 onClick={handleApprove}
                                 disabled={isUpdating}
-                                className="bg-[#34D399] hover:bg-[#2cb683] text-white px-8 h-10 font-bold rounded shadow-sm"
+                                className="bg-[#34D399] hover:bg-[#2cb683] text-white px-8 h-10 font-bold rounded "
                             >
                                 قبول الخدمة
                             </Button>
                             <Button
                                 onClick={handleRejectClick}
                                 disabled={isUpdating}
-                                className="bg-[#EF4444] hover:bg-[#d93838] text-white px-8 h-10 font-bold rounded shadow-sm"
+                                className="bg-[#EF4444] hover:bg-[#d93838] text-white px-8 h-10 font-bold rounded "
                             >
                                 رفض الخدمة
                             </Button>
@@ -122,26 +123,26 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                     {/* Main Content Area */}
                     <div className="col-span-12 lg:col-span-8 flex flex-col gap-6 order-2 lg:order-1">
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <div className="bg-white rounded-2xl p-4  border border-gray-100">
                             {/* Title & Actions */}
-                            <div className="flex justify-between items-start mb-6">
-                                <h1 className="text-2xl font-bold text-[#1A2D42] leading-tight max-w-[70%]">
+                            <div className="flex justify-between items-center mb-6">
+                                <h1 className="text-2xl font-bold  leading-tight max-w-[70%]">
                                     {service.title}
                                 </h1>
                                 <div className="flex gap-4 text-gray-400">
-                                    <button className="flex items-center gap-1 hover:text-blue-500 transition-colors">
-                                        <Share2 className="w-5 h-5" />
+                                    <button className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer">
+                                        <Share2 className="w-4 h-4" />
                                         <span className="text-sm font-medium">مشاركة الخدمة</span>
                                     </button>
-                                    <button className="flex items-center gap-1 hover:text-blue-500 transition-colors">
-                                        <PenLine className="w-5 h-5" />
+                                    <button className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer" onClick={() => router.push(`/admin/serviceProviders/services/edit/${serviceId}/${storeId}`)}>
+                                        <Pen className="w-4 h-4" />
                                         <span className="text-sm font-medium">تعديل الخدمة</span>
                                     </button>
                                 </div>
                             </div>
 
                             {/* Main Image */}
-                            <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 border border-gray-100 bg-gray-50">
+                            <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 border border-gray-100 bg-gray-50 ">
                                 <img
                                     src={mainImage}
                                     alt={service.title}
@@ -173,7 +174,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                             {/* Description Section */}
                             <div className="mb-8">
-                                <h3 className="text-xl font-bold text-[#1A2D42] mb-4">تفاصيل الخدمة</h3>
+                                <h3 className="text-xl font-bold  mb-4">تفاصيل الخدمة</h3>
                                 <div
                                     className="text-gray-600 leading-relaxed whitespace-pre-line text-sm"
                                     dangerouslySetInnerHTML={{ __html: service.description }}
@@ -183,7 +184,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                             {/* Specialties Section (Corrected rendering) */}
                             {service.specialties && service.specialties.length > 0 && (
                                 <div className="mb-8">
-                                    <h3 className="text-sm font-bold text-[#1A2D42] mb-3">مجالات الخدمة:</h3>
+                                    <h3 className="text-sm font-bold  mb-3">مجالات الخدمة:</h3>
                                     <ul className="space-y-2">
                                         {/* هنا تم التعديل للوصول إلى title داخل الأوبجكت */}
                                         {service.specialties.map((item: any, idx) => (
@@ -200,27 +201,27 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                             )}
 
                             {/* Features List (Static Example) */}
-                            <div className="mb-8">
-                                <h3 className="text-sm font-bold text-[#1A2D42] mb-3">مميزات الخدمة:</h3>
+                            {/* <div className="mb-8">
+                                <h3 className="text-sm font-bold  mb-3">مميزات الخدمة:</h3>
                                 <ul className="space-y-2">
                                     <li className="flex items-center gap-2 text-gray-700 text-sm font-medium"><Check className="w-4 h-4 " /> استشارة مباشرة من محام مرخص</li>
                                     <li className="flex items-center gap-2 text-gray-700 text-sm font-medium"><Check className="w-4 h-4 " /> رد سريع خلال دقائق</li>
                                     <li className="flex items-center gap-2 text-gray-700 text-sm font-medium"><Check className="w-4 h-4 " /> سرية تامة ومهنية عالية</li>
                                     <li className="flex items-center gap-2 text-gray-700 text-sm font-medium"><Check className="w-4 h-4 " /> متوفرة عبر الهاتف أو الرسائل أو الفيديو</li>
                                 </ul>
-                                <p className="mt-4 text-sm font-bold text-[#1A2D42]">لا تنتظر حتى تتفاقم المشكلة - احصل على إجابة قانونية الآن!</p>
-                            </div>
+                                <p className="mt-4 text-sm font-bold ">لا تنتظر حتى تتفاقم المشكلة - احصل على إجابة قانونية الآن!</p>
+                            </div> */}
 
                             {/* FAQ Section */}
                             {service.questions && service.questions.length > 0 && (
                                 <div>
-                                    <h3 className="text-xl font-bold text-[#1A2D42] mb-1">الأسئلة الشائعة (اختياري)</h3>
+                                    <h3 className="text-xl font-bold  mb-1">الأسئلة الشائعة (اختياري)</h3>
                                     <p className="text-gray-400 text-xs mb-6">اكتب إجابات للأسئلة الشائعة التي يطرحها عميلك. أضف حتى خمسة أسئلة.</p>
 
                                     <div className="space-y-6">
                                         {service.questions.map((q, idx) => (
                                             <div key={idx} className="border-b border-gray-50 pb-4 last:border-0">
-                                                <h4 className="font-bold text-[#1A2D42] text-sm mb-2">{idx + 1}. {q.question}</h4>
+                                                <h4 className="font-bold  text-sm mb-2">{idx + 1}. {q.question}</h4>
                                                 <p className="text-gray-500 text-sm leading-relaxed">{q.answer}</p>
                                             </div>
                                         ))}
@@ -232,35 +233,35 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                     {/* Sidebar Area */}
                     <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-1 lg:order-2">
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-fit">
+                        <div className="bg-white rounded-2xl p-6  border border-gray-100 h-fit">
 
                             {/* Category Section */}
-                            <div className="flex justify-between items-center py-4 border-b border-gray-100">
-                                <div className="text-right">
-                                    <p className="text-[#1A2D42] font-bold text-sm mb-1">التصنيف الرئيسي</p>
+                            <div className="grid grid-cols-2 py-4 border-b border-gray-100">
+                                <div className="t">
+                                    <p className=" font-bold text-sm mb-1">التصنيف الرئيسي</p>
                                     <p className="text-gray-500 text-sm">{service.section?.name || "-"}</p>
                                 </div>
-                                <div className="text-left">
-                                    <p className="text-[#1A2D42] font-bold text-sm mb-1">التصنيف الفرعي</p>
+                                <div className="">
+                                    <p className=" font-bold text-sm mb-1">التصنيف الفرعي</p>
                                     <p className="text-gray-500 text-sm">{service.category?.name || "-"}</p>
                                 </div>
                             </div>
 
                             {/* Price & Delivery Section */}
-                            <div className="flex justify-between items-center py-4 border-b border-gray-100">
-                                <div className="text-right">
-                                    <p className="text-[#1A2D42] font-bold text-sm mb-1">سعر الخدمة</p>
+                            <div className="grid grid-cols-2 py-4 border-b border-gray-100">
+                                <div className="t">
+                                    <p className=" font-bold text-sm mb-1">سعر الخدمة</p>
                                     <p className="text-gray-500 text-sm font-medium">₪ {service.price}</p>
                                 </div>
-                                <div className="text-left">
-                                    <p className="text-[#1A2D42] font-bold text-sm mb-1">التسليم خلال</p>
+                                <div className="">
+                                    <p className=" font-bold text-sm mb-1">التسليم خلال</p>
                                     <p className="text-gray-500 text-sm">{service.execute_count} {service.execute_type}</p>
                                 </div>
                             </div>
 
                             {/* Cities Section (Fixed to use store.serviceCities) */}
                             <div className="py-4 border-b border-gray-100">
-                                <p className="text-[#1A2D42] font-bold text-sm mb-3">المدن التي يمكنه العمل بها</p>
+                                <p className=" font-bold text-sm mb-3">المدن التي يمكنه العمل بها</p>
                                 <div className="flex flex-wrap gap-2">
                                     {store?.serviceCities && store.serviceCities.length > 0 ? (
                                         store.serviceCities.map((city) => (
@@ -276,7 +277,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                             {/* Keywords Section (Corrected rendering) */}
                             <div className="py-4 mb-4">
-                                <p className="text-[#1A2D42] font-bold text-sm mb-2">الكلمات المفتاحية</p>
+                                <p className=" font-bold text-sm mb-2">الكلمات المفتاحية</p>
                                 <div className="flex flex-wrap gap-1">
                                     {/* التعديل هنا لطباعة title من الاوبجكت */}
                                     {service.tags && service.tags.length > 0 ? (
@@ -293,13 +294,13 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                             {/* Contact Buttons */}
                             <div className="flex flex-col gap-3">
-                                <Button className="w-full bg-[#3A5779] hover:bg-[#2c425e] text-white font-bold h-12 rounded-lg gap-2 text-sm shadow-md">
-                                    <Phone className="w-4 h-4 fill-current" />
+                                <Button className="w-full bg-[#3A5779] hover:bg-[#2c425e] text-white font-bold h-12 rounded-lg gap-2 text-sm ">
                                     <span>{store?.phone || "+972 *** *** ***"}</span>
+                                    <Phone className="w-5 h-5 " />
                                 </Button>
-                                <Button variant="outline" className="w-full border-[#3A5779] text-[#3A5779] hover:bg-blue-50 font-bold h-12 rounded-lg gap-2 text-sm">
-                                    <Send className="w-4 h-4 rotate-180" />
+                                <Button variant="outline" className="w-full border-[#3A5779] text-[#3A5779] bg-transparent font-bold h-12 rounded-lg gap-2 text-sm">
                                     <span>دردشة</span>
+                                    <Send className="w-5 h-5 rotate-45" />
                                 </Button>
                             </div>
 

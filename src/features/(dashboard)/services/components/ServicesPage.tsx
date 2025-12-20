@@ -254,7 +254,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                         setActiveStatus(tab.key);
                                         setCurrentPage(1);
                                     }}
-                                    className={`flex items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${activeStatus === tab.key
+                                    className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${activeStatus === tab.key
                                         ? tab.activeClass
                                         : "border-transparent text-gray-400 hover:text-gray-600"
                                         }`}
