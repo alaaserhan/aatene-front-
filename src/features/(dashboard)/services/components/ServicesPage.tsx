@@ -57,6 +57,42 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         }
     }, [sections, selectedSectionId]);
 
+
+    const approvedCountParams = useMemo(() => {
+        const params = new URLSearchParams();
+        params.set("store_id", String(storeId));
+        params.set("status", "approved");
+        params.set("per_page", "1");
+        if (selectedSectionId) params.set("section_id", selectedSectionId);
+        if (searchQuery) params.set("search", searchQuery);
+        return params;
+    }, [storeId, selectedSectionId, searchQuery]);
+
+    const pendingCountParams = useMemo(() => {
+        const params = new URLSearchParams();
+        params.set("store_id", String(storeId));
+        params.set("status", "pending");
+        params.set("per_page", "1");
+        if (selectedSectionId) params.set("section_id", selectedSectionId);
+        if (searchQuery) params.set("search", searchQuery);
+        return params;
+    }, [storeId, selectedSectionId, searchQuery]);
+
+    const rejectedCountParams = useMemo(() => {
+        const params = new URLSearchParams();
+        params.set("store_id", String(storeId));
+        params.set("status", "rejected");
+        params.set("per_page", "1");
+        if (selectedSectionId) params.set("section_id", selectedSectionId);
+        if (searchQuery) params.set("search", searchQuery);
+        return params;
+    }, [storeId, selectedSectionId, searchQuery]);
+
+    const { data: approvedData } = useGetServices(approvedCountParams);
+    const { data: pendingData } = useGetServices(pendingCountParams);
+    const { data: rejectedData } = useGetServices(rejectedCountParams);
+
+
     const servicesQueryParams = useMemo(() => {
         const params = new URLSearchParams();
         params.set("page", String(currentPage));
@@ -108,6 +144,15 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         value: String(s.id),
     }));
 
+    const getCountForStatus = (key: ServiceStatus) => {
+        switch (key) {
+            case "approved": return approvedData?.recordsFiltered || 0;
+            case "pending": return pendingData?.recordsFiltered || 0;
+            case "rejected": return rejectedData?.recordsFiltered || 0;
+            default: return 0;
+        }
+    };
+
     const statusTabs: { key: ServiceStatus; label: string; activeClass: string; badgeClass: string }[] = [
         {
             key: "approved",
@@ -149,7 +194,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 {store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "جاري التحميل..."}
                             </h1>
                             <p className="text-sm text-gray-2 font-medium">
-                                {servicesData?.recordsTotal || 0} خدمات
+                                {(approvedData?.recordsFiltered || 0) + (pendingData?.recordsFiltered || 0) + (rejectedData?.recordsFiltered || 0)} خدمات
                             </p>
                         </div>
                     </div>
@@ -219,7 +264,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                         className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-xs font-bold text-white ${activeStatus === tab.key ? tab.badgeClass : "bg-gray-400"
                                             }`}
                                     >
-                                        {activeStatus === tab.key ? servicesData?.recordsFiltered || 0 : 0}
+                                        {getCountForStatus(tab.key)}
                                     </span>
                                 </button>
                             ))}
