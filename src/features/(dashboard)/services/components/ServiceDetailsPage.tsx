@@ -7,8 +7,6 @@ import {
     Phone,
     Send,
     Share2,
-    PenLine,
-    Check,
     CheckCircle2,
     Pen,
 } from "lucide-react";
@@ -20,6 +18,7 @@ import { RejectServiceModal } from "./RejectServiceModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { toast } from "sonner";
 import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
+import { ShareModal } from "@/src/components/ui/ShareModal"; // ✅ استيراد المكون
 
 interface ServiceDetailsPageProps {
     serviceId: number;
@@ -28,8 +27,11 @@ interface ServiceDetailsPageProps {
 
 export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPageProps) {
     const router = useRouter();
+
+    // States for Modals
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false); // ✅ حالة مودال المشاركة
 
     // جلب بيانات الخدمة
     const { data: serviceData, isLoading } = useGetService(serviceId, storeId);
@@ -130,7 +132,9 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     {service.title}
                                 </h1>
                                 <div className="flex gap-4 text-gray-400">
-                                    <button className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer">
+                                    {/* زر المشاركة المحدث */}
+                                    <button onClick={() => setIsShareModalOpen(true)} className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer hover:text-blue-600"
+                                    >
                                         <Share2 className="w-4 h-4" />
                                         <span className="text-sm font-medium">مشاركة الخدمة</span>
                                     </button>
@@ -181,36 +185,22 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 />
                             </div>
 
-                            {/* Specialties Section (Corrected rendering) */}
+                            {/* Specialties Section */}
                             {service.specialties && service.specialties.length > 0 && (
                                 <div className="mb-8">
                                     <h3 className="text-sm font-bold  mb-3">مجالات الخدمة:</h3>
                                     <ul className="space-y-2">
-                                        {/* هنا تم التعديل للوصول إلى title داخل الأوبجكت */}
                                         {service.specialties.map((item: any, idx) => (
                                             <li key={item.id || idx} className="flex items-center gap-2 text-gray-700 text-sm">
                                                 <div className="text-green-500">
                                                     <CheckCircle2 className="w-4 h-4" />
                                                 </div>
-                                                {/* التحقق مما إذا كان item كائن أو نص */}
                                                 {typeof item === 'object' ? item.title : item}
-                                            </li> 
+                                            </li>
                                         ))}
                                     </ul>
                                 </div>
                             )}
-
-                            {/* Features List (Static Example) */}
-                            {/* <div className="mb-8">
-                                <h3 className="text-sm font-bold  mb-3">مميزات الخدمة:</h3>
-                                <ul className="space-y-2">
-                                    <li className="flex items-center gap-2 text-gray-700 text-sm font-medium"><Check className="w-4 h-4 " /> استشارة مباشرة من محام مرخص</li>
-                                    <li className="flex items-center gap-2 text-gray-700 text-sm font-medium"><Check className="w-4 h-4 " /> رد سريع خلال دقائق</li>
-                                    <li className="flex items-center gap-2 text-gray-700 text-sm font-medium"><Check className="w-4 h-4 " /> سرية تامة ومهنية عالية</li>
-                                    <li className="flex items-center gap-2 text-gray-700 text-sm font-medium"><Check className="w-4 h-4 " /> متوفرة عبر الهاتف أو الرسائل أو الفيديو</li>
-                                </ul>
-                                <p className="mt-4 text-sm font-bold ">لا تنتظر حتى تتفاقم المشكلة - احصل على إجابة قانونية الآن!</p>
-                            </div> */}
 
                             {/* FAQ Section */}
                             {service.questions && service.questions.length > 0 && (
@@ -259,7 +249,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
                             </div>
 
-                            {/* Cities Section (Fixed to use store.serviceCities) */}
+                            {/* Cities Section */}
                             <div className="py-4 border-b border-gray-100">
                                 <p className=" font-bold text-sm mb-3">المدن التي يمكنه العمل بها</p>
                                 <div className="flex flex-wrap gap-2">
@@ -275,11 +265,10 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
                             </div>
 
-                            {/* Keywords Section (Corrected rendering) */}
+                            {/* Keywords Section */}
                             <div className="py-4 mb-4">
                                 <p className=" font-bold text-sm mb-2">الكلمات المفتاحية</p>
                                 <div className="flex flex-wrap gap-1">
-                                    {/* التعديل هنا لطباعة title من الاوبجكت */}
                                     {service.tags && service.tags.length > 0 ? (
                                         service.tags.map((tag: string | { id: number; title: string }, idx: number) => (
                                             <span key={idx} className="text-gray-500 text-xs leading-relaxed bg-gray-50 px-2 py-1 rounded">
@@ -324,6 +313,15 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                     router.push('/admin/serviceProviders');
                 }}
                 title="تم رفض الخدمة بنجاح"
+            />
+
+            {/* ✅ مكون المشاركة */}
+            <ShareModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                shareUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/services/${service.slug}`}
+                title="شارك هذه الخدمة"
+                description="هل أعجبتك هذه الخدمة؟ شاركها الآن مع أصدقائك."
             />
         </div>
     );
