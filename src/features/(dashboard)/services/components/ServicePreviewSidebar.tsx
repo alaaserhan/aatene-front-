@@ -21,13 +21,13 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
   // تنسيق السعر
   const formattedPrice = new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "ILS", // عملة الشيكل كما في الصورة
+    currency: "ILS", 
     minimumFractionDigits: 0,
   }).format(data.price || 0);
 
   return (
     <div className="sticky top-6">
-      <div className="mx-auto w-full bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm relative">
+      <div className="mx-auto w-full bg-white rounded-xl overflow-hidden border border-gray-200 relative">
         
         {/* Header */}
         <h3 className="font-bold text-center text-lg py-6">
@@ -38,7 +38,7 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
         <div className="bg-[#F9FAFB] p-4 flex flex-col items-center min-h-[400px]">
           
           {/* Card Container */}
-          <div className="bg-white w-full rounded-2xl overflow-hidden shadow-sm border border-gray-100 pb-4">
+          <div className="bg-white w-full rounded-2xl overflow-hidden border border-gray-100 pb-4">
             
             {/* 1. Image Placeholder/Display */}
             <div className="relative w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
@@ -58,12 +58,12 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
             </div>
 
             {/* 2. Service Info */}
-            <div className="p-4 text-center space-y-2">
+            <div className="p-4 space-y-2">
               <h2 className="text-base font-bold  leading-tight">
                 {data.title || "عنوان الخدمة يظهر هنا"}
               </h2>
               
-              <div className="flex items-center justify-center gap-2 text-sm">
+              <div className="flex items-center  gap-2 text-sm">
                  <span className="text-gray-500">سعر الخدمة</span>
                  <span className="font-bold  text-lg">{formattedPrice}</span>
               </div>
