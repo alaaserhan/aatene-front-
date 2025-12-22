@@ -46,8 +46,13 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
         })
       );
 
-      const locationCities = store.locationCities || [];
-      const serviceCities = store.serviceCities || [];
+      const locationCities = ((store.locationCities as unknown as any[]) || [])
+        .map((c) => (typeof c === 'object' ? c.id : c))
+        .filter((id): id is number => typeof id === 'number');
+
+      const serviceCities = (store.serviceCities || [])
+        .map((c) => c.id)
+        .filter((id): id is number => id !== undefined);
 
       const initialFormData: CompleteStoreFormData = {
         type: store.type as StoreType,
@@ -62,7 +67,7 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
           description: store.description || "",
           email: store.email || "",
           locationCities: locationCities,
-          serviceCities: serviceCities ,
+          serviceCities: serviceCities,
           address: store.address || "",
           owner_id: Number(store.owner_id),
           currency_id: Number(store.currency_id),
