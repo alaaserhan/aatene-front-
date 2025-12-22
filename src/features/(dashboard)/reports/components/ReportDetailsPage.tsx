@@ -96,7 +96,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
   const handleDelete = () => {
     deleteReport(reportId, {
       onSuccess: () => {
-        router.push("/admin/reports");
+        router.push(`/admin/serviceProviders/reports/${report?.store.id || ""}`);
       },
     });
   };
@@ -165,7 +165,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
               value={report.status}
               onChange={handleStatusChange}
               placeholder="تغيير الحالة"
-              className="rounded-md"
+              className="rounded-md w-40"
             />
             <Button
               variant="destructive"
@@ -260,7 +260,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
                 ))}
               </div>
 
-              <Button
+              {/* <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowMediaModal(true)}
@@ -268,7 +268,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
               >
                 <Plus className="w-4 h-4" />
                 ارفاق ملفات
-              </Button>
+              </Button> */}
             </div>
           </div>
 
@@ -277,7 +277,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
 
 
           {/* Reply Section (Visual Placeholder based on UI) */}
-          <div className="pt-6 border-t border-gray-100">
+          {/* <div className="pt-6 border-t border-gray-100">
             <div className="relative">
               <textarea
                 className="w-full h-32 p-4 bg-white border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all text-sm"
@@ -294,7 +294,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
                 </Button>
               </div>
             </div>
-          </div>
+          </div> */}
 
         </div>
       </main>
