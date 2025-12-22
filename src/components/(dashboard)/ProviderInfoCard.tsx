@@ -77,7 +77,7 @@ export function ProviderInfoCard({ store, className }: ProviderInfoCardProps) {
 
                 <div className="flex items-center gap-2">
                     <ShoppingCart className="w-4 h-4 text-black" />
-                    <span>عدد مرات التواصل للطلب {store.orders_count || "27"}</span>
+                    <span>عدد مرات التواصل للطلب { "27"}</span>
                 </div>
 
             </div>
