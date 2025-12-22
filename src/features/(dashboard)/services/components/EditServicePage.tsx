@@ -38,12 +38,21 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<CompleteServiceFormData | null>(null);
 
-  // ... (useEffect for data mapping remains the same) ...
   useEffect(() => {
     const service = serviceResponse?.data;
 
     if (service && !formData) {
       try {
+        // ✅ منطق معالجة الصور لضمان أنها مصفوفة دائماً
+        let imagesPreviews: string[] = [];
+        if (Array.isArray(service.images_urls)) {
+            imagesPreviews = service.images_urls;
+        } else if (typeof service.images_urls === "string") {
+            imagesPreviews = [service.images_urls];
+        } else {
+            imagesPreviews = service.images || [];
+        }
+
         const initialFormData: CompleteServiceFormData = {
           step1: {
             title: service.title,
@@ -60,7 +69,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
           },
           step3: {
             images: service.images || [],
-            images_previews: service.images_urls || service.images || [],
+            images_previews: imagesPreviews, // ✅ استخدام المصفوفة المعالجة
           },
           step4: {
             description: service.description,

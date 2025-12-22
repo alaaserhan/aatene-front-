@@ -94,8 +94,8 @@ export interface Service {
   title: string;
   price: string | number;
   description: string;
-  images: string[]; // تم التحديث لمصفوفة
-  images_urls: string; // تم التحديث لنص واحد حسب الـ JSON
+  images: string[]; 
+  images_urls: string | string[]; // ✅ تم التحديث ليقبل نص أو مصفوفة
   execute_type: ExecuteType;
   execute_count: string | number;
   
@@ -123,7 +123,7 @@ export interface Service {
   favorites_count?: string | number;
   messages_count?: string | number;
   view_count?: string | number;
-  images_url?: string; // للحفاظ على التوافق مع الكود القديم إذا لزم الأمر
+  images_url?: string; 
 }
 
 export interface BaseResponse {
