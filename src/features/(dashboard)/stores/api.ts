@@ -162,7 +162,7 @@ export interface Store {
   managers: StoreManager[];
   shippingCompanies?: ShippingCompany[];
   locationCities?: number[];
-  serviceCities?:   number[];
+  serviceCities?:   Cities[];
   tags?: string[];
   delivery_type?: DeliveryType;
   services_count?: number;
