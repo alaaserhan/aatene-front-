@@ -1,28 +1,52 @@
 // src/features/(dashboard)/stories/components/CreateHighlightModal.tsx
 "use client";
 
-import { useState } from "react";
-import { Dialog, DialogContent } from "@/src/components/ui/dialog";
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
-import { useCreateHighlight } from "../hooks";
-import { Story } from "../api";
+import { useCreateHighlight, useUpdateHighlight } from "../hooks";
+import { Story, Highlight } from "../api";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { Input } from "@/src/components/ui/input";
 import { toast } from "sonner";
 import { cn } from "@/src/lib/utils";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface CreateHighlightModalProps {
   isOpen: boolean;
   onClose: () => void;
   storeId: number;
   availableStories: Story[];
+  highlightToEdit?: Highlight | null;
 }
 
-export function CreateHighlightModal({ isOpen, onClose, storeId, availableStories }: CreateHighlightModalProps) {
+export function CreateHighlightModal({ 
+  isOpen, 
+  onClose, 
+  storeId, 
+  availableStories,
+  highlightToEdit 
+}: CreateHighlightModalProps) {
   const [name, setName] = useState("");
   const [selectedStories, setSelectedStories] = useState<number[]>([]);
   
-  const { mutate: createHighlight, isPending } = useCreateHighlight();
+  const { mutate: createHighlight, isPending: isCreating } = useCreateHighlight();
+  const { mutate: updateHighlight, isPending: isUpdating } = useUpdateHighlight();
+
+  const isPending = isCreating || isUpdating;
+
+  useEffect(() => {
+    if (isOpen) {
+      if (highlightToEdit) {
+        setName(highlightToEdit.name);
+        const storyIds = highlightToEdit.stories.map(s => s.id);
+        setSelectedStories(storyIds);
+      } else {
+        setName("");
+        setSelectedStories([]);
+      }
+    }
+  }, [isOpen, highlightToEdit]);
 
   const toggleStory = (id: number) => {
     setSelectedStories(prev => 
@@ -40,23 +64,38 @@ export function CreateHighlightModal({ isOpen, onClose, storeId, availableStorie
         return;
     }
 
-    createHighlight({
-        payload: { name, stories: selectedStories },
+    const payload = { name, stories: selectedStories };
+
+    if (highlightToEdit) {
+      updateHighlight({
+        id: String(highlightToEdit.id),
+        payload,
         storeId: String(storeId)
-    }, {
+      }, {
         onSuccess: () => {
             onClose();
-            setName("");
-            setSelectedStories([]);
         }
-    });
+      });
+    } else {
+      createHighlight({
+          payload,
+          storeId: String(storeId)
+      }, {
+          onSuccess: () => {
+              onClose();
+          }
+      });
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl p-6 rounded-2xl bg-white" dir="rtl">
+        <VisuallyHidden><DialogTitle>{highlightToEdit ? "تعديل المجموعة" : "انشاء مجموعة جديدة"}</DialogTitle></VisuallyHidden>
         <div className="space-y-6">
-            <h3 className="text-lg font-bold text-gray-800 text-right">انشاء مجموعة جديدة</h3>
+            <h3 className="text-lg font-bold text-gray-800 text-right">
+              {highlightToEdit ? "تعديل المجموعة" : "انشاء مجموعة جديدة"}
+            </h3>
             
             <Input 
                 placeholder="اسم المجموعة" 
@@ -77,7 +116,6 @@ export function CreateHighlightModal({ isOpen, onClose, storeId, availableStorie
                                 selectedStories.includes(story.id) ? "border-blue-500 ring-2 ring-blue-100" : "border-transparent"
                             )}
                         >
-                            {/* عرض المحتوى (صورة أو نص ملون) */}
                             {story.image ? (
                                 <img src={story.image} className="w-full h-full object-cover" alt="story" />
                             ) : (
@@ -89,7 +127,6 @@ export function CreateHighlightModal({ isOpen, onClose, storeId, availableStorie
                                 </div>
                             )}
 
-                            {/* أيقونة الاختيار */}
                             <div className={cn(
                                 "absolute top-2 left-2 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center transition-colors",
                                 selectedStories.includes(story.id) ? "bg-blue-500" : "bg-black/30"
@@ -103,7 +140,7 @@ export function CreateHighlightModal({ isOpen, onClose, storeId, availableStorie
 
             <div className="flex gap-3 pt-4 border-t border-gray-100">
                 <Button className="flex-1 bg-[#3A5779]" onClick={handleSubmit} disabled={isPending}>
-                    {isPending ? <Loader2 className="animate-spin" /> : "نشر"}
+                    {isPending ? <Loader2 className="animate-spin" /> : "حفظ"}
                 </Button>
                 <Button variant="secondary" className="flex-1 bg-gray-100" onClick={onClose}>
                     الغاء

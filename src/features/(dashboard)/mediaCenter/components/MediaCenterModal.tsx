@@ -165,8 +165,8 @@ export function MediaCenterModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-[95vw] lg:max-w-[65vw] p-0 gap-0 overflow-hidden border-0 [&>button]:hidden">
+    <Dialog open={open} onOpenChange={handleClose} >
+      <DialogContent className="max-w-[95vw] lg:max-w-[65vw] p-0 gap-0 overflow-hidden border-0 [&>button]:hidden ">
         <VisuallyHidden>
           <DialogTitle>مركز الوسائط</DialogTitle>
           <DialogDescription>

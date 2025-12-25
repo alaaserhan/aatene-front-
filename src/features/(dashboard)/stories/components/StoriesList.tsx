@@ -2,10 +2,11 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Type, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Plus, Type, Image as ImageIcon } from "lucide-react";
 import { Story } from "../api";
 import { StoryItem } from "./StoryItem";
 import { AddStoryModal } from "./AddStoryModal";
+import { ShowStoryModal } from "./ShowStoryModal"; // ✅ 1. استيراد مودال العرض
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,12 +21,23 @@ interface StoriesListProps {
 }
 
 export function StoriesList({ stories, storeId }: StoriesListProps) {
+  // States for Add Modal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addMode, setAddMode] = useState<"text" | "media">("text");
+
+  // ✅ 2. States for Show Modal (مودال العرض)
+  const [isShowModalOpen, setIsShowModalOpen] = useState(false);
+  const [initialStoryIndex, setInitialStoryIndex] = useState(0);
 
   const handleOpenAdd = (mode: "text" | "media") => {
     setAddMode(mode);
     setIsAddModalOpen(true);
+  };
+
+  // ✅ 3. دالة فتح القصة عند الضغط عليها
+  const handleStoryClick = (index: number) => {
+    setInitialStoryIndex(index);
+    setIsShowModalOpen(true);
   };
 
   return (
@@ -36,7 +48,7 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
           <h2 className="text-lg font-bold ">القصص ( {stories.length} )</h2>
         </div>
 
-        {/* Dropdown إضافة قصة - يطابق صورة image_0c67bf */}
+        {/* Dropdown إضافة قصة */}
         <DropdownMenu dir="rtl">
           <DropdownMenuTrigger asChild>
             <Button className="bg-blue-3 text-white hover:bg-[#2c425e] gap-2 px-6">
@@ -44,58 +56,71 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
               اضافة قصة
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 p-2 rounded-lg border border-gray-200 shadow-none">
+          <DropdownMenuContent align="end" className="w-56 p-2 rounded-lg border border-gray-200 shadow-none bg-white">
             <DropdownMenuItem 
-                onClick={() => handleOpenAdd("text")}
-                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg"
+                onSelect={() => handleOpenAdd("text")} // يفضل استخدام onSelect بدلاً من onClick في القوائم
+                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg focus:bg-gray-50"
             >
               <div className="bg-blue-5 p-2 rounded">
                 <Type className="w-5 h-5 text-blue-4" />
               </div>
-              <div className="flex flex-col ">
-                <span className="font-medium text-blue-4 ">نص</span>
-                <span className="text-xs text-gray-2">قم باضافة نص الي قصتك</span>
+              <div className="flex flex-col text-right">
+                <span className="font-medium text-blue-4 text-sm">نص</span>
+                <span className="text-xs text-gray-400 mt-0.5">قم باضافة نص الي قصتك</span>
               </div>
             </DropdownMenuItem>
             
             <DropdownMenuItem 
-                onClick={() => handleOpenAdd("media")}
-                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg mt-1"
+                onSelect={() => handleOpenAdd("media")} // يفضل استخدام onSelect
+                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg mt-1 focus:bg-gray-50"
             >
               <div className="bg-blue-5 p-2 rounded">
                 <ImageIcon className="w-5 h-5 text-blue-4" />
               </div>
-              <div className="flex flex-col ">
-                <span className="font-medium text-blue-4 ">صورة او فيديو</span>
-                <span className="text-xs text-gray-2">قم باضافة صورة او فيديو الي قصتك</span>
+              <div className="flex flex-col text-right">
+                <span className="font-medium text-blue-4 text-sm">صورة او فيديو</span>
+                <span className="text-xs text-gray-400 mt-0.5">قم باضافة صورة او فيديو الي قصتك</span>
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      {/* Empty State - يطابق صورة image_0c6a88 */}
+      {/* Empty State */}
       {stories.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="flex flex-col items-center justify-center py-12 text-center bg-white rounded-xl border border-dashed border-gray-200 m-2">
            <div className="relative mb-4">
-              <img src="/icons/dashboard/emptyStories.svg" alt="" className="h-44"/>
+              <img src="/icons/dashboard/emptyStories.svg" alt="" className="h-44 opacity-80"/>
            </div>
-           <h3 className="text-lg font-bold  mb-1">لا يوجد قصص حتي الان</h3>
-           <p className="text-gray-2 text-sm">بمجرد متابعتك من احد الاشخاص سيظهر هنا من يتابعك</p>
+           <h3 className="text-lg font-bold mb-1 text-gray-800">لا يوجد قصص حتي الان</h3>
+           <p className="text-gray-400 text-sm">بمجرد متابعتك من احد الاشخاص سيظهر هنا من يتابعك</p>
         </div>
       ) : (
-        /* Stories Grid */
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {stories.map((story) => (
-            <StoryItem key={story.id} story={story} storeId={storeId} />
+        /* Stories List */
+        <div className="flex flex-col gap-4">
+          {stories.map((story, index) => (
+            // ✅ 4. جعل العنصر قابلاً للضغط وتمرير الاندكس
+            <div key={story.id} onClick={() => handleStoryClick(index)} className="cursor-pointer">
+                <StoryItem story={story} storeId={storeId} />
+            </div>
           ))}
         </div>
       )}
 
+      {/* Add Modal */}
       <AddStoryModal 
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         mode={addMode}
+        storeId={storeId}
+      />
+
+      {/* ✅ 5. عرض مودال عرض القصص */}
+      <ShowStoryModal 
+        isOpen={isShowModalOpen}
+        onClose={() => setIsShowModalOpen(false)}
+        stories={stories}
+        initialIndex={initialStoryIndex}
         storeId={storeId}
       />
     </div>

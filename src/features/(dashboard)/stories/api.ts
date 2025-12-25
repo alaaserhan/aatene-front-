@@ -8,14 +8,14 @@ export interface Story {
   image: string | null;
   text: string;
   color: string;
+  created_at: string;
 }
 
 export interface Highlight {
   id: number;
   name: string;
-  stories: number[];
+  stories: Story[]; 
 }
-
 export interface BaseResponse {
   status: boolean;
   message: string;
@@ -64,6 +64,11 @@ export interface UpdateHighlightPayload {
 }
 
 const getHeaders = (storeId?: number | string) => {
+  const userType = Cookies.get("user_type");
+  if (userType === "admin") {
+    return undefined;
+  }
+
   const currentStoreId = storeId || Cookies.get("current_store_id");
   return currentStoreId ? { storeId: String(currentStoreId) } : undefined;
 };

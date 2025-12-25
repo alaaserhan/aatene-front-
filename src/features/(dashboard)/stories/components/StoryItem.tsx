@@ -1,15 +1,33 @@
 // src/features/(dashboard)/stories/components/StoryItem.tsx
 "use client";
 
+import { useState } from "react";
 import { Story } from "../api";
 import { Trash2, Loader2 } from "lucide-react";
 import { useDeleteStory } from "../hooks";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
-import { useState } from "react";
 
 interface StoryItemProps {
   story: Story;
   storeId: number;
+}
+
+// دالة مساعدة لحساب الوقت المنقضي
+function getTimeAgo(dateString: string) {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  const minutes = Math.floor(diffInSeconds / 60);
+  const hours = Math.floor(diffInSeconds / 3600);
+  const days = Math.floor(diffInSeconds / 86400);
+
+  if (days > 0) return `منذ ${days} يوم`;
+  if (hours > 0) return `منذ ${hours} ساعة`;
+  if (minutes > 0) return `منذ ${minutes} دقيقة`;
+  return "الآن";
 }
 
 export function StoryItem({ story, storeId }: StoryItemProps) {
@@ -18,50 +36,60 @@ export function StoryItem({ story, storeId }: StoryItemProps) {
 
   const handleDelete = () => {
     deleteStory({ id: String(story.id), storeId: String(storeId) }, {
-        onSuccess: () => setDeleteOpen(false)
+      onSuccess: () => setDeleteOpen(false)
     });
   };
 
+  const timeAgo = getTimeAgo(story.created_at);
+
   return (
     <>
-      <div className="relative group aspect-[9/16] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer">
-        
-        {/* Content Display */}
-        {story.image ? (
-          <img src={story.image} alt="Story" className="w-full h-full object-cover" />
-        ) : (
-          <div 
-            className="w-full h-full flex items-center justify-center p-4 text-center text-white font-bold break-words"
-            style={{ backgroundColor: story.color || "#2C3E50" }}
-          >
-            {story.text}
-          </div>
-        )}
+      <div className="flex items-center justify-between py-3 hover:bg-gray-50 transition-colors rounded-lg px-2 group">
 
-        {/* Delete Overlay Button */}
-        <button 
-            onClick={(e) => {
-                e.stopPropagation();
-                setDeleteOpen(true);
-            }}
-            className="absolute top-3 left-3 w-8 h-8 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+
+        {/* الجزء الأيمن: الصورة والوقت */}
+        <div className="flex items-center gap-4">
+
+          {/* دائرة القصة */}
+          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-4 shadow-sm shrink-0">
+            {story.image ? (
+              <img
+                src={story.image}
+                alt="Story"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div
+                className="w-full h-full flex items-center justify-center p-2 text-center text-white text-[8px] font-bold break-words leading-tight"
+                style={{ backgroundColor: story.color || "#3A5779" }}
+              >
+                {story.text}
+              </div>
+            )}
+          </div>
+          <span className="text-sm font-medium text-gray-800">{timeAgo}</span>
+        </div>
+
+        {/* الجزء الأيسر: زر الحذف */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setDeleteOpen(true);
+          }}
+          className="w-10 h-10 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
         >
-            <Trash2 className="w-4 h-4" />
+          <img src="/icons/dashboard/trash.svg" className="w-5 h-5" />
         </button>
 
-        {/* Time Overlay (Mockup data or from created_at if available) */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/50 to-transparent text-white text-xs text-right">
-            منذ 1 ساعة
-        </div>
+
       </div>
 
-      <ConfirmDeleteModal 
+      <ConfirmDeleteModal
         isOpen={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         onConfirm={handleDelete}
         title="حذف القصة"
         description="هل أنت متأكد من حذف هذه القصة؟ لا يمكن التراجع عن هذا الإجراء."
-        isLoading={isPending}
       />
     </>
   );
