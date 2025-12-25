@@ -18,6 +18,7 @@ import {
   GalleryVerticalEnd,
   LogOut,
   Bot,
+  ImageIcon,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -94,6 +95,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الاقسام", icon: Map, href: "/sections", show: isMerchant },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: true },
+    { label: "القصص", icon: ImageIcon, href: "/stories ", show: true },
   ];
 
   const mainNavItems = allNavItems.slice(0, 5);
@@ -111,17 +113,17 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     if (React.isValidElement(icon)) {
       // استخراج الخصائص مع تحديد النوع بدلاً من any
       const iconProps = icon.props as IconProps;
-      
+
       return React.cloneElement(icon as React.ReactElement<IconProps>, {
         className: cn(
           className,
           iconProps.className,
           // تطبيق فلتر يقلب الألوان ويجعلها بيضاء عند النشاط
-          isActiveItem ? "brightness-0 invert" : "" 
+          isActiveItem ? "brightness-0 invert" : ""
         ),
       });
     }
-    
+
     const Icon = icon as LucideIcon;
     // للأيقونات من نوع Lucide، اللون يتم التحكم به عبر CSS color للأب، فلا نحتاج لفلتر هنا
     return <Icon className={className} />;

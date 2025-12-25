@@ -1,0 +1,195 @@
+// src/features/(dashboard)/stories/api.ts
+import api from "@/src/lib/axios";
+import { getDynamicEndpoint } from "@/src/lib/api-helper";
+import Cookies from "js-cookie";
+
+export interface Story {
+  id: number;
+  image: string | null;
+  text: string;
+  color: string;
+}
+
+export interface Highlight {
+  id: number;
+  name: string;
+  stories: number[];
+}
+
+export interface BaseResponse {
+  status: boolean;
+  message: string;
+}
+
+export interface StoriesResponse extends BaseResponse {
+  recordsTotal: number;
+  recordsFiltered: number;
+  data: Story[];
+}
+
+export interface SingleStoryResponse extends BaseResponse {
+  record: Story;
+}
+
+export interface HighlightsResponse extends BaseResponse {
+  recordsTotal: number;
+  recordsFiltered: number;
+  data: Highlight[];
+}
+
+export interface SingleHighlightResponse extends BaseResponse {
+  data: Highlight;
+}
+
+export interface CreateStoryPayload {
+  image: string | null;
+  text: string;
+  color: string;
+}
+
+export interface UpdateStoryPayload {
+  image: string | null;
+  text: string;
+  color: string;
+}
+
+export interface CreateHighlightPayload {
+  name: string;
+  stories: number[];
+}
+
+export interface UpdateHighlightPayload {
+  name: string;
+  stories: number[];
+}
+
+const getHeaders = (storeId?: number | string) => {
+  const currentStoreId = storeId || Cookies.get("current_store_id");
+  return currentStoreId ? { storeId: String(currentStoreId) } : undefined;
+};
+
+export const getStories = async (
+  storeId?: number | string
+): Promise<StoriesResponse> => {
+  const endpoint = getDynamicEndpoint("/stories");
+  const headers = getHeaders(storeId);
+  const { data } = await api.get<StoriesResponse>(endpoint, { headers });
+  return data;
+};
+
+export const getSingleStory = async (
+  id: number | string,
+  storeId?: number | string
+): Promise<SingleStoryResponse> => {
+  const endpoint = getDynamicEndpoint(`/stories/${id}`);
+  const headers = getHeaders(storeId);
+  const { data } = await api.get<SingleStoryResponse>(endpoint, { headers });
+  return data;
+};
+
+export const createStory = async ({
+  payload,
+  storeId,
+}: {
+  payload: CreateStoryPayload;
+  storeId?: number | string;
+}): Promise<SingleStoryResponse> => {
+  const endpoint = getDynamicEndpoint("/stories");
+  const headers = getHeaders(storeId);
+  const { data } = await api.post<SingleStoryResponse>(endpoint, payload, {
+    headers,
+  });
+  return data;
+};
+
+export const updateStory = async ({
+  id,
+  payload,
+  storeId,
+}: {
+  id: number | string;
+  payload: UpdateStoryPayload;
+  storeId?: number | string;
+}): Promise<SingleStoryResponse> => {
+  const endpoint = getDynamicEndpoint(`/stories/${id}`);
+  const headers = getHeaders(storeId);
+  const { data } = await api.post<SingleStoryResponse>(endpoint, payload, {
+    headers,
+  });
+  return data;
+};
+
+export const deleteStory = async ({
+  id,
+  storeId,
+}: {
+  id: number | string;
+  storeId?: number | string;
+}): Promise<BaseResponse> => {
+  const endpoint = getDynamicEndpoint(`/stories/${id}`);
+  const headers = getHeaders(storeId);
+  const { data } = await api.delete<BaseResponse>(endpoint, { headers });
+  return data;
+};
+
+export const getHighlights = async (
+  storeId?: number | string
+): Promise<HighlightsResponse> => {
+  const endpoint = getDynamicEndpoint("/highlights");
+  const headers = getHeaders(storeId); 
+  const { data } = await api.get<HighlightsResponse>(endpoint, { headers });
+  return data;
+};
+
+export const getSingleHighlight = async (
+  id: number | string,
+  storeId?: number | string
+): Promise<SingleHighlightResponse> => {
+  const endpoint = getDynamicEndpoint(`/highlights/${id}`);
+  const headers = getHeaders(storeId);
+  const { data } = await api.get<SingleHighlightResponse>(endpoint, {
+    headers,
+  });
+  return data;
+};
+
+export const createHighlight = async ({
+  payload,
+  storeId,
+}: {
+  payload: CreateHighlightPayload;
+  storeId?: number | string;
+}): Promise<BaseResponse> => {
+  const endpoint = getDynamicEndpoint("/highlights");
+  const headers = getHeaders(storeId);
+  const { data } = await api.post<BaseResponse>(endpoint, payload, { headers });
+  return data;
+};
+
+export const updateHighlight = async ({
+  id,
+  payload,
+  storeId,
+}: {
+  id: number | string;
+  payload: UpdateHighlightPayload;
+  storeId?: number | string;
+}): Promise<BaseResponse> => {
+  const endpoint = getDynamicEndpoint(`/highlights/${id}`);
+  const headers = getHeaders(storeId);
+  const { data } = await api.post<BaseResponse>(endpoint, payload, { headers });
+  return data;
+};
+
+export const deleteHighlight = async ({
+  id,
+  storeId,
+}: {
+  id: number | string;
+  storeId?: number | string;
+}): Promise<BaseResponse> => {
+  const endpoint = getDynamicEndpoint(`/highlights/${id}`);
+  const headers = getHeaders(storeId);
+  const { data } = await api.delete<BaseResponse>(endpoint, { headers });
+  return data;
+};
