@@ -95,7 +95,7 @@ export function ServicesTable({
                                         <div className="w-16 h-12 rounded bg-gray-100 overflow-hidden relative">
                                             {service.images_url ? (
                                                 <img
-                                                    src={service.images_url}
+                                                    src={Array.isArray(service.images_url) ? service.images_url[0] : service.images_url}
                                                     alt={service.title}
                                                     className="w-full h-full object-cover"
                                                 />

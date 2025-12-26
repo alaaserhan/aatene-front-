@@ -112,8 +112,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
 
   ];
 
-  const mainNavItems = allNavItems.slice(0, 5);
-  const moreMenuItems = allNavItems.slice(5);
+  const mainNavItems = allNavItems.slice(0, 6);
+  const moreMenuItems = allNavItems.slice(6);
 
   const notifications: Notification[] = [];
   const unreadCount = 0;

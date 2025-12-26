@@ -194,7 +194,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 {store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "جاري التحميل..."}
                             </h1>
                             <p className="text-sm text-gray-2 font-medium">
-                                {(approvedData?.recordsFiltered || 0) + (pendingData?.recordsFiltered || 0) + (rejectedData?.recordsFiltered || 0)} خدمات
+                                {store?.services_count} خدمات
                             </p>
                         </div>
                     </div>
