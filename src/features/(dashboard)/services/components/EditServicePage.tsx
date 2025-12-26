@@ -43,14 +43,13 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
 
     if (service && !formData) {
       try {
-        // ✅ منطق معالجة الصور لضمان أنها مصفوفة دائماً
         let imagesPreviews: string[] = [];
         if (Array.isArray(service.images_urls)) {
-            imagesPreviews = service.images_urls;
+          imagesPreviews = service.images_urls;
         } else if (typeof service.images_urls === "string") {
-            imagesPreviews = [service.images_urls];
+          imagesPreviews = [service.images_urls];
         } else {
-            imagesPreviews = service.images || [];
+          imagesPreviews = service.images || [];
         }
 
         const initialFormData: CompleteServiceFormData = {
@@ -69,7 +68,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
           },
           step3: {
             images: service.images || [],
-            images_previews: imagesPreviews, // ✅ استخدام المصفوفة المعالجة
+            images_previews: imagesPreviews,
           },
           step4: {
             description: service.description,
@@ -122,7 +121,10 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
   };
   const handleStep4Back = () => setCurrentStep(3);
 
-  const handleStep5Submit = async (data: Step5ServiceData) => {
+  // ✅ تم التعديل هنا: استخدام mutate مع onSuccess callback
+  const handleStep5Submit = (data: Step5ServiceData) => {
+    if (updateServiceMutation.isPending) return;
+
     if (!formData) return;
     const { step1, step2, step3, step4 } = formData;
 
@@ -151,21 +153,27 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
       status: serviceResponse?.data.status || "pending",
     };
 
-    try {
-      await updateServiceMutation.mutateAsync({
+    // استخدام mutate بدلاً من mutateAsync مع try/catch
+    updateServiceMutation.mutate(
+      {
         id: serviceId,
         payload,
         storeId
-      });
-      setShowSuccessModal(true);
-    } catch (error) {
-      // Error handled in hook
-    }
+      },
+      {
+        onSuccess: () => {
+          setShowSuccessModal(true);
+        },
+      }
+    );
   };
+
   const handleStep5Back = () => setCurrentStep(4);
 
-  if (isLoading) return <Loader2 className="animate-spin" />;
-  if (isError || !serviceResponse?.data) return <div>Error...</div>;
+if (isLoading && !formData) return <Loader2 className="animate-spin" />;
+
+  if ((isError || !serviceResponse?.data) && !formData) return <div>Error...</div>;
+
   if (!formData) return null;
 
   const steps = [

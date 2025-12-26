@@ -106,7 +106,7 @@ export function AddServiceStep5({
                             {/* Terms of Service */}
                             <div className="space-y-4">
                                 <h3 className="text-lg font-bold ">شروط الخدمة</h3>
-                                <div className="flex items-start gap-3">
+                                <div className="flex items-center gap-3">
                                     <div className="relative flex items-center">
                                         <input
                                             type="checkbox"
@@ -114,7 +114,7 @@ export function AddServiceStep5({
                                             checked={termsAgreed}
                                             onChange={(e) => setTermsAgreed(e.target.checked)}
                                             className={cn(
-                                                "h-5 w-5 cursor-pointer appearance-none rounded-md border transition-all focus:ring-2 focus:ring-blue-4/20",
+                                                "h-5 w-5 cursor-pointer appearance-none rounded border transition-all focus:ring-2 focus:ring-blue-4/20",
                                                 termsAgreed
                                                     ? "bg-blue-4 border-blue-4"
                                                     : "border-gray-300 bg-white hover:border-blue-4"
@@ -138,7 +138,7 @@ export function AddServiceStep5({
                             {/* Privacy Notice */}
                             <div className="space-y-4">
                                 <h3 className="text-lg font-bold ">إشعار الخصوصية</h3>
-                                <div className="flex items-start gap-3">
+                                <div className="flex items-center gap-3">
                                     <div className="relative flex items-center">
                                         <input
                                             type="checkbox"
@@ -146,7 +146,7 @@ export function AddServiceStep5({
                                             checked={privacyAgreed}
                                             onChange={(e) => setPrivacyAgreed(e.target.checked)}
                                             className={cn(
-                                                "h-5 w-5 cursor-pointer appearance-none rounded-md border transition-all focus:ring-2 focus:ring-blue-4/20",
+                                                "h-5 w-5 cursor-pointer appearance-none rounded border transition-all focus:ring-2 focus:ring-blue-4/20",
                                                 privacyAgreed
                                                     ? "bg-blue-4 border-blue-4"
                                                     : "border-gray-300 bg-white hover:border-blue-4"

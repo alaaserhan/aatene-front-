@@ -37,6 +37,8 @@ export function useCreateService() {
   });
 }
 
+// src/features/(dashboard)/services/hooks.ts
+
 export function useUpdateService() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -49,11 +51,11 @@ export function useUpdateService() {
       payload: api.ServicePayload;
       storeId?: number | string;
     }) => api.updateService(id, payload, storeId),
-    onSuccess: (data) => {
-      toast.success("تم تعديل الخدمة بنجاح");
+
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
-      // تحديث بيانات الخدمة المحددة في الكاش
-      queryClient.setQueryData(["services", data.data.id], data);
+
+      queryClient.setQueryData(["services", variables.id, variables.storeId], data);
     },
     onError: (error: AxiosError<api.BaseResponse>) => {
       toast.error(error.response?.data?.message || "حدث خطأ أثناء التعديل");
@@ -64,7 +66,7 @@ export function useUpdateService() {
 export function useDeleteService() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, storeId }: { id: number | string; storeId?: number | string }) => 
+    mutationFn: ({ id, storeId }: { id: number | string; storeId?: number | string }) =>
       api.deleteService(id, storeId),
     onSuccess: () => {
       toast.success("تم حذف الخدمة بنجاح");
@@ -125,8 +127,8 @@ export function useUpdateServiceShown() {
 
 // إضافة هوك لجلب أسباب الرفض (مطلوب لـ RejectServiceModal)
 export function useGetRejectionReasons() {
-    return useQuery({
-        queryKey: ["rejection-reasons"],
-        queryFn: api.getRejectionReasons,
-    });
+  return useQuery({
+    queryKey: ["rejection-reasons"],
+    queryFn: api.getRejectionReasons,
+  });
 }
