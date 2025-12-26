@@ -19,6 +19,7 @@ import {
   LogOut,
   Bot,
   ImageIcon,
+  Wand2Icon,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -96,6 +97,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: true },
     { label: "القصص", icon: ImageIcon, href: "/stories ", show: true },
+    { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services ", show: isAdmin },
+
   ];
 
   const mainNavItems = allNavItems.slice(0, 5);
