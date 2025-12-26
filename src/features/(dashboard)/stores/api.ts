@@ -127,6 +127,7 @@ export interface Store {
   logo_url: string | null;
   cover: string[];
   cover_urls: (string | null)[];
+  conversations_count?: number;
   status: StoreStatus;
   description: string | null;
   address: string | null;
