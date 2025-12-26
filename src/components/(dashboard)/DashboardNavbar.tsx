@@ -20,6 +20,8 @@ import {
   Bot,
   ImageIcon,
   Wand2Icon,
+  PanelsRightBottom,
+  Boxes,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -38,6 +40,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { Separator } from "@/src/components/ui/separator";
 import { DashboardUserMenu } from "./DashboardUserMenu";
 import { cn } from "@/src/lib/utils";
+import Cookies from "js-cookie";
 
 interface NavItem {
   label: string;
@@ -84,16 +87,23 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     return false;
   };
 
+      const [activeStoreId, setActiveStoreId] = useState<string | number | null>(() => {
+        if (typeof window !== "undefined") {
+            return Cookies.get("current_store_id") || null;
+        }
+        return null;
+    });
+
   const allNavItems: NavItem[] = [
     { label: "الرئيسة", icon: <img src={"/icons/dashboard/nav_home.svg"} alt="" />, href: "/home", show: true },
     { label: "المستخدمين", icon: <img src={"/icons/dashboard/nav_users.svg"} alt="" />, href: "/users", show: isAdmin },
     { label: "المتاجر", icon: <img src={"/icons/dashboard/nav_stores.svg"} alt="" />, href: "/stores", show: true },
     { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: true },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: isAdmin },
-    { label: "الفئات", icon: Package, href: "/categories", show: true },
+    { label: "الفئات", icon: Boxes, href: "/categories", show: true },
     { label: "الإعدادات", icon: Settings, href: "/settings", show: isAdmin },
     { label: "مدن الشحن", icon: Map, href: "/cities", show: true },
-    { label: "الاقسام", icon: Map, href: "/sections", show: isMerchant },
+    { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: true },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: true },
     { label: "القصص", icon: ImageIcon, href: "/stories ", show: true },
