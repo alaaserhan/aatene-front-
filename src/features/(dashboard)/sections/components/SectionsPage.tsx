@@ -34,6 +34,7 @@ interface SectionsPageProps {
 export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
     const [isMounted, setIsMounted] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+console.log(paramStoreId);
 
     // 1. تحديد storeId بناءً على الباراميترز أو الكوكيز
     const [activeStoreId, setActiveStoreId] = useState<string | number | null>(() => {

@@ -7,7 +7,7 @@ interface PageProps {
 export default async function Page({ searchParams }: PageProps) {
   const resolvedSearchParams = await searchParams;
 
-  const storeId = resolvedSearchParams.storeId;
+  const storeId = resolvedSearchParams.store_id;
 
   return (
     <SectionsPage
