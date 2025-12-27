@@ -22,6 +22,7 @@ import {
   Wand2Icon,
   PanelsRightBottom,
   Boxes,
+  Newspaper,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -109,6 +110,9 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: true },
     { label: "القصص", icon: ImageIcon, href: "/stories ", show: true },
     { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services ", show: isAdmin },
+    { label: "المدونات", icon: Newspaper, href: "/blogs", show: true },
+    { label: "المتابعات", icon: Users, href: "/following", show: isMerchant },
+
 
   ];
 
