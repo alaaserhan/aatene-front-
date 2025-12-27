@@ -16,22 +16,22 @@ interface FollowersTableProps {
   targetId?: number | string | null;
 }
 
-export function FollowersTable({ 
-    data, 
-    type, 
-    onAction, 
-    isActionPending,
-    targetId 
+export function FollowersTable({
+  data,
+  type,
+  onAction,
+  isActionPending,
+  targetId
 }: FollowersTableProps) {
-    
+
   return (
     <div className="overflow-x-auto bg-white rounded-lg border border-gray-100">
       <table className="w-full">
         <thead>
           <tr className="bg-gray-50/50 border-b border-gray-100">
-            <th className="px-6 py-4 text-start text-sm font-medium text-gray-500 w-1/2">الاسم</th>
-            <th className="px-6 py-4 text-center text-sm font-medium text-gray-500 w-1/4">التاريخ والوقت</th>
-            <th className="px-6 py-4 text-end text-sm font-medium text-gray-500 w-1/4">عمليات</th>
+            <th className="px-6 py-4 text-start text-sm font-medium  w-1/2">الاسم</th>
+            <th className="px-6 py-4 text-center text-sm font-medium  w-1/4">التاريخ والوقت</th>
+            <th className="px-6 py-4 text-center text-sm font-medium  w-1/4">عمليات</th>
           </tr>
         </thead>
         <tbody>
@@ -46,40 +46,38 @@ export function FollowersTable({
                   <span className="text-sm font-medium text-gray-700">{item.name}</span>
                 </div>
               </td>
-              
+
               <td className="px-6 py-4 text-center">
                 <span className="text-sm text-gray-500" dir="ltr">
-                  {item.started_at 
+                  {item.started_at
                     ? format(new Date(item.started_at), "yyyy-MM-dd - hh a", { locale: ar })
                     : "-"}
                 </span>
               </td>
 
-              <td className="px-6 py-4 text-end">
+              <td className="px-6 py-4 text-center">
                 {type === "followings" ? (
                   // زر إلغاء المتابعة (أحمر)
                   <Button
                     onClick={() => onAction(item)}
                     disabled={isActionPending && targetId === item.id}
                     variant="ghost"
-                    className="bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 gap-2 h-9 px-4 text-xs font-medium"
+                    className="bg-red-2 text-red-500 hover:bg-red-100 hover:text-red-600 gap-2 h-9 px-4 text-sm rounded-xs font-medium"
                   >
-                    إلغاء المتابعة
                     <Minus className="w-3 h-3" />
+                    إلغاء المتابعة
                   </Button>
                 ) : (
                   // زر المتابعة (أزرق)
                   // يظهر فقط إذا لم أكن أتابعه بالفعل (في حالة المتابعين)
-                    !item.is_following_back && (
-                        <Button
-                            onClick={() => onAction(item)}
-                            disabled={isActionPending && targetId === item.id}
-                            className="bg-blue-3 text-white hover:bg-blue-4 gap-2 h-9 px-6 text-xs font-medium"
-                        >
-                            متابعة
-                            <Plus className="w-4 h-4" />
-                        </Button>
-                    )
+                  <Button
+                    onClick={() => onAction(item)}
+                    disabled={(isActionPending && targetId === item.id) || item.is_following_back}
+                    className="bg-blue-3 text-white hover:bg-blue-4 gap-2 h-9 px-6 text-sm font-medium rounded-xs"
+                  >
+                    <Plus className="w-4 h-4" />
+                    متابعة
+                  </Button>
                 )}
               </td>
             </tr>

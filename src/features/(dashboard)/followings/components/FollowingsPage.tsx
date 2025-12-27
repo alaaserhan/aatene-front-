@@ -4,7 +4,7 @@
 import { useState, useMemo } from "react";
 import { Input } from "@/src/components/ui/input";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, Users } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { useGetMyFollowers, useGetMyFollowings, useFollowUser, useUnfollowUser } from "../hooks";
 import { FollowersTable } from "./FollowersTable";
@@ -123,30 +123,31 @@ export function FollowingsPage() {
             <main className="container mx-auto px-4 sm:px-6 py-6 flex-1">
 
                 {/* 2. Breadcrumb */}
-                <div className="mb-6">
+                <div className="my-3">
                     <Breadcrumb items={breadcrumbItems} />
                 </div>
 
                 {/* 3. Search */}
-                <div className="mb-8">
+                <div className="mb-4">
                     <div className="relative">
                         <Input
                             placeholder="ابحث بالاسم او رقم الموبايل"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-white h-12 pe-12 text-right border-gray-200 focus:border-blue-3 rounded-lg shadow-sm"
+                            className="w-full bg-white  h-12 "
                         />
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        
                     </div>
                 </div>
 
                 {/* 4. Content Area */}
-                <div className="space-y-4">
+                <div className="space-y-4 bg-white rounded-lg border border-gray-200 p-2">
                     {/* Title & Count */}
-                    <div className="flex justify-end mb-4">
-                        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2" dir="rtl">
+                    <div className="flex  mb-4">
+                        <h2 className="text-xl flex flex-row items-center gap-1 font-medium p-2">
+                            <Users className="w-4"/>
                             {activeTab === "followers" ? "يتابعك" : "تتابعهم"}
-                            <span className="text-gray-500 font-normal">({totalRecords})</span>
+                            <span className="text-gray- font-normal text-base">({ totalRecords})</span>
                         </h2>
                     </div>
 
@@ -155,6 +156,7 @@ export function FollowingsPage() {
                         <div className="flex justify-center items-center h-64 bg-white rounded-lg">
                             <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
                         </div>
+                        
                     ) : records.length > 0 ? (
                         <>
                             <FollowersTable
