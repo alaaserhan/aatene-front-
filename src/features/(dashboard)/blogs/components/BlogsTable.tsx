@@ -65,7 +65,7 @@ export function BlogsTable({
                 </td>
 
                 <td className="px-6 py-4 text-center">
-                  <div className="flex items-center justify-center gap-1 bg-yellow-50 px-2 py-1 rounded-full w-fit mx-auto border border-yellow-100">
+                  <div className="flex items-center justify-center gap-1 bg-yellow-50 px-2 py-0.5 rounded-full w-fit mx-auto border border-yellow-100">
                     <span className="text-xs font-bold text-gray-700">{blog.review_rate}</span>
                     <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                   </div>
@@ -91,7 +91,7 @@ export function BlogsTable({
                       onClick={() => onEdit(blog)}
                       className="bg-gray-50  hover:bg-blue-50 hover:text-blue-3 h-8 w-8 rounded-xs"
                     >
-                      <Pencil className="w-4 h-4" />
+                      <img src="/icons/dashboard/edit3.svg" alt="Edit" className="w-4 h-4" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -99,7 +99,7 @@ export function BlogsTable({
                       onClick={() => onDelete(blog.id)}
                       className="bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-500 h-8 w-8 rounded-xs"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <img src="/icons/dashboard/trash.svg" alt="Delete" className="w-4 h-4" />
                     </Button>
                     <Button
                       variant="ghost"
