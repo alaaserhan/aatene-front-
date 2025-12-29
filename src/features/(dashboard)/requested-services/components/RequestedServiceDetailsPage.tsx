@@ -128,9 +128,9 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
 
         {/* ✅ عرض بانر الرفض إذا كانت الحالة مرفوضة */}
         {service.status === "rejected" && (
-          <div className="w-full bg-[#FEF2F2] border border-[#FEE2E2] rounded-xl p-6 text-center shadow-sm">
-            <h3 className="text-[#EF4444] font-bold text-lg mb-2">تم رفض الخدمة</h3>
-            <p className="text-[#B91C1C] text-sm leading-relaxed max-w-3xl mx-auto">
+          <div className="w-full bg-[#FFE5E5] border border-[#FF9999] rounded-lg p-4">
+            <h3 className="text-[#EF4444] font-medium mb-2">تم رفض الخدمة</h3>
+            <p className="text-[#B91C1C] text-sm leading-relaxed ">
               {service.reject_reason || "لا يوجد سبب محدد للرفض"}
             </p>
           </div>
