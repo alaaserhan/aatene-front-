@@ -1,4 +1,3 @@
-//src/features/(dashboard)/requested-services/api.ts
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import Cookies from "js-cookie";
@@ -20,6 +19,9 @@ export interface RequestedServiceUser {
     district_id: number | null;
     date_of_birth: string | null;
     gender: string;
+    referral_code: string | null; 
+    verified_code: string | null; 
+    last_login_at: string | null; 
     created_at: string;
 }
 
@@ -32,7 +34,10 @@ export interface RequestedService {
     content: string;
     user: RequestedServiceUser;
     reject_reason: string | null;
-    created_at?: string;
+    reports_count: string; 
+    comments_count: string; 
+    created_at: string; 
+    updated_at: string; 
 }
 
 // --- Responses ---
@@ -49,7 +54,7 @@ export interface RequestedServicesResponse extends BaseResponse {
 }
 
 export interface SingleRequestedServiceResponse extends BaseResponse {
-    data: RequestedService;
+    record: RequestedService; 
 }
 
 // --- Payloads ---
@@ -78,7 +83,6 @@ export interface UpdateRequestedServiceStatusPayload {
 // --- Helpers ---
 
 const getHeaders = (storeId?: number | string) => {
-    // تم الالتزام بطلبك: إرسال storeId في جميع الطلبات
     const currentStoreId = storeId || Cookies.get("current_store_id");
     return currentStoreId ? { storeId: String(currentStoreId) } : undefined;
 };
@@ -89,7 +93,7 @@ export const getRequestedServices = async (
     params: URLSearchParams,
     storeId?: number | string
 ): Promise<RequestedServicesResponse> => {
-    const endpoint = getDynamicEndpoint("/requested-services"); // يفترض أن getDynamicEndpoint يضيف /admin أو /merchants حسب النوع
+    const endpoint = getDynamicEndpoint("/requested-services");
     const headers = getHeaders(storeId);
     const { data } = await api.get<RequestedServicesResponse>(
         `${endpoint}?${params.toString()}`,
@@ -102,7 +106,7 @@ export const getSingleRequestedService = async (
     id: number | string,
     storeId?: number | string
 ): Promise<SingleRequestedServiceResponse> => {
-    const endpoint = getDynamicEndpoint(`/services/${id}`);
+    const endpoint = getDynamicEndpoint(`/requested-services/${id}`);
     const headers = getHeaders(storeId);
     const { data } = await api.get<SingleRequestedServiceResponse>(endpoint, {
         headers,

@@ -79,7 +79,6 @@ export function useUpdateRequestedServiceStatus() {
   return useMutation({
     mutationFn: api.updateRequestedServiceStatus,
     onSuccess: () => {
-      toast.success("تم تحديث حالة الطلب بنجاح");
       queryClient.invalidateQueries({ queryKey: [REQUESTED_SERVICES_QUERY_KEY] });
     },
     onError: (error: AxiosError<api.BaseResponse>) => {

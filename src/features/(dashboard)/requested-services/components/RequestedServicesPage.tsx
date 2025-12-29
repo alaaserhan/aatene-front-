@@ -31,14 +31,14 @@ export function RequestedServicesPage() {
   const [page, setPage] = useState(1);
   const [deleteId, setDeleteId] = useState<string | number | null>(null);
 
-  const { data: approvedData } = useGetRequestedServices(new URLSearchParams({ status: "approved", limit: "1" }));
-  const { data: pendingData } = useGetRequestedServices(new URLSearchParams({ status: "pending", limit: "1" }));
-  const { data: rejectedData } = useGetRequestedServices(new URLSearchParams({ status: "rejected", limit: "1" }));
-  const { data: reportsData } = useGetRequestedServices(new URLSearchParams({ has_reports: "1", limit: "1" }));
+  const { data: approvedData } = useGetRequestedServices(new URLSearchParams({ status: "approved", per_page: "1" }));
+  const { data: pendingData } = useGetRequestedServices(new URLSearchParams({ status: "pending", per_page: "1" }));
+  const { data: rejectedData } = useGetRequestedServices(new URLSearchParams({ status: "rejected", per_page: "1" }));
+  const { data: reportsData } = useGetRequestedServices(new URLSearchParams({ has_reports: "1", per_page: "1" }));
 
   const queryParams = new URLSearchParams({
     page: page.toString(),
-    limit: ITEMS_PER_PAGE.toString(),
+    per_page: ITEMS_PER_PAGE.toString(),
     search: search,
   });
 
@@ -115,9 +115,9 @@ export function RequestedServicesPage() {
       return (
         <tr>
           <th className="px-6 py-4 text-xs font-medium text-center">رقم الخدمة</th>
-          <th className="px-6 py-4 text-xs font-medium text-right w-1/4">صاحب الإعلان</th>
-          <th className="px-6 py-4 text-xs font-medium text-right w-1/3">وصف الخدمة</th>
-          <th className="px-6 py-4 text-xs font-medium text-right">سبب الرفض</th>
+          <th className="px-6 py-4 text-xs font-medium  w-1/4">صاحب الإعلان</th>
+          <th className="px-6 py-4 text-xs font-medium  w-1/3">وصف الخدمة</th>
+          <th className="px-6 py-4 text-xs font-medium ">سبب الرفض</th>
         </tr>
       );
     }
@@ -125,8 +125,8 @@ export function RequestedServicesPage() {
       return (
         <tr>
           <th className="px-6 py-4 text-xs font-medium text-center">رقم الخدمة</th>
-          <th className="px-6 py-4 text-xs font-medium text-right w-1/4">صاحب الإعلان</th>
-          <th className="px-6 py-4 text-xs font-medium text-right w-1/3">نوع البلاغ</th>
+          <th className="px-6 py-4 text-xs font-medium  w-1/4">صاحب الإعلان</th>
+          <th className="px-6 py-4 text-xs font-medium  w-1/3">نوع البلاغ</th>
           <th className="px-6 py-4 text-xs font-medium text-center">عمليات</th>
         </tr>
       );
@@ -134,7 +134,7 @@ export function RequestedServicesPage() {
     return (
       <tr>
         <th className="px-6 py-4 text-xs font-medium text-center">رقم الخدمة</th>
-        <th className="px-6 py-4 text-xs font-medium text-right w-1/4">صاحب الإعلان</th>
+        <th className="px-6 py-4 text-xs font-medium  w-1/4">صاحب الإعلان</th>
         <th className="px-6 py-4 text-xs font-medium text-center">تاريخ النشر</th>
         <th className="px-6 py-4 text-xs font-medium text-center">حالة الطلب</th>
         <th className="px-6 py-4 text-xs font-medium text-center">عمليات</th>
@@ -169,7 +169,7 @@ export function RequestedServicesPage() {
     return servicesData.data.map((item) => {
       const ownerCell = (
         <td className="px-6 py-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-200 shrink-0">
               <img
                 src={item.user?.avatar_url || "/placeholder-user.jpg"}
@@ -197,10 +197,10 @@ export function RequestedServicesPage() {
           <tr key={item.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50">
             {idCell}
             {ownerCell}
-            <td className="px-6 py-4 text-right text-sm">
+            <td className="px-6 py-4 text-center  text-sm">
               <p className="line-clamp-2">{item.content}</p>
             </td>
-            <td className="px-6 py-4 text-right text-sm text-[#EF4444] font-medium">
+            <td className="px-6 py-4  text-sm  text-center  font-medium">
               {item.reject_reason || "لا يوجد سبب محدد"}
             </td>
           </tr>
@@ -212,7 +212,7 @@ export function RequestedServicesPage() {
           <tr key={item.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50">
             {idCell}
             {ownerCell}
-            <td className="px-6 py-4 text-right text-sm">
+            <td className="px-6 py-4  text-sm">
               <p className="line-clamp-1">محتوى غير لائق أو مخالف</p>
             </td>
             <td className="px-6 py-4 text-center">
