@@ -55,16 +55,16 @@ export function BlogsPage() {
         })) || [];
     }, [storesData]);
 
-    // 5. إعداد استعلام المدونات (يعتمد على selectedStoreId)
     const blogsQueryParams = useMemo(() => {
         const params = new URLSearchParams();
         params.set("page", String(currentPage));
         params.set("per_page", "10");
+        if (selectedStoreId) params.set("store_id", selectedStoreId);
         if (searchQuery) params.set("title", searchQuery);
         if (filterValue) params.set("orderBy", filterValue);
 
         return params;
-    }, [currentPage, searchQuery, filterValue]);
+    }, [currentPage, searchQuery, filterValue, selectedStoreId]);
 
     // لا نجلب المدونات إلا إذا تم تحديد المتجر
     const { data: blogsData, isLoading: isBlogsLoading } = useGetBlogs(

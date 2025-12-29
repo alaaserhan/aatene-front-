@@ -6,6 +6,8 @@ import { ChevronUp, ChevronDown, Loader2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { Category, Attribute, AttributeOption } from "../api";
 import { useGetSubCategories } from "../hooks";
+import { useAuthStore } from "@/src/stores/auth-store";
+
 
 interface AttributeOptionRowProps {
   option: AttributeOption;
@@ -18,21 +20,28 @@ function AttributeOptionRow({
   onDelete,
   level,
 }: AttributeOptionRowProps) {
+  // ✅ التحقق من الصلاحية
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.user_type === "admin";
+
   return (
     <div
       className="flex items-center gap-1 p-2 border border-input rounded mb-2"
       style={{ marginInlineEnd: `${level * 3.5}rem` }}
     >
-      <button
-        onClick={onDelete}
-        className="p-3 bg-[#FB37481A]  hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
-      >
-        <img
-          src="/icons/dashboard/trash.svg"
-          alt="Delete"
-          className="w-4 h-4"
-        />
-      </button>
+      {/* ✅ إخفاء زر الحذف لغير الأدمن */}
+      {isAdmin && (
+        <button
+          onClick={onDelete}
+          className="p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
+        >
+          <img
+            src="/icons/dashboard/trash.svg"
+            alt="Delete"
+            className="w-4 h-4"
+          />
+        </button>
+      )}
 
       <div className="flex-1 ms-4">
         <span className="text-sm font-medium pe-2 flex justify-end">
@@ -82,9 +91,11 @@ function AttributeAccordionContent(props: AttributeProps) {
 
   const [isExpanded, setIsExpanded] = useState(false);
   const hasOptions = attribute.options.length > 0;
-
   const isActive = attribute.is_active === true || attribute.is_active === "1";
 
+  // ✅ التحقق من الصلاحية
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.user_type === "admin";
 
   return (
     <div className="group">
@@ -92,23 +103,29 @@ function AttributeAccordionContent(props: AttributeProps) {
         className="flex items-center gap-1 p-2 border border-input rounded mb-2 hover:bg-gray-50 transition-colors"
         style={{ marginInlineEnd: `${level * 3.5}rem` }}
       >
-        <button
-          onClick={() => onDelete(attribute.id)}
-          className="p-3 bg-[#FB37481A]  hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
-        >
-          <img
-            src="/icons/dashboard/trash.svg"
-            alt="Delete"
-            className="w-4 h-4"
-          />
-        </button>
+        {/* ✅ إخفاء زر الحذف */}
+        {isAdmin && (
+          <button
+            onClick={() => onDelete(attribute.id)}
+            className="p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
+          >
+            <img
+              src="/icons/dashboard/trash.svg"
+              alt="Delete"
+              className="w-4 h-4"
+            />
+          </button>
+        )}
 
-        <button
-          onClick={() => onEdit(attribute)}
-          className="p-3 bg-blue-5  hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
-        >
-          <img src="/icons/dashboard/edit3.svg" alt="Edit" className="w-4 h-4" />
-        </button>
+        {/* ✅ إخفاء زر التعديل */}
+        {isAdmin && (
+          <button
+            onClick={() => onEdit(attribute)}
+            className="p-3 bg-blue-5 hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
+          >
+            <img src="/icons/dashboard/edit3.svg" alt="Edit" className="w-4 h-4" />
+          </button>
+        )}
 
         <div className={cn("flex items-center gap-0 flex-1 ms-4 justify-end")}>
           <span className="text-sm font-medium pe-2">{attribute.title}</span>
@@ -127,11 +144,14 @@ function AttributeAccordionContent(props: AttributeProps) {
           )}
         </div>
 
+        {/* ✅ تعطيل زر تغيير الحالة لغير الأدمن */}
         <button
           type="button"
-          onClick={() => onToggleStatus(attribute.id, !isActive, "attribute")}
+          onClick={() => isAdmin && onToggleStatus(attribute.id, !isActive, "attribute")}
+          disabled={!isAdmin}
           className={cn(
-            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 flex-shrink-0 cursor-pointer",
+            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 flex-shrink-0",
+            isAdmin ? "cursor-pointer" : "cursor-not-allowed opacity-50",
             isActive
               ? "bg-blue-5 border-blue-4"
               : "bg-white border-gray-300 group-hover:border-gray-500"
@@ -187,24 +207,22 @@ function CategoryAccordionContent(props: CategoryProps) {
   } = props;
 
   const [isExpanded, setIsExpanded] = useState(false);
-
   const rawImageUrls = (category?.images_urls || category?.images) as string | string[] | null | undefined;
-
   let validImageUrls: string[] = [];
-
   if (Array.isArray(rawImageUrls)) {
     validImageUrls = rawImageUrls;
   } else if (typeof rawImageUrls === 'string' && rawImageUrls.trim() !== "") {
     validImageUrls = [rawImageUrls];
   }
-
   const images = validImageUrls.filter((img) => img && typeof img === 'string' && img.trim() !== "");
-  // -------------------------------------------------------------
-
+  
   const subCategoriesCount = Number(category.sub_categories_count || 0);
   const hasSubCategories = subCategoriesCount > 0;
-
   const isActive = category.is_active === true || category.is_active === "1";
+
+  // ✅ التحقق من الصلاحية
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.user_type === "admin";
 
   const {
     data: subCategoriesData,
@@ -219,51 +237,58 @@ function CategoryAccordionContent(props: CategoryProps) {
   );
 
   return (
-    <div
-      className="group"
-    >
+    <div className="group">
       <div
         className="flex items-center gap-1 p-2 border border-input rounded mb-2 hover:bg-gray-50 transition-colors"
         style={{ marginInlineEnd: level === 0 ? "0rem" : `${level * 3.5}rem` }}
       >
-        <button
-          onClick={() => onDelete(category.id)}
-          className="p-3 bg-[#FB37481A]  hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
-        >
-          <img
-            src="/icons/dashboard/trash.svg"
-            alt="Delete"
-            className="w-4 h-4"
-          />
-        </button>
-
-        <button
-          onClick={() => onEdit(category)}
-          className="p-3 bg-blue-5  hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
-        >
-          <img src="/icons/dashboard/edit3.svg" alt="Edit" className="w-4 h-4" />
-        </button>
-
-        <button
-          onClick={() => onAddSubCategory(category.id, category?.name)}
-          className="p-3 bg-[#00D9C01A]  hover:bg-[#00D9C030] transition-colors cursor-pointer flex-shrink-0"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+        {/* ✅ إخفاء زر الحذف */}
+        {isAdmin && (
+          <button
+            onClick={() => onDelete(category.id)}
+            className="p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
           >
-            <path
-              d="M8 3.33333V12.6667M3.33333 8H12.6667"
-              stroke="#00D9C0"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            <img
+              src="/icons/dashboard/trash.svg"
+              alt="Delete"
+              className="w-4 h-4"
             />
-          </svg>
-        </button>
+          </button>
+        )}
+
+        {/* ✅ إخفاء زر التعديل */}
+        {isAdmin && (
+          <button
+            onClick={() => onEdit(category)}
+            className="p-3 bg-blue-5 hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
+          >
+            <img src="/icons/dashboard/edit3.svg" alt="Edit" className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* ✅ إخفاء زر إضافة قسم فرعي */}
+        {isAdmin && (
+          <button
+            onClick={() => onAddSubCategory(category.id, category?.name)}
+            className="p-3 bg-[#00D9C01A] hover:bg-[#00D9C030] transition-colors cursor-pointer flex-shrink-0"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 3.33333V12.6667M3.33333 8H12.6667"
+                stroke="#00D9C0"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        )}
 
         {category.type === "product" && (
           <div className="flex gap-2 flex-1 overflow-x-auto ms-4">
@@ -271,7 +296,7 @@ function CategoryAccordionContent(props: CategoryProps) {
               <button
                 key={idx}
                 onClick={() => onViewImages(images)}
-                className="flex-shrink-0 w-10 h-10 rounded overflow-hidden  hover:border-blue-3 transition-colors cursor-pointer"
+                className="flex-shrink-0 w-10 h-10 rounded overflow-hidden hover:border-blue-3 transition-colors cursor-pointer"
               >
                 <img
                   src={img}
@@ -310,11 +335,14 @@ function CategoryAccordionContent(props: CategoryProps) {
           )}
         </div>
 
+        {/* ✅ تعطيل زر تغيير الحالة لغير الأدمن */}
         <button
           type="button"
-          onClick={() => onToggleStatus(category.id, !isActive, "category")}
+          onClick={() => isAdmin && onToggleStatus(category.id, !isActive, "category")}
+          disabled={!isAdmin}
           className={cn(
-            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 flex-shrink-0 cursor-pointer",
+            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 flex-shrink-0",
+            isAdmin ? "cursor-pointer" : "cursor-not-allowed opacity-50",
             isActive
               ? "bg-blue-5 border-blue-4"
               : "bg-white border-gray-300 group-hover:border-gray-500"
