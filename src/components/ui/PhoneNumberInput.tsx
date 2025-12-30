@@ -12,6 +12,7 @@ interface PhoneNumberInputProps extends React.InputHTMLAttributes<HTMLInputEleme
     countryCode: string;
     onCountryCodeChange: (value: string) => void;
     containerClassName?: string;
+    roundedFull?:boolean;
 }
 
 const COUNTRY_RULES: Record<string, { min: number; max: number; name: string }> = {
@@ -34,6 +35,7 @@ const PhoneNumberInput = React.forwardRef<
             containerClassName,
             value,
             onChange,
+            roundedFull,
             ...props
         },
         ref
@@ -73,10 +75,11 @@ const PhoneNumberInput = React.forwardRef<
                 
                 <div 
                     className={cn(
-                        "flex items-center w-full h-10 border rounded-lg bg-white overflow-hidden transition-all",
+                        "flex items-center w-full h-10 border  bg-white overflow-hidden transition-all",
                         errorMessage 
                             ? "border-red-500 focus-within:ring-1 focus-within:ring-red-200" 
-                            : "border-gray-300 focus-within:border-[#3A5779] focus-within:ring-1 focus-within:ring-[#3A5779]/20"
+                            : "border-gray-200 focus-within:border-[#3A5779] focus-within:ring-1 focus-within:ring-[#3A5779]/20",
+                            roundedFull? "rounded-full":"rounded-lg"
                     )} 
                     dir="ltr"
                 >

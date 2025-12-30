@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from "react";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, Loader2, Search } from "lucide-react"; // Added Search icon
 import { cn } from "@/src/lib/utils";
 
 interface DropdownOption {
@@ -27,6 +27,9 @@ interface ReusableDropdownProps {
   dropdownPosition?: "top" | "bottom";
   onReachEnd?: () => void;
   isLoadingMore?: boolean;
+  // New Props for Search
+  onSearch?: (query: string) => void;
+  searchPlaceholder?: string;
 }
 
 export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>(({
@@ -40,6 +43,8 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
   dropdownPosition = "bottom",
   onReachEnd,
   isLoadingMore = false,
+  onSearch,
+  searchPlaceholder = "بحث...",
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -111,12 +116,28 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
       {isOpen && (
         <div
           className={cn(
-            "absolute start-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden max-h-[240px] flex flex-col",
+            "absolute start-0 w-full bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden max-h-[280px] flex flex-col",
             dropdownPosition === "top"
               ? "bottom-full mb-2"
               : "top-full mt-2"
           )}
         >
+          {/* Search Input Section */}
+          {onSearch && (
+            <div className="p-2 sticky top-0 bg-white border-b border-gray-100 z-10">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={searchPlaceholder}
+                  onChange={(e) => onSearch(e.target.value)}
+                  className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-blue-3 text-right"
+                  autoFocus
+                />
+                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              </div>
+            </div>
+          )}
+
           <div 
             className="overflow-y-auto p-1 flex-1"
             onScroll={handleScroll}

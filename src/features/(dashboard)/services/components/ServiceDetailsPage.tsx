@@ -277,7 +277,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                             <div className="grid grid-cols-2 py-4 border-b border-gray-100">
                                 <div className="t">
                                     <p className=" font-bold text-sm mb-1">سعر الخدمة</p>
-                                    <p className="text-gray-500 text-sm font-medium">₪ {service.price}</p>
+                                    <p className="text-gray-500 text-sm font-medium">₪  {service.price}</p>
                                 </div>
                                 <div className="">
                                     <p className=" font-bold text-sm mb-1">التسليم خلال</p>

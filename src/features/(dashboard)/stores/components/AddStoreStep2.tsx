@@ -1,7 +1,7 @@
 // src/features/(dashboard)/stores/components/AddStoreStep2.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
@@ -72,22 +72,49 @@ export function AddStoreStep2({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // --- Search Logic for Users ---
+  const [ownerSearchQuery, setOwnerSearchQuery] = useState("");
+  const [debouncedOwnerSearch, setDebouncedOwnerSearch] = useState("");
+
+  // Debounce search input to avoid excessive API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedOwnerSearch(ownerSearchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [ownerSearchQuery]);
+
+  const usersParams = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("per_page", "100");
+    if (debouncedOwnerSearch) {
+      params.set("search", debouncedOwnerSearch);
+    }
+    return params;
+  }, [debouncedOwnerSearch]);
+
   const { data: usersData, isLoading: isUsersLoading } = useGetUsers(
-    new URLSearchParams("per_page=100"),
+    usersParams,
     { enabled: isAdmin }
   );
 
-  const ownersOptions = usersData?.data
-    ? usersData.data.map((user) => ({
-        label: `${user.first_name} ${user.last_name} (${user.email})`,
-        value: String(user.id),
-      }))
-    : [];
+  const ownersOptions = useMemo(() => {
+    return usersData?.data
+      ? usersData.data.map((user) => ({
+          label: `${user.first_name} ${user.last_name} (${user.email})`,
+          value: String(user.id),
+        }))
+      : [];
+  }, [usersData]);
 
-  const ownerDropdownOptions = [
-    { value: "", label: isUsersLoading ? "جاري التحميل..." : "اختر المالك" },
-    ...ownersOptions,
-  ];
+  // Ensure options include loading state if applicable
+  const ownerDropdownOptions = isUsersLoading
+    ? [{ value: "", label: "جاري البحث..." }]
+    : ownersOptions.length > 0
+    ? ownersOptions
+    : [{ value: "", label: "لا يوجد مستخدمين" }];
+
+  // ------------------------------
 
   const { data: currenciesData, isLoading: isCurrenciesLoading } =
     useGetCurrencies(new URLSearchParams("status=active&per_page=100"));
@@ -388,9 +415,7 @@ export function AddStoreStep2({
                     <div className="flex flex-col gap-2">
                       <Label className="text-sm font-medium">المالك</Label>
                       <ReusableDropdown
-                        placeholder={
-                          isUsersLoading ? "جاري جلب المالكين..." : "اختر المالك"
-                        }
+                        placeholder="اختر المالك"
                         options={ownerDropdownOptions}
                         value={formData.owner_id ? String(formData.owner_id) : ""}
                         onChange={(value) => {
@@ -403,6 +428,8 @@ export function AddStoreStep2({
                         error={errors.owner_id}
                         className="h-11"
                         dropdownPosition="top"
+                        onSearch={(query) => setOwnerSearchQuery(query)} // Enable search
+                        searchPlaceholder="ابحث باسم المالك ..."
                       />
                     </div>
                   ) : (

@@ -1,4 +1,3 @@
-// src/features/(dashboard)/stores/components/AddStoreStep6.tsx
 "use client";
 
 import { useState } from "react";
@@ -13,6 +12,7 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { cn } from "@/src/lib/utils";
 import { toast } from "sonner";
 import { Step2FormData, Step6FormData } from "../types";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
 interface AddStoreStep6Props {
   storeType: StoreType;
@@ -37,10 +37,15 @@ export function AddStoreStep6({
   const [shippingCompanies, setShippingCompanies] = useState<
     ShippingCompanyPayload[]
   >(initialData?.shippingCompanies || []);
+  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCompanyIndex, setEditingCompanyIndex] = useState<number | null>(
     null
   );
+
+  // States for Deletion Modal
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [companyToDeleteIndex, setCompanyToDeleteIndex] = useState<number | null>(null);
 
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
@@ -62,16 +67,31 @@ export function AddStoreStep6({
     setIsDialogOpen(true);
   };
 
-  const handleRemoveCompany = (index: number) => {
-    setShippingCompanies(shippingCompanies.filter((_, i) => i !== index));
-    toast.success("تم حذف شركة الشحن بنجاح");
+  // 1. عند الضغط على حذف شركة واحدة
+  const handleRemoveCompanyClick = (index: number) => {
+    setCompanyToDeleteIndex(index); // تحديد الفهرس للحذف
+    setDeleteModalOpen(true);
   };
 
-  const handleRemoveAll = () => {
-    if (window.confirm("هل أنت متأكد من حذف جميع شركات الشحن؟")) {
+  // 2. عند الضغط على حذف الكل
+  const handleRemoveAllClick = () => {
+    setCompanyToDeleteIndex(null); // null يعني حذف الكل
+    setDeleteModalOpen(true);
+  };
+
+  // 3. تنفيذ الحذف بناءً على الحالة
+  const handleConfirmDelete = () => {
+    if (companyToDeleteIndex !== null) {
+      // حذف شركة واحدة
+      setShippingCompanies(shippingCompanies.filter((_, i) => i !== companyToDeleteIndex));
+      toast.success("تم حذف شركة الشحن بنجاح");
+    } else {
+      // حذف الكل
       setShippingCompanies([]);
       toast.success("تم حذف جميع شركات الشحن");
     }
+    setDeleteModalOpen(false);
+    setCompanyToDeleteIndex(null);
   };
 
   const handleSaveCompany = (company: ShippingCompanyPayload) => {
@@ -182,7 +202,7 @@ export function AddStoreStep6({
                       <div className="flex gap-3">
                         {shippingCompanies.length > 0 && (
                           <Button
-                            onClick={handleRemoveAll}
+                            onClick={handleRemoveAllClick}
                             variant="outline"
                             className="text-red-1 bg-transparent shadow-none hover:bg-transparent border-none"
                           >
@@ -213,7 +233,6 @@ export function AddStoreStep6({
                               key={index}
                               className={cn(
                                 "flex items-center justify-between p-4 border rounded-md transition-colors",
-
                                 "bg-white border-gray-200"
                               )}
                             >
@@ -229,10 +248,8 @@ export function AddStoreStep6({
                               </div>
 
                               <div className="flex items-center gap-2">
-
-
                                 <Button
-                                  onClick={() => handleRemoveCompany(index)}
+                                  onClick={() => handleRemoveCompanyClick(index)} // تم التعديل هنا لفتح المودال
                                   variant="outline"
                                   className="p-2 border-red-1 bg-red-2 text-red-1 font-medium px-4 rounded-full"
                                 >
@@ -306,6 +323,22 @@ export function AddStoreStep6({
             ? shippingCompanies[editingCompanyIndex]
             : null
         }
+      />
+
+      <ConfirmDeleteModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+            setDeleteModalOpen(false);
+            setCompanyToDeleteIndex(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title={companyToDeleteIndex !== null ? "حذف شركة الشحن" : "حذف جميع شركات الشحن"}
+        description={
+            companyToDeleteIndex !== null 
+            ? "هل أنت متأكد من رغبتك في حذف شركة الشحن هذه؟ لا يمكن التراجع عن هذا الإجراء."
+            : "هل أنت متأكد من رغبتك في حذف جميع شركات الشحن المضافة؟ لا يمكن التراجع عن هذا الإجراء."
+        }
+        confirmText={companyToDeleteIndex !== null ? "نعم، احذف" : "نعم، احذف الكل"}
       />
     </div>
   );

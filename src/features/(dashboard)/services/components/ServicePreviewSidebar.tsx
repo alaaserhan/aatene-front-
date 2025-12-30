@@ -65,7 +65,7 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
               
               <div className="flex items-center  gap-2 text-sm">
                  <span className="text-gray-500">سعر الخدمة</span>
-                 <span className="font-bold  text-lg">{formattedPrice}</span>
+                 <span className="font-medium text-lg">{formattedPrice}</span>
               </div>
             </div>
 

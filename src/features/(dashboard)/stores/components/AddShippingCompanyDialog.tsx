@@ -423,8 +423,9 @@ export function AddShippingCompanyDialog({
                     setStorePhone(e.target.value);
                     if (errors.storePhone) setErrors({ ...errors, storePhone: "" });
                   }}
-                  className="rounded-full h-10"
+                  className="h-10"
                   error={errors.storePhone}
+                  roundedFull
                 />
               </div>
 
