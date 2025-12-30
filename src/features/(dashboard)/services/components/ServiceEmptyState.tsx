@@ -18,7 +18,7 @@ export function ServiceEmptyState({ type, storeId }: ServiceEmptyStateProps) {
             <div className="mb-6 relative">
                 <div className="h-40 w-40 flex items-center justify-center mx-auto mb-2">
                     <img
-                        src="/icons/dashboard/nostore.svg"
+                        src="/icons/dashboard/noStore.svg"
                         className="h-44 w-44"
                         alt="placeholder"
                     />
