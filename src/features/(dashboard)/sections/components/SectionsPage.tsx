@@ -156,6 +156,7 @@ console.log(paramStoreId);
         const payload = {
             name: data.name,
             status: (data.isActive ? "active" : "not-active") as "active" | "not-active",
+            store_id: Number(activeStoreId),
         };
 
         const mutationOptions = {

@@ -25,6 +25,7 @@ export interface SectionsResponse extends BaseResponse {
 export interface SectionCreatePayload {
   name: string;
   status: "active" | "not-active";
+  store_id: number;
 }
 
 export type SectionUpdatePayload = SectionCreatePayload;
