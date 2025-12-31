@@ -34,6 +34,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         Cookies.remove("token");
         Cookies.remove("user_type");
+        Cookies.remove("current_store_id");
         set({ isLoggedIn: false, user: null });
       },
 

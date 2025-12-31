@@ -28,12 +28,13 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
     try {
       setIsLoading(true);
       const response = await api.post("/convert-to-merchant", {});
-      
+
       if (response.data.status) {
         toast.success("تم التحويل لتاجر بنجاح");
-        // Refresh user data - you might need to create a refetch function in auth store
-        // For now, you could refresh the page or implement a user data refresh
-        window.location.reload();
+
+        // ✅ التعديل هنا: تسجيل الخروج بدلاً من إعادة تحميل الصفحة
+        logoutMutation();
+
         setIsOpen(false);
         onClose?.();
       } else {
@@ -74,13 +75,12 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
   if (!isAuthenticated || !user) {
     return (
-      <Link 
+      <Link
         href={`/${lang}/login`}
-        className={`group flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-all duration-200 ${
-          isMobile 
-            ? "w-full p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-primary/30 hover:bg-primary/5" 
-            : "px-4 py-2 rounded-lg hover:bg-gray-50"
-        }`}
+        className={`group flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-all duration-200 ${isMobile
+          ? "w-full p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-primary/30 hover:bg-primary/5"
+          : "px-4 py-2 rounded-lg hover:bg-gray-50"
+          }`}
         onClick={handleLinkClick}
       >
         <div className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-200`}>
@@ -119,7 +119,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
     const labels = {
       admin: "مدير",
-      merchant: "تاجر", 
+      merchant: "تاجر",
       client: "عميل"
     };
 
@@ -139,10 +139,10 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
         <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-4 mb-4">
           <div className="flex items-center gap-4 mb-4">
             {user.avatar ? (
-              <img 
-                src={user.avatar} 
-                alt={user.fullname} 
-                className="w-14 h-14 rounded-full object-cover ring-3 ring-white shadow-lg" 
+              <img
+                src={user.avatar}
+                alt={user.fullname}
+                className="w-14 h-14 rounded-full object-cover ring-3 ring-white shadow-lg"
               />
             ) : (
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/80 to-primary text-white flex items-center justify-center font-bold text-lg shadow-lg">
@@ -194,7 +194,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
         {/* Action Links */}
         <div className="space-y-2">
           {user.user_type === "admin" && (
-            <Link 
+            <Link
               href={`/${lang}/admin`}
               className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
               onClick={handleLinkClick}
@@ -210,7 +210,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
           )}
 
           {user.user_type === "merchant" && (
-            <Link 
+            <Link
               href={`/${lang}/dashboard`}
               className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
               onClick={handleLinkClick}
@@ -252,10 +252,10 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
       >
         <div className="relative">
           {user.avatar ? (
-            <img 
-              src={user.avatar} 
-              alt={user.fullname} 
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-primary/30 transition-all duration-200" 
+            <img
+              src={user.avatar}
+              alt={user.fullname}
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-primary/30 transition-all duration-200"
             />
           ) : (
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/80 to-primary text-white flex items-center justify-center font-semibold text-sm group-hover:from-primary group-hover:to-primary/90 transition-all duration-200">
@@ -272,10 +272,10 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
           <div className="px-6 py-4 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100">
             <div className="flex items-center gap-4">
               {user.avatar ? (
-                <img 
-                  src={user.avatar} 
-                  alt={user.fullname} 
-                  className="w-14 h-14 rounded-full object-cover ring-3 ring-white shadow-md" 
+                <img
+                  src={user.avatar}
+                  alt={user.fullname}
+                  className="w-14 h-14 rounded-full object-cover ring-3 ring-white shadow-md"
                 />
               ) : (
                 <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/80 to-primary text-white flex items-center justify-center font-bold text-lg shadow-md">
@@ -326,7 +326,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             )}
 
             {user.user_type === "admin" && (
-              <Link 
+              <Link
                 href={`/${lang}/admin`}
                 className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group"
                 onClick={handleLinkClick}
@@ -339,15 +339,18 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             )}
 
             {user.user_type === "merchant" && (
-              <Link 
+              <Link
                 href={`/${lang}/dashboard`}
                 className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group"
                 onClick={handleLinkClick}
               >
-                <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                  <Store size={16} className="text-blue-600" />
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                    <Store size={16} className="text-blue-600" />
+                  </div>
+                  <span className="font-medium">لوحة التحكم</span>
                 </div>
-                <span className="font-medium">لوحة التحكم</span>
+                <ChevronLeft size={16} className="text-gray-400 group-hover:text-blue-600" />
               </Link>
             )}
           </div>
@@ -365,8 +368,9 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             </button>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 
