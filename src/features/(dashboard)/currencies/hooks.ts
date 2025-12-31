@@ -20,7 +20,7 @@ import {
 } from "./api";
 import { toast } from "sonner";
 
-const QK = {
+const CurrencyQK = {
   any: ["currencies"] as const,
   listAny: ["currencies", "list"] as const,
   list: (paramsString: string) =>
@@ -35,18 +35,19 @@ type GetCurrenciesOptions = Partial<
 
 export const useGetCurrencies = (
   params: URLSearchParams,
-  options?: GetCurrenciesOptions
+  options: { enabled?: boolean } & GetCurrenciesOptions = {}
 ) => {
-  const key = QK.list(params.toString());
+  const key = CurrencyQK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getCurrencies(params),
+    enabled: options.enabled ?? true,
     ...options,
   });
 };
 
 export const useInfiniteGetCurrencies = (params: URLSearchParams) => {
-  const key = QK.list(params.toString());
+  const key = CurrencyQK.list(params.toString());
   return useInfiniteQuery({
     queryKey: key,
     queryFn: ({ pageParam = 1 }) => {
@@ -65,7 +66,7 @@ export const useInfiniteGetCurrencies = (params: URLSearchParams) => {
 
 export const useGetSingleCurrency = (id: string | number | undefined) => {
   return useQuery({
-    queryKey: QK.single(id ?? ""),
+    queryKey: CurrencyQK.single(id ?? ""),
     queryFn: () => api.getSingleCurrency(id!),
     enabled: !!id,
   });
@@ -79,7 +80,7 @@ export const useCreateCurrency = () => {
       toast.success(data.message || "تم إنشاء العملة بنجاح");
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: QK.listAny });
+      qc.invalidateQueries({ queryKey: CurrencyQK.listAny });
     },
   });
 };
@@ -93,19 +94,19 @@ export const useUpdateCurrency = () => {
     }) => api.updateCurrency(variables.id, variables.payload),
 
     onMutate: async (vars) => {
-      await qc.cancelQueries({ queryKey: QK.any });
+      await qc.cancelQueries({ queryKey: CurrencyQK.any });
 
       const prevLists = qc.getQueriesData<PaginatedCurrenciesResponse>({
-        queryKey: QK.listAny,
+        queryKey: CurrencyQK.listAny,
       });
       const prevSingle = qc.getQueryData<SingleCurrencyResponse>(
-        QK.single(vars.id)
+        CurrencyQK.single(vars.id)
       );
 
       const optimisticPayload: Partial<Currency> = { ...vars.payload };
 
       qc.setQueriesData<InfiniteData<PaginatedCurrenciesResponse>>(
-        { queryKey: QK.listAny },
+        { queryKey: CurrencyQK.listAny },
         (old) => {
           if (!old) return undefined;
           return {
@@ -123,7 +124,7 @@ export const useUpdateCurrency = () => {
       );
 
       if (prevSingle?.record) {
-        qc.setQueryData(QK.single(vars.id), {
+        qc.setQueryData(CurrencyQK.single(vars.id), {
           ...prevSingle,
           record: { ...prevSingle.record, ...optimisticPayload },
         });
@@ -138,15 +139,15 @@ export const useUpdateCurrency = () => {
 
     onError: (_err, vars, ctx) => {
       toast.error("حدث خطأ أثناء التعديل");
-      qc.invalidateQueries({ queryKey: QK.listAny });
+      qc.invalidateQueries({ queryKey: CurrencyQK.listAny });
       if (ctx?.prevSingle) {
-         qc.setQueryData(QK.single(vars.id), ctx.prevSingle);
+         qc.setQueryData(CurrencyQK.single(vars.id), ctx.prevSingle);
       }
     },
 
     onSettled: (_data, _err, vars) => {
-      qc.invalidateQueries({ queryKey: QK.listAny });
-      qc.invalidateQueries({ queryKey: QK.single(vars.id) });
+      qc.invalidateQueries({ queryKey: CurrencyQK.listAny });
+      qc.invalidateQueries({ queryKey: CurrencyQK.single(vars.id) });
     },
   });
 };
@@ -157,10 +158,10 @@ export const useDeleteCurrency = () => {
     mutationFn: (id: string | number) => api.deleteCurrency(id),
 
     onMutate: async (id) => {
-      await qc.cancelQueries({ queryKey: QK.listAny });
+      await qc.cancelQueries({ queryKey: CurrencyQK.listAny });
 
       qc.setQueriesData<InfiniteData<PaginatedCurrenciesResponse>>(
-        { queryKey: QK.listAny },
+        { queryKey: CurrencyQK.listAny },
         (old) => {
           if (!old) return undefined;
           return {
@@ -173,7 +174,7 @@ export const useDeleteCurrency = () => {
         }
       );
 
-      qc.removeQueries({ queryKey: QK.single(id) });
+      qc.removeQueries({ queryKey: CurrencyQK.single(id) });
     },
 
     onSuccess: (data: BaseResponse) => {
@@ -182,11 +183,11 @@ export const useDeleteCurrency = () => {
 
     onError: (_err, id, ctx) => {
       toast.error("حدث خطأ أثناء الحذف");
-      qc.invalidateQueries({ queryKey: QK.listAny });
+      qc.invalidateQueries({ queryKey: CurrencyQK.listAny });
     },
 
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: QK.listAny });
+      qc.invalidateQueries({ queryKey: CurrencyQK.listAny });
     },
   });
 };
