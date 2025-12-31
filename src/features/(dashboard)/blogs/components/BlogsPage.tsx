@@ -16,6 +16,7 @@ import { useGetBlogs, useDeleteBlog } from "../hooks"; // خطافات المد�
 import { useGetStores } from "../../stores/hooks"; // خطافات المتاجر (للأدمن)
 import { BlogsTable } from "./BlogsTable";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { StoreEmptyState } from "@/src/components/(dashboard)/StoreEmptyState";
 
 export function BlogsPage() {
     const router = useRouter();
@@ -215,12 +216,13 @@ export function BlogsPage() {
                                 )}
                             </>
                         ) : (
-                            // Empty State for Admin before selection
-                            <div className="flex flex-col items-center justify-center h-96 bg-white rounded-lg border border-gray-200">
-                                <StoreIcon className="w-16 h-16 text-gray-200 mb-4" />
-                                <h3 className="text-lg font-semibold text-gray-600">الرجاء اختيار متجر</h3>
-                                <p className="text-sm text-gray-400">اختر متجراً من القائمة في الأعلى لعرض مقالاته</p>
+                            <div className="p-6 h-full flex items-center justify-center">
+                                <StoreEmptyState
+                                    title="يجب إنشاء متجر أولاً"
+                                    description="لإضافة المدونات، يجب أن تمتلك متجراً واحداً على الأقل."
+                                />
                             </div>
+
                         )}
                     </div>
                 </div>
