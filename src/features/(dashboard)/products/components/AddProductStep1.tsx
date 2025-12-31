@@ -12,7 +12,8 @@ import { Label } from "@/src/components/ui/label";
 import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
 import { Step1FormData } from "../types";
 import { cn } from "@/src/lib/utils";
-import { useGetCategories } from "../../categoriesAndAttributes/hooks";
+// ✅ استبدال useGetCategories بـ useGetCategoryOptions
+import { useGetCategoryOptions } from "../../categoriesAndAttributes/hooks";
 import { Stepper } from "@/src/components/ui/Stepper";
 
 interface AddProductStep1Props {
@@ -83,31 +84,32 @@ export function AddProductStep1({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // ✅ حالة البحث عن الفئات
+  const [categorySearchQuery, setCategorySearchQuery] = useState("");
 
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
-  const categoriesQueryParams = useMemo(() => {
-    const params = new URLSearchParams();
-    params.set("per_page", "1000");
-    params.set("type", "product");
-    params.set("only_parent", "true");
-    return params;
-  }, []);
+  // ✅ استخدام الهوك الجديد لجلب الخيارات
+  const { data: categoriesData, isLoading: isCategoriesLoading } = useGetCategoryOptions();
 
-  const { data: categoriesData, isLoading: isCategoriesLoading } =
-    useGetCategories(categoriesQueryParams);
-
+  // ✅ تصفية الخيارات بناءً على البحث
   const categoryOptions = useMemo(() => {
-    return (
-      categoriesData?.data?.map((cat) => ({
-        value: String(cat.id),
-        label: cat.name,
-      })) || []
-    );
-  }, [categoriesData]);
+    const options = categoriesData?.categories?.map((cat) => ({
+      value: String(cat.id),
+      label: cat.name,
+    })) || [];
 
+    if (!categorySearchQuery) return options;
+
+    return options.filter((opt) =>
+      opt.label.toLowerCase().includes(categorySearchQuery.toLowerCase())
+    );
+  }, [categoriesData, categorySearchQuery]);
+
+  // البحث عن الفئة المختارة لعرض اسمها (للتأكد من العرض الصحيح في الـ Info Box)
   const selectedCategory = useMemo(() => {
-    return categoriesData?.data?.find((c) => c.id === formData.category_id);
+    return categoriesData?.categories?.find((c) => c.id === formData.category_id);
   }, [categoriesData, formData.category_id]);
 
   const defaultBreadcrumbItems = [
@@ -135,14 +137,11 @@ export function AddProductStep1({
       hasChanges = true;
     }
 
-    // ✅ تعديل: إزالة الخطأ فقط إذا كان السعر رقم صحيح غير سالب
     if (errors.price && formData.price >= 0) {
       delete newErrors.price;
       hasChanges = true;
     }
 
-    // ✅ تعديل: لا حاجة لمراقبة الوصف لأنه أصبح اختياري
-    // إلا إذا كنت تريد مسح أخطاء قديمة عالقة (اختياري)
     if (errors.short_description) {
         delete newErrors.short_description;
         hasChanges = true;
@@ -153,7 +152,6 @@ export function AddProductStep1({
     }
 
     if (hasChanges) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       setErrors(newErrors);
     }
   }, [formData, errors]);
@@ -174,11 +172,6 @@ export function AddProductStep1({
       newErrors.category_id = "الفئة مطلوبة";
     }
 
-    // ✅ تم إزالة التحقق من الوصف الموجز (short_description)
-
-    // ✅ تم إزالة التحقق من الوصف الطويل (description)
-
-    // ✅ تعديل: التحقق فقط من أن السعر ليس سالبًا
     if (formData.price < 0) {
       newErrors.price = "لا يمكن أن يكون السعر أقل من صفر";
     }
@@ -309,13 +302,12 @@ export function AddProductStep1({
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-1">
-                    {/* ✅ تم إزالة النجمة الحمراء */}
                     السعر 
                   </Label>
                   <div className="relative">
                     <input
                       type="number"
-                      min="0" // ✅ إضافة min لمنع الأرقام السالبة في الواجهة
+                      min="0"
                       value={formData.price || ""}
                       onChange={(e) =>
                         setFormData({
@@ -340,6 +332,7 @@ export function AddProductStep1({
                     <Label className="text-sm font-medium flex items-center gap-1">
                       الفئات <span className="text-red-500">*</span>
                     </Label>
+                    {/* ✅ تفعيل البحث في القائمة المنسدلة */}
                     <ReusableDropdown
                       options={categoryOptions}
                       value={
@@ -355,6 +348,8 @@ export function AddProductStep1({
                       }
                       error={errors.category_id}
                       className="h-11"
+                      onSearch={(val) => setCategorySearchQuery(val)} // تفعيل البحث
+                      searchPlaceholder="ابحث عن الفئة..."
                     />
                   </div>
 
@@ -378,7 +373,6 @@ export function AddProductStep1({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium flex items-center gap-1">
-                      {/* ✅ تم إزالة النجمة الحمراء */}
                       الوصف الموجز 
                     </Label>
                     <Tooltip
@@ -426,7 +420,6 @@ export function AddProductStep1({
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-1">
-                    {/* ✅ تم إزالة النجمة الحمراء */}
                     <Label className="text-sm font-medium">وصف المنتج</Label>
                   </div>
 
