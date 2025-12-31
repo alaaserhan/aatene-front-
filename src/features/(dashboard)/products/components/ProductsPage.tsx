@@ -284,7 +284,7 @@ export function ProductsPage() {
                 <div className="bg-white rounded-lg border border-gray-200 h-full flex flex-col items-center justify-center shadow-sm p-8">
                   <div className="h-44 mx-auto mb-2 flex items-center justify-center">
                     <img
-                      src="/icons/dashboard/nostore.svg"
+                      src="/icons/dashboard/noStore.svg"
                       className="h-44"
                       alt="placeholder"
                     />

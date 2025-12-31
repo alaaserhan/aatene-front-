@@ -9,7 +9,7 @@ export function StoreEmptyState() {
         <div className="flex flex-col items-center justify-center h-full bg-white rounded-lg p-8 text-center border border-gray-200">
             <div className="mb-6 relative">
                 <div className="h-44 mx-auto mb-2 flex items-center justify-center">
-                    <img src="/icons/dashboard/nostore.svg" className="h-44" alt="placeholder" />
+                    <img src="/icons/dashboard/noStore.svg" className="h-44" alt="placeholder" />
                 </div>
             </div>
 
