@@ -21,6 +21,7 @@ import { ProductTable } from "./ProductTable";
 import { cn } from "@/src/lib/utils";
 import { useRouter } from "next/navigation";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { StoreEmptyState } from "@/src/components/(dashboard)/StoreEmptyState";
 
 const adminFilterOptions = [
   { name: "الكل", value: "all" },
@@ -212,21 +213,17 @@ export function ProductsPage() {
     );
   }
 
-  if (isMerchant && !storeId) {
+  if (!storeId) {
     return (
-      <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center p-4 bg-gray-50">
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 text-center max-w-md w-full">
-          <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Store className="w-8 h-8 text-blue-4" />
-          </div>
-          <h2 className="text-xl font-bold mb-2">لم يتم اختيار متجر</h2>
-          <p className="text-gray-500 mb-6">
-            يرجى اختيار المتجر الذي تريد إدارة منتجاته من القائمة العلوية.
-          </p>
-        </div>
+      <div className="p-6 h-screen flex items-center justify-center">
+        <StoreEmptyState
+          title="يجب إنشاء متجر أولاً"
+          description="لإضافة المنتجات، يجب أن تمتلك متجراً واحداً على الأقل."
+        />
       </div>
     );
   }
+
 
   const isNoSectionsEmptyState = isMerchant && !isLoadingSections && !hasSections;
   const isNoProductsEmptyState = isMerchant && selectedSectionId && !isLoadingProducts && products.length === 0;
