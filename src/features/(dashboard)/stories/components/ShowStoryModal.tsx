@@ -159,7 +159,7 @@ export function ShowStoryModal({
 
                     <button
                         onClick={onClose}
-                        className="absolute top-6 left-6 text-white/70 hover:text-white z-50 p-2 transition-colors bg-white/10 rounded-full cursor-pointer"
+                        className="absolute cursor-pointer top-6 left-6 text-white/70 hover:text-white z-50 p-2 transition-colors bg-white/10 rounded-full cursor-pointer"
                     >
                         <X className="w-6 h-6" />
                     </button>
@@ -235,7 +235,7 @@ export function ShowStoryModal({
 
                                                     <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                                                         <PopoverTrigger asChild>
-                                                            <button className="p-2 bg-black/20 hover:bg-black/40 rounded-full transition-colors backdrop-blur-md">
+                                                            <button className="p-2 bg-black/20 cursor-pointer hover:bg-black/40 rounded-full transition-colors backdrop-blur-md">
                                                                 <MoreHorizontal className="w-6 h-6 text-white" />
                                                             </button>
                                                         </PopoverTrigger>
