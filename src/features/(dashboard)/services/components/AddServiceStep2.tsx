@@ -72,7 +72,9 @@ export function AddServiceStep2({
   const validate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!price || Number(price) <= 0) newErrors.price = "سعر الخدمة مطلوب";
+    if (price !== "" && Number(price) < 0) {
+        newErrors.price = "السعر لا يمكن أن يكون أقل من صفر";
+    }
     if (!executeCount || Number(executeCount) <= 0) newErrors.executeCount = "مدة التنفيذ مطلوبة";
 
     setErrors(newErrors);
@@ -82,7 +84,7 @@ export function AddServiceStep2({
   const handleNext = () => {
     if (validate()) {
       onNext({
-        price: Number(price),
+        price: Number(price) || 0, 
         execute_count: Number(executeCount),
         execute_type: executeType,
         extras: extras,
@@ -171,19 +173,20 @@ export function AddServiceStep2({
                 {/* 1. Price */}
                 <div className="space-y-2">
                     <Label className="text-sm font-medium flex items-center gap-1">
-                        سعر الخدمة <span className="text-red-500">*</span>
+                        سعر الخدمة 
                     </Label>
                     <div className="relative">
                         <Input
                             name="price"
                             type="number"
+                            min="0" 
                             value={price}
                             onChange={(e) => {
                                 setPrice(e.target.value);
                                 if(errors.price) setErrors({...errors, price: ""});
                             }}
                             className={cn(
-                                "w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all text-sm", // text-left to keep number align with icon if needed, usually right for arabic
+                                "w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all text-sm", 
                                 errors.price ? "border-red-500" : "border-gray-200"
                             )}
                             placeholder="0.00"
@@ -258,7 +261,6 @@ export function AddServiceStep2({
                                     className="text-gray-400 hover:text-red-500 transition-colors bg-red-2 rounded  w-7 h-7 flex items-center justify-center cursor-pointer"
                                 >
                                     <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
-                                    {/* Using X for removal actually makes more sense, but following image style roughly */}
                                     <span className="sr-only">Remove</span>
                                 </button>
                             </div>
