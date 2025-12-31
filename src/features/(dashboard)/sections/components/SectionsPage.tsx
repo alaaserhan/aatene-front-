@@ -24,6 +24,7 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 import { Input } from "@/src/components/ui/input";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { StoreEmptyState } from "@/src/components/(dashboard)/StoreEmptyState";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -34,7 +35,7 @@ interface SectionsPageProps {
 export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
     const [isMounted, setIsMounted] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
-console.log(paramStoreId);
+    console.log(paramStoreId);
 
     // 1. تحديد storeId بناءً على الباراميترز أو الكوكيز
     const [activeStoreId, setActiveStoreId] = useState<string | number | null>(() => {
@@ -206,17 +207,12 @@ console.log(paramStoreId);
     if (!activeStoreId && !isAdmin) {
         return (
             <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center p-4">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 text-center max-w-md w-full">
-                    <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Store className="w-8 h-8 text-blue-4" />
-                    </div>
-                    <h2 className="text-xl font-bold mb-2">
-                        لم يتم اختيار متجر
-                    </h2>
-                    <p className="text-gray-500 mb-6">
-                        يرجى اختيار المتجر الذي تريد إدارة أقسامه.
-                    </p>
-                </div>
+
+                <StoreEmptyState
+                    title="يجب إنشاء متجر أولاً"
+                    description="لإدارة الأقسام، يجب أن تمتلك متجراً واحداً على الأقل."
+                />
+
             </div>
         );
     }

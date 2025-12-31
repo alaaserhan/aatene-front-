@@ -4,10 +4,12 @@ import { AxiosError } from "axios";
 import * as api from "./api";
 import { toast } from "sonner";
 
-export function useGetStories(storeId?: number | string) {
+// ✅ تم التعديل: إضافة options كمعامل ثانٍ للتحكم في enabled
+export function useGetStories(storeId?: number | string, options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: ["stories", storeId],
     queryFn: () => api.getStories(storeId),
+    ...options, // تمرير الخيارات هنا
   });
 }
 
@@ -61,10 +63,12 @@ export function useDeleteStory() {
   });
 }
 
-export function useGetHighlights(storeId?: number | string) {
+// ✅ تم التعديل: إضافة options كمعامل ثانٍ
+export function useGetHighlights(storeId?: number | string, options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: ["highlights", storeId],
     queryFn: () => api.getHighlights(storeId),
+    ...options,
   });
 }
 

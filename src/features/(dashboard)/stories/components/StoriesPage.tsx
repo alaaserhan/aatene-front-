@@ -11,9 +11,9 @@ import Cookies from "js-cookie";
 
 export function StoriesPage() {
   const storeId = Number(Cookies.get("current_store_id"));
-  // جلب البيانات
-  const { data: storiesData, isLoading: storiesLoading } = useGetStories(storeId);
-  const { data: highlightsData, isLoading: highlightsLoading } = useGetHighlights(storeId);
+  const hasStore = !isNaN(storeId);
+  const { data: storiesData, isLoading: storiesLoading } = useGetStories(storeId, { enabled: hasStore });
+  const { data: highlightsData, isLoading: highlightsLoading } = useGetHighlights(storeId, { enabled: hasStore });
 
   const breadcrumbItems = [
     { label: "الرئيسية", href: "/admin" },
