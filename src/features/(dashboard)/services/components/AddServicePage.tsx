@@ -26,7 +26,7 @@ interface AddServicePageProps {
 }
 
 export function AddServicePage({ storeId }: AddServicePageProps) {
-  
+
   const router = useRouter();
   const toastShownRef = useRef(false);
 
@@ -96,16 +96,16 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
       store_id: Number(storeId),
       tags: formData.step1.tags,
       specialties: formData.step1.specialties,
-      
+
       price: formData.step2.price,
       execute_count: formData.step2.execute_count,
       execute_type: formData.step2.execute_type,
       extras: formData.step2.extras,
-      
+
       images: formData.step3.images,
       description: formData.step4.description,
       questions: formData.step4.questions,
-      
+
       status: "pending",
     };
 
@@ -132,10 +132,17 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
       case 1:
         return (
           <AddServiceStep1
-            initialData={formData.step1}
+            initialData={
+              formData.step1
+                ? {
+                  ...formData.step1,
+                  price: formData.step2?.price
+                }
+                : undefined
+            }
             onNext={handleStep1Next}
             onCancel={handleStep1Cancel}
-            onSaveDraft={() => {}} 
+            onSaveDraft={() => { }}
             barSteps={steps}
             breadcrumbItems={breadcrumbItems}
             onStepClick={handleStepClick}
@@ -145,61 +152,61 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
       case 2:
         if (!formData.step1) { setCurrentStep(1); return null; }
         return (
-            <AddServiceStep2
-                previousData={formData.step1}
-                initialData={formData.step2}
-                onNext={handleStep2Next}
-                onBack={handleStep2Back}
-                onSaveDraft={() => {}} 
-                barSteps={steps}
-                breadcrumbItems={breadcrumbItems}
-                onStepClick={handleStepClick}
-            />
+          <AddServiceStep2
+            previousData={formData.step1}
+            initialData={formData.step2}
+            onNext={handleStep2Next}
+            onBack={handleStep2Back}
+            onSaveDraft={() => { }}
+            barSteps={steps}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
+          />
         );
       case 3:
         if (!formData.step1 || !formData.step2) { setCurrentStep(2); return null; }
         return (
-             <AddServiceStep3
-                previousDataStep1={formData.step1}
-                previousDataStep2={formData.step2}
-                initialData={formData.step3}
-                onNext={handleStep3Next}
-                onBack={handleStep3Back}
-                onSaveDraft={() => {}}
-                barSteps={steps}
-                breadcrumbItems={breadcrumbItems}
-                onStepClick={handleStepClick}
-             />
+          <AddServiceStep3
+            previousDataStep1={formData.step1}
+            previousDataStep2={formData.step2}
+            initialData={formData.step3}
+            onNext={handleStep3Next}
+            onBack={handleStep3Back}
+            onSaveDraft={() => { }}
+            barSteps={steps}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
+          />
         );
       case 4:
         if (!formData.step1 || !formData.step2 || !formData.step3) { setCurrentStep(3); return null; }
         return (
-            <AddServiceStep4
-                previousDataStep1={formData.step1}
-                previousDataStep2={formData.step2}
-                previousDataStep3={formData.step3}
-                initialData={formData.step4}
-                onSave={handleStep4Next} // Note: Changed to Next, not Save API
-                onBack={handleStep4Back}
-                barSteps={steps}
-                breadcrumbItems={breadcrumbItems}
-                onStepClick={handleStepClick}
-            />
+          <AddServiceStep4
+            previousDataStep1={formData.step1}
+            previousDataStep2={formData.step2}
+            previousDataStep3={formData.step3}
+            initialData={formData.step4}
+            onSave={handleStep4Next} // Note: Changed to Next, not Save API
+            onBack={handleStep4Back}
+            barSteps={steps}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
+          />
         );
       case 5:
         if (!formData.step1 || !formData.step2 || !formData.step3 || !formData.step4) { setCurrentStep(4); return null; }
         return (
-            <AddServiceStep5
-                previousDataStep1={formData.step1}
-                previousDataStep2={formData.step2}
-                previousDataStep3={formData.step3}
-                onSave={handleStep5Submit}
-                onBack={handleStep5Back}
-                isSubmitting={createServiceMutation.isPending}
-                barSteps={steps}
-                breadcrumbItems={breadcrumbItems}
-                onStepClick={handleStepClick}
-            />
+          <AddServiceStep5
+            previousDataStep1={formData.step1}
+            previousDataStep2={formData.step2}
+            previousDataStep3={formData.step3}
+            onSave={handleStep5Submit}
+            onBack={handleStep5Back}
+            isSubmitting={createServiceMutation.isPending}
+            barSteps={steps}
+            breadcrumbItems={breadcrumbItems}
+            onStepClick={handleStepClick}
+          />
         );
       default:
         return null;
@@ -208,14 +215,14 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
 
   return (
     <>
-        {renderStep()}
-        <SuccessModal 
-            isOpen={showSuccessModal}
-            onClose={() => router.push(`/admin/serviceProviders/${storeId}`)}
-            title="تم رفع الخدمة بنجاح"
-            message="تم رفع الخدمة بنجاح، وهي الآن قيد المراجعة من قبل الفريق المختص. سنوافيك بالرد خلال 24 إلى 48 ساعة."
-            buttonText="قائمة الخدمات"
-        />
+      {renderStep()}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => router.push(`/admin/serviceProviders/${storeId}`)}
+        title="تم رفع الخدمة بنجاح"
+        message="تم رفع الخدمة بنجاح، وهي الآن قيد المراجعة من قبل الفريق المختص. سنوافيك بالرد خلال 24 إلى 48 ساعة."
+        buttonText="قائمة الخدمات"
+      />
     </>
   );
 }

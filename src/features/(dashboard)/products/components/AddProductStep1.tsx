@@ -1,4 +1,3 @@
-// src/features/(dashboard)/products/components/AddProductStep1.tsx
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
@@ -87,7 +86,6 @@ export function AddProductStep1({
 
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
-  // تم تغيير per_page إلى 1000 لجلب كل الفئات مرة واحدة وحل مشكلة التعديل
   const categoriesQueryParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("per_page", "1000");
@@ -137,21 +135,21 @@ export function AddProductStep1({
       hasChanges = true;
     }
 
-    if (errors.price && formData.price > 0) {
+    // ✅ تعديل: إزالة الخطأ فقط إذا كان السعر رقم صحيح غير سالب
+    if (errors.price && formData.price >= 0) {
       delete newErrors.price;
       hasChanges = true;
     }
 
-    if (errors.short_description && formData.short_description.trim()) {
-      delete newErrors.short_description;
-      hasChanges = true;
+    // ✅ تعديل: لا حاجة لمراقبة الوصف لأنه أصبح اختياري
+    // إلا إذا كنت تريد مسح أخطاء قديمة عالقة (اختياري)
+    if (errors.short_description) {
+        delete newErrors.short_description;
+        hasChanges = true;
     }
-
-    const isDescriptionEmpty =
-      !formData.description.trim() || formData.description === "<p><br></p>";
-    if (errors.description && !isDescriptionEmpty) {
-      delete newErrors.description;
-      hasChanges = true;
+    if (errors.description) {
+        delete newErrors.description;
+        hasChanges = true;
     }
 
     if (hasChanges) {
@@ -176,18 +174,13 @@ export function AddProductStep1({
       newErrors.category_id = "الفئة مطلوبة";
     }
 
-    if (!formData.short_description.trim()) {
-      newErrors.short_description = "الوصف الموجز مطلوب";
-    }
+    // ✅ تم إزالة التحقق من الوصف الموجز (short_description)
 
-    const isDescriptionEmpty =
-      !formData.description.trim() || formData.description === "<p><br></p>";
-    if (isDescriptionEmpty) {
-      newErrors.description = "وصف المنتج مطلوب";
-    }
+    // ✅ تم إزالة التحقق من الوصف الطويل (description)
 
-    if (formData.price <= 0) {
-      newErrors.price = "السعر مطلوب";
+    // ✅ تعديل: التحقق فقط من أن السعر ليس سالبًا
+    if (formData.price < 0) {
+      newErrors.price = "لا يمكن أن يكون السعر أقل من صفر";
     }
 
     setErrors(newErrors);
@@ -250,7 +243,6 @@ export function AddProductStep1({
           items={breadcrumbItems || defaultBreadcrumbItems}
           className="mb-4"
         />
-
 
         <Stepper
           currentStep={1}
@@ -317,11 +309,13 @@ export function AddProductStep1({
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-1">
-                    السعر <span className="text-red-500">*</span>
+                    {/* ✅ تم إزالة النجمة الحمراء */}
+                    السعر 
                   </Label>
                   <div className="relative">
                     <input
                       type="number"
+                      min="0" // ✅ إضافة min لمنع الأرقام السالبة في الواجهة
                       value={formData.price || ""}
                       onChange={(e) =>
                         setFormData({
@@ -384,7 +378,8 @@ export function AddProductStep1({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium flex items-center gap-1">
-                      الوصف الموجز <span className="text-red-500">*</span>
+                      {/* ✅ تم إزالة النجمة الحمراء */}
+                      الوصف الموجز 
                     </Label>
                     <Tooltip
                       trigger={
@@ -431,8 +426,8 @@ export function AddProductStep1({
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-1">
+                    {/* ✅ تم إزالة النجمة الحمراء */}
                     <Label className="text-sm font-medium">وصف المنتج</Label>
-                    <span className="text-red-500">*</span>
                   </div>
 
                   <RichTextEditor

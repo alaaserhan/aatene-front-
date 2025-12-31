@@ -18,12 +18,22 @@ interface ServicePreviewSidebarProps {
 }
 
 export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebarProps) {
-  // تنسيق السعر
-  const formattedPrice = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "ILS", 
-    minimumFractionDigits: 0,
-  }).format(data.price || 0);
+  
+  // ✅ دالة تنسيق السعر المعدلة
+  const getFormattedPrice = (price?: number) => {
+    // إذا لم يكن هناك سعر أو السعر صفر، نعرض "مجاني"
+    if (!price || price === 0) return "-";
+
+    // تنسيق الرقم فقط (بدون رمز العملة الافتراضي)
+    const number = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 0,
+    }).format(price);
+
+    // إضافة الرمز يدوياً مع مسافة
+    return `${number} ₪`;
+  };
+
+  const formattedPrice = getFormattedPrice(data.price);
 
   return (
     <div className="sticky top-6">
@@ -63,9 +73,12 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
                 {data.title || "عنوان الخدمة يظهر هنا"}
               </h2>
               
-              <div className="flex items-center  gap-2 text-sm">
+              <div className="flex items-center gap-2 text-sm">
                  <span className="text-gray-500">سعر الخدمة</span>
-                 <span className="font-medium text-lg">{formattedPrice}</span>
+                 {/* تم استخدام المتغير الجديد formattedPrice */}
+                 <span className="font-medium text-lg text-blue-3">
+                    {formattedPrice}
+                 </span>
               </div>
             </div>
 

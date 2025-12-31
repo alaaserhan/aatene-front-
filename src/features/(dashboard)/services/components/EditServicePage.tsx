@@ -170,7 +170,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
 
   const handleStep5Back = () => setCurrentStep(4);
 
-if (isLoading && !formData) return <Loader2 className="animate-spin" />;
+  if (isLoading && !formData) return <Loader2 className="animate-spin" />;
 
   if ((isError || !serviceResponse?.data) && !formData) return <div>Error...</div>;
 
@@ -187,7 +187,10 @@ if (isLoading && !formData) return <Loader2 className="animate-spin" />;
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <AddServiceStep1 initialData={formData.step1!} onNext={handleStep1Next} onCancel={handleStep1Cancel} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} showSaveDraft={false} storeId={storeId} />;
+        return <AddServiceStep1 initialData={{
+          ...formData.step1!,
+          price: formData.step2?.price ?? formData.step1?.price ?? 0
+        }} onNext={handleStep1Next} onCancel={handleStep1Cancel} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} showSaveDraft={false} storeId={storeId} />;
       case 2:
         return <AddServiceStep2 previousData={formData.step1!} initialData={formData.step2!} onNext={handleStep2Next} onBack={handleStep2Back} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} />;
       case 3:
