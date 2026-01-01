@@ -1,4 +1,3 @@
-//src/features/(dashboard)/followings/components/FollowingsPage.tsx
 "use client";
 
 import { useState, useMemo } from "react";
@@ -12,15 +11,19 @@ import { FollowersEmptyState } from "./FollowersEmptyState";
 import { FollowEntity } from "../api";
 import { Pagination } from "@/src/components/ui/Pagination";
 import Cookies from "js-cookie";
+import { StoreEmptyState } from "@/src/components/(dashboard)/StoreEmptyState"; // ✅ استيراد المكون
 
 type TabType = "followers" | "followings";
 
 export function FollowingsPage() {
-    const [activeTab, setActiveTab] = useState<TabType>("followers"); // "followers" = يتابعك (Default)
+    const [activeTab, setActiveTab] = useState<TabType>("followers");
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [actionTargetId, setActionTargetId] = useState<number | null>(null);
-    const storeId = Cookies.get("current_store_id");
+
+    const storeIdStr = Cookies.get("current_store_id");
+    const storeId = storeIdStr ? Number(storeIdStr) : undefined;
+    const hasStore = !!storeId && !isNaN(storeId);
 
     // إعداد استعلام البيانات
     const queryParams = useMemo(() => {
@@ -31,11 +34,11 @@ export function FollowingsPage() {
         return params;
     }, [currentPage, searchQuery]);
 
-    // جلب البيانات بناءً على التبويب النشط
+    // ملاحظة: يُفضل تمرير { enabled: hasStore } للهوكس إذا كانت تدعم ذلك لتجنب استدعاء API بلا فائدة
     const {
         data: followersData,
         isLoading: isLoadingFollowers
-    } = useGetMyFollowers(queryParams, storeId); // يتم تفعيله دائماً أو يمكن ربطه بـ enabled
+    } = useGetMyFollowers(queryParams, storeId);
 
     const {
         data: followingsData,
@@ -49,15 +52,14 @@ export function FollowingsPage() {
     const totalRecords = currentData?.recordsFiltered || 0;
     const totalPages = Math.ceil((currentData?.recordsTotal || 0) / 10);
 
-    // Hooks for Actions
     const followMutation = useFollowUser();
     const unfollowMutation = useUnfollowUser();
 
     const handleAction = (item: FollowEntity) => {
+        if (!storeId) return;
         setActionTargetId(item.id);
 
         if (activeTab === "followings") {
-            // إلغاء متابعة
             unfollowMutation.mutate(
                 {
                     payload: { followed_type: item.type, followed_id: item.id },
@@ -66,7 +68,6 @@ export function FollowingsPage() {
                 { onSettled: () => setActionTargetId(null) }
             );
         } else {
-            // متابعة
             followMutation.mutate(
                 {
                     payload: { followed_type: item.type, followed_id: item.id },
@@ -76,6 +77,17 @@ export function FollowingsPage() {
             );
         }
     };
+
+    if (!hasStore) {
+        return (
+            <div className="p-6 h-screen flex items-center justify-center">
+                <StoreEmptyState
+                    title="يجب إنشاء متجر أولاً"
+                    description="لعرض المتابعين والمتابعات، يجب أن تمتلك متجراً واحداً على الأقل."
+                />
+            </div>
+        );
+    }
 
     const breadcrumbItems = [
         { label: "الرئيسية", href: "/" },
@@ -136,7 +148,7 @@ export function FollowingsPage() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full bg-white  h-12 "
                         />
-                        
+                        <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
                     </div>
                 </div>
 
@@ -145,9 +157,9 @@ export function FollowingsPage() {
                     {/* Title & Count */}
                     <div className="flex  mb-4">
                         <h2 className="text-xl flex flex-row items-center gap-1 font-medium p-2">
-                            <Users className="w-4"/>
+                            <Users className="w-4" />
                             {activeTab === "followers" ? "يتابعك" : "تتابعهم"}
-                            <span className="text-gray- font-normal text-base">({ totalRecords})</span>
+                            <span className="text-gray-400 font-normal text-base">({totalRecords})</span>
                         </h2>
                     </div>
 
@@ -156,7 +168,7 @@ export function FollowingsPage() {
                         <div className="flex justify-center items-center h-64 bg-white rounded-lg">
                             <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
                         </div>
-                        
+
                     ) : records.length > 0 ? (
                         <>
                             <FollowersTable

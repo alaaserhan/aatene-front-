@@ -108,7 +108,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: true },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: true },
-    { label: "القصص", icon: ImageIcon, href: "/stories ", show: true },
+    { label: "القصص", icon: ImageIcon, href: "/stories ", show: isMerchant },
     { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services ", show: isAdmin },
     { label: "المدونات", icon: Newspaper, href: "/blogs", show: true },
     { label: "المتابعات", icon: Users, href: "/following", show: isMerchant },
