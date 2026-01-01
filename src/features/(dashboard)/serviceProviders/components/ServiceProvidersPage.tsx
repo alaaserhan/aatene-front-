@@ -77,10 +77,10 @@ export function ServiceProvidersPage() {
     };
 
     const handleEditClick = (store: Store) => {
-        router.push(`/admin/stores/${store.id}/edit`);
+        router.push(`/admin/users?userId=${store.owner?.id}`);
     };
 
-     const handleShowClick = (store: Store) => {
+    const handleShowClick = (store: Store) => {
         router.push(`/admin/serviceProviders/${store.id}`);
     };
 
