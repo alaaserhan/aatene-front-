@@ -23,6 +23,7 @@ import {
   PanelsRightBottom,
   Boxes,
   Newspaper,
+  Heart,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -88,12 +89,12 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     return false;
   };
 
-      const [activeStoreId, setActiveStoreId] = useState<string | number | null>(() => {
-        if (typeof window !== "undefined") {
-            return Cookies.get("current_store_id") || null;
-        }
-        return null;
-    });
+  const [activeStoreId, setActiveStoreId] = useState<string | number | null>(() => {
+    if (typeof window !== "undefined") {
+      return Cookies.get("current_store_id") || null;
+    }
+    return null;
+  });
 
   const allNavItems: NavItem[] = [
     { label: "الرئيسة", icon: <img src={"/icons/dashboard/nav_home.svg"} alt="" />, href: "/home", show: true },
@@ -112,6 +113,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services ", show: isAdmin },
     { label: "المدونات", icon: Newspaper, href: "/blogs", show: true },
     { label: "المتابعات", icon: Users, href: "/following", show: isMerchant },
+    { label: "المفضله", icon: Heart, href: "/favorites", show: isAdmin },
 
 
   ];
