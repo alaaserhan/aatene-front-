@@ -22,13 +22,13 @@ export default function AnalyticsOverviewPage() {
                     {/* --- Row 1 --- */}
 
                     {/* Left Column (RTL): Customers & Stores */}
-                    <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-2 lg:order-1">
+                    <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-2 ">
                         <CustomersAnalytics />
                         <StoresAnalytics />
                     </div>
 
                     {/* Right Column (RTL): Platform Analytics */}
-                    <div className="col-span-12 lg:col-span-8 order-1 lg:order-2">
+                    <div className="col-span-12 lg:col-span-8 order-1 ">
                         <PlatformAnalytics />
                     </div>
 

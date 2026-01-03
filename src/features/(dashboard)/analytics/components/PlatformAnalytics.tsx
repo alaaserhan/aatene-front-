@@ -51,7 +51,7 @@ function StatCard({
         <div className="flex items-center gap-4 p-4 rounded-lg bg-white border border-transparent hover:border-gray-100 transition-colors">
             <div
                 className={cn(
-                    "w-12 h-12 rounded-xl flex items-center justify-center",
+                    "w-12 h-12 rounded-lg flex items-center justify-center",
                     bgClass
                 )}
             >
