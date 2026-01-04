@@ -1,6 +1,10 @@
 // src/app/(admin)/analytics/overview/page.tsx
 "use client";
 
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { Loader2 } from "lucide-react";
+
 import { AnalyticsHeader } from "./AnalyticsHeader";
 import { CustomersAnalytics } from "./CustomersAnalytics";
 import { PlatformAnalytics } from "./PlatformAnalytics";
@@ -10,8 +14,42 @@ import { ProductsAnalytics } from "./ProductsAnalytics";
 import { LatestsProducts } from "./LatestsProducts";
 import { HightRatedStores } from "./HightRatedStores";
 import { RecentReports } from "./RecentReports";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 export default function AnalyticsOverviewPage() {
+    const [loading, setLoading] = useState(true);
+    const [userType, setUserType] = useState<string>("");
+    const user = useAuthStore((state) => state.user);
+    useEffect(() => {
+        // Fetch user_type from cookies to determine dashboard view
+        const type = user?.user_type;
+        setUserType(type);
+        setLoading(false);
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-[#F8F9FC]">
+                <Loader2 className="w-10 h-10 animate-spin text-[#3A5779]" />
+            </div>
+        );
+    }
+
+    // --- Merchant View ---
+    if (userType === "merchant") {
+        return (
+            <div className="flex flex-col min-h-screen bg-[#F8F9FC]">
+                <div className="flex items-center justify-center flex-1">
+                    <div className="bg-white p-10 rounded-xl shadow-sm border border-gray-100 text-center">
+                        <h1 className="text-2xl font-bold text-gray-800 mb-2">لوحة تحكم التاجر</h1>
+                        <p className="text-gray-500">جاري العمل على إحصائيات التاجر...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // --- Admin View ---
     return (
         <div className="flex flex-col">
             <AnalyticsHeader />
@@ -52,10 +90,13 @@ export default function AnalyticsOverviewPage() {
                     <div className="col-span-12 lg:col-span-4 order-5">
                         <HightRatedStores />
                     </div>
+
                     {/* Left Column (RTL): Latests Products (Wide) */}
                     <div className="col-span-12 lg:col-span-8 order-6 ">
                         <LatestsProducts />
                     </div>
+
+                    {/* --- Row 4 --- */}
                     <div className="col-span-12 order-7">
                         <RecentReports />
                     </div>

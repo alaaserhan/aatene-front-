@@ -5,7 +5,7 @@
 import { useQuery } from "@tanstack/react-query";
 import * as api from "./api";
 
-// --- Existing Hooks ---
+// --- Existing Hooks (Admin) ---
 
 export function useGetAnalyticsContent(params?: URLSearchParams, storeId?: number | string) {
     return useQuery({
@@ -34,8 +34,6 @@ export function useGetAnalyticsLatests(params?: URLSearchParams, storeId?: numbe
         queryFn: () => api.getAnalyticsLatests(params, storeId),
     });
 }
-
-// --- NEW Hooks ---
 
 export function useGetAnalyticsStores(params?: URLSearchParams, storeId?: number | string) {
     return useQuery({
@@ -69,5 +67,35 @@ export function useGetAnalyticsMerchants(params?: URLSearchParams, storeId?: num
     return useQuery({
         queryKey: ["analytics", "merchants_report", params?.toString(), storeId],
         queryFn: () => api.getAnalyticsMerchants(params, storeId),
+    });
+}
+
+// --- NEW Hooks (Merchant Dashboard) ---
+
+export function useGetMerchantAnalyticsOverview(storeId?: number | string) {
+    return useQuery({
+        queryKey: ["merchant-analytics", "overview", storeId],
+        queryFn: () => api.getMerchantAnalyticsOverview(storeId),
+    });
+}
+
+export function useGetMerchantAnalyticsFollowers(params?: URLSearchParams, storeId?: number | string) {
+    return useQuery({
+        queryKey: ["merchant-analytics", "followers", params?.toString(), storeId],
+        queryFn: () => api.getMerchantAnalyticsFollowers(params, storeId),
+    });
+}
+
+export function useGetMerchantAnalyticsMostViewed(storeId?: number | string) {
+    return useQuery({
+        queryKey: ["merchant-analytics", "most-viewed", storeId],
+        queryFn: () => api.getMerchantAnalyticsMostViewed(storeId),
+    });
+}
+
+export function useGetMerchantAnalyticsContent(params?: URLSearchParams, storeId?: number | string) {
+    return useQuery({
+        queryKey: ["merchant-analytics", "content", params?.toString(), storeId],
+        queryFn: () => api.getMerchantAnalyticsContent(params, storeId),
     });
 }

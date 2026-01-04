@@ -53,7 +53,6 @@ export interface Store {
     review_rate: string | number | null;
     reviews_count: number | null;
     orders_count: number | null;
-    // New fields from analytics responses
     completed_orders_count?: number | null;
     canceled_orders_count?: number | null;
     reports_count?: number | string | null;
@@ -85,7 +84,7 @@ export interface Report {
     created_at: string;
 }
 
-// --- Existing Responses ---
+// --- Admin Responses ---
 
 export interface ContentAnalyticsResponse extends BaseResponse {
     totalMerchants: number;
@@ -125,9 +124,6 @@ export interface LatestsAnalyticsResponse extends BaseResponse {
     recentReports: Report[];
 }
 
-// --- NEW Interfaces for 5 Endpoints ---
-
-// 1. Stores Analytics
 export interface StoresAnalyticsResponse extends BaseResponse {
     totalStores: number;
     totalActiveStores: number;
@@ -142,12 +138,11 @@ export interface StoresAnalyticsResponse extends BaseResponse {
     }[];
 }
 
-// 2. Users (Customers) Analytics
 export interface UsersAnalyticsResponse extends BaseResponse {
     totalCustomers: number;
     activeCustomers: number;
     notActiveCustomers: number;
-    mostActiveCustomers: any[]; 
+    mostActiveCustomers: any[];
     customersGrowthChart: {
         date: string;
         total_count: string;
@@ -156,7 +151,6 @@ export interface UsersAnalyticsResponse extends BaseResponse {
     }[];
 }
 
-// 3. Services Analytics
 export interface AnalyticsService {
     id: number;
     slug: string;
@@ -189,7 +183,6 @@ export interface ServicesAnalyticsResponse extends BaseResponse {
     }[];
 }
 
-// 4. Products Analytics
 export interface ProductsAnalyticsResponse extends BaseResponse {
     totalProducts: number;
     totalActiveProducts: number;
@@ -203,7 +196,6 @@ export interface ProductsAnalyticsResponse extends BaseResponse {
     }[];
 }
 
-// 5. Merchants Analytics
 export interface AnalyticsMerchant {
     id: number;
     first_name: string;
@@ -238,6 +230,50 @@ export interface MerchantsAnalyticsResponse extends BaseResponse {
     }[];
 }
 
+// --- NEW Merchant Interfaces ---
+
+export interface MerchantOverviewAnalyticsResponse extends BaseResponse {
+    all_time_views: number;
+    current_year_views: number;
+    current_month_views: number;
+    last_month_views: number;
+    current_week_views: number;
+    current_day_views: number;
+    yesterday_views: number;
+}
+
+export interface MerchantFollowersAnalyticsResponse extends BaseResponse {
+    followers: Record<string, string>;
+}
+
+export interface MerchantMostViewedAnalyticsResponse extends BaseResponse {
+    mostViewedServices: AnalyticsService[]; // Assuming similar structure
+    mostViewedProducts: Product[];
+}
+
+export interface MerchantContentAnalyticsResponse extends BaseResponse {
+    totalProducts: number;
+    favoriteProducts: number;
+    inCompareProducts: number;
+    totalServices: number;
+    activeServices: number;
+    pendingServices: number;
+    rejectedServices: number;
+    favoriteServices: number;
+    converSation: number;
+    productsGrowthChart: {
+        date: string;
+        count: string;
+    }[];
+    servicesGrowthChart: {
+        date: string;
+        total_count: string;
+        approved_count: string;
+        rejected_count: string;
+        pending_count: string;
+    }[];
+}
+
 // --- Helpers ---
 
 const getHeaders = (storeId?: number | string) => {
@@ -245,9 +281,8 @@ const getHeaders = (storeId?: number | string) => {
     return currentStoreId ? { storeId: String(currentStoreId) } : undefined;
 };
 
-// --- API Functions ---
+// --- API Functions (Admin) ---
 
-// Existing
 export const getAnalyticsContent = async (
     params?: URLSearchParams,
     storeId?: number | string
@@ -300,9 +335,6 @@ export const getAnalyticsLatests = async (
     return data;
 };
 
-// --- NEW API Functions ---
-
-// 1. Stores
 export const getAnalyticsStores = async (
     params?: URLSearchParams,
     storeId?: number | string
@@ -316,7 +348,6 @@ export const getAnalyticsStores = async (
     return data;
 };
 
-// 2. Users (Customers)
 export const getAnalyticsUsers = async (
     params?: URLSearchParams,
     storeId?: number | string
@@ -330,7 +361,6 @@ export const getAnalyticsUsers = async (
     return data;
 };
 
-// 3. Services
 export const getAnalyticsServices = async (
     params?: URLSearchParams,
     storeId?: number | string
@@ -344,7 +374,6 @@ export const getAnalyticsServices = async (
     return data;
 };
 
-// 4. Products
 export const getAnalyticsProducts = async (
     params?: URLSearchParams,
     storeId?: number | string
@@ -358,7 +387,6 @@ export const getAnalyticsProducts = async (
     return data;
 };
 
-// 5. Merchants
 export const getAnalyticsMerchants = async (
     params?: URLSearchParams,
     storeId?: number | string
@@ -367,6 +395,56 @@ export const getAnalyticsMerchants = async (
     const headers = getHeaders(storeId);
     const queryString = params ? `?${params.toString()}` : "";
     const { data } = await api.get<MerchantsAnalyticsResponse>(`${endpoint}${queryString}`, {
+        headers,
+    });
+    return data;
+};
+
+// --- NEW API Functions (Merchant Dashboard) ---
+
+// 1. Merchant Analytics Overview
+export const getMerchantAnalyticsOverview = async (
+    storeId?: number | string
+): Promise<MerchantOverviewAnalyticsResponse> => {
+    const endpoint = getDynamicEndpoint("/analytics/analytics");
+    const headers = getHeaders(storeId);
+    const { data } = await api.get<MerchantOverviewAnalyticsResponse>(endpoint, { headers });
+    return data;
+};
+
+// 2. Merchant Analytics Followers
+export const getMerchantAnalyticsFollowers = async (
+    params?: URLSearchParams,
+    storeId?: number | string
+): Promise<MerchantFollowersAnalyticsResponse> => {
+    const endpoint = getDynamicEndpoint("/analytics/followers");
+    const headers = getHeaders(storeId);
+    const queryString = params ? `?${params.toString()}` : "";
+    const { data } = await api.get<MerchantFollowersAnalyticsResponse>(`${endpoint}${queryString}`, {
+        headers,
+    });
+    return data;
+};
+
+// 3. Merchant Analytics Most Viewed
+export const getMerchantAnalyticsMostViewed = async (
+    storeId?: number | string
+): Promise<MerchantMostViewedAnalyticsResponse> => {
+    const endpoint = getDynamicEndpoint("/analytics/mostViewed");
+    const headers = getHeaders(storeId);
+    const { data } = await api.get<MerchantMostViewedAnalyticsResponse>(endpoint, { headers });
+    return data;
+};
+
+// 4. Merchant Analytics Content
+export const getMerchantAnalyticsContent = async (
+    params?: URLSearchParams,
+    storeId?: number | string
+): Promise<MerchantContentAnalyticsResponse> => {
+    const endpoint = getDynamicEndpoint("/analytics/content");
+    const headers = getHeaders(storeId);
+    const queryString = params ? `?${params.toString()}` : "";
+    const { data } = await api.get<MerchantContentAnalyticsResponse>(`${endpoint}${queryString}`, {
         headers,
     });
     return data;
