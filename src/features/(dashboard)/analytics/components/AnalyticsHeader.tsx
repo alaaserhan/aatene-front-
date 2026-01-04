@@ -9,8 +9,8 @@ export function AnalyticsHeader() {
   const pathname = usePathname();
 
   const links = [
-    { label: "ملخص المنصة", href: "/admin/analytics/overview" },
-    { label: "التقارير", href: "/admin/analytics/reports" },
+    { label: "ملخص المنصة", href: "/admin/home" },
+    { label: "التقارير", href: "/admin/home/reports" },
   ];
 
   return (
