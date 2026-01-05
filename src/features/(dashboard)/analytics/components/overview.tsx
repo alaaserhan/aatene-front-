@@ -15,14 +15,14 @@ import { LatestsProducts } from "./LatestsProducts";
 import { HightRatedStores } from "./HightRatedStores";
 import { RecentReports } from "./RecentReports";
 import { useAuthStore } from "@/src/stores/auth-store";
+import MerchantAnalyticsPage from "./merchants/MerchantOverView";
 
 export default function AnalyticsOverviewPage() {
     const [loading, setLoading] = useState(true);
     const [userType, setUserType] = useState<string>("");
-    const user = useAuthStore((state) => state.user);
     useEffect(() => {
         // Fetch user_type from cookies to determine dashboard view
-        const type = user?.user_type;
+        const type = Cookies.get("user_type") || "admin";
         setUserType(type);
         setLoading(false);
     }, []);
@@ -34,18 +34,11 @@ export default function AnalyticsOverviewPage() {
             </div>
         );
     }
-
+    console.log(userType, "userType")
     // --- Merchant View ---
     if (userType === "merchant") {
         return (
-            <div className="flex flex-col min-h-screen bg-[#F8F9FC]">
-                <div className="flex items-center justify-center flex-1">
-                    <div className="bg-white p-10 rounded-xl shadow-sm border border-gray-100 text-center">
-                        <h1 className="text-2xl font-bold text-gray-800 mb-2">لوحة تحكم التاجر</h1>
-                        <p className="text-gray-500">جاري العمل على إحصائيات التاجر...</p>
-                    </div>
-                </div>
-            </div>
+            <MerchantAnalyticsPage />
         );
     }
 
