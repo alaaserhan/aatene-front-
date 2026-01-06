@@ -40,14 +40,14 @@ export function MerchantMostViewed() {
 
     if (isLoading) {
         return (
-            <div className="bg-white rounded-lg p-6 h-[400px] flex items-center justify-center">
+            <div className="bg-white rounded-lg p-6 h-[350px] flex items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-[#3A5779]" />
             </div>
         );
     }
 
     return (
-        <div className="bg-white rounded-lg p-6 flex flex-col h-full min-h-[400px]">
+        <div className="bg-white rounded-lg p-6 flex flex-col h-full min-h-[350px]">
             {/* Header */}
             <div className="flex mb-6">
                 <div className="flex flex-col gap-1">
@@ -61,7 +61,7 @@ export function MerchantMostViewed() {
 
             {/* List with Custom Scrollbar */}
             <div className="flex-1 relative">
-                <ScrollArea className="h-[300px] -ml-4 pl-4" dir="rtl">
+                <ScrollArea className="h-[250px] -ml-4 pl-4" dir="rtl">
                     <div className="flex flex-col gap-4">
                         {items.length > 0 ? (
                             items.map((item, index) => (

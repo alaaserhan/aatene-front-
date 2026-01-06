@@ -1,4 +1,4 @@
-// src/components/(merchant)/analytics/MerchantFollowersAnalytics.tsx
+// src/features/(dashboard)/analytics/components/merchants/MerchantFollowersAnalytics.tsx
 "use client";
 
 import { useState } from "react";
@@ -37,15 +37,15 @@ export function MerchantFollowersAnalytics() {
 
     const { data, isLoading } = useGetMerchantAnalyticsFollowers(queryParams);
 
-    // Calculate total followers
+    // 1. حساب إجمالي المتابعين وأعلى قيمة للتقسيم
     const followerValues = data?.followers ? Object.values(data.followers).map(Number) : [];
     const totalFollowers = followerValues.reduce((sum, val) => sum + val, 0);
     const maxValue = Math.max(...followerValues, 0) || 10;
 
-    // Calculate step for color gradients
+    // نقسم القيمة القصوى على 4 لنحدد حجم كل "درجة" لونية
     const step = Math.ceil(maxValue / 4);
 
-    // Transform data for chart with stacked colors
+    // 2. تحويل البيانات للرسم البياني المتراكم (Stacked)
     const chartData = data?.followers
         ? Object.entries(data.followers).map(([key, value]) => {
             const val = Number(value);
@@ -60,24 +60,24 @@ export function MerchantFollowersAnalytics() {
         })
         : [];
 
-    // Colors (from light to dark)
+    // الألوان المتطابقة مع CustomersAnalytics
     const colors = {
-        part1: "#C8D7E833",
-        part2: "#C8D7E8",
-        part3: "#5B88BA",
-        part4: "#38587A",
+        part2: "#C8D7E8", // blue-1
+        part1: "#5B88BA33", // blue-4
+        part4: "#38587A", // blue-2
+        part3: "#406896", // blue-3
     };
 
     if (isLoading) {
         return (
-            <div className="bg-white rounded-lg p-6 h-[320px] flex items-center justify-center">
+            <div className="bg-white rounded-lg p-6 h-full flex items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-[#38587A]" />
             </div>
         );
     }
 
     return (
-        <div className="bg-white rounded-lg p-6 flex flex-col gap-4 h-[320px]">
+        <div className="bg-white rounded-lg p-6 flex flex-col gap-4 h-full">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-100 pb-2">
                 <div className="flex flex-col">
@@ -144,7 +144,7 @@ export function MerchantFollowersAnalytics() {
                             }}
                         />
 
-                        {/* Stacked Bars */}
+                        {/* Stacked Bars - الترتيب مطابق لـ CustomersAnalytics */}
                         <Bar dataKey="part1" stackId="a" fill={colors.part1} radius={[0, 0, 0, 0]} />
                         <Bar dataKey="part2" stackId="a" fill={colors.part2} radius={[0, 0, 0, 0]} />
                         <Bar dataKey="part3" stackId="a" fill={colors.part3} radius={[0, 0, 0, 0]} />

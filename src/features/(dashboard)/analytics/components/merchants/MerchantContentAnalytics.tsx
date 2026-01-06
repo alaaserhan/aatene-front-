@@ -22,6 +22,7 @@ import {
     Calendar,
     Timer,
     LucideIcon,
+    Megaphone,
 } from "lucide-react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Loader2 } from "lucide-react";
@@ -91,21 +92,21 @@ export function MerchantContentAnalytics() {
 
     if (isLoading) {
         return (
-            <div className="bg-white rounded-xl p-6 min-h-[500px] flex items-center justify-center">
+            <div className="bg-white rounded-lg p-6 min-h-[550px] flex items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-[#3A5779]" />
             </div>
         );
     }
 
     return (
-        <div className="bg-white rounded-xl p-6 flex flex-col gap-6 h-full shadow-sm">
+        <div className="bg-white rounded-lg p-6 flex flex-col gap-6 h-full ">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Timer className="w-5 h-5 text-gray-600" />
-                    <h3 className="text-lg font-bold text-gray-800">تحليل المحتوى</h3>
+                    <Megaphone className="w-6 h-6" />
+                    <h3 className="text-lg font-bold ">تحليل المحتوى</h3>
                 </div>
-                <div className="w-[140px]">
+                <div >
                     <ReusableDropdown
                         options={periodOptions}
                         value={period}
