@@ -32,7 +32,7 @@ export default function MerchantAnalyticsPage() {
     return (
         <div className="flex flex-col ">
             <main className="flex-1 p-6">
-                <div className="grid grid-cols-12 gap-6">
+                <div className="grid grid-cols-12 gap-4">
 
                     {/* --- Row 1 --- */}
                     
@@ -42,7 +42,7 @@ export default function MerchantAnalyticsPage() {
                     </div>
 
                     {/* Column 2 (Left in RTL): Stacked Column (Points + Profile Views) */}
-                    <div className="col-span-12 lg:col-span-4 order-2 flex flex-col gap-6">
+                    <div className="col-span-12 lg:col-span-4 order-2 flex flex-col gap-4">
                         {/* Part 1: Points */}
                         <MerchantPointsCard />
                         
