@@ -53,11 +53,6 @@ export function BuyPointsPageContent() {
         );
     };
 
-    const handleCloseModal = () => {
-        setIsSuccessModalOpen(false);
-        // Navigate to Invoices (placeholder route based on assumption, can be updated)
-        router.push("/admin/billing/invoices");
-    };
 
 
     if (isLoadingPackages) {
@@ -295,7 +290,7 @@ export function BuyPointsPageContent() {
             {/* Success Modal */}
             <SuccessModal
                 isOpen={isSuccessModalOpen}
-                onClose={handleCloseModal}
+                onClose={() => setIsSuccessModalOpen(false)}
                 title="تمت العملية بنجاح"
                 message={`تمت اضافة ${coinsCount} عملة ذهبية إلى حسابك`}
                 buttonText="الذهاب الى الفواتير"
