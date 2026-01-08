@@ -41,7 +41,7 @@ export function FollowersTable({
                 <div className="flex items-center gap-3">
                   <Avatar className="w-10 h-10 border border-gray-100">
                     <AvatarImage src={item.image} alt={item.name} />
-                    <AvatarFallback>{item.name.charAt(0)}</AvatarFallback>
+                    <AvatarFallback>{item.name?.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <span className="text-sm font-medium text-gray-700">{item.name}</span>
                 </div>

@@ -154,7 +154,7 @@ export function UserDetailsSidebar({
   });
 
   const isActive = watch("is_active");
-  const selectedRole = watch("roles"); 
+  const selectedRole = watch("roles");
   const phoneValue = watch("phone");
 
   useEffect(() => {
@@ -492,12 +492,6 @@ export function UserDetailsSidebar({
               </div>
             </div>
 
-            <Button
-              type="button"
-              className="mb-6 bg-blue-3  cursor-pointer"
-            >
-              أضف عملات ذهبية
-            </Button>
           </div>
 
           <div className="text-sm flex flex-row gap-5">

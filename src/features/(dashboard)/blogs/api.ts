@@ -11,6 +11,7 @@ export interface BlogContent {
 export interface Blog {
     id: number;
     thumbnail: string;
+    thumbnail_url: string;
     title: string;
     slug: string;
     category: string;

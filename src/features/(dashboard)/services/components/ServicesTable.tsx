@@ -24,6 +24,7 @@ interface ServicesTableProps {
     onEdit: (service: Service) => void;
     onDelete: (service: Service) => void;
     onReview: (service: Service) => void;
+    activeStatus?: "approved" | "pending" | "rejected";
 }
 
 export function ServicesTable({
@@ -36,6 +37,7 @@ export function ServicesTable({
     onReview,
     onEdit,
     onDelete,
+    activeStatus = "approved",
 }: ServicesTableProps) {
 
     // ✅ تعريف الـ State للمودال
@@ -73,10 +75,23 @@ export function ServicesTable({
                             <th className="px-6 py-4 text-xs font-medium text-center">كود الخدمة</th>
                             <th className="px-6 py-4 text-xs font-medium text-center">صورة الخدمة</th>
                             <th className="px-6 py-4 text-xs font-medium text-right w-1/4">عنوان الخدمة</th>
-                            <th className="px-6 py-4 text-xs font-medium text-center">مشاهدات</th>
-                            <th className="px-6 py-4 text-xs font-medium text-center">عدد التواصل</th>
-                            <th className="px-6 py-4 text-xs font-medium text-center">للمفضلة</th>
-                            <th className="px-6 py-4 text-xs font-medium text-center">مرئي</th>
+
+                            {activeStatus === "rejected" && (
+                                <>
+                                    <th className="px-6 py-4 text-xs font-medium text-center">سبب رفض الخدمة</th>
+                                    <th className="px-6 py-4 text-xs font-medium text-center">تاريخ الرد</th>
+                                </>
+                            )}
+
+                            {activeStatus !== "rejected" && (
+                                <>
+                                    <th className="px-6 py-4 text-xs font-medium text-center">مشاهدات</th>
+                                    <th className="px-6 py-4 text-xs font-medium text-center">عدد التواصل</th>
+                                    <th className="px-6 py-4 text-xs font-medium text-center">للمفضلة</th>
+                                    <th className="px-6 py-4 text-xs font-medium text-center">مرئي</th>
+                                </>
+                            )}
+
                             <th className="px-6 py-4 text-xs font-medium text-center">عمليات</th>
                         </tr>
                     </thead>
@@ -115,30 +130,51 @@ export function ServicesTable({
                                     </span>
                                 </td>
 
-                                {/* Views */}
-                                <td className="px-6 py-4 text-center">
-                                    <span className="text-sm ">{service.view_count || 0}</span>
-                                </td>
+                                {/* Rejected Columns */}
+                                {activeStatus === "rejected" && (
+                                    <>
+                                        <td className="px-6 py-4 text-center">
+                                            <span className="text-sm text-red-500 font-medium">
+                                                {service.reason || "لا يوجد سبب"}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <span className="text-sm text-gray-500 font-medium">
+                                                {service.response_date || "-"}
+                                            </span>
+                                        </td>
+                                    </>
+                                )}
 
-                                {/* Contacts (Messages) */}
-                                <td className="px-6 py-4 text-center">
-                                    <span className="text-sm ">{service.messages_count || 0}</span>
-                                </td>
+                                {/* Default Columns */}
+                                {activeStatus !== "rejected" && (
+                                    <>
+                                        {/* Views */}
+                                        <td className="px-6 py-4 text-center">
+                                            <span className="text-sm ">{service.view_count || 0}</span>
+                                        </td>
 
-                                {/* Favorites */}
-                                <td className="px-6 py-4 text-center">
-                                    <span className="text-sm ">{service.favorites_count || 0}</span>
-                                </td>
+                                        {/* Contacts (Messages) */}
+                                        <td className="px-6 py-4 text-center">
+                                            <span className="text-sm ">{service.messages_count || 0}</span>
+                                        </td>
 
-                                {/* Visible Toggle */}
-                                <td className="px-6 py-4 text-center">
-                                    <div className="flex justify-center">
-                                        <ToggleSwitch
-                                            enabled={service.shown || false}
-                                            onChange={() => onToggleShown(service)}
-                                        />
-                                    </div>
-                                </td>
+                                        {/* Favorites */}
+                                        <td className="px-6 py-4 text-center">
+                                            <span className="text-sm ">{service.favorites_count || 0}</span>
+                                        </td>
+
+                                        {/* Visible Toggle */}
+                                        <td className="px-6 py-4 text-center">
+                                            <div className="flex justify-center">
+                                                <ToggleSwitch
+                                                    enabled={service.shown || false}
+                                                    onChange={() => onToggleShown(service)}
+                                                />
+                                            </div>
+                                        </td>
+                                    </>
+                                )}
 
                                 {/* Actions */}
                                 <td className="px-6 py-4">

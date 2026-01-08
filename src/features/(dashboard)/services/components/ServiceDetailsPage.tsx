@@ -91,7 +91,6 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
             id: serviceId,
             payload: {
                 status: "rejected",
-                reason_id: reasonId,
                 reason: note
             },
             storeId

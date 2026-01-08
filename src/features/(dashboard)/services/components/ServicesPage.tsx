@@ -285,6 +285,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 onEdit={(service) => router.push(`/admin/serviceProviders/services/edit/${service.id}/${storeId}`)}
                                 onDelete={handleDeleteClick}
                                 onReview={(service) => router.push(`/admin/serviceProviders/services/details/${service.id}/${storeId}`)}
+                                activeStatus={activeStatus}
                             />
                         )}
                     </div>

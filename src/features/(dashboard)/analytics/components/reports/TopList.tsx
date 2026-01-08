@@ -61,7 +61,7 @@ export function TopList({ title, subtitle, items, className, icon: Icon }: TopLi
                                         {item.image ? (
                                             <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                                         ) : (
-                                            <span className="text-xs font-bold text-gray-2">{item.title.charAt(0)}</span>
+                                            <span className="text-xs font-bold text-gray-2">{item.title?.charAt(0)}</span>
                                         )}
                                     </div>
                                     <div className="flex flex-col  gap-1">

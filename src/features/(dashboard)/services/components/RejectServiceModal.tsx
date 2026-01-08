@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { FormInput } from "@/src/components/ui/FormInput";
-import { useGetReportTypes } from "@/src/features/(dashboard)/reports/hooks"; 
 import { Loader2 } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"; // في حال أردت إخفاء العنوان، لكننا سنستخدمه كعنوان ظاهر
 
@@ -22,21 +21,35 @@ export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading }: Re
     const [note, setNote] = useState<string>("");
     const [touched, setTouched] = useState(false); // لمعرفة هل حاول المستخدم الارسال
 
-    const { data: typesData, isLoading: isLoadingTypes } = useGetReportTypes();
-    const reasons = typesData?.data || [];
+    // استبدال useGetReportTypes بالقيم الثابتة
+    const reasons = [
+        "الوصف غير واضح أو ناقص",
+        "معلومات الخدمة غير دقيقة",
+        "يخالف سياسات وشروط المنصة",
+        "الخدمة مكررة أو مشابهة لخدمات موجودة",
+        "الجودة لا تتوافق مع معايير المنصة",
+        "صور أو وسائط غير مطابقة للمعايير"
+    ];
 
     // تحويل البيانات لتناسب ReusableDropdown
     const reasonOptions = useMemo(() => {
         return reasons.map((reason) => ({
-            label: reason.name,
-            value: String(reason.id),
+            label: reason,
+            value: reason, // القيمة هي نفس النص
         }));
-    }, [reasons]);
+    }, []);
 
     const handleConfirm = () => {
         setTouched(true);
-        if (!reasonId) return;
-        onConfirm(reasonId, note);
+        
+        // المنطق المطلوب: إذا تم ملء "سبب آخر" نستخدمه، وإلا نستخدم القائمة المنسدلة
+        const finalReason = note.trim() ? note.trim() : reasonId;
+
+        if (!finalReason) return; // يجب اختيار أحدهما على الأقل
+
+        // نرسل النص في الحقل الثاني (note/reason) ونترك الأول (id) فارغاً
+        // لأننا نرسل نصاً وليس ID قاعدة بيانات
+        onConfirm("", finalReason);
     };
 
     // إعادة تعيين الحالة عند الإغلاق
@@ -65,8 +78,8 @@ export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading }: Re
                             options={reasonOptions}
                             value={reasonId}
                             onChange={(val) => setReasonId(val)}
-                            placeholder={isLoadingTypes ? "جاري التحميل..." : "اختر من هنا السبب"}
-                            error={touched && !reasonId ? "يرجى اختيار سبب الرفض" : undefined}
+                            placeholder="اختر من هنا السبب"
+                            error={touched && !reasonId && !note.trim() ? "يرجى اختيار سبب الرفض أو كتابة سبب آخر" : undefined}
                             className="h-12"
                         />
                     </div>
@@ -74,7 +87,7 @@ export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading }: Re
                     {/* استبدال Input بـ FormInput */}
                     <div className="flex flex-col gap-1">
                         <FormInput
-                            label="التوضيح"
+                            label="سبب اخر"
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
                             placeholder="اكتب توضيح (اختياري)"

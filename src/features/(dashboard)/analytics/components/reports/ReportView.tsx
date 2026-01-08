@@ -106,7 +106,7 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: data?.customersGrowthChart || [],
                 topListName: "العملاء الأكثر تفاعلاً",
                 topListItems: data?.mostActiveCustomers?.map((item: any, i: number) => ({
-                    id: item.id, title: item.fullname, subtitle: "عميل مميز", image: item.avatar, rank: i + 1, badgeText: "150 تقييم", badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.full_name, subtitle: "عدد التقيمات", image: item.avatar, rank: i + 1, badgeText: item.review_count, badgeColor: "bg-green-100 text-green-700"
                 })) || []
             };
             break;
@@ -159,7 +159,7 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: data?.storesGrowthChart || [],
                 topListName: "المتاجر الأعلى تقييماً",
                 topListItems: data?.topRatedStores?.map((item: any, i: number) => ({
-                    id: item.id, title: item.name, subtitle: "عدد التقييمات", image: item.logo_url, rank: i + 1, badgeText: `${item.reviews_count || 50} تقييم`, badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.name, subtitle: "عدد التقييمات", image: item.logo_url, rank: i + 1, badgeText: `${item.review_rate || 50} تقييم`, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
                 bottomListName: "المتاجر الاعلي عدد بلاغات",
                 bottomListItems: data?.topReportedStores?.map((item: any, i: number) => ({

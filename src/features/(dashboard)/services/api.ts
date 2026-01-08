@@ -164,7 +164,6 @@ export interface ServicePayload {
 
 export interface ServiceStatusPayload {
   status: ServiceStatus;
-  reason_id?: number | string;
   reason?: string;
 }
 
