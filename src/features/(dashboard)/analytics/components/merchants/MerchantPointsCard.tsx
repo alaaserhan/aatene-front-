@@ -3,6 +3,7 @@
 
 import { Info, Coins, Loader2 } from "lucide-react";
 import { useGetStoreBalance } from "../../../coins/hooks";
+import Link from "next/link";
 
 export function MerchantPointsCard() {
     // Fetch balance using the hook
@@ -44,10 +45,10 @@ export function MerchantPointsCard() {
                 </div>
 
                 {/* Buy Points Button */}
-                <button className="flex items-center gap-2 bg-[#FFA600] hover:bg-[#BF360C] text-white w-3/4 justify-center cursor-pointer py-3 rounded-sm font-medium transition-colors shadow-lg">
+                <Link href={"/admin/coins/buy"} className="z-50 flex items-center gap-2 bg-[#FFA600] text-white w-3/4 justify-center cursor-pointer py-3 rounded-sm font-medium transition-colors shadow-lg">
                     <Coins className="w-5 h-5" />
                     <span>شراء النقط</span>
-                </button>
+                </Link>
             </div>
         </div>
     );

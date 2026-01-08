@@ -76,7 +76,7 @@ export const getStoreBalance = async (
 ): Promise<StoreBalanceResponse> => {
     // Assuming a different endpoint or query param based on your previous request logic, 
     // or you might need to update this URL if it was incorrect previously.
-    const endpoint = getDynamicEndpoint("/coins/packages"); 
+    const endpoint = getDynamicEndpoint("/coins/balance"); 
     const headers = getHeaders(storeId);
     const queryString = params ? `?${params.toString()}` : "";
     const { data } = await api.get<StoreBalanceResponse>(`${endpoint}${queryString}`, {
