@@ -24,6 +24,7 @@ import {
   Boxes,
   Newspaper,
   Heart,
+  Coins,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -114,6 +115,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "المدونات", icon: Newspaper, href: "/blogs", show: true },
     { label: "المتابعات", icon: Users, href: "/following", show: isMerchant },
     { label: "المفضله", icon: Heart, href: "/favorites", show: isAdmin },
+    { label: "السجل المالى", icon: Coins, href: "/financial-record", show: isMerchant }
 
 
   ];
