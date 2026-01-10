@@ -1,7 +1,7 @@
 // src/components/(merchant)/analytics/MerchantMostViewed.tsx
 "use client";
 
-import { Loader2, ChevronLeft, TrendingUp, Eye } from "lucide-react";
+import { Loader2, ChevronLeft, TrendingUp } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { useGetMerchantAnalyticsMostViewed } from "../../hooks";
@@ -17,23 +17,17 @@ interface ViewedItem {
 
 export function MerchantMostViewed() {
     const { data, isLoading } = useGetMerchantAnalyticsMostViewed();
-    
+
     // Combine products and services, prioritizing products
     const products = data?.mostViewedProducts || [];
     const services = data?.mostViewedServices || [];
-    
+
     // Merge and create unified list
     const items: ViewedItem[] = [
-        ...products.map(p => ({
-            id: p.id,
-            name: p.name,
-            cover_url: p.cover_url,
-            views_count: p.review_count || 0
-        })),
         ...services.map(s => ({
             id: s.id,
             name: s.title,
-            cover_url: s.images,
+            cover_url: s.images_urls[0] || undefined,
             views_count: s.views_count || 0
         }))
     ].slice(0, 10); // Limit to 10 items
@@ -66,14 +60,14 @@ export function MerchantMostViewed() {
                         {items.length > 0 ? (
                             items.map((item, index) => (
                                 <div key={`${item.id}-${index}`} className="flex items-center justify-between group">
-                                    
+
                                     {/* Right: Rank Number */}
                                     <div className="w-8 flex justify-center">
                                         <span className={cn(
                                             "text-lg font-bold",
-                                            index === 0 ? "text-green-500" : 
-                                            index === 1 ? "text-blue-500" : 
-                                            index === 2 ? "text-orange-500" : "text-gray-500"
+                                            index === 0 ? "text-green-500" :
+                                                index === 1 ? "text-blue-500" :
+                                                    index === 2 ? "text-orange-500" : "text-gray-500"
                                         )}>
                                             {index + 1}
                                         </span>
@@ -83,10 +77,10 @@ export function MerchantMostViewed() {
                                     <div className="flex items-center gap-3 flex-1">
                                         <div className="w-12 h-12 rounded-lg border border-gray-100 p-1 bg-white overflow-hidden flex items-center justify-center">
                                             {item.cover_url ? (
-                                                <img 
-                                                    src={item.cover_url} 
-                                                    alt={item.name} 
-                                                    className="w-full h-full object-cover rounded-md" 
+                                                <img
+                                                    src={item.cover_url}
+                                                    alt={item.name}
+                                                    className="w-full h-full object-cover rounded-md"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full bg-gray-50 rounded-md flex items-center justify-center text-[10px] text-gray-400">

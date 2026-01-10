@@ -168,6 +168,7 @@ export interface AnalyticsService {
     reports_count: number;
     views_count: string;
     created_at: string;
+    images_urls: string[];
 }
 
 export interface ServicesAnalyticsResponse extends BaseResponse {
