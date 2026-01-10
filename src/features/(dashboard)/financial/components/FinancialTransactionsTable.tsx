@@ -1,4 +1,4 @@
-import { Loader2, ArrowUpRight, ArrowDownLeft, Plus, CirclePlus, CircleMinus } from "lucide-react";
+import { Loader2, ArrowDownLeft, Plus, CirclePlus, CircleMinus } from "lucide-react";
 import { CoinTransaction } from "../../coins/api";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { cn } from "@/src/lib/utils";

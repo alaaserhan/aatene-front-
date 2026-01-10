@@ -37,6 +37,8 @@ export interface Product {
     review_count: string | number | null;
     is_favorite?: boolean;
     in_compare?: boolean;
+    created_at: string;
+    store: Store;
 }
 
 export interface Store {

@@ -4,6 +4,7 @@
 import { Loader2, Clock, ChevronLeft, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { useGetAnalyticsLatests } from "../hooks";
+import { getRelativeTimeArabic, formatDateArabic } from "@/src/lib/date-helper";
 
 export function LatestsProducts() {
     const { data, isLoading } = useGetAnalyticsLatests();
@@ -95,21 +96,21 @@ export function LatestsProducts() {
                                     {/* Merchant (Mocked as data is missing) */}
                                     <td className="py-4 px-4 text-center">
                                         <span className="text-sm font-semibold text-gray-700">
-                                            {/* {product.merchant_name || `تاجر ${index + 1}`} */}
+                                            {product.store.name || `تاجر ${index + 1}`}
                                         </span>
                                     </td>
 
-                                    {/* Time Ago (Mocked) */}
+                                    {/* Time Ago */}
                                     <td className="py-4 px-4 text-center">
                                         <span className="text-sm font-medium text-gray-600">
-                                            {index === 0 ? "منذ يومين" : "منذ شهر"}
+                                            {getRelativeTimeArabic(product.created_at)}
                                         </span>
                                     </td>
 
-                                    {/* Date (Mocked) */}
+                                    {/* Date */}
                                     <td className="py-4 px-4 text-center">
-                                        <span className="text-sm font-medium  ">
-                                            4/2/2025 - 05:00PM
+                                        <span className="text-sm font-medium  " dir="ltr">
+                                            {formatDateArabic(product.created_at)}
                                         </span>
                                     </td>
                                 </tr>

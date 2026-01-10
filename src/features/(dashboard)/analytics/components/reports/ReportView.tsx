@@ -56,9 +56,9 @@ export function ReportView({ type }: ReportViewProps) {
                     { key: "not_active_count", color: "#F59E0B", name: "منتجات في انتظار الموافقة" },
                 ],
                 chartData: data?.productsGrowthChart || [],
-                topListName: "المنتجات الأكثر تصفحاً",
+                topListName: "المنتجات الأكثر  تقيما",
                 topListItems: data?.topRatedProducts?.map((item: any, i: number) => ({
-                    id: item.id, title: item.name, subtitle: `${item.review_count || 0} تقييم`, image: item.cover_url, rank: i + 1, badgeText: "150 طلب", badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.name, subtitle: `${item.review_count || 0} تقييم`, image: item.cover_url, rank: i + 1, badgeColor: "bg-green-100 text-green-700"
                 })) || []
             };
             break;
@@ -82,7 +82,7 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: data?.servicesGrowthChart || [],
                 topListName: "الخدمات الأعلى تقييماً",
                 topListItems: data?.topRatedServices?.map((item: any, i: number) => ({
-                    id: item.id, title: item.title, subtitle: `${item.views_count || 0} مشاهدة`, image: null, rank: i + 1, badgeText: "150 تقييم", badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.title, subtitle: `${item.views_count || 0} مشاهدة`, image: item.images_urls[0], rank: i + 1, badgeText: "150 تقييم", badgeColor: "bg-green-100 text-green-700"
                 })) || []
             };
             break;
@@ -106,7 +106,7 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: data?.customersGrowthChart || [],
                 topListName: "العملاء الأكثر تفاعلاً",
                 topListItems: data?.mostActiveCustomers?.map((item: any, i: number) => ({
-                    id: item.id, title: item.full_name, subtitle: "عدد التقيمات", image: item.avatar, rank: i + 1, badgeText: item.review_count, badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.full_name, subtitle: "عدد التقيمات", image: item.avatar_url, rank: i + 1, badgeText: item.review_count, badgeColor: "bg-green-100 text-green-700"
                 })) || []
             };
             break;
@@ -159,7 +159,7 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: data?.storesGrowthChart || [],
                 topListName: "المتاجر الأعلى تقييماً",
                 topListItems: data?.topRatedStores?.map((item: any, i: number) => ({
-                    id: item.id, title: item.name, subtitle: "عدد التقييمات", image: item.logo_url, rank: i + 1, badgeText: `${item.review_rate || 50} تقييم`, badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.name, subtitle: "عدد التقييمات", image: item.cover_urls[0], rank: i + 1, badgeText: `${item.review_rate || 50} تقييم`, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
                 bottomListName: "المتاجر الاعلي عدد بلاغات",
                 bottomListItems: data?.topReportedStores?.map((item: any, i: number) => ({
