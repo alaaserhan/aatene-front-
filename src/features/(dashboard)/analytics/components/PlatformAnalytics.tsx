@@ -69,6 +69,7 @@ export function PlatformAnalytics() {
     const [period, setPeriod] = useState("current_month");
 
     const periodOptions = [
+        { label: "الكل", value: "all_time" },
         { label: "اليوم الحالي", value: "current_day" },
         { label: "أمس", value: "last_day" },
         { label: "الأسبوع الحالي", value: "current_week" },

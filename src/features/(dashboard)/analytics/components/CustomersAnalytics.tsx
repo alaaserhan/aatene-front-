@@ -19,7 +19,7 @@ export function CustomersAnalytics() {
     const [period, setPeriod] = useState("last_year");
 
     const periodOptions = [
-        // { label: "الكل", value: "" },
+        { label: "الكل", value: "all_time" },
         { label: "اليوم الحالي", value: "current_day" },
         { label: "أمس", value: "last_day" },
         { label: "الأسبوع الحالي", value: "current_week" },

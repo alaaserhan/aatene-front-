@@ -37,7 +37,7 @@ export function usePurchaseCoinsPackage() {
         mutationFn: (body: api.PurchasePackageRequest) => api.purchaseCoinsPackage(body),
         onSuccess: (data) => {
             toast.success(data.message || "تم شراء الباقة بنجاح");
-            
+
             // Invalidate queries to refresh balance and transaction history
             queryClient.invalidateQueries({ queryKey: ["coins", "balance"] });
             queryClient.invalidateQueries({ queryKey: ["coins", "transactions"] });
@@ -45,5 +45,21 @@ export function usePurchaseCoinsPackage() {
         onError: (error) => {
             toast.error("حدث خطأ أثناء عملية الشراء");
         },
+    });
+}
+
+// 5. Hook for Coins Growth (NEW)
+export function useGetCoinsGrowth(period: string = "all_time", storeId?: number | string) {
+    return useQuery({
+        queryKey: ["coins", "growth", period, storeId],
+        queryFn: () => api.getCoinsGrowth(period, storeId),
+    });
+}
+
+// 6. Hook for General Coins Stats (NEW)
+export function useGetCoinsGeneral(storeId?: number | string) {
+    return useQuery({
+        queryKey: ["coins", "general", storeId],
+        queryFn: () => api.getCoinsGeneral(storeId),
     });
 }

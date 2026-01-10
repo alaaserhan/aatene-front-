@@ -42,7 +42,7 @@ export interface StoreBalanceResponse extends BaseResponse {
 export interface TransactionsListResponse extends BaseResponse {
     recordsTotal: number;
     recordsFiltered: number;
-    data: CoinTransaction[];
+    transactions: CoinTransaction[];
 }
 
 // 3. Purchase Response
@@ -76,7 +76,7 @@ export const getStoreBalance = async (
 ): Promise<StoreBalanceResponse> => {
     // Assuming a different endpoint or query param based on your previous request logic, 
     // or you might need to update this URL if it was incorrect previously.
-    const endpoint = getDynamicEndpoint("/coins/balance"); 
+    const endpoint = getDynamicEndpoint("/coins/balance");
     const headers = getHeaders(storeId);
     const queryString = params ? `?${params.toString()}` : "";
     const { data } = await api.get<StoreBalanceResponse>(`${endpoint}${queryString}`, {
@@ -119,6 +119,46 @@ export const purchaseCoinsPackage = async (
     const endpoint = getDynamicEndpoint("/coins/purchase");
     const headers = getHeaders(storeId);
     const { data } = await api.post<PurchasePackageResponse>(endpoint, body, {
+        headers,
+    });
+    return data;
+};
+
+// 5. Get Coins Growth (NEW)
+export interface CoinsGrowthResponse extends BaseResponse {
+    period: string;
+    growth_chart: {
+        date: string;
+        gained_coins: number;
+        spent_coins: number;
+    }[];
+}
+
+export const getCoinsGrowth = async (
+    period: string = "all_time",
+    storeId?: number | string
+): Promise<CoinsGrowthResponse> => {
+    const endpoint = getDynamicEndpoint("/coins/growth");
+    const headers = getHeaders(storeId);
+    const { data } = await api.get<CoinsGrowthResponse>(`${endpoint}?period=${period}`, {
+        headers,
+    });
+    return data;
+};
+
+// 6. Get General Coins Stats (NEW)
+export interface CoinsGeneralResponse extends BaseResponse {
+    total_bought_coins: number;
+    total_spent_coins: number;
+    current_balance: number;
+}
+
+export const getCoinsGeneral = async (
+    storeId?: number | string
+): Promise<CoinsGeneralResponse> => {
+    const endpoint = getDynamicEndpoint("/coins/general");
+    const headers = getHeaders(storeId);
+    const { data } = await api.get<CoinsGeneralResponse>(endpoint, {
         headers,
     });
     return data;
