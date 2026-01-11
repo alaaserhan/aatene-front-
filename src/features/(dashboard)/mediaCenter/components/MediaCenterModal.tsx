@@ -58,9 +58,9 @@ export function MediaCenterModal({
   onOpenChange,
   onSelect,
   multiple = false,
-  accept = "image/png,image/jpeg,image/jpg",
+  accept = "image/png,image/jpeg,image/jpg,image/webp,image/gif,image/avif,video/mp4,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/3gpp,video/3gpp2,video/mp2t,video/ogg,video/quicktime,video/webm",
   uploadPrimaryText = "أضف أو اسحب صورة أو فيديو",
-  uploadSecondaryText = "PNG, JPG, JPEG",
+  uploadSecondaryText = "PNG, JPG, JPEG , WP4",
   allowedMediaTypes,
   selectionLimit,
 }: MediaCenterModalProps) {

@@ -24,7 +24,7 @@ interface ImageGallerySelectorProps {
     itemWidth?: number;
     itemHeight?: number;
     // containerMinHeight?: number; // لم نعد بحاجة لهذا الـ Prop بالشكل القديم
-    allowedMediaTypes?: ("image" | "gallery" | "avatar")[];
+    allowedMediaTypes?: ("image" | "gallery" | "avatar" | "video")[];
     className?: string;
 }
 
@@ -133,6 +133,10 @@ export function ImageGallerySelector({
 
     const cardHeight = itemHeight + 35;
 
+    const isVideoUrl = (url: string) => {
+        return /\.(mp4|webm|ogg|mov)$/i.test(url);
+    };
+
     return (
         <div className={cn("space-y-3", className)}>
             {(label || subLabel) && (
@@ -172,11 +176,20 @@ export function ImageGallerySelector({
                             className="w-full bg-gray-100 relative group"
                             style={{ height: `${itemHeight}px` }}
                         >
-                            <img
-                                src={item.url}
-                                alt={`Image ${index + 1}`}
-                                className="w-full h-full object-cover"
-                            />
+                            {isVideoUrl(item.url) ? (
+                                <video
+                                    src={item.url}
+                                    className="w-full h-full object-cover"
+                                    controls={false}
+                                    muted
+                                />
+                            ) : (
+                                <img
+                                    src={item.url}
+                                    alt={`Image ${index + 1}`}
+                                    className="w-full h-full object-cover"
+                                />
+                            )}
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                                 <GripHorizontal className="text-white w-6 h-6 drop-shadow-md" />
                             </div>

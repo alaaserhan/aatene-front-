@@ -1,0 +1,525 @@
+// src/features/(dashboard)/content-management/components/ContentInterfaceTab.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { useForm, useFieldArray, Control, Controller, UseFormRegister, UseFormWatch, UseFormSetValue, FieldArrayPath, UseFormTrigger } from "react-hook-form";
+import { Loader2, Plus, GripHorizontal } from "lucide-react";
+import Image from "next/image";
+import {
+    useGetContentInterface,
+    useUpdateContentInterface
+} from "../hook";
+import {
+    ContentInterfaceData,
+    SectionItem
+} from "../api";
+
+import { cn } from "@/src/lib/utils";
+import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
+import { FormInput } from "@/src/components/ui/FormInput";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/src/components/ui/dialog";
+
+// --- Sub-components for Form Sections ---
+
+// 1. Reusable Card Wrapper
+const SectionCard = ({
+    title,
+    children,
+    className
+}: {
+    title: string;
+    children: React.ReactNode;
+    className?: string
+}) => (
+    <div className={cn("bg-white rounded-xl border border-gray-200 p-4", className)}>
+        <div className="flex items-center gap-2 mb-6">
+            <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center relative">
+                <Image src="/icons/dashboard/check.svg" alt="Check" width={12} height={12} className="w-3" />
+            </div>
+            <h3 className="font-medium text-xl">{title}</h3>
+        </div>
+        <div className="space-y-6">
+            {children}
+        </div>
+    </div>
+);
+
+
+
+// Helper for Image Field with Controller
+const ImageField = ({
+    control,
+    name,
+    label,
+    setValue,
+    watch
+}: {
+    control: Control<ContentInterfaceData>;
+    name: string;
+    label?: string;
+    setValue: UseFormSetValue<ContentInterfaceData>;
+    watch: UseFormWatch<ContentInterfaceData>;
+}) => {
+    const imageUrl = watch(`${name}.image_url` as any);
+
+    return (
+        <Controller
+            control={control}
+            name={`${name}.image` as any}
+            render={({ field: { value, onChange } }) => (
+                <ImageGallerySelector
+                    label={label}
+                    value={typeof value === 'string' ? [value] : []}
+                    previews={typeof imageUrl === 'string' ? [imageUrl] : (typeof value === 'string' ? [value] : [])}
+                    maxFiles={1}
+                    showMainSelector={false}
+                    onChange={(files, urls) => {
+                        const fileName = files[0] || null;
+                        const src = urls[0] || null;
+
+                        onChange(fileName);
+                        setValue(`${name}.image_url` as any, src, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+                    }}
+                />
+            )}
+        />
+    );
+};
+
+
+// 3. Dynamic Section Item Form (Item in a list)
+const SectionItemForm = ({
+    index,
+    control,
+    register,
+    onRemove,
+    titlePrefix,
+    itemValues,
+    defaultOpen = false,
+    setValue,
+    watch,
+    errors,
+    onConsumeAutoOpen,
+    trigger
+}: {
+    index: number;
+    control: Control<ContentInterfaceData>;
+    register: UseFormRegister<ContentInterfaceData>;
+    onRemove: () => void;
+    titlePrefix: string;
+    itemValues: SectionItem;
+    defaultOpen?: boolean;
+    setValue: UseFormSetValue<ContentInterfaceData>;
+    watch: UseFormWatch<ContentInterfaceData>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    errors: any;
+    onConsumeAutoOpen?: () => void;
+    trigger: UseFormTrigger<ContentInterfaceData>;
+}) => {
+    const [isEditOpen, setIsEditOpen] = useState(defaultOpen);
+
+    // Reset the auto-open trigger in parent once consumed
+    useEffect(() => {
+        if (defaultOpen && onConsumeAutoOpen) {
+            onConsumeAutoOpen();
+        }
+    }, [defaultOpen, onConsumeAutoOpen]);
+
+    const handleSave = async () => {
+        // Validate specifically the fields in this item
+        const isValid = await trigger([
+            `${titlePrefix}[${index}].title` as any,
+            `${titlePrefix}[${index}].content` as any
+        ]);
+
+        if (isValid) {
+            setIsEditOpen(false);
+        }
+    };
+
+    // Access errors for this specific item
+    // Assuming structure: errors[titlePrefix][index].title
+    const itemErrors = errors?.[titlePrefix]?.[index];
+
+    return (
+        <>
+            {/* List View Card */}
+            <div className="bg-white rounded-lg p-4 border border-gray-100 flex items-center justify-between group  transition-all">
+                <div className="flex items-center gap-4">
+                    {/* Icon/Image Preview */}
+                    <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 text-gray-400 relative">
+                        {itemValues?.image_url ? (
+                            <Image src={itemValues.image_url} alt="" fill className="object-cover" />
+                        ) : (
+                            <GripHorizontal className="w-5 h-5" />
+                        )}
+                    </div>
+                    <div>
+                        <h4 className="font-bold  text-sm mb-1">{itemValues?.title || "بدون عنوان"}</h4>
+                        <p className="text-xs text-gray-500 max-w-[300px] truncate">{itemValues?.content || "لا يوجد وصف"}</p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setIsEditOpen(true)}
+                        className="px-3 py-1.5 bg-(--blue-4)/10 text-(--blue-4) rounded-md text-xs font-medium hover:bg-(--blue-4)/20 transition-colors flex items-center gap-1 cursor-pointer"
+                    >
+                        <span>تعديل</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onRemove}
+                        className="px-3 py-1.5  rounded-sm text-xs font-medium bg-red-2 text-red-1 transition-colors cursor-pointer"
+                    >
+                        حذف
+                    </button>
+                </div>
+            </div>
+
+            {/* Edit Modal */}
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent className="sm:max-w-[600px] w-full max-h-[90vh] overflow-y-auto" dir="rtl">
+                    <DialogHeader>
+                        <DialogTitle>تعديل القسم</DialogTitle>
+                    </DialogHeader>
+
+                    <div className="pt-4  space-y-4">
+                        <div className="space-y-4">
+                            <FormInput
+                                label="عنوان القسم"
+                                {...register(`${titlePrefix}[${index}].title` as any, { required: "عنوان القسم مطلوب" })}
+                                placeholder="أكتب عنوان القسم..."
+                                required
+                                error={itemErrors?.title?.message}
+                            />
+                            <FormInput
+                                label="وصف القسم"
+                                {...register(`${titlePrefix}[${index}].content` as any, { required: "وصف القسم مطلوب" })}
+                                placeholder="أكتب وصف القسم..."
+                                required
+                                error={itemErrors?.content?.message}
+                            />
+                        </div>
+
+                        <div className="w-full">
+                            <ImageField
+                                control={control}
+                                name={`${titlePrefix}[${index}]`}
+                                label="أرفق صورة"
+                                setValue={setValue}
+                                watch={watch}
+                            />
+                        </div>
+
+                        <div className="pt-4 flex ">
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                className="px-6 py-2 bg-(--blue-4) text-white rounded-lg text-sm font-medium hover:bg-(--blue-4)/90 cursor-pointer w-full"
+                            >
+                                حفظ
+                            </button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
+};
+
+
+// 4. Dynamic List Manager
+const DynamicListSection = ({
+    control,
+    register,
+    name,
+    label,
+    watch,
+    setValue,
+    errors,
+    trigger
+}: {
+    control: Control<ContentInterfaceData>;
+    register: UseFormRegister<ContentInterfaceData>;
+    name: FieldArrayPath<ContentInterfaceData>;
+    label: string;
+    watch: UseFormWatch<ContentInterfaceData>;
+    setValue: UseFormSetValue<ContentInterfaceData>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    errors: any;
+    trigger: UseFormTrigger<ContentInterfaceData>;
+}) => {
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: name
+    });
+
+    const [newlyAddedIndex, setNewlyAddedIndex] = useState<number | null>(null);
+
+    // Watch values to update list preview
+    const watchedValues = watch(name);
+
+    const handleAdd = () => {
+        setNewlyAddedIndex(fields.length);
+        append({ title: "", content: "", image: null, image_url: null } as any);
+    };
+
+    return (
+        <div className="space-y-4">
+            <h4 className="font-medium  text-base mb-2">{label}</h4>
+
+            <div className="space-y-3">
+                {fields.map((field, index) => (
+                    <SectionItemForm
+                        key={field.id}
+                        index={index}
+                        control={control}
+                        register={register}
+                        titlePrefix={name}
+                        onRemove={() => remove(index)}
+                        itemValues={watchedValues?.[index] || {}}
+                        defaultOpen={index === newlyAddedIndex}
+                        setValue={setValue}
+                        watch={watch}
+                        errors={errors}
+                        onConsumeAutoOpen={() => setNewlyAddedIndex(null)}
+                        trigger={trigger}
+                    />
+                ))}
+            </div>
+
+            {fields.length === 0 && (
+                <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                    <p className="text-gray-400 text-sm">لا توجد أقسام حاليا</p>
+                </div>
+            )}
+
+            <button
+                type="button"
+                onClick={handleAdd}
+                className="w-full py-3 bg-white text-(--blue-4) rounded-lg border border-dashed border-(--blue-4)/30 flex items-center justify-center gap-2 hover:bg-(--blue-4)/5 transition-colors font-medium text-sm mt-4 cursor-pointer"
+            >
+                <Plus className="w-4 h-4" />
+                <span>أضف قسم جديد</span>
+            </button>
+        </div>
+    );
+}
+
+
+// --- Main Component ---
+
+export function ContentInterfaceTab() {
+    const { data: serverData, isLoading } = useGetContentInterface();
+    const { mutate: updateContent, isPending } = useUpdateContentInterface();
+
+    const form = useForm<ContentInterfaceData>({
+        defaultValues: {
+            section_intro_content: "",
+            section_about_us: { content: "", image: null },
+            section_vision: { vision: "", message: "", goals: "", image: null },
+            section_why_us: [],
+            section_merchants: { title: "", content: "", sections: [] },
+            section_customers: { title: "", content: "", sections: [] },
+        }
+    });
+
+    const { register, control, handleSubmit, reset, watch, setValue, trigger, formState: { errors } } = form;
+
+    // Sync data when loaded
+    useEffect(() => {
+        if (serverData?.data) {
+            reset(serverData.data);
+        }
+    }, [serverData, reset]);
+
+    const onSubmit = (data: ContentInterfaceData) => {
+        updateContent(data);
+    };
+
+    if (isLoading) {
+        return <div className="flex h-[400px] items-center justify-center"><Loader2 className="animate-spin text-blue-500 w-8 h-8" /></div>;
+    }
+
+    return (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 pb-32">
+
+            {/* 1. Intro Section */}
+            <SectionCard title="القسم التعريفي">
+                <FormInput
+                    label="أضف نص يصف تعريف بسيط عنا"
+                    {...register("section_intro_content", { required: "النص التعريفي للقسم مطلوب" })}
+                    placeholder="الوريم ابسوم دولار سيت اميت..."
+                    required
+                    containerClassName="w-full"
+                    error={errors.section_intro_content?.message}
+                />
+            </SectionCard>
+
+            {/* 2. About Us Section */}
+            <SectionCard title="قسم من نحن">
+                <div className="flex flex-col gap-4">
+                    <div className="w-full">
+                        <FormInput
+                            label="أضف النص الخاص بالقسم هنا"
+                            {...register("section_about_us.content", { required: "النص التعريفي للقسم مطلوب" })}
+                            placeholder="الوريم ابسوم..."
+                            required
+                            containerClassName="w-full"
+                            error={errors.section_about_us?.content?.message}
+                        />
+                    </div>
+                    {/* Image at bottom full width */}
+                    <div className="w-full">
+                        <div className=" text-sm font-medium mb-2 ">الصورة المرفقة</div>
+                        <ImageField control={control} name="section_about_us" label="" setValue={setValue} watch={watch} />
+                    </div>
+                </div>
+            </SectionCard>
+
+            {/* 3. Vision Section */}
+            <SectionCard title="قسم رؤيتنا ورسالتنا">
+                <div className="flex flex-col gap-4">
+                    <div className="w-full space-y-4">
+                        <FormInput
+                            label="الرؤية"
+                            {...register("section_vision.vision")}
+                            placeholder="النهضة بقطاع..."
+                        />
+                        <FormInput
+                            label="الرسالة"
+                            {...register("section_vision.message")}
+                            placeholder="المساهمة في إنشاء..."
+                        />
+                        <FormInput
+                            label="الاهداف"
+                            {...register("section_vision.goals")}
+                            placeholder="المساعدة, دعم المتاجر..."
+                        />
+                    </div>
+                    {/* Image at bottom full width */}
+                    <div className="w-full">
+                        <div className=" text-sm font-medium mb-2 "> الصورة المرفقة</div>
+                        <ImageField control={control} name="section_vision" label="" setValue={setValue} watch={watch} />
+                    </div>
+                </div>
+            </SectionCard>
+
+            {/* 4. Why Us Section */}
+            <SectionCard title="قسم لماذا نحن">
+                <FormInput
+                    label="أضف اقسام التي ترغب بالتحدث عنها"
+                    {...register("section_why_us")}
+                    placeholder=""
+                    containerClassName="hidden"
+                />
+                <DynamicListSection
+                    control={control}
+                    register={register}
+                    name="section_why_us"
+                    label="أضف الأقسام التي ترغب بالتحدث عنها"
+                    watch={watch}
+                    setValue={setValue}
+                    errors={errors}
+                    trigger={trigger}
+                />
+            </SectionCard>
+
+            {/* 5. Merchants Section */}
+            <SectionCard title="إدارة التجار">
+                <div className="space-y-8">
+                    {/* Main Info */}
+                    <div className="space-y-4">
+                        <FormInput
+                            label="عنوان القسم"
+                            {...register("section_merchants.title", { required: "عنوان القسم مطلوب" })}
+                            placeholder="عندك خدمة أو منتج؟ خلي الناس القريبين يشتروا منك بسهولة"
+                            required
+                            error={errors?.section_merchants?.title?.message}
+                        />
+                        <FormInput
+                            label="النص التعريفي للقسم"
+                            {...register("section_merchants.content", { required: "النص التعريفي للقسم مطلوب" })}
+                            placeholder="منصة مخصصة لأصحاب المشاريع الصغيرة، الحرفيين، وبائعي المنتجات والخدمات. نوصلك مباشرةً بعملاء منطقتك بطريقة سهلة وسريعة، مع دعم مستمر وأدوات تساعدك على عرض منتجاتك وزيادة مبيعاتك."
+                            required
+                            error={errors?.section_merchants?.content?.message}
+                        />
+                    </div>
+
+                    {/* Sub Sections */}
+                    <div className="pt-4 border-t border-gray-100">
+                        <DynamicListSection
+                            control={control}
+                            register={register}
+                            name="section_merchants.sections"
+                            label="أضف الأقسام التي ترغب بالتحدث عنها"
+                            watch={watch}
+                            setValue={setValue}
+                            errors={errors}
+                            trigger={trigger}
+                        />
+                    </div>
+                </div>
+            </SectionCard>
+
+            {/* 6. Customers Section */}
+            <SectionCard title="إدارة المشتريين">
+                <div className="space-y-8">
+                    {/* Main Info */}
+                    <div className="space-y-4">
+                        <FormInput
+                            label="عنوان القسم"
+                            {...register("section_customers.title", { required: "عنوان القسم مطلوب" })}
+                            placeholder="بدك تشتري من أهل بلدك؟"
+                            required
+                            error={errors?.section_customers?.title?.message}
+                        />
+                        <FormInput
+                            label="النص التعريفي للقسم"
+                            {...register("section_customers.content", { required: "النص التعريفي للقسم مطلوب" })}
+                            placeholder="في أعطيني تلاقي كل احتياجاتك في مكان واحد، من منتجات وخدمات محلية موثوقة. تقدر تتواصل مباشرة مع البائع، تطلب بسهولة، وتستلم بسرعة وبأسعار تناسب ميزانيتك."
+                            required
+                            error={errors?.section_customers?.content?.message}
+                        />
+                    </div>
+
+                    {/* Sub Sections */}
+                    <div className="pt-4 border-t border-gray-100">
+                        <DynamicListSection
+                            control={control}
+                            register={register}
+                            name="section_customers.sections"
+                            label="أضف الأقسام التي ترغب بالتحدث عنها"
+                            watch={watch}
+                            setValue={setValue}
+                            errors={errors}
+                            trigger={trigger}
+                        />
+                    </div>
+                </div>
+            </SectionCard>
+
+            {/* Global Save Button */}
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 flex justify-center z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                <div className="w-full max-w-3xl px-6">
+                    <button
+                        type="submit"
+                        disabled={isPending}
+                        className="w-full bg-(--blue-4) text-white rounded-sm py-2.5 font-medium  hover:bg-(--blue-4)/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                        {isPending && <Loader2 className="animate-spin w-5 h-5" />}
+                        <span>حفظ التعديلات</span>
+                    </button>
+                </div>
+            </div>
+
+        </form>
+    );
+}

@@ -39,9 +39,10 @@ export const FormInput = forwardRef<
   showCounter = false,
   className = "",
   containerClassName = "",
+  multiline,
   ...props
 }, ref) => {
-  const isMultiline = 'multiline' in props && props.multiline;
+  const isMultiline = multiline;
   const value = String(props.value || '');
   const currentLength = value.length;
 
