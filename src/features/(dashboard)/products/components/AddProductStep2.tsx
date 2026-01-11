@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, KeyboardEvent, useMemo, useEffect } from "react";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Plus } from "lucide-react";
 import Cookies from "js-cookie";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { ProductFormActions } from "./ProductFormActions";
@@ -10,11 +10,20 @@ import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Tooltip } from "@/src/components/ui/Tooltip";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { useGetStores } from "../../stores/hooks";
-import { useGetSections } from "../../sections/hooks";
+import { useGetSections, useCreateSection } from "../../sections/hooks";
 import { Step1FormData, Step2FormData } from "../types";
 import { toast } from "sonner";
 import { Label } from "@/src/components/ui/label";
 import { Stepper } from "@/src/components/ui/Stepper";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/src/components/ui/dialog";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
 
 interface ExtendedStep2FormData extends Step2FormData {
   section_id?: number;
@@ -55,6 +64,10 @@ export function AddProductStep2({
 
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isAddSectionOpen, setIsAddSectionOpen] = useState(false);
+  const [newSectionName, setNewSectionName] = useState("");
+
+  const createSection = useCreateSection();
 
   // تم تغيير per_page إلى 1000 لجلب كل المتاجر مرة واحدة وحل مشكلة التعديل
   const storesQueryParams = useMemo(() => {
@@ -192,6 +205,26 @@ export function AddProductStep2({
     });
   };
 
+  const handleAddSection = async () => {
+    if (!newSectionName.trim()) return;
+
+    try {
+      await createSection.mutateAsync({
+        payload: {
+          name: newSectionName.trim(),
+          status: "active",
+          store_id: Number(formData.store_id),
+        },
+        storeId: formData.store_id,
+      });
+
+      setNewSectionName("");
+      setIsAddSectionOpen(false);
+    } catch {
+      // الخطأ يُعالج في الـ hook
+    }
+  };
+
   const keywordsDescription = `الكلمات المفتاحية هي مصطلحات أو عبارات تصف محتوى الصفحة أو الموضوع. وتستخدم لتحسين البحث والوصول للمحتوى بسهولة. مثل: "موبايل", "سامسونج" ,"حذاء أحمر", "الكترونيات".`;
 
   return (
@@ -238,20 +271,34 @@ export function AddProductStep2({
                       القسم
                       <span className="text-red-500">*</span>
                     </Label>
-                    <ReusableDropdown
-                      options={sectionOptions}
-                      value={
-                        formData.section_id ? String(formData.section_id) : ""
-                      }
-                      onChange={(value) =>
-                        setFormData({ ...formData, section_id: Number(value) })
-                      }
-                      placeholder={
-                        isSectionsLoading ? "جاري التحميل..." : "اختر القسم..."
-                      }
-                      error={errors.section_id}
-                      className="h-11"
-                    />
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <ReusableDropdown
+                          options={sectionOptions}
+                          value={
+                            formData.section_id ? String(formData.section_id) : ""
+                          }
+                          onChange={(value) =>
+                            setFormData({ ...formData, section_id: Number(value) })
+                          }
+                          placeholder={
+                            isSectionsLoading ? "جاري التحميل..." : "اختر القسم..."
+                          }
+                          error={errors.section_id}
+                          className="h-11"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setIsAddSectionOpen(true)}
+                        className="h-11 w-11 shrink-0 border-gray-200 hover:bg-gray-50"
+                        title="إضافة قسم جديد"
+                      >
+                        <Plus className="h-5 w-5" />
+                      </Button>
+                    </div>
                     {!errors.section_id && (
                       <p className="text-xs text-gray-400">
                         حدد القسم الذي ينتمي إليه هذا المنتج داخل المتجر.
@@ -335,6 +382,49 @@ export function AddProductStep2({
         onSaveDraft={onSaveDraft}
         showSaveDraft={showSaveDraft}
       />
+
+      {/* Add Section Dialog */}
+      <Dialog open={isAddSectionOpen} onOpenChange={setIsAddSectionOpen}>
+        <DialogContent className="sm:max-w-lg" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-medium ">
+              أضف قسم جديد
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="grid gap-6 py-4">
+            <div className="grid gap-3">
+              <Label htmlFor="section-name" className="text-right font-medium ">
+                اسم القسم
+              </Label>
+              <Input
+                id="section-name"
+                value={newSectionName}
+                onChange={(e) => setNewSectionName(e.target.value)}
+                placeholder="اكتب اسم القسم هنا"
+                className="w-full px-4 py-3 border-gray-200 rounded-lg focus:border-brand-blue-2"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddSection();
+                  }
+                }}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              onClick={handleAddSection}
+              disabled={!newSectionName.trim() || createSection.isPending}
+              className="w-full px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer"
+              style={{ backgroundColor: 'var(--blue-3)' }}
+            >
+              {createSection.isPending ? "جاري الحفظ..." : "حفظ"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

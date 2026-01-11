@@ -25,6 +25,7 @@ export interface SectionsResponse extends BaseResponse {
 export interface SectionCreatePayload {
   name: string;
   status: "active" | "not-active";
+  store_id?: number;
 }
 
 export type SectionUpdatePayload = SectionCreatePayload;
@@ -35,7 +36,7 @@ export const getSections = async (
 ): Promise<SectionsResponse> => {
   const endpoint = getDynamicEndpoint("/sections");
   const headers = storeId ? { storeId: String(storeId) } : undefined;
-  
+
   const { data } = await api.get<SectionsResponse>(
     `${endpoint}?${params.toString()}`,
     { headers }
