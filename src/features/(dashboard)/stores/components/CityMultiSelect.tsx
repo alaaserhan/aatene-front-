@@ -49,7 +49,7 @@ export function CityMultiSelect({
     <div className="space-y-4">
       <div className="space-y-2">
         <label className="text-sm font-medium text-start block">
-          المدينة
+          المدينة <span className="text-red-500">*</span>
         </label>
         <ReusableDropdown
           options={dropdownOptions}

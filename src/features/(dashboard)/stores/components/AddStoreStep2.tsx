@@ -55,14 +55,14 @@ export function AddStoreStep2({
     email: initialData?.email || "",
     locationCities: initialData?.locationCities
       ? (initialData.locationCities as unknown as (number | { id: number })[]).map((item) =>
-          typeof item === "object" ? item.id : item
-        )
+        typeof item === "object" ? item.id : item
+      )
       : [],
 
     serviceCities: initialData?.serviceCities
       ? (initialData.serviceCities as unknown as (number | { id: number })[]).map((item) =>
-          typeof item === "object" ? item.id : item
-        )
+        typeof item === "object" ? item.id : item
+      )
       : [],
     address: initialData?.address || "",
     owner_id: initialData?.owner_id || (!isAdmin && currentUserId ? currentUserId : 0),
@@ -101,9 +101,9 @@ export function AddStoreStep2({
   const ownersOptions = useMemo(() => {
     return usersData?.data
       ? usersData.data.map((user) => ({
-          label: `${user.first_name} ${user.last_name} (${user.email})`,
-          value: String(user.id),
-        }))
+        label: `${user.first_name} ${user.last_name} (${user.email})`,
+        value: String(user.id),
+      }))
       : [];
   }, [usersData]);
 
@@ -111,8 +111,8 @@ export function AddStoreStep2({
   const ownerDropdownOptions = isUsersLoading
     ? [{ value: "", label: "جاري البحث..." }]
     : ownersOptions.length > 0
-    ? ownersOptions
-    : [{ value: "", label: "لا يوجد مستخدمين" }];
+      ? ownersOptions
+      : [{ value: "", label: "لا يوجد مستخدمين" }];
 
   // ------------------------------
 
@@ -121,9 +121,9 @@ export function AddStoreStep2({
 
   const currencyOptions = currenciesData?.data
     ? currenciesData.data.map((currency) => ({
-        label: `${currency.name} (${currency.code})`,
-        value: String(currency.id),
-      }))
+      label: `${currency.name} (${currency.code})`,
+      value: String(currency.id),
+    }))
     : [];
 
   const { data: citiesData } = useGetCities(new URLSearchParams());
@@ -153,7 +153,7 @@ export function AddStoreStep2({
       newErrors.logo = "شعار المتجر مطلوب";
     }
 
-    if(formData.email.trim() === "") {
+    if (formData.email.trim() === "") {
       newErrors.email = "البريد الإلكتروني مطلوب";
     }
 
@@ -216,7 +216,7 @@ export function AddStoreStep2({
         ...formData,
         serviceCities: [...currentServiceCities, cityId],
       });
-      
+
       if (errors.serviceCities) {
         setErrors((prev) => {
           const newErrors = { ...prev };
@@ -271,7 +271,7 @@ export function AddStoreStep2({
                       logo: fileName,
                       logo_preview: src,
                     });
-                     if (errors.logo) setErrors({ ...errors, logo: "" });
+                    if (errors.logo) setErrors({ ...errors, logo: "" });
                   }}
                   error={errors.logo}
                 />
@@ -323,7 +323,7 @@ export function AddStoreStep2({
                   value={formData.email}
                   onChange={(e) => {
                     setFormData({ ...formData, email: e.target.value });
-                     if (errors.email) setErrors({ ...errors, email: "" });
+                    if (errors.email) setErrors({ ...errors, email: "" });
                   }}
                   placeholder="example@info.com"
                   error={errors.email}
@@ -372,7 +372,7 @@ export function AddStoreStep2({
                 {storeType === "services" && (
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">
-                      المناطق التي يمكنك العمل بها
+                      المناطق التي يمكنك العمل بها <span className="text-red-500">*</span>
                     </Label>
                     <ReusableDropdown
                       options={cityOptions.filter(
@@ -413,7 +413,7 @@ export function AddStoreStep2({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {isAdmin ? (
                     <div className="flex flex-col gap-2">
-                      <Label className="text-sm font-medium">المالك</Label>
+                      <Label className="text-sm font-medium">المالك <span className="text-red-500">*</span></Label>
                       <ReusableDropdown
                         placeholder="اختر المالك"
                         options={ownerDropdownOptions}
@@ -423,7 +423,7 @@ export function AddStoreStep2({
                             ...formData,
                             owner_id: value ? Number(value) : 0,
                           });
-                           if (errors.owner_id) setErrors({ ...errors, owner_id: "" });
+                          if (errors.owner_id) setErrors({ ...errors, owner_id: "" });
                         }}
                         error={errors.owner_id}
                         className="h-11"
@@ -441,7 +441,7 @@ export function AddStoreStep2({
                   )}
 
                   <div className="flex flex-col gap-2">
-                    <Label className="text-sm font-medium">العملة</Label>
+                    <Label className="text-sm font-medium">العملة <span className="text-red-500">*</span></Label>
                     <ReusableDropdown
                       options={currencyOptions}
                       value={formData.currency_id ? String(formData.currency_id) : ""}
@@ -520,6 +520,6 @@ export function AddStoreStep2({
           إلغاء
         </Button>
       </div>
-    </div>
+    </div >
   );
 }
