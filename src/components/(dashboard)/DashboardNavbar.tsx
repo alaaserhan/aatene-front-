@@ -98,19 +98,31 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     return null;
   });
 
-  const [storeType] = useState<string | null>(() => {
+  const [storeType, setStoreType] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
       return Cookies.get("store_type") || null;
     }
     return null;
   });
 
+  React.useEffect(() => {
+    const handleStoreUpdate = () => {
+      const newStoreId = Cookies.get("current_store_id") || null;
+      const newStoreType = Cookies.get("store_type") || null;
+      setActiveStoreId(newStoreId);
+      setStoreType(newStoreType);
+    };
+
+    window.addEventListener("store-info-updated", handleStoreUpdate);
+    return () => window.removeEventListener("store-info-updated", handleStoreUpdate);
+  }, []);
+
   const allNavItems: NavItem[] = [
     { label: "الرئيسة", icon: <img src={"/icons/dashboard/nav_home.svg"} alt="" />, href: "/home", show: true },
     { label: "المستخدمين", icon: <img src={"/icons/dashboard/nav_users.svg"} alt="" />, href: "/users", show: isAdmin },
     { label: "المتاجر", icon: <img src={"/icons/dashboard/nav_stores.svg"} alt="" />, href: "/stores", show: true },
-    { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: !isMerchant || (isMerchant && storeType !== "services") },
-    { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && storeType !== "products" },
+    { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: !isMerchant || (isMerchant && storeType === "products") },
+    { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && storeType === "services" },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: isAdmin },
     { label: "الفئات", icon: Boxes, href: "/categories", show: true },
     { label: "الإعدادات", icon: Settings, href: "/settings", show: isAdmin },

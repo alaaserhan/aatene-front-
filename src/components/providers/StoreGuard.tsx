@@ -32,6 +32,8 @@ export function StoreGuard({ children }: { children: ReactNode }) {
                 if (response.data && response.data.length > 0) {
                     Cookies.set("current_store_id", response.data[0].id.toString(), { expires: 365 });
                     Cookies.set("store_type", response.data[0].type, { expires: 365 });
+                    // Dispatch event to notify other components (e.g. Navbar)
+                    window.dispatchEvent(new Event("store-info-updated"));
                 }
             } catch (error) {
                 console.error("StoreGuard: Failed to fetch stores:", error);
