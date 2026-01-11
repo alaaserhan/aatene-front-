@@ -13,11 +13,20 @@ import { HelpCircle } from "lucide-react";
 import { Step1ServiceData } from "../types";
 import { cn } from "@/src/lib/utils";
 import { useGetCategories } from "../../categoriesAndAttributes/hooks";
-import { useGetSections } from "../../sections/hooks"; // استيراد هوك الأقسام
+import { useGetSections, useCreateSection } from "../../sections/hooks"; // استيراد هوك الأقسام
 import { Stepper } from "@/src/components/ui/Stepper";
 import { ServicePreviewSidebar } from "./ServicePreviewSidebar";
 import { useGetSingleStore } from "../../stores/hooks";
 import { toast } from "sonner";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/src/components/ui/dialog";
 
 interface AddServiceStep1Props {
   initialData?: Step1ServiceData;
@@ -66,6 +75,10 @@ export function AddServiceStep1({
   const [specialtyInput, setSpecialtyInput] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isAddSectionOpen, setIsAddSectionOpen] = useState(false);
+  const [newSectionName, setNewSectionName] = useState("");
+
+  const createSection = useCreateSection();
 
   // --- Fetch Categories ---
   const categoriesQueryParams = useMemo(() => {
@@ -189,6 +202,26 @@ export function AddServiceStep1({
     setFormData(prev => ({ ...prev, tags: prev.tags.filter(i => i !== itemToRemove) }));
   };
 
+  const handleAddSection = async () => {
+    if (!newSectionName.trim()) return;
+
+    try {
+      await createSection.mutateAsync({
+        payload: {
+          name: newSectionName.trim(),
+          status: "active",
+          store_id: Number(storeId),
+        },
+        storeId: Number(storeId),
+      });
+
+      setNewSectionName("");
+      setIsAddSectionOpen(false);
+    } catch {
+      // Error handled in hook
+    }
+  };
+
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.title.trim()) newErrors.title = "عنوان الخدمة مطلوب";
@@ -204,12 +237,12 @@ export function AddServiceStep1({
     } else {
       const firstError = Object.keys(errors)[0];
       // التمرير إلى العنصر الذي يحتوي على الخطأ أو اسم الحقل
-      const element = document.getElementsByName(firstError)[0] || document.getElementById(firstError); 
+      const element = document.getElementsByName(firstError)[0] || document.getElementById(firstError);
       element?.scrollIntoView({ behavior: "smooth", block: "center" });
-      
+
       // Fallback scroll if specific element not found (e.g. dropdowns sometimes don't have name attr on container)
-      if(!element) {
-         window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (!element) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   };
@@ -219,7 +252,7 @@ export function AddServiceStep1({
       categorySectionRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
       setTimeout(() => {
         categoryDropdownRef.current?.open();
-      }, 500); 
+      }, 500);
     }
   };
 
@@ -248,7 +281,7 @@ export function AddServiceStep1({
           <div className="col-span-12 lg:col-span-8">
             <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
               <h2 className="text-xl font-semibold mb-8">المعلومات الأساسية</h2>
-              
+
               <div className="bg-gray-50 p-4 rounded-lg flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <div>
@@ -258,8 +291,8 @@ export function AddServiceStep1({
                     <p className="text-xs text-gray-2">خدمات خاصة في قسم {selectedCategoryName}</p>
                   </div>
                 </div>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={scrollToCategoryAndOpen}
                   className="text-sm cursor-pointer text-blue-4 font-bold hover:underline"
                 >
@@ -314,6 +347,8 @@ export function AddServiceStep1({
                     placeholder={isSectionsLoading ? "جاري التحميل..." : "اختر القسم"}
                     error={errors.section_id}
                     className="h-12"
+                    onAddNew={() => setIsAddSectionOpen(true)}
+                    addNewLabel="إضافة قسم جديد"
                   />
                 </div>
 
@@ -321,7 +356,7 @@ export function AddServiceStep1({
                 <div className="space-y-4 pt-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium text-gray-900">
-                        تخصصات أو مجالات العمل
+                      تخصصات أو مجالات العمل
                     </Label>
                     <Tooltip
                       trigger={
@@ -451,6 +486,49 @@ export function AddServiceStep1({
         showCancel={true}
         showSaveDraft={showSaveDraft}
       />
+
+      {/* Add Section Dialog */}
+      <Dialog open={isAddSectionOpen} onOpenChange={setIsAddSectionOpen}>
+        <DialogContent className="sm:max-w-lg" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-medium ">
+              أضف قسم جديد
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="grid gap-6 py-4">
+            <div className="grid gap-3">
+              <Label htmlFor="section-name" className="text-right font-medium ">
+                اسم القسم
+              </Label>
+              <Input
+                id="section-name"
+                value={newSectionName}
+                onChange={(e) => setNewSectionName(e.target.value)}
+                placeholder="اكتب اسم القسم هنا"
+                className="w-full px-4 py-3 border-gray-200 rounded-lg focus:border-brand-blue-2"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddSection();
+                  }
+                }}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              onClick={handleAddSection}
+              disabled={!newSectionName.trim() || createSection.isPending}
+              className="w-full px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer"
+              style={{ backgroundColor: 'var(--blue-3)' }}
+            >
+              {createSection.isPending ? "جاري الحفظ..." : "حفظ"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
