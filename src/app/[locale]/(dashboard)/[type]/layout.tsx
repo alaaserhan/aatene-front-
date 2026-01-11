@@ -1,4 +1,5 @@
 import DashboardNavbar from "@/src/components/(dashboard)/DashboardNavbar";
+import { StoreGuard } from "@/src/components/providers/StoreGuard";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -9,7 +10,7 @@ export default async function DashboardLayout({
   params,
 }: {
   children: React.ReactNode;
-params: Promise<{ locale: string; type: string; }>;
+  params: Promise<{ locale: string; type: string; }>;
 }) {
   const { locale, type } = await params;
 
@@ -24,9 +25,11 @@ params: Promise<{ locale: string; type: string; }>;
   if ((type === "admin" && role !== "admin" && role !== "merchant")) redirect(`/${locale}/dashboard`);
 
   return <>
-  <DashboardNavbar navPrefix={type === "admin" ? "/admin" : "/dashboard"} />
-  <div>
-    {children}
-  </div>
+    <DashboardNavbar navPrefix={type === "admin" ? "/admin" : "/dashboard"} />
+    <StoreGuard>
+      <div>
+        {children}
+      </div>
+    </StoreGuard>
   </>;
 }
