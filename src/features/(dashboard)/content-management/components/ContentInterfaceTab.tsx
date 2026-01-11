@@ -23,6 +23,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/src/components/ui/dialog";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
 // --- Sub-components for Form Sections ---
 
@@ -317,7 +319,22 @@ const DynamicListSection = ({
 
 export function ContentInterfaceTab() {
     const { data: serverData, isLoading } = useGetContentInterface();
-    const { mutate: updateContent, isPending } = useUpdateContentInterface();
+
+    // Modal state
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState("");
+
+    const { mutate: updateContent, isPending } = useUpdateContentInterface({
+        onSuccess: (message) => {
+            setModalMessage(message);
+            setShowSuccessModal(true);
+        },
+        onError: (message) => {
+            setModalMessage(message);
+            setShowErrorModal(true);
+        },
+    });
 
     const form = useForm<ContentInterfaceData>({
         defaultValues: {
@@ -518,6 +535,24 @@ export function ContentInterfaceTab() {
                     </button>
                 </div>
             </div>
+
+            {/* Success Modal */}
+            <SuccessModal
+                isOpen={showSuccessModal}
+                onClose={() => setShowSuccessModal(false)}
+                title="تم الحفظ بنجاح"
+            />
+
+            {/* Error Modal */}
+            <ConfirmDeleteModal
+                isOpen={showErrorModal}
+                onClose={() => setShowErrorModal(false)}
+                onConfirm={() => setShowErrorModal(false)}
+                title="حدث خطأ"
+                description={modalMessage}
+                confirmText="حسناً"
+                cancelText="إغلاق"
+            />
 
         </form>
     );

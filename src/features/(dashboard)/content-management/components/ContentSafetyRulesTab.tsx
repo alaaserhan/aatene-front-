@@ -24,6 +24,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/src/components/ui/dialog";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
 // --- Sub-components for Form Sections ---
 
@@ -472,7 +474,22 @@ const DynamicListSection = ({
 
 export function ContentSafetyRulesTab() {
     const { data: serverData, isLoading } = useGetSafetyRules();
-    const { mutate: updateSafety, isPending } = useUpdateSafetyRules();
+
+    // Modal state
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState("");
+
+    const { mutate: updateSafety, isPending } = useUpdateSafetyRules({
+        onSuccess: (message) => {
+            setModalMessage(message);
+            setShowSuccessModal(true);
+        },
+        onError: (message) => {
+            setModalMessage(message);
+            setShowErrorModal(true);
+        },
+    });
 
     const form = useForm<SafetyRulesData>({
         defaultValues: {
@@ -613,6 +630,24 @@ export function ContentSafetyRulesTab() {
                     </button>
                 </div>
             </div>
+
+            {/* Success Modal */}
+            <SuccessModal
+                isOpen={showSuccessModal}
+                onClose={() => setShowSuccessModal(false)}
+                title="تم الحفظ بنجاح"
+            />
+
+            {/* Error Modal */}
+            <ConfirmDeleteModal
+                isOpen={showErrorModal}
+                onClose={() => setShowErrorModal(false)}
+                onConfirm={() => setShowErrorModal(false)}
+                title="حدث خطأ"
+                description={modalMessage}
+                confirmText="حسناً"
+                cancelText="إغلاق"
+            />
 
         </form>
     );

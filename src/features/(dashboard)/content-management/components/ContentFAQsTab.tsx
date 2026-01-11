@@ -22,6 +22,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/src/components/ui/dialog";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
 // --- Types ---
 // For simplicity in sub-components
@@ -320,7 +322,22 @@ const FAQSectionManager = ({
 
 export function ContentFAQsTab() {
     const { data: serverData, isLoading } = useGetFAQs();
-    const { mutate: updateFAQs, isPending } = useUpdateFAQs();
+
+    // Modal state
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState("");
+
+    const { mutate: updateFAQs, isPending } = useUpdateFAQs({
+        onSuccess: (message) => {
+            setModalMessage(message);
+            setShowSuccessModal(true);
+        },
+        onError: (message) => {
+            setModalMessage(message);
+            setShowErrorModal(true);
+        },
+    });
 
     const form = useForm<FAQsData>({
         defaultValues: {
@@ -484,6 +501,24 @@ export function ContentFAQsTab() {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            {/* Success Modal */}
+            <SuccessModal
+                isOpen={showSuccessModal}
+                onClose={() => setShowSuccessModal(false)}
+                title="تم الحفظ بنجاح"
+            />
+
+            {/* Error Modal */}
+            <ConfirmDeleteModal
+                isOpen={showErrorModal}
+                onClose={() => setShowErrorModal(false)}
+                onConfirm={() => setShowErrorModal(false)}
+                title="حدث خطأ"
+                description={modalMessage}
+                confirmText="حسناً"
+                cancelText="إغلاق"
+            />
 
         </form>
     );

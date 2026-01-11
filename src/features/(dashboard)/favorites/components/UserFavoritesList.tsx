@@ -185,7 +185,7 @@ export function UserFavoritesList({ userId }: UserFavoritesListProps) {
                                 {/* Image */}
                                 <div className="w-12 h-12 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-100">
                                     {fav.item?.cover ? (
-                                        <img src={fav.item.cover} alt={fav.item.name} className="w-full h-full object-cover" />
+                                        <img src={fav.item.gallery_urls[0]} alt={fav.item.name} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-gray-300 text-[10px]">No Img</div>
                                     )}

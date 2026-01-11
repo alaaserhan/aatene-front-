@@ -2,7 +2,11 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as api from "./api";
-import { toast } from "sonner";
+
+interface MutationCallbacks {
+    onSuccess?: (message: string) => void;
+    onError?: (message: string) => void;
+}
 
 // --- Content Interface Hooks ---
 
@@ -13,17 +17,18 @@ export function useGetContentInterface() {
     });
 }
 
-export function useUpdateContentInterface() {
+export function useUpdateContentInterface(callbacks?: MutationCallbacks) {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (body: api.ContentInterfaceData) => api.updateContentInterface(body),
         onSuccess: (data) => {
-            toast.success(data.message || "Content interface updated successfully");
             queryClient.invalidateQueries({ queryKey: ["content-management", "interface"] });
+            callbacks?.onSuccess?.(data.message || "Content interface updated successfully");
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError: (error: any) => {
-            toast.error(error?.response?.data?.message || "Failed to update content interface");
+            callbacks?.onError?.(error?.response?.data?.message || "Failed to update content interface");
         },
     });
 }
@@ -37,17 +42,18 @@ export function useGetFAQs() {
     });
 }
 
-export function useUpdateFAQs() {
+export function useUpdateFAQs(callbacks?: MutationCallbacks) {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (body: api.FAQsData) => api.updateFAQs(body),
         onSuccess: (data) => {
-            toast.success(data.message || "FAQs updated successfully");
             queryClient.invalidateQueries({ queryKey: ["content-management", "faqs"] });
+            callbacks?.onSuccess?.(data.message || "FAQs updated successfully");
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError: (error: any) => {
-            toast.error(error?.response?.data?.message || "Failed to update FAQs");
+            callbacks?.onError?.(error?.response?.data?.message || "Failed to update FAQs");
         },
     });
 }
@@ -61,17 +67,18 @@ export function useGetSafetyRules() {
     });
 }
 
-export function useUpdateSafetyRules() {
+export function useUpdateSafetyRules(callbacks?: MutationCallbacks) {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (body: api.SafetyRulesRequest) => api.updateSafetyRules(body),
         onSuccess: (data) => {
-            toast.success(data.message || "Safety rules updated successfully");
             queryClient.invalidateQueries({ queryKey: ["content-management", "safety-rules"] });
+            callbacks?.onSuccess?.(data.message || "Safety rules updated successfully");
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onError: (error: any) => {
-            toast.error(error?.response?.data?.message || "Failed to update safety rules");
+            callbacks?.onError?.(error?.response?.data?.message || "Failed to update safety rules");
         },
     });
 }

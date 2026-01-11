@@ -32,6 +32,7 @@ export interface FavoriteItemDetails {
   description: string;
   cover: string;
   price: string;
+  gallery_urls: string[];
 }
 
 export interface Favorite {
