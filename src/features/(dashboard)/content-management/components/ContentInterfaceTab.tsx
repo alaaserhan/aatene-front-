@@ -51,7 +51,6 @@ const SectionCard = ({
 
 
 
-// Helper for Image Field with Controller
 const ImageField = ({
     control,
     name,
