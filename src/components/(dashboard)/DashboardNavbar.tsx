@@ -98,12 +98,19 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     return null;
   });
 
+  const [storeType] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return Cookies.get("store_type") || null;
+    }
+    return null;
+  });
+
   const allNavItems: NavItem[] = [
     { label: "الرئيسة", icon: <img src={"/icons/dashboard/nav_home.svg"} alt="" />, href: "/home", show: true },
     { label: "المستخدمين", icon: <img src={"/icons/dashboard/nav_users.svg"} alt="" />, href: "/users", show: isAdmin },
     { label: "المتاجر", icon: <img src={"/icons/dashboard/nav_stores.svg"} alt="" />, href: "/stores", show: true },
-    { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: true },
-    { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant },
+    { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: !isMerchant || (isMerchant && storeType !== "services") },
+    { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && storeType !== "products" },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: isAdmin },
     { label: "الفئات", icon: Boxes, href: "/categories", show: true },
     { label: "الإعدادات", icon: Settings, href: "/settings", show: isAdmin },

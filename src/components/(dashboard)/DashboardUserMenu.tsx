@@ -68,7 +68,8 @@ export function DashboardUserMenu() {
         } else if (stores.length > 0 && !savedStoreId) {
             // إذا لم يكن هناك متجر مختار، اختر الأول تلقائياً
             setCurrentStoreId(String(stores[0].id));
-            Cookies.set("current_store_id", String(stores[0].id));
+            Cookies.set("current_store_id", String(stores[0].id), { expires: 365 });
+            Cookies.set("store_type", stores[0].type, { expires: 365 });
         }
     }, [stores.length]);
 
@@ -82,7 +83,11 @@ export function DashboardUserMenu() {
 
     // دالة اختيار المتجر
     const handleStoreSelect = (storeId: number) => {
+        const selectedStore = stores.find((s) => s.id === storeId);
         Cookies.set("current_store_id", String(storeId), { expires: 365 });
+        if (selectedStore) {
+            Cookies.set("store_type", selectedStore.type, { expires: 365 });
+        }
         setCurrentStoreId(String(storeId));
         window.location.reload();
     };
