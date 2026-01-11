@@ -11,9 +11,12 @@ import { StoreType, StoreManagerPayload, StoreStatus, ManagerTitle } from "../ap
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
+
 import { Step2FormData, Step4FormData } from "../types";
 import { useGetUsers } from "../../users/hooks";
 import { toast } from "sonner";
+import { useAuthStore } from "@/src/stores/auth-store";
+import { Input } from "@/src/components/ui/input";
 
 interface AddStoreStep4Props {
   storeType: StoreType;
@@ -50,6 +53,9 @@ export function AddStoreStep4({
   onBack,
   barSteps,
 }: AddStoreStep4Props) {
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.user_type === "admin";
+
   const [activeTab, setActiveTab] = useState<"list" | "add">("list");
   const [managers, setManagers] = useState<StoreManagerPayload[]>(
     initialData?.managers || []
@@ -66,14 +72,15 @@ export function AddStoreStep4({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { data: usersData, isLoading: isUsersLoading } = useGetUsers(
-    new URLSearchParams("per_page=1000")
+    new URLSearchParams("per_page=1000"),
+    { enabled: isAdmin }
   );
 
   const userOptions = usersData?.data
     ? usersData.data.map((user) => ({
-        label: `${user.first_name} ${user.last_name} (${user.email})`,
-        value: user.email,
-      }))
+      label: `${user.first_name} ${user.last_name} (${user.email})`,
+      value: user.email,
+    }))
     : [];
 
   const dropdownOptions = [
@@ -159,7 +166,7 @@ export function AddStoreStep4({
         };
 
         let updatedManagers = [...managers];
-        
+
         if (editingIndex >= 0) {
           updatedManagers[editingIndex] = managerData;
         } else {
@@ -235,27 +242,45 @@ export function AddStoreStep4({
 
               {activeTab === "add" ? (
                 <div className="space-y-6 p-3 border border-gray-200 rounded-lg">
-                  
+
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-900">
-                      اختر الموظف
+                    <Label className="text-sm font-medium ">
+                      {isAdmin ? "اختر الموظف" : "البريد الإلكتروني"} <span className="text-red-500">*</span>
                     </Label>
-                    <ReusableDropdown
-                      options={dropdownOptions}
-                      value={newManager.email}
-                      onChange={(value) =>
-                        setNewManager((prev) => ({ ...prev, email: value }))
-                      }
-                      placeholder={isUsersLoading ? "جاري التحميل..." : "ابحث بالاسم أو البريد"}
-                      className="w-full"
-                      error={errors.email}
-                      dropdownPosition="bottom"
-                    />
+                    {isAdmin ? (
+                      <ReusableDropdown
+                        options={dropdownOptions}
+                        value={newManager.email}
+                        onChange={(value) =>
+                          setNewManager((prev) => ({ ...prev, email: value }))
+                        }
+                        placeholder={isUsersLoading ? "جاري التحميل..." : "ابحث بالاسم أو البريد"}
+                        className="w-full"
+                        error={errors.email}
+                        dropdownPosition="bottom"
+                      />
+                    ) : (
+                      <Input
+                        type="email"
+                        value={newManager.email}
+                        onChange={(e) =>
+                          setNewManager((prev) => ({ ...prev, email: e.target.value }))
+                        }
+                        placeholder="example@info.com"
+                        className={cn(
+                          "w-full h-11 bg-white border-gray-200 focus-visible:ring-blue-300",
+                          errors.email && "border-red-500"
+                        )}
+                      />
+                    )}
+                    {errors.email && !isAdmin && (
+                      <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-900">
-                      الدور الوظيفي
+                    <Label className="text-sm font-medium ">
+                      الدور الوظيفي <span className="text-red-500">*</span>
                     </Label>
                     <ReusableDropdown
                       options={JOB_TITLE_OPTIONS}
@@ -272,7 +297,7 @@ export function AddStoreStep4({
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-900">
+                    <Label className="text-sm font-medium ">
                       حالة الموظف
                     </Label>
                     <ReusableDropdown

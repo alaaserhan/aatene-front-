@@ -17,7 +17,7 @@ const allCountries: Country[] = [
   { name: "مصر", code: "EG", dialCode: "+20", flag: "🇪🇬" },
   { name: "فلسطين", code: "PS", dialCode: "+970", flag: "🇵🇸" },
   { name: "السعودية", code: "SA", dialCode: "+966", flag: "🇸🇦" },
-  { name: "الإمارات", code: "AE", dialCode: "+971", flag: "🇦🇪" },
+  { name: "الإمارات", code: "AE", dialCode: "+972", flag: "🇦🇪" },
   { name: "الكويت", code: "KW", dialCode: "+965", flag: "🇰🇼" },
   { name: "البحرين", code: "BH", dialCode: "+973", flag: "🇧🇭" },
   { name: "قطر", code: "QA", dialCode: "+974", flag: "🇶🇦" },

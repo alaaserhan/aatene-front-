@@ -12,13 +12,13 @@ interface PhoneNumberInputProps extends React.InputHTMLAttributes<HTMLInputEleme
     countryCode: string;
     onCountryCodeChange: (value: string) => void;
     containerClassName?: string;
-    roundedFull?:boolean;
+    roundedFull?: boolean;
 }
 
 const COUNTRY_RULES: Record<string, { min: number; max: number; name: string }> = {
-    "+20": { min: 10, max: 12, name: "مصر" }, 
+    "+20": { min: 10, max: 12, name: "مصر" },
     "+966": { min: 9, max: 12, name: "السعودية" },
-    "+971": { min: 9, max: 12, name: "الإمارات" },
+    "+972": { min: 9, max: 12, name: "الإمارات" },
 };
 
 const PhoneNumberInput = React.forwardRef<
@@ -72,15 +72,15 @@ const PhoneNumberInput = React.forwardRef<
                 <label className="block text-sm font-medium text-start">
                     {label}
                 </label>
-                
-                <div 
+
+                <div
                     className={cn(
                         "flex items-center w-full h-10 border  bg-white overflow-hidden transition-all",
-                        errorMessage 
-                            ? "border-red-500 focus-within:ring-1 focus-within:ring-red-200" 
+                        errorMessage
+                            ? "border-red-500 focus-within:ring-1 focus-within:ring-red-200"
                             : "border-gray-200 focus-within:border-[#3A5779] focus-within:ring-1 focus-within:ring-[#3A5779]/20",
-                            roundedFull? "rounded-full":"rounded-lg"
-                    )} 
+                        roundedFull ? "rounded-full" : "rounded-lg"
+                    )}
                     dir="ltr"
                 >
                     {/* القائمة */}
@@ -92,15 +92,15 @@ const PhoneNumberInput = React.forwardRef<
                         >
                             <option value="+20">+20</option>
                             <option value="+966">+966</option>
-                            <option value="+971">+971</option>
+                            <option value="+972">+972</option>
                         </select>
                         <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
 
-                     {/* حقل الإدخال */}
-                     <Input
+                    {/* حقل الإدخال */}
+                    <Input
                         // التغيير هنا: جعلناه tel ليقبل الكتابة بحرية ويفتح لوحة الأرقام في الموبايل
-                        type="tel" 
+                        type="tel"
                         className={cn(
                             "flex-1 h-full border-none shadow-none focus-visible:ring-0 rounded-none font-sans text-left ltr bg-transparent",
                             className

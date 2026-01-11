@@ -24,8 +24,8 @@ interface AddShippingCompanyDialogProps {
 }
 
 interface PriceData {
-  days: number;
-  price: number;
+  days: number | "";
+  price: number | "";
 }
 
 export function AddShippingCompanyDialog({
@@ -36,7 +36,6 @@ export function AddShippingCompanyDialog({
 }: AddShippingCompanyDialogProps) {
   const [step, setStep] = useState(1);
   const [phoneCountryCode, setPhoneCountryCode] = useState("+970");
-  const [companyName, setCompanyName] = useState("");
   const [selectedCityIds, setSelectedCityIds] = useState<number[]>([]);
   const [shippingPrices, setShippingPrices] = useState<Record<number, PriceData>>({});
   const [storeName, setStoreName] = useState("");
@@ -51,14 +50,13 @@ export function AddShippingCompanyDialog({
     if (isOpen) {
       setErrors({});
       if (editingCompany) {
-        setCompanyName(editingCompany.name || "");
         setStoreName(editingCompany.name || "");
         setStorePhone(
           String(editingCompany.phone)
             .replace("+970", "")
             .replace("+20", "")
             .replace("+966", "")
-            .replace("+971", "")
+            .replace("+972", "")
         );
 
         const cityIds = editingCompany.prices.map((p) => Number(p.city_id));
@@ -75,7 +73,6 @@ export function AddShippingCompanyDialog({
         setShippingPrices(pricesMap);
 
       } else {
-        setCompanyName("");
         setStoreName("");
         setStorePhone("");
         setSelectedCityIds([]);
@@ -102,11 +99,6 @@ export function AddShippingCompanyDialog({
     const newErrors: Record<string, string> = {};
     let isValid = true;
 
-    if (!companyName.trim()) {
-      newErrors.companyName = "يجب إدخال اسم ملف الشحن";
-      isValid = false;
-    }
-
     if (selectedCityIds.length === 0) {
       newErrors.cities = "يجب اختيار مدينة واحدة على الأقل";
       isValid = false;
@@ -122,7 +114,7 @@ export function AddShippingCompanyDialog({
       selectedCityIds.forEach((cityId) => {
         // إذا لم تكن البيانات موجودة (سواء جديد أو تعديل وتمت إضافة مدينة جديدة)
         if (!newPrices[cityId]) {
-          newPrices[cityId] = { days: 0, price: 0};
+          newPrices[cityId] = { days: "", price: "" };
         }
       });
       return newPrices;
@@ -136,22 +128,24 @@ export function AddShippingCompanyDialog({
     let isValid = true;
 
     // Validate Company Name & Phone
-    if (!storeName.trim()) {
-      newErrors.storeName = "يجب إدخال اسم شركة الشحن";
-      isValid = false;
-    }
+    // Validate Company Name & Phone (Optional now)
+    // if (!storeName.trim()) {
+    //   newErrors.storeName = "يجب إدخال اسم شركة الشحن";
+    //   isValid = false;
+    // }
 
-    if (!storePhone.trim()) {
-      newErrors.storePhone = "يجب إدخال رقم الهاتف";
-      isValid = false;
-    }
+    // if (!storePhone.trim()) {
+    //   newErrors.storePhone = "يجب إدخال رقم الهاتف";
+    //   isValid = false;
+    // }
 
     // Validate Prices and Days for each city
     for (const cityId of selectedCityIds) {
       const priceData = shippingPrices[cityId];
-      
+
       // التحقق من الأيام (يجب أن تكون أكبر من 0)
-      if (!priceData || priceData.days <= 0) {
+      // التحقق من الأيام (يجب أن تكون أكبر من 0)
+      if (!priceData || priceData.days === "" || priceData.days <= 0) {
         newErrors[`days_${cityId}`] = "يجب تحديد مدة التوصيل";
         isValid = false;
       }
@@ -160,9 +154,9 @@ export function AddShippingCompanyDialog({
       // ملاحظة: بما أننا نستخدم input type number و state number، القيمة الفارغة تتحول لـ 0 في الـ onChange
       // لذا إذا كنت تريد منع السعر 0، استخدم condition: priceData.price <= 0
       // الكود السابق كان price < 0 مما يسمح بـ 0. سنلتزم بذلك ما لم يكن المطلوب منع المجاني.
-      if (priceData && priceData.price < 0) {
-         newErrors[`price_${cityId}`] = "سعر غير صحيح";
-         isValid = false;
+      if (priceData && priceData.price !== "" && priceData.price < 0) {
+        newErrors[`price_${cityId}`] = "سعر غير صحيح";
+        isValid = false;
       }
     }
 
@@ -174,8 +168,8 @@ export function AddShippingCompanyDialog({
 
     const prices: ShippingPricePayload[] = selectedCityIds.map((cityId) => ({
       city_id: cityId,
-      days: shippingPrices[cityId].days,
-      price: shippingPrices[cityId].price,
+      days: Number(shippingPrices[cityId].days),
+      price: Number(shippingPrices[cityId].price),
     }));
 
     const company: ShippingCompanyPayload = {
@@ -199,7 +193,7 @@ export function AddShippingCompanyDialog({
   const updateShippingPrice = (
     cityId: number,
     field: keyof PriceData,
-    value: number
+    value: number | ""
   ) => {
     setShippingPrices((prev) => ({
       ...prev,
@@ -211,10 +205,10 @@ export function AddShippingCompanyDialog({
 
     // Clear error for this field when user types
     setErrors((prev) => {
-        const newErrors = { ...prev };
-        // Clear specific error key based on field
-        delete newErrors[`${field}_${cityId}`];
-        return newErrors;
+      const newErrors = { ...prev };
+      // Clear specific error key based on field
+      delete newErrors[`${field}_${cityId}`];
+      return newErrors;
     });
   };
 
@@ -238,20 +232,10 @@ export function AddShippingCompanyDialog({
         <div className="p-6">
           {step === 1 ? (
             <div className="space-y-6">
-              <FormInput
-                label="اسم ملف الشحن"
-                value={companyName}
-                onChange={(e) => {
-                  setCompanyName(e.target.value);
-                  if (errors.companyName) setErrors({ ...errors, companyName: "" });
-                }}
-                placeholder="اكتب اسم الملف هنا"
-                className="rounded-full h-10"
-                error={errors.companyName}
-              />
+              {/* Removed Company Name Input */}
 
               <div className="space-y-4">
-                <h3 className="font-medium">المدن التي ترسل لها المنتجات؟</h3>
+                <h3 className="font-medium">المدن التي ترسل لها المنتجات؟ <span className="text-red-500">*</span></h3>
                 <div
                   className={cn(
                     "space-y-3 p-2 rounded-lg transition-colors",
@@ -353,13 +337,13 @@ export function AddShippingCompanyDialog({
                             updateShippingPrice(
                               cityId,
                               "days",
-                              e.target.value === "" ? 0 : parseInt(e.target.value)
+                              e.target.value === "" ? "" : parseInt(e.target.value)
                             )
                           }
                           className={cn(
                             "w-full px-4 py-2 border text-sm rounded-full focus:outline-none focus:ring-2 transition-shadow",
-                            daysError 
-                              ? "border-red-500 focus:ring-red-200" 
+                            daysError
+                              ? "border-red-500 focus:ring-red-200"
                               : "border-gray-300 focus:ring-[#3A5779]"
                           )}
                         />
@@ -381,13 +365,13 @@ export function AddShippingCompanyDialog({
                             updateShippingPrice(
                               cityId,
                               "price",
-                              e.target.value === "" ? 0 : parseFloat(e.target.value)
+                              e.target.value === "" ? "" : parseFloat(e.target.value)
                             )
                           }
-                           className={cn(
+                          className={cn(
                             "w-full px-4 py-2 border text-sm rounded-full focus:outline-none focus:ring-2 transition-shadow",
-                            priceError 
-                              ? "border-red-500 focus:ring-red-200" 
+                            priceError
+                              ? "border-red-500 focus:ring-red-200"
                               : "border-gray-300 focus:ring-[#3A5779]"
                           )}
                         />

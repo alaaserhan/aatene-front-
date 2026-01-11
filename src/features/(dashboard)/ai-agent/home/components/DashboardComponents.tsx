@@ -246,7 +246,7 @@ export function RatingSourceCard({ ratings = [] }: RatingSourceCardProps) {
                             {/* Left: Rating Badge */}
                             <div className="bg-blue-3 text-white text-sm font-medium px-1 py-1 rounded-sm flex items-center gap-2 min-w-[60px] justify-center shadow-sm">
                                 {item.average_rating}
-                                <img src="/icons/dashboard/star.svg" className="w-4 h-4" alt="" />
+                                <img src="/icons/dashboard/Star.svg" className="w-4 h-4" alt="" />
                             </div>
                         </div>
                     );
