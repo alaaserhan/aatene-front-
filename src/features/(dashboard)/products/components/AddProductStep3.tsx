@@ -3,7 +3,8 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { Search, X, Plus, Image as ImageIcon, UploadCloud, HelpCircle, Check } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import Cookies from "js-cookie"; // Import Cookies
 import { toast } from "sonner";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { ProductFormActions } from "./ProductFormActions";
@@ -26,6 +27,9 @@ import {
 import { Input } from "@/src/components/ui/input";
 import { Tooltip } from "@/src/components/ui/Tooltip";
 import { Stepper } from "@/src/components/ui/Stepper";
+import { AttributeModal } from "../../categoriesAndAttributes/components/AttributeModal";
+import { useUpdateAttribute } from "../../categoriesAndAttributes/hooks";
+import { Attribute, AttributeOptionPayload } from "../../categoriesAndAttributes/api";
 
 const useGetAttributes = (params: URLSearchParams) => {
     return useQuery({
@@ -65,6 +69,9 @@ export function AddProductStep3({
     onStepClick,
     showSaveDraft = true,
 }: AddProductStep3Props) {
+    const queryClient = useQueryClient();
+    const userType = Cookies.get("user_type");
+    const isAdmin = userType === "admin";
     const [hasVariations, setHasVariations] = useState<boolean>(
         initialData?.hasVariations || false
     );
@@ -90,11 +97,16 @@ export function AddProductStep3({
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
     const [activeRowIdForImage, setActiveRowIdForImage] = useState<string | null>(null);
 
-    const { data: attributesData } = useGetAttributes(
-        new URLSearchParams("per_page=100&is_active=1")
-    );
+    // Editing Attribute State
+    const [editingAttribute, setEditingAttribute] = useState<Attribute | null>(null);
+    const [isEditAttrModalOpen, setIsEditAttrModalOpen] = useState(false);
 
-    const allAttributes = attributesData?.data || [];
+    const { mutate: updateAttribute } = useUpdateAttribute();
+
+    const queryParams = useMemo(() => new URLSearchParams("per_page=100&is_active=1"), []);
+    const { data: attributesData } = useGetAttributes(queryParams);
+
+    const allAttributes = useMemo(() => attributesData?.data || [], [attributesData]);
 
     const selectedAttributesFull = useMemo(() => {
         return allAttributes.filter((attr) => selectedAttributeIds.includes(attr.id));
@@ -161,6 +173,38 @@ export function AddProductStep3({
                 delete newAttrValues[attrId];
                 return { ...row, attributeValues: newAttrValues };
             })
+        );
+    };
+
+    const handleEditAttribute = (attributeId: number) => {
+        const attribute = allAttributes.find((attr) => attr.id === attributeId);
+        if (attribute) {
+            setEditingAttribute(attribute);
+            setIsEditAttrModalOpen(true);
+        }
+    };
+
+
+
+    const handleSaveAttribute = (data: { title: string; options: AttributeOptionPayload[] }) => {
+        if (!editingAttribute) return;
+
+        updateAttribute(
+            {
+                id: editingAttribute.id,
+                payload: {
+                    title: data.title,
+                    options: data.options,
+                },
+            },
+            {
+                onSuccess: async () => {
+                    setIsEditAttrModalOpen(false);
+                    setEditingAttribute(null);
+                    // Force invalidation of all attribute lists
+                    await queryClient.invalidateQueries({ queryKey: ["attributes"] });
+                },
+            }
         );
     };
 
@@ -378,6 +422,8 @@ export function AddProductStep3({
                                                                     }
                                                                     placeholder={attr.title}
                                                                     className="h-9 text-sm rounded-full border-blue-3 bg-blue-5"
+                                                                    onAddNew={isAdmin ? () => handleEditAttribute(attr.id) : undefined}
+                                                                    addNewLabel={isAdmin ? "تعديل السمة / إضافة خيارات" : undefined}
                                                                 />
                                                             );
                                                         })}
@@ -531,6 +577,15 @@ export function AddProductStep3({
                 onSelect={handleImageSelect}
                 multiple={true}
                 allowedMediaTypes={["image", "gallery", "avatar"]}
+            />
+
+            <AttributeModal
+                isOpen={isEditAttrModalOpen}
+                onClose={() => setIsEditAttrModalOpen(false)}
+                onSave={handleSaveAttribute}
+                attribute={editingAttribute}
+                mode="edit"
+                disableTitle={true}
             />
         </div>
     );

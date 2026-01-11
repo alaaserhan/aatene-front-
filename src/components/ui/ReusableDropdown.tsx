@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from "react";
-import { ChevronDown, Loader2, Search } from "lucide-react"; // Added Search icon
+import { ChevronDown, Loader2, Search, Plus } from "lucide-react"; // Added Search and Plus icons
 import { cn } from "@/src/lib/utils";
 
 interface DropdownOption {
@@ -30,6 +30,9 @@ interface ReusableDropdownProps {
   // New Props for Search
   onSearch?: (query: string) => void;
   searchPlaceholder?: string;
+  // New Props for Add New
+  onAddNew?: () => void;
+  addNewLabel?: string;
 }
 
 export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>(({
@@ -45,6 +48,8 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
   isLoadingMore = false,
   onSearch,
   searchPlaceholder = "بحث...",
+  onAddNew,
+  addNewLabel = "إضافة جديد",
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -138,7 +143,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
             </div>
           )}
 
-          <div 
+          <div
             className="overflow-y-auto p-1 flex-1"
             onScroll={handleScroll}
             ref={listRef}
@@ -164,7 +169,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
                         className={cn(
                           "w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
                           isSelected
-                          ? "border-blue-3 bg-blue-3"
+                            ? "border-blue-3 bg-blue-3"
                             : "border-gray-300 bg-white"
                         )}
                       >
@@ -175,7 +180,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
                       <span
                         className={cn(
                           "text-sm font-medium",
-                        isSelected ? "text-blue-3" : "text-gray-700"
+                          isSelected ? "text-blue-3" : "text-gray-700"
                         )}
                       >
                         {option.label}
@@ -193,6 +198,20 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
               <div className="p-3 text-center text-sm text-gray-2">
                 لا توجد خيارات
               </div>
+            )}
+
+            {onAddNew && (
+              <button
+                type="button"
+                onClick={() => {
+                  onAddNew();
+                  setIsOpen(false);
+                }}
+                className="w-full flex items-center justify-center gap-2 p-3 text-sm text-blue-3 font-medium hover:bg-blue-50 transition-colors border-t border-gray-100 sticky bottom-0 bg-white"
+              >
+                <Plus className="w-4 h-4" />
+                {addNewLabel}
+              </button>
             )}
           </div>
         </div>

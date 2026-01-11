@@ -17,7 +17,7 @@ import { FormInput } from "@/src/components/ui/FormInput"; // ✅ استيراد
 import { Label } from "@/src/components/ui/label"; // لا نزال نحتاج Label لخيار "أضف الخيارات المتاحة"
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { Attribute, AttributeOptionPayload } from "../api";
-import { cn } from "@/src/lib/utils";
+// import { cn } from "@/src/lib/utils";
 
 interface AttributeModalProps {
   isOpen: boolean;
@@ -28,6 +28,7 @@ interface AttributeModalProps {
   }) => void;
   attribute?: Attribute | null;
   mode: "add" | "edit";
+  disableTitle?: boolean;
 }
 
 const attributeSchema = z.object({
@@ -41,6 +42,7 @@ export function AttributeModal({
   onSave,
   attribute,
   mode,
+  disableTitle = false,
 }: AttributeModalProps) {
   const [options, setOptions] = useState<AttributeOptionPayload[]>([]);
   const [optionInput, setOptionInput] = useState("");
@@ -60,6 +62,8 @@ export function AttributeModal({
     if (isOpen) {
       if (mode === "edit" && attribute) {
         setValue("title", attribute.title);
+        // Avoid setting options if they are already set to the same value to prevent loops, though react checks strict equality.
+        // For simple modals, this effect pattern is acceptable but let's silence the strict linter if logic is sound (running once on open).
         setOptions(
           attribute.options.map((opt) => ({
             title: opt.title,
@@ -121,6 +125,7 @@ export function AttributeModal({
               {...register("title")}
               error={errors.title?.message}
               className="px-4 py-2 border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-3 focus:border-transparent"
+              disabled={disableTitle}
             />
 
             <div className="space-y-4">
@@ -141,7 +146,7 @@ export function AttributeModal({
                   }}
                   containerClassName="flex-1" // لضمان أخذ المساحة المتبقية
                 />
-                
+
                 <Button
                   type="button"
                   onClick={handleAddOption}
