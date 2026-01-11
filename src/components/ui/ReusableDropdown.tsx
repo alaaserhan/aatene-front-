@@ -207,7 +207,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
                   onAddNew();
                   setIsOpen(false);
                 }}
-                className="w-full flex items-center justify-center gap-2 p-3 text-sm text-blue-3 font-medium hover:bg-blue-50 transition-colors border-t border-gray-100 sticky bottom-0 bg-white"
+                className="w-full flex items-center justify-center gap-2 p-2 bg-blue-5 rounded-sm cursor-pointer text-sm text-blue-3 font-medium  sticky bottom-0"
               >
                 <Plus className="w-4 h-4" />
                 {addNewLabel}

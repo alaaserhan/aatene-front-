@@ -423,7 +423,7 @@ export function AddProductStep3({
                                                                     placeholder={attr.title}
                                                                     className="h-9 text-sm rounded-full border-blue-3 bg-blue-5"
                                                                     onAddNew={isAdmin ? () => handleEditAttribute(attr.id) : undefined}
-                                                                    addNewLabel={isAdmin ? "تعديل السمة / إضافة خيارات" : undefined}
+                                                                    addNewLabel={isAdmin ? " إضافة خيارات" : undefined}
                                                                 />
                                                             );
                                                         })}

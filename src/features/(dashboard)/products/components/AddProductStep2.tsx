@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, KeyboardEvent, useMemo, useEffect } from "react";
-import { HelpCircle, Plus } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import Cookies from "js-cookie";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { ProductFormActions } from "./ProductFormActions";
@@ -271,34 +271,22 @@ export function AddProductStep2({
                       القسم
                       <span className="text-red-500">*</span>
                     </Label>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1">
-                        <ReusableDropdown
-                          options={sectionOptions}
-                          value={
-                            formData.section_id ? String(formData.section_id) : ""
-                          }
-                          onChange={(value) =>
-                            setFormData({ ...formData, section_id: Number(value) })
-                          }
-                          placeholder={
-                            isSectionsLoading ? "جاري التحميل..." : "اختر القسم..."
-                          }
-                          error={errors.section_id}
-                          className="h-11"
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setIsAddSectionOpen(true)}
-                        className="h-11 w-11 shrink-0 border-gray-200 hover:bg-gray-50"
-                        title="إضافة قسم جديد"
-                      >
-                        <Plus className="h-5 w-5" />
-                      </Button>
-                    </div>
+                    <ReusableDropdown
+                      options={sectionOptions}
+                      value={
+                        formData.section_id ? String(formData.section_id) : ""
+                      }
+                      onChange={(value) =>
+                        setFormData({ ...formData, section_id: Number(value) })
+                      }
+                      placeholder={
+                        isSectionsLoading ? "جاري التحميل..." : "اختر القسم..."
+                      }
+                      error={errors.section_id}
+                      className="h-11"
+                      onAddNew={() => setIsAddSectionOpen(true)}
+                      addNewLabel="إضافة قسم جديد"
+                    />
                     {!errors.section_id && (
                       <p className="text-xs text-gray-400">
                         حدد القسم الذي ينتمي إليه هذا المنتج داخل المتجر.
