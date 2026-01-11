@@ -183,8 +183,8 @@ export function AddStoryModal({
                                         />
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <Button
-                                                variant="outline"
-                                                className="text-white border-white hover:bg-white/20 gap-2"
+                                                variant="default"
+                                          
                                                 onClick={() => setIsMediaModalOpen(true)}
                                             >
                                                 <ImageIcon className="w-4 h-4" />
@@ -195,11 +195,10 @@ export function AddStoryModal({
                                 ) : (
                                     <div className="flex flex-col items-center gap-4">
                                         <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">
-                                            <ImageIcon className="w-8 h-8 text-white/50" />
+                                            <ImageIcon className="w-8 h-8 text-white/50 cursor-pointer" onClick={() => setIsMediaModalOpen(true)} />
                                         </div>
                                         <Button
-                                            variant="ghost"
-                                            className="text-white hover:bg-white/10 hover:text-white"
+                                            variant="outline"
                                             onClick={() => setIsMediaModalOpen(true)}
                                         >
                                             اختر صورة
