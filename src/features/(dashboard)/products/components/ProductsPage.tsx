@@ -213,7 +213,7 @@ export function ProductsPage() {
     );
   }
 
-  if (!storeId) {
+  if (!storeId && isMerchant) {
     return (
       <div className="p-6 h-screen flex items-center justify-center">
         <StoreEmptyState
