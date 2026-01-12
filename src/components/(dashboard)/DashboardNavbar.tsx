@@ -26,6 +26,8 @@ import {
   Heart,
   Coins,
   FileText,
+  Blocks,
+  TriangleAlert,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -137,7 +139,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "المفضله", icon: Heart, href: "/favorites", show: isAdmin },
     { label: "السجل المالى", icon: Coins, href: "/financial-record", show: isMerchant },
     { label: "إدارة المحتوى", icon: FileText, href: "/content-management", show: isAdmin },
-
+    { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: isAdmin },
 
   ];
 
