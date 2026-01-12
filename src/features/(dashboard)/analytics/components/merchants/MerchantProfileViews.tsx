@@ -2,7 +2,7 @@
 "use client";
 
 import { Loader2, Eye } from "lucide-react";
-import { LineChart, Line, ResponsiveContainer, Tooltip } from "recharts";
+import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { useGetMerchantAnalyticsOverview } from "../../hooks";
 
 export function MerchantProfileViews() {
@@ -65,6 +65,7 @@ export function MerchantProfileViews() {
                         <div className="h-[80px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={lineChartData}>
+                                     <XAxis dataKey="name" hide />
                                     <Tooltip
                                         contentStyle={{
                                             borderRadius: "8px",

@@ -26,7 +26,7 @@ export function GrowthChart({ data, title, lines, className }: GrowthChartProps)
 
       <div className="flex-1 w-full min-h-0">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
+          <AreaChart data={data} margin={{ top: 10, right: 5, left: -35, bottom: 0 }}>
             <defs>
               {lines.map((line, i) => (
                 <linearGradient key={i} id={`color-${line.key}`} x1="0" y1="0" x2="0" y2="1">
