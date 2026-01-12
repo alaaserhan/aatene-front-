@@ -11,7 +11,6 @@ import {
     AbusiveCommentResponse,
     AbusiveWordPayload,
 } from "./api";
-import { toast } from "sonner";
 
 const AbusiveWordsQK = {
     counters: () => ["abusiveWords", "counters"] as const,
@@ -81,12 +80,8 @@ export const useCreateAbusiveWord = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (payload: AbusiveWordPayload) => api.createAbusiveWord(payload),
-        onSuccess: (data) => {
-            toast.success(data.message || "تم إضافة الكلمة بنجاح");
+        onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["abusiveWords"] });
-        },
-        onError: () => {
-            toast.error("حدث خطأ أثناء إضافة الكلمة");
         },
     });
 };
@@ -96,12 +91,8 @@ export const useUpdateAbusiveWord = () => {
     return useMutation({
         mutationFn: (variables: { id: string | number; payload: AbusiveWordPayload }) =>
             api.updateAbusiveWord(variables.id, variables.payload),
-        onSuccess: (data) => {
-            toast.success(data.message || "تم تحديث الكلمة بنجاح");
+        onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["abusiveWords"] });
-        },
-        onError: () => {
-            toast.error("حدث خطأ أثناء تحديث الكلمة");
         },
     });
 };
@@ -110,12 +101,8 @@ export const useDeleteAbusiveWord = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (id: string | number) => api.deleteAbusiveWord(id),
-        onSuccess: (data) => {
-            toast.success(data.message || "تم حذف الكلمة بنجاح");
+        onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["abusiveWords"] });
-        },
-        onError: () => {
-            toast.error("حدث خطأ أثناء حذف الكلمة");
         },
     });
 };
@@ -124,13 +111,9 @@ export const useSendAlertToUser = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (commentId: number) => api.sendAlertToUser({ comment_id: commentId }),
-        onSuccess: (data) => {
-            toast.success(data.message || "تم إرسال التنبيه بنجاح");
+        onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["abusiveComments"] });
             qc.invalidateQueries({ queryKey: ["abusiveWords", "counters"] });
-        },
-        onError: () => {
-            toast.error("حدث خطأ أثناء إرسال التنبيه");
         },
     });
 };
@@ -139,12 +122,8 @@ export const useBlockUserAccount = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (commentId: number) => api.blockUserAccount({ comment_id: commentId }),
-        onSuccess: (data) => {
-            toast.success(data.message || "تم حظر المستخدم بنجاح");
+        onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["abusiveComments"] });
-        },
-        onError: () => {
-            toast.error("حدث خطأ أثناء حظر المستخدم");
         },
     });
 };
@@ -153,12 +132,8 @@ export const useDeleteAbusiveComment = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (commentId: number) => api.deleteAbusiveComment({ comment_id: commentId }),
-        onSuccess: (data) => {
-            toast.success(data.message || "تم حذف التعليق بنجاح");
+        onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["abusiveComments"] });
-        },
-        onError: () => {
-            toast.error("حدث خطأ أثناء حذف التعليق");
         },
     });
 };
