@@ -191,7 +191,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap text-center">
                                                 <Link
-                                                    href={`/admin/serviceProviders/reports/details/${report.id}`}
+                                                    href={`/admin/reports/details/${report.id}`}
                                                     className="text-sm font-medium  underline decoration-gray-300 underline-offset-4 hover:text-sky-900 hover:decoration-blue-100"
                                                 >
                                                     #{report.id}

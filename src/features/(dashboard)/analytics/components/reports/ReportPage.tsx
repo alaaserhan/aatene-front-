@@ -11,7 +11,7 @@ export default function ReportsPage() {
     const searchParams = useSearchParams();
     
     // Default to 'store' if no type is present
-    const currentType = searchParams.get("type") || "store";
+    const currentType = searchParams.get("type") || "merchant";
 
     const filterOptions = [
         { name: "التجار", value: "merchant" },

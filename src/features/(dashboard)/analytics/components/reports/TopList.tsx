@@ -44,9 +44,8 @@ export function TopList({ title, subtitle, items, className, icon: Icon }: TopLi
                                     <div className="w-8 flex justify-center">
                                         <span className={cn(
                                             "font-bold text-lg",
-                                            index === 0 ? "text-[#10B981]" :
-                                                index === 1 ? "text-gray-700" :
-                                                    index === 2 ? "text-[#F59E0B]" : "text-gray-2"
+                                            index === 0 ? "text-[#10B981]" : ""
+
                                         )}>
                                             {item.rank}
                                         </span>
@@ -65,11 +64,11 @@ export function TopList({ title, subtitle, items, className, icon: Icon }: TopLi
                                         )}
                                     </div>
                                     <div className="flex flex-col  gap-1">
-                                        <span className="text-sm font-medium  line-clamp-1">{item.title || "-"}</span>
+                                        <span className="text-sm font-medium  line-clamp-1">{item.title.trim() || "-"}</span>
                                         <div className="flex items-center gap-2 flex-wrap ">
                                             {item.subtitle && <span className="text-[11px] text-gray-2 font-medium">{item.subtitle}</span>}
                                             {item.badgeText && (
-                                                <span className={cn("text-[10px] px-2.5 py-0.5 rounded-full font-bold", item.badgeColor || "bg-gray-100 text-gray-2")}>
+                                                <span className={cn("text-[10px] px-2.5 py-0.5 rounded-full font-medium", index === 0 ? item.badgeColor : "bg-gray-200 text-gray-600")}>
                                                     {item.badgeText}
                                                 </span>
                                             )}

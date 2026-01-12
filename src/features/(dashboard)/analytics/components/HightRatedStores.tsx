@@ -5,10 +5,12 @@ import { Loader2, ChevronLeft, TrendingUp } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { useGetAnalyticsLatests } from "../hooks";
+import { useRouter } from "next/navigation";
 
 export function HightRatedStores() {
     const { data, isLoading } = useGetAnalyticsLatests();
     const stores = data?.hightRatedStores || [];
+    const router = useRouter();
 
     if (isLoading) {
         return (
@@ -25,7 +27,7 @@ export function HightRatedStores() {
                 <div className="flex flex-col  gap-1">
                     <div className="flex items-center gap-2 ">
                         <TrendingUp className="w-5 h-5 text-green-500" />
-                        <h3 className="text-lg font-bold">المتاجر الاكثر تقييما</h3>
+                        <h3 className="text-lg font-medium">المتاجر الاكثر تقييما</h3>
                     </div>
                     <p className="text-xs text-gray-2 font-medium">قائمة المتاجر التي حصلت علي اعلي تقييم</p>
                 </div>
@@ -64,7 +66,7 @@ export function HightRatedStores() {
                                             <h4 className="text-sm font-medium ">{store.name}</h4>
                                             <div className="flex items-center gap-1 mt-0.5 bg-gray-50 px-2 py-0.5 rounded-md">
                                                 <span className="text-[11px] text-gray-2">عدد التقييمات</span>
-                                                <span className="text-[11px] font-bold text-green-600">
+                                                <span className={`text-[11px] font-medium ${index === 0 ? "text-green-600" : "text-gray-600"}`}>
                                                     {store.reviews_count || store.review_rate || 50} تقييم
                                                 </span>
                                             </div>
@@ -73,7 +75,7 @@ export function HightRatedStores() {
                                         {/* Logo */}
                                     </div>
 
-                                    <button className="text-gray-300 hover:text-[#3A5779] transition-colors">
+                                    <button onClick={() => router.push(`/stores/${store.id}`)} className="text-gray-2 cursor-pointer hover:text-[#3A5779] transition-colors">
                                         <ChevronLeft className="w-5 h-5" />
                                     </button>
 

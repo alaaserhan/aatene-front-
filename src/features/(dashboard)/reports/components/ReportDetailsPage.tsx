@@ -212,7 +212,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
                 <span>العميل</span>
               </div>
               <div className=" font-medium w-4/5  flex items-center gap-2 cursor-pointer hover:text-blue-600" onClick={() => router.push(`/admin/users?userId=${report.user.id}`)}>
-                <span>{report.user.fullname}</span>
+                <span>{report?.user?.fullname || "غير معروف"}</span>
               </div>
             </div>
 

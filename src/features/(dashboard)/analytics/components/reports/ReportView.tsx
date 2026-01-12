@@ -130,11 +130,11 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: data?.merchantsGrowthChart || [],
                 topListName: "التجار الاعلي تقييم",
                 topListItems: data?.topMerchantsByStores?.map((item: any, i: number) => ({
-                    id: item.id, title: item.name, subtitle: "عدد التقييمات", image: item.avatar_url, rank: i + 1, badgeText: "150 تقييم", badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.name || "غير معروف", subtitle: "عدد التقييمات", image: item.avatar_url, rank: i + 1, badgeText: "150 تقييم", badgeColor: "bg-green-100 text-green-700"
                 })) || [],
                 bottomListName: "التجار الاعلي عدد بلاغات",
                 bottomListItems: data?.topMerchantsByReports?.map((item: any, i: number) => ({
-                    id: item.id, title: item.name, subtitle: "عدد البلاغات", image: item.avatar_url, rank: i + 1, badgeText: `${item.store_reports_count || 0} بلاغ`, badgeColor: "bg-red-100 text-red-700"
+                    id: item.id, title: item.name || "غير معروف", subtitle: "عدد البلاغات", image: item.avatar_url, rank: i + 1, badgeText: `${item.store_reports_count || 0} بلاغ`, badgeColor: "bg-red-100 text-red-700"
                 })) || []
             };
             break;

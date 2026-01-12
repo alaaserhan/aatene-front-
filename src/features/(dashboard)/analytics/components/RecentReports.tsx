@@ -5,10 +5,12 @@ import { Loader2, ChevronLeft, Smile } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 import { useGetAnalyticsLatests } from "../hooks";
+import { useRouter } from "next/navigation";
 
 export function RecentReports() {
     const { data, isLoading } = useGetAnalyticsLatests();
     const reports = data?.recentReports || [];
+    const router = useRouter();
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -83,7 +85,7 @@ export function RecentReports() {
 
                                         {/* ID */}
                                         <td className="py-4 px-4 text-right">
-                                            <span className="text-sm font-medium  underline decoration-gray-300 underline-offset-4 cursor-pointer hover:text-blue-600 transition-colors">
+                                            <span onClick={() => router.push(`/admin/reports/details/${report.id}`)} className="text-sm font-medium  underline decoration-gray-300 underline-offset-4 cursor-pointer hover:text-blue-600 transition-colors">
                                                 #{report.id}123
                                             </span>
                                         </td>
@@ -91,7 +93,7 @@ export function RecentReports() {
                                         {/* Customer */}
                                         <td className="py-4 px-4 text-right">
                                             <span className="text-sm font-medium text-gray-700">
-                                                {report.user?.fullname || "غير معروف"}
+                                                {report?.user?.fullname || "غير معروف"}
                                             </span>
                                         </td>
 
