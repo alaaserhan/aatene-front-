@@ -162,7 +162,7 @@ export function MapModal({
         {selectedAddress && (
           <div className="p-4 bg-gray-50 border-t">
             <p className="text-sm text-gray-2 mb-1">العنوان المختار:</p>
-            <p className="font-medium text-gray-900">{selectedAddress}</p>
+            <p className="font-medium ">{selectedAddress}</p>
           </div>
         )}
 

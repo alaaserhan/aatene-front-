@@ -13,7 +13,7 @@ export function KnowledgeBaseEmptyState({ onAddClick }: KnowledgeBaseEmptyStateP
       {/* Since no specific icon was provided in the image other than text, we center the text layout */}
 
       <div className="text-center space-y-4">
-        <h3 className="text-xl font-bold text-gray-900">لا يوجد وثائق</h3>
+        <h3 className="text-xl font-bold ">لا يوجد وثائق</h3>
         <p className="text-gray-2 text-sm">أضغط علي إضافة الوثائق</p>
 
         <Button

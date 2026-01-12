@@ -157,7 +157,7 @@ export function AddServiceStep4({
                             {/* --- 1. Description Section --- */}
                             <div className="mb-8">
                                 <div className="flex items-center justify-between mb-4">
-                                    <h2 className="text-xl font-bold text-gray-900">وصف مفصل للخدمة</h2>
+                                    <h2 className="text-xl font-bold ">وصف مفصل للخدمة</h2>
                                 </div>
 
                                 <div className="space-y-0">
@@ -185,7 +185,7 @@ export function AddServiceStep4({
                             {/* --- 2. FAQ Section --- */}
                             <div>
                                 <div className="mb-6">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-1">الأسئلة الشائعة (اختياري)</h2>
+                                    <h2 className="text-xl font-bold  mb-1">الأسئلة الشائعة (اختياري)</h2>
                                     <p className="text-sm text-gray-2">
                                         اكتب إجابات للأسئلة الشائعة التي يطرحها عميلك. أضف حتى خمسة أسئلة.
                                     </p>
@@ -197,7 +197,7 @@ export function AddServiceStep4({
                                         <div key={index} className="group relative bg-white pb-4 border-b border-gray-100 last:border-0">
                                             <div className="flex justify-between items-start">
                                                 <div className="space-y-1 w-full pl-8">
-                                                    <h4 className="font-bold text-gray-900 text-sm flex items-center gap-2">
+                                                    <h4 className="font-bold  text-sm flex items-center gap-2">
                                                         {index + 1}. {q.question}
                                                     </h4>
                                                     <p className="text-sm text-gray-2 leading-relaxed">

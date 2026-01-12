@@ -64,7 +64,7 @@ export function MessagesPage() {
                 <div className="flex-1 w-full bg-white rounded-2xl border border-gray-200 h-[calc(100vh-124px)] flex flex-col overflow-hidden">
 
                     <div className="px-6 py-4 pt-6 border-b border-gray-100 flex justify-between items-center bg-white">
-                        <h1 className="text-xl font-bold text-gray-900">
+                        <h1 className="text-xl font-bold ">
                             {getPlatformTitle(activePlatform)}
                         </h1>
 

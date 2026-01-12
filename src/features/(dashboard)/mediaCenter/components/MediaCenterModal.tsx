@@ -207,7 +207,7 @@ export function MediaCenterModal({
               </div>
 
               <div className="flex items-center gap-3">
-                <h1 className="text-base lg:text-lg font-bold text-gray-900">
+                <h1 className="text-base lg:text-lg font-bold ">
                   مركز الوسائط
                 </h1>
               </div>

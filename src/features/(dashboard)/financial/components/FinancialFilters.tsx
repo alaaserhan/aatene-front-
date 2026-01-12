@@ -49,7 +49,7 @@ export function FinancialFilters({
 
                 {/* Search */}
                 <div className="relative w-full md:w-64">
-                    <span className="text-xs text-gray-2 mb-1 block">رقم الحملة الاعلانية</span>
+                    <span className="text-sm text-gray-2 mb-1 block">رقم الحملة الاعلانية</span>
                     <div className="relative">
                         <Input
                             placeholder="بحث..."
@@ -63,7 +63,7 @@ export function FinancialFilters({
 
                 {/* Transaction Type */}
                 <div className="w-full md:w-48">
-                    <span className="text-xs text-gray-2 mb-1 block">نوع المعاملة</span>
+                    <span className="text-sm text-gray-2 mb-1 block">نوع المعاملة</span>
                     <ReusableDropdown
                         options={typeOptions}
                         value={transactionType}
@@ -75,7 +75,7 @@ export function FinancialFilters({
 
                 {/* Date Range */}
                 <div className="w-full md:w-48">
-                    <span className="text-xs text-gray-2 mb-1 block">تاريخ المعاملة</span>
+                    <span className="text-sm text-gray-2 mb-1 block">تاريخ المعاملة</span>
                     <ReusableDropdown
                         options={dateOptions}
                         value={dateRange}

@@ -148,7 +148,7 @@ export function AddStoreStep1() {
                         <Button
                             onClick={handleCancel}
                             variant="outline"
-                            className="px-12 py-5 bg-[#E3E3E3] border-none hover:bg-gray-200 cursor-pointer rounded-md text-gray-900"
+                            className="px-12 py-5 bg-[#E3E3E3] border-none hover:bg-gray-200 cursor-pointer rounded-md "
                         >
                             إلغاء
                         </Button>

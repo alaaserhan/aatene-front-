@@ -355,7 +355,7 @@ export function AddServiceStep1({
                 {/* Specialties */}
                 <div className="space-y-4 pt-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium text-gray-900">
+                    <Label className="text-sm font-medium ">
                       تخصصات أو مجالات العمل
                     </Label>
                     <Tooltip
@@ -407,7 +407,7 @@ export function AddServiceStep1({
                 {/* Keywords */}
                 <div className="space-y-4 pt-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium text-gray-900">
+                    <Label className="text-sm font-medium ">
                       الكلمات المفتاحية
                     </Label>
                     <Tooltip

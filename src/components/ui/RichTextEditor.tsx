@@ -364,7 +364,7 @@ export function RichTextEditor({
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">
+              <h3 className="text-lg font-bold ">
                 {modalType === "link" && "إضافة رابط"}
                 {modalType === "image" && "إضافة صورة"}
                 {modalType === "table" && "إضافة جدول"}
@@ -569,7 +569,7 @@ function ToolbarButton({
       onClick={onClick}
       title={title}
       className={cn(
-        "w-7 h-7 flex items-center justify-center rounded text-gray-2 hover:bg-gray-200 hover:text-gray-900 transition-colors",
+        "w-7 h-7 flex items-center justify-center rounded text-gray-2 hover:bg-gray-200 hover: transition-colors",
         className
       )}
     >

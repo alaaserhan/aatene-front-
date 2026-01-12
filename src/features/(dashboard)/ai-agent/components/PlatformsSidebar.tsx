@@ -46,7 +46,7 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
                 "group w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer",
                 isActive
                   ? "text-[#D97706] bg-orange-50/50" // إضافة خلفية خفيفة جداً عند النشاط لجمالية أكثر
-                  : "text-gray-2 hover:bg-gray-50 hover:text-gray-900"
+                  : "text-gray-2 hover:bg-gray-50 hover:"
               )}
             >
               {/* هنا السحر: نستخدم div بدلاً من img 

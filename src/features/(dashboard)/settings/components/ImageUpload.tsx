@@ -71,7 +71,7 @@ export function ImageUpload({
   return (
     <div className={cn("space-y-2", className)}>
       {label && (
-        <label className="block text-sm font-medium text-gray-900">
+        <label className="block text-sm font-medium ">
           {label} {optional && "(اختياري)"}
         </label>
       )}

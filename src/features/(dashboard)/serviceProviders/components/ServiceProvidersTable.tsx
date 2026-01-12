@@ -93,7 +93,7 @@ export function ServiceProvidersTable({
                                                 <AvatarFallback>{store.owner?.first_name?.[0]}</AvatarFallback>
                                             </Avatar>
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-medium text-gray-900">
+                                                <span className="text-sm font-medium ">
                                                     {store.owner?.first_name} {store.owner?.last_name}
                                                 </span>
                                                 <span className="text-xs text-gray-2">{store.name}</span>

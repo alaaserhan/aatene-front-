@@ -61,7 +61,7 @@ export function FinancialStatsCards({ storeId }: { storeId?: number | string }) 
     const stats = generalData || { total_bought_coins: 0, total_spent_coins: 0, current_balance: 0 };
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Total Bought - Green */}
             <StatCard
                 title="مجموع العملات التي تم شراؤها"

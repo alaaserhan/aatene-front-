@@ -35,7 +35,7 @@ export function FinancialChart({ storeId, className }: FinancialChartProps) {
     ];
 
     const lines = [
-        { key: "gained_coins", color: "#3B82F6", name: "عملات مكتسبة" }, // Blue
+        { key: "gained_coins", color: "#406896", name: "عملات مكتسبة" }, // Blue
         { key: "spent_coins", color: "#EF4444", name: "عملات مصروفة" },   // Red
     ];
 
@@ -44,7 +44,7 @@ export function FinancialChart({ storeId, className }: FinancialChartProps) {
             <div className="flex items-center justify-between mb-6 shrink-0">
                 <h3 className="text-lg font-bold flex items-center gap-2 ">
                     <div className="p-2 bg-blue-50 rounded-lg">
-                        <BarChart3 className="w-5 h-5 text-blue-500" />
+                        <BarChart3 className="w-5 h-5 text-blue-4" />
                     </div>
                     تحليل صرف العملات عبر الزمن
                 </h3>
@@ -61,7 +61,7 @@ export function FinancialChart({ storeId, className }: FinancialChartProps) {
 
             {isLoading ? (
                 <div className="flex-1 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+                    <Loader2 className="w-8 h-8 animate-spin text-blue-4" />
                 </div>
             ) : chartData.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center text-gray-2">
@@ -70,7 +70,7 @@ export function FinancialChart({ storeId, className }: FinancialChartProps) {
             ) : (
                 <div className="flex-1 w-full min-h-0" dir="ltr">
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                        <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -30, bottom: 0 }}>
                             <defs>
                                 {lines.map((line, i) => (
                                     <linearGradient key={i} id={`color-${line.key}`} x1="0" y1="0" x2="0" y2="1">

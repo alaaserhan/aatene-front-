@@ -72,12 +72,12 @@ export function FinancialTransactionsTable({
                 <table className="w-full">
                     <thead className="bg-gray-50/50 border-b border-gray-100">
                         <tr>
-                            <th className="px-6 py-4 text-xs font-medium text-start w-16">#</th>
-                            <th className="px-6 py-4 text-xs font-medium text-start">نوع العملية</th>
-                            <th className="px-6 py-4 text-xs font-medium text-start">رقم الحملة</th>
-                            <th className="px-6 py-4 text-xs font-medium text-start">التاريخ والوقت</th>
-                            <th className="px-6 py-4 text-xs font-medium text-start">عدد العملات</th>
-                            <th className="px-6 py-4 text-xs font-medium text-start w-1/3">وصف/ملاحظة</th>
+                            <th className="px-6 py-4 text-sm font-medium text-start w-16">#</th>
+                            <th className="px-6 py-4 text-sm font-medium text-start">نوع العملية</th>
+                            <th className="px-6 py-4 text-sm font-medium text-start">رقم الحملة</th>
+                            <th className="px-6 py-4 text-sm font-medium text-start">التاريخ والوقت</th>
+                            <th className="px-6 py-4 text-sm font-medium text-start">عدد العملات</th>
+                            <th className="px-6 py-4 text-sm font-medium text-start w-1/3">وصف/ملاحظة</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -87,7 +87,7 @@ export function FinancialTransactionsTable({
 
                             return (
                                 <tr key={tx.id} className="hover:bg-gray-50/50 transition-colors">
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                    <td className="px-6 py-4 text-sm font-medium ">
                                         #{tx.id}
                                     </td>
 

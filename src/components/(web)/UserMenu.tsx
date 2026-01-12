@@ -150,7 +150,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 text-lg truncate">{user.fullname}</h3>
+              <h3 className="font-semibold  text-lg truncate">{user.fullname}</h3>
               <p className="text-gray-2 text-sm truncate">{user.email}</p>
               <div className="mt-2">
                 {getUserTypeBadge(user.user_type)}
@@ -248,7 +248,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
     <div className="relative z-50" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-all duration-200"
+        className="group flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-700 hover: rounded-lg hover:bg-gray-50 transition-all duration-200"
       >
         <div className="relative">
           {user.avatar ? (
@@ -283,7 +283,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 text-lg truncate">{user.fullname}</h3>
+                <h3 className="font-semibold  text-lg truncate">{user.fullname}</h3>
                 <p className="text-gray-2 text-sm truncate">{user.email}</p>
                 <div className="mt-2">
                   {getUserTypeBadge(user.user_type)}

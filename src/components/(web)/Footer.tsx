@@ -105,7 +105,7 @@ const Footer = () => {
 
           {/* Mobile App Downloads - Mobile Position */}
           <div className="block lg:hidden col-span-1 sm:col-span-1">
-            <h4 className="font-bold text-base mb-4 text-gray-900 text-center sm:text-right">احصل على التطبيق</h4>
+            <h4 className="font-bold text-base mb-4  text-center sm:text-right">احصل على التطبيق</h4>
             <div className="flex flex-row gap-3 max-w-xs mx-auto sm:max-w-none sm:mx-0">
               <a href="#" className="block group">
                 <div className="relative h-12 sm:h-14 w-full sm:w-32 overflow-hidden rounded-lg transition-transform group-hover:scale-105">
@@ -133,7 +133,7 @@ const Footer = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 lg:gap-8 text-center lg:text-right">
               {navigationSections.map((section, idx) => (
                 <div key={idx} className="space-y-3">
-                  <h4 className="font-bold text-sm sm:text-base text-gray-900 mb-2 sm:mb-3">
+                  <h4 className="font-bold text-sm sm:text-base  mb-2 sm:mb-3">
                     {section.title}
                   </h4>
                   <ul className="sm:space-y-1">
@@ -155,7 +155,7 @@ const Footer = () => {
 
           {/* Mobile App Downloads - Desktop Position */}
           <div className="hidden lg:block lg:col-span-2">
-            <h4 className="font-bold text-base mb-3 text-gray-900">احصل على التطبيق</h4>
+            <h4 className="font-bold text-base mb-3 ">احصل على التطبيق</h4>
             <div className="flex justify-start flex-col gap-3">
               <a href="#" className="block group">
                 <div className="relative h-12 w-full overflow-hidden rounded-lg transition-transform group-hover:scale-105">

@@ -102,7 +102,7 @@ export function StoreBannerSelector({
     return (
         <div className="space-y-3">
             <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-900">
+                <label className="text-sm font-medium ">
                     بنر المتجر (يمكنك إضافة حتى {maxFiles} بنرات)
                 </label>
                 <span className="text-xs text-gray-2">

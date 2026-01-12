@@ -260,7 +260,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
           <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
             <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">عذراً، حدث خطأ ما</h2>
+          <h2 className="text-xl font-bold  mb-2">عذراً، حدث خطأ ما</h2>
           <p className="text-gray-2 mb-8 leading-relaxed">
             {mappingError
               ? "حدث خطأ أثناء معالجة بيانات المنتج."

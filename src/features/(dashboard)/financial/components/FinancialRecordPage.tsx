@@ -48,7 +48,7 @@ export function FinancialRecordPage({ storeId }: { storeId?: number }) {
     ];
 
     return (
-        <div className="flex flex-col gap-6 p-6">
+        <div className="flex flex-col gap-6 sm:p-6 p-2">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <Breadcrumb items={breadcrumbItems} className="mb-2 p-0 bg-transparent" />
