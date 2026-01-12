@@ -38,7 +38,7 @@ export function OptionTag({
             className="flex items-center justify-center cursor-pointer"
             aria-label={`حذف ${label}`}
           >
-            <X className="w-4 h-4 text-gray-2 hover:text-gray-800" />
+            <X className="w-4 h-4 text-gray-2 hover:" />
           </button>
         </>
       )}

@@ -39,7 +39,7 @@ export function UserFavoritesPage({ userId }: UserFavoritesPageProps) {
         <div className="flex flex-col gap-6 p-6 min-h-screen bg-[#F8F9FC]">
             <div className="flex flex-col gap-2">
                 <Breadcrumb items={breadcrumbItems} />
-                <h1 className="text-2xl font-bold text-gray-800 mt-2">إدارة المفضلة</h1>
+                <h1 className="text-2xl font-bold  mt-2">إدارة المفضلة</h1>
                 <p className="text-gray-2 text-sm">
                     تابع تفضيلات المستخدم، وقم بمراجعة وتنظيم المنتجات والمتاجر المضافة إلى المفضلة.
                 </p>

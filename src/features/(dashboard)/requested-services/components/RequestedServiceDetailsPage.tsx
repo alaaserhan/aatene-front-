@@ -100,7 +100,7 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
         <div className="flex flex-col md:flex-row justify-between items-start  gap-4">
           <div>
             <Breadcrumb items={breadcrumbItems} />
-            <h1 className="text-xl md:text-2xl font-bold text-gray-800 mt-2">
+            <h1 className="text-xl md:text-2xl font-bold  mt-2">
               {service.title}
             </h1>
           </div>
@@ -168,7 +168,7 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
 
             {/* Description */}
             <div className="mb-8">
-              <h4 className="text-lg font-bold text-gray-800 mb-3">تفاصيل الطلب</h4>
+              <h4 className="text-lg font-bold  mb-3">تفاصيل الطلب</h4>
               <div className="text-gray-2 leading-relaxed whitespace-pre-wrap text-base">
                 {service.content}
               </div>

@@ -131,7 +131,7 @@ export function AddStoryModal({
             {/* ✅ تم رفع z-index ليكون أعلى من ShowStoryModal */}
             <DialogContent className="sm:max-w-[500px] bg-white p-0 gap-0 overflow-hidden rounded-lg z-[10000]" dir="rtl">
                 <DialogHeader className="p-4 border-b border-gray-100 flex flex-row items-center justify-between space-y-0">
-                    <DialogTitle className="text-lg font-bold text-gray-800 w-full text-right">
+                    <DialogTitle className="text-lg font-bold  w-full text-right">
                         {storyToEdit ? "تعديل القصة" : (currentMode === "text" ? "انشاء قصة نصية" : "انشاء قصة مصورة")}
                     </DialogTitle>
                 </DialogHeader>
@@ -184,7 +184,7 @@ export function AddStoryModal({
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <Button
                                                 variant="default"
-                                          
+
                                                 onClick={() => setIsMediaModalOpen(true)}
                                             >
                                                 <ImageIcon className="w-4 h-4" />

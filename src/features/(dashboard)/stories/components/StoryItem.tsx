@@ -67,7 +67,7 @@ export function StoryItem({ story, storeId }: StoryItemProps) {
               </div>
             )}
           </div>
-          <span className="text-sm font-medium text-gray-800">{timeAgo}</span>
+          <span className="text-sm font-medium ">{timeAgo}</span>
         </div>
 
         {/* الجزء الأيسر: زر الحذف */}

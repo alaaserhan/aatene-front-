@@ -68,7 +68,7 @@ export function StorePreviewSidebar({ data }: StorePreviewSidebarProps) {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="text-3xl font-bold text-gray-800">
+                      <div className="text-3xl font-bold ">
                         {data.name ? data.name.charAt(0).toUpperCase() : "S"}
                       </div>
                     )}

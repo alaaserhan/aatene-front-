@@ -31,7 +31,7 @@ export default function MerchantAnalyticsPage() {
 
     return (
         <div className="flex flex-col ">
-            <main className="flex-1 p-6">
+            <main className="flex-1 sm:p-6 p-2">
                 <div className="grid grid-cols-12 gap-4">
 
                     {/* --- Row 1 --- */}

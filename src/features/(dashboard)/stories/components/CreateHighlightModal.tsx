@@ -20,16 +20,16 @@ interface CreateHighlightModalProps {
   highlightToEdit?: Highlight | null;
 }
 
-export function CreateHighlightModal({ 
-  isOpen, 
-  onClose, 
-  storeId, 
+export function CreateHighlightModal({
+  isOpen,
+  onClose,
+  storeId,
   availableStories,
-  highlightToEdit 
+  highlightToEdit
 }: CreateHighlightModalProps) {
   const [name, setName] = useState("");
   const [selectedStories, setSelectedStories] = useState<number[]>([]);
-  
+
   const { mutate: createHighlight, isPending: isCreating } = useCreateHighlight();
   const { mutate: updateHighlight, isPending: isUpdating } = useUpdateHighlight();
 
@@ -49,19 +49,19 @@ export function CreateHighlightModal({
   }, [isOpen, highlightToEdit]);
 
   const toggleStory = (id: number) => {
-    setSelectedStories(prev => 
-        prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    setSelectedStories(prev =>
+      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
     );
   };
 
   const handleSubmit = () => {
     if (!name.trim()) {
-        toast.error("يرجى كتابة اسم المجموعة");
-        return;
+      toast.error("يرجى كتابة اسم المجموعة");
+      return;
     }
     if (selectedStories.length === 0) {
-        toast.error("يرجى اختيار قصة واحدة على الأقل");
-        return;
+      toast.error("يرجى اختيار قصة واحدة على الأقل");
+      return;
     }
 
     const payload = { name, stories: selectedStories };
@@ -73,17 +73,17 @@ export function CreateHighlightModal({
         storeId: String(storeId)
       }, {
         onSuccess: () => {
-            onClose();
+          onClose();
         }
       });
     } else {
       createHighlight({
-          payload,
-          storeId: String(storeId)
+        payload,
+        storeId: String(storeId)
       }, {
-          onSuccess: () => {
-              onClose();
-          }
+        onSuccess: () => {
+          onClose();
+        }
       });
     }
   };
@@ -93,59 +93,59 @@ export function CreateHighlightModal({
       <DialogContent className="max-w-2xl p-6 rounded-2xl bg-white" dir="rtl">
         <VisuallyHidden><DialogTitle>{highlightToEdit ? "تعديل المجموعة" : "انشاء مجموعة جديدة"}</DialogTitle></VisuallyHidden>
         <div className="space-y-6">
-            <h3 className="text-lg font-bold text-gray-800 text-right">
-              {highlightToEdit ? "تعديل المجموعة" : "انشاء مجموعة جديدة"}
-            </h3>
-            
-            <Input 
-                placeholder="اسم المجموعة" 
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="h-12 text-right border-gray-200"
-            />
+          <h3 className="text-lg font-bold  text-right">
+            {highlightToEdit ? "تعديل المجموعة" : "انشاء مجموعة جديدة"}
+          </h3>
 
-            <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 block text-right">اختر القصص</label>
-                <div className="grid grid-cols-3 md:grid-cols-4 gap-4 max-h-[400px] overflow-y-auto p-1">
-                    {availableStories.map((story) => (
-                        <div 
-                            key={story.id} 
-                            onClick={() => toggleStory(story.id)}
-                            className={cn(
-                                "aspect-[9/16] rounded-xl relative cursor-pointer overflow-hidden border-2 transition-all",
-                                selectedStories.includes(story.id) ? "border-blue-500 ring-2 ring-blue-100" : "border-transparent"
-                            )}
-                        >
-                            {story.image ? (
-                                <img src={story.image} className="w-full h-full object-cover" alt="story" />
-                            ) : (
-                                <div 
-                                    className="w-full h-full flex items-center justify-center p-2 text-center text-white text-xs font-bold break-words"
-                                    style={{ backgroundColor: story.color || "#333" }}
-                                >
-                                    {story.text}
-                                </div>
-                            )}
+          <Input
+            placeholder="اسم المجموعة"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="h-12 text-right border-gray-200"
+          />
 
-                            <div className={cn(
-                                "absolute top-2 left-2 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center transition-colors",
-                                selectedStories.includes(story.id) ? "bg-blue-500" : "bg-black/30"
-                            )}>
-                                {selectedStories.includes(story.id) && <CheckCircle2 className="w-4 h-4 text-white" />}
-                            </div>
-                        </div>
-                    ))}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 block text-right">اختر القصص</label>
+            <div className="grid grid-cols-3 md:grid-cols-4 gap-4 max-h-[400px] overflow-y-auto p-1">
+              {availableStories.map((story) => (
+                <div
+                  key={story.id}
+                  onClick={() => toggleStory(story.id)}
+                  className={cn(
+                    "aspect-[9/16] rounded-xl relative cursor-pointer overflow-hidden border-2 transition-all",
+                    selectedStories.includes(story.id) ? "border-blue-500 ring-2 ring-blue-100" : "border-transparent"
+                  )}
+                >
+                  {story.image ? (
+                    <img src={story.image} className="w-full h-full object-cover" alt="story" />
+                  ) : (
+                    <div
+                      className="w-full h-full flex items-center justify-center p-2 text-center text-white text-xs font-bold break-words"
+                      style={{ backgroundColor: story.color || "#333" }}
+                    >
+                      {story.text}
+                    </div>
+                  )}
+
+                  <div className={cn(
+                    "absolute top-2 left-2 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center transition-colors",
+                    selectedStories.includes(story.id) ? "bg-blue-500" : "bg-black/30"
+                  )}>
+                    {selectedStories.includes(story.id) && <CheckCircle2 className="w-4 h-4 text-white" />}
+                  </div>
                 </div>
+              ))}
             </div>
+          </div>
 
-            <div className="flex gap-3 pt-4 border-t border-gray-100">
-                <Button className="flex-1 bg-[#3A5779]" onClick={handleSubmit} disabled={isPending}>
-                    {isPending ? <Loader2 className="animate-spin" /> : "حفظ"}
-                </Button>
-                <Button variant="secondary" className="flex-1 bg-gray-100" onClick={onClose}>
-                    الغاء
-                </Button>
-            </div>
+          <div className="flex gap-3 pt-4 border-t border-gray-100">
+            <Button className="flex-1 bg-[#3A5779]" onClick={handleSubmit} disabled={isPending}>
+              {isPending ? <Loader2 className="animate-spin" /> : "حفظ"}
+            </Button>
+            <Button variant="secondary" className="flex-1 bg-gray-100" onClick={onClose}>
+              الغاء
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

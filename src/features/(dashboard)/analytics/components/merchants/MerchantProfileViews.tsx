@@ -65,7 +65,7 @@ export function MerchantProfileViews() {
                         <div className="h-[80px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={lineChartData}>
-                                     <XAxis dataKey="name" hide />
+                                    <XAxis dataKey="name" hide />
                                     <Tooltip
                                         contentStyle={{
                                             borderRadius: "8px",

@@ -39,7 +39,7 @@ export function MerchantCustomerLocation() {
 
     return (
         <div className="bg-white rounded-lg p-6 h-[320px] flex flex-col">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">
+            <h3 className="text-lg font-medium mb-4">
                 من اين تاتي العملاء
             </h3>
 

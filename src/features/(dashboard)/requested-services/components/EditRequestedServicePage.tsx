@@ -122,7 +122,7 @@ export function EditRequestedServicePage({ id }: EditRequestedServicePageProps) 
 
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">تعديل الخدمة</h1>
+        <h1 className="text-2xl font-bold ">تعديل الخدمة</h1>
       </div>
       <Breadcrumb items={breadcrumbItems} />
 
@@ -131,7 +131,7 @@ export function EditRequestedServicePage({ id }: EditRequestedServicePageProps) 
 
         {/* 1. Title Section */}
         <div className="flex flex-col gap-2">
-          <h3 className="font-bold text-gray-800 text-lg">عنوان الخدمة</h3>
+          <h3 className="font-bold  text-lg">عنوان الخدمة</h3>
           <FormInput
             label=""
             value={title}
@@ -163,7 +163,7 @@ export function EditRequestedServicePage({ id }: EditRequestedServicePageProps) 
 
         {/* 3. Content Section */}
         <div className="flex flex-col gap-2">
-          <h3 className="font-bold text-gray-800 text-lg">محتوى الخدمة</h3>
+          <h3 className="font-bold  text-lg">محتوى الخدمة</h3>
 
           <div className="bg-white ">
             <textarea

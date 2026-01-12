@@ -271,7 +271,7 @@ export function RequestedServicesPage() {
   return (
     <div className="flex flex-col gap-6 p-6 min-h-screen bg-[#F8F9FC]">
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold text-gray-800">طلبات الخدمات الغير موجودة</h1>
+        <h1 className="text-2xl font-bold ">طلبات الخدمات الغير موجودة</h1>
         <p className="text-gray-2 text-sm">
           تتيح لك استعراض الطلبات المرسلة من المستخدمين مع إمكانية متابعة حالتها وإدارتها.
         </p>
@@ -299,7 +299,7 @@ export function RequestedServicesPage() {
                 )}>
                   {stat.count}
                 </span>
-                <span className={cn("font-bold text-sm", isActive ? "text-gray-800" : "text-gray-2")}>
+                <span className={cn("font-bold text-sm", isActive ? "" : "text-gray-2")}>
                   {stat.label}
                 </span>
               </button>

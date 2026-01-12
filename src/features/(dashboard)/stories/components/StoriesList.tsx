@@ -92,7 +92,7 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
           <div className="relative mb-4">
             <img src="/icons/dashboard/emptyStories.svg" alt="" className="h-44 opacity-80" />
           </div>
-          <h3 className="text-lg font-bold mb-1 text-gray-800">لا يوجد قصص حتي الان</h3>
+          <h3 className="text-lg font-bold mb-1 ">لا يوجد قصص حتي الان</h3>
           <p className="text-gray-2 text-sm">بمجرد متابعتك من احد الاشخاص سيظهر هنا من يتابعك</p>
         </div>
       ) : (

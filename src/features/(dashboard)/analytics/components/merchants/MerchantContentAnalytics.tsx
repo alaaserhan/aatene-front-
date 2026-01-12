@@ -185,7 +185,7 @@ export function MerchantContentAnalytics() {
 
             {/* Chart Section */}
             <div className="flex flex-col gap-4 mt-2 flex-1">
-                <h4 className="text-sm font-bold text-gray-700 px-2">نمو المنتجات</h4>
+                <h4 className="text-sm font-medium text-gray-700 px-2">نمو المنتجات</h4>
                 <div className="h-[250px] w-full dir-ltr">
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={chartData} margin={{ top: 10, right: 0, left: -40, bottom: 0 }}>
