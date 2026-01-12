@@ -36,7 +36,7 @@ export function FinancialRecordPage({ storeId }: { storeId?: number }) {
         return params;
     }, [currentPage, storeId, dateRange, transactionType, searchQuery]);
 
-    const { data: transactionsData, isLoading: isLoadingTransactions } = useGetCoinsTransactions(transactionsParams, storeId);
+    const { data: transactionsData, isLoading: isLoadingTransactions, isFetching } = useGetCoinsTransactions(transactionsParams, storeId);
 
     const transactions = transactionsData?.transactions || [];
     const totalRecords = transactionsData?.recordsFiltered || 0;
@@ -76,6 +76,7 @@ export function FinancialRecordPage({ storeId }: { storeId?: number }) {
                 searchQuery={searchQuery}
                 onSearchQueryChange={(val) => { setSearchQuery(val); setCurrentPage(1); }}
                 onExport={() => console.log("Export triggered")}
+                isLoading={isFetching}
             />
 
             {/* Transactions Table */}
