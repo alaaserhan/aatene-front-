@@ -47,7 +47,7 @@ export default function AnalyticsOverviewPage() {
         <div className="flex flex-col">
             <AnalyticsHeader />
 
-            <main className="flex-1 p-6">
+            <main className="flex-1 sm:p-6 p-2">
                 <div className="grid grid-cols-12 gap-6">
 
                     {/* --- Row 1 --- */}
