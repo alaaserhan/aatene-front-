@@ -288,7 +288,7 @@ export function AddProductStep2({
                       addNewLabel="إضافة قسم جديد"
                     />
                     {!errors.section_id && (
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-gray-2">
                         حدد القسم الذي ينتمي إليه هذا المنتج داخل المتجر.
                       </p>
                     )}

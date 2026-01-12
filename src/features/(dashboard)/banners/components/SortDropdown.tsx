@@ -52,7 +52,7 @@ export function SortDropdown({ value, onChange }: SortDropdownProps) {
         </span>
         <ChevronDown
           className={cn(
-            "w-4 h-4 text-gray-500 transition-transform",
+            "w-4 h-4 text-gray-2 transition-transform",
             isOpen && "rotate-180"
           )}
         />

@@ -214,7 +214,7 @@ export function ImageGallerySelector({
                                     <span
                                         className={cn(
                                             "text-xs font-medium transition-colors",
-                                            index === 0 ? "text-blue-3" : "text-gray-500"
+                                            index === 0 ? "text-blue-3" : "text-gray-2"
                                         )}
                                     >
                                         {mainImageLabel}

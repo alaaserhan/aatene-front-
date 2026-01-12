@@ -19,7 +19,7 @@ export function Breadcrumb({ items, className = "" }: BreadcrumbProps) {
     <nav className={`flex items-center gap-1 py-2  ${className}`} aria-label="Breadcrumb">
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
-        
+
         return (
           <Fragment key={index}>
             {item.href && !isLast ? (
@@ -36,9 +36,9 @@ export function Breadcrumb({ items, className = "" }: BreadcrumbProps) {
                 {item.label}
               </span>
             )}
-            
+
             {!isLast && (
-              <span className="text-gray-400">/</span>
+              <span className="text-gray-2">/</span>
             )}
           </Fragment>
         );

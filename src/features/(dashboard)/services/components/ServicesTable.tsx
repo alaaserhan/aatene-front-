@@ -61,7 +61,7 @@ export function ServicesTable({
     if (services.length === 0) {
         return (
             <div className="flex flex-col min-h-[300px] items-center justify-center">
-                <p className="text-gray-500">لا توجد خدمات في هذا القسم</p>
+                <p className="text-gray-2">لا توجد خدمات في هذا القسم</p>
             </div>
         );
     }
@@ -139,7 +139,7 @@ export function ServicesTable({
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <span className="text-sm text-gray-500 font-medium">
+                                            <span className="text-sm text-gray-2 font-medium">
                                                 {service.response_date || "-"}
                                             </span>
                                         </td>
@@ -191,7 +191,7 @@ export function ServicesTable({
                                         {/* More Actions (Grey bg) */}
                                         <DropdownMenu dir="rtl">
                                             <DropdownMenuTrigger asChild>
-                                                <button type="button" className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                                                <button type="button" className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-gray-100 text-gray-2 hover:bg-gray-200 transition-colors">
                                                     <MoreHorizontal className="w-5 h-5" />
                                                 </button>
                                             </DropdownMenuTrigger>

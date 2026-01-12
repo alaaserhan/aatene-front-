@@ -197,14 +197,14 @@ export function DashboardUserMenu() {
                                     value={storeSearch}
                                     onChange={(e) => setStoreSearch(e.target.value)}
                                 />
-                                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                                <Search className="w-4 h-4 text-gray-2 absolute left-3 top-3" />
                             </div>
 
                             <div className="space-y-2 max-h-[150px] overflow-y-auto custom-scrollbar">
                                 {isLoadingStores ? (
-                                    <p className="text-xs text-center text-gray-400 py-2">جاري التحميل...</p>
+                                    <p className="text-xs text-center text-gray-2 py-2">جاري التحميل...</p>
                                 ) : filteredStores.length === 0 ? (
-                                    <p className="text-xs text-center text-gray-400 py-2">لا يوجد متاجر</p>
+                                    <p className="text-xs text-center text-gray-2 py-2">لا يوجد متاجر</p>
                                 ) : (
                                     filteredStores.map((store) => {
                                         const isActive = String(store.id) === currentStoreId;
@@ -257,7 +257,7 @@ export function DashboardUserMenu() {
                                     <span className="text-sm font-bold text-blue-4 group-hover:text-blue-700">
                                         {item.label}
                                     </span>
-                                    <span className="text-[10px] text-gray-400 mt-0.5">
+                                    <span className="text-[10px] text-gray-2 mt-0.5">
                                         {item.desc}
                                     </span>
                                 </div>

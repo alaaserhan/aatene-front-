@@ -65,7 +65,7 @@ export function AddStoreStep1() {
                                         "w-6 h-6 rounded-full border flex items-center justify-center transition-all",
                                         selectedType === "products"
                                             ? "border-blue-4 bg-blue-4"
-                                            : "border-gray-500 bg-transparent"
+                                            : "border-gray-2 bg-transparent"
                                     )}
                                 >
                                     {selectedType === "products" && (
@@ -108,7 +108,7 @@ export function AddStoreStep1() {
                                         "w-6 h-6 rounded-full border flex items-center justify-center transition-all",
                                         selectedType === "services"
                                             ? "border-blue-4 bg-blue-4"
-                                            : "border-gray-500 bg-transparent"
+                                            : "border-gray-2 bg-transparent"
                                     )}
                                 >
                                     {selectedType === "services" && (

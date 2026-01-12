@@ -126,7 +126,7 @@ export function BannersPage() {
             <h1 className="text-xl md:text-2xl font-bold text-brand-black-1">
               بنرات إعلانية
             </h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-2 mt-1">
               تميز لك رفع بنرات جديدة مع تحديد العنوان والرابط وترتيب العرض
               بالإضافة الى إدارة البنرات الحالية خلال تعديلها أو حذفها
             </p>
@@ -161,7 +161,7 @@ export function BannersPage() {
                     placeholder="البحث"
                     className="w-full px-4 py-2 ps-12 border border-gray-200 rounded-s-sm focus:outline-none  text-start"
                   />
-                  <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-2" />
                 </div>
                 <button
                   onClick={handleSearch}
@@ -233,7 +233,7 @@ export function BannersPage() {
                     <td colSpan={9} className="text-center p-8">
                       <div className="flex justify-center items-center gap-2">
                         <Loader2 className="w-5 h-5 animate-spin text-brand-blue-3" />
-                        <span className="text-gray-600">
+                        <span className="text-gray-2">
                           جاري تحميل البيانات...
                         </span>
                       </div>
@@ -247,7 +247,7 @@ export function BannersPage() {
                   </tr>
                 ) : banners.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="text-center p-8 text-gray-500">
+                    <td colSpan={9} className="text-center p-8 text-gray-2">
                       لا توجد بيانات لعرضها.
                     </td>
                   </tr>

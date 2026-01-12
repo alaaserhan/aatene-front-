@@ -85,7 +85,7 @@ export function CustomersAnalytics() {
             <div className="flex items-center justify-between border-b border-gray-100 pb-2">
 
                 <div className="flex flex-col">
-                    <span className="text-xs text-gray-400 font-medium mb-1">إحصائيات</span>
+                    <span className="text-xs text-gray-2 font-medium mb-1">إحصائيات</span>
                     <div className="flex items-center gap-2 ">
                         <h3 className="text-lg font-medium ">العملاء</h3>
                         <span className="text-lg font-medium ">
@@ -99,7 +99,7 @@ export function CustomersAnalytics() {
                         value={period}
                         onChange={setPeriod}
                         placeholder="الكل"
-                        triggerIcon={<Calendar className="w-4 h-4 text-gray-500" />}
+                        triggerIcon={<Calendar className="w-4 h-4 text-gray-2" />}
                         className="h-10 text-xs"
                     />
                 </div>

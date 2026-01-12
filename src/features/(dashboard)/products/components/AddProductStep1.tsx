@@ -52,7 +52,7 @@ const Tooltip = ({
         {trigger}
       </div>
       {isOpen && (
-        <div className="absolute z-50 p-3 bg-white border border-gray-200 rounded-lg shadow-lg w-64 text-xs text-gray-600 leading-relaxed top-full mt-2 left-1/2 -translate-x-1/2">
+        <div className="absolute z-50 p-3 bg-white border border-gray-200 rounded-lg shadow-lg w-64 text-xs text-gray-2 leading-relaxed top-full mt-2 left-1/2 -translate-x-1/2">
           {content}
         </div>
       )}
@@ -84,7 +84,7 @@ export function AddProductStep1({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   // ✅ حالة البحث عن الفئات
   const [categorySearchQuery, setCategorySearchQuery] = useState("");
 
@@ -143,12 +143,12 @@ export function AddProductStep1({
     }
 
     if (errors.short_description) {
-        delete newErrors.short_description;
-        hasChanges = true;
+      delete newErrors.short_description;
+      hasChanges = true;
     }
     if (errors.description) {
-        delete newErrors.description;
-        hasChanges = true;
+      delete newErrors.description;
+      hasChanges = true;
     }
 
     if (hasChanges) {
@@ -302,7 +302,7 @@ export function AddProductStep1({
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-1">
-                    السعر 
+                    السعر
                   </Label>
                   <div className="relative">
                     <input
@@ -373,7 +373,7 @@ export function AddProductStep1({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium flex items-center gap-1">
-                      الوصف الموجز 
+                      الوصف الموجز
                     </Label>
                     <Tooltip
                       trigger={
@@ -399,7 +399,7 @@ export function AddProductStep1({
                     maxLength={300}
                     rows={3}
                     className={cn(
-                      "w-full px-4 py-3 border rounded-lg focus:outline-none  text-sm resize-none placeholder:text-gray-400",
+                      "w-full px-4 py-3 border rounded-lg focus:outline-none  text-sm resize-none placeholder:text-gray-2",
                       errors.short_description
                         ? "border-red-500"
                         : "border-gray-200"

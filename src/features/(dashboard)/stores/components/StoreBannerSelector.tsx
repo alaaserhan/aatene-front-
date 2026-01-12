@@ -105,7 +105,7 @@ export function StoreBannerSelector({
                 <label className="text-sm font-medium text-gray-900">
                     بنر المتجر (يمكنك إضافة حتى {maxFiles} بنرات)
                 </label>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-2">
                     المقاسات المفضلة 680 × 180
                 </span>
             </div>
@@ -155,7 +155,7 @@ export function StoreBannerSelector({
                                 <span
                                     className={cn(
                                         "text-xs font-medium transition-colors",
-                                        index === 0 ? "text-blue-3" : "text-gray-500"
+                                        index === 0 ? "text-blue-3" : "text-gray-2"
                                     )}
                                 >
                                     البنر الاساسي

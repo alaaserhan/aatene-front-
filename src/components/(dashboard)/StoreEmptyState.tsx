@@ -27,7 +27,7 @@ export function StoreEmptyState({
                 {title}
             </h2>
 
-            <p className="text-gray-500 max-w-md mb-8 leading-relaxed">
+            <p className="text-gray-2 max-w-md mb-8 leading-relaxed">
                 {description}
             </p>
 

@@ -66,7 +66,7 @@ export function AddKnowledgePage() {
           <div className="flex items-center gap-4 pb-4">
             <div>
               <h1 className="text-2xl font-bold mb-1">إضافة وثائق</h1>
-              <p className="text-gray-500 text-sm">اضف البيانات المراد تزويد الموظف بها مرة واحدة</p>
+              <p className="text-gray-2 text-sm">اضف البيانات المراد تزويد الموظف بها مرة واحدة</p>
             </div>
           </div>
 
@@ -114,12 +114,12 @@ export function AddKnowledgePage() {
                     </div>
                     <div>
                       <p className="font-medium">{selectedFile.name}</p>
-                      <p className="text-gray-500 text-sm">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                      <p className="text-gray-2 text-sm">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setSelectedFile(null)}
-                    className="text-gray-400 hover:text-red-500 transition-colors p-2"
+                    className="text-gray-2 hover:text-red-500 transition-colors p-2"
                   >
                     <X className="w-5 h-5" />
                   </button>

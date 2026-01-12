@@ -165,7 +165,7 @@ export function BlogsPage() {
                                             }}
                                             className="w-full bg-white h-11 border-gray-200 ps-12 focus:ring-0 focus:border-blue-3 text-right"
                                         />
-                                        <Search className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                        <Search className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-2 w-5 h-5" />
                                     </div>
                                     {!isMerchant && (
                                         <div className="w-64">
@@ -177,7 +177,7 @@ export function BlogsPage() {
                                                     setCurrentPage(1); // إعادة تعيين الصفحة عند تغيير المتجر
                                                 }}
                                                 placeholder="اختر المتجر..."
-                                                triggerIcon={<StoreIcon className="w-4 h-4 text-gray-500" />}
+                                                triggerIcon={<StoreIcon className="w-4 h-4 text-gray-2" />}
                                                 className="h-11 bg-white"
                                             />
                                         </div>
@@ -190,7 +190,7 @@ export function BlogsPage() {
                                             onChange={setFilterValue}
                                             placeholder="تصفية"
                                             className="h-11 bg-white"
-                                            triggerIcon={<Filter className="w-4 h-4 text-gray-500" />}
+                                            triggerIcon={<Filter className="w-4 h-4 text-gray-2" />}
                                         />
                                     </div>
                                 </div>

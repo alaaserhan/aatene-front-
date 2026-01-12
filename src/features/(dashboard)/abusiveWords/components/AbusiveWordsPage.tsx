@@ -233,7 +233,7 @@ export function AbusiveWordsPage() {
                         </p>
                     </div>
                     {activeTab === "abusive-users" && (
-                        <Button onClick={()=> setActiveTab("abusive-words")} className="flex items-center gap-2 bg-blue-3 text-white hover:bg-blue-4">
+                        <Button onClick={() => setActiveTab("abusive-words")} className="flex items-center gap-2 bg-blue-3 text-white hover:bg-blue-4">
                             <Plus className="w-5 h-5" />
                             إضافة كلمة مسيئة
                         </Button>
@@ -255,7 +255,7 @@ export function AbusiveWordsPage() {
                                 <div className="p-4 border-b border-gray-100">
                                     <div className="flex items-center gap-4">
                                         <div className="flex-1 relative">
-                                            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-2" />
                                             <Input
                                                 type="text"
                                                 placeholder="ابحث عن أي كلمة أو أي مستخدم..."
@@ -269,7 +269,7 @@ export function AbusiveWordsPage() {
 
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-sm">
-                                        <thead className="bg-gray-50 text-gray-600">
+                                        <thead className="bg-gray-50 text-gray-2">
                                             <tr>
                                                 <th className="p-4 text-start font-medium">رقم الحساب</th>
                                                 <th className="p-4 text-start font-medium">اسم الحساب</th>
@@ -281,13 +281,13 @@ export function AbusiveWordsPage() {
                                         <tbody className="divide-y divide-gray-100">
                                             {isLoading ? (
                                                 <tr>
-                                                    <td colSpan={5} className="p-8 text-center text-gray-500">
+                                                    <td colSpan={5} className="p-8 text-center text-gray-2">
                                                         جاري التحميل...
                                                     </td>
                                                 </tr>
                                             ) : comments.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={5} className="p-8 text-center text-gray-500">
+                                                    <td colSpan={5} className="p-8 text-center text-gray-2">
                                                         لا توجد بيانات
                                                     </td>
                                                 </tr>
@@ -310,7 +310,7 @@ export function AbusiveWordsPage() {
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td className="p-4 text-gray-600">
+                                                        <td className="p-4 text-gray-2">
                                                             {formatDate(comment.created_at)}
                                                         </td>
                                                         <td className="p-4 text-center">
@@ -346,7 +346,7 @@ export function AbusiveWordsPage() {
                                                                     className="p-2 bg-[#E6E6E6] rounded-xs cursor-pointer transition-colors"
                                                                     title="حذف"
                                                                 >
-                                                                    <Trash2 className="w-4 h-4 text-gray-500" />
+                                                                    <Trash2 className="w-4 h-4 text-gray-2" />
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -375,7 +375,7 @@ export function AbusiveWordsPage() {
                                         <p className="text-gray-2 text-sm mb-4">أضف الكلمات التي تريد مراقبتها في النظام</p>
                                         <div className="flex flex-row items-end gap-2">
                                             <div className="flex-1">
-                                                <label className="text-sm text-gray-600 block mb-1">ادخل الكلمة المسيئة</label>
+                                                <label className="text-sm text-gray-2 block mb-1">ادخل الكلمة المسيئة</label>
                                                 <Input
                                                     type="text"
                                                     placeholder="الكلمة"
@@ -428,7 +428,7 @@ export function AbusiveWordsPage() {
                                                 بحث
                                             </Button>
                                             <div className="flex-1 relative">
-                                                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-2" />
                                                 <Input
                                                     type="text"
                                                     placeholder="ابحث عن أي كلمة ..."
@@ -443,9 +443,9 @@ export function AbusiveWordsPage() {
                                     <div className="p-6">
                                         <h3 className="text-lg font-bold text-blue-3 mb-6 text-center">عرض جميع الكلمات المضافة</h3>
                                         {isWordsLoading ? (
-                                            <div className="text-center text-gray-500 py-8">جاري التحميل...</div>
+                                            <div className="text-center text-gray-2 py-8">جاري التحميل...</div>
                                         ) : words.length === 0 ? (
-                                            <div className="text-center text-gray-500 py-8">لا توجد كلمات مضافة</div>
+                                            <div className="text-center text-gray-2 py-8">لا توجد كلمات مضافة</div>
                                         ) : (
                                             <div className="flex flex-wrap gap-3 justify-center">
                                                 {words.map((word) => (
@@ -484,13 +484,13 @@ export function AbusiveWordsPage() {
                     {selectedComment && (
                         <div className="space-y-4 text-right">
                             <div>
-                                <h4 className="text-sm font-medium text-gray-500 mb-1">محتوى التعليق</h4>
+                                <h4 className="text-sm font-medium text-gray-2 mb-1">محتوى التعليق</h4>
                                 <p className=" bg-gray-50 p-3 rounded-lg">
                                     {selectedComment.content}
                                 </p>
                             </div>
                             <div>
-                                <h4 className="text-sm font-medium text-gray-500 mb-1">الكلمات المسيئة</h4>
+                                <h4 className="text-sm font-medium text-gray-2 mb-1">الكلمات المسيئة</h4>
                                 <div className="flex flex-wrap gap-2">
                                     {selectedComment.abusive_words.map((word) => (
                                         <span
@@ -503,7 +503,7 @@ export function AbusiveWordsPage() {
                                 </div>
                             </div>
                             <div>
-                                <h4 className="text-sm font-medium text-gray-500 mb-1">تاريخ النشر</h4>
+                                <h4 className="text-sm font-medium text-gray-2 mb-1">تاريخ النشر</h4>
                                 <p className="">
                                     {formatDate(selectedComment.created_at)}
                                 </p>

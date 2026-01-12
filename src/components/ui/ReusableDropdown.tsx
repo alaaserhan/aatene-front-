@@ -138,7 +138,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
                   className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:border-blue-3 text-right"
                   autoFocus
                 />
-                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-gray-2 absolute left-2.5 top-1/2 -translate-y-1/2" />
               </div>
             </div>
           )}

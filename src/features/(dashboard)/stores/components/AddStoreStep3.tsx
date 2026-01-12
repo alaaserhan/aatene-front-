@@ -145,7 +145,7 @@ export function AddStoreStep3({
                           "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer",
                           formData.hide_phone === "1"
                             ? "bg-blue-5 border-blue-4"
-                            : "bg-white border-gray-300 group-hover:border-gray-500"
+                            : "bg-white border-gray-300 group-hover:border-gray-2"
                         )}
                         aria-checked={formData.hide_phone === "1"}
                         role="checkbox"
@@ -169,7 +169,7 @@ export function AddStoreStep3({
 
                       <label
                         onClick={toggleHidePhone}
-                        className="text-sm text-gray-600 cursor-pointer font-normal select-none"
+                        className="text-sm text-gray-2 cursor-pointer font-normal select-none"
                       >
                         إخفاء رقم الهاتف على الملف الشخصي
                       </label>

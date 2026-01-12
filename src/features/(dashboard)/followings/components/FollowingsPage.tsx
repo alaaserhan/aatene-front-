@@ -108,7 +108,7 @@ export function FollowingsPage() {
                                         "text-sm font-bold h-full flex items-center transition-colors cursor-pointer px-2",
                                         activeTab === "followers"
                                             ? "text-blue-3 border-b-[3px] border-blue-3"
-                                            : "text-gray-400 hover:text-blue-3"
+                                            : "text-gray-2 hover:text-blue-3"
                                     )}
                                 >
                                     يتابعك
@@ -121,7 +121,7 @@ export function FollowingsPage() {
                                         "text-sm font-bold h-full flex items-center transition-colors cursor-pointer px-2",
                                         activeTab === "followings"
                                             ? "text-blue-3 border-b-[3px] border-blue-3"
-                                            : "text-gray-400 hover:text-blue-3"
+                                            : "text-gray-2 hover:text-blue-3"
                                     )}
                                 >
                                     تتابعهم
@@ -148,7 +148,7 @@ export function FollowingsPage() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full bg-white  h-12 "
                         />
-                        <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+                        <Search className="absolute left-3 top-3 text-gray-2 w-5 h-5" />
                     </div>
                 </div>
 
@@ -159,7 +159,7 @@ export function FollowingsPage() {
                         <h2 className="text-xl flex flex-row items-center gap-1 font-medium p-2">
                             <Users className="w-4" />
                             {activeTab === "followers" ? "يتابعك" : "تتابعهم"}
-                            <span className="text-gray-400 font-normal text-base">({totalRecords})</span>
+                            <span className="text-gray-2 font-normal text-base">({totalRecords})</span>
                         </h2>
                     </div>
 

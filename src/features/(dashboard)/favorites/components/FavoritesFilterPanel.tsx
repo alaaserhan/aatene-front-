@@ -32,7 +32,7 @@ export function FavoritesFilterPanel({ userId }: FavoritesFilterPanelProps) {
                                 "flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                                 isActive
                                     ? "bg-[#Dbeafe] text-[#3A5779] font-bold"
-                                    : "text-gray-500 hover:bg-white hover:text-gray-700"
+                                    : "text-gray-2 hover:bg-white hover:text-gray-700"
                             )}
                         >
                             <span>{filter.label}</span>

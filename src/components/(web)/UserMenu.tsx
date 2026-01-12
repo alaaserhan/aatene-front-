@@ -84,16 +84,16 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
         onClick={handleLinkClick}
       >
         <div className={`${isMobile ? 'w-12 h-12' : 'w-10 h-10'} rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-200`}>
-          <User size={isMobile ? 20 : 18} className="text-gray-500 group-hover:text-primary" />
+          <User size={isMobile ? 20 : 18} className="text-gray-2 group-hover:text-primary" />
         </div>
         <div className="flex-1">
           <span className={`${isMobile ? 'text-base font-semibold' : ''} block`}>تسجيل الدخول</span>
           {isMobile && (
-            <span className="text-xs text-gray-500 mt-1 block">للوصول إلى جميع المميزات</span>
+            <span className="text-xs text-gray-2 mt-1 block">للوصول إلى جميع المميزات</span>
           )}
         </div>
         {isMobile && (
-          <ChevronRight size={16} className="text-gray-400 group-hover:text-primary" />
+          <ChevronRight size={16} className="text-gray-2 group-hover:text-primary" />
         )}
       </Link>
     );
@@ -151,7 +151,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             )}
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900 text-lg truncate">{user.fullname}</h3>
-              <p className="text-gray-600 text-sm truncate">{user.email}</p>
+              <p className="text-gray-2 text-sm truncate">{user.email}</p>
               <div className="mt-2">
                 {getUserTypeBadge(user.user_type)}
               </div>
@@ -160,14 +160,14 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
           {/* User Details */}
           <div className="space-y-2">
-            <Link href={`/${lang}/report/inquiry`} className="flex items-center gap-3 text-sm text-gray-600" onClick={handleLinkClick}>
+            <Link href={`/${lang}/report/inquiry`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
               <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
                 <Headset size={12} />
               </div>
               <span dir="ltr" className="font-medium">استعلام عن شكوى</span>
             </Link>
 
-            <Link href={`/${lang}/profile`} className="flex items-center gap-3 text-sm text-gray-600" onClick={handleLinkClick}>
+            <Link href={`/${lang}/profile`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
               <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
                 <Settings size={12} />
               </div>
@@ -205,7 +205,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
                 </div>
                 <span className="font-medium">لوحة التحكم</span>
               </div>
-              <ChevronLeft size={16} className="text-gray-400 group-hover:text-yellow-600" />
+              <ChevronLeft size={16} className="text-gray-2 group-hover:text-yellow-600" />
             </Link>
           )}
 
@@ -221,7 +221,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
                 </div>
                 <span className="font-medium">لوحة التحكم</span>
               </div>
-              <ChevronLeft size={16} className="text-gray-400 group-hover:text-blue-600" />
+              <ChevronLeft size={16} className="text-gray-2 group-hover:text-blue-600" />
             </Link>
           )}
 
@@ -236,7 +236,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               </div>
               <span className="font-medium">تسجيل الخروج</span>
             </div>
-            <ChevronLeft size={16} className="text-gray-400 group-hover:text-red-600" />
+            <ChevronLeft size={16} className="text-gray-2 group-hover:text-red-600" />
           </button>
         </div>
       </div>
@@ -263,7 +263,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             </div>
           )}
         </div>
-        <ChevronDown size={16} className={`text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} group-hover:text-gray-600`} />
+        <ChevronDown size={16} className={`text-gray-2 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} group-hover:text-gray-2`} />
       </button>
 
       {isOpen && (
@@ -284,7 +284,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               )}
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-gray-900 text-lg truncate">{user.fullname}</h3>
-                <p className="text-gray-600 text-sm truncate">{user.email}</p>
+                <p className="text-gray-2 text-sm truncate">{user.email}</p>
                 <div className="mt-2">
                   {getUserTypeBadge(user.user_type)}
                 </div>
@@ -294,14 +294,14 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
           {/* User Info Section */}
           <div className="px-6 py-4 space-y-3 border-b border-gray-100">
-            <Link href={`/${lang}/report/inquiry`} className="flex items-center gap-3 text-sm text-gray-600" onClick={handleLinkClick}>
+            <Link href={`/${lang}/report/inquiry`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
               <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
                 <Headset size={12} />
               </div>
               <span dir="ltr" className="font-medium">استعلام عن شكوى</span>
             </Link>
 
-            <Link href={`/${lang}/profile`} className="flex items-center gap-3 text-sm text-gray-600" onClick={handleLinkClick}>
+            <Link href={`/${lang}/profile`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
               <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
                 <Settings size={12} />
               </div>
@@ -350,7 +350,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
                   </div>
                   <span className="font-medium">لوحة التحكم</span>
                 </div>
-                <ChevronLeft size={16} className="text-gray-400 group-hover:text-blue-600" />
+                <ChevronLeft size={16} className="text-gray-2 group-hover:text-blue-600" />
               </Link>
             )}
           </div>

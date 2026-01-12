@@ -26,11 +26,11 @@ export function CustomerLocationAnalytics() {
     const rotate = midAngle > 90 && midAngle < 270 ? midAngle - 180 : midAngle; // لضمان قراءة النص بشكل صحيح
 
     return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor="middle" 
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor="middle"
         dominantBaseline="central"
         fontSize="11"
         fontWeight="bold"
@@ -48,61 +48,61 @@ export function CustomerLocationAnalytics() {
       </h3>
 
       <div className="flex items-center gap-4 h-full">
-        
+
         {/* Right Side: Pie Chart */}
         <div className="w-[40%] h-full relative flex items-center justify-center">
-            <div className="w-full h-[200px]">
-                <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                    <Pie
-                        data={data}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={40} // نصف القطر الداخلي
-                        outerRadius={(entry) => (entry.exploded ? 90 : 80)} // جعل شريحة حيفا أكبر (Exploded)
-                        paddingAngle={3} // مسافات بيضاء بين الشرائح
-                        dataKey="value"
-                        stroke="none"
-                        labelLine={false}
-                        label={renderCustomizedLabel} // استخدام الدالة المخصصة للنصوص
-                    >
-                    {data.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                    </Pie>
-                </PieChart>
-                </ResponsiveContainer>
-                
-                {/* Center Circle Decor (The Donut Hole Decor) */}
-                {/* الحلقة الشفافة */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90px] h-[90px] rounded-full border-[6px] border-white/20 pointer-events-none" />
-                {/* الدائرة البيضاء في المنتصف */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50px] h-[50px] bg-white rounded-full shadow-sm flex items-center justify-center pointer-events-none" />
-            </div>
+          <div className="w-full h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40} // نصف القطر الداخلي
+                  outerRadius={(entry) => (entry.exploded ? 90 : 80)} // جعل شريحة حيفا أكبر (Exploded)
+                  paddingAngle={3} // مسافات بيضاء بين الشرائح
+                  dataKey="value"
+                  stroke="none"
+                  labelLine={false}
+                  label={renderCustomizedLabel} // استخدام الدالة المخصصة للنصوص
+                >
+                  {data.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+
+            {/* Center Circle Decor (The Donut Hole Decor) */}
+            {/* الحلقة الشفافة */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90px] h-[90px] rounded-full border-[6px] border-white/20 pointer-events-none" />
+            {/* الدائرة البيضاء في المنتصف */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50px] h-[50px] bg-white rounded-full shadow-sm flex items-center justify-center pointer-events-none" />
+          </div>
         </div>
 
         {/* Left Side: Table */}
         <div className="w-[60%] h-full overflow-y-auto pl-2">
           <table className="w-full ">
             <thead>
-              <tr className="text-gray-400 text-xs border-b border-gray-50">
+              <tr className="text-gray-2 text-xs border-b border-gray-50">
                 <th className="font-medium pb-3 pt-1">
-                    <div className="flex items-center justify-end gap-1 cursor-pointer hover:text-gray-600">
-                        <ChevronsUpDown className="w-3 h-3" />
-                         الدولة
-                    </div>
+                  <div className="flex items-center justify-end gap-1 cursor-pointer hover:text-gray-2">
+                    <ChevronsUpDown className="w-3 h-3" />
+                    الدولة
+                  </div>
                 </th>
                 <th className="font-medium pb-3 pt-1">
-                    <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-600">
-                        <ChevronsUpDown className="w-3 h-3" />
-                         نسبة العملاء
-                    </div>
+                  <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-2">
+                    <ChevronsUpDown className="w-3 h-3" />
+                    نسبة العملاء
+                  </div>
                 </th>
                 <th className="font-medium pb-3 pt-1">
-                     <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-600">
-                        <ChevronsUpDown className="w-3 h-3" />
-                         عدد العملاء
-                    </div>
+                  <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-2">
+                    <ChevronsUpDown className="w-3 h-3" />
+                    عدد العملاء
+                  </div>
                 </th>
               </tr>
             </thead>
@@ -112,7 +112,7 @@ export function CustomerLocationAnalytics() {
                   {/* City Name & Color Indicator */}
                   <td className="py-3">
                     <div className="flex items-center justify-end gap-2">
-                      <span className="font-bold text-gray-600 text-sm">{item.name}</span>
+                      <span className="font-bold text-gray-2 text-sm">{item.name}</span>
                       <div
                         className="w-3 h-3 rounded-[2px]"
                         style={{ backgroundColor: item.color }}
@@ -124,11 +124,11 @@ export function CustomerLocationAnalytics() {
                   <td className="py-3 text-center px-1">
                     <div
                       className="inline-block px-3 py-1 rounded-full text-xs font-bold border w-full max-w-[70px]"
-                      style={{ 
-                          borderColor: item.color,
-                          color: item.color,
-                          backgroundColor: `${item.color}10` // 10% opacity for background tint
-                       }}
+                      style={{
+                        borderColor: item.color,
+                        color: item.color,
+                        backgroundColor: `${item.color}10` // 10% opacity for background tint
+                      }}
                     >
                       {item.percentage}%
                     </div>

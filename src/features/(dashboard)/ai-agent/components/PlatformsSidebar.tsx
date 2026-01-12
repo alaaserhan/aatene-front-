@@ -12,20 +12,20 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
   // قمنا بتغيير الهيكلية لنحتفظ بمسار الصورة فقط كنص، بدلاً من عنصر JSX
   // هذا يسمح لنا بالتحكم في التنسيق برمجياً
   const platforms = [
-    { 
-      id: "whatsapp", 
-      label: "واتساب", 
-      iconPath: "/icons/dashboard/whatsapp4.svg" 
+    {
+      id: "whatsapp",
+      label: "واتساب",
+      iconPath: "/icons/dashboard/whatsapp4.svg"
     },
-    { 
-      id: "messenger", 
-      label: "ماسنجر", 
-      iconPath: "/icons/dashboard/facebook.svg" 
+    {
+      id: "messenger",
+      label: "ماسنجر",
+      iconPath: "/icons/dashboard/facebook.svg"
     },
-    { 
-      id: "instagram", 
-      label: "انستجرام", 
-      iconPath: "/icons/dashboard/insta.svg" 
+    {
+      id: "instagram",
+      label: "انستجرام",
+      iconPath: "/icons/dashboard/insta.svg"
     },
   ];
 
@@ -34,7 +34,7 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
       <h3 className="text-lg font-bold mb-2 border-b border-gray-100 pb-4">
         منصات التواصل
       </h3>
-      
+
       <div className="space-y-2 mt-4">
         {platforms.map((platform) => {
           const isActive = activePlatform === platform.id;
@@ -44,16 +44,16 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
               onClick={() => onSelect(platform.id)}
               className={cn(
                 "group w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer",
-                isActive 
+                isActive
                   ? "text-[#D97706] bg-orange-50/50" // إضافة خلفية خفيفة جداً عند النشاط لجمالية أكثر
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  : "text-gray-2 hover:bg-gray-50 hover:text-gray-900"
               )}
             >
               {/* هنا السحر: نستخدم div بدلاً من img 
                 ونقوم بتلوين الخلفية (bg) بناءً على الحالة
                 ونستخدم الصورة كـ Mask
               */}
-              <div 
+              <div
                 className={cn(
                   "w-5 h-5 transition-colors duration-200",
                   isActive ? "bg-[#D97706]" : "bg-black-1"
@@ -69,7 +69,7 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
                   WebkitMaskSize: "contain",
                 }}
               />
-              
+
               <span>{platform.label}</span>
             </button>
           );

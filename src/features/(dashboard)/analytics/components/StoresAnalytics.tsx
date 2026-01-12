@@ -47,7 +47,7 @@ export function StoresAnalytics() {
                         <span className="text-2xl font-medium text-[#3A5779] ">
                             {data?.totalStoresThisMonth || 0} متجر
                         </span>
-                        <div className="bg-gray-100/80 px-2 py-0.5 rounded-xs text-[11px] w-fit text-gray-500 mt-1">
+                        <div className="bg-gray-100/80 px-2 py-0.5 rounded-xs text-[11px] w-fit text-gray-2 mt-1">
                             الشهر الماضي <span className="font-medium">{data?.totalStoresLastMonth || 0}</span> متجر
                         </div>
                     </div>
@@ -88,7 +88,7 @@ export function StoresAnalytics() {
                         <span className="text-2xl font-medium  ">
                             {data?.totalStoresThisDay || 0} متجر
                         </span>
-                        <div className="bg-gray-100/80 px-2 py-0.5 w-fit rounded-xs text-[11px] text-gray-500 mt-1">
+                        <div className="bg-gray-100/80 px-2 py-0.5 w-fit rounded-xs text-[11px] text-gray-2 mt-1">
                             متاجر الامس <span className="font-medium">{data?.totalStoresYesterday || 0}</span> متجر
                         </div>
                     </div>
@@ -99,7 +99,7 @@ export function StoresAnalytics() {
                         <span className="text-2xl font-medium  ">
                             {data?.totalStores || 0} متجر
                         </span>
-                        <div className="bg-gray-100/80 px-2 py-0.5 rounded-xs w-fit text-[11px] text-gray-500 mt-1">
+                        <div className="bg-gray-100/80 px-2 py-0.5 rounded-xs w-fit text-[11px] text-gray-2 mt-1">
                             هذه السنة <span className="font-medium">{data?.totalStoresThisYear || 0}</span> متجر
                         </div>
                     </div>

@@ -275,7 +275,7 @@ export function UserDetailsSidebar({
           className
         )}
       >
-        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+        <Loader2 className="w-6 h-6 animate-spin text-gray-2" />
       </div>
     );
   }
@@ -288,7 +288,7 @@ export function UserDetailsSidebar({
           className
         )}
       >
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-2">
           الرجاء تحديد مستخدم لعرض التفاصيل
         </p>
       </div>

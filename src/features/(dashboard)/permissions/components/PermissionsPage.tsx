@@ -61,7 +61,7 @@ function PermissionForm({
   const handleSaveClick = () => {
     const titleToSave = roleTitleInput.trim();
     const nameToSave = roleNameInput.trim();
-    
+
     // إعادة تعيين الأخطاء
     const newErrors: { title?: string; name?: string } = {};
     let hasError = false;
@@ -70,7 +70,7 @@ function PermissionForm({
       newErrors.title = "اسم الدور الوظيفي مطلوب";
       hasError = true;
     }
-    
+
     if (!nameToSave) {
       newErrors.name = "الاسم البرمجي مطلوب";
       hasError = true;
@@ -125,7 +125,7 @@ function PermissionForm({
             placeholder="ادخل الاسم البرمجي (مثال: admin)"
             readOnly={mode === "edit"}
             disabled={mode === "edit"}
-            className={cn(mode === "edit" && "bg-gray-100 text-gray-500")}
+            className={cn(mode === "edit" && "bg-gray-100 text-gray-2")}
             error={errors.name} // تمرير رسالة الخطأ
           />
         </div>
@@ -154,7 +154,7 @@ function PermissionForm({
                         "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer pointer-events-none",
                         isChecked
                           ? "bg-blue-5 border-blue-4"
-                          : "bg-white border-gray-300 group-hover:border-gray-500"
+                          : "bg-white border-gray-300 group-hover:border-gray-2"
                       )}
                       aria-checked={isChecked}
                       role="checkbox"
@@ -181,7 +181,7 @@ function PermissionForm({
                   </div>
                   <button
                     type="button"
-                    className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded text-gray-500 hover:bg-gray-50 cursor-pointer opacity-50"
+                    className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded text-gray-2 hover:bg-gray-50 cursor-pointer opacity-50"
                     disabled
                   >
                     +
@@ -322,7 +322,7 @@ export function PermissionsPage() {
               <li className="h-full flex items-center">
                 <Link
                   href="/admin/users"
-                  className="text-sm font-semibold text-gray-500 hover:text-[#3A5779] h-full flex items-center transition-colors"
+                  className="text-sm font-semibold text-gray-2 hover:text-[#3A5779] h-full flex items-center transition-colors"
                 >
                   الحسابات
                 </Link>

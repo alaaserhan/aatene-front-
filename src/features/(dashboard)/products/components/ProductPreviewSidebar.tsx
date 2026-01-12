@@ -102,7 +102,7 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
                             <span className=" font-bold ">
                                 {formattedPrice}
                             </span>
-                            <span className="text-gray-400 text-sm line-through decoration-gray-400">
+                            <span className="text-gray-2 text-sm line-through decoration-gray-2">
                                 {formattedOldPrice}
                             </span>
                         </div>

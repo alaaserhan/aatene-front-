@@ -64,7 +64,7 @@ export function FinancialChart({ storeId, className }: FinancialChartProps) {
                     <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
                 </div>
             ) : chartData.length === 0 ? (
-                <div className="flex-1 flex items-center justify-center text-gray-400">
+                <div className="flex-1 flex items-center justify-center text-gray-2">
                     لا توجد بيانات للعرض في هذه الفترة
                 </div>
             ) : (
@@ -118,7 +118,7 @@ export function FinancialChart({ storeId, className }: FinancialChartProps) {
                 {lines.map((line) => (
                     <div key={line.key} className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: line.color }} />
-                        <span className="text-xs text-gray-500 font-medium">{line.name}</span>
+                        <span className="text-xs text-gray-2 font-medium">{line.name}</span>
                     </div>
                 ))}
             </div>

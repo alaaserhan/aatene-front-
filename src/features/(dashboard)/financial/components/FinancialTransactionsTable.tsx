@@ -31,7 +31,7 @@ export function FinancialTransactionsTable({
     if (transactions.length === 0) {
         return (
             <div className="flex flex-col min-h-[300px] items-center justify-center bg-white rounded-lg border border-gray-100">
-                <p className="text-gray-500">لا توجد معاملات لعرضها</p>
+                <p className="text-gray-2">لا توجد معاملات لعرضها</p>
             </div>
         );
     }
@@ -58,8 +58,8 @@ export function FinancialTransactionsTable({
             default: // Fallback
                 return {
                     label: type,
-                    valueClass: "text-gray-500",
-                    badgeClass: "text-gray-500",
+                    valueClass: "text-gray-2",
+                    badgeClass: "text-gray-2",
                     icon: Plus,
                     sign: ""
                 };
@@ -98,12 +98,12 @@ export function FinancialTransactionsTable({
                                         </span>
                                     </td>
 
-                                    <td className="px-6 py-4 text-sm text-gray-600 font-medium">
+                                    <td className="px-6 py-4 text-sm text-gray-2 font-medium">
                                         {/* Assuming description might contain campaign ID or it's a separate field not yet in interface, using placeholder logic */}
                                         {tx.description.includes("#") ? tx.description.match(/#\s?\w+\s?-\s?\d+/)?.[0] || "--" : "--"}
                                     </td>
 
-                                    <td className="px-6 py-4 text-sm text-gray-600" dir="ltr">
+                                    <td className="px-6 py-4 text-sm text-gray-2" dir="ltr">
                                         <span className="block text-right">{tx.created_at}</span>
                                     </td>
 
@@ -113,7 +113,7 @@ export function FinancialTransactionsTable({
                                         </span>
                                     </td>
 
-                                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate" title={tx.description}>
+                                    <td className="px-6 py-4 text-sm text-gray-2 max-w-xs truncate" title={tx.description}>
                                         {tx.description}
                                     </td>
                                 </tr>
@@ -125,7 +125,7 @@ export function FinancialTransactionsTable({
 
             {totalPages > 1 && (
                 <div className="p-4 border-t border-gray-100 flex items-center justify-between">
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-2">
                         عرض {(currentPage - 1) * 10 + 1}-{Math.min(currentPage * 10, totalRecords)} من {totalRecords} نتيجة
                     </span>
                     <Pagination

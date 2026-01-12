@@ -26,7 +26,7 @@ const STATUS_STYLES: Record<string, string> = {
     pending: "bg-red-50 text-red-500",
     processing: "bg-blue-50 text-blue-500",
     finished: "bg-green-50 text-green-500",
-    cancelled: "bg-gray-50 text-gray-500",
+    cancelled: "bg-gray-50 text-gray-2",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -133,7 +133,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                         }}
                     />
                     <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                        <Search className="w-5 h-5 text-gray-400" />
+                        <Search className="w-5 h-5 text-gray-2" />
                     </div>
                 </div>
 
@@ -142,9 +142,9 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 border-b border-gray-100 gap-4">
                         <div className="flex flex-col ">
                             <h2 className="text-lg font-bold ">بلاغات الزبائن ( {totalRecords} )</h2>
-                            <span className="text-xs text-gray-400 flex items-center gap-1 mt-1">
+                            <span className="text-xs text-gray-2 flex items-center gap-1 mt-1">
                                 بلاغات مقدمة من الزبائن ضد (تاجر، منتج، متجر، أو النظام)
-                                <Smile className="w-4 h-4 text-gray-400" />
+                                <Smile className="w-4 h-4 text-gray-2" />
                             </span>
                         </div>
 
@@ -179,7 +179,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                                     <tr>
                                         <td colSpan={6} className="px-6 py-12 text-center">
                                             <div className="flex justify-center">
-                                                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                                                <Loader2 className="w-6 h-6 animate-spin text-gray-2" />
                                             </div>
                                         </td>
                                     </tr>
@@ -214,7 +214,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                                             </td>
 
                                             <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                <span className="text-sm text-gray-600 font-medium">
+                                                <span className="text-sm text-gray-2 font-medium">
                                                     {formatDistanceToNow(new Date(report.created_at), { addSuffix: true, locale: arSA })}
                                                 </span>
                                             </td>
@@ -237,7 +237,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={6} className="px-6 py-12 text-center text-gray-400 text-sm">
+                                        <td colSpan={6} className="px-6 py-12 text-center text-gray-2 text-sm">
                                             لا توجد بلاغات {storeId ? "لهذا المتجر" : ""} حالياً
                                         </td>
                                     </tr>

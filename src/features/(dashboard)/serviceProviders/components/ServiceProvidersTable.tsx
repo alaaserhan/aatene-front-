@@ -48,7 +48,7 @@ export function ServiceProvidersTable({
     if (stores.length === 0) {
         return (
             <div className="flex flex-col min-h-[500px] items-center justify-center bg-white rounded-lg border border-gray-200">
-                <p className="text-gray-500">لا يوجد مقدمي خدمات للعرض</p>
+                <p className="text-gray-2">لا يوجد مقدمي خدمات للعرض</p>
             </div>
         );
     }
@@ -96,7 +96,7 @@ export function ServiceProvidersTable({
                                                 <span className="text-sm font-medium text-gray-900">
                                                     {store.owner?.first_name} {store.owner?.last_name}
                                                 </span>
-                                                <span className="text-xs text-gray-400">{store.name}</span>
+                                                <span className="text-xs text-gray-2">{store.name}</span>
                                             </div>
                                         </div>
                                     </td>

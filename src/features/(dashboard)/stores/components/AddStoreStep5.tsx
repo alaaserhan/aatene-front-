@@ -46,12 +46,12 @@ export function AddStoreStep5({
     (initialData?.workingtimes && initialData.workingtimes.length > 0)
       ? initialData.workingtimes
       : DAYS.map((day) => ({
-          day: day.value,
-          from: "08:00",
-          to: "20:00",
-          open_always: false,
-          closed_always: false,
-        }))
+        day: day.value,
+        from: "08:00",
+        to: "20:00",
+        open_always: false,
+        closed_always: false,
+      }))
   );
 
   const steps = barSteps;
@@ -245,7 +245,7 @@ function OpenStatusOption({
             "w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all",
             selected
               ? "border-blue-4"
-              : "border-gray-300 group-hover:border-gray-400"
+              : "border-gray-300 group-hover:border-gray-2"
           )}
         >
           {selected && <div className="w-2 h-2 rounded-full bg-blue-4" />}
@@ -279,7 +279,7 @@ function CustomCheckbox({ label, checked, onChange }: CustomCheckboxProps) {
           "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer",
           checked
             ? "bg-blue-5 border-blue-4"
-            : "bg-white border-gray-300 group-hover:border-gray-500"
+            : "bg-white border-gray-300 group-hover:border-gray-2"
         )}
         aria-checked={checked}
         role="checkbox"

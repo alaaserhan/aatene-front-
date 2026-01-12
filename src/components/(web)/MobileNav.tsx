@@ -72,17 +72,17 @@ export default function MobileNav({
 
   const handleSearch = () => {
     const params = new URLSearchParams();
-    
+
     if (searchQuery.trim()) {
       params.set('search', searchQuery.trim());
     }
-    
+
     if (selectedCategory.id !== null) {
       params.set('category_id', selectedCategory.id.toString());
     }
-    
+
     router.push(`/${lang}/products?${params.toString()}`);
-    setMobileSearchOpen(false); 
+    setMobileSearchOpen(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -94,19 +94,19 @@ export default function MobileNav({
   const handleCategorySelect = (category: { id: number | null; name: string }) => {
     setSelectedCategory(category);
     setCategoryOpen(false);
-    
+
     const params = new URLSearchParams();
-    
+
     if (searchQuery.trim()) {
       params.set('search', searchQuery.trim());
     }
-    
+
     if (category.id !== null) {
       params.set('category_id', category.id.toString());
     }
-    
+
     router.push(`/${lang}/products?${params.toString()}`);
-    setMobileSearchOpen(false); 
+    setMobileSearchOpen(false);
   };
 
   return (
@@ -165,7 +165,7 @@ export default function MobileNav({
                     aria-label="إغلاق القائمة"
                     className="p-2 hover:bg-white/50 rounded-full transition-all duration-200 hover:rotate-90 cursor-pointer"
                   >
-                    <X size={24} className="text-gray-600" />
+                    <X size={24} className="text-gray-2" />
                   </button>
                 </div>
 
@@ -180,7 +180,7 @@ export default function MobileNav({
                       transition={{ delay: 0.2 }}
                     >
                       <div className="mb-4">
-                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">التصفح</h3>
+                        <h3 className="text-xs font-semibold text-gray-2 uppercase tracking-wider mb-3">التصفح</h3>
                       </div>
 
                       <Link
@@ -195,7 +195,7 @@ export default function MobileNav({
                           <span className="font-medium">الرسائل</span>
                         </div>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <ChevronLeft size={16} className="text-gray-400" />
+                          <ChevronLeft size={16} className="text-gray-2" />
                         </div>
                       </Link>
 
@@ -206,12 +206,12 @@ export default function MobileNav({
                       >
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <Heart size={20} className="text-gray-500" />
+                            <Heart size={20} className="text-gray-2" />
                           </div>
                           <span className="font-medium">المفضلة</span>
                         </div>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <ChevronLeft size={16} className="text-gray-400" />
+                          <ChevronLeft size={16} className="text-gray-2" />
                         </div>
                       </Link>
 
@@ -222,12 +222,12 @@ export default function MobileNav({
                       >
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <ArrowDownUp size={20} className="text-gray-500" />
+                            <ArrowDownUp size={20} className="text-gray-2" />
                           </div>
                           <span className="font-medium">المقارنات</span>
                         </div>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <ChevronLeft size={16} className="text-gray-400" />
+                          <ChevronLeft size={16} className="text-gray-2" />
                         </div>
                       </Link>
 
@@ -244,7 +244,7 @@ export default function MobileNav({
                             <span className="font-medium">المتاجر</span>
                           </div>
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <ChevronLeft size={16} className="text-gray-400" />
+                            <ChevronLeft size={16} className="text-gray-2" />
                           </div>
                         </Link>
                       )}
@@ -303,7 +303,7 @@ export default function MobileNav({
                   </button>
                   <div className="mt-4">
                     <button
-                      className="flex items-center gap-1 text-gray-600 text-sm"
+                      className="flex items-center gap-1 text-gray-2 text-sm"
                       onClick={() => setCategoryOpen(!categoryOpen)}
                       aria-label={categoryOpen ? "إغلاق قائمة الفئات" : "فتح قائمة الفئات"}
                     >
@@ -320,28 +320,26 @@ export default function MobileNav({
                           transition={{ duration: 0.2 }}
                         >
                           <button
-                            className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${
-                              selectedCategory.id === null ? 'bg-gray-50 text-[#287CDA] font-medium' : 'text-gray-700'
-                            }`}
+                            className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${selectedCategory.id === null ? 'bg-gray-50 text-[#287CDA] font-medium' : 'text-gray-700'
+                              }`}
                             onClick={() => handleCategorySelect({ id: null, name: "جميع الفئات" })}
                           >
                             جميع الفئات
                           </button>
-                          
+
                           {categories.map((category) => (
                             <button
                               key={category.id}
-                              className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${
-                                selectedCategory.id === category.id ? 'bg-gray-50 text-[#287CDA] font-medium' : 'text-gray-700'
-                              }`}
+                              className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${selectedCategory.id === category.id ? 'bg-gray-50 text-[#287CDA] font-medium' : 'text-gray-700'
+                                }`}
                               onClick={() => handleCategorySelect({ id: category.id, name: category.name })}
                             >
                               {category.name}
                             </button>
                           ))}
-                          
+
                           {categories.length === 0 && (
-                            <div className="px-4 py-2 text-sm text-gray-500">
+                            <div className="px-4 py-2 text-sm text-gray-2">
                               لا توجد فئات متاحة
                             </div>
                           )}

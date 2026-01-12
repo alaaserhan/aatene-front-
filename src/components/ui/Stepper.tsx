@@ -56,8 +56,8 @@ export function Stepper({
                       isCompleted
                         ? "bg-blue-4 border-blue-4"
                         : isActive
-                        ? "bg-[#D5DEE7] border-blue-4"
-                        : "bg-white border-blue-4 group-hover:border-blue-4/70"
+                          ? "bg-[#D5DEE7] border-blue-4"
+                          : "bg-white border-blue-4 group-hover:border-blue-4/70"
                     )}
                   >
                     {isCompleted ? (
@@ -80,8 +80,8 @@ export function Stepper({
                       isActive
                         ? "text-blue-4"
                         : isCompleted
-                        ? "text-blue-4"
-                        : "text-gray-500 group-hover:text-blue-4"
+                          ? "text-blue-4"
+                          : "text-gray-2 group-hover:text-blue-4"
                     )}
                   >
                     {step.label}

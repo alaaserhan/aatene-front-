@@ -53,7 +53,7 @@ export function RecentReports() {
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 {/* <div className="flex items-center gap-2">
-                     <ChevronLeft className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" />
+                     <ChevronLeft className="w-5 h-5 text-gray-2 cursor-pointer hover:text-gray-2" />
                 </div> */}
                 <div className="flex items-center gap-2 ">
                     <Smile className="w-6 h-6 " />
@@ -104,7 +104,7 @@ export function RecentReports() {
 
                                         {/* Time Ago */}
                                         <td className="py-4 px-4 text-center">
-                                            <span className="text-sm font-medium text-gray-600">
+                                            <span className="text-sm font-medium text-gray-2">
                                                 {formatDistanceToNow(new Date(report.created_at), { addSuffix: true, locale: ar })}
                                             </span>
                                         </td>
@@ -125,7 +125,7 @@ export function RecentReports() {
                             })
                         ) : (
                             <tr>
-                                <td colSpan={6} className="py-10 text-center text-gray-400 text-sm">
+                                <td colSpan={6} className="py-10 text-center text-gray-2 text-sm">
                                     لا توجد شكاوي حديثة
                                 </td>
                             </tr>

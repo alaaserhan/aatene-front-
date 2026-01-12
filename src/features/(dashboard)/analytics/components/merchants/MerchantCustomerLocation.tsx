@@ -22,11 +22,11 @@ export function MerchantCustomerLocation() {
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
         return (
-            <text 
-                x={x} 
-                y={y} 
-                fill="white" 
-                textAnchor="middle" 
+            <text
+                x={x}
+                y={y}
+                fill="white"
+                textAnchor="middle"
                 dominantBaseline="central"
                 fontSize="11"
                 fontWeight="bold"
@@ -44,7 +44,7 @@ export function MerchantCustomerLocation() {
             </h3>
 
             <div className="flex items-center gap-4 h-full">
-                
+
                 {/* Right Side: Pie Chart */}
                 <div className="w-[40%] h-full relative flex items-center justify-center">
                     <div className="w-full h-[200px]">
@@ -68,7 +68,7 @@ export function MerchantCustomerLocation() {
                                 </Pie>
                             </PieChart>
                         </ResponsiveContainer>
-                        
+
                         {/* Center Circle Decor */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90px] h-[90px] rounded-full border-[6px] border-white/20 pointer-events-none" />
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50px] h-[50px] bg-white rounded-full shadow-sm flex items-center justify-center pointer-events-none" />
@@ -79,21 +79,21 @@ export function MerchantCustomerLocation() {
                 <div className="w-[60%] h-full overflow-y-auto pl-2">
                     <table className="w-full">
                         <thead>
-                            <tr className="text-gray-400 text-xs border-b border-gray-50">
+                            <tr className="text-gray-2 text-xs border-b border-gray-50">
                                 <th className="font-medium pb-3 pt-1">
-                                    <div className="flex items-center justify-end gap-1 cursor-pointer hover:text-gray-600">
+                                    <div className="flex items-center justify-end gap-1 cursor-pointer hover:text-gray-2">
                                         <ChevronsUpDown className="w-3 h-3" />
                                         الدولة
                                     </div>
                                 </th>
                                 <th className="font-medium pb-3 pt-1">
-                                    <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-600">
+                                    <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-2">
                                         <ChevronsUpDown className="w-3 h-3" />
                                         نسبة العملاء
                                     </div>
                                 </th>
                                 <th className="font-medium pb-3 pt-1">
-                                    <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-600">
+                                    <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-2">
                                         <ChevronsUpDown className="w-3 h-3" />
                                         عدد العملاء
                                     </div>
@@ -106,7 +106,7 @@ export function MerchantCustomerLocation() {
                                     {/* City Name & Color Indicator */}
                                     <td className="py-3">
                                         <div className="flex items-center justify-end gap-2">
-                                            <span className="font-bold text-gray-600 text-sm">{item.name}</span>
+                                            <span className="font-bold text-gray-2 text-sm">{item.name}</span>
                                             <div
                                                 className="w-3 h-3 rounded-[2px]"
                                                 style={{ backgroundColor: item.color }}
@@ -118,7 +118,7 @@ export function MerchantCustomerLocation() {
                                     <td className="py-3 text-center px-1">
                                         <div
                                             className="inline-block px-3 py-1 rounded-full text-xs font-bold border w-full max-w-[70px]"
-                                            style={{ 
+                                            style={{
                                                 borderColor: item.color,
                                                 color: item.color,
                                                 backgroundColor: `${item.color}10`

@@ -303,7 +303,7 @@ export function AddProductStep4({
                                             <div className="mb-6 opacity-80">
                                                 <img src="/icons/dashboard/empty1.svg" alt="No products" className="w-40" />
                                             </div>
-                                            <h3 className="text-lg font-bold text-gray-600 mb-2">
+                                            <h3 className="text-lg font-bold text-gray-2 mb-2">
                                                 لم يتم اختيار اي منتجات بعد!
                                             </h3>
                                         </div>

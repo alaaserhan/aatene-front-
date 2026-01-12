@@ -17,7 +17,7 @@ interface FormSelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 
 }
 
 export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
-  ({ 
+  ({
     label,
     error,
     hint,
@@ -47,8 +47,8 @@ export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
               "focus:outline-none focus:ring-2 focus:ring-blue-3 focus:border-transparent",
               "transition-all duration-200",
               "bg-white",
-              error 
-                ? "border-red-500 focus:ring-red-500" 
+              error
+                ? "border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:ring-blue-3",
               "disabled:bg-gray-100 disabled:cursor-not-allowed",
               className
@@ -68,8 +68,8 @@ export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
           </select>
 
           {/* Chevron Icon */}
-          <ChevronDown 
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" 
+          <ChevronDown
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-2 pointer-events-none"
           />
         </div>
 
@@ -80,7 +80,7 @@ export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
               <p className="text-xs text-red-500">{error}</p>
             )}
             {!error && hint && (
-              <p className="text-xs text-gray-500">{hint}</p>
+              <p className="text-xs text-gray-2">{hint}</p>
             )}
           </div>
         )}

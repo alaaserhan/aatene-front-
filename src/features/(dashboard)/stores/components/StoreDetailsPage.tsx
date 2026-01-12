@@ -77,7 +77,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
     return (
       <div className="flex items-center justify-center h-full bg-white rounded-lg">
         <div className="text-center">
-          <p className="text-xl text-gray-600 mb-4">لم يتم العثور على المتجر</p>
+          <p className="text-xl text-gray-2 mb-4">لم يتم العثور على المتجر</p>
         </div>
       </div>
     );
@@ -143,7 +143,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
               />
             ) : (
               <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400 text-xs">Logo</span>
+                <span className="text-gray-2 text-xs">Logo</span>
               </div>
             )}
           </div>
@@ -217,7 +217,7 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
           <h2 className="text-xl font-bold ">بيانات الاتصال والسوشيال</h2>
           {
             (!store.whats_app && !store.phone && !store.facebook && !store.youtube && !store.instagram && !store.tiktok) && (
-              <p className="text-sm text-gray-500">لا توجد بيانات اتصال أو سوشيل متاحة لهذا المتجر</p>
+              <p className="text-sm text-gray-2">لا توجد بيانات اتصال أو سوشيل متاحة لهذا المتجر</p>
             )
           }
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -383,7 +383,7 @@ function SocialRow({ icon, label, value, subLabel }: SocialRowProps) {
           {value}
         </div>
         {subLabel && (
-          <p className="text-xs text-gray-400">{subLabel}</p>
+          <p className="text-xs text-gray-2">{subLabel}</p>
         )}
       </div>
     </div>
@@ -417,7 +417,7 @@ function ManagerRow({ manager }: ManagerRowProps) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-gray-400 text-xs">صورة</span>
+              <span className="text-gray-2 text-xs">صورة</span>
             </div>
           )}
         </div>

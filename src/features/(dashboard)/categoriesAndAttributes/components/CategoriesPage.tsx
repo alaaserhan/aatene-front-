@@ -392,7 +392,7 @@ export function CategoriesPage() {
                   }
                   className="w-full px-4 py-3 ps-12 border border-gray-300 rounded-xs focus:outline-none focus:ring-2 focus:ring-blue-3 focus:border-transparent"
                 />
-                <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-2" />
               </div>
               <Button
                 onClick={
@@ -414,7 +414,7 @@ export function CategoriesPage() {
                   <div className="flex items-center justify-center py-12 bg-white rounded-lg">
                     <div className="flex flex-col items-center gap-3">
                       <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-2">
                         جاري تحميل البيانات...
                       </span>
                     </div>
@@ -422,7 +422,7 @@ export function CategoriesPage() {
                 ) : isAttributeMode ? (
                   attributes.length === 0 ? (
                     <div className="flex items-center justify-center py-12">
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-2">
                         لا توجد سمات لعرضها
                       </p>
                     </div>
@@ -443,7 +443,7 @@ export function CategoriesPage() {
                   )
                 ) : categories.length === 0 ? (
                   <div className="flex items-center justify-center py-12">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-2">
                       {pageMode === "product"
                         ? "لا توجد فئات لعرضها"
                         : "لا توجد خدمات لعرضها"}
@@ -461,7 +461,7 @@ export function CategoriesPage() {
                       onDelete={handleDeleteCategoryClick}
                       onAddSubCategory={handleAddSubCategory}
                       onViewImages={handleViewImages}
-                      onToggleStatus={handleToggleStatus} 
+                      onToggleStatus={handleToggleStatus}
                       level={0}
                     />
                   ))

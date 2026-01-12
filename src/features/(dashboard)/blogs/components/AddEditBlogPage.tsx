@@ -295,7 +295,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
                       )}
                     >
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <span className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-sm font-bold text-gray-500 shrink-0">
+                        <span className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-sm font-bold text-gray-2 shrink-0">
                           {index + 1}
                         </span>
                         <span className="font-medium text-gray-700 truncate">
@@ -308,7 +308,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEditParagraphClick(index)}
-                          className="hover:bg-blue-100 hover:text-blue-600 text-gray-500"
+                          className="hover:bg-blue-100 hover:text-blue-600 text-gray-2"
                         >
                           <Edit2 className="w-4 h-4" />
                         </Button>
@@ -316,7 +316,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDeleteParagraph(index)}
-                          className="hover:bg-red-100 hover:text-red-600 text-gray-500"
+                          className="hover:bg-red-100 hover:text-red-600 text-gray-2"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -325,7 +325,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
                   ))}
                 </div>
               ) : (
-                <div className="p-8 text-center bg-gray-50 rounded-lg border border-dashed border-gray-200 text-gray-400">
+                <div className="p-8 text-center bg-gray-50 rounded-lg border border-dashed border-gray-200 text-gray-2">
                   لا توجد فقرات مضافة حتى الآن
                 </div>
               )}

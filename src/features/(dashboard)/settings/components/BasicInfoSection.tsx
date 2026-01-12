@@ -43,7 +43,7 @@ export function BasicInfoSection({
   onLanguagesChange,
 }: BasicInfoSectionProps) {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
-  
+
   // إضافة حالة لإدارة كود الدولة للهاتف والواتساب بشكل منفصل
   const [phoneCountryCode, setPhoneCountryCode] = useState("+20");
   const [whatsappCountryCode, setWhatsappCountryCode] = useState("+20");
@@ -81,7 +81,7 @@ export function BasicInfoSection({
                 maxLength={50}
                 className="w-full text-start"
               />
-              <p className="text-xs text-gray-500 text-end">
+              <p className="text-xs text-gray-2 text-end">
                 {data.siteName.length}/50
               </p>
             </div>

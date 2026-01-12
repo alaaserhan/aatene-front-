@@ -21,7 +21,7 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
     const router = useRouter();
     const scrollRef = useRef<HTMLDivElement>(null);
     const [messageText, setMessageText] = useState("");
-    
+
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -96,7 +96,7 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
 
     if (!user) {
         return (
-            <div className="flex items-center justify-center h-full text-gray-500">
+            <div className="flex items-center justify-center h-full text-gray-2">
                 مستخدم غير موجود
             </div>
         );
@@ -140,7 +140,7 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
                             size="icon"
                             onClick={handleDeleteClick}
                             disabled={isDeleting}
-                            className="text-gray-400 bg-red-50 hover:bg-red-100 transition-colors w-9 h-9 cursor-pointer"
+                            className="text-gray-2 bg-red-50 hover:bg-red-100 transition-colors w-9 h-9 cursor-pointer"
                             title="حذف المحادثة"
                         >
                             {isDeleting ? (
@@ -196,7 +196,7 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
                                                 {/* Name & Time: Show ONLY if NOT a sequence */}
                                                 {!isSequence && (
                                                     <div className="flex items-center gap-2 text-xs px-1 mb-1">
-                                                        <span className="text-gray-400">{formatDistanceToNow(new Date(msg.created_at), { addSuffix: true, locale: arSA })}</span>
+                                                        <span className="text-gray-2">{formatDistanceToNow(new Date(msg.created_at), { addSuffix: true, locale: arSA })}</span>
                                                         <span>|</span>
                                                         <span className="font-medium text-gray-700">{user.user_info.first_name || "المستخدم"}</span>
                                                     </div>
@@ -232,7 +232,7 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
                                                             {isBot ? "موظف الذكاء الاصطناعي" : "الموظف"}
                                                         </span>
                                                         <span>|</span>
-                                                        <span className="text-gray-400">{formatDistanceToNow(new Date(msg.created_at), { addSuffix: true, locale: arSA })}</span>
+                                                        <span className="text-gray-2">{formatDistanceToNow(new Date(msg.created_at), { addSuffix: true, locale: arSA })}</span>
                                                     </div>
                                                 )}
 
@@ -275,7 +275,7 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
                                         onChange={(e) => setMessageText(e.target.value)}
                                         onKeyDown={handleKeyDown}
                                         placeholder="اكتب رسالتك هنا ..."
-                                        className="border-none shadow-none bg-transparent focus-visible:ring-0 flex-1 h-10 text-right text-gray-700 placeholder:text-gray-400"
+                                        className="border-none shadow-none bg-transparent focus-visible:ring-0 flex-1 h-10 text-right text-gray-700 placeholder:text-gray-2"
                                         disabled={isSending}
                                     />
 
@@ -285,7 +285,7 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
                                         size="icon"
                                         className={cn(
                                             "w-10 h-10 rounded-lg shrink-0 transition-all cursor-pointer",
-                                            messageText.trim() ? "bg-[#3A5779] hover:bg-[#2c4460] text-white" : "bg-gray-200 text-gray-400"
+                                            messageText.trim() ? "bg-[#3A5779] hover:bg-[#2c4460] text-white" : "bg-gray-200 text-gray-2"
                                         )}
                                     >
                                         {isSending ? (
@@ -299,7 +299,7 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
                         )}
 
                         {!needsHuman && (
-                            <div className="p-3 bg-[#F5F5F5] text-center text-xs text-gray-400 shrink-0">
+                            <div className="p-3 bg-[#F5F5F5] text-center text-xs text-gray-2 shrink-0">
                                 هذه المحادثة تدار تلقائياً بواسطة المساعد الذكي
                             </div>
                         )}

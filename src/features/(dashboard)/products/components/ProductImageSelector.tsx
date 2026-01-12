@@ -36,7 +36,7 @@ const Tooltip = ({
         {trigger}
       </div>
       {isOpen && (
-        <div className="absolute z-50 p-3 bg-white border border-gray-200 shadow-lg rounded-lg w-64 text-xs text-gray-600 leading-relaxed top-full mt-2 left-0">
+        <div className="absolute z-50 p-3 bg-white border border-gray-200 shadow-lg rounded-lg w-64 text-xs text-gray-2 leading-relaxed top-full mt-2 left-0">
           {content}
         </div>
       )}
@@ -165,7 +165,7 @@ export function ProductImageSelector({
           <label className="block text-sm font-semibold text-blue-3">
             صور المنتج (يمكنك إضافة حتى {maxFiles} صور)
           </label>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-2">
             المقاسات المفضلة 1080 × 1080 بكسل
           </span>
         </div>
@@ -236,7 +236,7 @@ export function ProductImageSelector({
                 <span
                   className={cn(
                     "text-xs font-medium transition-colors",
-                    index === 0 ? "text-blue-3" : "text-gray-500"
+                    index === 0 ? "text-blue-3" : "text-gray-2"
                   )}
                 >
                   {index === 0 ? "الرئيسية" : "تعيين كرئيسية"}
@@ -271,7 +271,7 @@ export function ProductImageSelector({
             <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
               <Plus className="w-5 h-5 text-blue-3" />
             </div>
-            <span className="text-xs text-gray-600 mt-1">إضافة صورة</span>
+            <span className="text-xs text-gray-2 mt-1">إضافة صورة</span>
           </div>
         )}
       </div>

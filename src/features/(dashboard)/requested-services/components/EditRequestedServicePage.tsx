@@ -139,7 +139,7 @@ export function EditRequestedServicePage({ id }: EditRequestedServicePageProps) 
             placeholder="أدخل عنوان الخدمة"
             className="h-12 bg-white border-gray-200 focus:border-[#3A5779]"
           />
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-2">
             اختر عنواناً مختصراً وواضحاً يعكس ما ستتحدث عنه بالتفصيل في موضوعك.
           </p>
         </div>
@@ -174,7 +174,7 @@ export function EditRequestedServicePage({ id }: EditRequestedServicePageProps) 
             />
           </div>
           <p className="text-xs text-blue-3">
-           اكتب وصفاً مفصلاً للموضوع بلغة سليمة خالية من الأخطاء، لاحقاً خلال ما سيحصل بالتفصيل في الموضوع.
+            اكتب وصفاً مفصلاً للموضوع بلغة سليمة خالية من الأخطاء، لاحقاً خلال ما سيحصل بالتفصيل في الموضوع.
           </p>
         </div>
 

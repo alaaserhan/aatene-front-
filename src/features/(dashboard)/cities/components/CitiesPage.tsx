@@ -130,7 +130,7 @@ export function CitiesPage() {
             <h1 className="text-xl md:text-2xl sm:text-2xl  font-bold text-brand-black-1">
               المدن المسموح بها للشحن
             </h1>
-            <p className="text-sm text-gray-500 mt-1">اختر وجهات الشحن</p>
+            <p className="text-sm text-gray-2 mt-1">اختر وجهات الشحن</p>
           </div>
 
           <button
@@ -156,7 +156,7 @@ export function CitiesPage() {
                   className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-sm focus:outline-none focus:border-brand-blue-2 text-right"
                   dir="rtl"
                 />
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-2" />
               </div>
               <button
                 onClick={handleSearch}
@@ -188,7 +188,7 @@ export function CitiesPage() {
                     <td colSpan={3} className="text-center p-8">
                       <div className="flex justify-center items-center gap-2">
                         <Loader2 className="w-5 h-5 animate-spin text-brand-blue-3" />
-                        <span className="text-gray-600">جاري تحميل البيانات...</span>
+                        <span className="text-gray-2">جاري تحميل البيانات...</span>
                       </div>
                     </td>
                   </tr>
@@ -200,7 +200,7 @@ export function CitiesPage() {
                   </tr>
                 ) : cities.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="text-center p-8 text-gray-500">
+                    <td colSpan={3} className="text-center p-8 text-gray-2">
                       لا توجد بيانات لعرضها.
                     </td>
                   </tr>

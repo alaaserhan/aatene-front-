@@ -186,7 +186,7 @@ export function AddServiceStep4({
                             <div>
                                 <div className="mb-6">
                                     <h2 className="text-xl font-bold text-gray-900 mb-1">الأسئلة الشائعة (اختياري)</h2>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-sm text-gray-2">
                                         اكتب إجابات للأسئلة الشائعة التي يطرحها عميلك. أضف حتى خمسة أسئلة.
                                     </p>
                                 </div>
@@ -200,7 +200,7 @@ export function AddServiceStep4({
                                                     <h4 className="font-bold text-gray-900 text-sm flex items-center gap-2">
                                                         {index + 1}. {q.question}
                                                     </h4>
-                                                    <p className="text-sm text-gray-600 leading-relaxed">
+                                                    <p className="text-sm text-gray-2 leading-relaxed">
                                                         {q.answer}
                                                     </p>
                                                 </div>
@@ -208,7 +208,7 @@ export function AddServiceStep4({
                                                 {/* Action Menu (3 Dots) */}
                                                 <Popover>
                                                     <PopoverTrigger asChild>
-                                                        <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-50 transition-colors">
+                                                        <button className="text-gray-2 hover:text-gray-2 p-1 rounded-full hover:bg-gray-50 transition-colors">
                                                             <MoreHorizontal className="w-5 h-5" />
                                                         </button>
                                                     </PopoverTrigger>
@@ -240,7 +240,7 @@ export function AddServiceStep4({
                                                 <h3 className="text-sm font-bold text-blue-4">
                                                     {editingIndex !== null ? "تعديل السؤال" : "إضافة سؤال جديد"}
                                                 </h3>
-                                                <button onClick={resetQuestionForm} className="text-gray-400 hover:text-gray-600">
+                                                <button onClick={resetQuestionForm} className="text-gray-2 hover:text-gray-2">
                                                     <X className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -266,7 +266,7 @@ export function AddServiceStep4({
                                             <div className="flex items-center justify-end gap-3 pt-2">
                                                 <button
                                                     onClick={resetQuestionForm}
-                                                    className="text-gray-500 hover:text-gray-700 text-sm font-medium px-4"
+                                                    className="text-gray-2 hover:text-gray-700 text-sm font-medium px-4"
                                                 >
                                                     إلغاء
                                                 </button>

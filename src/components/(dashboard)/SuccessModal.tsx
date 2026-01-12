@@ -39,13 +39,13 @@ export function SuccessModal({
               <Check className="w-10 h-10 text-green-600" strokeWidth={2} />
             </div>
           </div>
-          
+
           <DialogTitle className="text-xl font-bold text-center text-brand-black-1">
             {title}
           </DialogTitle>
-          
+
           {message && (
-            <DialogDescription className="text-center text-gray-500 pt-2">
+            <DialogDescription className="text-center text-gray-2 pt-2">
               {message}
             </DialogDescription>
           )}

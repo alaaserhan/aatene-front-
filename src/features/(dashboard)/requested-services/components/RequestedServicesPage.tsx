@@ -147,7 +147,7 @@ export function RequestedServicesPage() {
       return (
         <tr>
           <td colSpan={5} className="py-20 text-center">
-            <div className="flex justify-center items-center gap-2 text-gray-500">
+            <div className="flex justify-center items-center gap-2 text-gray-2">
               <Loader2 className="w-6 h-6 animate-spin text-[#3A5779]" />
               <span>جاري التحميل...</span>
             </div>
@@ -159,7 +159,7 @@ export function RequestedServicesPage() {
     if (!servicesData?.data || servicesData.data.length === 0) {
       return (
         <tr>
-          <td colSpan={5} className="py-20 text-center text-gray-500">
+          <td colSpan={5} className="py-20 text-center text-gray-2">
             لا توجد طلبات لعرضها
           </td>
         </tr>
@@ -245,7 +245,7 @@ export function RequestedServicesPage() {
             <div className="flex justify-center items-center gap-2">
               <Link href={`/admin/requested-services/${item.id}/edit`}>
                 <Button variant="ghost" size="icon" className="h-9 w-9 bg-blue-5  rounded transition-colors">
-                  <img src="/icons/dashboard/edit.svg" alt="edit"  className="w-4 h-4" />
+                  <img src="/icons/dashboard/edit.svg" alt="edit" className="w-4 h-4" />
                 </Button>
               </Link>
               <Link href={`/admin/requested-services/${item.id}`}>
@@ -272,7 +272,7 @@ export function RequestedServicesPage() {
     <div className="flex flex-col gap-6 p-6 min-h-screen bg-[#F8F9FC]">
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold text-gray-800">طلبات الخدمات الغير موجودة</h1>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-2 text-sm">
           تتيح لك استعراض الطلبات المرسلة من المستخدمين مع إمكانية متابعة حالتها وإدارتها.
         </p>
       </div>
@@ -299,7 +299,7 @@ export function RequestedServicesPage() {
                 )}>
                   {stat.count}
                 </span>
-                <span className={cn("font-bold text-sm", isActive ? "text-gray-800" : "text-gray-600")}>
+                <span className={cn("font-bold text-sm", isActive ? "text-gray-800" : "text-gray-2")}>
                   {stat.label}
                 </span>
               </button>
@@ -318,7 +318,7 @@ export function RequestedServicesPage() {
               }}
               className="pr-10 h-11 bg-white border-gray-200 focus:border-[#3A5779] transition-all rounded-lg w-full"
             />
-            <Search className="absolute right-3 top-3 w-5 h-5 text-gray-400" />
+            <Search className="absolute right-3 top-3 w-5 h-5 text-gray-2" />
           </div>
         </div>
 

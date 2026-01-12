@@ -348,7 +348,7 @@ export function RichTextEditor({
           {isEmpty && (
             <div
               className={cn(
-                "absolute top-3 text-gray-400 text-sm pointer-events-none",
+                "absolute top-3 text-gray-2 text-sm pointer-events-none",
                 currentDir === "rtl" ? "right-4" : "left-4"
               )}
             >
@@ -373,7 +373,7 @@ export function RichTextEditor({
               </h3>
               <button
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-2 hover:text-gray-2 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -569,7 +569,7 @@ function ToolbarButton({
       onClick={onClick}
       title={title}
       className={cn(
-        "w-7 h-7 flex items-center justify-center rounded text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors",
+        "w-7 h-7 flex items-center justify-center rounded text-gray-2 hover:bg-gray-200 hover:text-gray-900 transition-colors",
         className
       )}
     >

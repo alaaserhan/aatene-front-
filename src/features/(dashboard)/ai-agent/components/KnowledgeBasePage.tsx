@@ -17,7 +17,7 @@ import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteMo
 export function KnowledgeBasePage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   const { data: filesData, isLoading } = useGetDriveFiles();
   const { mutate: deleteFile, isPending: isDeleting } = useDeleteDriveFile();
 
@@ -52,33 +52,33 @@ export function KnowledgeBasePage() {
   return (
     <div className="p-5">
       <div className="lg:grid lg:grid-cols-[280px_1fr] flex flex-col gap-4 items-start">
-        
+
         <div className="hidden lg:block w-full sticky top-25">
-             <Mosa3edySidebar />
+          <Mosa3edySidebar />
         </div>
 
         <div className="w-full space-y-6 min-w-0 h-[calc(100vh-124px)]">
-          
+
           <div className="flex justify-between items-end border-b border-gray-200 pb-6">
             <div>
               <h1 className="text-2xl font-bold mb-1">قاعدة المعرفة</h1>
-              <p className="text-gray-500 text-sm">إدارة الملفات والوثائق الخاصة بتدريب المساعد الذكي</p>
+              <p className="text-gray-2 text-sm">إدارة الملفات والوثائق الخاصة بتدريب المساعد الذكي</p>
             </div>
           </div>
 
           {files.length > 0 && (
             <div className="flex justify-between items-center gap-4">
               <div className="relative w-full">
-                <Input 
-                  placeholder="بحث في الوثائق..." 
+                <Input
+                  placeholder="بحث في الوثائق..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="h-11 pr-10"
                 />
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-2 w-5 h-5" />
               </div>
 
-              <Button 
+              <Button
                 onClick={handleAddClick}
                 className="bg-blue-3 hover:bg-[#2c4460] text-white h-11 px-6 rounded-sm font-medium text-sm gap-2"
               >
@@ -102,9 +102,9 @@ export function KnowledgeBasePage() {
         </div>
       </div>
 
-      <ConfirmDeleteModal 
-        isOpen={isDeleteConfirmOpen} 
-        onClose={() => setIsDeleteConfirmOpen(false)} 
+      <ConfirmDeleteModal
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => setIsDeleteConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
         title="هل أنت متأكد من حذف الملف؟"
         description="لا يمكن استرجاع الملف بعد حذفه نهائياً من قاعدة المعرفة."
@@ -112,8 +112,8 @@ export function KnowledgeBasePage() {
         cancelText="إلغاء"
       />
 
-      <SuccessModal 
-        isOpen={isSuccessDeleteOpen} 
+      <SuccessModal
+        isOpen={isSuccessDeleteOpen}
         onClose={() => setIsSuccessDeleteOpen(false)}
         title="تم حذف الملف بنجاح"
         buttonText="تم"

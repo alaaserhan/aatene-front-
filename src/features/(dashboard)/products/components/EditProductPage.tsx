@@ -54,7 +54,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
 
         const variationRows: VariationRow[] = (product.variations || []).map((v: Variation) => {
           const attributeValues: Record<string, string> = {};
-          
+
           if (v.attributeOptions && Array.isArray(v.attributeOptions)) {
             v.attributeOptions.forEach((opt: AttributeOption) => {
               if (opt.attribute_id && opt.option_id) {
@@ -64,11 +64,11 @@ export function EditProductPage({ productId }: EditProductPageProps) {
               if (opt.attribute) {
                 const attrId = String(opt.attribute.id);
                 if (!attributesMap.has(attrId)) {
-                    attributesMap.set(attrId, {
-                        id: attrId,
-                        name: opt.attribute.title,
-                        options: [] 
-                    });
+                  attributesMap.set(attrId, {
+                    id: attrId,
+                    name: opt.attribute.title,
+                    options: []
+                  });
                 }
               }
             });
@@ -136,7 +136,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
         toast.error("حدث خطأ أثناء معالجة بيانات المنتج");
       }
     }
-  }, [productData]); 
+  }, [productData]);
 
   const breadcrumbItems = useMemo(() => [
     { label: "المنتجات", href: "/admin/products" },
@@ -234,7 +234,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
 
   const handleStep4Back = (data: Step4FormData) => {
     if (formData) {
-        setFormData({ ...formData, step4: data });
+      setFormData({ ...formData, step4: data });
     }
     setCurrentStep(3);
   };
@@ -244,7 +244,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="w-10 h-10 animate-spin text-[#3A5779]" />
-          <span className="text-gray-500 font-medium">جاري تحميل بيانات المنتج...</span>
+          <span className="text-gray-2 font-medium">جاري تحميل بيانات المنتج...</span>
         </div>
       </div>
     );
@@ -261,7 +261,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">عذراً، حدث خطأ ما</h2>
-          <p className="text-gray-500 mb-8 leading-relaxed">
+          <p className="text-gray-2 mb-8 leading-relaxed">
             {mappingError
               ? "حدث خطأ أثناء معالجة بيانات المنتج."
               : "لم يتم العثور على المنتج أو حدث خطأ في الاتصال."}

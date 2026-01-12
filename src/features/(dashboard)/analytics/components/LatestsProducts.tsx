@@ -58,7 +58,7 @@ export function LatestsProducts() {
                     <span className="text-lg font-medium ">( {products.length} )</span>
                 </div>
                 {/* <div className="flex items-center gap-2">
-                    <ChevronLeft className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" />
+                    <ChevronLeft className="w-5 h-5 text-gray-2 cursor-pointer hover:text-gray-2" />
                 </div> */}
             </div>
 
@@ -102,7 +102,7 @@ export function LatestsProducts() {
 
                                     {/* Time Ago */}
                                     <td className="py-4 px-4 text-center">
-                                        <span className="text-sm font-medium text-gray-600">
+                                        <span className="text-sm font-medium text-gray-2">
                                             {getRelativeTimeArabic(product.created_at)}
                                         </span>
                                     </td>
@@ -117,7 +117,7 @@ export function LatestsProducts() {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={5} className="py-10 text-center text-gray-400 text-sm">
+                                <td colSpan={5} className="py-10 text-center text-gray-2 text-sm">
                                     لا توجد منتجات حديثة
                                 </td>
                             </tr>

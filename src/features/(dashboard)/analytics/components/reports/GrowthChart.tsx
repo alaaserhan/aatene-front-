@@ -20,7 +20,7 @@ export function GrowthChart({ data, title, lines, className }: GrowthChartProps)
     <div className={cn("bg-white rounded-lg p-4 flex flex-col h-[450px]", className)}>
       <div className="flex items-center justify-between mb-6 shrink-0">
         <h3 className="text-lg font-medium flex items-center gap-2">
-           {title}
+          {title}
         </h3>
       </div>
 
@@ -36,20 +36,20 @@ export function GrowthChart({ data, title, lines, className }: GrowthChartProps)
               ))}
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-            <XAxis 
-                dataKey="date" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fontSize: 12, fill: "#9CA3AF" }} 
-                tickMargin={10}
+            <XAxis
+              dataKey="date"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: "#9CA3AF" }}
+              tickMargin={10}
             />
-            <YAxis 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fontSize: 12, fill: "#9CA3AF" }} 
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: "#9CA3AF" }}
             />
             <Tooltip contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} />
-            
+
             {lines.map((line) => (
               <Area
                 key={line.key}
@@ -70,7 +70,7 @@ export function GrowthChart({ data, title, lines, className }: GrowthChartProps)
         {lines.map((line) => (
           <div key={line.key} className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: line.color }} />
-            <span className="text-xs text-gray-500 font-medium">{line.name}</span>
+            <span className="text-xs text-gray-2 font-medium">{line.name}</span>
           </div>
         ))}
       </div>

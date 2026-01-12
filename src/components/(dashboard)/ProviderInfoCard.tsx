@@ -33,7 +33,7 @@ export function ProviderInfoCard({ store, className }: ProviderInfoCardProps) {
                         <h3 className=" font-medium  mb-1">
                             {store.owner?.first_name} {store.owner?.last_name}
                         </h3>
-                        <div className="flex items-center  gap-1 text-gray-500 text-sm">
+                        <div className="flex items-center  gap-1 text-gray-2 text-sm">
                             <MapPin className="w-4 h-4 text-blue-4" />
                             <span>{store.serviceCities?.[0]?.name || "فلسطين، الخليل"}</span>
                         </div>
@@ -58,7 +58,7 @@ export function ProviderInfoCard({ store, className }: ProviderInfoCardProps) {
             <div className="border-t border-gray-100 mb-6"></div>
 
             {/* شريط الإحصائيات السفلي */}
-            <div className="flex flex-wrap items-center  gap-8 text-sm text-gray-600">
+            <div className="flex flex-wrap items-center  gap-8 text-sm text-gray-2">
 
                 <div className="flex items-center gap-2">
                     <AlarmClock className="w-4 h-4 text-black" />

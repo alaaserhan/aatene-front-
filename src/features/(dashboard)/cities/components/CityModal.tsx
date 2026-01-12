@@ -89,14 +89,14 @@ export function CityModal({
               حالة المدينة
             </Label>
             <div className="flex gap-3">
-              <span className="text-sm text-gray-600">غير مفعلة</span>
+              <span className="text-sm text-gray-2">غير مفعلة</span>
               <ToggleSwitch
                 enabled={formData.isActive}
                 onChange={(isActive) =>
                   setFormData({ ...formData, isActive })
                 }
               />
-                <span className="text-sm text-gray-600">مفعلة</span>
+              <span className="text-sm text-gray-2">مفعلة</span>
             </div>
           </div>
         </div>
@@ -111,7 +111,7 @@ export function CityModal({
                 ? ""
                 : "cursor-not-allowed"
             )}
-            style={{backgroundColor: 'var(--blue-3)', }}
+            style={{ backgroundColor: 'var(--blue-3)', }}
           >
             حفظ
           </Button>

@@ -63,13 +63,13 @@ export function SignupForm() {
 
   const onSubmit = (data: SignupFormData) => {
     const { confirmPassword, terms, ...credentials } = data;
-    
+
     signupMutation(credentials, {
       onError: (error) => {
         form.clearErrors();
         if (error instanceof AxiosError) {
           const responseData = error.response?.data as ApiError | undefined;
-          
+
           if (responseData?.errors && Object.keys(responseData.errors).length > 0) {
             Object.entries(responseData.errors).forEach(([field, messages]) => {
               if (Array.isArray(messages) && messages.length > 0) {
@@ -99,7 +99,7 @@ export function SignupForm() {
             <CardTitle className="text-2xl sm:text-3xl font-bold mb-1">
               إنشاء حساب جديد
             </CardTitle>
-            <CardDescription className="text-gray-500 text-sm">
+            <CardDescription className="text-gray-2 text-sm">
               لديك حساب بالفعل؟
               <Link href="/login" className="underline hover:text-primary">
                 تسجيل الدخول
@@ -221,7 +221,7 @@ export function SignupForm() {
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-xs text-gray-600 cursor-pointer">
+                      <FormLabel className="text-xs text-gray-2 cursor-pointer">
                         لقد قرأت ووافقت على
                         <Link href="/terms" className="underline hover:text-primary">
                           شروط الخدمة

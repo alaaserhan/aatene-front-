@@ -39,7 +39,7 @@ export function ConfirmDeleteModal({
   };
 
   return (
-    <Dialog  open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md" dir="rtl">
         <DialogHeader className="flex flex-col items-center pt-4">
           <div className="w-24 h-24 rounded-full bg-red-100 flex items-center justify-center mb-6">
@@ -50,8 +50,8 @@ export function ConfirmDeleteModal({
           <DialogTitle className="text-xl font-bold text-center text-brand-black-1">
             {title}
           </DialogTitle>
-          <DialogDescription className="text-center text-gray-500 pt-2">
-           {description || " لا يمكنك التراجع عن هذا الإجراء بعد التأكيد."}
+          <DialogDescription className="text-center text-gray-2 pt-2">
+            {description || " لا يمكنك التراجع عن هذا الإجراء بعد التأكيد."}
           </DialogDescription>
         </DialogHeader>
 

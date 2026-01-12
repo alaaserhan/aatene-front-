@@ -96,7 +96,7 @@ export function AddServiceStep5({
                             {/* Copyright Notice */}
                             <div className="space-y-2">
                                 <h3 className="text-lg font-bold ">إشعار حقوق النشر</h3>
-                                <p className="text-sm text-gray-500 leading-relaxed">
+                                <p className="text-sm text-gray-2 leading-relaxed">
                                     بإرسال خدمتك، تُقر بملكيتك أو حقوقك في المواد المنشورة، وأن نشر هذه المواد لا ينتهك حقوق أي طرف ثالث. كما تُقر بفهمك أن مشروعك سيخضع للمراجعة والتقييم من قبل الإدارة لضمان استيفائه لمتطلباتها.
                                 </p>
                             </div>
@@ -129,7 +129,7 @@ export function AddServiceStep5({
                                             </svg>
                                         </div>
                                     </div>
-                                    <label htmlFor="terms" className="text-sm text-gray-500 cursor-pointer select-none">
+                                    <label htmlFor="terms" className="text-sm text-gray-2 cursor-pointer select-none">
                                         أفهم وأوافق على شروط خدمة اعطيني، بما في ذلك <Link href="#" className="text-[#3A5779] underline hover:text-blue-4">اتفاقية المستخدم</Link> و<Link href="#" className="text-[#3A5779] underline hover:text-blue-4">سياسة الخصوصية</Link>.
                                     </label>
                                 </div>
@@ -161,7 +161,7 @@ export function AddServiceStep5({
                                             </svg>
                                         </div>
                                     </div>
-                                    <label htmlFor="privacy" className="text-sm text-gray-500 cursor-pointer select-none leading-relaxed">
+                                    <label htmlFor="privacy" className="text-sm text-gray-2 cursor-pointer select-none leading-relaxed">
                                         من خلال إرسال هذا المشروع وتفعيله، أفهم أنه سيظهر في نتائج بحث منصة اعطيني مرئيًا للعامة وسيظهر في نتائج محرك البحث، حتى لو تم تعيين رؤية ملف التعريف الخاص بي على خاص أو لمستخدمي منصة اعطيني فقط.
                                     </label>
                                 </div>

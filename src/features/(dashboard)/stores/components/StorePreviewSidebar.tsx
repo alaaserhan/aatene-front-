@@ -112,7 +112,7 @@ export function StorePreviewSidebar({ data }: StorePreviewSidebarProps) {
                   {data.description}
                 </p>
               ) : (
-                <p className="text-sm text-gray-500">هنا مثال لوصف المتجر</p>
+                <p className="text-sm text-gray-2">هنا مثال لوصف المتجر</p>
               )}
             </div>
           </div>

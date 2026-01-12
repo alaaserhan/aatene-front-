@@ -93,7 +93,7 @@ export function UserProfilePage() {
     if (!data?.success) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#F8F9FA] gap-4">
-                <p className="text-gray-500 font-bold">لم يتم العثور على بيانات المستخدم</p>
+                <p className="text-gray-2 font-bold">لم يتم العثور على بيانات المستخدم</p>
                 <Button onClick={() => router.back()} variant="outline">العودة للخلف</Button>
             </div>
         );
@@ -222,14 +222,14 @@ export function UserProfilePage() {
                                     { stars: 1, count: starBreakdown.one_star },
                                 ].map((item) => (
                                     <div key={item.stars} className="flex items-center gap-4">
-                                        <span className="w-16 text-sm font-medium text-gray-500 shrink-0">{item.stars} نجوم</span>
+                                        <span className="w-16 text-sm font-medium text-gray-2 shrink-0">{item.stars} نجوم</span>
                                         <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
                                             <div
                                                 className="h-full bg-blue-4 rounded-full"
                                                 style={{ width: `${getPercentage(item.count)}%` }}
                                             />
                                         </div>
-                                        <span className="w-20 text-sm font-medium text-gray-400 text-left shrink-0">{item.count} تقييم</span>
+                                        <span className="w-20 text-sm font-medium text-gray-2 text-left shrink-0">{item.count} تقييم</span>
                                     </div>
                                 ))}
                             </div>
@@ -250,7 +250,7 @@ export function UserProfilePage() {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="bg-white border-gray-200 h-11 text-right pr-10"
                                 />
-                                <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                                <Search className="w-4 h-4 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2" />
                             </div>
                             {/* Sort Dropdown */}
                             <div className="w-full sm:w-[240px]">
@@ -302,7 +302,7 @@ export function UserProfilePage() {
                             ))}
 
                             {processedReviews.length === 0 && (
-                                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                                <div className="flex flex-col items-center justify-center py-16 text-gray-2">
                                     <Star className="w-12 h-12 text-gray-200 mb-2" />
                                     <p>لا توجد تقييمات مطابقة</p>
                                 </div>

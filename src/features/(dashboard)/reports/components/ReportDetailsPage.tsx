@@ -44,7 +44,7 @@ const STATUS_STYLES: Record<string, string> = {
   pending: "bg-red-100 text-red-600 border-red-200",
   processing: "bg-blue-100 text-blue-600 border-blue-200",
   finished: "bg-green-100 text-green-600 border-green-200",
-  cancelled: "bg-gray-100 text-gray-600 border-gray-200",
+  cancelled: "bg-gray-100 text-gray-2 border-gray-200",
 };
 
 interface MediaFile {
@@ -264,7 +264,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowMediaModal(true)}
-                className="gap-2 bg-gray-50 hover:bg-gray-100 border-dashed border-gray-300 text-gray-600 rounded-full px-4"
+                className="gap-2 bg-gray-50 hover:bg-gray-100 border-dashed border-gray-300 text-gray-2 rounded-full px-4"
               >
                 <Plus className="w-4 h-4" />
                 ارفاق ملفات

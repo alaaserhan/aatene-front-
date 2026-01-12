@@ -65,7 +65,7 @@ export function ProductTable({
     if (products.length === 0) {
         return (
             <div className="flex flex-col min-h-[500px] items-center justify-center  bg-white rounded-lg border border-gray-200">
-                <p className="text-gray-500">لا توجد منتجات للعرض</p>
+                <p className="text-gray-2">لا توجد منتجات للعرض</p>
             </div>
         );
     }

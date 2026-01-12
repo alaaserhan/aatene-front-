@@ -48,14 +48,14 @@ export function MerchantProfileViews() {
 
                 {/* Top Half */}
                 <div className="flex flex-1 items-center pb-4 border-b border-gray-100">
-                    
+
                     {/* Top Right: Month Stats */}
                     <div className="w-1/2 flex flex-col gap-1 pl-4">
                         <span className="text-sm text-gray-2 font-medium">مشاهدات الشهر</span>
                         <span className="text-2xl font-medium text-[#3A5779]">
                             {data?.current_month_views || 0} مشاهدة
                         </span>
-                        <div className="bg-gray-100/80 px-2 py-0.5 rounded-sm w-fit text-[11px] text-gray-500 mt-1">
+                        <div className="bg-gray-100/80 px-2 py-0.5 rounded-sm w-fit text-[11px] text-gray-2 mt-1">
                             الشهر الماضي <span className="font-medium">{data?.last_month_views || 0}</span> مشاهدة
                         </div>
                     </div>
@@ -66,10 +66,10 @@ export function MerchantProfileViews() {
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={lineChartData}>
                                     <Tooltip
-                                        contentStyle={{ 
-                                            borderRadius: "8px", 
-                                            border: "none", 
-                                            fontSize: "12px", 
+                                        contentStyle={{
+                                            borderRadius: "8px",
+                                            border: "none",
+                                            fontSize: "12px",
                                             boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
                                             textAlign: "right"
                                         }}
@@ -101,7 +101,7 @@ export function MerchantProfileViews() {
                         <span className="text-2xl font-medium ">
                             {data?.current_day_views || 0} مشاهدة
                         </span>
-                        <div className="bg-gray-100/80 px-2 py-0.5 w-fit rounded-sm text-[11px] text-gray-500 mt-1">
+                        <div className="bg-gray-100/80 px-2 py-0.5 w-fit rounded-sm text-[11px] text-gray-2 mt-1">
                             مشاهدات الامس <span className="font-medium">{data?.yesterday_views || 0}</span> مشاهدة
                         </div>
                     </div>
@@ -112,7 +112,7 @@ export function MerchantProfileViews() {
                         <span className="text-2xl font-medium ">
                             {formatNumber(data?.all_time_views || 0)} مشاهدة
                         </span>
-                        <div className="bg-gray-100/80 px-2 py-0.5 rounded-sm w-fit text-[11px] text-gray-500 mt-1">
+                        <div className="bg-gray-100/80 px-2 py-0.5 rounded-sm w-fit text-[11px] text-gray-2 mt-1">
                             هذه السنة <span className="font-medium">{formatNumber(data?.current_year_views || 0)}</span> مشاهدة
                         </div>
                     </div>

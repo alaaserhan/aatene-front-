@@ -256,7 +256,7 @@ export function AddShippingCompanyDialog({
                             "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer",
                             isSelected
                               ? "bg-blue-5 border-blue-4"
-                              : "bg-white border-gray-300 group-hover:border-gray-500"
+                              : "bg-white border-gray-300 group-hover:border-gray-2"
                           )}
                           aria-checked={isSelected}
                           role="checkbox"
@@ -316,7 +316,7 @@ export function AddShippingCompanyDialog({
                       className="grid grid-cols-8 gap-4 items-start border-b border-gray-100 pb-4 last:border-0"
                     >
                       <div className="col-span-2">
-                        <label className="block text-xs text-gray-500 mb-2">
+                        <label className="block text-xs text-gray-2 mb-2">
                           المدينة
                         </label>
                         <div className="text-sm font-medium h-[38px]  text-gray-700">
@@ -325,7 +325,7 @@ export function AddShippingCompanyDialog({
                       </div>
 
                       <div className="col-span-3">
-                        <label className="block text-xs text-gray-500 mb-2">
+                        <label className="block text-xs text-gray-2 mb-2">
                           موعد التسليم (بالأيام){" "}
                           <span className="text-red-500">*</span>
                         </label>
@@ -353,7 +353,7 @@ export function AddShippingCompanyDialog({
                       </div>
 
                       <div className="col-span-3">
-                        <label className="block text-xs text-gray-500 mb-2">
+                        <label className="block text-xs text-gray-2 mb-2">
                           سعر التوصيل <span className="text-red-500">*</span>
                         </label>
                         <input

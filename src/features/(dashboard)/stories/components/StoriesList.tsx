@@ -44,7 +44,7 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <img src="/icons/dashboard/add.svg" alt="" className="w-5 h-5"/>
+          <img src="/icons/dashboard/add.svg" alt="" className="w-5 h-5" />
           <h2 className="text-lg font-bold ">القصص ( {stories.length} )</h2>
         </div>
 
@@ -57,29 +57,29 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 p-2 rounded-lg border border-gray-200 shadow-none bg-white">
-            <DropdownMenuItem 
-                onSelect={() => handleOpenAdd("text")} // يفضل استخدام onSelect بدلاً من onClick في القوائم
-                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg focus:bg-gray-50"
+            <DropdownMenuItem
+              onSelect={() => handleOpenAdd("text")} // يفضل استخدام onSelect بدلاً من onClick في القوائم
+              className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg focus:bg-gray-50"
             >
               <div className="bg-blue-5 p-2 rounded">
                 <Type className="w-5 h-5 text-blue-4" />
               </div>
               <div className="flex flex-col text-right">
                 <span className="font-medium text-blue-4 text-sm">نص</span>
-                <span className="text-xs text-gray-400 mt-0.5">قم باضافة نص الي قصتك</span>
+                <span className="text-xs text-gray-2 mt-0.5">قم باضافة نص الي قصتك</span>
               </div>
             </DropdownMenuItem>
-            
-            <DropdownMenuItem 
-                onSelect={() => handleOpenAdd("media")} // يفضل استخدام onSelect
-                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg mt-1 focus:bg-gray-50"
+
+            <DropdownMenuItem
+              onSelect={() => handleOpenAdd("media")} // يفضل استخدام onSelect
+              className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg mt-1 focus:bg-gray-50"
             >
               <div className="bg-blue-5 p-2 rounded">
                 <ImageIcon className="w-5 h-5 text-blue-4" />
               </div>
               <div className="flex flex-col text-right">
                 <span className="font-medium text-blue-4 text-sm">صورة او فيديو</span>
-                <span className="text-xs text-gray-400 mt-0.5">قم باضافة صورة او فيديو الي قصتك</span>
+                <span className="text-xs text-gray-2 mt-0.5">قم باضافة صورة او فيديو الي قصتك</span>
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -89,11 +89,11 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
       {/* Empty State */}
       {stories.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center bg-white rounded-xl border border-dashed border-gray-200 m-2">
-           <div className="relative mb-4">
-              <img src="/icons/dashboard/emptyStories.svg" alt="" className="h-44 opacity-80"/>
-           </div>
-           <h3 className="text-lg font-bold mb-1 text-gray-800">لا يوجد قصص حتي الان</h3>
-           <p className="text-gray-400 text-sm">بمجرد متابعتك من احد الاشخاص سيظهر هنا من يتابعك</p>
+          <div className="relative mb-4">
+            <img src="/icons/dashboard/emptyStories.svg" alt="" className="h-44 opacity-80" />
+          </div>
+          <h3 className="text-lg font-bold mb-1 text-gray-800">لا يوجد قصص حتي الان</h3>
+          <p className="text-gray-2 text-sm">بمجرد متابعتك من احد الاشخاص سيظهر هنا من يتابعك</p>
         </div>
       ) : (
         /* Stories List */
@@ -101,14 +101,14 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
           {stories.map((story, index) => (
             // ✅ 4. جعل العنصر قابلاً للضغط وتمرير الاندكس
             <div key={story.id} onClick={() => handleStoryClick(index)} className="cursor-pointer">
-                <StoryItem story={story} storeId={storeId} />
+              <StoryItem story={story} storeId={storeId} />
             </div>
           ))}
         </div>
       )}
 
       {/* Add Modal */}
-      <AddStoryModal 
+      <AddStoryModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         mode={addMode}
@@ -116,7 +116,7 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
       />
 
       {/* ✅ 5. عرض مودال عرض القصص */}
-      <ShowStoryModal 
+      <ShowStoryModal
         isOpen={isShowModalOpen}
         onClose={() => setIsShowModalOpen(false)}
         stories={stories}

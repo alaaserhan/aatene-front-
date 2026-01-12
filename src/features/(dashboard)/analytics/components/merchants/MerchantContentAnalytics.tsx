@@ -113,7 +113,7 @@ export function MerchantContentAnalytics() {
                         value={period}
                         onChange={setPeriod}
                         placeholder="الفترة"
-                        triggerIcon={<Calendar className="w-4 h-4 text-gray-500" />}
+                        triggerIcon={<Calendar className="w-4 h-4 text-gray-2" />}
                         className="h-9 text-xs"
                     />
                 </div>
@@ -121,7 +121,7 @@ export function MerchantContentAnalytics() {
 
             {/* Stats Cards Grid - 3 Columns x 2 Rows = 6 Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                
+
                 {/* 1. Total Products */}
                 <StatCard
                     title="إجمالي المنتجات"

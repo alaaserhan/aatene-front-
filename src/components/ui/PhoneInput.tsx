@@ -135,7 +135,7 @@ export function PhoneInput({
           </span>
           <ChevronDown
             className={cn(
-              "w-4 h-4 text-gray-400 transition-transform",
+              "w-4 h-4 text-gray-2 transition-transform",
               isOpen && "transform rotate-180"
             )}
           />
@@ -156,7 +156,7 @@ export function PhoneInput({
               >
                 <span className="text-lg">{country.flag}</span>
                 <span className="flex-1 font-medium">{country.name}</span>
-                <span className="text-gray-500">{country.dialCode}</span>
+                <span className="text-gray-2">{country.dialCode}</span>
               </button>
             ))}
           </div>
@@ -173,7 +173,7 @@ export function PhoneInput({
         className={cn(
           "flex-1 h-10 px-3 bg-white border rounded-lg text-sm",
           "focus:ring-2 focus:ring-[#3A5779] focus:border-transparent",
-          "placeholder:text-gray-400",
+          "placeholder:text-gray-2",
           disabled && "opacity-50 cursor-not-allowed",
           error && "border-red-500",
           !error && "border-gray-300"

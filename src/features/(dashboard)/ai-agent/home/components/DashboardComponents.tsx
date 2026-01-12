@@ -86,7 +86,7 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
                             cx="50%"
                             cy="50%"
                             labelLine={false}
-                            label={renderCustomizedLabel} 
+                            label={renderCustomizedLabel}
                             outerRadius={110}
                             fill="#8884d8"
                             dataKey="value"
@@ -110,7 +110,7 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
                     <div key={item.name} className="flex flex-col items-center gap-1">
                         <div className="flex items-center gap-2">
                             <span className="w-3 h-3 rounded-xs" style={{ backgroundColor: item.color }} />
-                            <span className="text-xs text-gray-500 font-medium">{item.name}</span>
+                            <span className="text-xs text-gray-2 font-medium">{item.name}</span>
                         </div>
                         <span className="text-sm font-bold ">{item.value}</span>
                     </div>
@@ -141,7 +141,7 @@ export function SourcesCard({ usersPerPlatform = [] }: SourcesCardProps) {
             case 'whatsapp': return { name: 'الواتساب', icon: <img src="/icons/dashboard/whatsapp2.svg" className="w-5 h-5" alt="" /> };
             case 'instagram': return { name: 'الانستجرام', icon: <img src="/icons/dashboard/instagram2.svg" className="w-4 h-4" alt="" /> };
             case 'messenger': return { name: 'الماسنجر', icon: <img src="/icons/dashboard/messenger.svg" className="w-4 h-4" alt="" /> };
-            default: return { name: platformName, icon: <Globe className="w-4 h-4 text-gray-500" />, color: 'text-gray-500' };
+            default: return { name: platformName, icon: <Globe className="w-4 h-4 text-gray-2" />, color: 'text-gray-2' };
         }
     };
 
@@ -181,7 +181,7 @@ export function SourcesCard({ usersPerPlatform = [] }: SourcesCardProps) {
                                 <div className="w-7 h-7 rounded-sm flex items-center justify-center bg-transparent border border-blue-1">
                                     {details.icon}
                                 </div>
-                                <span className="text-sm text-gray-600 font-bold">{details.name}</span>
+                                <span className="text-sm text-gray-2 font-bold">{details.name}</span>
                             </div>
 
                             {/* Left Side: Count */}
@@ -215,7 +215,7 @@ export function RatingSourceCard({ ratings = [] }: RatingSourceCardProps) {
             default: // Aatene / Website
                 return {
                     name: "أعطيني",
-                    icon: <div className="w-5 h-5 rounded-full border border-gray-400 flex items-center justify-center text-[10px] font-bold text-gray-600">A</div>
+                    icon: <div className="w-5 h-5 rounded-full border border-gray-2 flex items-center justify-center text-[10px] font-bold text-gray-2">A</div>
                 };
         }
     };
@@ -339,7 +339,7 @@ export function PageHeader() {
         <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold ">الرئيسية</h1>
             <button className="flex items-center gap-2 px-4 py-2 border border-blue-4 text-blue-3 cursor-pointer rounded-md transition-colors font-medium text-sm">
-               <img src="/icons/dashboard/export.svg" className="w-3.5" alt="" />
+                <img src="/icons/dashboard/export.svg" className="w-3.5" alt="" />
                 تصدير التقرير
             </button>
         </div>

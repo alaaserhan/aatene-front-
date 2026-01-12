@@ -17,11 +17,11 @@ interface ChatListSidebarProps {
 
 export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsHuman }: ChatListSidebarProps) {
   const isApiPlatform = ["whatsapp", "instagram", "messenger"].includes(platform);
-  
+
   const { data, isLoading } = useGetPlatformUsersInfo({
     platform: (isApiPlatform ? platform : "whatsapp") as PlatformType,
     limit: 50,
-    needs_human: needsHuman, 
+    needs_human: needsHuman,
   });
 
   if (isLoading) {
@@ -36,7 +36,7 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsH
 
   if (users.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-400">
+      <div className="flex flex-col items-center justify-center h-full text-gray-2">
         <p>لا توجد محادثات</p>
       </div>
     );
@@ -47,7 +47,7 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsH
       {users.map((user) => {
         const isSelected = selectedChatId === user.user_info.chat_id;
         const lastMessage = user.last_message?.bot_response || user.last_message?.message_text || "بدأ المحادثة";
-        
+
         return (
           <div
             key={user.user_info.chat_id}
@@ -58,9 +58,9 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsH
             )}
           >
             <div className="relative shrink-0">
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-blue-4">
-                    <img src="/icons/dashboard/user.svg" className="w-12" alt="User" />
-                </div>
+              <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-blue-4">
+                <img src="/icons/dashboard/user.svg" className="w-12" alt="User" />
+              </div>
             </div>
 
             <div className="flex-1 min-w-0">
@@ -68,16 +68,16 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsH
                 <h4 className="text-sm font-bold  truncate">
                   {user.user_info.first_name || user.user_info.phone_number}
                 </h4>
-                <span className="text-xs text-gray-400 shrink-0">
-                  {user.last_message?.created_at 
+                <span className="text-xs text-gray-2 shrink-0">
+                  {user.last_message?.created_at
                     ? formatDistanceToNow(new Date(user.last_message.created_at), { addSuffix: true, locale: arSA })
                     : "الآن"}
                 </span>
               </div>
-              
+
               <div className="flex justify-between items-start gap-2">
                 <p className="text-xs text-gray-2 truncate line-clamp-1 w-[80%]">
-                    {lastMessage}
+                  {lastMessage}
                 </p>
               </div>
             </div>

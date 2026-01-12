@@ -98,7 +98,7 @@ export function UsersPage() {
   }, [selectedUserId]);
 
   const handleUserUpdate = () => {
-     // يمكن هنا إعادة جلب البيانات إذا لزم الأمر
+    // يمكن هنا إعادة جلب البيانات إذا لزم الأمر
   };
 
   const handleUserDelete = () => {
@@ -138,7 +138,7 @@ export function UsersPage() {
               <li className="h-full flex items-center">
                 <Link
                   href="/admin/permissions"
-                  className="text-sm font-semibold text-gray-500 hover:text-[#3A5779] h-full flex items-center transition-colors"
+                  className="text-sm font-semibold text-gray-2 hover:text-[#3A5779] h-full flex items-center transition-colors"
                 >
                   الادوار والصلاحيات
                 </Link>

@@ -223,7 +223,7 @@ export function TermsSection({
                   "px-6 py-2 rounded-full font-normal transition-colors",
                   languageTab === lang
                     ? "bg-blue-4 text-white"
-                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                    : "bg-white text-gray-2 border-gray-300 hover:bg-gray-50"
                 )}
               >
                 {getLanguageLabel(lang).title}
@@ -239,8 +239,8 @@ export function TermsSection({
               languageTab === "ar"
                 ? currentParagraph.titleAr
                 : languageTab === "en"
-                ? currentParagraph.titleEn
-                : currentParagraph.titleHe
+                  ? currentParagraph.titleEn
+                  : currentParagraph.titleHe
             }
             onChange={(e) =>
               setCurrentParagraph({
@@ -248,8 +248,8 @@ export function TermsSection({
                 [languageTab === "ar"
                   ? "titleAr"
                   : languageTab === "en"
-                  ? "titleEn"
-                  : "titleHe"]: e.target.value,
+                    ? "titleEn"
+                    : "titleHe"]: e.target.value,
               })
             }
             placeholder="أضف عنوان الشرط..."
@@ -292,7 +292,7 @@ export function TermsSection({
                     "px-6 py-2 rounded-full font-normal transition-colors",
                     languageTab === lang
                       ? "bg-blue-4 text-white"
-                      : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
+                      : "bg-white text-gray-2 border-gray-300 hover:bg-gray-50"
                   )}
                 >
                   {getLanguageLabel(lang).content}
@@ -306,8 +306,8 @@ export function TermsSection({
               languageTab === "ar"
                 ? currentParagraph.contentAr
                 : languageTab === "en"
-                ? currentParagraph.contentEn
-                : currentParagraph.contentHe
+                  ? currentParagraph.contentEn
+                  : currentParagraph.contentHe
             }
             onChange={(value) =>
               setCurrentParagraph({
@@ -315,8 +315,8 @@ export function TermsSection({
                 [languageTab === "ar"
                   ? "contentAr"
                   : languageTab === "en"
-                  ? "contentEn"
-                  : "contentHe"]: value,
+                    ? "contentEn"
+                    : "contentHe"]: value,
               })
             }
             placeholder="أضف وصف مميز..."

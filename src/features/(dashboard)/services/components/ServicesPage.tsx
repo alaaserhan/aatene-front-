@@ -226,7 +226,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                             }}
                             className="pe-10 h-12 border-none shadow-none focus-visible:ring-0"
                         />
-                        <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <Search className="w-5 h-5 text-gray-2 absolute left-3 top-1/2 -translate-y-1/2" />
                     </div>
                 </div>
 
@@ -256,12 +256,12 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                     }}
                                     className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${activeStatus === tab.key
                                         ? tab.activeClass
-                                        : "border-transparent text-gray-400 hover:text-gray-600"
+                                        : "border-transparent text-gray-2 hover:text-gray-2"
                                         }`}
                                 >
                                     <span className="font-bold text-sm">{tab.label}</span>
                                     <span
-                                        className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-xs font-bold text-white ${activeStatus === tab.key ? tab.badgeClass : "bg-gray-400"
+                                        className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-xs font-bold text-white ${activeStatus === tab.key ? tab.badgeClass : "bg-gray-2"
                                             }`}
                                     >
                                         {getCountForStatus(tab.key)}

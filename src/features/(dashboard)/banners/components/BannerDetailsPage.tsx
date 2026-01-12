@@ -63,7 +63,7 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center">
-                    <p className="text-xl text-gray-600 mb-4">لم يتم العثور على الإعلان</p>
+                    <p className="text-xl text-gray-2 mb-4">لم يتم العثور على الإعلان</p>
                     <Button
                         onClick={() => router.push("/admin/banners")}
                         style={{ backgroundColor: "var(--blue-3)" }}
@@ -149,7 +149,7 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
 
                         <div className="">
                             <DetailRow
-                                icon={<div className="w-5 h-5 flex items-center justify-center text-gray-400 font-bold">#</div>}
+                                icon={<div className="w-5 h-5 flex items-center justify-center text-gray-2 font-bold">#</div>}
                                 label="أولوية الإعلان (ترتيب)"
                                 value={banner.priority}
                             />
@@ -191,7 +191,7 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
                     />
                   ))
                 ) : (
-                  <span className="text-sm text-gray-500">الكل</span>
+                  <span className="text-sm text-gray-2">الكل</span>
                 )} */}
                                 <OptionTag label={banner?.city?.name || "الكل"} />
                             </div>
@@ -299,7 +299,7 @@ function DetailRow({ icon, label, value }: DetailRowProps) {
         <div className="flex items-start gap-2 border-b pb-4 pt-4 border-b-[#E2E2E2]">
             <div className="flex-shrink-0">{icon}</div>
             <div className="flex-1 min-w-0 flex flex-row items-center gap-10">
-                <p className="text-sm font-medium text-gray-500 mb-1">{label}</p>
+                <p className="text-sm font-medium text-gray-2 mb-1">{label}</p>
                 <div className="text-sm break-words font-medium">
                     {value}
                 </div>

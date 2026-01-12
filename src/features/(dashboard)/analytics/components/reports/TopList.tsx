@@ -69,7 +69,7 @@ export function TopList({ title, subtitle, items, className, icon: Icon }: TopLi
                                         <div className="flex items-center gap-2 flex-wrap ">
                                             {item.subtitle && <span className="text-[11px] text-gray-2 font-medium">{item.subtitle}</span>}
                                             {item.badgeText && (
-                                                <span className={cn("text-[10px] px-2.5 py-0.5 rounded-full font-bold", item.badgeColor || "bg-gray-100 text-gray-600")}>
+                                                <span className={cn("text-[10px] px-2.5 py-0.5 rounded-full font-bold", item.badgeColor || "bg-gray-100 text-gray-2")}>
                                                     {item.badgeText}
                                                 </span>
                                             )}
@@ -86,7 +86,7 @@ export function TopList({ title, subtitle, items, className, icon: Icon }: TopLi
                             </div>
                         ))
                     ) : (
-                        <div className="text-center py-20 text-gray-400 text-sm flex flex-col items-center gap-2">
+                        <div className="text-center py-20 text-gray-2 text-sm flex flex-col items-center gap-2">
                             <span>لا توجد بيانات متاحة</span>
                         </div>
                     )}

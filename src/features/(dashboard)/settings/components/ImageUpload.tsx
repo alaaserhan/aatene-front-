@@ -81,14 +81,14 @@ export function ImageUpload({
           onClick={handleClick}
           className="flex items-center gap-3 px-4 py-3.5 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
         >
-          <span className="text-sm text-gray-600 font-medium">اضف صورة السياسة ...</span>
+          <span className="text-sm text-gray-2 font-medium">اضف صورة السياسة ...</span>
           <div className="mr-auto p-2 bg-blue-4 rounded-lg">
             <Upload className="w-5 h-5 text-white" strokeWidth={2} />
           </div>
         </div>
       ) : (
         <div className="flex items-center justify-between px-4 py-3 border border-gray-300 rounded-lg bg-gray-50">
-          
+
           <div className="flex items-center gap-3 overflow-hidden">
             <img
               src={preview}
@@ -96,7 +96,7 @@ export function ImageUpload({
               className="w-12 h-12 object-cover rounded"
             />
             <div className="text-sm overflow-hidden">
-              <p className="text-gray-600 text-xs">{fileSize || "..."}KB</p>
+              <p className="text-gray-2 text-xs">{fileSize || "..."}KB</p>
               <p className="font-medium truncate text-xs">
                 {fileName || "ملف مرفوع"}
               </p>

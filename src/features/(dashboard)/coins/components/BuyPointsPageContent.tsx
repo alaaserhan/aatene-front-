@@ -114,7 +114,7 @@ export function BuyPointsPageContent() {
                                         <div className="text-3xl font-medium mb-1 text-blue-4">
                                             {pkg.coins_count}
                                         </div>
-                                        <div className="text-xs text-gray-500 mb-4">
+                                        <div className="text-xs text-gray-2 mb-4">
                                             عملة ذهبية
                                         </div>
                                         <div className="text-xl font-medium">
@@ -223,7 +223,7 @@ export function BuyPointsPageContent() {
                                 <div className="space-y-1 flex items-center gap-2">
                                     <div className=" font-medium">رصيدك الحالي:</div>
                                     <div className="text-xl font-medium flex items-center gap-1 text-blue-4">
-                                        {isLoadingBalance ? <Loader2 className="w-5 h-5 animate-spin text-gray-400" /> : currentBalance}
+                                        {isLoadingBalance ? <Loader2 className="w-5 h-5 animate-spin text-gray-2" /> : currentBalance}
                                         <span className="text-sm ">عملة ذهبية</span>
                                     </div>
                                 </div>
@@ -239,11 +239,11 @@ export function BuyPointsPageContent() {
                             </h2>
 
                             <div className="space-y-4">
-                                <div className="flex justify-between items-center text-sm text-gray-600">
+                                <div className="flex justify-between items-center text-sm text-gray-2">
                                     <span>عدد العملات</span>
                                     <span className="font-medium">{coinsCount} عملة ذهبية</span>
                                 </div>
-                                <div className="flex justify-between items-center text-sm text-gray-600">
+                                <div className="flex justify-between items-center text-sm text-gray-2">
                                     <span>السعر</span>
                                     <span className="font-medium">{price} ₪ </span>
                                 </div>
@@ -257,7 +257,7 @@ export function BuyPointsPageContent() {
                             </div>
 
                             <div className="bg-gray-50 p-4 rounded-lg flex items-center gap-3 border border-gray-100">
-                                <div className="text-sm text-gray-600">
+                                <div className="text-sm text-gray-2">
                                     رصيدك بعد الشراء سيصبح
                                 </div>
                                 <div className="mr-auto font-medium flex items-center gap-1 ">

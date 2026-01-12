@@ -314,7 +314,7 @@ export function AddServiceStep1({
                     error={errors.title}
                     maxLength={140}
                   />
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-2">
                     قم بتضمين الكلمات الرئيسية التي يستخدمها المشترون للبحث عن هذا العنصر.
                   </p>
                 </div>

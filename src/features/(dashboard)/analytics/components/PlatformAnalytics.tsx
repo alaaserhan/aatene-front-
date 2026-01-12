@@ -111,7 +111,7 @@ export function PlatformAnalytics() {
                         value={period}
                         onChange={setPeriod}
                         placeholder="الفترة"
-                        triggerIcon={<Calendar className="w-4 h-4 text-gray-500" />}
+                        triggerIcon={<Calendar className="w-4 h-4 text-gray-2" />}
                         className="h-10 text-xs"
                     />
                 </div>

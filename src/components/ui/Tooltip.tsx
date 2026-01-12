@@ -25,7 +25,7 @@ export function Tooltip({ trigger, content }: TooltipProps) {
 
       {isOpen && (
         <div
-          className="absolute z-50 p-3 bg-white border border-gray-200 rounded-lg shadow-lg w-64 text-xs text-gray-600 leading-relaxed top-full mt-2 left-1/2 -translate-x-1/2"
+          className="absolute z-50 p-3 bg-white border border-gray-200 rounded-lg shadow-lg w-64 text-xs text-gray-2 leading-relaxed top-full mt-2 left-1/2 -translate-x-1/2"
           role="tooltip"
         >
           {content}

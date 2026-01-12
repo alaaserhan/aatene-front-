@@ -79,7 +79,7 @@ const QuestionCard = ({
                         </div>
                     </div>
 
-                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">
+                    <p className="text-sm text-gray-2 leading-relaxed line-clamp-2">
                         {item.answer || "لا يوجد إجابة"}
                     </p>
                 </div>
@@ -88,7 +88,7 @@ const QuestionCard = ({
             {/* Expanded Content (Video/Image) */}
             {isExpanded && (
                 <div className="px-4 pb-4 space-y-4">
-                    <p className="text-sm text-gray-600">{item.answer}</p>
+                    <p className="text-sm text-gray-2">{item.answer}</p>
 
                     {item.video && (
                         <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center relative overflow-hidden group cursor-pointer">
@@ -396,7 +396,7 @@ export function ContentFAQsTab() {
                                 "px-6 py-2.5 rounded-sm font-medium transition-all border text-sm cursor-pointer",
                                 activeSection === index
                                     ? "bg-blue-4 text-white "
-                                    : "bg-white border-transparent text-gray-500 hover:bg-gray-50"
+                                    : "bg-white border-transparent text-gray-2 hover:bg-gray-50"
                             )}
                         >
                             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -444,7 +444,7 @@ export function ContentFAQsTab() {
             {sectionFields.length === 0 && (
                 <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
                     <h3 className="text-lg font-medium  mb-2">لا توجد أقسام مضافة</h3>
-                    <p className="text-gray-500 mb-6">ابدأ بإضافة قسم جديد للأسئلة الشائعة</p>
+                    <p className="text-gray-2 mb-6">ابدأ بإضافة قسم جديد للأسئلة الشائعة</p>
                     <button
                         type="button"
                         onClick={() => setIsAddSectionOpen(true)}

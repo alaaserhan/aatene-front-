@@ -345,7 +345,7 @@ export function AddStoreStep4({
                       <tbody className="bg-white divide-y divide-gray-100">
                         {managers.length === 0 ? (
                           <tr>
-                            <td colSpan={3} className="p-8 text-center text-gray-500">
+                            <td colSpan={3} className="p-8 text-center text-gray-2">
                               لا يوجد موظفين مضافين
                             </td>
                           </tr>

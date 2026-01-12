@@ -86,7 +86,7 @@ export function ShareProductModal({
             <h2 className="text-2xl font-bold ">
               شارك هذا المنتج مع أصدقائك
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-2">
               إذا أعجبك هذا المنتج، شاركه مع أصدقائك.
             </p>
           </div>
@@ -123,14 +123,14 @@ export function ShareProductModal({
               <Copy
                 className={cn(
                   "w-5 h-5 transition-colors",
-                  copied ? "text-green-500" : "text-gray-400"
+                  copied ? "text-green-500" : "text-gray-2"
                 )}
               />
             </div>
             <Input
               readOnly
               value={productUrl}
-              className="pr-4 pl-10 py-6 text-sm text-gray-500 bg-gray-50 border-gray-200 focus-visible:ring-1 focus-visible:ring-blue-3 text-left w-full rounded-lg"
+              className="pr-4 pl-10 py-6 text-sm text-gray-2 bg-gray-50 border-gray-200 focus-visible:ring-1 focus-visible:ring-blue-3 text-left w-full rounded-lg"
             />
           </div>
         </div>

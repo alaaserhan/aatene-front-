@@ -120,7 +120,7 @@ export function ServiceProvidersPage() {
                             }}
                             className="pe-10 h-[46px] bg-white border-gray-200 w-full"
                         />
-                        <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <Search className="w-5 h-5 text-gray-2 absolute left-3 top-1/2 -translate-y-1/2" />
                     </div>
                     {/* Dropdown Filter (Left side in RTL) */}
                     <div className="w-full md:w-[180px] shrink-0">
@@ -133,7 +133,7 @@ export function ServiceProvidersPage() {
                             }}
                             placeholder="تصفية"
                             className="bg-white h-[46px] border-gray-200 w-full"
-                            triggerIcon={<Filter className="w-4 h-4 text-gray-500" />}
+                            triggerIcon={<Filter className="w-4 h-4 text-gray-2" />}
                         />
                     </div>
                 </div>

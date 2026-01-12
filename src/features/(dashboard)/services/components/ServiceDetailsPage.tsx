@@ -156,7 +156,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 <h1 className="text-2xl font-bold  leading-tight max-w-[70%]">
                                     {service.title}
                                 </h1>
-                                <div className="flex gap-4 text-gray-400">
+                                <div className="flex gap-4 text-gray-2">
                                     <button
                                         onClick={() => setIsShareModalOpen(true)}
                                         className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer hover:text-blue-600"
@@ -215,7 +215,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                             <div className="mb-8">
                                 <h3 className="text-xl font-bold  mb-4">تفاصيل الخدمة</h3>
                                 <div
-                                    className="text-gray-600 leading-relaxed whitespace-pre-line text-sm"
+                                    className="text-gray-2 leading-relaxed whitespace-pre-line text-sm"
                                     dangerouslySetInnerHTML={{ __html: service.description }}
                                 />
                             </div>
@@ -241,13 +241,13 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                             {service.questions && service.questions.length > 0 && (
                                 <div>
                                     <h3 className="text-xl font-bold  mb-1">الأسئلة الشائعة (اختياري)</h3>
-                                    <p className="text-gray-400 text-xs mb-6">اكتب إجابات للأسئلة الشائعة التي يطرحها عميلك. أضف حتى خمسة أسئلة.</p>
+                                    <p className="text-gray-2 text-xs mb-6">اكتب إجابات للأسئلة الشائعة التي يطرحها عميلك. أضف حتى خمسة أسئلة.</p>
 
                                     <div className="space-y-6">
                                         {service.questions.map((q, idx) => (
                                             <div key={idx} className="border-b border-gray-50 pb-4 last:border-0">
                                                 <h4 className="font-bold  text-sm mb-2">{idx + 1}. {q.question}</h4>
-                                                <p className="text-gray-500 text-sm leading-relaxed">{q.answer}</p>
+                                                <p className="text-gray-2 text-sm leading-relaxed">{q.answer}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -264,11 +264,11 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                             <div className="grid grid-cols-2 py-4 border-b border-gray-100">
                                 <div className="t">
                                     <p className=" font-bold text-sm mb-1">التصنيف الرئيسي</p>
-                                    <p className="text-gray-500 text-sm">{service.section?.name || "-"}</p>
+                                    <p className="text-gray-2 text-sm">{service.section?.name || "-"}</p>
                                 </div>
                                 <div className="">
                                     <p className=" font-bold text-sm mb-1">التصنيف الفرعي</p>
-                                    <p className="text-gray-500 text-sm">{service.category?.name || "-"}</p>
+                                    <p className="text-gray-2 text-sm">{service.category?.name || "-"}</p>
                                 </div>
                             </div>
 
@@ -276,11 +276,11 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                             <div className="grid grid-cols-2 py-4 border-b border-gray-100">
                                 <div className="t">
                                     <p className=" font-bold text-sm mb-1">سعر الخدمة</p>
-                                    <p className="text-gray-500 text-sm font-medium">₪  {service.price}</p>
+                                    <p className="text-gray-2 text-sm font-medium">₪  {service.price}</p>
                                 </div>
                                 <div className="">
                                     <p className=" font-bold text-sm mb-1">التسليم خلال</p>
-                                    <p className="text-gray-500 text-sm">{service.execute_count} {service.execute_type}</p>
+                                    <p className="text-gray-2 text-sm">{service.execute_count} {service.execute_type}</p>
                                 </div>
                             </div>
 
@@ -295,7 +295,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                             </span>
                                         ))
                                     ) : (
-                                        <span className="text-xs text-gray-400">لا توجد مدن محددة</span>
+                                        <span className="text-xs text-gray-2">لا توجد مدن محددة</span>
                                     )}
                                 </div>
                             </div>
@@ -306,12 +306,12 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 <div className="flex flex-wrap gap-1">
                                     {service.tags && service.tags.length > 0 ? (
                                         service.tags.map((tag: string | { id: number; title: string }, idx: number) => (
-                                            <span key={idx} className="text-gray-500 text-xs leading-relaxed bg-gray-50 px-2 py-1 rounded">
+                                            <span key={idx} className="text-gray-2 text-xs leading-relaxed bg-gray-50 px-2 py-1 rounded">
                                                 {typeof tag === 'object' ? tag.title : tag}
                                             </span>
                                         ))
                                     ) : (
-                                        <span className="text-gray-400 text-xs">لا توجد كلمات مفتاحية</span>
+                                        <span className="text-gray-2 text-xs">لا توجد كلمات مفتاحية</span>
                                     )}
                                 </div>
                             </div>

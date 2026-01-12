@@ -44,7 +44,7 @@ export function MapModal({
       }
 
       const script = document.createElement("script");
-      
+
       // --- (هذا هو السطر الذي تم تعديله) ---
       script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}&libraries=places`;
       // --- نهاية التعديل ---
@@ -151,7 +151,7 @@ export function MapModal({
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-4 mx-auto mb-4"></div>
-                <p className="text-gray-600">جاري تحميل الخريطة...</p>
+                <p className="text-gray-2">جاري تحميل الخريطة...</p>
               </div>
             </div>
           )}
@@ -161,7 +161,7 @@ export function MapModal({
         {/* Selected Address Display */}
         {selectedAddress && (
           <div className="p-4 bg-gray-50 border-t">
-            <p className="text-sm text-gray-600 mb-1">العنوان المختار:</p>
+            <p className="text-sm text-gray-2 mb-1">العنوان المختار:</p>
             <p className="font-medium text-gray-900">{selectedAddress}</p>
           </div>
         )}

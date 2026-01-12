@@ -153,7 +153,7 @@ const SectionItemForm = ({
             <div className="bg-white rounded-lg p-4 border border-gray-100 flex items-center justify-between group  transition-all">
                 <div className="flex items-center gap-4">
                     {/* Icon/Image Preview */}
-                    <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 text-gray-400 relative">
+                    <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 text-gray-2 relative">
                         {itemValues?.image_url ? (
                             <Image src={itemValues.image_url} alt="" fill className="object-cover" />
                         ) : (
@@ -162,7 +162,7 @@ const SectionItemForm = ({
                     </div>
                     <div>
                         <h4 className="font-bold  text-sm mb-1">{itemValues?.title || "بدون عنوان"}</h4>
-                        <p className="text-xs text-gray-500 max-w-[300px] truncate">{itemValues?.content || "لا يوجد وصف"}</p>
+                        <p className="text-xs text-gray-2 max-w-[300px] truncate">{itemValues?.content || "لا يوجد وصف"}</p>
                     </div>
                 </div>
 
@@ -298,7 +298,7 @@ const DynamicListSection = ({
 
             {fields.length === 0 && (
                 <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-200">
-                    <p className="text-gray-400 text-sm">لا توجد أقسام حاليا</p>
+                    <p className="text-gray-2 text-sm">لا توجد أقسام حاليا</p>
                 </div>
             )}
 

@@ -94,7 +94,7 @@ const PhoneNumberInput = React.forwardRef<
                             <option value="+966">+966</option>
                             <option value="+972">+972</option>
                         </select>
-                        <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <ChevronDown className="w-3.5 h-3.5 text-gray-2 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
 
                     {/* حقل الإدخال */}

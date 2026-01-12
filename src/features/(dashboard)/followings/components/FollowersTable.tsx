@@ -48,7 +48,7 @@ export function FollowersTable({
               </td>
 
               <td className="px-6 py-4 text-center">
-                <span className="text-sm text-gray-500" dir="ltr">
+                <span className="text-sm text-gray-2" dir="ltr">
                   {item.started_at
                     ? format(new Date(item.started_at), "yyyy-MM-dd - hh a", { locale: ar })
                     : "-"}

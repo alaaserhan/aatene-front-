@@ -24,7 +24,7 @@ export function BlogsTable({
   if (isLoading) {
     return (
       <div className="w-full h-48 flex items-center justify-center bg-white rounded-lg border border-gray-100">
-        <span className="text-gray-400 text-sm">جاري تحميل المقالات...</span>
+        <span className="text-gray-2 text-sm">جاري تحميل المقالات...</span>
       </div>
     );
   }
@@ -32,7 +32,7 @@ export function BlogsTable({
   if (data.length === 0) {
     return (
       <div className="w-full h-48 flex items-center justify-center bg-white rounded-lg border border-gray-100">
-        <span className="text-gray-400 text-sm">لا توجد مقالات لعرضها</span>
+        <span className="text-gray-2 text-sm">لا توجد مقالات لعرضها</span>
       </div>
     );
   }
@@ -59,9 +59,9 @@ export function BlogsTable({
                     {blog.title}
                   </span>
                 </td>
-                
+
                 <td className="px-6 py-4 text-center">
-                  <span className="text-sm text-gray-600">{blog.favorites_count || 0}</span> 
+                  <span className="text-sm text-gray-2">{blog.favorites_count || 0}</span>
                 </td>
 
                 <td className="px-6 py-4 text-center">
@@ -72,14 +72,14 @@ export function BlogsTable({
                 </td>
 
                 <td className="px-6 py-4 text-center">
-                  <span className="text-sm text-gray-600">{blog.review_count || 0}</span>
+                  <span className="text-sm text-gray-2">{blog.review_count || 0}</span>
                 </td>
 
                 <td className="px-6 py-4 text-center">
                   <span className="text-xs  font-medium">
-                   {blog.created_at
-                    ? format(new Date(blog.created_at), "yyyy-MM-dd", { locale: ar })
-                    : "-"}
+                    {blog.created_at
+                      ? format(new Date(blog.created_at), "yyyy-MM-dd", { locale: ar })
+                      : "-"}
                   </span>
                 </td>
 

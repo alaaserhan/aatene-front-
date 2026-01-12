@@ -100,7 +100,7 @@ export function SelectProductsModal({
                 placeholder="ابحث عن منتج..."
                 className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-gray-2 absolute left-3 top-1/2 -translate-y-1/2" />
             </div>
           </div>
 
@@ -109,14 +109,14 @@ export function SelectProductsModal({
             {isLoading ? (
               <div className="flex flex-col items-center justify-center h-full gap-2">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
-                <p className="text-sm text-gray-500">جاري تحميل المنتجات...</p>
+                <p className="text-sm text-gray-2">جاري تحميل المنتجات...</p>
               </div>
             ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4">
                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center">
                   <Search className="w-8 h-8 text-gray-300" />
                 </div>
-                <p className="text-gray-500">لا توجد منتجات مطابقة</p>
+                <p className="text-gray-2">لا توجد منتجات مطابقة</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -168,7 +168,7 @@ export function SelectProductsModal({
                           <h4 className={cn("text-sm font-bold  line-clamp-1", isSelected && "text-blue-3")}>
                             {product.name}
                           </h4>
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <div className="flex items-center gap-1 text-xs text-gray-2">
                             <Tag className="w-3 h-3" />
                             <span>{product.category?.name || "عام"}</span>
                             {/* <span className="mx-1">•</span>
@@ -202,7 +202,7 @@ export function SelectProductsModal({
               onClick={handleConfirm}
               className="px-8 h-10 bg-blue-3 text-white hover:bg-[#2c425e] font-medium"
             >
-              تأكيد 
+              تأكيد
             </Button>
             <Button
               onClick={onClose}

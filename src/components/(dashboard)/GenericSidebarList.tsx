@@ -83,13 +83,13 @@ export function GenericSidebarList<T extends { id: number | string }>({
     >
       <div className="p-3 border-b border-gray-200 flex gap-2 flex-row">
         <div className="relative flex-1">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-2 pointer-events-none" />
           <Input
             type="text"
             placeholder="ابحث..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pr-10 pl-3 py-3 h-10 border-gray-200 rounded-sm text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#3A5779] focus:border-transparent"
+            className="w-full pr-10 pl-3 py-3 h-10 border-gray-200 rounded-sm text-sm placeholder:text-gray-2 focus:ring-2 focus:ring-[#3A5779] focus:border-transparent"
           />
         </div>
 
@@ -115,7 +115,7 @@ export function GenericSidebarList<T extends { id: number | string }>({
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="flex items-center justify-center h-full min-h-[300px]">
-            <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+            <Loader2 className="w-6 h-6 animate-spin text-gray-2" />
           </div>
         ) : isError ? (
           <div className="flex items-center justify-center h-full min-h-[300px]">
@@ -123,12 +123,12 @@ export function GenericSidebarList<T extends { id: number | string }>({
           </div>
         ) : data.length === 0 ? (
           <div className="flex items-center justify-center h-full min-h-[300px]">
-            <p className="text-sm text-gray-500">{emptyText}</p>
+            <p className="text-sm text-gray-2">{emptyText}</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
             {data.map((item) => renderItem(item))}
-            
+
             {/* عنصر المراقبة لنهاية القائمة */}
             <div ref={observerTarget} className="h-4 w-full" />
 

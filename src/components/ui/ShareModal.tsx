@@ -87,7 +87,7 @@ export function ShareModal({
                         <h2 className="text-2xl font-bold text-[#1A2D42]">
                             {title}
                         </h2>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-2">
                             {description}
                         </p>
                     </div>
@@ -125,14 +125,14 @@ export function ShareModal({
                             <Copy
                                 className={cn(
                                     "w-5 h-5 transition-colors",
-                                    copied ? "text-green-500" : "text-gray-400"
+                                    copied ? "text-green-500" : "text-gray-2"
                                 )}
                             />
                         </div>
                         <Input
                             readOnly
                             value={shareUrl}
-                            className="pr-4 pl-12 py-6 text-sm text-gray-500 bg-gray-50 border-gray-200 focus-visible:ring-1 focus-visible:ring-blue-3 text-left w-full rounded-lg dir-ltr"
+                            className="pr-4 pl-12 py-6 text-sm text-gray-2 bg-gray-50 border-gray-200 focus-visible:ring-1 focus-visible:ring-blue-3 text-left w-full rounded-lg dir-ltr"
                         />
                     </div>
                 </div>

@@ -49,7 +49,7 @@ export function FinancialFilters({
 
                 {/* Search */}
                 <div className="relative w-full md:w-64">
-                    <span className="text-xs text-gray-500 mb-1 block">رقم الحملة الاعلانية</span>
+                    <span className="text-xs text-gray-2 mb-1 block">رقم الحملة الاعلانية</span>
                     <div className="relative">
                         <Input
                             placeholder="بحث..."
@@ -57,13 +57,13 @@ export function FinancialFilters({
                             onChange={(e) => onSearchQueryChange(e.target.value)}
                             className="h-10 pe-10 bg-white border-gray-200"
                         />
-                        <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <Search className="w-4 h-4 text-gray-2 absolute left-3 top-1/2 -translate-y-1/2" />
                     </div>
                 </div>
 
                 {/* Transaction Type */}
                 <div className="w-full md:w-48">
-                    <span className="text-xs text-gray-500 mb-1 block">نوع المعاملة</span>
+                    <span className="text-xs text-gray-2 mb-1 block">نوع المعاملة</span>
                     <ReusableDropdown
                         options={typeOptions}
                         value={transactionType}
@@ -75,13 +75,13 @@ export function FinancialFilters({
 
                 {/* Date Range */}
                 <div className="w-full md:w-48">
-                    <span className="text-xs text-gray-500 mb-1 block">تاريخ المعاملة</span>
+                    <span className="text-xs text-gray-2 mb-1 block">تاريخ المعاملة</span>
                     <ReusableDropdown
                         options={dateOptions}
                         value={dateRange}
                         onChange={onDateRangeChange}
                         placeholder="اختر الفترة"
-                        triggerIcon={<Calendar className="w-4 h-4 text-gray-400" />}
+                        triggerIcon={<Calendar className="w-4 h-4 text-gray-2" />}
                         className="h-10"
                     />
                 </div>
@@ -91,7 +91,7 @@ export function FinancialFilters({
             <div className="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
                 {/* <Button
                     variant="outline"
-                    className="gap-2 h-10 border-gray-200 text-gray-600 hover:bg-gray-50 bg-white min-w-[100px]"
+                    className="gap-2 h-10 border-gray-200 text-gray-2 hover:bg-gray-50 bg-white min-w-[100px]"
                     onClick={onExport}
                 >
                     <Share className="w-4 h-4" />

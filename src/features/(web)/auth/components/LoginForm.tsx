@@ -48,7 +48,7 @@ export function LoginForm() {
             <CardTitle className="text-2xl sm:text-3xl font-bold mb-1">
               تسجيل الدخول
             </CardTitle>
-            <CardDescription className="text-gray-500 text-sm">
+            <CardDescription className="text-gray-2 text-sm">
               ليس لديك حساب؟
               <Link href="/signup" className="underline hover:text-primary">
                 إنشاء حساب جديد

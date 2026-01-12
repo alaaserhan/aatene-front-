@@ -46,7 +46,7 @@ export function HighlightsSection({ highlights, stories, storeId }: HighlightsSe
           <div className="w-18 h-18 rounded-full border-3 border-blue-4 flex items-center justify-center bg-blue-5  transition-colors">
             <Plus className="w-8 h-8 text-blue-4" />
           </div>
-          <span className="text-sm font-medium text-gray-600">جديدة</span>
+          <span className="text-sm font-medium text-gray-2">جديدة</span>
         </div>
 
         {/* قائمة الهايلايتس */}

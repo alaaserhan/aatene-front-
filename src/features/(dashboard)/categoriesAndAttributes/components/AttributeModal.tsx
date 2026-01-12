@@ -110,7 +110,7 @@ export function AttributeModal({
           <DialogTitle className="text-xl font-bold ">
             {mode === "edit" ? "تعديل السمة" : "إضافة سمة جديدة"}
           </DialogTitle>
-          <p className="text-sm text-gray-500 pt-2">
+          <p className="text-sm text-gray-2 pt-2">
             أضف سمات جديدة لمنتجاتك مثل اللون، المقاس، الخامة وغيرها لتساعد
             عملائك على اختيار المنتج المناسب بسهولة.
           </p>

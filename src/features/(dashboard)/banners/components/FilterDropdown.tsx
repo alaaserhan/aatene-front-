@@ -52,7 +52,7 @@ export function FilterDropdown({ value, onChange }: FilterDropdownProps) {
         </div>
         <ChevronDown
           className={cn(
-            "w-4 h-4 text-gray-500 transition-transform flex-shrink-0",
+            "w-4 h-4 text-gray-2 transition-transform flex-shrink-0",
             isOpen && "rotate-180"
           )}
         />

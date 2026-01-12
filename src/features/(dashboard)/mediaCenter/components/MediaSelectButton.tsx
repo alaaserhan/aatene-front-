@@ -92,8 +92,8 @@ export function MediaSelectButton({
               <Plus className="w-6 h-6 text-gray-2" />
             </div>
             <div className="text-center">
-              <p className="text-sm text-gray-600 mb-1">{primaryText}</p>
-              <p className="text-xs text-gray-400">{secondaryText}</p>
+              <p className="text-sm text-gray-2 mb-1">{primaryText}</p>
+              <p className="text-xs text-gray-2">{secondaryText}</p>
             </div>
           </div>
         </div>

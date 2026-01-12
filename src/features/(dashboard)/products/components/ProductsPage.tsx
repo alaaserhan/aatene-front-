@@ -242,7 +242,7 @@ export function ProductsPage() {
             <h1 className="text-xl md:text-2xl sm:text-2xl font-bold text-brand-black-1">
               إدارة المنتجات
             </h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-2 mt-1">
               عرض وإدارة جميع المنتجات المتاحة
             </p>
           </div>
@@ -287,7 +287,7 @@ export function ProductsPage() {
                     />
                   </div>
                   <h3 className="text-xl font-bold mb-2">لم يتم اختيار قسم</h3>
-                  <p className="text-gray-400 text-sm">
+                  <p className="text-gray-2 text-sm">
                     قم باختيار قسم من القائمة الجانبية لعرض المنتجات الخاصة به
                   </p>
                 </div>

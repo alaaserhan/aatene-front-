@@ -28,7 +28,7 @@ export function FavoritesUsersPage() {
         <div className="flex flex-col gap-6 p-6 ">
             <div className="flex flex-col gap-2">
                 <h1 className="text-2xl font-bold ">إدارة المفضلة</h1>
-                <p className="text-gray-500 text-sm">
+                <p className="text-gray-2 text-sm">
                     تابع تفضيلات المستخدمين، وقم بمراجعة وتنظيم المنتجات والمتاجر المضافة إلى المفضلة.
                 </p>
             </div>
@@ -46,7 +46,7 @@ export function FavoritesUsersPage() {
                             }}
                             className="pr-10 h-11  border-gray-200 focus:border-[#3A5779] transition-all w-full"
                         />
-                        <Search className="absolute right-3 top-3 w-5 h-5 text-gray-400" />
+                        <Search className="absolute right-3 top-3 w-5 h-5 text-gray-2" />
                     </div>
                 </div>
 
@@ -66,7 +66,7 @@ export function FavoritesUsersPage() {
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={5} className="py-20 text-center">
-                                        <div className="flex justify-center items-center gap-2 text-gray-500">
+                                        <div className="flex justify-center items-center gap-2 text-gray-2">
                                             <Loader2 className="w-6 h-6 animate-spin" />
                                             <span>جاري التحميل...</span>
                                         </div>
@@ -74,7 +74,7 @@ export function FavoritesUsersPage() {
                                 </tr>
                             ) : usersData?.users.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="py-20 text-center text-gray-500">
+                                    <td colSpan={5} className="py-20 text-center text-gray-2">
                                         لا يوجد مستخدمين
                                     </td>
                                 </tr>
@@ -85,7 +85,7 @@ export function FavoritesUsersPage() {
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-200 flex items-center justify-center">
-                                                    <User className="w-5 h-5 text-gray-400" />
+                                                    <User className="w-5 h-5 text-gray-2" />
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-medium ">{user.name}</span>
@@ -102,7 +102,7 @@ export function FavoritesUsersPage() {
 
                                         {/* Products Count - Clickable */}
                                         <td className="px-6 py-4 text-center">
-                                            <Link 
+                                            <Link
                                                 href={`/admin/favorites/${user.id}?type=product`}
                                                 className="text-sm font-medium hover:text-blue-800 transition-colors"
                                             >
@@ -112,7 +112,7 @@ export function FavoritesUsersPage() {
 
                                         {/* Stores Count - Clickable */}
                                         <td className="px-6 py-4 text-center">
-                                            <Link 
+                                            <Link
                                                 href={`/admin/favorites/${user.id}?type=store`}
                                                 className="text-sm font-medium hover:text-blue-800 transition-colors"
                                             >
@@ -122,7 +122,7 @@ export function FavoritesUsersPage() {
 
                                         {/* Services Count - Clickable */}
                                         <td className="px-6 py-4 text-center">
-                                            <Link 
+                                            <Link
                                                 href={`/admin/favorites/${user.id}?type=service`}
                                                 className="text-sm font-medium hover:text-blue-800 transition-colors"
                                             >

@@ -47,7 +47,7 @@ export function MediaItem({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
-              <File className="h-10 w-10 text-gray-400" />
+              <File className="h-10 w-10 text-gray-2" />
             </div>
           )}
         </div>

@@ -82,8 +82,8 @@ export function MediaMultiSelect({
             onClick={() => setIsMediaModalOpen(true)}
             className="flex flex-col items-center justify-center gap-2 bg-[#F8F8F8] w-full h-full aspect-square border-none rounded-lg hover:border-blue-3 transition-colors cursor-pointer"
           >
-            <div className="w-9 h-9 rounded-full border-2 border-gray-500 flex items-center justify-center">
-              <Plus className="w-5 h-5 text-gray-600" />
+            <div className="w-9 h-9 rounded-full border-2 border-gray-2 flex items-center justify-center">
+              <Plus className="w-5 h-5 text-gray-2" />
             </div>
             <span className="text-xs text-gray-2 text-center text-wrap font-normal">
               اضف أو اسحب صورة أو فيديو

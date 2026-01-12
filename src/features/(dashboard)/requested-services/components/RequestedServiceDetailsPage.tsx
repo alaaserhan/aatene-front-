@@ -79,7 +79,7 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
 
   if (!service) {
     return (
-      <div className="flex h-[50vh] items-center justify-center flex-col gap-4 text-gray-500">
+      <div className="flex h-[50vh] items-center justify-center flex-col gap-4 text-gray-2">
         <p>الخدمة غير موجودة</p>
         <Button onClick={() => router.back()} variant="outline">عودة</Button>
       </div>
@@ -153,7 +153,7 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-gray-400 bg-gray-100">
+                  <div className="flex items-center justify-center h-full text-gray-2 bg-gray-100">
                     <User className="w-6 h-6" />
                   </div>
                 )}
@@ -162,14 +162,14 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
                 <h3 className="font-medium text-blue-3 ">
                   {service.user?.first_name} {service.user?.last_name}
                 </h3>
-                {/* <span className="text-xs text-gray-500">مستخدم</span>  */}
+                {/* <span className="text-xs text-gray-2">مستخدم</span>  */}
               </div>
             </div>
 
             {/* Description */}
             <div className="mb-8">
               <h4 className="text-lg font-bold text-gray-800 mb-3">تفاصيل الطلب</h4>
-              <div className="text-gray-600 leading-relaxed whitespace-pre-wrap text-base">
+              <div className="text-gray-2 leading-relaxed whitespace-pre-wrap text-base">
                 {service.content}
               </div>
             </div>
@@ -201,7 +201,7 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
 
             <div className="bg-white rounded-sm p-4 border border-gray-100 flex justify-between items-center">
               <span className="text-[#3A5779] font-bold text-sm">تاريخ النشر</span>
-              <div className="flex items-center gap-2 text-gray-500 text-xs font-medium">
+              <div className="flex items-center gap-2 text-gray-2 text-xs font-medium">
                 <span>
                   {service.created_at
                     ? formatDistanceToNow(new Date(service.created_at), { addSuffix: true, locale: ar })
@@ -215,7 +215,7 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
                 <MessageSquare className="w-4 h-4 text-[#3A5779]" />
                 <span className="text-[#3A5779] font-bold text-sm">التعليقات</span>
               </div>
-              <div className="flex items-center gap-2 text-gray-500 text-xs font-medium">
+              <div className="flex items-center gap-2 text-gray-2 text-xs font-medium">
                 <span>{service.comments_count || "0"} تعليق</span>
               </div>
             </div>
@@ -225,7 +225,7 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
                 <AlertTriangle className="w-4 h-4 text-amber-500" />
                 <span className="text-[#3A5779] font-bold text-sm">الإبلاغات</span>
               </div>
-              <div className="flex items-center gap-2 text-gray-500 text-xs font-medium">
+              <div className="flex items-center gap-2 text-gray-2 text-xs font-medium">
                 <span>{service.reports_count || "0"} إبلاغ</span>
               </div>
             </div>

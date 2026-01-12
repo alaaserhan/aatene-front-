@@ -26,7 +26,7 @@ export function MediaGrid({
     return (
       <div className="flex flex-col items-center justify-center h-full space-y-4 min-h-[400px]">
         <Loader2 className="h-12 w-12 animate-spin text-blue-3" />
-        <p className="text-gray-600 text-sm">جاري تحميل الملفات...</p>
+        <p className="text-gray-2 text-sm">جاري تحميل الملفات...</p>
       </div>
     );
   }
@@ -46,11 +46,11 @@ export function MediaGrid({
     return (
       <div className="flex flex-col items-center justify-center h-full space-y-6 min-h-[400px]">
         <div className="p-6 bg-gray-100 rounded-2xl">
-          <File className="h-16 w-16 text-gray-400 mx-auto" />
+          <File className="h-16 w-16 text-gray-2 mx-auto" />
         </div>
         <div className="text-center space-y-2">
           <p className="text-lg font-semibold text-gray-700">لا توجد ملفات</p>
-          <p className="text-sm text-gray-500">جرب رفع بعض الملفات!</p>
+          <p className="text-sm text-gray-2">جرب رفع بعض الملفات!</p>
         </div>
       </div>
     );

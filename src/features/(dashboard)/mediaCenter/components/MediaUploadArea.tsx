@@ -91,15 +91,15 @@ export function MediaUploadArea({
             {isUploading ? (
               <Loader2 className="w-6 h-6 text-blue-3 animate-spin" />
             ) : (
-              <Plus className="w-6 h-6 text-gray-400" />
+              <Plus className="w-6 h-6 text-gray-2" />
             )}
           </div>
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-1">
+            <p className="text-sm text-gray-2 mb-1">
               {isUploading ? "جاري الرفع..." : primaryText}
             </p>
             {!isUploading && secondaryText && (
-              <p className="text-xs text-gray-400">{secondaryText}</p>
+              <p className="text-xs text-gray-2">{secondaryText}</p>
             )}
           </div>
         </div>

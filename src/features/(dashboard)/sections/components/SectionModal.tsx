@@ -89,14 +89,14 @@ export function SectionModal({
               حالة القسم
             </Label>
             <div className="flex gap-3">
-              <span className="text-sm text-gray-600">غير مفعل</span>
+              <span className="text-sm text-gray-2">غير مفعل</span>
               <ToggleSwitch
                 enabled={formData.isActive}
                 onChange={(isActive) =>
                   setFormData({ ...formData, isActive })
                 }
               />
-              <span className="text-sm text-gray-600">مفعل</span>
+              <span className="text-sm text-gray-2">مفعل</span>
             </div>
           </div>
         </div>

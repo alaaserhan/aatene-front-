@@ -310,7 +310,7 @@ export function AddProductStep3({
                                                 "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
                                                 hasVariations
                                                     ? "border-blue-4 bg-white"
-                                                    : "border-gray-300 bg-white group-hover:border-gray-400"
+                                                    : "border-gray-300 bg-white group-hover:border-gray-2"
                                             )}
                                         >
                                             {hasVariations && <div className="w-2.5 h-2.5 rounded-full bg-blue-4" />}
@@ -327,7 +327,7 @@ export function AddProductStep3({
                                                 "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
                                                 !hasVariations
                                                     ? "border-blue-4 bg-white"
-                                                    : "border-gray-300 bg-white group-hover:border-gray-400"
+                                                    : "border-gray-300 bg-white group-hover:border-gray-2"
                                             )}
                                         >
                                             {!hasVariations && <div className="w-2.5 h-2.5 rounded-full bg-blue-4" />}
@@ -442,7 +442,7 @@ export function AddProductStep3({
                                                                 className="w-full h-10 px-3 border border-gray-200 rounded-md text-sm text-center focus:ring-1 focus:ring-blue-300 outline-none"
                                                                 placeholder="0.00"
                                                             />
-                                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-sans">
+                                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-2 font-sans">
                                                                 ₪
                                                             </span>
                                                         </div>
@@ -514,7 +514,7 @@ export function AddProductStep3({
 
                                             {variations.length === 0 && (
                                                 <div className="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                                    <p className="text-sm text-gray-400">
+                                                    <p className="text-sm text-gray-2">
                                                         اضغط على قيمة جديدة لإضافة اختلافات
                                                     </p>
                                                 </div>
@@ -647,7 +647,7 @@ function AttributeSelectionModal({
                                 onChange={(e) => setSearch(e.target.value)}
                                 className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                             />
-                            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <Search className="w-4 h-4 text-gray-2 absolute left-3 top-1/2 -translate-y-1/2" />
                         </div>
                     </div>
 
@@ -682,7 +682,7 @@ function AttributeSelectionModal({
                                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center">
                                     <Search className="w-8 h-8 text-gray-300" />
                                 </div>
-                                <div className="text-center text-gray-400 text-sm">
+                                <div className="text-center text-gray-2 text-sm">
                                     لا توجد سمات مطابقة للبحث
                                 </div>
                             </div>

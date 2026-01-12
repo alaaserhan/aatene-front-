@@ -14,7 +14,7 @@ export function UserFavoritesPage({ userId }: UserFavoritesPageProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    
+
     const currentType = searchParams.get("type") || "product";
 
     const filterOptions = [
@@ -40,14 +40,14 @@ export function UserFavoritesPage({ userId }: UserFavoritesPageProps) {
             <div className="flex flex-col gap-2">
                 <Breadcrumb items={breadcrumbItems} />
                 <h1 className="text-2xl font-bold text-gray-800 mt-2">إدارة المفضلة</h1>
-                <p className="text-gray-500 text-sm">
+                <p className="text-gray-2 text-sm">
                     تابع تفضيلات المستخدم، وقم بمراجعة وتنظيم المنتجات والمتاجر المضافة إلى المفضلة.
                 </p>
             </div>
 
             <div className="grid grid-cols-12 gap-6 items-start">
                 <div className="col-span-12 lg:col-span-3">
-                    <SidebarFilterPanel 
+                    <SidebarFilterPanel
                         options={filterOptions}
                         activeValue={currentType}
                         onValueChange={handleFilterChange}

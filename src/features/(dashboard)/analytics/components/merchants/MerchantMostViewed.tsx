@@ -49,7 +49,7 @@ export function MerchantMostViewed() {
                         <TrendingUp className="w-5 h-5 text-green-500" />
                         <h3 className="text-lg font-bold">الأكثر مشاهدة</h3>
                     </div>
-                    <p className="text-xs text-gray-400 font-medium">قائمة الخدمات التي حققت أكثر مبيعات</p>
+                    <p className="text-xs text-gray-2 font-medium">قائمة الخدمات التي حققت أكثر مبيعات</p>
                 </div>
             </div>
 
@@ -67,7 +67,7 @@ export function MerchantMostViewed() {
                                             "text-lg font-bold",
                                             index === 0 ? "text-green-500" :
                                                 index === 1 ? "text-blue-500" :
-                                                    index === 2 ? "text-orange-500" : "text-gray-500"
+                                                    index === 2 ? "text-orange-500" : "text-gray-2"
                                         )}>
                                             {index + 1}
                                         </span>
@@ -83,7 +83,7 @@ export function MerchantMostViewed() {
                                                     className="w-full h-full object-cover rounded-md"
                                                 />
                                             ) : (
-                                                <div className="w-full h-full bg-gray-50 rounded-md flex items-center justify-center text-[10px] text-gray-400">
+                                                <div className="w-full h-full bg-gray-50 rounded-md flex items-center justify-center text-[10px] text-gray-2">
                                                     صورة
                                                 </div>
                                             )}
@@ -91,10 +91,10 @@ export function MerchantMostViewed() {
                                         <div className="flex flex-col">
                                             <h4 className="text-sm font-medium line-clamp-1">{item.name}</h4>
                                             <div className="flex items-center gap-1 mt-0.5 bg-gray-50 px-2 py-0.5 rounded-md">
-                                                <span className="text-[11px] text-gray-400">عدد المشاهدات</span>
+                                                <span className="text-[11px] text-gray-2">عدد المشاهدات</span>
                                                 <span className={cn(
                                                     "text-[11px] font-bold px-2 py-0.5 rounded-full",
-                                                    index === 0 ? "bg-green-100 text-green-600" : "text-gray-600"
+                                                    index === 0 ? "bg-green-100 text-green-600" : "text-gray-2"
                                                 )}>
                                                     {item.views_count} مشاهدة
                                                 </span>
@@ -109,7 +109,7 @@ export function MerchantMostViewed() {
                                 </div>
                             ))
                         ) : (
-                            <div className="text-center py-10 text-gray-400 text-sm">
+                            <div className="text-center py-10 text-gray-2 text-sm">
                                 لا توجد منتجات أو خدمات
                             </div>
                         )}

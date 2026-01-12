@@ -164,7 +164,7 @@ export function UserFormPage() {
                         "w-4 h-4 rounded-full border flex items-center justify-center transition-all",
                         gender === "female"
                           ? "bg-blue-5 border-blue-4" // نفس ألوان الـ Checkbox المخصص
-                          : "bg-white border-gray-300 group-hover:border-gray-400"
+                          : "bg-white border-gray-300 group-hover:border-gray-2"
                       )}
                     >
                       {gender === "female" && (
@@ -187,7 +187,7 @@ export function UserFormPage() {
                         "w-4 h-4 rounded-full border flex items-center justify-center transition-all",
                         gender === "male"
                           ? "bg-blue-5 border-blue-4" // نفس ألوان الـ Checkbox المخصص
-                          : "bg-white border-gray-300 group-hover:border-gray-400"
+                          : "bg-white border-gray-300 group-hover:border-gray-2"
                       )}
                     >
                       {gender === "male" && (
@@ -223,12 +223,12 @@ export function UserFormPage() {
                   تفعيل الحساب
                 </label>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm text-gray-500">غير مفعل</span>
+                  <span className="text-sm text-gray-2">غير مفعل</span>
                   <ToggleSwitch
                     enabled={isActive}
                     onChange={(checked) => setValue("is_active", checked)}
                   />
-                  <span className="text-sm text-gray-500">مفعل</span>
+                  <span className="text-sm text-gray-2">مفعل</span>
                 </div>
               </div>
 

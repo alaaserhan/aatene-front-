@@ -30,10 +30,10 @@ export function KnowledgeBaseTable({ files, onDelete }: KnowledgeBaseTableProps)
               {/* File Name */}
               <td className="px-6 py-5">
                 <div className="flex items-center gap-3">
-                    {/* <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-white group-hover:shadow-sm transition-all">
+                  {/* <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-2 group-hover:bg-white group-hover:shadow-sm transition-all">
                         <FileText className="w-5 h-5" />
                     </div> */}
-                    <span className="text-sm font-medium ">{file.name}</span>
+                  <span className="text-sm font-medium ">{file.name}</span>
                 </div>
               </td>
 

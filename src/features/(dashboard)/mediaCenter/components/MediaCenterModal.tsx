@@ -129,8 +129,7 @@ export function MediaCenterModal({
       } else {
         if (selectionLimit && selectedItems.length >= selectionLimit) {
           toast.warning(
-            `لا يمكنك اختيار أكثر من ${selectionLimit} ${
-              allowedMediaTypes?.includes("image") ? "صور" : "ملفات"
+            `لا يمكنك اختيار أكثر من ${selectionLimit} ${allowedMediaTypes?.includes("image") ? "صور" : "ملفات"
             }`
           );
           return;
@@ -189,7 +188,7 @@ export function MediaCenterModal({
 
               <div className="flex-1 hidden md:block md:max-w-md lg:max-w-xl mx-4">
                 <div className="relative">
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-2" />
                   <Input
                     placeholder="البحث في الملفات..."
                     value={searchQuery}
@@ -216,7 +215,7 @@ export function MediaCenterModal({
 
             <div className="block md:hidden w-full mt-3">
               <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-2" />
                 <Input
                   placeholder="البحث في الملفات..."
                   value={searchQuery}

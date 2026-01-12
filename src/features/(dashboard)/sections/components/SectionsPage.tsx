@@ -230,7 +230,7 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
                             </h1>
 
                         </div>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-2">
                             إدارة الأقسام والتصنيفات
                         </p>
                     </div>
@@ -264,7 +264,7 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
                 {/* Content Section */}
                 {!activeStoreId ? (
                     <div className="bg-white p-8 rounded border border-gray-200 text-center">
-                        <p className="text-gray-500">يرجى اختيار متجر من القائمة أعلاه لعرض الأقسام</p>
+                        <p className="text-gray-2">يرجى اختيار متجر من القائمة أعلاه لعرض الأقسام</p>
                     </div>
                 ) : (
                     <div className="bg-white rounded overflow-hidden border border-gray-200 ">
@@ -280,7 +280,7 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
                                         className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-sm focus:outline-none focus:border-brand-blue-2 text-right"
                                         dir="rtl"
                                     />
-                                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-2" />
                                 </div>
                                 <button
                                     onClick={handleSearch}
@@ -312,7 +312,7 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
                                             <td colSpan={4} className="text-center p-8">
                                                 <div className="flex justify-center items-center gap-2">
                                                     <Loader2 className="w-5 h-5 animate-spin text-brand-blue-3" />
-                                                    <span className="text-gray-600">
+                                                    <span className="text-gray-2">
                                                         جاري تحميل البيانات...
                                                     </span>
                                                 </div>
@@ -326,7 +326,7 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
                                         </tr>
                                     ) : sections.length === 0 ? (
                                         <tr>
-                                            <td colSpan={4} className="text-center p-8 text-gray-500">
+                                            <td colSpan={4} className="text-center p-8 text-gray-2">
                                                 لا توجد أقسام لعرضها.
                                             </td>
                                         </tr>

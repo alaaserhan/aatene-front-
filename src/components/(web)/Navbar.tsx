@@ -30,13 +30,13 @@ const Navbar = () => {
     id: null,
     name: "جميع الفئات"
   });
-  
+
   const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
   const lang = useLanguage();
 
-  const { data: searchData, isLoading: isLoadingCategories } = {data: {categories: []}, isLoading: false};
+  const { data: searchData, isLoading: isLoadingCategories } = { data: { categories: [] }, isLoading: false };
 
- const parentCategories = searchData?.categories?.filter(
+  const parentCategories = searchData?.categories?.filter(
     (category: Category) => !category.parent_id || category.parent_id === null
   ) || [];
 
@@ -54,29 +54,29 @@ const Navbar = () => {
       {/* Desktop Navigation */}
       <div className="hidden md:block container my-2">
         {/* <MaxWidthWrapper noPaddingX={true} className="!py-5"> */}
-          <div className="flex items-center justify-between gap-6">
-            <Link href={`/${lang}`} className="flex items-center gap-4">
-              <img src="/black.svg" className="h-10" alt="logo" />
-            </Link>
+        <div className="flex items-center justify-between gap-6">
+          <Link href={`/${lang}`} className="flex items-center gap-4">
+            <img src="/black.svg" className="h-10" alt="logo" />
+          </Link>
 
-            <div className="flex-1 max-w-2xl">
-              <SearchBar
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-                categoryOpen={categoryOpen}
-                setCategoryOpen={setCategoryOpen}
-                categories={parentCategories}
-                isLoadingCategories={isLoadingCategories}
-              />
-            </div>
-
-            <div className="flex items-center gap-4 lg:gap-6">
-              {isAuthenticated && <NavIcons />}
-              <UserMenu />
-            </div>
+          <div className="flex-1 max-w-2xl">
+            <SearchBar
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              categoryOpen={categoryOpen}
+              setCategoryOpen={setCategoryOpen}
+              categories={parentCategories}
+              isLoadingCategories={isLoadingCategories}
+            />
           </div>
+
+          <div className="flex items-center gap-4 lg:gap-6">
+            {isAuthenticated && <NavIcons />}
+            <UserMenu />
+          </div>
+        </div>
         {/* </MaxWidthWrapper> */}
       </div>
     </div>
@@ -98,15 +98,15 @@ const SearchBar = ({
 
   const handleSearch = () => {
     const params = new URLSearchParams();
-    
+
     if (searchQuery.trim()) {
       params.set('search', searchQuery.trim());
     }
-    
+
     if (selectedCategory.id !== null) {
       params.set('category_id', selectedCategory.id.toString());
     }
-    
+
     router.push(`/${lang}/products?${params.toString()}`);
   };
 
@@ -119,17 +119,17 @@ const SearchBar = ({
   const handleCategorySelect = (category: { id: number | null; name: string }) => {
     setSelectedCategory(category);
     setCategoryOpen(false);
-    
+
     const params = new URLSearchParams();
-    
+
     if (searchQuery.trim()) {
       params.set('search', searchQuery.trim());
     }
-    
+
     if (category.id !== null) {
       params.set('category_id', category.id.toString());
     }
-    
+
     router.push(`/${lang}/products?${params.toString()}`);
   };
 
@@ -170,30 +170,28 @@ const SearchBar = ({
               role="listbox"
             >
               <button
-                className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${
-                  selectedCategory.id === null ? 'bg-gray-50 text-[#287CDA] font-medium' : 'text-gray-700'
-                }`}
+                className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${selectedCategory.id === null ? 'bg-gray-50 text-[#287CDA] font-medium' : 'text-gray-700'
+                  }`}
                 onClick={() => handleCategorySelect({ id: null, name: "جميع الفئات" })}
                 role="option"
               >
                 جميع الفئات
               </button>
-              
+
               {categories.map((category) => (
                 <button
                   key={category.id}
-                  className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${
-                    selectedCategory.id === category.id ? 'bg-gray-50 text-[#287CDA] font-medium' : 'text-gray-700'
-                  }`}
+                  className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${selectedCategory.id === category.id ? 'bg-gray-50 text-[#287CDA] font-medium' : 'text-gray-700'
+                    }`}
                   onClick={() => handleCategorySelect({ id: category.id, name: category.name })}
                   role="option"
                 >
                   {category.name}
                 </button>
               ))}
-              
+
               {categories.length === 0 && !isLoadingCategories && (
-                <div className="px-4 py-2 text-sm text-gray-500">
+                <div className="px-4 py-2 text-sm text-gray-2">
                   لا توجد فئات متاحة
                 </div>
               )}
@@ -211,9 +209,9 @@ const NavIcons = () => {
   const userType = user?.user_type;
 
   return (
-    <div className="flex items-center gap-4 lg:gap-7 text-gray-500">
+    <div className="flex items-center gap-4 lg:gap-7 text-gray-2">
       <Link href={`/${lang}/compare`} className="flex items-center">
-        <button className="text-gray-500 cursor-pointer" aria-label="المقارنات">
+        <button className="text-gray-2 cursor-pointer" aria-label="المقارنات">
           <ArrowDownUp className="h-5 w-5" />
         </button>
       </Link>

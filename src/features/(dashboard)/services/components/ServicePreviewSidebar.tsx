@@ -55,7 +55,7 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="flex flex-col items-center justify-center text-gray-400">
+                <div className="flex flex-col items-center justify-center text-gray-2">
                   <div className="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center mb-2">
                     <ImageIcon className="w-8 h-8 text-white" />
                   </div>
@@ -70,7 +70,7 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
               </h2>
 
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-gray-500">سعر الخدمة</span>
+                <span className="text-gray-2">سعر الخدمة</span>
                 {/* تم استخدام المتغير الجديد formattedPrice */}
                 <span className="font-medium text-lg text-blue-3">
                   {formattedPrice}
@@ -92,7 +92,7 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
                 <span className="text-sm font-bold ">
                   {storeInfo?.name || "اسم مقدم الخدمة"}
                 </span>
-                <div className="flex items-center gap-1 text-xs text-gray-500">
+                <div className="flex items-center gap-1 text-xs text-gray-2">
                   <MapPin className="w-3 h-3" />
                   <span>{storeInfo?.address || "فلسطين، الخليل"}</span>
                 </div>

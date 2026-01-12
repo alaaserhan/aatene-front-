@@ -37,7 +37,7 @@ export function AddStoreStep6({
   const [shippingCompanies, setShippingCompanies] = useState<
     ShippingCompanyPayload[]
   >(initialData?.shippingCompanies || []);
-  
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCompanyIndex, setEditingCompanyIndex] = useState<number | null>(
     null
@@ -220,7 +220,7 @@ export function AddStoreStep6({
 
                     {shippingCompanies.length === 0 ? (
                       <div className="text-center py-12">
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-gray-2 text-sm">
                           حتى الآن لا يوجد شركات شحن مضافة
                         </p>
                       </div>
@@ -242,7 +242,7 @@ export function AddStoreStep6({
                                     {company.name}
                                   </h4>
                                 </div>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-gray-2">
                                   {getCompanyCities(company)}
                                 </p>
                               </div>
@@ -328,13 +328,13 @@ export function AddStoreStep6({
       <ConfirmDeleteModal
         isOpen={deleteModalOpen}
         onClose={() => {
-            setDeleteModalOpen(false);
-            setCompanyToDeleteIndex(null);
+          setDeleteModalOpen(false);
+          setCompanyToDeleteIndex(null);
         }}
         onConfirm={handleConfirmDelete}
         title={companyToDeleteIndex !== null ? "حذف شركة الشحن" : "حذف جميع شركات الشحن"}
         description={
-            companyToDeleteIndex !== null 
+          companyToDeleteIndex !== null
             ? "هل أنت متأكد من رغبتك في حذف شركة الشحن هذه؟ لا يمكن التراجع عن هذا الإجراء."
             : "هل أنت متأكد من رغبتك في حذف جميع شركات الشحن المضافة؟ لا يمكن التراجع عن هذا الإجراء."
         }
@@ -370,7 +370,7 @@ function DeliveryOption({ label, selected, onClick }: DeliveryOptionProps) {
         <h4
           className={cn(
             "font-medium text-sm",
-            selected ? "text-[#3A5779]" : "text-gray-600"
+            selected ? "text-[#3A5779]" : "text-gray-2"
           )}
         >
           {label}

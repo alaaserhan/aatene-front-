@@ -88,7 +88,7 @@ export function MultiSelectDropdown({
               );
             })
           ) : (
-            <span className="text-sm text-gray-400 select-none">
+            <span className="text-sm text-gray-2 select-none">
               {placeholder}
             </span>
           )}
@@ -117,7 +117,7 @@ export function MultiSelectDropdown({
                 </button>
               ))
             ) : (
-              <div className="p-4 text-center text-sm text-gray-400">
+              <div className="p-4 text-center text-sm text-gray-2">
                 لا توجد خيارات إضافية
               </div>
             )}

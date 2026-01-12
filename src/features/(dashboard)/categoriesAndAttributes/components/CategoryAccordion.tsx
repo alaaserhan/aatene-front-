@@ -154,7 +154,7 @@ function AttributeAccordionContent(props: AttributeProps) {
             isAdmin ? "cursor-pointer" : "cursor-not-allowed opacity-50",
             isActive
               ? "bg-blue-5 border-blue-4"
-              : "bg-white border-gray-300 group-hover:border-gray-500"
+              : "bg-white border-gray-300 group-hover:border-gray-2"
           )}
           aria-checked={isActive}
           role="checkbox"
@@ -215,7 +215,7 @@ function CategoryAccordionContent(props: CategoryProps) {
     validImageUrls = [rawImageUrls];
   }
   const images = validImageUrls.filter((img) => img && typeof img === 'string' && img.trim() !== "");
-  
+
   const subCategoriesCount = Number(category.sub_categories_count || 0);
   const hasSubCategories = subCategoriesCount > 0;
   const isActive = category.is_active === true || category.is_active === "1";
@@ -306,7 +306,7 @@ function CategoryAccordionContent(props: CategoryProps) {
               </button>
             ))}
             {images.length > 4 && (
-              <div className="flex-shrink-0 w-10 h-10 rounded flex items-center justify-center text-sm font-medium text-gray-600 bg-gray-50">
+              <div className="flex-shrink-0 w-10 h-10 rounded flex items-center justify-center text-sm font-medium text-gray-2 bg-gray-50">
                 +{images.length - 4}
               </div>
             )}
@@ -345,7 +345,7 @@ function CategoryAccordionContent(props: CategoryProps) {
             isAdmin ? "cursor-pointer" : "cursor-not-allowed opacity-50",
             isActive
               ? "bg-blue-5 border-blue-4"
-              : "bg-white border-gray-300 group-hover:border-gray-500"
+              : "bg-white border-gray-300 group-hover:border-gray-2"
           )}
           aria-checked={isActive}
           role="checkbox"

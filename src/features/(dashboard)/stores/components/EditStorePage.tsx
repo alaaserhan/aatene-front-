@@ -263,7 +263,7 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="text-center">
-          <p className="text-xl text-gray-600 mb-4">لم يتم العثور على المتجر</p>
+          <p className="text-xl text-gray-2 mb-4">لم يتم العثور على المتجر</p>
         </div>
       </div>
     );
