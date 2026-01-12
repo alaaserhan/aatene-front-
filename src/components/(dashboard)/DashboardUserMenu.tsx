@@ -170,11 +170,11 @@ export function DashboardUserMenu() {
                 {/* ================= MERCHANT MENU ================= */}
                 {isMerchant && (
                     <div className="bg-white">
-                        <div className=" space-y-1 pb-2">
-                            <MenuItem href={`/${lang}/dashboard/points`} icon={Coins} label="النقاط" />
-                            <MenuItem href={`/${lang}/dashboard/invoices`} icon={FileText} label="فواتير والسجل المالي" />
-                            <MenuItem href={`/${lang}/dashboard/settings`} icon={Settings} label="ادارة المتاجر" />
-                            <MenuItem href={`/${lang}/dashboard/roles`} icon={Users} label="الادوار الوظيفية" />
+                        <div className=" space-y-1 p-2">
+                            {/* <MenuItem href={`/${lang}/admin/points`} icon={Coins} label="النقاط" /> */}
+                            <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label=" السجل المالي" />
+                            <MenuItem href={`/${lang}/admin/stores`} icon={Settings} label="ادارة المتاجر" />
+                            {/* <MenuItem href={`/${lang}/admin/roles`} icon={Users} label="الادوار الوظيفية" /> */}
                             <MenuItem href={`/${lang}`} icon={Compass} label="العودة للموقع" />
 
                             <button
@@ -182,7 +182,7 @@ export function DashboardUserMenu() {
                                 className="flex items-center gap-2 w-full px-4 py-3 rounded-lg hover:bg-red-50 transition-colors group cursor-pointer mt-1"
                             >
                                 <LogOut className="w-5 h-5 text-red-600" strokeWidth={1.5} />
-                                <span className="text-sm font-medium ">تسجيل خروج</span>
+                                <span className="text-sm font-medium text-red-600 ">تسجيل خروج</span>
                             </button>
                         </div>
 
@@ -284,8 +284,8 @@ function MenuItem({ href, icon: Icon, label }: { href: string; icon: any; label:
             href={href}
             className="flex items-center gap-2 w-full px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors group"
         >
-            <Icon className="w-5 h-5 text-gray-500 group-hover:text-blue-4" strokeWidth={1.5} />
-            <span className="text-sm group-hover:text-blue-4 ">
+            <Icon className="w-5 h-5 text-gray-2 group-hover:text-blue-4" strokeWidth={1.5} />
+            <span className="text-sm  ">
                 {label}
             </span>
         </Link>

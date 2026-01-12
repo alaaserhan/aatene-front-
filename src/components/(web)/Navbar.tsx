@@ -34,7 +34,7 @@ const Navbar = () => {
   const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
   const lang = useLanguage();
 
-  const { data: searchData, isLoading: isLoadingCategories } = useSearchData();
+  const { data: searchData, isLoading: isLoadingCategories } = {data: {categories: []}, isLoading: false};
 
  const parentCategories = searchData?.categories?.filter(
     (category: Category) => !category.parent_id || category.parent_id === null
