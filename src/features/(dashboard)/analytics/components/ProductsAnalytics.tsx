@@ -58,6 +58,7 @@ export function ProductsAnalytics() {
                         <div className="h-[80px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={barChartData} barSize={20}>
+                                    <XAxis dataKey="name" hide />
                                     <Tooltip
                                         cursor={{ fill: 'transparent' }}
                                         contentStyle={{ borderRadius: "8px", border: "none", fontSize: "12px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }}

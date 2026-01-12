@@ -2,7 +2,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { LineChart, Line, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
+import { LineChart, Line, ResponsiveContainer, Tooltip, CartesianGrid, XAxis } from "recharts";
 import { useGetAnalyticsOverview } from "../hooks";
 
 export function StoresAnalytics() {
@@ -57,6 +57,7 @@ export function StoresAnalytics() {
                         <div className="h-[80px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={lineChartData}>
+                                    <XAxis dataKey="name" hide />
                                     <Tooltip
                                         contentStyle={{ borderRadius: "8px", border: "none", fontSize: "12px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }}
                                         cursor={{ stroke: '#e5e7eb', strokeWidth: 1 }}
