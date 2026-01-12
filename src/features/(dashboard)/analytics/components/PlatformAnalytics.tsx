@@ -1,7 +1,7 @@
 // src/components/(admin)/analytics/PlatformAnalytics.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, isValidElement } from "react";
 import {
     AreaChart,
     Area,
@@ -32,7 +32,7 @@ import { useGetAnalyticsContent } from "../hooks";
 interface StatCardProps {
     title: string;
     count: number | string;
-    icon: LucideIcon;
+    icon: LucideIcon | React.ReactNode;
     bgClass: string;
     iconClass: string;
     countClass: string;
@@ -42,7 +42,7 @@ interface StatCardProps {
 function StatCard({
     title,
     count,
-    icon: Icon,
+    icon,
     bgClass,
     iconClass,
     countClass,
@@ -55,7 +55,14 @@ function StatCard({
                     bgClass
                 )}
             >
-                <Icon className={cn("w-6 h-6", iconClass)} />
+                {isValidElement(icon) ? (
+                    icon
+                ) : (
+                    (() => {
+                        const Icon = icon as LucideIcon;
+                        return <Icon className={cn("w-6 h-6", iconClass)} />;
+                    })()
+                )}
             </div>
             <div className="flex flex-col gap-1">
                 <span className="text-sm font-semibold">{title}</span>
@@ -132,20 +139,20 @@ export function PlatformAnalytics() {
                     title="إجمالي التجار"
                     count={data?.totalMerchants || 0}
                     icon={Users}
-                    bgClass="bg-[#F0F6FF]"
-                    iconClass="text-[#3A5779]"
-                    countClass="text-[#3A5779]"
+                    bgClass="bg-blue-5"
+                    iconClass="text-blue-4"
+                    countClass="text-blue-4"
+                />
+                {/* Pending Stores (Red) */}
+                <StatCard
+                    title="متاجر تحتاج لموافقة"
+                    count={data?.notActiveStores || 0}
+                    icon={<img src="/icons/dashboard/store.svg" alt="" />}
+                    bgClass="bg-[#FEF2F2]"
+                    iconClass="text-[#EF4444]"
+                    countClass="text-[#EF4444]"
                 />
 
-                {/* Total Stores (Green) */}
-                <StatCard
-                    title="إجمالي المتاجر"
-                    count={data?.totalStores || 0}
-                    icon={Store}
-                    bgClass="bg-[#ECFDF5]"
-                    iconClass="text-[#10B981]"
-                    countClass="text-[#10B981]"
-                />
 
                 {/* Total Products (Gray) */}
                 <StatCard
@@ -157,16 +164,15 @@ export function PlatformAnalytics() {
                     countClass="text-[#4B5563]"
                 />
 
-                {/* Pending Stores (Red) */}
+                {/* Total Stores (Green) */}
                 <StatCard
-                    title="متاجر تحتاج لموافقة"
-                    count={data?.notActiveStores || 0}
-                    icon={CheckCircle}
-                    bgClass="bg-[#FEF2F2]"
-                    iconClass="text-[#EF4444]"
-                    countClass="text-[#EF4444]"
+                    title="إجمالي المتاجر"
+                    count={data?.totalStores || 0}
+                    icon={<img src="/icons/dashboard/store2.svg" alt="" />}
+                    bgClass="bg-[#ECFDF5]"
+                    iconClass="text-[#10B981]"
+                    countClass="text-[#10B981]"
                 />
-
                 {/* Pending Products (Yellow) */}
                 <StatCard
                     title="منتجات تحتاج لموافقة"

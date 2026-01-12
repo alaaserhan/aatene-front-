@@ -25,7 +25,7 @@ export function AnalyticsHeader() {
                   <Link
                     href={link.href}
                     className={cn(
-                      "text-sm font-bold h-full flex items-center transition-all px-2 border-b-2",
+                      "text-sm font-medium h-full flex items-center transition-all px-2 border-b-2",
                       isActive
                         ? "text-[#3A5779] border-[#3A5779]"
                         : "text-gray-2 border-transparent hover:text-[#3A5779]"
