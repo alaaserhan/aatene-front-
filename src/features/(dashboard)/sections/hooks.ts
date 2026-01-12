@@ -58,11 +58,17 @@ export const useUpdateSection = () => {
         if (!old) return undefined;
         return {
           ...old,
-          data: old.data.map((section) =>
-            section.id === Number(vars.id)
-              ? { ...section, ...vars.payload }
-              : section
-          ),
+          data: old.data.map((section) => {
+            if (section.id === Number(vars.id)) {
+              const { store_id, ...restPayload } = vars.payload;
+              return {
+                ...section,
+                ...restPayload,
+                ...(store_id ? { store_id: String(store_id) } : {}),
+              };
+            }
+            return section;
+          }),
         };
       });
 
