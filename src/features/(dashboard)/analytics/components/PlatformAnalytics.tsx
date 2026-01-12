@@ -223,6 +223,7 @@ export function PlatformAnalytics() {
                         <Area
                             type="monotone"
                             dataKey="value"
+                            name="عدد التجار"
                             stroke="#3A5779"
                             strokeWidth={3}
                             fillOpacity={1}
