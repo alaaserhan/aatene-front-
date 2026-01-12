@@ -45,7 +45,7 @@ export function MerchantPointsCard() {
                 </div>
 
                 {/* Buy Points Button */}
-                <Link href={"/admin/coins/buy"} className="z-50 flex items-center gap-2 bg-[#FFA600] text-white w-3/4 justify-center cursor-pointer py-3 rounded-sm font-medium transition-colors shadow-lg">
+                <Link href={"/admin/coins/buy"} className="z-40 flex items-center gap-2 bg-[#FFA600] text-white w-3/4 justify-center cursor-pointer py-3 rounded-sm font-medium transition-colors shadow-lg">
                     <Coins className="w-5 h-5" />
                     <span>شراء النقط</span>
                 </Link>
