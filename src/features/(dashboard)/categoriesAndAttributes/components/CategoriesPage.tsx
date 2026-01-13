@@ -8,6 +8,7 @@ import { CategoryModal, CategoryFormData } from "./CategoryModal";
 import { AttributeModal } from "./AttributeModal";
 import { ImageViewerModal } from "./ImageViewerModal";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
 import { Category, Attribute } from "../api";
 import {
@@ -21,10 +22,9 @@ import {
   useUpdateAttribute,
   useDeleteAttribute,
   useUpdateCategoryStatus,
-  useUpdateAttributeStatus, // 1. استيراد الهوك الجديد
+  useUpdateAttributeStatus,
 } from "../hooks";
 import Link from "next/link";
-import { toast } from "sonner";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Pagination } from "@/src/components/ui/Pagination";
@@ -77,6 +77,8 @@ export function CategoriesPage() {
   );
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [viewerImages, setViewerImages] = useState<string[]>([]);
 
@@ -111,15 +113,15 @@ export function CategoriesPage() {
 
   const isLoading = categoriesLoading || attributesLoading;
 
-  const { mutate: createCategoryMutation } = useCreateCategory();
-  const { mutate: updateCategoryMutation } = useUpdateCategory();
+  const { mutate: createCategoryMutation, isPending: isCreatingCategory } = useCreateCategory();
+  const { mutate: updateCategoryMutation, isPending: isUpdatingCategory } = useUpdateCategory();
   const { mutate: deleteCategoryMutation } = useDeleteCategory();
   const { mutate: updateCategoryStatusMutation } = useUpdateCategoryStatus();
 
-  const { mutate: createAttributeMutation } = useCreateAttribute();
-  const { mutate: updateAttributeMutation } = useUpdateAttribute();
+  const { mutate: createAttributeMutation, isPending: isCreatingAttribute } = useCreateAttribute();
+  const { mutate: updateAttributeMutation, isPending: isUpdatingAttribute } = useUpdateAttribute();
   const { mutate: deleteAttributeMutation } = useDeleteAttribute();
-  const { mutate: updateAttributeStatusMutation } = useUpdateAttributeStatus(); // 2. تعريف دالة التعديل
+  const { mutate: updateAttributeStatusMutation } = useUpdateAttributeStatus();
 
   const categories = categoriesData?.data || [];
   const attributes = attributesData?.data || [];
@@ -246,10 +248,23 @@ export function CategoriesPage() {
   };
 
   const handleConfirmDelete = () => {
+    const onSuccess = (message: string) => {
+      setDeleteModalOpen(false);
+      setSuccessModalOpen(true);
+      setSuccessMessage(message);
+      setCategoryToDelete(null);
+      setAttributeToDelete(null);
+      setOptionToDelete(null);
+    };
+
     if (categoryToDelete !== null) {
-      deleteCategoryMutation(categoryToDelete);
+      deleteCategoryMutation(categoryToDelete, {
+        onSuccess: () => onSuccess("تم حذف الفئة بنجاح"),
+      });
     } else if (attributeToDelete !== null) {
-      deleteAttributeMutation(attributeToDelete);
+      deleteAttributeMutation(attributeToDelete, {
+        onSuccess: () => onSuccess("تم حذف السمة بنجاح"),
+      });
     } else if (optionToDelete !== null) {
       const { optionId, attribute } = optionToDelete;
 
@@ -262,13 +277,13 @@ export function CategoriesPage() {
         options: newOptionsPayload,
       };
 
-      updateAttributeMutation({ id: attribute.id, payload });
+      updateAttributeMutation(
+        { id: attribute.id, payload },
+        {
+          onSuccess: () => onSuccess("تم حذف الخيار بنجاح"),
+        }
+      );
     }
-
-    setDeleteModalOpen(false);
-    setCategoryToDelete(null);
-    setAttributeToDelete(null);
-    setOptionToDelete(null);
   };
 
   const handleToggleCategory = (categoryId: number) => {
@@ -398,7 +413,7 @@ export function CategoriesPage() {
                 onClick={
                   isAttributeMode ? handleAddAttribute : handleAddCategory
                 }
-                className="flex items-center gap-2 px-6 py-3 bg-blue-3 w-full sm:w-auto  text-white text-sm font-semibold rounded-xs transition-colors cursor-pointer"
+                className="flex items-center gap-2 px-6 py-3 bg-blue-3 w-full sm:w-auto  text-white text-sm font-medium rounded-xs transition-colors cursor-pointer"
               >
                 <Plus className="w-5 h-5" />
                 {isAttributeMode
@@ -493,6 +508,7 @@ export function CategoriesPage() {
         parentName={parentName}
         categoryOptions={categoryOptions}
         currentType={activeType}
+        isLoading={isCreatingCategory || isUpdatingCategory}
       />
 
       <AttributeModal
@@ -501,6 +517,7 @@ export function CategoriesPage() {
         onSave={handleSaveAttribute}
         attribute={selectedAttribute}
         mode={attributeModalMode}
+        isLoading={isCreatingAttribute || isUpdatingAttribute}
       />
 
       <ConfirmDeleteModal
@@ -515,6 +532,13 @@ export function CategoriesPage() {
         isOpen={imageViewerOpen}
         onClose={() => setImageViewerOpen(false)}
         images={viewerImages}
+      />
+
+      <SuccessModal
+        isOpen={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        title="تمت العملية بنجاح"
+        message={successMessage}
       />
     </div>
   );

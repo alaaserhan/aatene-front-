@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { Category, CategorySelectOption } from "../api";
 import {
@@ -26,6 +27,7 @@ interface CategoryModalProps {
   parentName?: string | null;
   categoryOptions?: CategorySelectOption[];
   currentType: "product" | "service";
+  isLoading?: boolean;
 }
 
 export interface CategoryFormData {
@@ -55,6 +57,7 @@ export function CategoryModal({
   parentName,
   categoryOptions = [],
   currentType,
+  isLoading = false,
 }: CategoryModalProps) {
 
   const initialFormData = useMemo(() => {
@@ -214,19 +217,26 @@ export function CategoryModal({
         >
           <Button
             onClick={handleSave}
-            disabled={!formData.name.trim()}
+            disabled={!formData.name.trim() || isLoading}
             className={cn(
-              "w-full sm:w-auto px-16 py-3 rounded-sm font-medium transition-colors cursor-pointer",
-              formData.name.trim()
+              "w-full sm:w-auto px-16 py-3 rounded-sm font-medium transition-colors cursor-pointer flex items-center gap-2 justify-center",
+              formData.name.trim() && !isLoading
                 ? "bg-blue-4  text-white"
                 : "bg-gray-300 text-gray-2 cursor-not-allowed"
             )}
           >
-            {mode === "edit"
-              ? "حفظ التعديلات"
-              : activeType === "service"
-                ? "إضافة الخدمة"
-                : "إضافة الفئة"}
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                جاري الحفظ...
+              </>
+            ) : (
+              mode === "edit"
+                ? "حفظ التعديلات"
+                : activeType === "service"
+                  ? "إضافة الخدمة"
+                  : "إضافة الفئة"
+            )}
           </Button>
           <Button
             onClick={onClose}

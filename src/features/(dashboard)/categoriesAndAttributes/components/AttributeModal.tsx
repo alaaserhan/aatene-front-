@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,11 +14,10 @@ import {
   DialogFooter,
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
-import { FormInput } from "@/src/components/ui/FormInput"; // ✅ استيراد FormInput
-import { Label } from "@/src/components/ui/label"; // لا نزال نحتاج Label لخيار "أضف الخيارات المتاحة"
+import { FormInput } from "@/src/components/ui/FormInput";
+import { Label } from "@/src/components/ui/label";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { Attribute, AttributeOptionPayload } from "../api";
-// import { cn } from "@/src/lib/utils";
 
 interface AttributeModalProps {
   isOpen: boolean;
@@ -29,6 +29,7 @@ interface AttributeModalProps {
   attribute?: Attribute | null;
   mode: "add" | "edit";
   disableTitle?: boolean;
+  isLoading?: boolean;
 }
 
 const attributeSchema = z.object({
@@ -43,6 +44,7 @@ export function AttributeModal({
   attribute,
   mode,
   disableTitle = false,
+  isLoading = false,
 }: AttributeModalProps) {
   const [options, setOptions] = useState<AttributeOptionPayload[]>([]);
   const [optionInput, setOptionInput] = useState("");
@@ -107,7 +109,7 @@ export function AttributeModal({
         dir="rtl"
       >
         <DialogHeader className="p-6 pb-4 text-start">
-          <DialogTitle className="text-xl font-bold ">
+          <DialogTitle className="text-xl font-medium ">
             {mode === "edit" ? "تعديل السمة" : "إضافة سمة جديدة"}
           </DialogTitle>
           <p className="text-sm text-gray-2 pt-2">
@@ -173,9 +175,17 @@ export function AttributeModal({
           <DialogFooter className="p-4 bg-white border-t border-gray-200 flex sm:justify-center" >
             <Button
               type="submit"
-              className="w-full sm:w-auto px-16 py-3 rounded-sm font-medium transition-colors cursor-pointer bg-blue-4 text-white"
+              disabled={isLoading}
+              className="w-full sm:w-auto px-16 py-3 rounded-sm font-medium transition-colors cursor-pointer bg-blue-4 text-white flex items-center gap-2 justify-center"
             >
-              {mode === "edit" ? "حفظ التعديلات" : "إضافة الفئة"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  جاري الحفظ...
+                </>
+              ) : (
+                mode === "edit" ? "حفظ التعديلات" : "إضافة الفئة"
+              )}
             </Button>
             <Button
               type="button"
