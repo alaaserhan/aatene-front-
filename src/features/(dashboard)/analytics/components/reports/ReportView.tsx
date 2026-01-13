@@ -223,8 +223,9 @@ export function ReportView({ type }: ReportViewProps) {
                         title={config.topListName}
                         subtitle={`قائمة ${config.title} حسب التصنيف`}
                         items={config.topListItems}
-                        className="h-[450px]" 
+                        className="h-[450px]"
                         icon={ChevronsUp}
+                        iconClassName="text-green-500"
                     />
                 </div>
 

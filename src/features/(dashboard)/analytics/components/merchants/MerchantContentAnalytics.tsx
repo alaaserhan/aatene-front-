@@ -178,7 +178,7 @@ export function MerchantContentAnalytics() {
             </div>
 
             {/* Chart Section */}
-            <div className="flex flex-col gap-4 mt-2 flex-1">
+            <div className="flex flex-col gap-4 mt-6 flex-1">
                 <h4 className="text-sm font-medium text-gray-700 px-2">
                     {isServiceStore ? "نمو الخدمات" : "نمو المنتجات"}
                 </h4>

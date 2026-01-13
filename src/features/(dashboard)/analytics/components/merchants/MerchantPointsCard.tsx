@@ -13,7 +13,7 @@ export function MerchantPointsCard() {
     const points = data?.balance || 0;
 
     return (
-        <div className="relative overflow-hidden rounded-xl h-full min-h-[280px] ">
+        <div className="relative overflow-hidden rounded-xl h-full min-h-[240px] ">
             {/* Background Image */}
             <img
                 src="/icons/dashboard/bg-coins.svg"
@@ -24,10 +24,10 @@ export function MerchantPointsCard() {
 
 
             {/* Content */}
-            <div className=" flex flex-col items-center justify-center h-full p-6 ">
+            <div className=" flex flex-col items-center justify-center h-full p-4">
                 {/* Coins Decoration */}
                 <div className=" flex items-center justify-center">
-                    <img src="/icons/dashboard/coins.svg" alt="" className="drop-shadow-orange-200 drop-shadow-2xl" />
+                    <img src="/icons/dashboard/coins.svg" alt="" className="drop-shadow-orange-200 drop-shadow-2xl w-28" />
                 </div>
                 {/* Label with Info Icon */}
                 {/* <div className="flex text-gray-2 items-center gap-2 mb-2">
@@ -36,7 +36,7 @@ export function MerchantPointsCard() {
                 </div> */}
 
                 {/* Points Value */}
-                <div className=" text-4xl font-bold mb-6">
+                <div className=" text-3xl font-bold mb-4">
                     {isLoading ? (
                         <Loader2 className="w-8 h-8 animate-spin " />
                     ) : (
@@ -45,7 +45,7 @@ export function MerchantPointsCard() {
                 </div>
 
                 {/* Buy Points Button */}
-                <Link href={"/admin/coins/buy"} className="z-40 flex items-center gap-2 bg-[#FFA600] text-white w-3/4 justify-center cursor-pointer py-3 rounded-sm font-medium transition-colors shadow-lg">
+                <Link href={"/admin/coins/buy"} className="z-40 flex items-center gap-2 bg-[#FFA600] text-white w-3/4 justify-center cursor-pointer py-2.5 rounded-sm font-medium transition-colors shadow-lg">
                     <Coins className="w-5 h-5" />
                     <span>شراء النقط</span>
                 </Link>

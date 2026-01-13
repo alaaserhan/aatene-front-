@@ -1,7 +1,6 @@
 // src/components/(admin)/analytics/reports/TopList.tsx
 import { cn } from "@/src/lib/utils";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
-import { ChevronLeft, Flag } from "lucide-react";
 
 export interface TopListItem {
     id: number | string;
@@ -19,13 +18,14 @@ interface TopListProps {
     items: TopListItem[];
     className?: string;
     icon?: any;
+    iconClassName?: string;
 }
 
-export function TopList({ title, subtitle, items, className, icon: Icon }: TopListProps) {
+export function TopList({ title, subtitle, items, className, icon: Icon, iconClassName }: TopListProps) {
     return (
         <div className={cn("bg-white rounded-lg p-4 flex flex-col", className)}>
             <div className="mb-4 shrink-0 flex items-center justify-between ">
-                {Icon && <Icon className="w-5 h-5 text-red-500 me-2" />}
+                {Icon && <Icon className={cn("w-5 h-5 me-2", iconClassName || "text-red-500")} />}
 
                 <div className="flex flex-col  flex-1">
                     <h3 className="text-lg font-bold  flex items-center gap-2">
