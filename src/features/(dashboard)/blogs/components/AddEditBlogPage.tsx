@@ -353,20 +353,18 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
               />
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium flex items-center gap-1">
-                  وصف الفقرة <span className="text-red-500">*</span>
-                </Label>
                 <RichTextEditor
                   value={currentParaContent}
                   onChange={(val) => {
                     setCurrentParaContent(val);
                     if (errors.paraContent) setErrors(prev => ({ ...prev, paraContent: "" }));
                   }}
-                  label=""
+                  label="وصف الفقرة "
                   placeholder="...نص المحتوى"
                   className="min-h-[200px]"
                   helpTooltip=""
                   error={errors.paraContent}
+                  required
                 />
               </div>
 

@@ -19,6 +19,7 @@ interface RichTextEditorProps {
   error?: string;
   className?: string;
   dir?: "rtl" | "ltr";
+  required?: boolean;
 }
 
 type ModalType = "link" | "image" | "table" | "color" | "hiliteColor" | null;
@@ -45,6 +46,7 @@ export function RichTextEditor({
   error,
   className,
   dir: initialDir = "rtl",
+  required,
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -177,7 +179,12 @@ export function RichTextEditor({
     <div className={cn("space-y-2 relative flex flex-col", className)}>
       <div className="flex items-center justify-between shrink-0">
         <div className="flex flex-col">
-          {label && <label className="text-sm font-medium">{label}</label>}
+          {label && (
+            <label className="text-sm font-medium">
+              {label}
+              {required && <span className="text-red-500 ms-1">*</span>}
+            </label>
+          )}
           {
             (maxLength || maxWords) &&
             <div>

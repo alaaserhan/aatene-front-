@@ -408,7 +408,7 @@ export function AddProductStep1({
                   {!errors.short_description && (
                     <div className="flex justify-between text-xs text-gray-3">
                       <span>عدد الكلمات المتاحة في الوصف هي 70 كلمة </span>
-                      <span>{formData.short_description.length}/300</span>
+                      <span>{formData.short_description.length}/300 حرف</span>
                     </div>
                   )}
                   {errors.short_description && (
@@ -419,18 +419,13 @@ export function AddProductStep1({
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-1">
-                    <Label className="text-sm font-medium">وصف المنتج</Label>
-                  </div>
 
                   <RichTextEditor
-                    maxLength={300}
-                    maxWords={70}
                     value={formData.description}
                     onChange={(val) =>
                       setFormData({ ...formData, description: val })
                     }
-                    label=""
+                    label="وصف المنتج"
                     placeholder="...نص المحتوى"
                     helpText="ماهو وصف المنتج"
                     helpTooltip="اكتب وصفًا تفصيليًا يشرح مميزات المنتج، خامته، طريقة استخدامه، والمعلومات الإضافية التي قد تساعد العميل في اتخاذ قرار الشراء. يمكنك استخدام فقرات أو نقاط مرتبة لتوضيح التفاصيل."
