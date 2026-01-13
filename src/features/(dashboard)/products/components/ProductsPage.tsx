@@ -22,6 +22,9 @@ import { cn } from "@/src/lib/utils";
 import { useRouter } from "next/navigation";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { StoreEmptyState } from "@/src/components/(dashboard)/StoreEmptyState";
+import { SectionModal, SectionFormData } from "../../sections/components/SectionModal";
+import { useCreateSection } from "../../sections/hooks";
+import { Button } from "@/src/components/ui/button";
 
 const adminFilterOptions = [
   { name: "الكل", value: "all" },
@@ -55,6 +58,7 @@ export function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [productToDelete, setProductToDelete] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
 
   const detailsRef = useRef<HTMLDivElement>(null);
 
@@ -124,6 +128,7 @@ export function ProductsPage() {
   const { mutate: updateStatusMutation } = useUpdateProductStatus();
   const { mutate: updateShown } = useUpdateProductShown();
   const { mutate: deleteProduct } = useDeleteProduct();
+  const createSection = useCreateSection();
 
   // --- Handlers ---
   const handleAdminFilterChange = (value: string) => {
@@ -167,6 +172,22 @@ export function ProductsPage() {
 
   const handleEditClick = (product: Product) => {
     router.push(`/admin/products/${product.id}/edit`);
+  };
+
+  const handleSaveSection = (data: SectionFormData) => {
+    if (!storeId) return;
+    createSection.mutate({
+      payload: {
+        name: data.name,
+        status: data.isActive ? "active" : "not-active",
+        store_id: Number(storeId)
+      },
+      storeId: Number(storeId)
+    }, {
+      onSuccess: () => {
+        setIsSectionModalOpen(false);
+      }
+    });
   };
 
   const renderHeaderAction = () => {
@@ -269,6 +290,16 @@ export function ProductsPage() {
                   activeValue={selectedSectionId || ""}
                   onValueChange={handleMerchantSectionChange}
                   className="h-full border border-gray-200 rounded-lg"
+                  action={
+                    <Button
+                      onClick={() => setIsSectionModalOpen(true)}
+                      className="w-full  gap-2 text-blue-3 border-blue-3 rounded-xs border"
+                      style={{ backgroundColor: "var(--blue-5)" }}
+                    >
+                      اضافة أقسام جديدة 
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  }
                 />
               )}
             </div>
@@ -317,6 +348,13 @@ export function ProductsPage() {
         onConfirm={handleConfirmDelete}
         title="هل أنت متأكد من حذف هذا المنتج؟"
         description="لا يمكن التراجع عن هذا الإجراء"
+      />
+
+      <SectionModal
+        isOpen={isSectionModalOpen}
+        onClose={() => setIsSectionModalOpen(false)}
+        onSave={handleSaveSection}
+        mode="add"
       />
     </div>
   );

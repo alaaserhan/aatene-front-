@@ -20,13 +20,7 @@ import { useGetSingleStore } from "../../stores/hooks";
 import { toast } from "sonner";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/src/components/ui/dialog";
+import { SectionModal, SectionFormData } from "../../sections/components/SectionModal";
 
 interface AddServiceStep1Props {
   initialData?: Step1ServiceData;
@@ -75,8 +69,7 @@ export function AddServiceStep1({
   const [specialtyInput, setSpecialtyInput] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isAddSectionOpen, setIsAddSectionOpen] = useState(false);
-  const [newSectionName, setNewSectionName] = useState("");
+  const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
 
   const createSection = useCreateSection();
 
@@ -202,24 +195,19 @@ export function AddServiceStep1({
     setFormData(prev => ({ ...prev, tags: prev.tags.filter(i => i !== itemToRemove) }));
   };
 
-  const handleAddSection = async () => {
-    if (!newSectionName.trim()) return;
-
-    try {
-      await createSection.mutateAsync({
-        payload: {
-          name: newSectionName.trim(),
-          status: "active",
-          store_id: Number(storeId),
-        },
-        storeId: Number(storeId),
-      });
-
-      setNewSectionName("");
-      setIsAddSectionOpen(false);
-    } catch {
-      // Error handled in hook
-    }
+  const handleSaveSection = (data: SectionFormData) => {
+    createSection.mutate({
+      payload: {
+        name: data.name,
+        status: data.isActive ? "active" : "not-active",
+        store_id: Number(storeId),
+      },
+      storeId: Number(storeId),
+    }, {
+      onSuccess: () => {
+        setIsSectionModalOpen(false);
+      }
+    });
   };
 
   const validate = () => {
@@ -347,7 +335,7 @@ export function AddServiceStep1({
                     placeholder={isSectionsLoading ? "جاري التحميل..." : "اختر القسم"}
                     error={errors.section_id}
                     className="h-12"
-                    onAddNew={() => setIsAddSectionOpen(true)}
+                    onAddNew={() => setIsSectionModalOpen(true)}
                     addNewLabel="إضافة قسم جديد"
                   />
                 </div>
@@ -487,48 +475,12 @@ export function AddServiceStep1({
         showSaveDraft={showSaveDraft}
       />
 
-      {/* Add Section Dialog */}
-      <Dialog open={isAddSectionOpen} onOpenChange={setIsAddSectionOpen}>
-        <DialogContent className="sm:max-w-lg" dir="rtl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-medium ">
-              أضف قسم جديد
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="grid gap-6 py-4">
-            <div className="grid gap-3">
-              <Label htmlFor="section-name" className="text-right font-medium ">
-                اسم القسم
-              </Label>
-              <Input
-                id="section-name"
-                value={newSectionName}
-                onChange={(e) => setNewSectionName(e.target.value)}
-                placeholder="اكتب اسم القسم هنا"
-                className="w-full px-4 py-3 border-gray-200 rounded-lg focus:border-brand-blue-2"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleAddSection();
-                  }
-                }}
-              />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button
-              onClick={handleAddSection}
-              disabled={!newSectionName.trim() || createSection.isPending}
-              className="w-full px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer"
-              style={{ backgroundColor: 'var(--blue-3)' }}
-            >
-              {createSection.isPending ? "جاري الحفظ..." : "حفظ"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <SectionModal
+        isOpen={isSectionModalOpen}
+        onClose={() => setIsSectionModalOpen(false)}
+        onSave={handleSaveSection}
+        mode="add"
+      />
     </div>
   );
 }

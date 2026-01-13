@@ -10,13 +10,14 @@ import {
     useDeleteService,
     useUpdateServiceShown,
 } from "../hooks";
-import { useGetSections } from "../../sections/hooks";
+import { useGetSections, useCreateSection } from "../../sections/hooks";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Service, ServiceStatus } from "../api";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
 import { ServicesTable } from "../components/ServicesTable";
 import { ServiceEmptyState } from "../components/ServiceEmptyState";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { SectionModal, SectionFormData } from "../../sections/components/SectionModal";
 import { Input } from "@/src/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Button } from "@/src/components/ui/button";
@@ -31,6 +32,8 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     const [serviceToDelete, setServiceToDelete] = useState<number | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [activeStatus, setActiveStatus] = useState<ServiceStatus>("approved");
+    const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
+    const createSection = useCreateSection();
 
     const { data: storeData } = useGetSingleStore(storeId, {
         enabled: !!storeId,
@@ -144,6 +147,21 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         value: String(s.id),
     }));
 
+    const handleSaveSection = (data: SectionFormData) => {
+        createSection.mutate({
+            payload: {
+                name: data.name,
+                status: data.isActive ? "active" : "not-active",
+                store_id: Number(storeId)
+            },
+            storeId: Number(storeId)
+        }, {
+            onSuccess: () => {
+                setIsSectionModalOpen(false);
+            }
+        });
+    };
+
     const getCountForStatus = (key: ServiceStatus) => {
         switch (key) {
             case "approved": return approvedData?.recordsFiltered || 0;
@@ -179,7 +197,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     }
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col h-[calc(100vh-280px)]">
             <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
 
             <header className="p-4 pb-0">
@@ -230,7 +248,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-12 gap-6 items-start h-[calc(100vh-280px)]">
+                <div className="grid grid-cols-12 gap-6 items-start ">
                     {!isLoadingSections && sections.length > 0 && (
                         <div className="col-span-12 lg:col-span-3 h-full flex flex-col">
                             <SidebarFilterPanel
@@ -241,6 +259,16 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                     setCurrentPage(1);
                                 }}
                                 className="h-full border border-gray-200 rounded-lg bg-white"
+                                action={
+                                    <Button
+                                        onClick={() => setIsSectionModalOpen(true)}
+                                        className="w-full  gap-2 text-blue-3 border-blue-3 rounded-xs border"
+                                        style={{ backgroundColor: "var(--blue-5)" }}
+                                    >
+                                        اضافة أقسام جديدة
+                                        <Plus className="w-4 h-4" />
+                                    </Button>
+                                }
                             />
                         </div>
                     )}
@@ -298,6 +326,13 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                 onConfirm={handleConfirmDelete}
                 title="هل أنت متأكد من حذف الخدمة؟"
                 description="سيتم حذف الخدمة نهائياً. لا يمكن التراجع عن هذا الإجراء."
+            />
+
+            <SectionModal
+                isOpen={isSectionModalOpen}
+                onClose={() => setIsSectionModalOpen(false)}
+                onSave={handleSaveSection}
+                mode="add"
             />
         </div>
     );

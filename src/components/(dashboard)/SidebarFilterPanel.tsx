@@ -4,10 +4,11 @@
 import { ChevronLeft } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
+import { ReactNode } from "react";
 
 interface FilterOption {
   name: string;
-  value: string ;
+  value: string;
 }
 
 interface SidebarFilterPanelProps {
@@ -15,6 +16,7 @@ interface SidebarFilterPanelProps {
   activeValue: string;
   onValueChange: (value: string) => void;
   className?: string;
+  action?: ReactNode;
 }
 
 export function SidebarFilterPanel({
@@ -22,6 +24,7 @@ export function SidebarFilterPanel({
   activeValue,
   onValueChange,
   className,
+  action,
 }: SidebarFilterPanelProps) {
   return (
     <div
@@ -52,6 +55,7 @@ export function SidebarFilterPanel({
             );
           })}
         </ul>
+      {action && <div className="p-3">{action}</div>}
       </ScrollArea>
     </div>
   );

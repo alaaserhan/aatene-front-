@@ -5,6 +5,7 @@ import { Loader2, ChevronLeft, TrendingUp } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { useGetMerchantAnalyticsMostViewed } from "../../hooks";
+import Cookies from "js-cookie";
 
 interface ViewedItem {
     id: number;
@@ -15,22 +16,37 @@ interface ViewedItem {
     views_count?: string | number;
 }
 
+interface RawItem {
+    id: number;
+    title?: string;
+    name?: string;
+    images_urls?: string[];
+    cover_url?: string | null;
+    views_count?: string | number;
+    view_count?: number;
+}
+
 export function MerchantMostViewed() {
     const { data, isLoading } = useGetMerchantAnalyticsMostViewed();
+    const storeType = Cookies.get("store_type");
+    const isServiceStore = storeType === "services";
 
-    // Combine products and services, prioritizing products
+    // Select data based on store type
     const products = data?.mostViewedProducts || [];
     const services = data?.mostViewedServices || [];
 
-    // Merge and create unified list
-    const items: ViewedItem[] = [
-        ...services.map(s => ({
-            id: s.id,
-            name: s.title,
-            cover_url: s.images_urls[0] || undefined,
-            views_count: s.views_count || 0
-        }))
-    ].slice(0, 10); // Limit to 10 items
+    const rawItems = isServiceStore ? services : products;
+
+    // Map to unified list
+    const items: ViewedItem[] = rawItems.map((item: unknown) => {
+        const typedItem = item as RawItem;
+        return {
+            id: typedItem.id,
+            name: isServiceStore ? typedItem.title : typedItem.name,
+            cover_url: isServiceStore ? (typedItem.images_urls?.[0]) : (typedItem.cover_url || undefined),
+            views_count: typedItem.views_count || typedItem.view_count || 0
+        };
+    }).slice(0, 10);
 
     if (isLoading) {
         return (
@@ -49,7 +65,12 @@ export function MerchantMostViewed() {
                         <TrendingUp className="w-5 h-5 text-green-500" />
                         <h3 className="text-lg font-bold">الأكثر مشاهدة</h3>
                     </div>
-                    <p className="text-xs text-gray-2 font-medium">قائمة الخدمات التي حققت أكثر مبيعات</p>
+                    <p className="text-xs text-gray-2 font-medium">
+                        {isServiceStore
+                            ? "قائمة الخدمات الأكثر مشاهدة"
+                            : "قائمة المنتجات الأكثر مشاهدة"
+                        }
+                    </p>
                 </div>
             </div>
 
@@ -110,7 +131,7 @@ export function MerchantMostViewed() {
                             ))
                         ) : (
                             <div className="text-center py-10 text-gray-2 text-sm">
-                                لا توجد منتجات أو خدمات
+                                {isServiceStore ? "لا توجد خدمات" : "لا توجد منتجات"}
                             </div>
                         )}
                     </div>

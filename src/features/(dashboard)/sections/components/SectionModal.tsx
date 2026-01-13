@@ -62,9 +62,12 @@ export function SectionModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg" dir="rtl">
-        <DialogHeader className="text-right">
-          <DialogTitle className="text-xl font-bold text-brand-black-1">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-medium text-brand-black-1">
             {mode === "add" ? "أضف قسم جديد" : "تعديل بيانات القسم"}
+            <p className="text-sm text-gray-2 font-normal pt-2">
+              ابدأ بتنظيم متجرك بإضافة قسم خاص بك. هذه الأقسام تساعدك على ترتيب متجرك فقط، ولن تؤثر على التصنيفات الرئيسية في المنصة.
+            </p>
           </DialogTitle>
         </DialogHeader>
 
@@ -80,11 +83,11 @@ export function SectionModal({
                 setFormData({ ...formData, name: e.target.value })
               }
               placeholder="اكتب اسم القسم هنا"
-              className="w-full px-4 py-3 border-gray-300 rounded-lg focus:border-brand-blue-2 text-right"
+              className="w-full px-4 py-3 border-gray-300 rounded-sm focus:border-brand-blue-2 text-right"
             />
           </div>
 
-          <div className="flex flex-row items-center justify-between">
+          {/* <div className="flex flex-row items-center justify-between">
             <Label className="block text-sm font-medium text-brand-black-1 text-right">
               حالة القسم
             </Label>
@@ -98,7 +101,7 @@ export function SectionModal({
               />
               <span className="text-sm text-gray-2">مفعل</span>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <DialogFooter>
@@ -106,14 +109,15 @@ export function SectionModal({
             onClick={handleSave}
             disabled={!formData.name.trim()}
             className={cn(
-              "w-full px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer",
+              "w-full px-6 py-3 rounded-sm bg-blue-4 font-medium transition-colors cursor-pointer",
               formData.name.trim()
                 ? ""
                 : "cursor-not-allowed"
             )}
-            style={{ backgroundColor: 'var(--blue-3)' }}
           >
-            حفظ
+            {
+              mode === "add" ? "اضافة القسم" : "تعديل القسم"
+            }
           </Button>
         </DialogFooter>
       </DialogContent>
