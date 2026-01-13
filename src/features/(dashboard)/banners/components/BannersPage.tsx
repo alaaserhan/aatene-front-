@@ -13,6 +13,7 @@ import { Pagination } from "@/src/components/ui/Pagination";
 import { useRouter } from "next/navigation";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 
 const ITEMS_PER_PAGE = 7;
@@ -39,6 +40,7 @@ export function BannersPage() {
   const [sortBy, setSortBy] = useState("created_at");
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [bannerToDelete, setBannerToDelete] = useState<number | null>(null);
 
   const queryParams = useMemo(() => {
@@ -97,6 +99,8 @@ export function BannersPage() {
     if (bannerToDelete !== null) {
       deleteBannerMutation(bannerToDelete, {
         onSuccess: () => {
+          setDeleteModalOpen(false);
+          setSuccessModalOpen(true);
           if (banners.length === 1 && currentPage > 1) {
             setCurrentPage(currentPage - 1);
           }
@@ -378,6 +382,13 @@ export function BannersPage() {
         description="لا يمكن استرجاع البنر بعد حذفه"
         confirmText="نعم، قم بالحذف"
         cancelText="إلغاء"
+      />
+
+      <SuccessModal
+        isOpen={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        title="تم حذف البانر بنجاح"
+        message="تم حذف البانر الإعلاني بنجاح"
       />
     </div>
   );

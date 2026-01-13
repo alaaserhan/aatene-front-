@@ -3,7 +3,6 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "./api";
-import { toast } from "sonner";
 import {
   PaginatedBannersResponse,
   SingleBannerResponse,
@@ -39,9 +38,6 @@ export const useCreateBanner = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: api.BannerCreatePayload) => api.createBanner(payload),
-    onSuccess: (data) => {
-      toast.success(data.message || "تم إنشاء البانر بنجاح");
-    },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: QK.listAny });
     },
@@ -58,9 +54,6 @@ export const useUpdateBanner = () => {
       id: string | number;
       payload: api.BannerUpdatePayload;
     }) => api.updateBanner(id, payload),
-    onSuccess: (data) => {
-      toast.success(data.message || "تم تحديث البانر بنجاح");
-    },
     onSettled: (_data, _err, vars) => {
       qc.invalidateQueries({ queryKey: QK.listAny });
       qc.invalidateQueries({ queryKey: QK.single(vars.id) });
@@ -113,12 +106,7 @@ export const useUpdateBannerStatus = () => {
       return { prevLists, prevSingle };
     },
 
-    onSuccess: (data) => {
-      toast.success(data.message || "تم تحديث الحالة بنجاح");
-    },
-
     onError: (_err, vars, ctx) => {
-      toast.error("حدث خطأ أثناء تحديث الحالة");
       ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
       if (ctx?.prevSingle) qc.setQueryData(QK.single(vars.id), ctx.prevSingle);
     },
@@ -159,12 +147,7 @@ export const useDeleteBanner = () => {
       return { prevLists, prevSingle };
     },
     
-    onSuccess: (data) => {
-      toast.success(data.message || "تم الحذف بنجاح");
-    },
-
     onError: (_err, id, ctx) => {
-      toast.error("حدث خطأ أثناء الحذف");
       ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
       if (ctx?.prevSingle) qc.setQueryData(QK.single(id), ctx.prevSingle);
     },

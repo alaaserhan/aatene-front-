@@ -13,6 +13,9 @@ import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { BannerCreatePayload, BannerUpdatePayload } from "../api";
 import { MediaSelectButton } from "../../mediaCenter/components/MediaSelectButton";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { Label } from "@/src/components/ui/label";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
 interface BannerFormData {
   title: string;
@@ -61,6 +64,10 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
     labtop_banner: null,
     labtop_banner_preview: null,
   });
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof BannerFormData, string>>
@@ -202,7 +209,11 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
     if (mode === "create") {
       createBannerMutation.mutate(payload as BannerCreatePayload, {
         onSuccess: () => {
-          router.push("/dashboard/banners");
+          setShowSuccessModal(true);
+        },
+        onError: (error: any) => {
+          setErrorMessage(error?.message || "حدث خطأ أثناء إضافة البانر");
+          setShowErrorModal(true);
         },
       });
     } else if (mode === "edit" && bannerId) {
@@ -210,7 +221,11 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
         { id: bannerId, payload: payload as BannerUpdatePayload },
         {
           onSuccess: () => {
-            router.push("/dashboard/banners");
+            setShowSuccessModal(true);
+          },
+          onError: (error: any) => {
+            setErrorMessage(error?.message || "حدث خطأ أثناء تحديث البانر");
+            setShowErrorModal(true);
           },
         }
       );
@@ -285,17 +300,17 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               error={errors.description}
             />
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
+            <div >
+              <Label className="text-sm font-medium mb-2">
                 المدينة المراد ظهور الإعلان لسكانه
-              </label>
+                <span className="text-red-500 ms-1">*</span>
+              </Label>
               <ReusableDropdown
                 value={formData.city_id}
                 onChange={(value) =>
                   setFormData({ ...formData, city_id: value })
                 }
                 options={[
-                  { value: "", label: "الكل" },
                   ...cities.map((city) => ({
                     value: city.id.toString(),
                     label: city.name,
@@ -335,7 +350,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
                   });
                 }
               }}
-              placeholder="رابط الإعلان (يجب البدء بـhttps://)"
+              placeholder="https://example.com"
               error={errors.url}
               required
             />
@@ -348,6 +363,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
                   setFormData({ ...formData, start_date: e.target.value })
                 }
                 error={errors.start_date}
+                required
               />
 
               <DatePicker
@@ -357,6 +373,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
                   setFormData({ ...formData, end_date: e.target.value })
                 }
                 error={errors.end_date}
+                required
               />
             </div>
 
@@ -394,13 +411,22 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               height={300}
               value={formData.labtop_banner}
               previewUrl={formData.labtop_banner_preview}
-              onChange={(fileName, src) =>
+              onChange={(fileName, src) => {
                 setFormData({
                   ...formData,
                   labtop_banner: fileName,
                   labtop_banner_preview: src,
-                })
-              }
+                });
+                if (!fileName) {
+                  setErrors((prev) => ({ ...prev, labtop_banner: "صورة الكمبيوتر مطلوبة" }));
+                } else {
+                  setErrors((prev) => {
+                    const newErrors = { ...prev };
+                    delete newErrors.labtop_banner;
+                    return newErrors;
+                  });
+                }
+              }}
               error={errors.labtop_banner}
               accept="image/png,image/jpeg,image/jpg"
               primaryText="اضف ملف"
@@ -414,13 +440,22 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               height={200}
               value={formData.mobile_banner}
               previewUrl={formData.mobile_banner_preview}
-              onChange={(fileName, src) =>
+              onChange={(fileName, src) => {
                 setFormData({
                   ...formData,
                   mobile_banner: fileName,
                   mobile_banner_preview: src,
-                })
-              }
+                });
+                if (!fileName) {
+                  setErrors((prev) => ({ ...prev, mobile_banner: "صورة الموبايل مطلوبة" }));
+                } else {
+                  setErrors((prev) => {
+                    const newErrors = { ...prev };
+                    delete newErrors.mobile_banner;
+                    return newErrors;
+                  });
+                }
+              }}
               error={errors.mobile_banner}
               accept="image/png,image/jpeg,image/jpg"
               primaryText="أضف صورة للموبايل"
@@ -460,6 +495,26 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
           </form>
         </div>
       </div>
+
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push("/dashboard/banners");
+        }}
+        title={mode === "create" ? "تمت إضافة البانر بنجاح" : "تم تحديث البانر بنجاح"}
+        message={mode === "create" ? "تم إضافة البانر الإعلاني بنجاح" : "تم تحديث البانر الإعلاني بنجاح"}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        onConfirm={() => setShowErrorModal(false)}
+        title="حدث خطأ"
+        description={errorMessage}
+        confirmText="حسناً"
+        cancelText="إغلاق"
+      />
     </div>
   );
 }

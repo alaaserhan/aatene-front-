@@ -216,7 +216,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
           </div>
         </div>
       )}
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-red-500 mt-2">{error}</p>}
     </div>
   );
 });

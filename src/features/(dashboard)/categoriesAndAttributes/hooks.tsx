@@ -3,7 +3,6 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "./api";
-import { toast } from "sonner";
 import {
   PaginatedCategoriesResponse,
   SingleCategoryResponse,
@@ -92,9 +91,6 @@ export function useCreateCategory() {
   return useMutation({
     mutationFn: (payload: api.CategoryCreatePayload) =>
       api.createCategory(payload),
-    onSuccess: (data) => {
-      toast.success(data.message || "تم إنشاء القسم بنجاح");
-    },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: CategoryQK.listAny });
       qc.invalidateQueries({ queryKey: CategoryQK.options });
@@ -158,12 +154,7 @@ export function useUpdateCategory() {
       return { prevLists, prevSingle };
     },
 
-    onSuccess: (data) => {
-      toast.success(data.message || "تم تحديث القسم بنجاح");
-    },
-
     onError: (_err, vars, ctx) => {
-      toast.error("حدث خطأ أثناء التعديل");
       ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
       if (ctx?.prevSingle)
         qc.setQueryData(CategoryQK.single(vars.id), ctx.prevSingle);
@@ -222,12 +213,7 @@ export function useUpdateCategoryStatus() {
       return { prevLists, prevSingle };
     },
 
-    onSuccess: (data) => {
-      toast.success(data.message || "تم تحديث الحالة بنجاح");
-    },
-
     onError: (_err, vars, ctx) => {
-      toast.error("حدث خطأ أثناء تحديث الحالة");
       ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
       if (ctx?.prevSingle)
         qc.setQueryData(CategoryQK.single(vars.id), ctx.prevSingle);
@@ -245,9 +231,6 @@ export function useUpdateCategoryParent() {
   return useMutation({
     mutationFn: (payload: api.UpdateParentPayload) =>
       api.updateCategoryParent(payload),
-    onSuccess: (data) => {
-      toast.success(data.message || "تم تحديث الأقسام بنجاح");
-    },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: CategoryQK.listAny });
       qc.invalidateQueries({ queryKey: CategoryQK.options });
@@ -287,12 +270,7 @@ export function useDeleteCategory() {
       return { prevLists, prevSingle };
     },
 
-    onSuccess: (data) => {
-      toast.success(data.message || "تم حذف القسم بنجاح");
-    },
-
     onError: (_err, id, ctx) => {
-      toast.error("حدث خطأ أثناء الحذف");
       ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
       if (ctx?.prevSingle)
         qc.setQueryData(CategoryQK.single(id), ctx.prevSingle);
@@ -330,9 +308,6 @@ export function useCreateAttribute() {
   return useMutation({
     mutationFn: (payload: api.AttributeCreatePayload) =>
       api.createAttribute(payload),
-    onSuccess: (data) => {
-      toast.success(data.message || "تم إنشاء السمة بنجاح");
-    },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: AttributeQK.listAny });
     },
@@ -382,12 +357,7 @@ export function useUpdateAttribute() {
       return { prevLists, prevSingle };
     },
 
-    onSuccess: (data) => {
-      toast.success(data.message || "تم تحديث السمة بنجاح");
-    },
-
     onError: (_err, vars, ctx) => {
-      toast.error("حدث خطأ أثناء التعديل");
       ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
       if (ctx?.prevSingle)
         qc.setQueryData(AttributeQK.single(vars.id), ctx.prevSingle);
@@ -445,12 +415,7 @@ export function useUpdateAttributeStatus() {
       return { prevLists, prevSingle };
     },
 
-    onSuccess: (data) => {
-      toast.success(data.message || "تم تحديث الحالة بنجاح");
-    },
-
     onError: (_err, vars, ctx) => {
-      toast.error("حدث خطأ أثناء تحديث الحالة");
       ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
       if (ctx?.prevSingle)
         qc.setQueryData(AttributeQK.single(vars.id), ctx.prevSingle);
@@ -495,12 +460,7 @@ export function useDeleteAttribute() {
       return { prevLists, prevSingle };
     },
 
-    onSuccess: (data) => {
-      toast.success(data.message || "تم حذف السمة بنجاح");
-    },
-
     onError: (_err, id, ctx) => {
-      toast.error("حدث خطأ أثناء الحذف");
       ctx?.prevLists?.forEach(([key, data]) => qc.setQueryData(key, data));
       if (ctx?.prevSingle)
         qc.setQueryData(AttributeQK.single(id), ctx.prevSingle);

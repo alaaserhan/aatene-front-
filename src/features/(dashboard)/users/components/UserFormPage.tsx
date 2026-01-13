@@ -136,14 +136,14 @@ export function UserFormPage() {
               <FormInput
                 label="الاسم الأول"
                 {...register("first_name")}
-                placeholder="كورلس"
+                placeholder="اكتب الاسم الاول"
                 error={errors.first_name?.message}
               />
 
               <FormInput
                 label="الاسم الأخير"
                 {...register("last_name")}
-                placeholder="كورلس عادل"
+                placeholder="اكتب الاسم الاخير"
                 error={errors.last_name?.message}
               />
 

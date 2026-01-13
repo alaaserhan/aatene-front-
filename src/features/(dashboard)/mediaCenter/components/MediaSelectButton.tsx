@@ -101,7 +101,10 @@ export function MediaSelectButton({
           </div>
         </div>
       ) : (
-        <div className="relative h-52 flex justify-center items-center  border border-gray-200 rounded-lg overflow-hidden">
+        <div className={cn(
+          "relative h-52 flex justify-center items-center border rounded-lg overflow-hidden",
+          error ? "border-red-500" : "border-gray-200"
+        )}>
           <img
             src={preview}
             alt="Preview"
