@@ -22,6 +22,7 @@ interface MediaSelectButtonProps {
   secondaryText?: string;
   allowedMediaTypes?: string[];
   infoText?: string[];
+  required?: boolean;
 }
 
 export function MediaSelectButton({
@@ -40,6 +41,7 @@ export function MediaSelectButton({
   infoText = [
 
   ],
+  required,
 }: MediaSelectButtonProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(previewUrl || null);
@@ -74,6 +76,7 @@ export function MediaSelectButton({
     <div className={cn("space-y-3", className)}>
       <label className="block text-sm font-medium text-brand-black-1 text-start">
         {label}
+        {required && <span className="text-red-500 ms-1">*</span>}
       </label>
 
       {infoText && infoText.length > 0 && <InfoBox texts={infoText} />}

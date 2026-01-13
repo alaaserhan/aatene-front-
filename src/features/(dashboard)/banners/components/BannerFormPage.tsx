@@ -35,6 +35,15 @@ interface BannerFormPageProps {
   bannerId?: string | number;
 }
 
+function isValidUrl(urlStr: string) {
+  try {
+    new URL(urlStr);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
   const router = useRouter();
   const [formData, setFormData] = useState<BannerFormData>({
@@ -130,14 +139,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
     }
   }, [formData, errors]);
 
-  const isValidUrl = (urlStr: string) => {
-    try {
-      new URL(urlStr);
-      return true;
-    } catch {
-      return false;
-    }
-  };
+
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof BannerFormData, string>> = {};
@@ -249,14 +251,25 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
             <FormInput
               label="عنوان البانر"
               value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData({ ...formData, title: value });
+                if (!value.trim()) {
+                  setErrors((prev) => ({ ...prev, title: "عنوان البانر مطلوب" }));
+                } else {
+                  setErrors((prev) => {
+                    const newErrors = { ...prev };
+                    delete newErrors.title;
+                    return newErrors;
+                  });
+                }
+              }}
               placeholder="اكتب عنوان البانر"
               hint="قم بتضمين الكلمات الرئيسية التي يستخدمها المشترون للبحث عن هذا العنصر."
               maxLength={40}
               showCounter
               error={errors.title}
+              required
             />
 
             <FormInput
@@ -307,11 +320,24 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               label="رابط URL"
               type="url"
               value={formData.url}
-              onChange={(e) =>
-                setFormData({ ...formData, url: e.target.value })
-              }
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData({ ...formData, url: value });
+                if (!value.trim()) {
+                  setErrors((prev) => ({ ...prev, url: "رابط URL مطلوب" }));
+                } else if (!isValidUrl(value)) {
+                  setErrors((prev) => ({ ...prev, url: "الرابط غير صحيح (يجب أن يبدأ بـ http:// أو https://)" }));
+                } else {
+                  setErrors((prev) => {
+                    const newErrors = { ...prev };
+                    delete newErrors.url;
+                    return newErrors;
+                  });
+                }
+              }}
               placeholder="رابط الإعلان (يجب البدء بـhttps://)"
               error={errors.url}
+              required
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -379,6 +405,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               accept="image/png,image/jpeg,image/jpg"
               primaryText="اضف ملف"
               allowedMediaTypes={["gallery", "image"]}
+              required
             />
 
             <MediaSelectButton
@@ -398,6 +425,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               accept="image/png,image/jpeg,image/jpg"
               primaryText="أضف صورة للموبايل"
               allowedMediaTypes={["gallery", "image"]}
+              required
             />
 
             <div className="flex gap-4 justify-between pt-6">
@@ -411,7 +439,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
                 style={{ backgroundColor: "var(--blue-3)" }}
               >
                 {createBannerMutation.isPending ||
-                updateBannerMutation.isPending ? (
+                  updateBannerMutation.isPending ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     جاري الحفظ...

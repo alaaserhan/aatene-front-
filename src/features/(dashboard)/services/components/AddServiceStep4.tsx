@@ -161,16 +161,13 @@ export function AddServiceStep4({
                                 </div>
 
                                 <div className="space-y-0">
-                                    <div className="flex items-center gap-2">
-                                        <Label className="text-sm font-medium">وصف الخدمة</Label>
-                                    </div>
                                     <RichTextEditor
                                         value={description}
                                         onChange={(val) => {
                                             setDescription(val);
                                             if (errors.description) setErrors({ ...errors, description: "" });
                                         }}
-                                        label=""
+                                        label="وصف الخدمة"
                                         placeholder="...نص المحتوى"
                                         error={errors.description}
                                         className="min-h-[250px]"
