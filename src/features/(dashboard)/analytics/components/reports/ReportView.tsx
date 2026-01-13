@@ -83,6 +83,10 @@ export function ReportView({ type }: ReportViewProps) {
                 topListName: "الخدمات الأعلى تقييماً",
                 topListItems: data?.topRatedServices?.map((item: any, i: number) => ({
                     id: item.id, title: item.title, subtitle: `${item.views_count || 0} مشاهدة`, image: item.images_urls[0], rank: i + 1, badgeText: "150 تقييم", badgeColor: "bg-green-100 text-green-700"
+                })) || [],
+                bottomListName: "الخدمات الاعلي عدد بلاغات",
+                bottomListItems: data?.mostReportedServices?.map((item: any, i: number) => ({
+                    id: item.id, title: item.title, subtitle: "عدد البلاغات", image: item.images_urls[0], rank: i + 1, badgeText: `${item.reports_count || 0} بلاغ`, badgeColor: "bg-red-100 text-red-700"
                 })) || []
             };
             break;
@@ -240,7 +244,7 @@ export function ReportView({ type }: ReportViewProps) {
                 </div>
 
                 {/* 3. Bottom Full Width List (If available) */}
-                {config.bottomListItems && config.bottomListItems.length > 0 && (
+                {config.bottomListItems && (
                     <div className="col-span-12">
                         <TopList
                             title={config.bottomListName}
@@ -248,6 +252,7 @@ export function ReportView({ type }: ReportViewProps) {
                             items={config.bottomListItems}
                             icon={Flag}
                             className="w-full h-[450px]" // Full Width & Fixed Height
+                            rankColor="text-red-500"
                         />
                     </div>
                 )}

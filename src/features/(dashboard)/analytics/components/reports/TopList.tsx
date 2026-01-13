@@ -19,9 +19,10 @@ interface TopListProps {
     className?: string;
     icon?: any;
     iconClassName?: string;
+    rankColor?: string;
 }
 
-export function TopList({ title, subtitle, items, className, icon: Icon, iconClassName }: TopListProps) {
+export function TopList({ title, subtitle, items, className, icon: Icon, iconClassName, rankColor }: TopListProps) {
     return (
         <div className={cn("bg-white rounded-lg p-4 flex flex-col", className)}>
             <div className="mb-4 shrink-0 flex items-center justify-between ">
@@ -44,7 +45,7 @@ export function TopList({ title, subtitle, items, className, icon: Icon, iconCla
                                     <div className="w-8 flex justify-center">
                                         <span className={cn(
                                             "font-bold text-lg",
-                                            index === 0 ? "text-[#10B981]" : ""
+                                            index === 0 ? (rankColor || "text-[#10B981]") : ""
 
                                         )}>
                                             {item.rank}
