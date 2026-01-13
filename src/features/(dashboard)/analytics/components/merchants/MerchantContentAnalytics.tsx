@@ -1,7 +1,8 @@
 // src/components/(merchant)/analytics/MerchantContentAnalytics.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, ReactNode, isValidElement, cloneElement, ReactElement } from "react";
+import Cookies from "js-cookie";
 import {
     AreaChart,
     Area,
@@ -10,7 +11,6 @@ import {
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
-    Legend
 } from "recharts";
 import {
     Package,
@@ -20,9 +20,8 @@ import {
     GitCompare,
     CheckCircle,
     Calendar,
-    Timer,
-    LucideIcon,
     Megaphone,
+    LucideIcon,
 } from "lucide-react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Loader2 } from "lucide-react";
@@ -33,18 +32,18 @@ import { useGetMerchantAnalyticsContent } from "../../hooks";
 interface StatCardProps {
     title: string;
     count: number | string;
-    icon: LucideIcon;
+    icon: ReactNode | LucideIcon;
     bgClass: string;
-    iconClass: string;
+    iconClass?: string;
     countClass: string;
 }
 
 function StatCard({
     title,
     count,
-    icon: Icon,
+    icon,
     bgClass,
-    iconClass,
+    iconClass="",
     countClass,
 }: StatCardProps) {
     return (
@@ -55,7 +54,16 @@ function StatCard({
                     bgClass
                 )}
             >
-                <Icon className={cn("w-6 h-6", iconClass)} />
+                {isValidElement(icon) ? (
+                    cloneElement(icon as ReactElement, {
+                        className: cn("w-6 h-6", iconClass),
+                    })
+                ) : (
+                    (() => {
+                        const Icon = icon as LucideIcon;
+                        return <Icon className={cn("w-6 h-6", iconClass)} />;
+                    })()
+                )}
             </div>
             <div className="flex flex-col gap-1">
                 <span className="text-sm font-semibold">{title}</span>
@@ -67,6 +75,9 @@ function StatCard({
 
 export function MerchantContentAnalytics() {
     const [period, setPeriod] = useState("current_month");
+
+    const storeType = Cookies.get("store_type");
+    const isServiceStore = storeType === "services";
 
     const periodOptions = [
         { label: "الكل", value: "all_time" },
@@ -83,13 +94,16 @@ export function MerchantContentAnalytics() {
     const queryParams = new URLSearchParams({ period });
     const { data, isLoading } = useGetMerchantAnalyticsContent(queryParams);
 
-    // Prepare chart data (Merge products and services data by date if needed, or just show products)
-    // For simplicity and clarity, we'll map productsGrowthChart. 
-    // In a real scenario, you might want to merge arrays by date to show two lines.
-    const chartData = data?.productsGrowthChart?.map((item) => ({
-        name: item.date,
-        products: Number(item.count),
-    })) || [];
+    // Prepare chart data
+    const chartData = isServiceStore
+        ? data?.servicesGrowthChart?.map((item) => ({
+            name: item.date,
+            value: Number(item.total_count || 0),
+        })) || []
+        : data?.productsGrowthChart?.map((item) => ({
+            name: item.date,
+            value: Number(item.count || 0),
+        })) || [];
 
     if (isLoading) {
         return (
@@ -119,78 +133,60 @@ export function MerchantContentAnalytics() {
                 </div>
             </div>
 
-            {/* Stats Cards Grid - 3 Columns x 2 Rows = 6 Cards */}
+            {/* Stats Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
-                {/* 1. Total Products */}
+                {/* 1. Total Items */}
                 <StatCard
-                    title="إجمالي المنتجات"
-                    count={data?.totalProducts || 0}
-                    icon={Package}
-                    bgClass="bg-[#ECFDF5]"
-                    iconClass="text-[#10B981]"
-                    countClass="text-[#10B981]"
+                    title={isServiceStore ? "إجمالي الخدمات" : "إجمالي المنتجات"}
+                    count={isServiceStore ? (data?.totalServices || 0) : (data?.totalProducts || 0)}
+                    icon={isServiceStore ? <img src={"/icons/dashboard/nav_services.svg"} /> : <img src={"/icons/dashboard/nav_products.svg"} />}
+                    bgClass={"bg-blue-5"}
+                    countClass={"text-blue-4"}
                 />
 
-                {/* 2. Total Services */}
-                <StatCard
-                    title="إجمالي الخدمات"
-                    count={data?.totalServices || 0}
-                    icon={Wrench}
-                    bgClass="bg-[#F0F9FF]"
-                    iconClass="text-[#0284C7]"
-                    countClass="text-[#0284C7]"
-                />
+                {!isServiceStore && (
+                    <StatCard
+                        title="الاضافة للمفضلة"
+                        count={data?.favoriteProducts || 0}
+                        icon={<img src={"/icons/dashboard/heart.svg"} />}
+                        bgClass="bg-[#1FC16B1A]"
+                        countClass={"text-[#1FC16B]"}
+                    />
+                )}
+                {isServiceStore && (
+                    <StatCard
+                        title="الاضافة للمفضلة"
+                        count={data?.favoriteServices || 0}
+                        icon={<img src={"/icons/dashboard/heart.svg"} />}
+                        bgClass="bg-[#1FC16B1A]"
+                        iconClass={"text-[#F59E0B]"}
+                        countClass={"text-[#1FC16B]"}
+                    />)}
 
-                {/* 3. Product Favorites */}
-                <StatCard
-                    title="مفضلة المنتجات"
-                    count={data?.favoriteProducts || 0}
-                    icon={Heart}
-                    bgClass="bg-[#FFFBEB]"
-                    iconClass="text-[#F59E0B]"
-                    countClass="text-[#F59E0B]"
-                />
-
-                {/* 4. Active Services (Approved) */}
-                <StatCard
-                    title="خدمات نشطة"
-                    count={data?.activeServices || 0}
-                    icon={CheckCircle}
-                    bgClass="bg-[#F0FDF4]"
-                    iconClass="text-[#16A34A]"
-                    countClass="text-[#16A34A]"
-                />
-
-                {/* 5. In Compare (Comparisons) */}
-                <StatCard
-                    title="في المقارنة"
-                    count={data?.inCompareProducts || 0}
-                    icon={GitCompare}
-                    bgClass="bg-[#F3E8FF]"
-                    iconClass="text-[#9333EA]"
-                    countClass="text-[#9333EA]"
-                />
-
-                {/* 6. Conversations */}
                 <StatCard
                     title="الدردشات"
                     count={data?.converSation || 0}
-                    icon={MessageCircle}
+                    icon={<img src={"/icons/dashboard/chat2.svg"} />}
                     bgClass="bg-[#F3F4F6]"
                     iconClass="text-[#4B5563]"
                     countClass="text-[#4B5563]"
                 />
+
+
+
             </div>
 
             {/* Chart Section */}
             <div className="flex flex-col gap-4 mt-2 flex-1">
-                <h4 className="text-sm font-medium text-gray-700 px-2">نمو المنتجات</h4>
+                <h4 className="text-sm font-medium text-gray-700 px-2">
+                    {isServiceStore ? "نمو الخدمات" : "نمو المنتجات"}
+                </h4>
                 <div className="h-[250px] w-full dir-ltr">
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={chartData} margin={{ top: 10, right: 0, left: -40, bottom: 0 }}>
                             <defs>
-                                <linearGradient id="colorProducts" x1="0" y1="0" x2="0" y2="1">
+                                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#3A5779" stopOpacity={0.2} />
                                     <stop offset="95%" stopColor="#3A5779" stopOpacity={0} />
                                 </linearGradient>
@@ -218,12 +214,12 @@ export function MerchantContentAnalytics() {
                             />
                             <Area
                                 type="monotone"
-                                dataKey="products"
-                                name="المنتجات"
+                                dataKey="value"
+                                name={isServiceStore ? "الخدمات" : "المنتجات"}
                                 stroke="#3A5779"
                                 strokeWidth={3}
                                 fillOpacity={1}
-                                fill="url(#colorProducts)"
+                                fill="url(#colorValue)"
                                 dot={{ r: 4, fill: "#3A5779", strokeWidth: 2, stroke: "#fff" }}
                                 activeDot={{ r: 6, fill: "#3A5779" }}
                             />
