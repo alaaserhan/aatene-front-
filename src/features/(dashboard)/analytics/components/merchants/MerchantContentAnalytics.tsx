@@ -43,7 +43,7 @@ function StatCard({
     count,
     icon,
     bgClass,
-    iconClass="",
+    iconClass = "",
     countClass,
 }: StatCardProps) {
     return (
@@ -55,7 +55,7 @@ function StatCard({
                 )}
             >
                 {isValidElement(icon) ? (
-                    cloneElement(icon as ReactElement, {
+                    cloneElement(icon as ReactElement<{ className?: string }>, {
                         className: cn("w-6 h-6", iconClass),
                     })
                 ) : (
