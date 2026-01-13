@@ -16,7 +16,7 @@ import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { UserCreatePayload } from "../api";
 import { MediaSelectButton } from "../../mediaCenter/components/MediaSelectButton";
 import { Permission } from "../../permissions/api";
-import { toast } from "sonner";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
 import { Badge } from "@/src/components/ui/badge";
 import { cn } from "@/src/lib/utils";
@@ -39,6 +39,7 @@ type UserFormData = z.infer<typeof userFormSchema>;
 export function UserFormPage() {
   const router = useRouter();
   const [countryCode, setCountryCode] = useState("+20");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const { data: rolesData } = useGetRoles(new URLSearchParams());
   const roles = rolesData?.data || [];
@@ -90,8 +91,7 @@ export function UserFormPage() {
     };
     createUserMutation.mutate(payload, {
       onSuccess: () => {
-        toast.success("تم إنشاء العميل بنجاح");
-        router.push("/admin/users");
+        setShowSuccessModal(true);
       },
     });
   };
@@ -138,6 +138,7 @@ export function UserFormPage() {
                 {...register("first_name")}
                 placeholder="اكتب الاسم الاول"
                 error={errors.first_name?.message}
+                required
               />
 
               <FormInput
@@ -145,11 +146,12 @@ export function UserFormPage() {
                 {...register("last_name")}
                 placeholder="اكتب الاسم الاخير"
                 error={errors.last_name?.message}
+                required
               />
 
               {/* [تعديل] Custom Radio Button Design */}
               <div className="space-y-3">
-                <label className="block text-sm font-medium">الجنس</label>
+                <label className="block text-sm font-medium">الجنس <span className="text-red-500">*</span></label>
                 <div className="flex items-center gap-6">
                   {/* خيار أنثى */}
                   <label className="flex items-center gap-2 cursor-pointer group select-none">
@@ -205,6 +207,7 @@ export function UserFormPage() {
                 {...register("email")}
                 placeholder="example@gmail.com"
                 error={errors.email?.message}
+                required
               />
 
               {/* [تعديل] تمرير value لتفعيل التحقق من الأخطاء */}
@@ -214,8 +217,9 @@ export function UserFormPage() {
                 countryCode={countryCode}
                 onCountryCodeChange={setCountryCode}
                 {...register("phone")}
-                value={phoneValue} // هذا السطر ضروري لظهور أخطاء الـ min/max length
+                value={phoneValue}
                 error={errors.phone?.message}
+                required
               />
 
               <div className="flex flex-col gap-3">
@@ -238,7 +242,7 @@ export function UserFormPage() {
                 render={({ field }) => (
                   <div className="space-y-2">
                     <label className="block text-sm font-medium">
-                      الدور الوظيفي
+                      الدور الوظيفي <span className="text-red-500">*</span>
                     </label>
                     <ReusableDropdown
                       options={roleOptions}
@@ -288,6 +292,16 @@ export function UserFormPage() {
           </div>
         </form>
       </div>
+
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push("/admin/users");
+        }}
+        title="تم إنشاء العميل بنجاح"
+        message="تم إنشاء حساب العميل بنجاح"
+      />
     </div>
   );
 }

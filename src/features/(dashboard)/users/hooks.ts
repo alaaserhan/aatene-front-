@@ -12,7 +12,6 @@ import {
   User,
   BaseResponse,
 } from "./api";
-import { toast } from "sonner";
 import { Role } from "./api";
 
 interface RolesCacheData {
@@ -40,13 +39,13 @@ const coerceActive = (v: unknown) => v === "1" || v === 1 || v === true;
 type GetUsersOptions = Partial<UseQueryOptions<PaginatedUsersResponse, Error, PaginatedUsersResponse>>;
 export const useGetUsers = (
   params: URLSearchParams,
-  options?: GetUsersOptions 
+  options?: GetUsersOptions
 ) => {
   const key = QK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => api.getUsers(params),
-    ...options, 
+    ...options,
   });
 };
 
@@ -80,9 +79,6 @@ export const useCreateUser = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: UserCreatePayload) => api.createUser(payload),
-    onSuccess: (data: SingleUserResponse) => {
-      toast.success(data.message || "تم إنشاء المستخدم بنجاح");
-    },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: QK.listAny });
     },
@@ -137,16 +133,16 @@ export const useUpdateUser = () => {
       }
 
       qc.setQueriesData<InfiniteData<PaginatedUsersResponse>>({ queryKey: QK.listAny }, (old) => {
-         if (!old) return undefined;
-         return {
-            ...old,
-            pages: old.pages.map((page) => ({
-               ...page,
-               data: page.data.map((u) => 
-                  u.id === Number(vars.id) ? { ...u, ...optimisticPayload } : u
-               )
-            }))
-         };
+        if (!old) return undefined;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            data: page.data.map((u) =>
+              u.id === Number(vars.id) ? { ...u, ...optimisticPayload } : u
+            )
+          }))
+        };
       });
 
       if (prevSingle?.record) {
@@ -159,12 +155,7 @@ export const useUpdateUser = () => {
       return { prevLists, prevSingle };
     },
 
-    onSuccess: (data: SingleUserResponse) => {
-      toast.success(data.message || "تم تحديث المستخدم بنجاح");
-    },
-
     onError: (_err, vars, ctx) => {
-      toast.error("حدث خطأ أثناء التعديل");
       qc.invalidateQueries({ queryKey: QK.listAny });
     },
 
@@ -181,9 +172,6 @@ export const useUpdateUserPassword = () => {
       id: string | number;
       payload: UpdatePasswordPayload;
     }) => api.updateUserPassword(variables.id, variables.payload),
-    onSuccess: (data: BaseResponse) => {
-      toast.success(data.message || "تم تحديث كلمة المرور بنجاح");
-    },
   });
 };
 
@@ -194,27 +182,22 @@ export const useDeleteUser = () => {
 
     onMutate: async (id) => {
       await qc.cancelQueries({ queryKey: QK.listAny });
-      
+
       qc.setQueriesData<InfiniteData<PaginatedUsersResponse>>({ queryKey: QK.listAny }, (old) => {
-         if (!old) return undefined;
-         return {
-            ...old,
-            pages: old.pages.map((page) => ({
-               ...page,
-               data: page.data.filter((u) => u.id !== Number(id))
-            }))
-         };
+        if (!old) return undefined;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            data: page.data.filter((u) => u.id !== Number(id))
+          }))
+        };
       });
 
       // qc.removeQueries({ queryKey: QK.single(id) });
     },
 
-    onSuccess: (data: BaseResponse) => {
-      toast.success(data.message || "تم حذف المستخدم بنجاح");
-    },
-
     onError: (_err, id, ctx) => {
-      toast.error("حدث خطأ أثناء الحذف");
       qc.invalidateQueries({ queryKey: QK.listAny });
     },
 

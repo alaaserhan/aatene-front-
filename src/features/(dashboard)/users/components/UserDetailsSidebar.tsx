@@ -20,6 +20,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { cn } from "@/src/lib/utils";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { UserUpdatePayload } from "../api";
@@ -97,6 +98,7 @@ export function UserDetailsSidebar({
   className,
 }: UserDetailsSidebarProps) {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
   const [countryCode, setCountryCode] = useState("+20");
 
@@ -258,7 +260,7 @@ export function UserDetailsSidebar({
     deleteUserMutation.mutate(selectedUserId, {
       onSuccess: () => {
         setDeleteModalOpen(false);
-        onUserDelete();
+        setSuccessModalOpen(true);
         setIsDeleteConfirmed(false);
       },
       onError: () => {
@@ -351,6 +353,7 @@ export function UserDetailsSidebar({
               placeholder="الاسم الأول"
               {...register("first_name")}
               error={errors.first_name?.message}
+              required
             />
 
             <FormInput
@@ -358,11 +361,12 @@ export function UserDetailsSidebar({
               placeholder="الاسم الأخير"
               {...register("last_name")}
               error={errors.last_name?.message}
+              required
             />
 
             {/* تم استبدال FormSelect بـ ReusableDropdown مع Label مخصص */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium mb-2">الدور</label>
+              <label className="block text-sm font-medium mb-2">الدور <span className="text-red-500">*</span></label>
               <ReusableDropdown
                 options={dynamicRoleOptions}
                 value={selectedRole}
@@ -379,6 +383,7 @@ export function UserDetailsSidebar({
               placeholder="example@gmail.com"
               {...register("email")}
               error={errors.email?.message}
+              required
             />
 
             <PhoneNumberInput
@@ -387,8 +392,9 @@ export function UserDetailsSidebar({
               countryCode={countryCode}
               onCountryCodeChange={setCountryCode}
               {...register("phone")}
-              value={phoneValue} // <--- هذا السطر هو الحل
+              value={phoneValue}
               error={errors.phone?.message}
+              required
             />
 
             <div className="flex flex-col gap-3 pt-2">
@@ -555,6 +561,16 @@ export function UserDetailsSidebar({
           selectionLimit={1}
         />
       )}
+
+      <SuccessModal
+        isOpen={successModalOpen}
+        onClose={() => {
+          setSuccessModalOpen(false);
+          onUserDelete();
+        }}
+        title="تم حذف المستخدم بنجاح"
+        message="تم حذف بيانات المستخدم بنجاح"
+      />
     </div>
   );
 }
