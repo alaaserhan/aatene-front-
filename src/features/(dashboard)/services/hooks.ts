@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import * as api from "./api";
-import { toast } from "sonner";
+
 
 export function useGetServices(params: URLSearchParams, storeId?: number | string) {
   return useQuery({
@@ -28,11 +28,9 @@ export function useCreateService() {
   return useMutation({
     mutationFn: api.createService,
     onSuccess: () => {
-      toast.success("تم إنشاء الخدمة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["services"] });
     },
     onError: (error: AxiosError<api.BaseResponse>) => {
-      toast.error(error.response?.data?.message || "حدث خطأ أثناء الإنشاء");
     },
   });
 }
@@ -58,7 +56,6 @@ export function useUpdateService() {
       queryClient.setQueryData(["services", variables.id, variables.storeId], data);
     },
     onError: (error: AxiosError<api.BaseResponse>) => {
-      toast.error(error.response?.data?.message || "حدث خطأ أثناء التعديل");
     },
   });
 }
@@ -69,11 +66,9 @@ export function useDeleteService() {
     mutationFn: ({ id, storeId }: { id: number | string; storeId?: number | string }) =>
       api.deleteService(id, storeId),
     onSuccess: () => {
-      toast.success("تم حذف الخدمة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["services"] });
     },
     onError: (error: AxiosError<api.BaseResponse>) => {
-      toast.error(error.response?.data?.message || "حدث خطأ أثناء الحذف");
     },
   });
 }
@@ -92,12 +87,10 @@ export function useUpdateServiceStatus() {
     }) => api.updateServiceStatus(id, payload, storeId),
     // ✅ تم إزالة onMutate لمنع الأخطاء الناتجة عن اختلاف هيكل البيانات
     onSuccess: () => {
-      toast.success("تم تحديث الحالة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["services"] });
     },
     onError: (error: AxiosError<api.BaseResponse>) => {
       console.error("Update Status Error:", error);
-      toast.error(error.response?.data?.message || "حدث خطأ أثناء تحديث الحالة");
     },
   });
 }
@@ -116,11 +109,9 @@ export function useUpdateServiceShown() {
     }) => api.updateServiceShown(id, shown, storeId),
     // ✅ تم إزالة onMutate هنا أيضاً للأمان
     onSuccess: () => {
-      toast.success("تم تحديث حالة الظهور بنجاح");
       queryClient.invalidateQueries({ queryKey: ["services"] });
     },
     onError: (error: AxiosError<api.BaseResponse>) => {
-      toast.error(error.response?.data?.message || "حدث خطأ أثناء التحديث");
     },
   });
 }

@@ -16,7 +16,7 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Button } from "@/src/components/ui/button";
 import { RejectServiceModal } from "./RejectServiceModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
-import { toast } from "sonner";
+
 import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { cn } from "@/src/lib/utils";
@@ -35,6 +35,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     // --- States ---
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+    const [successModalTitle, setSuccessModalTitle] = useState("");
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [activeImage, setActiveImage] = useState<string>("");
     const [isAdmin, setIsAdmin] = useState(false); // ✅ حالة الأدمن
@@ -77,7 +78,8 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 // تحديث البيانات فوراً لإخفاء الشريط
                 queryClient.invalidateQueries({ queryKey: ["services"] });
                 queryClient.invalidateQueries({ queryKey: ["services", serviceId] }); // تحديث الخدمة الحالية
-                toast.success("تم قبول الخدمة بنجاح");
+                setSuccessModalTitle("تم قبول الخدمة بنجاح");
+                setIsSuccessModalOpen(true);
             }
         });
     };
@@ -97,6 +99,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
         }, {
             onSuccess: () => {
                 setIsRejectModalOpen(false);
+                setSuccessModalTitle("تم رفض الخدمة بنجاح");
                 setIsSuccessModalOpen(true);
                 queryClient.invalidateQueries({ queryKey: ["services"] });
                 queryClient.invalidateQueries({ queryKey: ["services", serviceId] });
@@ -119,26 +122,30 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
             <div>
                 <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
 
-                {/* ✅ Action Bar: يظهر فقط للأدمن وعندما تكون الحالة pending */}
-                {isAdmin && service.status === "pending" && (
+                {/* ✅ Action Bar: يظهر للأدمن عندما تكون الحالة pending أو rejected أو approved */}
+                {isAdmin && (service.status === "pending" || service.status === "rejected" || service.status === "approved") && (
                     <div className="container mx-auto mt-4 px-4 md:px-0">
                         <div className="px-6 py-4 flex items-center justify-between border border-gray-100 bg-white rounded-lg">
                             <h2 className="text-lg font-bold ">اختر الاجراء المناسب للخدمة</h2>
                             <div className="flex gap-3">
-                                <Button
-                                    onClick={handleApprove}
-                                    disabled={isUpdating}
-                                    className="bg-[#34D399] hover:bg-[#2cb683] text-white px-8 h-10 font-bold rounded "
-                                >
-                                    {isUpdating ? "جاري التحديث..." : "قبول الخدمة"}
-                                </Button>
-                                <Button
-                                    onClick={handleRejectClick}
-                                    disabled={isUpdating}
-                                    className="bg-[#EF4444] hover:bg-[#d93838] text-white px-8 h-10 font-bold rounded "
-                                >
-                                    رفض الخدمة
-                                </Button>
+                                {service.status !== "approved" && (
+                                    <Button
+                                        onClick={handleApprove}
+                                        disabled={isUpdating}
+                                        className="bg-[#34D399] hover:bg-[#2cb683] text-white px-8 h-10 font-bold rounded "
+                                    >
+                                        {isUpdating ? "جاري التحديث..." : service.status === "rejected" ? "قبول الخدمة مرة أخرى" : "قبول الخدمة"}
+                                    </Button>
+                                )}
+                                {service.status !== "rejected" && (
+                                    <Button
+                                        onClick={handleRejectClick}
+                                        disabled={isUpdating}
+                                        className="bg-[#EF4444] hover:bg-[#d93838] text-white px-8 h-10 font-bold rounded "
+                                    >
+                                        رفض الخدمة
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -345,9 +352,12 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 isOpen={isSuccessModalOpen}
                 onClose={() => {
                     setIsSuccessModalOpen(false);
-                    router.push(`/admin/serviceProviders/${storeId}`);
+                    if (service.status === "rejected") {
+                        router.push(`/admin/serviceProviders/${storeId}`);
+                    }
+                    // For approved, strictly we might wanna stay or refresh, but closing modal is enough as query invalidated
                 }}
-                title="تم رفض الخدمة بنجاح"
+                title={successModalTitle}
             />
 
             <ShareModal

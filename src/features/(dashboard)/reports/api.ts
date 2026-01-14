@@ -116,7 +116,7 @@ export interface ReportsParams {
 export const getReports = async (params?: ReportsParams): Promise<ReportsListResponse> => {
   const endpoint = getDynamicEndpoint("/reports");
   const queryParams = new URLSearchParams();
-  
+
   if (params?.page) queryParams.append("page", String(params.page));
   if (params?.per_page) queryParams.append("per_page", String(params.per_page));
   if (params?.store_id) queryParams.append("store_id", String(params.store_id));
@@ -144,7 +144,7 @@ export const createReport = async (payload: CreateReportPayload): Promise<Generi
 };
 
 export const updateReport = async (id: string | number, payload: UpdateReportPayload): Promise<GenericResponse> => {
-  const endpoint = getDynamicEndpoint(`/reports/${id}`);
+  const endpoint = getDynamicEndpoint(`rts/${id}`);
   const { data } = await api.post<GenericResponse>(endpoint, payload);
   return data;
 };
@@ -152,6 +152,18 @@ export const updateReport = async (id: string | number, payload: UpdateReportPay
 export const deleteReport = async (id: string | number): Promise<GenericResponse> => {
   const endpoint = getDynamicEndpoint(`/reports/${id}`);
   const { data } = await api.delete<GenericResponse>(endpoint);
+  return data;
+};
+
+
+export interface CreateReportTypePayload {
+  name: string;
+  is_active: number | boolean;
+}
+
+export const createReportType = async (payload: CreateReportTypePayload): Promise<GenericResponse> => {
+  const endpoint = getDynamicEndpoint("/report-types"); // Post endpoint for report types
+  const { data } = await api.post<GenericResponse>(endpoint, payload);
   return data;
 };
 
