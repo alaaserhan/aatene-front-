@@ -96,7 +96,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
   const handleDelete = () => {
     deleteReport(reportId, {
       onSuccess: () => {
-        router.push(`/admin/serviceProviders/reports/${report?.store.id || ""}`);
+        router.push(`/admin/reports/${report?.store.id || ""}`);
       },
     });
   };

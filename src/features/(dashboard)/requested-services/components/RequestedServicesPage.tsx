@@ -39,7 +39,7 @@ export function RequestedServicesPage() {
   const queryParams = new URLSearchParams({
     page: page.toString(),
     per_page: ITEMS_PER_PAGE.toString(),
-    search: search,
+    user_name: search,
   });
 
   if (activeTab === "reports") {

@@ -223,7 +223,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 انشئ خدمة جديدة
                             </Button>
                         </Link>
-                        <Link href={`/admin/serviceProviders/reports/${storeId}`}>
+                        <Link href={`/admin/reports/${storeId}`}>
                             <Button className="bg-red-2 text-red-1 px-6 gap-2">
                                 الإبلاغات
                             </Button>

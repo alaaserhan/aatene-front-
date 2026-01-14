@@ -17,6 +17,7 @@ export interface UserWithFavorites {
   name: string;
   email: string;
   favs_count: FavoriteCounts;
+  avatar_url: string;
 }
 
 export interface UsersWithFavoritesResponse {

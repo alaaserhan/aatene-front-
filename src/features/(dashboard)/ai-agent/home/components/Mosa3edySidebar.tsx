@@ -82,7 +82,7 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
               isCollapsed ? "justify-center" : "gap-3 px-4",
               "py-3 hover:bg-gray-50",
               // خلفية خفيفة عند التفعيل (اختياري)
-              item.isActive && "bg-orange-50/50"
+              item.isActive && "bg-blue-5"
             )}
           >
             {/* 2. عرض الصورة مع تطبيق الفلتر عند التفعيل */}
@@ -98,7 +98,7 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
                     ? activeIconFilter
                     : ""
                 )}
-                style={item.isActive ? { filter: "invert(47%) sepia(76%) saturate(1476%) hue-rotate(3deg) brightness(97%) contrast(92%)" } : undefined}
+                style={item.isActive ? { filter: "invert(39%) sepia(21%) saturate(996%) hue-rotate(174deg) brightness(92%) contrast(87%)" } : undefined}
               />
             </div>
 
@@ -107,7 +107,7 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
                 className={cn(
                   "text-sm font-medium transition-colors",
                   item.isActive
-                    ? "text-[#D97706]" // اللون الذهبي للنص
+                    ? "text-blue-4" // اللون الذهبي للنص
                     : ""
                 )}
               >
