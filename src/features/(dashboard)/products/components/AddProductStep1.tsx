@@ -12,8 +12,8 @@ import { Label } from "@/src/components/ui/label";
 import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
 import { Step1FormData } from "../types";
 import { cn } from "@/src/lib/utils";
-// ✅ استبدال useGetCategories بـ useGetCategoryOptions
-import { useGetCategoryOptions } from "../../categoriesAndAttributes/hooks";
+// ✅ استخدام useInfiniteCategoryOptions بدلاً من useGetCategoryOptions
+import { useInfiniteCategoryOptions } from "../../categoriesAndAttributes/hooks";
 import { Stepper } from "@/src/components/ui/Stepper";
 
 interface AddProductStep1Props {
@@ -90,26 +90,45 @@ export function AddProductStep1({
 
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
-  // ✅ استخدام الهوك الجديد لجلب الخيارات
-  const { data: categoriesData, isLoading: isCategoriesLoading } = useGetCategoryOptions();
+  // ✅ Debounce search
+  const [debouncedCategorySearch, setDebouncedCategorySearch] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedCategorySearch(categorySearchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [categorySearchQuery]);
 
-  // ✅ تصفية الخيارات بناءً على البحث
+  const categoryQueryParams = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("per_page", "10");
+    if (debouncedCategorySearch) {
+      params.set("name", debouncedCategorySearch);
+    }
+    return params;
+  }, [debouncedCategorySearch]);
+
+  const {
+    data: categoriesData,
+    isLoading: isCategoriesLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useInfiniteCategoryOptions(categoryQueryParams);
+
   const categoryOptions = useMemo(() => {
-    const options = categoriesData?.categories?.map((cat) => ({
+    const allCategories = categoriesData?.pages.flatMap((page) => page.categories) || [];
+    return allCategories.map((cat) => ({
       value: String(cat.id),
       label: cat.name,
-    })) || [];
-
-    if (!categorySearchQuery) return options;
-
-    return options.filter((opt) =>
-      opt.label.toLowerCase().includes(categorySearchQuery.toLowerCase())
-    );
-  }, [categoriesData, categorySearchQuery]);
+    }));
+  }, [categoriesData]);
 
   // البحث عن الفئة المختارة لعرض اسمها (للتأكد من العرض الصحيح في الـ Info Box)
+  // البحث عن الفئة المختارة لعرض اسمها (للتأكد من العرض الصحيح في الـ Info Box)
   const selectedCategory = useMemo(() => {
-    return categoriesData?.categories?.find((c) => c.id === formData.category_id);
+    const allCategories = categoriesData?.pages.flatMap((page) => page.categories) || [];
+    return allCategories.find((c) => c.id === formData.category_id);
   }, [categoriesData, formData.category_id]);
 
   const defaultBreadcrumbItems = [
@@ -350,6 +369,8 @@ export function AddProductStep1({
                       className="h-11"
                       onSearch={(val) => setCategorySearchQuery(val)} // تفعيل البحث
                       searchPlaceholder="ابحث عن الفئة..."
+                      onReachEnd={() => hasNextPage && fetchNextPage()}
+                      isLoadingMore={isFetchingNextPage}
                     />
                   </div>
 

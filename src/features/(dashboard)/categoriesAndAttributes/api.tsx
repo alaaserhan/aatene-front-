@@ -82,14 +82,19 @@ export const getCategories = async (
   return data;
 };
 
-export const getCategoryOptions = async (): Promise<SelectOptionsResponse> => {
+export const getCategoryOptions = async (
+  params?: URLSearchParams
+): Promise<SelectOptionsResponse> => {
   const endpoint = getDynamicEndpoint("/categories/select");
   const userType = Cookies.get("user_type");
   const storeId = Cookies.get("current_store_id");
 
   const headers = userType === "merchant" && storeId ? { storeId } : undefined;
 
-  const { data } = await api.get<SelectOptionsResponse>(endpoint, { headers });
+  const { data } = await api.get<SelectOptionsResponse>(
+    `${endpoint}${params ? `?${params.toString()}` : ""}`,
+    { headers }
+  );
   return data;
 };
 

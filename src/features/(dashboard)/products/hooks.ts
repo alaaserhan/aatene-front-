@@ -18,7 +18,6 @@ import {
   BaseResponse,
   ProductStatus,
 } from "./api";
-import { toast } from "sonner";
 
 const ProductsQK = {
   all: ["products"] as const,
@@ -72,13 +71,10 @@ export const useCreateProduct = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: ProductCreatePayload) => api.createProduct(payload),
-    onSuccess: (data) => {
-      toast.success(data.message || "تم إنشاء المنتج بنجاح");
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ProductsQK.listAny });
     },
-    onError: () => {
-      toast.error("حدث خطأ أثناء إنشاء المنتج");
-    },
+    onError: () => { },
   });
 };
 
@@ -151,10 +147,8 @@ export const useUpdateProduct = () => {
     },
 
     onSuccess: (data) => {
-      toast.success(data.message || "تم تحديث المنتج بنجاح");
     },
     onError: (_err, vars, ctx) => {
-      toast.error("حدث خطأ أثناء التحديث");
       if (ctx?.prevLists) {
         ctx.prevLists.forEach(([key, data]) => {
           qc.setQueryData(key, data);
@@ -214,10 +208,8 @@ export const useDeleteProduct = () => {
       return { prevLists };
     },
     onSuccess: (data) => {
-      toast.success(data.message || "تم حذف المنتج بنجاح");
     },
     onError: (_err, _id, ctx) => {
-      toast.error("حدث خطأ أثناء الحذف");
       if (ctx?.prevLists) {
         ctx.prevLists.forEach(([key, data]) => {
           qc.setQueryData(key, data);
@@ -296,10 +288,8 @@ export const useUpdateProductStatus = () => {
       return { prevLists, prevSingle };
     },
     onSuccess: (data) => {
-      toast.success(data.message || "تم تحديث الحالة بنجاح");
     },
     onError: (_err, vars, ctx) => {
-      toast.error("حدث خطأ أثناء تحديث الحالة");
       if (ctx?.prevLists) {
         ctx.prevLists.forEach(([key, data]) => {
           qc.setQueryData(key, data);
@@ -380,10 +370,8 @@ export const useUpdateProductShown = () => {
       return { prevLists, prevSingle };
     },
     onSuccess: (data) => {
-      toast.success(data.message || "تم تحديث الظهور بنجاح");
     },
     onError: (_err, vars, ctx) => {
-      toast.error("حدث خطأ أثناء التحديث");
       if (ctx?.prevLists) {
         ctx.prevLists.forEach(([key, data]) => {
           qc.setQueryData(key, data);

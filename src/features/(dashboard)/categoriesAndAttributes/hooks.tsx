@@ -1,7 +1,7 @@
 // src/features/(dashboard)/categoriesAndAttributes/hooks.ts
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import * as api from "./api";
 import {
   PaginatedCategoriesResponse,
@@ -18,6 +18,7 @@ const CategoryQK = {
   list: (paramsString: string) => ["categories", "list", paramsString] as const,
   single: (id: string | number) => ["categories", "single", String(id)] as const,
   options: ["categories", "options"] as const,
+  optionsList: (paramsString: string) => ["categories", "options", paramsString] as const,
 };
 
 const AttributeQK = {
@@ -71,10 +72,39 @@ export function useGetSubCategories(
     enabled: !!parentId && (options.enabled ?? true),
   });
 }
+
+
 export function useGetCategoryOptions() {
   return useQuery({
     queryKey: CategoryQK.options,
     queryFn: () => api.getCategoryOptions(),
+  });
+}
+
+export function useInfiniteCategoryOptions(params: URLSearchParams) {
+  return useInfiniteQuery({
+    queryKey: CategoryQK.optionsList(params.toString()),
+    queryFn: ({ pageParam = 1 }) => {
+      const newParams = new URLSearchParams(params);
+      newParams.set("page", String(pageParam));
+      return api.getCategoryOptions(newParams);
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      // Assuming the backend returns pagination info, but if not, we can rely on data length
+      // Since SelectOptionsResponse doesn't have standard pagination fields like recordsTotal
+      // we might need to adjust based on expected API behavior or assume simple array check
+      // However, for infinite scrolling to work, we need a way to know if there's more.
+      // If the API returns a flat list (SelectOptionsResponse), this infinite query might handle it differently.
+      // Assuming pagination is added to getCategoryOptions API side or we are reusing structure.
+      // Given current SelectOptionsResponse is just { categories: CategorySelectOption[] }
+      // We might simply check if we got a full page of results.
+      const returnedCount = lastPage.categories?.length || 0;
+      const perPage = Number(params.get("per_page") || 10);
+
+      if (returnedCount < perPage) return undefined;
+      return allPages.length + 1;
+    },
+    initialPageParam: 1,
   });
 }
 

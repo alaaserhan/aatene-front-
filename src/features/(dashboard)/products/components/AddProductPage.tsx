@@ -17,7 +17,9 @@ import {
   Step3FormData,
   Step4FormData,
 } from "../types";
+
 import { toast } from "sonner";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 
 export function AddProductPage() {
   const router = useRouter();
@@ -27,13 +29,14 @@ export function AddProductPage() {
   const toastShownRef = useRef(false);
 
   const createProductMutation = useCreateProduct();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<CompleteProductFormData>({
-    step2: sectionIdFromUrl ? { 
-        store_id: Number(storeId) || 0, 
-        tags: [], 
-        section_id: Number(sectionIdFromUrl) 
+    step2: sectionIdFromUrl ? {
+      store_id: Number(storeId) || 0,
+      tags: [],
+      section_id: Number(sectionIdFromUrl)
     } : undefined
   });
 
@@ -44,7 +47,7 @@ export function AddProductPage() {
 
   useEffect(() => {
     if (toastShownRef.current) return;
-    
+
     const savedDraft = localStorage.getItem("product_draft");
     if (savedDraft) {
       toastShownRef.current = true;
@@ -55,16 +58,16 @@ export function AddProductPage() {
           action: {
             label: "نعم، استكمل",
             onClick: () => {
-                setFormData(parsedDraft);
-                if (parsedDraft.step3) setCurrentStep(4);
-                else if (parsedDraft.step2) setCurrentStep(3);
-                else if (parsedDraft.step1) setCurrentStep(2);
+              setFormData(parsedDraft);
+              if (parsedDraft.step3) setCurrentStep(4);
+              else if (parsedDraft.step2) setCurrentStep(3);
+              else if (parsedDraft.step1) setCurrentStep(2);
             },
           },
           cancel: {
             label: "لا، ابدأ من جديد",
             onClick: () => {
-                localStorage.removeItem("product_draft");
+              localStorage.removeItem("product_draft");
             }
           },
           duration: 10000,
@@ -77,20 +80,20 @@ export function AddProductPage() {
 
   const handleSaveDraft = (currentStepData?: any) => {
     try {
-        const dataToSave = { ...formData };
-        
-        if (currentStepData) {
-            if (currentStep === 1) dataToSave.step1 = currentStepData;
-            if (currentStep === 2) dataToSave.step2 = currentStepData;
-            if (currentStep === 3) dataToSave.step3 = currentStepData;
-            if (currentStep === 4) dataToSave.step4 = currentStepData;
-            setFormData(dataToSave); 
-        }
+      const dataToSave = { ...formData };
 
-        localStorage.setItem("product_draft", JSON.stringify(dataToSave));
-        toast.success("تم حفظ المسودة بنجاح");
+      if (currentStepData) {
+        if (currentStep === 1) dataToSave.step1 = currentStepData;
+        if (currentStep === 2) dataToSave.step2 = currentStepData;
+        if (currentStep === 3) dataToSave.step3 = currentStepData;
+        if (currentStep === 4) dataToSave.step4 = currentStepData;
+        setFormData(dataToSave);
+      }
+
+      localStorage.setItem("product_draft", JSON.stringify(dataToSave));
+      toast.success("تم حفظ المسودة بنجاح");
     } catch (error) {
-        toast.error("فشل حفظ المسودة");
+      toast.error("فشل حفظ المسودة");
     }
   };
 
@@ -153,7 +156,7 @@ export function AddProductPage() {
       condition: updatedFormData.step1!.condition,
       category_id: updatedFormData.step1!.category_id,
       store_id: updatedFormData.step2!.store_id,
-      section_id: updatedFormData.step2!.section_id || 0, 
+      section_id: updatedFormData.step2!.section_id || 0,
       price: updatedFormData.step1!.price,
       status: "active",
       tags: updatedFormData.step2!.tags,
@@ -178,14 +181,14 @@ export function AddProductPage() {
     try {
       await createProductMutation.mutateAsync(payload);
       localStorage.removeItem("product_draft");
-      router.push("/admin/products");
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Error creating product:", error);
     }
   };
 
   const handleStep4Back = (data: Step4FormData) => {
-    setFormData({ ...formData, step4: data }); 
+    setFormData({ ...formData, step4: data });
     setCurrentStep(3);
   };
 
@@ -241,7 +244,7 @@ export function AddProductPage() {
             initialData={formData.step3}
             onNext={handleStep3Next}
             onBack={handleStep3Back}
-            onSaveDraft={handleSaveDraft} 
+            onSaveDraft={handleSaveDraft}
             barSteps={steps}
             breadcrumbItems={breadcrumbItems}
             onStepClick={handleStepClick}
@@ -284,5 +287,19 @@ export function AddProductPage() {
     }
   };
 
-  return <>{renderStep()}</>;
+  return (
+    <>
+      {renderStep()}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push("/admin/products");
+        }}
+        title="تم إضافة المنتج بنجاح"
+        message="تمت إضافة المنتج الجديد إلى القائمة بنجاح، يمكنك الآن إدارة المنتجات."
+        buttonText="العودة للقائمة"
+      />
+    </>
+  );
 }

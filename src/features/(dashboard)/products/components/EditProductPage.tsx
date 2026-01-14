@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { AddProductStep1 } from "./AddProductStep1";
 import { AddProductStep2 } from "./AddProductStep2";
 import { AddProductStep3 } from "./AddProductStep3";
@@ -39,6 +40,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   const router = useRouter();
   const updateProductMutation = useUpdateProduct();
   const { data: productData, isLoading, isError } = useGetSingleProduct(productId);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<CompleteProductFormData | null>(null);
@@ -227,7 +229,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
         id: productId,
         payload,
       });
-      router.push("/admin/products");
+      setShowSuccessModal(true);
     } catch (error) {
     }
   };
@@ -371,5 +373,19 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     }
   };
 
-  return <>{renderStep()}</>;
+  return (
+    <>
+      {renderStep()}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push("/admin/products");
+        }}
+        title="تم تحديث المنتج بنجاح"
+        message="تم حفظ التعديلات التي أجريتها على المنتج بنجاح."
+        buttonText="العودة للقائمة"
+      />
+    </>
+  );
 }
