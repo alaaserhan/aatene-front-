@@ -21,6 +21,20 @@ export function useGetReportTypes() {
   });
 }
 
+export function useCreateReportType() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: api.createReportType,
+    onSuccess: (data) => {
+      toast.success(data.message || "تم إنشاء سبب الرفض بنجاح");
+      queryClient.invalidateQueries({ queryKey: ["report-types"] });
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      toast.error(error.response?.data?.message || "فشل إنشاء سبب الرفض");
+    },
+  });
+}
+
 export function useGetSingleReport(id: string | number) {
   return useQuery({
     queryKey: ["report", id],
