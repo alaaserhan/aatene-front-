@@ -11,6 +11,7 @@ import {
     Pen,
 } from "lucide-react";
 import { useGetService, useUpdateServiceStatus } from "../hooks";
+import { useGetReportTypes } from "@/src/features/(dashboard)/reports/hooks";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Button } from "@/src/components/ui/button";
@@ -54,6 +55,9 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     const store = storeData?.record;
 
     const { mutate: updateStatus, isPending: isUpdating } = useUpdateServiceStatus();
+
+    // جلب أسباب الرفض فقط للأدمن
+    const { data: reportTypesData, isLoading: isLoadingReportTypes } = useGetReportTypes({ enabled: isAdmin });
 
     // --- Image Handling ---
     const imagesList = service ? (Array.isArray(service.images_urls) ? service.images_urls : (service.images_urls ? [service.images_urls] : [])) : [];
@@ -346,6 +350,8 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 onClose={() => setIsRejectModalOpen(false)}
                 onConfirm={confirmReject}
                 isLoading={isUpdating}
+                reasonsList={reportTypesData?.data}
+                isLoadingReasons={isLoadingReportTypes}
             />
 
             <SuccessModal
@@ -355,7 +361,6 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                     if (service.status === "rejected") {
                         router.push(`/admin/serviceProviders/${storeId}`);
                     }
-                    // For approved, strictly we might wanna stay or refresh, but closing modal is enough as query invalidated
                 }}
                 title={successModalTitle}
             />

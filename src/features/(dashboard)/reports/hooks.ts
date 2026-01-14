@@ -14,10 +14,11 @@ export function useGetReports(params?: api.ReportsParams) {
 }
 
 // New Hook: Get Report Types
-export function useGetReportTypes() {
+export function useGetReportTypes(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["report-types"],
     queryFn: api.getReportTypes,
+    enabled: options?.enabled,
   });
 }
 

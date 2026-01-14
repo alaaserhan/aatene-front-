@@ -7,84 +7,133 @@ import { Button } from "@/src/components/ui/button";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Loader2 } from "lucide-react";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden"; // في حال أردت إخفاء العنوان، لكننا سنستخدمه كعنوان ظاهر
+import { useCreateReportType } from "@/src/features/(dashboard)/reports/hooks";
 
 interface RejectServiceModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: (reasonId: string, note: string) => void;
     isLoading: boolean;
+    reasonsList?: any[];
+    isLoadingReasons?: boolean;
 }
 
-export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading }: RejectServiceModalProps) {
+export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading, reasonsList = [], isLoadingReasons = false }: RejectServiceModalProps) {
     const [reasonId, setReasonId] = useState<string>("");
     const [note, setNote] = useState<string>("");
-    const [touched, setTouched] = useState(false); // لمعرفة هل حاول المستخدم الارسال
+    const [touched, setTouched] = useState(false);
 
-    // استبدال useGetReportTypes بالقيم الثابتة
-    const reasons = [
-        "الوصف غير واضح أو ناقص",
-        "معلومات الخدمة غير دقيقة",
-        "يخالف سياسات وشروط المنصة",
-        "الخدمة مكررة أو مشابهة لخدمات موجودة",
-        "الجودة لا تتوافق مع معايير المنصة",
-        "صور أو وسائط غير مطابقة للمعايير"
-    ];
+    const [isAddingReason, setIsAddingReason] = useState(false);
+    const [newReason, setNewReason] = useState("");
+    const { mutate: createReason, isPending: isCreatingReason } = useCreateReportType();
 
-    // تحويل البيانات لتناسب ReusableDropdown
+    // استخدام البيانات الممررة عبر Props
+    const reasons = reasonsList || [];
+
     const reasonOptions = useMemo(() => {
         return reasons.map((reason) => ({
-            label: reason,
-            value: reason, // القيمة هي نفس النص
+            label: reason.name,
+            value: String(reason.id),
         }));
-    }, []);
+    }, [reasons]);
 
     const handleConfirm = () => {
         setTouched(true);
-        
-        // المنطق المطلوب: إذا تم ملء "سبب آخر" نستخدمه، وإلا نستخدم القائمة المنسدلة
-        const finalReason = note.trim() ? note.trim() : reasonId;
 
-        if (!finalReason) return; // يجب اختيار أحدهما على الأقل
+        // إذا كتب ملاحظة يدوية نعتبرها، وإلا نبحث عن نص السبب المختار
+        let finalReason = note.trim();
 
-        // نرسل النص في الحقل الثاني (note/reason) ونترك الأول (id) فارغاً
-        // لأننا نرسل نصاً وليس ID قاعدة بيانات
+        if (!finalReason && reasonId) {
+            const selected = reasons.find(r => String(r.id) === reasonId);
+            if (selected) finalReason = selected.name;
+        }
+
+        if (!finalReason) return;
+
+        // نرسل النص في الحقل الثاني (note) كما كان في الكود السابق
         onConfirm("", finalReason);
     };
 
-    // إعادة تعيين الحالة عند الإغلاق
     const handleClose = () => {
         setReasonId("");
         setNote("");
+        setNewReason("");
+        setIsAddingReason(false);
         setTouched(false);
         onClose();
+    };
+
+    const handleCreateReason = () => {
+        if (!newReason.trim()) return;
+        createReason(
+            { name: newReason, is_active: 1 },
+            {
+                onSuccess: () => {
+                    setIsAddingReason(false);
+                    setNewReason("");
+                },
+            }
+        );
     };
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent className="max-w-xl p-6 rounded-3xl gap-6" dir="rtl">
-                {/* حل مشكلة Accessibility بإضافة DialogTitle */}
                 <DialogTitle className="text-lg font-medium  mb-2">
                     أضف سبب رفض الخدمة هنا مع التوضيح للعميل
                 </DialogTitle>
 
                 <div className="flex flex-col gap-6">
-                    {/* استبدال Select بـ ReusableDropdown */}
                     <div className="flex flex-col gap-3">
                         <label className="text-sm font-bold text-gray-700">
-                            سبب الحذف <span className="text-red-500">*</span>
+                            سبب الرفض <span className="text-red-500">*</span>
                         </label>
-                        <ReusableDropdown
-                            options={reasonOptions}
-                            value={reasonId}
-                            onChange={(val) => setReasonId(val)}
-                            placeholder="اختر من هنا السبب"
-                            error={touched && !reasonId && !note.trim() ? "يرجى اختيار سبب الرفض أو كتابة سبب آخر" : undefined}
-                            className="h-12"
-                        />
+                        {!isAddingReason ? (
+                            <ReusableDropdown
+                                options={reasonOptions}
+                                value={reasonId}
+                                onChange={(val) => setReasonId(val)}
+                                placeholder={isLoadingReasons ? "جاري التحميل..." : "اختر من هنا السبب"}
+                                error={touched && !reasonId && !note.trim() ? "يرجى اختيار سبب الرفض أو كتابة سبب آخر" : undefined}
+                                className="h-12"
+                                onAddNew={() => setIsAddingReason(true)}
+                                addNewLabel="إضافة سبب رفض جديد"
+                            />
+                        ) : (
+                            <div className="flex gap-2 items-start">
+                                <div className="flex-1">
+                                    <input
+                                        type="text"
+                                        value={newReason}
+                                        onChange={(e) => setNewReason(e.target.value)}
+                                        placeholder="ادخل سبب الرفض الجديد..."
+                                        className="w-full h-12 px-4 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500 text-sm"
+                                        autoFocus
+                                    />
+                                </div>
+                                <Button
+                                    type="button"
+                                    onClick={handleCreateReason}
+                                    disabled={isCreatingReason || !newReason.trim()}
+                                    className="h-12 px-4 bg-blue-4 text-white"
+                                >
+                                    {isCreatingReason ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ"}
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setIsAddingReason(false);
+                                        setNewReason("");
+                                    }}
+                                    className="h-12 px-4"
+                                >
+                                    إلغاء
+                                </Button>
+                            </div>
+                        )}
                     </div>
 
-                    {/* استبدال Input بـ FormInput */}
                     <div className="flex flex-col gap-1">
                         <FormInput
                             label="سبب اخر"
@@ -95,9 +144,9 @@ export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading }: Re
                         />
                     </div>
 
-                    <Button 
+                    <Button
                         onClick={handleConfirm}
-                        disabled={isLoading}
+                        disabled={isLoading || isAddingReason}
                         className="w-full h-12 bg-blue-4 hover:bg-[#4a5d72] text-white font-bold rounded-md mt-2"
                     >
                         {isLoading ? <Loader2 className="animate-spin" /> : "أرسل"}
