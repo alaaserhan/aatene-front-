@@ -171,6 +171,7 @@ export function AddServiceStep4({
                                         placeholder="...نص المحتوى"
                                         error={errors.description}
                                         className="min-h-[250px]"
+                                        required
                                         helpTooltip={`اشرح باختصار ما تقدمه في هذه الخدمة، مثل: "تصميم شعارات احترافية للشركات الصغيرة تشمل 3 نماذج أولية وتعديلات غير محدودة".`}
                                     />
                                 </div>

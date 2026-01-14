@@ -66,7 +66,7 @@ export function ProductFormActions({
                     )}
                 </Button>
 
-                {showSaveDraft && onSaveDraft && (
+                {/* {showSaveDraft && onSaveDraft && (
                     <Button
                         type="button"
                         onClick={onSaveDraft}
@@ -77,7 +77,7 @@ export function ProductFormActions({
                         <img src="/icons/dashboard/Bookmark.svg" className="w-3" alt="Bookmark" />
                         حفظ كمسودة
                     </Button>
-                )}
+                )} */}
             </div>
 
             <div className="flex items-center gap-3">

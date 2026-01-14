@@ -4,7 +4,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Search, Loader2, Check, Image as ImageIcon, Tag } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
-import { useGetProducts } from "../hooks";
+import { useInfiniteGetProducts } from "../hooks";
 import { RelatedProduct } from "../types";
 import { cn } from "@/src/lib/utils";
 import {
@@ -40,20 +40,43 @@ export function SelectProductsModal({
     }
   }, [isOpen, selectedIds]);
 
-  const queryParams = useMemo(() => {
-    const params = new URLSearchParams();
-    params.set("per_page", "20");
-    if (searchQuery) {
-      params.set("name", searchQuery);
-    }
-    return params;
+  // Debounce search query
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const { data: productsData, isLoading } = useGetProducts(queryParams, {
-    enabled: isOpen,
-  });
+  const queryParams = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("per_page", "10");
+    if (debouncedSearch) {
+      params.set("name", debouncedSearch);
+    }
+    return params;
+  }, [debouncedSearch]);
 
-  const products = productsData?.data || [];
+  const {
+    data: productsData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteGetProducts(queryParams);
+
+  const products = productsData?.pages?.flatMap((page) => page.data) || [];
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop <= clientHeight + 50) {
+      if (hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    }
+  };
 
   const handleToggleProduct = (productId: number) => {
     if (localSelectedIds.includes(productId)) {
@@ -91,7 +114,7 @@ export function SelectProductsModal({
         {/* Content */}
         <div className="flex flex-col h-[500px]">
           {/* Search Bar */}
-          <div className="p-4 border-b border-gray-100">
+          <div className="p-4 pt-1 border-b border-gray-100">
             <div className="relative">
               <Input
                 type="text"
@@ -105,7 +128,10 @@ export function SelectProductsModal({
           </div>
 
           {/* Products List */}
-          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+          <div
+            className="flex-1 overflow-y-auto p-4 custom-scrollbar"
+            onScroll={handleScroll}
+          >
             {isLoading ? (
               <div className="flex flex-col items-center justify-center h-full gap-2">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
@@ -187,6 +213,13 @@ export function SelectProductsModal({
                     </div>
                   );
                 })}
+
+
+                {isFetchingNextPage && (
+                  <div className="flex justify-center py-4">
+                    <Loader2 className="w-6 h-6 animate-spin text-blue-3" />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -214,6 +247,6 @@ export function SelectProductsModal({
           </div>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }

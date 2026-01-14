@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X, AlignJustify } from "lucide-react";
+import { Plus } from "lucide-react";
 import { ProductFormActions } from "../../products/components/ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -75,7 +75,10 @@ export function AddServiceStep2({
         if (price !== "" && Number(price) < 0) {
             newErrors.price = "السعر لا يمكن أن يكون أقل من صفر";
         }
-        if (!executeCount || Number(executeCount) <= 0) newErrors.executeCount = "مدة التنفيذ مطلوبة";
+
+        if (executeCount !== "" && Number(executeCount) < 0) {
+            newErrors.executeCount = "العدد لا يمكن أن يكون أقل من صفر";
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -199,7 +202,7 @@ export function AddServiceStep2({
                                 {/* 2. Execution Time */}
                                 <div className="space-y-2">
                                     <Label className="text-sm font-medium flex items-center gap-1">
-                                        مدة تنفيذ العمل <span className="text-red-500">*</span>
+                                        مدة تنفيذ العمل
                                     </Label>
                                     <div className="flex gap-4">
                                         <div className="flex-1 relative">

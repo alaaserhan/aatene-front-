@@ -9,7 +9,7 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Tooltip } from "@/src/components/ui/Tooltip";
 import { OptionTag } from "@/src/components/ui/OptionTag";
-import { useGetStores } from "../../stores/hooks";
+import { useInfiniteGetStores } from "../../stores/hooks";
 import { useGetSections, useCreateSection } from "../../sections/hooks";
 import { Step1FormData, Step2FormData } from "../types";
 import { toast } from "sonner";
@@ -66,28 +66,42 @@ export function AddProductStep2({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isAddSectionOpen, setIsAddSectionOpen] = useState(false);
   const [newSectionName, setNewSectionName] = useState("");
+  const [storeSearchQuery, setStoreSearchQuery] = useState("");
+  const [debouncedStoreSearch, setDebouncedStoreSearch] = useState("");
 
   const createSection = useCreateSection();
 
-  // تم تغيير per_page إلى 1000 لجلب كل المتاجر مرة واحدة وحل مشكلة التعديل
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedStoreSearch(storeSearchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [storeSearchQuery]);
+
   const storesQueryParams = useMemo(() => {
     const params = new URLSearchParams();
-    params.set("per_page", "1000");
+    params.set("per_page", "10");
+    if (debouncedStoreSearch) {
+      params.set("name", debouncedStoreSearch);
+    }
     return params;
-  }, []);
+  }, [debouncedStoreSearch]);
 
-  const { data: storesData, isLoading: isStoresLoading } = useGetStores(
-    storesQueryParams,
-    { enabled: isAdmin }
-  );
+  const {
+    data: storesData,
+    isLoading: isStoresLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteGetStores(storesQueryParams);
 
   const storeOptions = useMemo(() => {
-    return (
-      storesData?.data?.map((store) => ({
-        value: String(store.id),
-        label: store.name,
-      })) || []
-    );
+    const allStores = storesData?.pages?.flatMap((page) => page.data) || [];
+    return allStores.map((store) => ({
+      value: String(store.id),
+      label: store.name,
+    }));
   }, [storesData]);
 
   // تم تغيير per_page إلى 1000 لجلب كل الأقسام مرة واحدة
@@ -261,6 +275,10 @@ export function AddProductStep2({
                       }
                       error={errors.store_id}
                       className="h-11"
+                      onSearch={setStoreSearchQuery}
+                      searchPlaceholder="ابحث عن متجر..."
+                      onReachEnd={() => hasNextPage && fetchNextPage()}
+                      isLoadingMore={isFetchingNextPage}
                     />
                   </div>
                 )}

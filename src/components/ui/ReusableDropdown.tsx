@@ -201,17 +201,19 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
             )}
 
             {onAddNew && (
-              <button
-                type="button"
-                onClick={() => {
-                  onAddNew();
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center justify-center gap-2 p-2 bg-blue-5 rounded-sm cursor-pointer text-sm text-blue-3 font-medium  sticky bottom-0"
-              >
-                <Plus className="w-4 h-4" />
-                {addNewLabel}
-              </button>
+              <div className="w-full bg-white">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onAddNew();
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 p-2 bg-blue-5 rounded-sm cursor-pointer text-sm text-blue-3 font-medium  sticky bottom-0"
+                >
+                  <Plus className="w-4 h-4" />
+                  {addNewLabel}
+                </button>
+              </div>
             )}
           </div>
         </div>
