@@ -382,7 +382,7 @@ export function AddProductStep1({
                       onChange={(value) =>
                         setFormData({
                           ...formData,
-                          condition: value as "new" | "used" ,
+                          condition: value as "new" | "used",
                         })
                       }
                       placeholder="اختر الحالة"
