@@ -14,8 +14,8 @@ import { useGetCoinsTransactions } from "../../coins/hooks";
 export function FinancialRecordPage({ storeId }: { storeId?: number }) {
     // State
     const [currentPage, setCurrentPage] = useState(1);
-    const [dateRange, setDateRange] = useState("all_time");
-    const [transactionType, setTransactionType] = useState("all");
+    const [dateRange, setDateRange] = useState("current_day");
+    const [transactionType, setTransactionType] = useState("purchase");
     const [searchQuery, setSearchQuery] = useState("");
 
     // Stats are fetched internally by FinancialStatsCards

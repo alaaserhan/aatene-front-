@@ -11,7 +11,7 @@ interface FinancialChartProps {
 }
 
 export function FinancialChart({ storeId, className }: FinancialChartProps) {
-    const [period, setPeriod] = useState("all_time");
+    const [period, setPeriod] = useState("current_day");
 
     const { data: growthData, isLoading } = useGetCoinsGrowth(period, storeId);
 
@@ -23,7 +23,6 @@ export function FinancialChart({ storeId, className }: FinancialChartProps) {
     })) || [];
 
     const periodOptions = [
-        { label: "الكل", value: "all_time" },
         { label: "اليوم الحالي", value: "current_day" },
         { label: "أمس", value: "last_day" },
         { label: "الأسبوع الحالي", value: "current_week" },

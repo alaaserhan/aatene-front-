@@ -58,7 +58,6 @@ export function FinancialFilters({
     };
 
     const dateOptions = [
-        { label: "الكل", value: "all_time" },
         { label: "اليوم الحالي", value: "current_day" },
         { label: "أمس", value: "last_day" },
         { label: "الأسبوع الحالي", value: "current_week" },
@@ -70,7 +69,6 @@ export function FinancialFilters({
     ];
 
     const typeOptions = [
-        { label: "الكل", value: "all" },
         { label: "شراء عملات", value: "purchase" }, // User bought coins (added to wallet)
         { label: "صرف عملات", value: "deduction" }, // User spent coins (on campaigns)
     ];
