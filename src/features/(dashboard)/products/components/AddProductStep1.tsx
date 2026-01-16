@@ -31,7 +31,6 @@ interface AddProductStep1Props {
 const CONDITION_OPTIONS = [
   { value: "new", label: "جديد" },
   { value: "used", label: "مستعمل" },
-  { value: "refurbished", label: "مجدد" },
 ];
 
 const Tooltip = ({
@@ -102,6 +101,7 @@ export function AddProductStep1({
   const categoryQueryParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("per_page", "10");
+    params.set("type", "product");
     if (debouncedCategorySearch) {
       params.set("name", debouncedCategorySearch);
     }
@@ -382,7 +382,7 @@ export function AddProductStep1({
                       onChange={(value) =>
                         setFormData({
                           ...formData,
-                          condition: value as "new" | "used" | "refurbished",
+                          condition: value as "new" | "used" ,
                         })
                       }
                       placeholder="اختر الحالة"
