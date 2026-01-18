@@ -32,7 +32,7 @@ export const useCreateSection = () => {
     }) => api.createSection(variables.payload, variables.storeId),
     onSuccess: (data, variables) => {
       toast.success(data.message || "تم إنشاء القسم بنجاح");
-      qc.invalidateQueries({ queryKey: SectionsQK.list(variables.storeId) });
+      qc.invalidateQueries({ queryKey: ["sections", "list", String(variables.storeId)] });
     },
     onError: () => {
       toast.error("حدث خطأ أثناء إنشاء القسم");
@@ -87,7 +87,7 @@ export const useUpdateSection = () => {
     },
 
     onSettled: (_data, _err, vars) => {
-      qc.invalidateQueries({ queryKey: SectionsQK.list(vars.storeId) });
+      qc.invalidateQueries({ queryKey: ["sections", "list", String(vars.storeId)] });
     },
   });
 };
@@ -128,7 +128,10 @@ export const useDeleteSection = () => {
     },
 
     onSettled: (_data, _err, vars) => {
-      qc.invalidateQueries({ queryKey: SectionsQK.list(vars.storeId) });
+      // Invalidate all section lists for this store, regardless of params
+      qc.invalidateQueries({
+        queryKey: ["sections", "list", String(vars.storeId)],
+      });
     },
   });
 };

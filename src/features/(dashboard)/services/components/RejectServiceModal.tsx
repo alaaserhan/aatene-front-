@@ -107,7 +107,7 @@ export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading, reas
                                         value={newReason}
                                         onChange={(e) => setNewReason(e.target.value)}
                                         placeholder="ادخل سبب الرفض الجديد..."
-                                        className="w-full h-12 px-4 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500 text-sm"
+                                        className="w-full h-12 px-4 border border-gray-200 rounded-md focus:outline-none focus:border-blue-4 text-sm"
                                         autoFocus
                                     />
                                 </div>

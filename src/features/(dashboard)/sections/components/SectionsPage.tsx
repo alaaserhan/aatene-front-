@@ -399,6 +399,7 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
                 isOpen={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
+                title="هل أنت متأكد من حذف القسم؟"
             />
         </div>
     );
