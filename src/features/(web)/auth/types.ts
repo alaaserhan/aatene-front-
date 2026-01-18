@@ -68,6 +68,8 @@ export interface ApiError {
 export interface LoginCredentials {
   login: string; // email or phone
   password?: string;
+  device_token?: string | null;
+  device_name?: string | null;
 }
 
 export interface RegisterData {
@@ -76,7 +78,9 @@ export interface RegisterData {
   email: string;
   phone: string;
   password?: string;
-}   
+  device_token?: string | null;
+  device_name?: string | null;
+}
 
 export interface SendCodePayload {
   identifier: string; // email or phone

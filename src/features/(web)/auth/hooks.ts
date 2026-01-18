@@ -15,6 +15,8 @@ import { useAuthStore } from "@/src/stores/auth-store"; // Import the store
 import { toast } from "sonner"; // For specific success/error messages if needed
 import { useLanguage } from "@/src/hooks/use-language"; // Import language hook
 
+import { getFCMToken } from "@/src/lib/firebase";
+
 // --- Login Hook ---
 export const useLogin = () => {
   const router = useRouter();
@@ -22,7 +24,10 @@ export const useLogin = () => {
   const loginToStore = useAuthStore((state) => state.login); // Get login function from store
 
   return useMutation({
-    mutationFn: loginUser,
+    mutationFn: async (credentials: import("./types").LoginCredentials) => {
+      const device_token = await getFCMToken();
+      return loginUser({ ...credentials, device_token, device_name: "Web" });
+    },
     onSuccess: (data) => {
       // 1. Update the Zustand store with token and user data
       loginToStore(data.token, data.user);
@@ -45,7 +50,10 @@ export const useRegister = () => {
   const loginToStore = useAuthStore((state) => state.login);
 
   return useMutation({
-    mutationFn: registerUser,
+    mutationFn: async (userData: import("./types").RegisterData) => {
+      const device_token = await getFCMToken();
+      return registerUser({ ...userData, device_token, device_name: "Web" });
+    },
     onSuccess: (data) => {
       // 1. Log the user in immediately after registration
       loginToStore(data.token, data.user);
