@@ -21,6 +21,7 @@ import {
   Step7FormData,
 } from "../types";
 import { toast } from "sonner";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface AddStorePageProps {
   storeType: StoreType;
@@ -29,6 +30,7 @@ interface AddStorePageProps {
 export function AddStorePage({ storeType }: AddStorePageProps) {
   const router = useRouter();
   const createStoreMutation = useCreateStore();
+  const { user } = useAuthStore();
 
   const [currentStep, setCurrentStep] = useState(2);
   const [formData, setFormData] = useState<CompleteStoreFormData>({
@@ -110,7 +112,9 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
       address: updatedFormData.step2!.address,
       lng: null,
       lat: null,
-      owner_id: updatedFormData.step2!.owner_id,
+      ...(user?.user_type !== "merchant" && {
+        owner_id: updatedFormData.step2!.owner_id,
+      }),
       currency_id: updatedFormData.step2!.currency_id,
 
       phone: updatedFormData.step3!.phone,

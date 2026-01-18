@@ -20,6 +20,7 @@ import {
   Step7FormData,
 } from "../types";
 import { toast } from "sonner";
+import { useAuthStore } from "@/src/stores/auth-store";
 import { Loader2 } from "lucide-react";
 
 interface EditStorePageProps {
@@ -30,6 +31,7 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
   const router = useRouter();
   const updateStoreMutation = useUpdateStore();
   const { data: storeData, isLoading } = useGetSingleStore(storeId);
+  const { user } = useAuthStore();
 
   const [currentStep, setCurrentStep] = useState(2);
   const [formData, setFormData] = useState<CompleteStoreFormData | null>(null);
@@ -197,7 +199,9 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
       description: updatedFormData.step2!.description,
       email: updatedFormData.step2!.email,
       address: updatedFormData.step2!.address,
-      owner_id: updatedFormData.step2!.owner_id,
+      ...(user?.user_type !== "merchant" && {
+        owner_id: updatedFormData.step2!.owner_id,
+      }),
       currency_id: updatedFormData.step2!.currency_id,
 
       phone: updatedFormData.step3!.phone,
