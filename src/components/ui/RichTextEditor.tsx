@@ -65,7 +65,7 @@ export function RichTextEditor({
   const [colorInput, setColorInput] = useState("#000000");
 
   useEffect(() => {
-    if (editorRef.current && value && editorRef.current.innerHTML !== value) {
+    if (editorRef.current && editorRef.current.innerHTML !== value) {
       editorRef.current.innerHTML = value;
     }
     setIsEmpty(!value || value === "<br>" || value === "");

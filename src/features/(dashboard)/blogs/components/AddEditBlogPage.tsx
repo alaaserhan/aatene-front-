@@ -142,13 +142,18 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
   };
 
   const handleDeleteParagraph = (index: number) => {
-    const updated = paragraphs.filter((_, i) => i !== index);
-    setParagraphs(updated);
+    // If we are deleting the paragraph that is currently being edited
     if (editingParaIndex === index) {
       setEditingParaIndex(null);
       setCurrentParaTitle("");
       setCurrentParaContent("");
+    } else if (editingParaIndex !== null && index < editingParaIndex) {
+      // If we delete a paragraph before the one being edited, adjust the index
+      setEditingParaIndex(editingParaIndex - 1);
     }
+
+    const updated = paragraphs.filter((_, i) => i !== index);
+    setParagraphs(updated);
   };
 
   const validate = () => {
@@ -316,7 +321,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDeleteParagraph(index)}
-                          className="hover:bg-red-100 hover:text-red-600 text-gray-2"
+                          className="hover:bg-red-100 hover:text-red-600 text-gray-500"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
