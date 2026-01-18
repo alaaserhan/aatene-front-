@@ -1,8 +1,6 @@
-import { Search, Calendar, Loader2 } from "lucide-react";
+import { Search, Calendar } from "lucide-react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Input } from "@/src/components/ui/input";
-import { Button } from "@/src/components/ui/button";
-import { useState, useEffect } from "react";
 
 interface FinancialFiltersProps {
     dateRange: string;
@@ -12,8 +10,8 @@ interface FinancialFiltersProps {
     searchQuery: string;
     onSearchQueryChange: (val: string) => void;
     onExport: () => void;
-    isLoading?: boolean;
 }
+
 
 export function FinancialFilters({
     dateRange,
@@ -23,39 +21,7 @@ export function FinancialFilters({
     searchQuery,
     onSearchQueryChange,
     // onExport,
-    isLoading = false,
 }: FinancialFiltersProps) {
-
-    // Local state to hold filter values before applying
-    const [localDateRange, setLocalDateRange] = useState(dateRange);
-    const [localTransactionType, setLocalTransactionType] = useState(transactionType);
-    const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
-
-    // Sync local state if props change externally
-    useEffect(() => {
-        setLocalDateRange(dateRange);
-    }, [dateRange]);
-
-    useEffect(() => {
-        setLocalTransactionType(transactionType);
-    }, [transactionType]);
-
-    useEffect(() => {
-        setLocalSearchQuery(searchQuery);
-    }, [searchQuery]);
-
-    const handleSearch = () => {
-        // Apply all filters at once
-        onDateRangeChange(localDateRange);
-        onTransactionTypeChange(localTransactionType);
-        onSearchQueryChange(localSearchQuery);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter") {
-            handleSearch();
-        }
-    };
 
     const dateOptions = [
         { label: "اليوم الحالي", value: "current_day" },
@@ -74,20 +40,19 @@ export function FinancialFilters({
     ];
 
     return (
-        <div className="bg-white p-4 rounded-lg border border-gray-100 flex flex-col md:flex-row gap-4 items-end md:items-center justify-between">
+        <div className="bg-white p-4 rounded-lg border border-gray-100 w-full">
 
-            {/* Filters Group */}
-            <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
+            {/* Filters Group - 3 Columns */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
 
                 {/* Search */}
-                <div className="relative w-full md:w-64">
+                <div className="relative w-full">
                     <span className="text-sm text-gray-2 mb-1 block">رقم الحملة الاعلانية</span>
                     <div className="relative">
                         <Input
                             placeholder="بحث..."
-                            value={localSearchQuery}
-                            onChange={(e) => setLocalSearchQuery(e.target.value)}
-                            onKeyDown={handleKeyDown}
+                            value={searchQuery}
+                            onChange={(e) => onSearchQueryChange(e.target.value)}
                             className="h-10 pe-10 bg-white border-gray-200"
                         />
                         <Search className="w-4 h-4 text-gray-2 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -95,45 +60,29 @@ export function FinancialFilters({
                 </div>
 
                 {/* Transaction Type */}
-                <div className="w-full md:w-48">
+                <div className="w-full">
                     <span className="text-sm text-gray-2 mb-1 block">نوع المعاملة</span>
                     <ReusableDropdown
                         options={typeOptions}
-                        value={localTransactionType}
-                        onChange={setLocalTransactionType}
+                        value={transactionType}
+                        onChange={onTransactionTypeChange}
                         placeholder="الكل"
                         className="h-10"
                     />
                 </div>
 
                 {/* Date Range */}
-                <div className="w-full md:w-48">
+                <div className="w-full">
                     <span className="text-sm text-gray-2 mb-1 block">تاريخ المعاملة</span>
                     <ReusableDropdown
                         options={dateOptions}
-                        value={localDateRange}
-                        onChange={setLocalDateRange}
+                        value={dateRange}
+                        onChange={onDateRangeChange}
                         placeholder="اختر الفترة"
                         triggerIcon={<Calendar className="w-4 h-4 text-gray-2" />}
                         className="h-10"
                     />
                 </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
-                <Button
-                    onClick={handleSearch}
-                    disabled={isLoading}
-                    className="h-10 bg-blue-3 hover:bg-blue-4 text-white min-w-[100px] gap-2"
-                >
-                    {isLoading ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                        <Search className="w-4 h-4" />
-                    )}
-                    <span>ابحث</span>
-                </Button>
             </div>
         </div>
     );
