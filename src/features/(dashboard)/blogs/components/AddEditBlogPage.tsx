@@ -373,7 +373,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
                   onClick={handleAddOrUpdateParagraph}
                   className={cn(
                     "px-8 py-2 text-white transition-colors",
-                    editingParaIndex !== null ? "bg-emerald-500 hover:bg-emerald-600" : "bg-blue-3 hover:bg-blue-4"
+                    editingParaIndex !== null ? "bg-blue-3" : "bg-blue-3"
                   )}
                 >
                   {editingParaIndex !== null ? "تحديث الفقرة" : "إضافة الفقرة"}

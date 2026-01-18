@@ -35,8 +35,8 @@ export function FollowersTable({
           </tr>
         </thead>
         <tbody>
-          {data.map((item) => (
-            <tr key={item.id} className="group hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-none">
+          {data.map((item, index) => (
+            <tr key={`${item.id}-${index}`} className="group hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-none">
               <td className="px-6 py-4">
                 <div className="flex items-center gap-3">
                   <Avatar className="w-10 h-10 border border-gray-100">
