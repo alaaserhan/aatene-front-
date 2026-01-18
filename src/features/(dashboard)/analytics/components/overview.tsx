@@ -20,10 +20,13 @@ import MerchantAnalyticsPage from "./merchants/MerchantOverView";
 export default function AnalyticsOverviewPage() {
     const [loading, setLoading] = useState(true);
     const [userType, setUserType] = useState<string>("");
+    const [hasStoreId, setHasStoreId] = useState<boolean>(false);
+
     useEffect(() => {
-        // Fetch user_type from cookies to determine dashboard view
         const type = Cookies.get("user_type") || "admin";
+        const storeId = Cookies.get("current_store_id");
         setUserType(type);
+        setHasStoreId(!!storeId);
         setLoading(false);
     }, []);
 
@@ -34,9 +37,16 @@ export default function AnalyticsOverviewPage() {
             </div>
         );
     }
-    console.log(userType, "userType")
+
     // --- Merchant View ---
     if (userType === "merchant") {
+        if (!hasStoreId) {
+            return (
+                <div className="flex items-center justify-center h-[80vh]">
+                    <p className="text-2xl font-medium text-gray-2">في انتظار إنشاء متجر</p>
+                </div>
+            );
+        }
         return (
             <MerchantAnalyticsPage />
         );

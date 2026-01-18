@@ -1,14 +1,29 @@
 "use client";
 
+
 import { useEffect, useState, ReactNode } from "react";
 import Cookies from "js-cookie";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { getStores } from "@/src/features/(dashboard)/stores/api";
-import { Loader2 } from "lucide-react";
+import { Loader2, Store } from "lucide-react";
+import { usePathname, useRouter, useParams } from "next/navigation";
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/src/components/ui/dialog";
+import { Button } from "@/src/components/ui/button";
 
 export function StoreGuard({ children }: { children: ReactNode }) {
     const user = useAuthStore((s) => s.user);
     const [isReady, setIsReady] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const router = useRouter();
+    const pathname = usePathname();
+    const params = useParams();
 
     useEffect(() => {
         const initializeStore = async () => {
@@ -30,20 +45,34 @@ export function StoreGuard({ children }: { children: ReactNode }) {
             try {
                 const response = await getStores(new URLSearchParams());
                 if (response.data && response.data.length > 0) {
-                    Cookies.set("current_store_id", response.data[0].id.toString(), { expires: 365 });
+                    Cookies.set("current_store_id", response.data[0].id.toString(), {
+                        expires: 365,
+                    });
                     Cookies.set("store_type", response.data[0].type, { expires: 365 });
                     // Dispatch event to notify other components (e.g. Navbar)
                     window.dispatchEvent(new Event("store-info-updated"));
+                    setIsReady(true);
+                } else {
+                    // No stores found
+                    const isStoresPage = pathname?.includes("/stores");
+
+                    if (!isStoresPage) {
+                        const locale = params?.locale || "ar";
+                        const type = params?.type || "admin";
+                        setShowModal(true);
+                        router.push(`/${locale}/${type}/stores`);
+                    }
+                    // Always set ready so the page (or the redirected page) can load
+                    setIsReady(true);
                 }
             } catch (error) {
                 console.error("StoreGuard: Failed to fetch stores:", error);
+                setIsReady(true);
             }
-
-            setIsReady(true);
         };
 
         initializeStore();
-    }, [user]);
+    }, [user, pathname, router, params]);
 
     if (!isReady) {
         return (
@@ -53,5 +82,38 @@ export function StoreGuard({ children }: { children: ReactNode }) {
         );
     }
 
-    return <>{children}</>;
+    return (
+        <>
+            {children}
+            <Dialog open={showModal} onOpenChange={setShowModal}>
+                <DialogContent className="sm:max-w-md" dir="rtl">
+                    <DialogHeader className="flex flex-col items-center pt-4">
+                        <div className="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center mb-6">
+                            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+                                <Store className="w-10 h-10 text-blue-4" strokeWidth={2} />
+                            </div>
+                        </div>
+
+                        <DialogTitle className="text-xl font-bold text-center text-brand-black-1">
+                            تنبيه
+                        </DialogTitle>
+
+                        <DialogDescription className="text-center text-gray-2 pt-2">
+                            يجب عليك إنشاء متجر أولاً للمتابعة
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <DialogFooter className="flex-col sm:justify-center pt-4">
+                        <Button
+                            type="button"
+                            className="w-full cursor-pointer bg-blue-4 "
+                            onClick={() => setShowModal(false)}
+                        >
+                            حسناً
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
 }
