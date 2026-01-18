@@ -10,6 +10,7 @@ interface FinancialFiltersProps {
     searchQuery: string;
     onSearchQueryChange: (val: string) => void;
     onExport: () => void;
+    isLoading?: boolean;
 }
 
 
@@ -21,6 +22,7 @@ export function FinancialFilters({
     searchQuery,
     onSearchQueryChange,
     // onExport,
+    isLoading,
 }: FinancialFiltersProps) {
 
     const dateOptions = [
@@ -54,6 +56,7 @@ export function FinancialFilters({
                             value={searchQuery}
                             onChange={(e) => onSearchQueryChange(e.target.value)}
                             className="h-10 pe-10 bg-white border-gray-200"
+                            disabled={isLoading}
                         />
                         <Search className="w-4 h-4 text-gray-2 absolute left-3 top-1/2 -translate-y-1/2" />
                     </div>
@@ -67,7 +70,7 @@ export function FinancialFilters({
                         value={transactionType}
                         onChange={onTransactionTypeChange}
                         placeholder="الكل"
-                        className="h-10"
+                        className={`h-10 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
                     />
                 </div>
 
@@ -80,7 +83,7 @@ export function FinancialFilters({
                         onChange={onDateRangeChange}
                         placeholder="اختر الفترة"
                         triggerIcon={<Calendar className="w-4 h-4 text-gray-2" />}
-                        className="h-10"
+                        className={`h-10 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
                     />
                 </div>
             </div>
