@@ -275,19 +275,12 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
                                         type="text"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                                         placeholder="ابحث بإسم القسم"
                                         className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-sm focus:outline-none focus:border-brand-blue-2 text-right"
                                         dir="rtl"
                                     />
                                     <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-2" />
                                 </div>
-                                <button
-                                    onClick={handleSearch}
-                                    className="px-6 py-2.5 cursor-pointer bg-white border border-gray-200 text-gray-1 rounded-sm font-medium hover:bg-gray-50  transition-colors"
-                                >
-                                    بحث
-                                </button>
                             </div>
                         </div>
 

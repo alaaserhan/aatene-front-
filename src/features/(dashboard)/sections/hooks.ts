@@ -7,7 +7,7 @@ import { SectionCreatePayload, SectionUpdatePayload, SectionsResponse } from "./
 import { toast } from "sonner";
 
 const SectionsQK = {
-  list: (storeId?: string | number) => ["sections", "list", String(storeId)] as const,
+  list: (storeId?: string | number, params?: string) => ["sections", "list", String(storeId), params] as const,
 };
 
 export const useGetSections = (
@@ -16,7 +16,7 @@ export const useGetSections = (
   options?: Partial<UseQueryOptions<SectionsResponse, Error>>
 ) => {
   return useQuery({
-    queryKey: SectionsQK.list(storeId),
+    queryKey: SectionsQK.list(storeId, params.toString()),
     queryFn: () => api.getSections(params, storeId),
     enabled: !!storeId && (options?.enabled ?? true),
     ...options,
