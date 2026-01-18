@@ -172,6 +172,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
         title,
         description,
         short_description,
+        type: "product",
       });
 
       setLastGeneratedInput({ title, description, short_description });

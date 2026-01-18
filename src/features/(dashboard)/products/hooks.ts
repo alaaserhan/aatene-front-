@@ -390,7 +390,7 @@ export const useUpdateProductShown = () => {
 
 export const useGenerateProductAI = () => {
   return useMutation({
-    mutationFn: (payload: { title: string; description: string; short_description?: string }) =>
+    mutationFn: (payload: { title: string; description: string; short_description?: string; type: string }) =>
       api.generateProductAI(payload),
   });
 };
