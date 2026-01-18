@@ -5,11 +5,9 @@ import { ExecuteType, ServiceExtra, ServiceQuestion } from "./api";
 export interface Step1ServiceData {
   title: string;
   category_id: number | string;
-  section_id: number | string; // تمت الإضافة
-  tags: string[];
+  section_id: number | string;
   specialties: string[];
-  
-  // حقول اختيارية للتوافق
+
   price?: number;
   description?: string;
   images?: string[];
@@ -33,6 +31,7 @@ export interface Step3ServiceData {
 export interface Step4ServiceData {
   description: string;
   questions: ServiceQuestion[];
+  tags: string[];
 }
 
 export interface Step5ServiceData {

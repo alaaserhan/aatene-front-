@@ -11,15 +11,12 @@ import { Tooltip } from "@/src/components/ui/Tooltip";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { HelpCircle } from "lucide-react";
 import { Step1ServiceData } from "../types";
-import { cn } from "@/src/lib/utils";
 import { useGetCategories } from "../../categoriesAndAttributes/hooks";
 import { useGetSections, useCreateSection } from "../../sections/hooks"; // استيراد هوك الأقسام
 import { Stepper } from "@/src/components/ui/Stepper";
 import { ServicePreviewSidebar } from "./ServicePreviewSidebar";
 import { useGetSingleStore } from "../../stores/hooks";
 import { toast } from "sonner";
-import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
 import { SectionModal, SectionFormData } from "../../sections/components/SectionModal";
 
 interface AddServiceStep1Props {
@@ -55,8 +52,7 @@ export function AddServiceStep1({
   const [formData, setFormData] = useState<Step1ServiceData>({
     title: initialData?.title || "",
     category_id: initialData?.category_id || "",
-    section_id: initialData?.section_id || "", // تهيئة القسم
-    tags: initialData?.tags?.map((t: string | { title: string }) => (typeof t === 'object' ? t.title : t)) || [],
+    section_id: initialData?.section_id || "",
     specialties: initialData?.specialties?.map((s: string | { title: string }) => (typeof s === 'object' ? s.title : s)) || [],
     price: initialData?.price || 0,
     description: initialData?.description || "",
@@ -67,7 +63,6 @@ export function AddServiceStep1({
   });
 
   const [specialtyInput, setSpecialtyInput] = useState("");
-  const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
 
@@ -167,32 +162,6 @@ export function AddServiceStep1({
 
   const removeSpecialty = (itemToRemove: string) => {
     setFormData(prev => ({ ...prev, specialties: prev.specialties.filter(i => i !== itemToRemove) }));
-  };
-
-  const handleAddTag = () => {
-    const val = tagInput.trim();
-    if (!val) return;
-    if (formData.tags.includes(val)) {
-      toast.error("الكلمة المفتاحية مضافة بالفعل");
-      return;
-    }
-    if (formData.tags.length >= 10) {
-      toast.error("الحد الأقصى للكلمات المفتاحية هو 10");
-      return;
-    }
-    setFormData(prev => ({ ...prev, tags: [...prev.tags, val] }));
-    setTagInput("");
-  };
-
-  const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleAddTag();
-    }
-  };
-
-  const removeTag = (itemToRemove: string) => {
-    setFormData(prev => ({ ...prev, tags: prev.tags.filter(i => i !== itemToRemove) }));
   };
 
   const handleSaveSection = (data: SectionFormData) => {
@@ -385,58 +354,6 @@ export function AddServiceStep1({
                           key={index}
                           label={item}
                           onRemove={() => removeSpecialty(item)}
-                          showRemoveButton={true}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Keywords */}
-                <div className="space-y-4 pt-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium ">
-                      الكلمات المفتاحية
-                    </Label>
-                    <Tooltip
-                      trigger={
-                        <div className="flex items-center gap-1 text-blue-4 cursor-pointer hover:text-blue-500 transition-colors">
-                          <HelpCircle className="w-3.5 h-3.5" />
-                          <span className="text-xs font-medium">ماهي الكلمات المفتاحية</span>
-                        </div>
-                      }
-                      content={`الكلمات المفتاحية هي مصطلحات أو عبارات تصف محتوى الصفحة أو الموضوع، وتُستخدم لتحسين البحث والوصول للمحتوى بسهولة.مثل: "تعليم"، "برمجة"، "تصميم"`}
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="relative flex-1">
-                      <input
-                        type="text"
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyDown={handleTagKeyDown}
-                        placeholder="اضف الوسم ثم اضغط علي اضافة"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-300 text-sm transition-all"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleAddTag}
-                      disabled={!tagInput.trim()}
-                      className="px-6 py-3 bg-blue-4 text-white rounded-sm text-sm font-medium hover:bg-[#2c425e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      اضافة
-                    </button>
-                  </div>
-
-                  {formData.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2 ">
-                      {formData.tags.map((tag, index) => (
-                        <OptionTag
-                          key={index}
-                          label={tag}
-                          onRemove={() => removeTag(tag)}
                           showRemoveButton={true}
                         />
                       ))}

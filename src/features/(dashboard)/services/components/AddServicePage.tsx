@@ -94,7 +94,7 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
       category_id: formData.step1.category_id,
       section_id: formData.step1.section_id,
       store_id: Number(storeId),
-      tags: formData.step1.tags,
+      tags: formData.step4.tags,
       specialties: formData.step1.specialties,
 
       price: formData.step2.price,

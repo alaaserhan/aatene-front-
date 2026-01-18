@@ -57,7 +57,6 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
             title: service.title,
             category_id: service.category_id,
             section_id: service.section_id,
-            tags: service.tags || [],
             specialties: service.specialties || [],
           },
           step2: {
@@ -73,6 +72,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
           step4: {
             description: service.description,
             questions: service.questions || [],
+            tags: service.tags || [],
           },
         };
 
@@ -138,7 +138,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
       category_id: step1.category_id,
       section_id: step1.section_id,
       store_id: Number(storeId),
-      tags: step1.tags,
+      tags: step4.tags,
       specialties: step1.specialties,
 
       price: step2.price,

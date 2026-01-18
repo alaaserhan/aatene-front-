@@ -1,8 +1,8 @@
 // src/features/(dashboard)/services/components/AddServiceStep4.tsx
 "use client";
 
-import { useState } from "react";
-import { Plus, HelpCircle, Trash2, MoreHorizontal, Pencil, X } from "lucide-react";
+import { useState, KeyboardEvent } from "react";
+import { Plus, HelpCircle, Trash2, MoreHorizontal, Pencil, X, Loader2, Sparkles } from "lucide-react";
 import { ProductFormActions } from "../../products/components/ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Stepper } from "@/src/components/ui/Stepper";
@@ -15,6 +15,7 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
 import { Tooltip } from "@/src/components/ui/Tooltip";
+import { OptionTag } from "@/src/components/ui/OptionTag";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import {
@@ -22,6 +23,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/src/components/ui/popover";
+import { useGenerateProductAI } from "../../products/hooks";
 
 interface AddServiceStep4Props {
     previousDataStep1: Step1ServiceData;
@@ -59,16 +61,106 @@ export function AddServiceStep4({
     const { data: storeData } = useGetSingleStore(storeId!, { enabled: !!storeId });
     const store = storeData?.record;
 
-    // --- State ---
+    const generateAIMutation = useGenerateProductAI();
+    const isGeneratingAI = generateAIMutation.isPending;
+
     const [description, setDescription] = useState(initialData?.description || "");
     const [questions, setQuestions] = useState<ServiceQuestion[]>(initialData?.questions || []);
+    const [tags, setTags] = useState<string[]>(initialData?.tags || []);
+    const [tagInput, setTagInput] = useState("");
+    const [aiKeywords, setAiKeywords] = useState<string[]>(initialData?.tags || []);
+    const [lastGeneratedInput, setLastGeneratedInput] = useState<{ title: string; description: string } | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    // --- Add/Edit Question Form State ---
     const [showAddQuestion, setShowAddQuestion] = useState(false);
-    const [editingIndex, setEditingIndex] = useState<number | null>(null); // لتتبع السؤال الجاري تعديله
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [newQuestion, setNewQuestion] = useState("");
     const [newAnswer, setNewAnswer] = useState("");
+
+    const stripHtml = (html: string) => {
+        const tmp = document.createElement("DIV");
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || "";
+    };
+
+    const handleConfirmDescription = async () => {
+        const title = previousDataStep1.title.trim();
+        const descText = stripHtml(description).trim();
+
+        if (!descText || descText === "") {
+            toast.error("يرجى إدخال وصف للخدمة أولاً");
+            return;
+        }
+
+        if (
+            lastGeneratedInput &&
+            lastGeneratedInput.title === title &&
+            lastGeneratedInput.description === descText
+        ) {
+            toast.info("تم توليد الكلمات المفتاحية لهذا الوصف بالفعل");
+            return;
+        }
+
+        try {
+            const data = await generateAIMutation.mutateAsync({
+                title,
+                description: descText,
+                type: "service",
+            });
+
+            setLastGeneratedInput({ title, description: descText });
+
+            if (data.results?.keywords) {
+                setTags(data.results.keywords);
+                setAiKeywords(data.results.keywords);
+                toast.success("تم توليد الكلمات المفتاحية بنجاح");
+            }
+        } catch (error) {
+            console.error("AI Generation Error:", error);
+            toast.error("فشل توليد الكلمات المفتاحية");
+        }
+    };
+
+    const handleAddTag = () => {
+        const val = tagInput.trim();
+        if (!val) return;
+        if (tags.includes(val)) {
+            toast.error("الكلمة المفتاحية مضافة بالفعل");
+            return;
+        }
+        if (tags.length >= 10) {
+            toast.error("الحد الأقصى للكلمات المفتاحية هو 10");
+            return;
+        }
+        setTags([...tags, val]);
+        setTagInput("");
+    };
+
+    const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            handleAddTag();
+        }
+    };
+
+    const handleRemoveTag = (tagToRemove: string) => {
+        if (aiKeywords.length > 0) {
+            const isAiTag = aiKeywords.includes(tagToRemove);
+            if (isAiTag) {
+                const remainingAiTags = tags.filter(t => aiKeywords.includes(t) && t !== tagToRemove);
+                if (remainingAiTags.length < 3) {
+                    toast.error("يجب الإبقاء على 3 كلمات مفتاحية مولدة على الأقل");
+                    return;
+                }
+            }
+        } else {
+            if (tags.length <= 3) {
+                toast.error("يجب الإبقاء على 3 كلمات مفتاحية على الأقل");
+                return;
+            }
+        }
+        setTags(tags.filter(t => t !== tagToRemove));
+    };
 
     const handleSave = () => {
         if (!description || description === "<p><br></p>") {
@@ -79,11 +171,11 @@ export function AddServiceStep4({
 
         onSave({
             description,
-            questions
+            questions,
+            tags
         });
     };
 
-    // --- Questions Handlers ---
     const handleAddOrUpdateQuestion = () => {
         if (!newQuestion.trim()) {
             toast.error("يرجى كتابة السؤال");
@@ -95,13 +187,11 @@ export function AddServiceStep4({
         }
 
         if (editingIndex !== null) {
-            // Update existing
             const updatedQuestions = [...questions];
             updatedQuestions[editingIndex] = { question: newQuestion, answer: newAnswer };
             setQuestions(updatedQuestions);
             toast.success("تم تعديل السؤال بنجاح");
         } else {
-            // Add new
             setQuestions([...questions, { question: newQuestion, answer: newAnswer }]);
         }
 
@@ -148,19 +238,16 @@ export function AddServiceStep4({
 
                 <div className="grid grid-cols-12 gap-6 mt-8">
 
-                    {/* Right Side: Form */}
                     <div className="col-span-12 lg:col-span-8 space-y-6">
 
-                        {/* Combined Container for Description & FAQ */}
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
 
-                            {/* --- 1. Description Section --- */}
                             <div className="mb-8">
                                 <div className="flex items-center justify-between mb-4">
                                     <h2 className="text-xl font-bold ">وصف مفصل للخدمة</h2>
                                 </div>
 
-                                <div className="space-y-0">
+                                <div className="space-y-6">
                                     <RichTextEditor
                                         value={description}
                                         onChange={(val) => {
@@ -174,13 +261,93 @@ export function AddServiceStep4({
                                         required
                                         helpTooltip={`اشرح باختصار ما تقدمه في هذه الخدمة، مثل: "تصميم شعارات احترافية للشركات الصغيرة تشمل 3 نماذج أولية وتعديلات غير محدودة".`}
                                     />
+
+                                    <Button
+                                        type="button"
+                                        onClick={handleConfirmDescription}
+                                        disabled={
+                                            isGeneratingAI ||
+                                            !description ||
+                                            description === "<p><br></p>" ||
+                                            (lastGeneratedInput !== null &&
+                                                lastGeneratedInput.title === previousDataStep1.title.trim() &&
+                                                lastGeneratedInput.description === stripHtml(description).trim())
+                                        }
+                                        className="flex items-center mx-auto gap-2 bg-blue-4 hover:bg-blue-500"
+                                    >
+                                        {isGeneratingAI ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <Sparkles className="w-4 h-4" />
+                                        )}
+                                        {isGeneratingAI ? "جاري التوليد..." : "تأكيد الوصف وتوليد الكلمات المفتاحية"}
+                                    </Button>
                                 </div>
                             </div>
 
-                            {/* Divider */}
                             <div className="h-px bg-gray-100 w-full my-8"></div>
 
-                            {/* --- 2. FAQ Section --- */}
+                            <div className="mb-8">
+                                <div className="flex items-center justify-between mb-4">
+                                    <Label className="text-xl font-bold">
+                                        الكلمات المفتاحية
+                                    </Label>
+                                    <Tooltip
+                                        trigger={
+                                            <div className="flex items-center gap-1 text-blue-4 cursor-pointer hover:text-blue-500 transition-colors">
+                                                <HelpCircle className="w-3.5 h-3.5" />
+                                                <span className="text-xs font-medium">ماهي الكلمات المفتاحية</span>
+                                            </div>
+                                        }
+                                        content={`الكلمات المفتاحية هي مصطلحات أو عبارات تصف محتوى الصفحة أو الموضوع، وتُستخدم لتحسين البحث والوصول للمحتوى بسهولة.`}
+                                    />
+                                </div>
+
+                                {isGeneratingAI && (
+                                    <div className="flex items-center gap-2 text-blue-4 mb-4">
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        <span className="text-sm">جاري توليد الكلمات المفتاحية...</span>
+                                    </div>
+                                )}
+
+                                <div className={`flex items-center gap-3 mb-4 ${aiKeywords.length === 0 ? 'opacity-50' : ''}`}>
+                                    <div className="relative flex-1">
+                                        <input
+                                            type="text"
+                                            value={tagInput}
+                                            onChange={(e) => setTagInput(e.target.value)}
+                                            onKeyDown={handleTagKeyDown}
+                                            placeholder={aiKeywords.length === 0 ? "قم بتأكيد الوصف أولاً لتوليد الكلمات المفتاحية" : "اضف الكلمة المفتاحية ثم اضغط علي اضافة"}
+                                            disabled={aiKeywords.length === 0}
+                                            className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-300 text-sm transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                        />
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleAddTag}
+                                        disabled={!tagInput.trim() || aiKeywords.length === 0}
+                                        className="px-6 py-3 bg-blue-4 text-white rounded-sm text-sm font-medium hover:bg-[#2c425e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        اضافة
+                                    </button>
+                                </div>
+
+                                {tags.length > 0 && (
+                                    <div className="flex flex-wrap gap-2">
+                                        {tags.map((tag, index) => (
+                                            <OptionTag
+                                                key={index}
+                                                label={tag}
+                                                onRemove={() => handleRemoveTag(tag)}
+                                                showRemoveButton={true}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="h-px bg-gray-100 w-full my-8"></div>
+
                             <div>
                                 <div className="mb-6">
                                     <h2 className="text-xl font-bold  mb-1">الأسئلة الشائعة (اختياري)</h2>
@@ -190,7 +357,6 @@ export function AddServiceStep4({
                                 </div>
 
                                 <div className="space-y-4">
-                                    {/* List of Questions */}
                                     {questions.map((q, index) => (
                                         <div key={index} className="group relative bg-white pb-4 border-b border-gray-100 last:border-0">
                                             <div className="flex justify-between items-start">
@@ -203,7 +369,6 @@ export function AddServiceStep4({
                                                     </p>
                                                 </div>
 
-                                                {/* Action Menu (3 Dots) */}
                                                 <Popover>
                                                     <PopoverTrigger asChild>
                                                         <button className="text-gray-2 hover:text-gray-2 p-1 rounded-full hover:bg-gray-50 transition-colors">
@@ -231,7 +396,6 @@ export function AddServiceStep4({
                                         </div>
                                     ))}
 
-                                    {/* Add/Edit Question Form */}
                                     {showAddQuestion ? (
                                         <div className="bg-[#F0F6FA] border border-blue-100 rounded-lg p-6 space-y-4 animate-in fade-in slide-in-from-top-2 mt-4">
                                             <div className="flex justify-between items-center mb-2">
@@ -299,7 +463,6 @@ export function AddServiceStep4({
 
                     </div>
 
-                    {/* Left Side: Preview */}
                     <div className="col-span-12 lg:col-span-4">
                         <ServicePreviewSidebar
                             data={{
