@@ -104,7 +104,7 @@ export function CreateHighlightModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="h-12 text-right border-gray-200"
-            error={!name.trim() && isPending ? "يرجى كتابة اسم المجموعة" : undefined} // Optional: show error state if needed
+            error={!name.trim() && isPending ? "يرجى كتابة اسم المجموعة" : undefined} 
           />
 
           <div className="space-y-2">
