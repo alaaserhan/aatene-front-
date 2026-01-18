@@ -62,7 +62,7 @@ export function BlogsPage() {
         params.set("per_page", "10");
         if (selectedStoreId) params.set("store_id", selectedStoreId);
         if (searchQuery) params.set("title", searchQuery);
-        if (filterValue) params.set("orderBy", filterValue);
+        if (filterValue) params.set("orderDir", filterValue);
 
         return params;
     }, [currentPage, searchQuery, filterValue, selectedStoreId]);
@@ -85,10 +85,8 @@ export function BlogsPage() {
     ];
 
     const filterOptions = [
-        { label: "الأحدث", value: "latest" },
-        { label: "الأقدم", value: "oldest" },
-        { label: "الأكثر مشاهدة", value: "most_viewed" },
-        { label: "الأعلى تقييماً", value: "highest_rated" },
+        { label: "الأحدث", value: "desc" },
+        { label: "الأقدم", value: "asc" },
     ];
 
     // --- دوال التعامل مع الأحداث ---
