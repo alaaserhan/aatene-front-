@@ -56,6 +56,7 @@ export function useDeleteStory() {
     onSuccess: (data) => {
       toast.success(data.message || "تم حذف القصة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["stories"] });
+      queryClient.invalidateQueries({ queryKey: ["highlights"] });
     },
     onError: (error: AxiosError<api.BaseResponse>) => {
       toast.error(error.response?.data?.message || "حدث خطأ أثناء الحذف");

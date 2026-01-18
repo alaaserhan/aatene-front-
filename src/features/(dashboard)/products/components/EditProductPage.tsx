@@ -11,7 +11,7 @@ import { AddProductStep2 } from "./AddProductStep2";
 import { AddProductStep3 } from "./AddProductStep3";
 import { AddProductStep4 } from "./AddProductStep4";
 import { ProductUpdatePayload, Product as ApiProduct, Variation, CrossSellProduct } from "../api";
-import { useUpdateProduct, useGetSingleProduct } from "../hooks";
+import { useUpdateProduct, useGetSingleProduct, useGenerateProductAI } from "../hooks";
 import { Button } from "@/src/components/ui/button";
 import {
   CompleteProductFormData,
@@ -45,6 +45,10 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<CompleteProductFormData | null>(null);
   const [mappingError, setMappingError] = useState(false);
+  const generateAIMutation = useGenerateProductAI();
+  const isGeneratingAI = generateAIMutation.isPending;
+  const [lastGeneratedInput, setLastGeneratedInput] = useState<{ title: string; description: string; short_description: string } | null>(null);
+  const [aiKeywords, setAiKeywords] = useState<string[]>([]);
 
   useEffect(() => {
     const responseData = productData as unknown as { record?: ApiProduct; data?: ApiProduct };
@@ -149,10 +153,64 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     setCurrentStep(step);
   };
 
+  const handleGenerateAI = async (currentStep1Data: Step1FormData) => {
+    const title = currentStep1Data.name.trim();
+    const description = currentStep1Data.description.trim();
+    const short_description = currentStep1Data.short_description.trim();
+
+    if (
+      lastGeneratedInput &&
+      lastGeneratedInput.title === title &&
+      lastGeneratedInput.description === description &&
+      lastGeneratedInput.short_description === short_description
+    ) {
+      return;
+    }
+
+    try {
+      const data = await generateAIMutation.mutateAsync({
+        title,
+        description,
+        short_description,
+      });
+
+      setLastGeneratedInput({ title, description, short_description });
+
+      console.log("AI Response:", data);
+
+      setFormData((prev) => {
+        if (!prev) return null;
+
+        const newStep1 = { ...prev.step1, ...currentStep1Data };
+        if (data.title) newStep1.name = data.title;
+        if (data.short_description) newStep1.short_description = data.short_description;
+
+        const newStep2 = { ...prev.step2 } as Step2FormData;
+        // Ensure step2 exists - though in edit mode it should
+        if (data.results?.keywords) {
+          newStep2.tags = data.results.keywords;
+          setAiKeywords(data.results.keywords);
+        }
+
+        return {
+          ...prev,
+          step1: newStep1,
+          step2: newStep2,
+        };
+      });
+
+    } catch (error) {
+      console.error("AI Generation Error:", error);
+      toast.error("فشل توليد البيانات");
+    }
+  };
+
   const handleStep1Next = (data: Step1FormData) => {
     if (!formData) return;
     setFormData({ ...formData, step1: data });
     setCurrentStep(2);
+    // Trigger AI generation
+    handleGenerateAI(data);
   };
 
   const handleStep1Cancel = () => {

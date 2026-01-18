@@ -60,7 +60,7 @@ export interface Product {
   category_id?: number | string;
   category?: Category;
   section_id?: number | string;
-  section?: Section | null; 
+  section?: Section | null;
   status?: ProductStatus;
   end_date?: string | null;
   shown: boolean;
@@ -201,5 +201,25 @@ export const updateProductShown = async (
   const endpoint = getDynamicEndpoint(`/products/${id}/update-shown`);
   const headers = getHeaders();
   const { data } = await api.post<BaseResponse>(endpoint, payload, { headers });
+  return data;
+};
+
+export interface GenerateAIResponse {
+  title?: string;
+  description?: string;
+  short_description?: string;
+  results?: {
+    keywords?: string[];
+  };
+  success?: boolean;
+}
+
+export const generateProductAI = async (
+  payload: { title: string; description: string; short_description?: string }
+): Promise<GenerateAIResponse> => {
+  const { data } = await api.post<GenerateAIResponse>(
+    "https://n8n.aatene.com/webhook/932942c7-8bb9-4793-9fae-8468d0b2de32",
+    payload
+  );
   return data;
 };

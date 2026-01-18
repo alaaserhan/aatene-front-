@@ -136,6 +136,17 @@ export function AddProductStep1({
     { label: "انشاء منتج جديد" },
   ];
 
+  // Sync with initialData if it changes (e.g. from AI)
+  useEffect(() => {
+    if (initialData) {
+      setFormData((prev) => ({
+        ...prev,
+        ...initialData,
+        // Preserve previews if not in initialData, unless needed
+      }));
+    }
+  }, [initialData]);
+
   // --- Watch Logic: مراقبة التغييرات لحذف الأخطاء ---
   useEffect(() => {
     const newErrors = { ...errors };
@@ -161,7 +172,7 @@ export function AddProductStep1({
       hasChanges = true;
     }
 
-    if (errors.short_description) {
+    if (errors.short_description && formData.short_description.trim()) {
       delete newErrors.short_description;
       hasChanges = true;
     }
@@ -181,6 +192,10 @@ export function AddProductStep1({
 
     if (!formData.name.trim()) {
       newErrors.name = "اسم المنتج مطلوب";
+    }
+
+    if (!formData.short_description.trim()) {
+      newErrors.short_description = "الوصف الموجز مطلوب";
     }
 
     if (!formData.cover) {
@@ -238,6 +253,7 @@ export function AddProductStep1({
       gallery_previews: newGalleryUrls,
     });
   };
+
 
   const scrollToCategoryDropdown = () => {
     if (categoryDropdownRef.current) {
@@ -395,6 +411,7 @@ export function AddProductStep1({
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium flex items-center gap-1">
                       الوصف الموجز
+                      <span className="text-red-500">*</span>
                     </Label>
                     <Tooltip
                       trigger={

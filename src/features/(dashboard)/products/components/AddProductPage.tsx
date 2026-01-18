@@ -9,7 +9,7 @@ import { AddProductStep2 } from "./AddProductStep2";
 import { AddProductStep3 } from "./AddProductStep3";
 import { AddProductStep4 } from "./AddProductStep4";
 import { ProductCreatePayload } from "../api";
-import { useCreateProduct } from "../hooks";
+import { useCreateProduct, useGenerateProductAI } from "../hooks";
 import {
   CompleteProductFormData,
   Step1FormData,
@@ -39,6 +39,11 @@ export function AddProductPage() {
       section_id: Number(sectionIdFromUrl)
     } : undefined
   });
+
+  const generateAIMutation = useGenerateProductAI();
+  const isGeneratingAI = generateAIMutation.isPending;
+  const [lastGeneratedInput, setLastGeneratedInput] = useState<{ title: string; description: string; short_description: string } | null>(null);
+  const [aiKeywords, setAiKeywords] = useState<string[]>([]);
 
   const breadcrumbItems = useMemo(() => [
     { label: "المنتجات", href: "/admin/products" },
@@ -108,6 +113,8 @@ export function AddProductPage() {
     const newData = { ...formData, step1: data };
     setFormData(newData);
     setCurrentStep(2);
+    // Trigger AI generation automatically
+    handleGenerateAI(data);
   };
 
   const handleStep1Cancel = () => {
@@ -192,6 +199,62 @@ export function AddProductPage() {
     setCurrentStep(3);
   };
 
+  const handleGenerateAI = async (currentStep1Data: Step1FormData) => {
+    const title = currentStep1Data.name.trim();
+    const description = currentStep1Data.description.trim();
+    const short_description = currentStep1Data.short_description.trim();
+
+    if (
+      lastGeneratedInput &&
+      lastGeneratedInput.title === title &&
+      lastGeneratedInput.description === description &&
+      lastGeneratedInput.short_description === short_description
+    ) {
+      return;
+    }
+
+    try {
+      const data = await generateAIMutation.mutateAsync({
+        title,
+        description,
+        short_description,
+      });
+
+      setLastGeneratedInput({ title, description, short_description });
+
+      console.log("AI Response:", data);
+
+      setFormData((prev) => {
+        const newStep1 = { ...prev.step1, ...currentStep1Data };
+        if (data.title) newStep1.name = data.title;
+        if (data.short_description) newStep1.short_description = data.short_description;
+
+        const newStep2 = { ...prev.step2 } as Step2FormData;
+        // Ensure step2 exists
+        if (!newStep2.store_id) {
+          newStep2.store_id = Number(storeId) || 0;
+          newStep2.tags = [];
+        }
+
+        if (data.results?.keywords) {
+          newStep2.tags = data.results.keywords;
+          setAiKeywords(data.results.keywords);
+        }
+
+        return {
+          ...prev,
+          step1: newStep1,
+          step2: newStep2
+        };
+      });
+
+    } catch (error) {
+      console.error("AI Generation Error:", error);
+      toast.error("فشل توليد البيانات");
+    }
+  };
+
+
   const steps = [
     { number: 1, label: "المعلومات الاساسية", completed: currentStep > 1 },
     { number: 2, label: "المعلومات المتقدمة", completed: currentStep > 2 },
@@ -212,6 +275,8 @@ export function AddProductPage() {
             storeId={storeId}
             breadcrumbItems={breadcrumbItems}
             onStepClick={handleStepClick}
+            onGenerateAI={handleGenerateAI}
+            isGeneratingAI={isGeneratingAI}
           />
         );
 
@@ -230,6 +295,8 @@ export function AddProductPage() {
             barSteps={steps}
             breadcrumbItems={breadcrumbItems}
             onStepClick={handleStepClick}
+            isGeneratingAI={isGeneratingAI}
+            aiKeywords={aiKeywords}
           />
         );
 
@@ -282,6 +349,8 @@ export function AddProductPage() {
             storeId={storeId}
             breadcrumbItems={breadcrumbItems}
             onStepClick={handleStepClick}
+            onGenerateAI={handleGenerateAI}
+            isGeneratingAI={isGeneratingAI}
           />
         );
     }

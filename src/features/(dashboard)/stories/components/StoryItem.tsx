@@ -84,13 +84,15 @@ export function StoryItem({ story, storeId }: StoryItemProps) {
 
       </div>
 
-      <ConfirmDeleteModal
-        isOpen={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        onConfirm={handleDelete}
-        title="حذف القصة"
-        description="هل أنت متأكد من حذف هذه القصة؟ لا يمكن التراجع عن هذا الإجراء."
-      />
+      <div onClick={(e) => e.stopPropagation()}>
+        <ConfirmDeleteModal
+          isOpen={deleteOpen}
+          onClose={() => setDeleteOpen(false)}
+          onConfirm={handleDelete}
+          title="حذف القصة"
+          description="هل أنت متأكد من حذف هذه القصة؟ لا يمكن التراجع عن هذا الإجراء."
+        />
+      </div>
     </>
   );
 }

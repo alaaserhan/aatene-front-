@@ -151,7 +151,7 @@ export function AddStoryModal({
                                 <textarea
                                     value={text}
                                     onChange={(e) => setText(e.target.value)}
-                                    placeholder="أكتب ما تري|"
+                                    placeholder="أكتب ما تري"
                                     className="w-full h-full bg-transparent text-white text-center text-2xl font-bold placeholder-white/70 border-none outline-none resize-none p-6 flex items-center justify-center pt-[50%]"
                                     dir="auto"
                                     maxLength={300}

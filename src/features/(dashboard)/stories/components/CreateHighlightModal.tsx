@@ -11,6 +11,7 @@ import { Input } from "@/src/components/ui/input";
 import { toast } from "sonner";
 import { cn } from "@/src/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { FormInput } from "@/src/components/ui/FormInput";
 
 interface CreateHighlightModalProps {
   isOpen: boolean;
@@ -56,7 +57,6 @@ export function CreateHighlightModal({
 
   const handleSubmit = () => {
     if (!name.trim()) {
-      toast.error("يرجى كتابة اسم المجموعة");
       return;
     }
     if (selectedStories.length === 0) {
@@ -97,11 +97,14 @@ export function CreateHighlightModal({
             {highlightToEdit ? "تعديل المجموعة" : "انشاء مجموعة جديدة"}
           </h3>
 
-          <Input
+          <FormInput
+            required
+            label="اسم المجموعة"
             placeholder="اسم المجموعة"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="h-12 text-right border-gray-200"
+            error={!name.trim() && isPending ? "يرجى كتابة اسم المجموعة" : undefined} // Optional: show error state if needed
           />
 
           <div className="space-y-2">
