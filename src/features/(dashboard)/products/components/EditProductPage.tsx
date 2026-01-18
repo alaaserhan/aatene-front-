@@ -378,6 +378,8 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             breadcrumbItems={breadcrumbItems}
             onStepClick={handleStepClick}
             showSaveDraft={false}
+            isGeneratingAI={isGeneratingAI}
+            aiKeywords={aiKeywords}
           />
         );
       case 3:

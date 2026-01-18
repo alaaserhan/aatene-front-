@@ -275,8 +275,6 @@ export function AddProductPage() {
             storeId={storeId}
             breadcrumbItems={breadcrumbItems}
             onStepClick={handleStepClick}
-            onGenerateAI={handleGenerateAI}
-            isGeneratingAI={isGeneratingAI}
           />
         );
 
