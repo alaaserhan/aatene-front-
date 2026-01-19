@@ -61,6 +61,7 @@ export function StoresAnalytics() {
                                     <Tooltip
                                         contentStyle={{ borderRadius: "8px", border: "none", fontSize: "12px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }}
                                         cursor={{ stroke: '#e5e7eb', strokeWidth: 1 }}
+                                        formatter={(value: number) => [`العدد : ${value} `]}
                                     />
                                     <Line
                                         type="linear"

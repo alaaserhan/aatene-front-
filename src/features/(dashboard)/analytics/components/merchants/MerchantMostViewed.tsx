@@ -1,6 +1,7 @@
-// src/components/(merchant)/analytics/MerchantMostViewed.tsx
+// src/features/(dashboard)/analytics/components/merchants/MerchantMostViewed.tsx
 "use client";
 
+import Link from "next/link";
 import { Loader2, ChevronLeft, TrendingUp } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
@@ -30,6 +31,7 @@ export function MerchantMostViewed() {
     const { data, isLoading } = useGetMerchantAnalyticsMostViewed();
     const storeType = Cookies.get("store_type");
     const isServiceStore = storeType === "services";
+    const basePath = isServiceStore ? "/services" : "/products";
 
     // Select data based on store type
     const products = data?.mostViewedProducts || [];
@@ -77,18 +79,20 @@ export function MerchantMostViewed() {
             {/* List with Custom Scrollbar */}
             <div className="flex-1 relative">
                 <ScrollArea className="h-[250px] -ml-4 pl-4" dir="rtl">
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-0">
                         {items.length > 0 ? (
                             items.map((item, index) => (
-                                <div key={`${item.id}-${index}`} className="flex items-center justify-between group">
+                                <Link
+                                    key={`${item.id}-${index}`}
+                                    href={`${basePath}/${item.id}`}
+                                    className="flex items-center justify-between group cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors -mx-2"
+                                >
 
                                     {/* Right: Rank Number */}
                                     <div className="w-8 flex justify-center">
                                         <span className={cn(
                                             "text-lg font-bold",
-                                            index === 0 ? "text-green-500" :
-                                                index === 1 ? "text-blue-500" :
-                                                    index === 2 ? "text-orange-500" : "text-gray-2"
+                                            index === 0 ? "text-green-500" : "text-gray-2"
                                         )}>
                                             {index + 1}
                                         </span>
@@ -96,7 +100,7 @@ export function MerchantMostViewed() {
 
                                     {/* Middle: Image & Info */}
                                     <div className="flex items-center gap-3 flex-1">
-                                        <div className="w-12 h-12 rounded-lg border border-gray-100 p-1 bg-white overflow-hidden flex items-center justify-center">
+                                        <div className="w-12 h-12 rounded-lg border border-gray-100 p-1 bg-white overflow-hidden flex items-center justify-center shrink-0">
                                             {item.cover_url ? (
                                                 <img
                                                     src={item.cover_url}
@@ -111,7 +115,7 @@ export function MerchantMostViewed() {
                                         </div>
                                         <div className="flex flex-col">
                                             <h4 className="text-sm font-medium line-clamp-1">{item.name}</h4>
-                                            <div className="flex items-center gap-1 mt-0.5 bg-gray-50 px-2 py-0.5 rounded-md">
+                                            <div className="flex items-center gap-1 mt-0.5 bg-gray-50 px-2 py-0.5 rounded-md w-fit">
                                                 <span className="text-[11px] text-gray-2">عدد المشاهدات</span>
                                                 <span className={cn(
                                                     "text-[11px] font-bold px-2 py-0.5 rounded-full",
@@ -124,10 +128,10 @@ export function MerchantMostViewed() {
                                     </div>
 
                                     {/* Left: Arrow */}
-                                    <button className="text-gray-300 hover:text-[#3A5779] transition-colors">
+                                    <div className="text-gray-300 group-hover:text-[#3A5779] transition-colors">
                                         <ChevronLeft className="w-5 h-5" />
-                                    </button>
-                                </div>
+                                    </div>
+                                </Link>
                             ))
                         ) : (
                             <div className="text-center py-10 text-gray-2 text-sm">
