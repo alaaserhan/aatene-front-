@@ -150,12 +150,12 @@ export function AddShippingCompanyDialog({
         isValid = false;
       }
 
-      // التحقق من السعر (يمكن أن يكون 0 للشحن المجاني، ولكن لا يجب أن يكون فارغاً أو سالباً إذا كان الإدخال يسمح بذلك)
-      // ملاحظة: بما أننا نستخدم input type number و state number، القيمة الفارغة تتحول لـ 0 في الـ onChange
-      // لذا إذا كنت تريد منع السعر 0، استخدم condition: priceData.price <= 0
-      // الكود السابق كان price < 0 مما يسمح بـ 0. سنلتزم بذلك ما لم يكن المطلوب منع المجاني.
-      if (priceData && priceData.price !== "" && priceData.price < 0) {
-        newErrors[`price_${cityId}`] = "سعر غير صحيح";
+      // التحقق من السعر (يجب ألا يكون فارغاً وأكبر من 0)
+      if (!priceData || priceData.price === "") {
+        newErrors[`price_${cityId}`] = "يجب تحديد سعر التوصيل";
+        isValid = false;
+      } else if (priceData.price <= 0) {
+        newErrors[`price_${cityId}`] = "يجب أن يكون السعر أكبر من 0";
         isValid = false;
       }
     }
