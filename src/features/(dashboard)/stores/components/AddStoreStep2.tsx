@@ -362,13 +362,13 @@ export function AddStoreStep2({
                       className="h-10 border-none shadow-none px-0 focus-visible:ring-0 text-start"
                       placeholder="ادخل العنوان"
                     />
-                    <Button
+                    {/* <Button
                       type="button"
                       variant="link"
                       className="p-0 px-3 py-0 mx-0.5 text-xs whitespace-nowrap"
                     >
                       تحديد من الخريطة
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
 

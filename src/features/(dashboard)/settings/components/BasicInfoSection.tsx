@@ -157,14 +157,14 @@ export function BasicInfoSection({
                   onChange={(e) => onChange({ address: e.target.value })}
                   className="h-10 border-none shadow-none px-0 focus-visible:ring-0 "
                 />
-                <Button
+                {/* <Button
                   type="button"
                   variant="link"
                   onClick={() => setIsMapModalOpen(true)}
                   className="p-0 px-3 py-0 mx-0.5 text-xs"
                 >
                   تحديد من الخريطة
-                </Button>
+                </Button> */}
               </div>
             </div>
 
