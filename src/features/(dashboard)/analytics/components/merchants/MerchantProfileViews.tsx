@@ -75,7 +75,7 @@ export function MerchantProfileViews() {
                                             textAlign: "right"
                                         }}
                                         cursor={{ stroke: '#e5e7eb', strokeWidth: 1 }}
-                                        formatter={(value: number) => [`${value} مشاهدة`, ""]}
+                                        formatter={(value: number) => [`العدد : ${value} `]}
                                     />
                                     <Line
                                         type="linear"

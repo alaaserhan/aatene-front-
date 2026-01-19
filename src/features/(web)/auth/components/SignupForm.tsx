@@ -1,7 +1,7 @@
 // src/app/(web)/signup/components/SignupForm.tsx
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -16,7 +16,8 @@ import {
   FormMessage,
 } from "@/src/components/ui/form";
 import { FormInput } from "@/src/components/ui/FormInput";
-import { Checkbox } from "@/src/components/ui/checkbox";
+import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
+import { cn } from "@/src/lib/utils";
 import { Card, CardContent, CardDescription, CardTitle } from "@/src/components/ui/card";
 import { Separator } from "@/src/components/ui/separator";
 import { useRegister } from "../hooks";
@@ -46,6 +47,7 @@ const signupSchema = z
 type SignupFormData = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
+  const [countryCode, setCountryCode] = useState("+20");
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -107,8 +109,8 @@ export function SignupForm() {
             </CardDescription>
           </div>
 
-          <Button variant="outline" className="w-full gradient-blue gap-3 text-white rounded-full p-3 sm:p-4 text-sm sm:p-4">
-            <span>Google</span>
+          <Button variant="outline" className="w-full bg-blue-3 hover:text-white gap-3 text-white rounded-full p-3 sm:p-5">
+            <span>تسجيل الدخول بواسطة جوجل</span>
           </Button>
 
           <div className="relative">
@@ -170,13 +172,16 @@ export function SignupForm() {
                 control={form.control}
                 name="phone"
                 render={({ field, fieldState }) => (
-                  <FormInput
+                  <PhoneNumberInput
                     label="رقم الهاتف"
-                    type="tel"
                     placeholder="أدخل رقم هاتفك"
                     required
+                    countryCode={countryCode}
+                    onCountryCodeChange={setCountryCode}
                     error={fieldState.error?.message}
                     {...field}
+                    rounded="rounded-sm"
+                    height="h-11"
                   />
                 )}
               />
@@ -213,16 +218,41 @@ export function SignupForm() {
                 control={form.control}
                 name="terms"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rtl:space-x-reverse">
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rtl:space-x-reverse group">
                     <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
+                      <button
+                        type="button"
+                        onClick={() => field.onChange(!field.value)}
+                        className={cn(
+                          "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 flex-shrink-0",
+                          "cursor-pointer",
+                          field.value
+                            ? "bg-blue-5 border-blue-4"
+                            : "bg-white border-gray-300 group-hover:border-gray-2"
+                        )}
+                        aria-checked={field.value}
+                        role="checkbox"
+                      >
+                        {field.value && (
+                          <svg
+                            className="w-4 h-4 text-blue-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={3}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        )}
+                      </button>
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-xs text-gray-2 cursor-pointer">
-                        لقد قرأت ووافقت على
+                      <FormLabel className="text-xs text-gray-2 cursor-pointer mx-2">
+                        لقد قرأت و وافقت على
                         <Link href="/terms" className="underline hover:text-primary">
                           شروط الخدمة
                         </Link>
@@ -237,9 +267,9 @@ export function SignupForm() {
                 )}
               />
 
-              <Button type="submit" className="w-full gradient-blue" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" className="w-full bg-blue-3 p-3 sm:p-5 hover:text-white" disabled={isPending}>
                 {isPending ? "جاري الإنشاء..." : "إنشاء حساب"}
+                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               </Button>
             </form>
           </Form>

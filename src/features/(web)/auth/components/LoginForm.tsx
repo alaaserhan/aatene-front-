@@ -56,8 +56,8 @@ export function LoginForm() {
             </CardDescription>
           </div>
 
-          <Button variant="outline" className="w-full gradient-blue gap-3 text-white rounded-full p-3 sm:p-4 text-sm sm:p-4">
-            <span>Google</span>
+          <Button variant="outline" className="w-full bg-blue-3 hover:text-white gap-3 text-white rounded-full p-3 sm:p-5">
+            <span>تسجيل الدخول بواسطة جوجل</span>
           </Button>
 
           <div className="relative">
@@ -99,9 +99,9 @@ export function LoginForm() {
                   />
                 )}
               />
-              <Button type="submit" className="w-full gradient-blue" disabled={isPending}>
+              <Button type="submit" className="w-full bg-blue-3 p-3 sm:p-5 hover:text-white" disabled={isPending}>
+                {isPending ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isPending ? "جاري التسجيل..." : "تسجيل الدخول"}
               </Button>
               <div className="text-center">
                 <Link

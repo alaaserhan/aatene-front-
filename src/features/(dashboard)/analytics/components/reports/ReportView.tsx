@@ -44,6 +44,7 @@ export function ReportView({ type }: ReportViewProps) {
             data = productsQuery.data;
             config = {
                 title: "تقارير المنتجات",
+                subtitle: "قائمة المنتجات  التي حصلت علي تصفح اكثر",
                 icon: ShoppingBag,
                 cards: [
                     { title: "اجمالي المنتجات", value: data?.totalProducts, icon: ShoppingBag, colorTheme: "gray" },
@@ -56,9 +57,9 @@ export function ReportView({ type }: ReportViewProps) {
                     { key: "not_active_count", color: "#F59E0B", name: "منتجات في انتظار الموافقة" },
                 ],
                 chartData: data?.productsGrowthChart || [],
-                topListName: "المنتجات الأكثر  تقيما",
-                topListItems: data?.topRatedProducts?.map((item: any, i: number) => ({
-                    id: item.id, title: item.name, subtitle: `${item.review_count || 0} تقييم`, image: item.cover_url, rank: i + 1, badgeColor: "bg-green-100 text-green-700"
+                topListName: "المنتجات الاكثر تصفحاً",
+                topListItems: data?.mostViewedProducts?.map((item: any, i: number) => ({
+                    id: item.id, title: item.name, subtitle: "عدد المشاهدات", image: item.cover_url, rank: i + 1, badgeText: `${item.views_count || 0} مشاهدة`, badgeColor: "bg-green-100 text-green-700"
                 })) || []
             };
             break;
@@ -68,6 +69,7 @@ export function ReportView({ type }: ReportViewProps) {
             data = servicesQuery.data;
             config = {
                 title: "تقارير الخدمات",
+                subtitle: "قائمة الخدمات التي حصلت علي اعلي تقييم",
                 icon: Wrench,
                 cards: [
                     { title: "اجمالي الخدمات", value: data?.totalServices, icon: Wrench, colorTheme: "gray" },
@@ -82,7 +84,7 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: data?.servicesGrowthChart || [],
                 topListName: "الخدمات الأعلى تقييماً",
                 topListItems: data?.topRatedServices?.map((item: any, i: number) => ({
-                    id: item.id, title: item.title, subtitle: `${item.views_count || 0} مشاهدة`, image: item.images_urls[0], rank: i + 1, badgeText: "150 تقييم", badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.title, subtitle: "عدد التقييمات", image: item.images_urls[0], rank: i + 1, badgeText: `${item.review_count || 0} تقييم`, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
                 bottomListName: "الخدمات الاعلي عدد بلاغات",
                 bottomListItems: data?.mostReportedServices?.map((item: any, i: number) => ({
@@ -96,6 +98,7 @@ export function ReportView({ type }: ReportViewProps) {
             data = usersQuery.data;
             config = {
                 title: "تقارير العملاء",
+                subtitle: "قائمة العملاء الأكثر تفاعلاً",
                 icon: Users,
                 cards: [
                     { title: "اجمالي العملاء", value: data?.totalCustomers, icon: Users, colorTheme: "blue" },
@@ -120,6 +123,7 @@ export function ReportView({ type }: ReportViewProps) {
             data = merchantsQuery.data;
             config = {
                 title: "تقارير التجار",
+                subtitle: "قائمة التجار  حصلت علي اعلي تقييم",
                 icon: Store,
                 cards: [
                     { title: "إجمالي التجار", value: data?.totalMerchants, icon: Users, colorTheme: "gray" },
@@ -149,6 +153,7 @@ export function ReportView({ type }: ReportViewProps) {
             data = storesQuery.data;
             config = {
                 title: "تقارير المتاجر",
+                subtitle: "قائمة المتاجر التي حصلت علي اعلي تقييم",
                 icon: Store,
                 cards: [
                     { title: "اجمالي المتاجر", value: data?.totalStores, icon: Store, colorTheme: "gray" },
@@ -163,7 +168,7 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: data?.storesGrowthChart || [],
                 topListName: "المتاجر الأعلى تقييماً",
                 topListItems: data?.topRatedStores?.map((item: any, i: number) => ({
-                    id: item.id, title: item.name, subtitle: "عدد التقييمات", image: item.cover_urls[0], rank: i + 1, badgeText: `${item.review_rate || 50} تقييم`, badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.name, subtitle: "عدد التقييمات", image: item.cover_urls[0], rank: i + 1, badgeText: `${item.reviews_count || 0} تقييم`, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
                 bottomListName: "المتاجر الاعلي عدد بلاغات",
                 bottomListItems: data?.topReportedStores?.map((item: any, i: number) => ({
@@ -225,7 +230,7 @@ export function ReportView({ type }: ReportViewProps) {
                 <div className="col-span-12 lg:col-span-4">
                     <TopList
                         title={config.topListName}
-                        subtitle={`قائمة ${config.title} حسب التصنيف`}
+                        subtitle={config.subtitle}
                         items={config.topListItems}
                         className="h-[450px]"
                         icon={ChevronsUp}
