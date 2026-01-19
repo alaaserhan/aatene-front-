@@ -69,7 +69,6 @@ export const useRegister = () => {
 
 // --- Logout Hook ---
 export const useLogout = () => {
-  const router = useRouter();
   const lang = useLanguage();
   const queryClient = useQueryClient();
   const logoutFromStore = useAuthStore((state) => state.logout); // Get logout function
@@ -77,21 +76,18 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: logoutUser,
     onSuccess: (data) => {
-      // 1. Update the Zustand store
       logoutFromStore();
-      // 2. Invalidate all queries to clear user-specific data
-      queryClient.invalidateQueries(); // Clears React Query cache
-      queryClient.clear(); // More aggressive clearing if needed
-      // 3. Redirect to login page
-      router.push(`/${lang}/login`);
+      queryClient.cancelQueries();
+      queryClient.clear();
       toast.success(data.message || "Logout successful!");
+      window.location.href = `/${lang}/login`;
     },
     onError: (error) => {
       console.error("Logout failed:", error);
-      // Even if API fails, force logout on client
       logoutFromStore();
+      queryClient.cancelQueries();
       queryClient.clear();
-      router.push(`/${lang}/login`);
+      window.location.href = `/${lang}/login`;
     },
   });
 };

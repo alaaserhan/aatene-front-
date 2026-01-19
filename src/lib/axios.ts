@@ -12,7 +12,7 @@ import { ErrorResponse } from "../types";
 const api: AxiosInstance = axios.create({
   baseURL:
     process.env.NEXT_PUBLIC_API_BASE_URL ??
-    "https://aatene.dev/api", 
+    "https://aatene.dev/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -22,54 +22,43 @@ const api: AxiosInstance = axios.create({
 // --- (2) Request Interceptor (بيشتغل قبل ما الطلب يتبعت) ---
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    
-    // --- (3) دالة جلب الكوكيز (سيرفر أو كلاينت) ---
+
     let token: string | undefined;
     let lang: string | undefined;
-    // let currency: string | undefined;
-    // let countryCode: string | undefined;
 
     if (typeof window === "undefined") {
-      // (Server-Side)
       try {
         const { cookies } = await import("next/headers");
         const cookieStore = await cookies();
         token = cookieStore.get("token")?.value;
         lang = cookieStore.get("lang")?.value;
-        // currency = cookieStore.get("currency")?.value;
-        // countryCode = cookieStore.get("countryCode")?.value;
       } catch (error) {
         console.warn("Could not read server cookies in axios.ts:", error);
       }
     } else {
-      // (Client-Side)
       token = Cookies.get("token");
       lang = Cookies.get("lang");
-      // currency = Cookies.get("currency");
-      // countryCode = Cookies.get("countryCode");
     }
-    // --- نهاية دالة جلب الكوكيز ---
 
-    // 1️⃣ إضافة التوكن (Authorization) (فقط لو موجود)
+    const isAuthEndpoint = config.url?.includes("/login") ||
+      config.url?.includes("/register") ||
+      config.url?.includes("/password");
+
+    if (!token && !isAuthEndpoint && typeof window !== "undefined") {
+      const controller = new AbortController();
+      config.signal = controller.signal;
+      controller.abort();
+      return config;
+    }
+
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // 2️⃣ إضافة اللغة (X-Culture)
-    lang = lang || "en"; // حط لغة افتراضية
+    lang = lang || "en";
     if (lang && config.headers) {
       config.headers["X-Culture"] = lang;
     }
-
-    // // 3️⃣ إضافة العملة (X-Currency)
-    // if (currency && config.headers) {
-    //   config.headers["X-Currency"] = currency;
-    // }
-
-    // // 4️⃣ إضافة الدولة (X-Country)
-    // if (countryCode && config.headers) {
-    //   config.headers["X-Country"] = countryCode;
-    // }
 
     return config;
   },
@@ -81,7 +70,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
-    
+
     if (error.response?.status === 401) {
       if (typeof window !== "undefined") {
         if (!window.location.pathname.includes("/login")) {
@@ -104,7 +93,7 @@ api.interceptors.response.use(
         if (firstErrorArray && firstErrorArray.length > 0) {
           message = firstErrorArray[0];
         }
-      } 
+      }
       // ثانياً: إذا لم يكن هناك errors، استخدم message
       else if (responseData?.message) {
         message = responseData.message;
