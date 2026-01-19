@@ -18,6 +18,7 @@ interface SuccessModalProps {
   title?: string;
   message?: string;
   buttonText?: string;
+  onButtonClick?: () => void;
 }
 
 export function SuccessModal({
@@ -26,14 +27,20 @@ export function SuccessModal({
   title = "تمت العملية بنجاح",
   message,
   buttonText = "تم",
+  onButtonClick,
 }: SuccessModalProps) {
-  // لا نحتاج شرط if (!isOpen) لأن Dialog يتحكم في الظهور داخلياً عبر open prop
+  const handleButtonClick = () => {
+    if (onButtonClick) {
+      onButtonClick();
+    } else {
+      onClose();
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md" dir="rtl">
         <DialogHeader className="flex flex-col items-center pt-4">
-          {/* أيقونة النجاح بنفس ستايل أيقونة الحذف لكن باللون الأخضر */}
           <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6">
             <div className="w-16 h-16 rounded-full bg-green-200 flex items-center justify-center">
               <Check className="w-10 h-10 text-green-600" strokeWidth={2} />
@@ -55,7 +62,7 @@ export function SuccessModal({
           <Button
             type="button"
             className="w-full cursor-pointer bg-blue-4 hover:bg-[#2c4460]"
-            onClick={onClose}
+            onClick={handleButtonClick}
           >
             {buttonText}
           </Button>

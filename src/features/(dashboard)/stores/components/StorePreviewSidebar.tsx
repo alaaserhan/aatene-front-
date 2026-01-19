@@ -87,7 +87,7 @@ export function StorePreviewSidebar({ data }: StorePreviewSidebarProps) {
                     </h2>
                   ) : (
                     <h2 className=" font-medium leading-tight">
-                      متجر الأفضل
+                      اسم المتجر
                     </h2>
                   )}
                 </div>

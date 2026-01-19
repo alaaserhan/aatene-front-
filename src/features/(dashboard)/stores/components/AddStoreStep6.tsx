@@ -32,7 +32,7 @@ export function AddStoreStep6({
   barSteps,
 }: AddStoreStep6Props) {
   const [deliveryType, setDeliveryType] = useState<DeliveryType>(
-    initialData?.delivery_type || "shipping"
+    initialData?.delivery_type || "hand_delivery"
   );
   const [shippingCompanies, setShippingCompanies] = useState<
     ShippingCompanyPayload[]
@@ -172,12 +172,12 @@ export function AddStoreStep6({
                   </h3>
 
                   <div className="flex flex-row items-center gap-8">
-                    <DeliveryOption
+                    {/* <DeliveryOption
                       value="free"
                       label="مجاني"
                       selected={deliveryType === "free"}
                       onClick={() => setDeliveryType("free")}
-                    />
+                    /> */}
 
                     <DeliveryOption
                       value="hand_delivery"

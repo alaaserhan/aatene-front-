@@ -294,6 +294,10 @@ export function BuyPointsPageContent() {
                 title="تمت العملية بنجاح"
                 message={`تمت اضافة ${coinsCount} عملة ذهبية إلى حسابك`}
                 buttonText="الذهاب الى الفواتير"
+                onButtonClick={() => {
+                    setIsSuccessModalOpen(false);
+                    router.push("/admin/financial-record");
+                }}
             />
         </div>
     );

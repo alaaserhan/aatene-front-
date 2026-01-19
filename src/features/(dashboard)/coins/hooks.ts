@@ -36,7 +36,6 @@ export function usePurchaseCoinsPackage() {
     return useMutation({
         mutationFn: (body: api.PurchasePackageRequest) => api.purchaseCoinsPackage(body),
         onSuccess: (data) => {
-            toast.success(data.message || "تم شراء الباقة بنجاح");
 
             // Invalidate queries to refresh balance and transaction history
             queryClient.invalidateQueries({ queryKey: ["coins", "balance"] });

@@ -357,7 +357,7 @@ export function AddStoreStep2({
                         setFormData({ ...formData, address: e.target.value })
                       }
                       className="h-10 border-none shadow-none px-0 focus-visible:ring-0 text-start"
-                      placeholder="شارع الخالد، مصر الجديدة..."
+                      placeholder="ادخل العنوان"
                     />
                     <Button
                       type="button"
