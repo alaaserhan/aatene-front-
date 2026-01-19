@@ -159,7 +159,9 @@ export function DashboardUserMenu() {
                                 {activeStore ? activeStore.name : "اختر متجر"}
                             </h3>
                             <span className="text-xs font-medium text-blue-4 bg-blue-5 border border-blue-4 px-4 py-1 pt-0.5 w-fit rounded-full">
-                                متجر
+                                {
+                                    activeStore?.type === "services" ? "متجر خدمات" : "متجر منتجات"
+                                }
                             </span>
                         </div>
                     </div>
@@ -222,16 +224,23 @@ export function DashboardUserMenu() {
                                                 <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center  overflow-hidden shadow-sm shrink-0">
                                                     {store.logo_url ? (
                                                         <img src={store.logo_url} alt={store.name} className="w-full h-full object-cover" />
+                                                    ) : store.type === "services" ? (
+                                                        <img src="/icons/dashboard/nav_services.svg" alt="service" className="w-4 h-4" style={{ filter: "brightness(0)" }} />
                                                     ) : (
-                                                        <StoreIcon className="w-4 h-4 text-gray-300" />
+                                                        <img src="/icons/dashboard/nav_products.svg" alt="product" className="w-4 h-4" style={{ filter: "brightness(0)" }} />
                                                     )}
                                                 </div>
                                                 <span className={cn(
                                                     "text-sm",
-                                                    isActive ? "text-blue-4" : "text-gray-2"
+                                                    isActive ? "text-gray-2" : "text-gray-2"
                                                 )}>
                                                     {store.name}
                                                 </span>
+                                                {store.type === "services" ? (
+                                                    <img src="/icons/dashboard/nav_services.svg" alt="service" className="w-4 h-4" style={{ filter: "brightness(0)" }} />
+                                                ) : (
+                                                    <img src="/icons/dashboard/nav_products.svg" alt="product" className="w-4 h-4" style={{ filter: "brightness(0)" }} />
+                                                )}
                                             </div>
                                         );
                                     })

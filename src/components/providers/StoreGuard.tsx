@@ -27,21 +27,37 @@ export function StoreGuard({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const initializeStore = async () => {
-            // 1. Check if user is a merchant
             const isMerchant = user?.user_type === "merchant";
             if (!isMerchant) {
                 setIsReady(true);
                 return;
             }
 
-            // 2. Check if current_store_id is already set
             const storeId = Cookies.get("current_store_id");
-            if (storeId) {
+            const storeType = Cookies.get("store_type");
+
+            if (storeId && storeType) {
+                const locale = params?.locale || "ar";
+                const type = params?.type || "admin";
+                const currentPath = pathname || "";
+
+                const isOnProductsPage = currentPath.includes("/products");
+                const isOnServicesPage = currentPath.includes("/serviceProviders") || currentPath.includes("/services");
+
+                if (storeType === "services" && isOnProductsPage) {
+                    router.push(`/${locale}/${type}/serviceProviders/${storeId}`);
+                    return;
+                }
+
+                if (storeType === "products" && isOnServicesPage) {
+                    router.push(`/${locale}/${type}/products`);
+                    return;
+                }
+
                 setIsReady(true);
                 return;
             }
 
-            // 3. Fetch stores and set the default store ID
             try {
                 const response = await getStores(new URLSearchParams());
                 if (response.data && response.data.length > 0) {
@@ -49,11 +65,9 @@ export function StoreGuard({ children }: { children: ReactNode }) {
                         expires: 365,
                     });
                     Cookies.set("store_type", response.data[0].type, { expires: 365 });
-                    // Dispatch event to notify other components (e.g. Navbar)
                     window.dispatchEvent(new Event("store-info-updated"));
                     setIsReady(true);
                 } else {
-                    // No stores found
                     const isStoresPage = pathname?.includes("/stores");
 
                     if (!isStoresPage) {
@@ -62,7 +76,6 @@ export function StoreGuard({ children }: { children: ReactNode }) {
                         setShowModal(true);
                         router.push(`/${locale}/${type}/stores`);
                     }
-                    // Always set ready so the page (or the redirected page) can load
                     setIsReady(true);
                 }
             } catch (error) {

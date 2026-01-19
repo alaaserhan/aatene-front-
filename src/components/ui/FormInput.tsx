@@ -105,7 +105,7 @@ export const FormInput = forwardRef<
           {/* Character Counter */}
           {(showCounter || maxLength) && (
             <p className="text-xs text-gray-3 whitespace-nowrap">
-              {currentLength}/{maxLength || '∞'}
+              {currentLength}/{maxLength || '∞'} حرف
             </p>
           )}
         </div>

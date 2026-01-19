@@ -410,7 +410,7 @@ export function AddStoreStep2({
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={cn("grid gap-6", isAdmin ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1")}>
                   {isAdmin ? (
                     <div className="flex flex-col gap-2">
                       <Label className="text-sm font-medium">المالك <span className="text-red-500">*</span></Label>
@@ -428,7 +428,7 @@ export function AddStoreStep2({
                         error={errors.owner_id}
                         className="h-11"
                         dropdownPosition="top"
-                        onSearch={(query) => setOwnerSearchQuery(query)} // Enable search
+                        onSearch={(query) => setOwnerSearchQuery(query)}
                         searchPlaceholder="ابحث باسم المالك ..."
                       />
                     </div>
