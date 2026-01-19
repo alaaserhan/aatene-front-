@@ -24,13 +24,14 @@ import {
   useUpdateCategoryStatus,
   useUpdateAttributeStatus,
 } from "../hooks";
-import Link from "next/link";
+
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { cn } from "@/src/lib/utils";
 import * as api from "../api";
+import Cookies from "js-cookie";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 const ITEMS_PER_PAGE = 10;
@@ -44,11 +45,18 @@ interface OptionToDelete {
 }
 
 export function CategoriesPage() {
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.user_type === "admin";
+  const storeType = Cookies.get("store_type");
+
+  const isProductStore = storeType === "product" || storeType === "products";
+  const isServiceStore = storeType === "service" || storeType === "services";
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<Set<number>>(
     new Set()
   );
-  const [pageMode, setPageMode] = useState<PageMode>("product");
+  const [pageMode, setPageMode] = useState<PageMode>(isServiceStore ? 'service' : 'product');
   const [productSubMode, setProductSubMode] =
     useState<ProductSubMode>("categories");
   const [currentPage, setCurrentPage] = useState(1);
@@ -330,8 +338,6 @@ export function CategoriesPage() {
   };
 
   const deleteTexts = getDeleteModalTexts();
-  const user = useAuthStore((state) => state.user);
-  const isAdmin = user?.user_type === "admin";
 
   return (
     <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col">
@@ -339,32 +345,36 @@ export function CategoriesPage() {
         <div className="flex items-center justify-between h-16 px-6">
           <nav className="flex items-center h-full">
             <ul className="flex items-center gap-8 h-full">
-              <li className="h-full flex items-center">
-                <button
-                  onClick={() => setPageMode("product")}
-                  className={cn(
-                    "text-sm font-semibold h-full flex items-center transition-colors cursor-pointer",
-                    pageMode === "product"
-                      ? "text-blue-3 border-b-2 border-blue-3"
-                      : "text-gray-2 hover:text-blue-3"
-                  )}
-                >
-                  المنتجات
-                </button>
-              </li>
-              <li className="h-full flex items-center">
-                <button
-                  onClick={() => setPageMode("service")}
-                  className={cn(
-                    "text-sm font-semibold h-full flex items-center transition-colors cursor-pointer",
-                    pageMode === "service"
-                      ? "text-blue-3 border-b-2 border-blue-3"
-                      : "text-gray-2 hover:text-blue-3"
-                  )}
-                >
-                  الخدمات
-                </button>
-              </li>
+              {(isAdmin || isProductStore) && (
+                <li className="h-full flex items-center">
+                  <button
+                    onClick={() => setPageMode("product")}
+                    className={cn(
+                      "text-sm font-semibold h-full flex items-center transition-colors cursor-pointer",
+                      pageMode === "product"
+                        ? "text-blue-3 border-b-2 border-blue-3"
+                        : "text-gray-2 hover:text-blue-3"
+                    )}
+                  >
+                    المنتجات
+                  </button>
+                </li>
+              )}
+              {(isAdmin || isServiceStore) && (
+                <li className="h-full flex items-center">
+                  <button
+                    onClick={() => setPageMode("service")}
+                    className={cn(
+                      "text-sm font-semibold h-full flex items-center transition-colors cursor-pointer",
+                      pageMode === "service"
+                        ? "text-blue-3 border-b-2 border-blue-3"
+                        : "text-gray-2 hover:text-blue-3"
+                    )}
+                  >
+                    الخدمات
+                  </button>
+                </li>
+              )}
             </ul>
           </nav>
         </div>
