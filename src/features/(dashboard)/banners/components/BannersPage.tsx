@@ -49,7 +49,7 @@ export function BannersPage() {
     params.set("per_page", String(ITEMS_PER_PAGE));
 
     if (searchQuery) {
-      params.set("search", searchQuery);
+      params.set("title", searchQuery);
     }
 
     if (filterStatus === "active") {

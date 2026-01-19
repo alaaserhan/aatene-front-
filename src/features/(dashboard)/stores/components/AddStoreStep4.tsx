@@ -101,8 +101,11 @@ export function AddStoreStep4({
 
     if (!newManager.email.trim()) {
       newErrors.email = "البريد الإلكتروني مطلوب";
-    } else if (!/\S+@\S+\.\S+/.test(newManager.email)) {
-      newErrors.email = "البريد الإلكتروني غير صالح";
+    } else {
+      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(newManager.email)) {
+        newErrors.email = "البريد الإلكتروني غير صالح (يجب أن يكون باللغة الإنجليزية)";
+      }
     }
 
     if (!newManager.title) {
@@ -251,9 +254,10 @@ export function AddStoreStep4({
                       <ReusableDropdown
                         options={dropdownOptions}
                         value={newManager.email}
-                        onChange={(value) =>
-                          setNewManager((prev) => ({ ...prev, email: value }))
-                        }
+                        onChange={(value) => {
+                          setNewManager((prev) => ({ ...prev, email: value }));
+                          if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
+                        }}
                         placeholder={isUsersLoading ? "جاري التحميل..." : "ابحث بالاسم أو البريد"}
                         className="w-full"
                         error={errors.email}
@@ -263,9 +267,10 @@ export function AddStoreStep4({
                       <Input
                         type="email"
                         value={newManager.email}
-                        onChange={(e) =>
-                          setNewManager((prev) => ({ ...prev, email: e.target.value }))
-                        }
+                        onChange={(e) => {
+                          setNewManager((prev) => ({ ...prev, email: e.target.value }));
+                          if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
+                        }}
                         placeholder="example@info.com"
                         className={cn(
                           "w-full h-11 bg-white border-gray-200 focus-visible:ring-blue-300",

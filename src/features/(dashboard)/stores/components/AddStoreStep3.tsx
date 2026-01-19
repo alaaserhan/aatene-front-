@@ -83,11 +83,26 @@ export function AddStoreStep3({
       "youtube",
     ];
 
+    const platformDomains: Record<string, string[]> = {
+      tiktok: ["tiktok.com"],
+      facebook: ["facebook.com", "fb.com", "fb.me"],
+      instagram: ["instagram.com"],
+      youtube: ["youtube.com", "youtu.be"],
+    };
+
     urlFields.forEach((field) => {
       const value = formData[field];
-      if (value && !isValidUrl(value)) {
-        newErrors[field] = "يرجى ادخال رابط صحيح";
-        isValid = false;
+      if (value) {
+        if (!isValidUrl(value)) {
+          newErrors[field] = "يرجى ادخال رابط صحيح";
+          isValid = false;
+        } else {
+          const allowedDomains = platformDomains[field as string];
+          if (allowedDomains && !allowedDomains.some(d => value.toLowerCase().includes(d))) {
+            newErrors[field] = `يجب أن يكون الرابط صحيح لمنصة ${field}`;
+            isValid = false;
+          }
+        }
       }
     });
 
@@ -329,7 +344,7 @@ function SocialMediaInput({
             "w-full pl-12 pr-4 py-3 border rounded-lg text-sm transition-all duration-200 focus:outline-none",
             error
               ? "border-red-500 focus:ring-1 focus:ring-red-500"
-              : "border-gray-200 focus:ring-2 focus:ring-blue-3"
+              : "border-gray-200 "
           )}
         />
         <div className="absolute left-4 top-1/2 -translate-y-1/2">{icon}</div>

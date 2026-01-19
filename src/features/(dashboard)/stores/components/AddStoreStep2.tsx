@@ -157,8 +157,11 @@ export function AddStoreStep2({
       newErrors.email = "البريد الإلكتروني مطلوب";
     }
 
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "البريد الإلكتروني غير صالح";
+    if (formData.email) {
+      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(formData.email)) {
+        newErrors.email = "البريد الإلكتروني غير صالح (يجب أن يكون باللغة الإنجليزية)";
+      }
     }
 
     if (formData.locationCities.length === 0) {
