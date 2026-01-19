@@ -26,6 +26,7 @@ interface ImageGallerySelectorProps {
     // containerMinHeight?: number; // لم نعد بحاجة لهذا الـ Prop بالشكل القديم
     allowedMediaTypes?: ("image" | "gallery" | "avatar" | "video")[];
     className?: string;
+    required?: boolean;
 }
 
 export function ImageGallerySelector({
@@ -47,6 +48,7 @@ export function ImageGallerySelector({
     // containerMinHeight = 190, // تم إزالته
     allowedMediaTypes = ["image", "gallery"],
     className,
+    required,
 }: ImageGallerySelectorProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -142,7 +144,9 @@ export function ImageGallerySelector({
             {(label || subLabel) && (
                 <div className="flex flex-col gap-1">
                     {label && (
-                        <label className="text-sm font-medium ">{label}</label>
+                        <label className="text-sm font-medium ">
+                            {label} {required && <span className="text-red-500">*</span>}
+                        </label>
                     )}
                     {subLabel && <span className="text-xs text-gray-2">{subLabel}</span>}
                 </div>

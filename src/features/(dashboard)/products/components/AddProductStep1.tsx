@@ -318,6 +318,7 @@ export function AddProductStep1({
                   mainImageLabel="الصوره الرئيسية"
                   showDragHint={true}
                   allowedMediaTypes={["image", "gallery"]}
+                  required
                 />
 
                 <FormInput

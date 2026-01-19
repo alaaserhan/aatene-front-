@@ -31,6 +31,7 @@ import { Pagination } from "@/src/components/ui/Pagination";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { cn } from "@/src/lib/utils";
 import * as api from "../api";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -329,6 +330,8 @@ export function CategoriesPage() {
   };
 
   const deleteTexts = getDeleteModalTexts();
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.user_type === "admin";
 
   return (
     <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col">
@@ -409,19 +412,23 @@ export function CategoriesPage() {
                 />
                 <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-2" />
               </div>
-              <Button
-                onClick={
-                  isAttributeMode ? handleAddAttribute : handleAddCategory
-                }
-                className="flex items-center gap-2 px-6 py-3 bg-blue-3 w-full sm:w-auto  text-white text-sm font-medium rounded-xs transition-colors cursor-pointer"
-              >
-                <Plus className="w-5 h-5" />
-                {isAttributeMode
-                  ? "إضافة سمة جديدة"
-                  : pageMode === "product"
-                    ? "إضافة فئة منتجات جديدة"
-                    : "إضافة خدمة جديدة"}
-              </Button>
+              {
+                isAdmin && (
+                  <Button
+                    onClick={
+                      isAttributeMode ? handleAddAttribute : handleAddCategory
+                    }
+                    className="flex items-center gap-2 px-6 py-3 bg-blue-3 w-full sm:w-auto  text-white text-sm font-medium rounded-xs transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-5 h-5" />
+                    {isAttributeMode
+                      ? "إضافة سمة جديدة"
+                      : pageMode === "product"
+                        ? "إضافة فئة منتجات جديدة"
+                        : "إضافة خدمة جديدة"}
+                  </Button>
+                )
+              }
             </div>
             <div className="bg-white rounded-lg p-1 sm:p-4">
               <ScrollArea className="flex-1 space-y-3">
