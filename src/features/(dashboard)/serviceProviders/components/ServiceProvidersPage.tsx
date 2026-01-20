@@ -40,7 +40,7 @@ export function ServiceProvidersPage() {
         }
 
         if (searchQuery) {
-            params.set("name", searchQuery);
+            params.set("owner_name", searchQuery);
         }
 
         return params;
