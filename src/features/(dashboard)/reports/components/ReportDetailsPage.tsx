@@ -96,7 +96,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
   const handleDelete = () => {
     deleteReport(reportId, {
       onSuccess: () => {
-        router.push(`/admin/reports/${report?.store.id || ""}`);
+        router.push(`/admin/reports/${report?.store?.id || ""}`);
       },
     });
   };
@@ -211,7 +211,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
                 <User className="w-5 h-5" />
                 <span>العميل</span>
               </div>
-              <div className=" font-medium w-4/5  flex items-center gap-2 cursor-pointer hover:text-blue-600" onClick={() => router.push(`/admin/users?userId=${report.user.id}`)}>
+              <div className=" font-medium w-4/5  flex items-center gap-2 cursor-pointer hover:text-blue-600" onClick={() => router.push(`/admin/users?userId=${report?.user?.id}`)}>
                 <span>{report?.user?.fullname || "غير معروف"}</span>
               </div>
             </div>
