@@ -155,7 +155,7 @@ export function BasicInfoSection({
                   type="text"
                   value={data.address}
                   onChange={(e) => onChange({ address: e.target.value })}
-                  className="h-10 border-none shadow-none px-0 focus-visible:ring-0 "
+                  className="text-[12px] border-none shadow-none px-0 py-2.5 focus-visible:ring-0"
                 />
                 {/* <Button
                   type="button"

@@ -347,7 +347,7 @@ export function AddStoreStep2({
                   <Label className="text-start text-sm font-medium">
                     العنوان
                   </Label>
-                  <div className="flex items-center gap-3 ps-3 border border-gray-300 rounded-lg focus-within:border-blue-3 bg-white">
+                  <div className="flex items-center gap-3 ps-3 border border-gray-200 rounded-sm focus-within:border-blue-3 bg-white">
                     <img
                       src="/icons/dashboard/mark.svg"
                       alt=""
@@ -359,7 +359,7 @@ export function AddStoreStep2({
                       onChange={(e) =>
                         setFormData({ ...formData, address: e.target.value })
                       }
-                      className="h-10 border-none shadow-none px-0 focus-visible:ring-0 text-start"
+                      className="text-[12px] border-none shadow-none px-0 py-2.5 focus-visible:ring-0 text-start"
                       placeholder="ادخل العنوان"
                     />
                     {/* <Button

@@ -94,17 +94,17 @@ export function DashboardUserMenu() {
 
     // --- Admin Menu Items ---
     const adminMenuItems = [
-        { label: "الشكاوى", desc: "متابعة الشكاوى", icon: Frown, href: "/admin/complaints" },
-        { label: "الإشعارات", desc: "ادارة و متابعة الاشعارات", icon: Bell, href: "/admin/notifications" },
+        { label: "الشكاوى", desc: "متابعة الشكاوى", icon: Frown, href: "/admin/all-reports" },
+        { label: "الإشعارات", desc: "ادارة و متابعة الاشعارات", icon: Bell, href: "/admin/settings" },
         { label: "المفضلة", desc: "ادارة و متابعة المفضلة", icon: Star, href: "/admin/favorites" },
-        { label: "الطلبات الغير موجودة", desc: "ادارة و متابعة الطلبات الغير موجودة", icon: FileQuestion, href: "/admin/missing-orders" },
+        { label: "الطلبات الغير موجودة", desc: "ادارة و متابعة الطلبات الغير موجودة", icon: FileQuestion, href: "/admin/requested-services" },
         { label: "البنرات الإعلانية", desc: "ادارة و متابعة البنرات الإعلانية", icon: TicketPercent, href: "/admin/banners" },
-        { label: "الشحن", desc: "اختر وجهات الشحن", icon: Truck, href: "/admin/shipping" },
-        { label: "إدارة المحتوى", desc: "تحكم بالمحتوى الأساسي", icon: LayoutTemplate, href: "/admin/content" },
+        { label: "الشحن", desc: "اختر وجهات الشحن", icon: Truck, href: "/admin/cities" },
+        { label: "إدارة المحتوى", desc: "تحكم بالمحتوى الأساسي", icon: LayoutTemplate, href: "/admin/content-management" },
         { label: "الإعدادات", desc: "تخصيص الاشعارات و التنبيهات لعملائك", icon: Settings, href: "/admin/settings" },
         { label: "المدونات", desc: "إضافة وإدارة المدونات", icon: FileEdit, href: "/admin/blogs" },
-        { label: "الكلمات المسيئة", desc: "إدارة الكلمات المسيئة", icon: MessageSquareOff, href: "/admin/bad-words" },
-        { label: "الذكاء الإصطناعي", desc: "إدارة التشات بوت ومعرفة الإحصائيات", icon: Bot, href: "/admin/ai" },
+        { label: "الكلمات المسيئة", desc: "إدارة الكلمات المسيئة", icon: MessageSquareOff, href: "/admin/abusive-words" },
+        { label: "الذكاء الإصطناعي", desc: "إدارة التشات بوت ومعرفة الإحصائيات", icon: Bot, href: "/admin/mosa3edy" },
     ];
 
     return (
