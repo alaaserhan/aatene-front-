@@ -3,9 +3,7 @@
 
 import { useState } from "react";
 import {
-    Store, ShoppingBag, Users, Wrench, Download, Calendar,
-    UserCheck, PackageX, UserX, CheckCircle2, AlertCircle, Flag,
-    ChevronsUp
+    Download, Calendar, Flag, ChevronsUp, Loader2
 } from "lucide-react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Button } from "@/src/components/ui/button";
@@ -19,7 +17,6 @@ import {
 import { StatsCards } from "./StatsCards";
 import { GrowthChart } from "./GrowthChart";
 import { TopList } from "./TopList";
-import { Loader2 } from "lucide-react";
 
 interface ReportViewProps {
     type: string;
@@ -38,6 +35,9 @@ export function ReportView({ type }: ReportViewProps) {
     let data: any = null;
     let config: any = {};
 
+    // Standard Chart Colors
+    const COLORS = ["#406896", "#FCBF13", "#DE3D31"];
+
     switch (type) {
         case "product":
             isLoading = productsQuery.isLoading;
@@ -45,16 +45,16 @@ export function ReportView({ type }: ReportViewProps) {
             config = {
                 title: "تقارير المنتجات",
                 subtitle: "قائمة المنتجات  التي حصلت علي تصفح اكثر",
-                icon: ShoppingBag,
+                icon: <img src="/icons/dashboard/nav_products.svg" alt="" className="w-full h-full" />,
                 cards: [
-                    { title: "اجمالي المنتجات", value: data?.totalProducts, icon: ShoppingBag, colorTheme: "gray" },
-                    { title: "منتجات في انتظار الموافقة", value: data?.totalNotActiveProducts, icon: PackageX, colorTheme: "yellow" },
-                    { title: "منتجات تم رفضها", value: 0, icon: PackageX, colorTheme: "red" },
+                    { title: "اجمالي المنتجات", value: data?.totalProducts, icon: <img src="/icons/dashboard/products1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
+                    { title: "منتجات في انتظار الموافقة", value: data?.totalNotActiveProducts, icon: <img src="/icons/dashboard/products2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
+                    { title: "منتجات تم رفضها", value: 0, icon: <img src="/icons/dashboard/products3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
                 ],
                 chartLines: [
-                    { key: "total_count", color: "#3A5779", name: "اجمالي المنتجات" },
-                    { key: "active_count", color: "#10B981", name: "منتجات نشطة" },
-                    { key: "not_active_count", color: "#F59E0B", name: "منتجات في انتظار الموافقة" },
+                    { key: "total_count", color: COLORS[0], name: "اجمالي المنتجات" },
+                    { key: "active_count", color: COLORS[1], name: "منتجات في انتظار الموافقة" },
+                    { key: "not_active_count", color: COLORS[2], name: "منتجات تم رفضها" },
                 ],
                 chartData: data?.productsGrowthChart || [],
                 topListName: "المنتجات الاكثر تصفحاً",
@@ -70,16 +70,16 @@ export function ReportView({ type }: ReportViewProps) {
             config = {
                 title: "تقارير الخدمات",
                 subtitle: "قائمة الخدمات التي حصلت علي اعلي تقييم",
-                icon: Wrench,
+                icon: <img src="/icons/dashboard/nav_services.svg" alt="" className="w-full h-full" />,
                 cards: [
-                    { title: "اجمالي الخدمات", value: data?.totalServices, icon: Wrench, colorTheme: "gray" },
-                    { title: "إجمالي الخدمات قيد المراجعة", value: data?.totalActiveServices, icon: CheckCircle2, colorTheme: "yellow" },
-                    { title: "إجمالي الخدمات المرفوضة", value: data?.totalRejectedServices, icon: PackageX, colorTheme: "red" },
+                    { title: "اجمالي الخدمات", value: data?.totalServices, icon: <img src="/icons/dashboard/service1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
+                    { title: "إجمالي الخدمات قيد المراجعة", value: data?.totalActiveServices, icon: <img src="/icons/dashboard/service2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
+                    { title: "إجمالي الخدمات المرفوضة", value: data?.totalRejectedServices, icon: <img src="/icons/dashboard/service3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
                 ],
                 chartLines: [
-                    { key: "total_count", color: "#3A5779", name: "اجمالي الخدمات" },
-                    { key: "pending_count", color: "#F59E0B", name: "قيد المراجعة" },
-                    { key: "rejected_count", color: "#EF4444", name: "مرفوضة" },
+                    { key: "total_count", color: COLORS[0], name: "اجمالي الخدمات" },
+                    { key: "pending_count", color: COLORS[1], name: "إجمالي الخدمات قيد المراجعة" },
+                    { key: "rejected_count", color: COLORS[2], name: "إجمالي الخدمات المرفوضة" },
                 ],
                 chartData: data?.servicesGrowthChart || [],
                 topListName: "الخدمات الأعلى تقييماً",
@@ -99,16 +99,16 @@ export function ReportView({ type }: ReportViewProps) {
             config = {
                 title: "تقارير العملاء",
                 subtitle: "قائمة العملاء الأكثر تفاعلاً",
-                icon: Users,
+                icon: <img src="/icons/dashboard/nav_users.svg" alt="" className="w-full h-full" />,
                 cards: [
-                    { title: "اجمالي العملاء", value: data?.totalCustomers, icon: Users, colorTheme: "blue" },
-                    { title: "العملاء الجدد", value: data?.activeCustomers, icon: UserCheck, colorTheme: "yellow" },
-                    { title: "العملاء المحظورين", value: data?.notActiveCustomers, icon: UserX, colorTheme: "red" },
+                    { title: "اجمالي العملاء", value: data?.totalCustomers, icon: <img src="/icons/dashboard/merchant1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
+                    { title: "العملاء الجدد", value: data?.activeCustomers, icon: <img src="/icons/dashboard/merchant2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
+                    { title: "العملاء المحظورين", value: data?.notActiveCustomers, icon: <img src="/icons/dashboard/merchant3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
                 ],
                 chartLines: [
-                    { key: "total_count", color: "#3A5779", name: "اجمالي العملاء" },
-                    { key: "active_count", color: "#F59E0B", name: "العملاء الذين تم حظرهم" },
-                    { key: "inactive_count", color: "#EF4444", name: "العملاء الاكثر تفاعلاً" },
+                    { key: "total_count", color: COLORS[0], name: "اجمالي العملاء" },
+                    { key: "active_count", color: COLORS[1], name: "العملاء الجدد"},
+                    { key: "inactive_count", color: COLORS[2], name: "العملاء المحظورين" },
                 ],
                 chartData: data?.customersGrowthChart || [],
                 topListName: "العملاء الأكثر تفاعلاً",
@@ -124,16 +124,16 @@ export function ReportView({ type }: ReportViewProps) {
             config = {
                 title: "تقارير التجار",
                 subtitle: "قائمة التجار  حصلت علي اعلي تقييم",
-                icon: Store,
+                icon: <img src="/icons/dashboard/merchant1.svg" alt="" className="w-full h-full" />,
                 cards: [
-                    { title: "إجمالي التجار", value: data?.totalMerchants, icon: Users, colorTheme: "gray" },
-                    { title: "التجار  الموثوقين", value: data?.activeMerchants, icon: Store, colorTheme: "green" },
-                    { title: "التجار  تم حظرهم", value: data?.inactiveMerchants, icon: AlertCircle, colorTheme: "red" },
+                    { title: "إجمالي التجار", value: data?.totalMerchants, icon: <img src="/icons/dashboard/merchant1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
+                    { title: "التجار  الموثوقين", value: data?.activeMerchants, icon: <img src="/icons/dashboard/merchant2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
+                    { title: "التجار  تم حظرهم", value: data?.inactiveMerchants, icon: <img src="/icons/dashboard/merchant3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
                 ],
                 chartLines: [
-                    { key: "total_count", color: "#3A5779", name: "اجمالي التجار" },
-                    { key: "active_count", color: "#F59E0B", name: "التجار تم حظرهم" },
-                    { key: "inactive_count", color: "#EF4444", name: "التجار الموثوقين" },
+                    { key: "total_count", color: COLORS[0], name: "اجمالي التجار" },
+                    { key: "active_count", color: COLORS[1], name: "التجار الموثوقين" },
+                    { key: "inactive_count", color: COLORS[2], name: "التجار تم حظرهم" },
                 ],
                 chartData: data?.merchantsGrowthChart || [],
                 topListName: "التجار الاعلي تقييم",
@@ -154,16 +154,16 @@ export function ReportView({ type }: ReportViewProps) {
             config = {
                 title: "تقارير المتاجر",
                 subtitle: "قائمة المتاجر التي حصلت علي اعلي تقييم",
-                icon: Store,
+                icon: <img src="/icons/dashboard/nav_stores.svg" alt="" className="w-full h-full" />,
                 cards: [
-                    { title: "اجمالي المتاجر", value: data?.totalStores, icon: Store, colorTheme: "gray" },
-                    { title: "المتاجر الموثوقة", value: data?.totalActiveStores, icon: Store, colorTheme: "yellow" },
-                    { title: "المتاجر المحظورة", value: data?.totalNotActiveStores, icon: Store, colorTheme: "red" },
+                    { title: "اجمالي المتاجر", value: data?.totalStores, icon: <img src="/icons/dashboard/store1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
+                    { title: "المتاجر الموثوقة", value: data?.totalActiveStores, icon: <img src="/icons/dashboard/store3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
+                    { title: "المتاجر المحظورة", value: data?.totalNotActiveStores, icon: <img src="/icons/dashboard/store4.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
                 ],
                 chartLines: [
-                    { key: "total_count", color: "#3A5779", name: "اجمالي المتاجر" },
-                    { key: "active_count", color: "#EF4444", name: "المتاجر تم حظرهم" },
-                    { key: "not_active_count", color: "#F59E0B", name: "المتاجر الموثوقين" },
+                    { key: "total_count", color: COLORS[0], name: "اجمالي المتاجر" },
+                    { key: "active_count", color: COLORS[1], name: "المتاجر الموثوقة" },
+                    { key: "not_active_count", color: COLORS[2], name: "المتاجر المحظورة" },
                 ],
                 chartData: data?.storesGrowthChart || [],
                 topListName: "المتاجر الأعلى تقييماً",
@@ -183,13 +183,20 @@ export function ReportView({ type }: ReportViewProps) {
     }
 
     const PageIcon = config.icon;
+    const isComponent = typeof PageIcon === 'function';
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-0">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4 ">
                 <div className="flex items-center gap-2">
-                    <PageIcon className="w-5 h-5" />
+                    {isComponent ? (
+                        <PageIcon className="w-5 h-5 text-gray-700" />
+                    ) : (
+                        <div className="w-5 h-5 flex items-center justify-center">
+                            {PageIcon}
+                        </div>
+                    )}
                     <h1 className="text-xl font-medium">{config.title}</h1>
                 </div>
                 <div className="flex items-center gap-2">
@@ -217,7 +224,6 @@ export function ReportView({ type }: ReportViewProps) {
                         تصدير
                     </Button>
                 </div>
-
             </div>
 
             {/* Top Stats Cards */}
@@ -256,7 +262,7 @@ export function ReportView({ type }: ReportViewProps) {
                             subtitle="القائمة السوداء"
                             items={config.bottomListItems}
                             icon={Flag}
-                            className="w-full h-[450px]" // Full Width & Fixed Height
+                            className="w-full h-[450px]"
                             rankColor="text-red-500"
                         />
                     </div>
