@@ -4,18 +4,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { arSA } from "date-fns/locale";
 import {
-  Calendar,
   User,
-  Tag,
   Hash,
-  Paperclip,
-  FileText,
   Loader2,
-  Trash2,
-  Plus,
-  ImageIcon,
   FileIcon
 } from "lucide-react";
 import { useGetSingleReport, useUpdateReportStatus, useDeleteReport, useUpdateReport } from "../hooks";
@@ -24,7 +16,6 @@ import { Button } from "@/src/components/ui/button";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { cn } from "@/src/lib/utils";
 import { ReportStatus } from "../api";
 import { toast } from "sonner";
@@ -101,7 +92,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
     });
   };
 
-  const handleAddAttachment = (files: any) => {
+  const handleAddAttachment = (files: MediaFile | MediaFile[]) => {
     // Handling selection from MediaCenter
     const newFiles = Array.isArray(files) ? files : [files];
     const updatedAttachments = [...attachments, ...newFiles];
@@ -111,22 +102,24 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
     // Optionally update the report immediately with new media
     // mapping to the structure expected by backend
     // This part depends on how your backend expects 'media' update
-    updateReport({
-      id: reportId,
-      payload: {
-        ...report,
-        // @ts-ignore
-        media: updatedAttachments.map(f => f.src) // Sending URLs or IDs
-      }
-    });
+    if (report) {
+      updateReport({
+        id: reportId,
+        payload: {
+          ...report,
+          // @ts-expect-error - media type expected by backend might differ from frontend state
+          media: updatedAttachments.map(f => f.src) // Sending URLs or IDs
+        }
+      });
+    }
   };
 
-  const handleSendReply = () => {
-    if (!replyText.trim()) return;
-    // Implement send reply logic here, or map it to updateReport content if that's the intention
-    toast.success("تم إرسال الرد بنجاح (محاكاة)");
-    setReplyText("");
-  };
+  //   const handleSendReply = () => {
+  //     if (!replyText.trim()) return;
+  //     // Implement send reply logic here, or map it to updateReport content if that's the intention
+  //     toast.success("تم إرسال الرد بنجاح (محاكاة)");
+  //     setReplyText("");
+  //   };
 
   if (isLoading) {
     return (
