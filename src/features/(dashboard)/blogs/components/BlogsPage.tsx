@@ -60,12 +60,12 @@ export function BlogsPage() {
         const params = new URLSearchParams();
         params.set("page", String(currentPage));
         params.set("per_page", "10");
-        if (selectedStoreId) params.set("store_id", selectedStoreId);
+        if (selectedStoreId && !isMerchant) params.set("store_id", selectedStoreId);
         if (searchQuery) params.set("title", searchQuery);
         if (filterValue) params.set("orderDir", filterValue);
 
         return params;
-    }, [currentPage, searchQuery, filterValue, selectedStoreId]);
+    }, [currentPage, searchQuery, filterValue, selectedStoreId, isMerchant]);
 
     // لا نجلب المدونات إلا إذا تم تحديد المتجر
     const { data: blogsData, isLoading: isBlogsLoading } = useGetBlogs(
@@ -161,7 +161,7 @@ export function BlogsPage() {
                                                 setSearchQuery(e.target.value);
                                                 setCurrentPage(1);
                                             }}
-                                            className="w-full bg-white h-11 border-gray-200 ps-12 focus:ring-0 focus:border-blue-3 text-right"
+                                            className="w-full text-[12px] bg-white h-11 border-gray-200 ps-12 focus:ring-0 focus:border-blue-3 text-right"
                                         />
                                         <Search className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-2 w-5 h-5" />
                                     </div>
