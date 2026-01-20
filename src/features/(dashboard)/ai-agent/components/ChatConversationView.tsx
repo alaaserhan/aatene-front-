@@ -104,7 +104,7 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
 
     return (
         <>
-            <div className="flex flex-col h-full bg-white">
+            <div className="flex flex-col h-full max-h-[calc(100vh-220px)] lg:max-h-none bg-white">
 
                 {/* --- Header --- */}
                 <div className="bg-white px-6 py-4 flex justify-between items-center z-10 shrink-0">

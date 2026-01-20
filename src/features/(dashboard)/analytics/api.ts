@@ -3,7 +3,9 @@
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import Cookies from "js-cookie";
-import { ReportStatus } from "../reports/api";
+import { Report, ReportStatus } from "../reports/api";
+
+export type { Report, ReportStatus };
 
 // --- Interfaces ---
 
@@ -18,9 +20,8 @@ export interface GrowthChartItem {
     count: string;
 }
 
-// --- Existing Types (Updated) ---
-
-export interface Product {
+// --- Analytics-specific Product type (for AnalyticsReportDetail, etc.) ---
+export interface AnalyticsProduct {
     id: number;
     sku: string;
     name: string;
@@ -39,10 +40,10 @@ export interface Product {
     is_favorite?: boolean;
     in_compare?: boolean;
     created_at: string;
-    store: Store;
+    store: AnalyticsStore;
 }
 
-export interface Store {
+export interface AnalyticsStore {
     id: number;
     slug: string;
     name: string;
@@ -61,7 +62,7 @@ export interface Store {
     reports_count?: number | string | null;
 }
 
-export interface User {
+export interface AnalyticsUser {
     id: number;
     fullname: string;
     avatar: string | null;
@@ -70,24 +71,15 @@ export interface User {
     user_type: string;
 }
 
-export interface ReportType {
+export interface AnalyticsReportType {
     id: number;
     name: string;
 }
 
-export interface Report {
-    id: number;
-    uuid: string | null;
-    report_type: ReportType;
-    status: ReportStatus;
-    store: Store | null;
-    product: Product | null;
-    user: User | null;
-    content: string;
-    media: string | null;
-    created_at: string;
-    updated_at: string;
-}
+// Type aliases for backward compatibility within analytics module
+export type Product = AnalyticsProduct;
+export type Store = AnalyticsStore;
+export type User = AnalyticsUser;
 
 // --- Admin Responses ---
 
