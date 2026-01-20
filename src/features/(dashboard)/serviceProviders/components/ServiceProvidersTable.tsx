@@ -69,6 +69,9 @@ export function ServiceProvidersTable({
                                 عدد الخدمات
                             </th>
                             <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
+                                خدمات تحت المراجعة
+                            </th>
+                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
                                 حالة التاجر
                             </th>
                             <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
@@ -107,6 +110,9 @@ export function ServiceProvidersTable({
 
                                     <td className="px-6 py-4 text-sm text-blue-4 font-medium text-center">
                                         {servicesCount} خدمات
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-blue-4 font-medium text-center">
+                                        {store.pending_services_count} خدمات
                                     </td>
 
                                     <td className="px-6 py-4 text-center">

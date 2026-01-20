@@ -7,7 +7,7 @@ import { AxiosError } from "axios";
 
 export function useGetReports(params?: api.ReportsParams) {
   return useQuery({
-    queryKey: ["reports", params?.page, params?.per_page, params?.store_id],
+    queryKey: ["reports", params?.page, params?.per_page, params?.store_id, params?.type, params?.status],
     queryFn: () => api.getReports(params),
     placeholderData: (previousData) => previousData,
   });

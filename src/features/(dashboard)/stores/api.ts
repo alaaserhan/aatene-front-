@@ -129,6 +129,7 @@ export interface Store {
   cover_urls: (string | null)[];
   conversations_count?: number;
   status: StoreStatus;
+  pending_services_count: string;
   description: string | null;
   address: string | null;
   review_rate: string;

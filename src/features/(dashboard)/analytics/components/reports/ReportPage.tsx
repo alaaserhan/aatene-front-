@@ -41,7 +41,7 @@ export default function ReportsPage() {
                             options={filterOptions}
                             activeValue={currentType}
                             onValueChange={handleFilterChange}
-                            className="bg-white min-h-[400px]"
+                            className="bg-white "
                         />
                     </div>
 

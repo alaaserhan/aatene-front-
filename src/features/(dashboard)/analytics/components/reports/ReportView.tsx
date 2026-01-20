@@ -262,7 +262,7 @@ export function ReportView({ type }: ReportViewProps) {
                             subtitle="القائمة السوداء"
                             items={config.bottomListItems}
                             icon={Flag}
-                            className="w-full h-[450px]"
+                            className="w-full"
                             rankColor="text-red-500"
                         />
                     </div>

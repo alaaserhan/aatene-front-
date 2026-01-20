@@ -109,6 +109,7 @@ export interface ReportsParams {
   per_page?: number;
   store_id?: string | number;
   status?: ReportStatus;
+  type?: "store" | "product" | "service";
 }
 
 // ============== API Functions ==============
@@ -120,6 +121,8 @@ export const getReports = async (params?: ReportsParams): Promise<ReportsListRes
   if (params?.page) queryParams.append("page", String(params.page));
   if (params?.per_page) queryParams.append("per_page", String(params.per_page));
   if (params?.store_id) queryParams.append("store_id", String(params.store_id));
+  if (params?.type) queryParams.append("type", params.type);
+  if (params?.status) queryParams.append("status", params.status);
 
   const { data } = await api.get<ReportsListResponse>(`${endpoint}?${queryParams.toString()}`);
   return data;
