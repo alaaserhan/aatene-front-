@@ -3,6 +3,7 @@
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import Cookies from "js-cookie";
+import { ReportStatus } from "../reports/api";
 
 // --- Interfaces ---
 
@@ -78,12 +79,14 @@ export interface Report {
     id: number;
     uuid: string | null;
     report_type: ReportType;
-    status: string;
+    status: ReportStatus;
     store: Store | null;
     product: Product | null;
     user: User | null;
     content: string;
+    media: string | null;
     created_at: string;
+    updated_at: string;
 }
 
 // --- Admin Responses ---
