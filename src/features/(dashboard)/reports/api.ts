@@ -32,9 +32,10 @@ export interface Store {
 export interface User {
   id: number;
   fullname: string;
-  avatar: string;
+  avatar: string | null;
   email: string;
-  phone: string;
+  phone: string | null;
+  user_type?: string;
 }
 
 export interface Report {
@@ -42,8 +43,8 @@ export interface Report {
   uuid: string | null;
   report_type: ReportType;
   status: ReportStatus;
-  store: Store;
-  user: User;
+  store: Store | null;
+  user: User | null;
   product: Product | null;
   media: string | null;
   content?: string;

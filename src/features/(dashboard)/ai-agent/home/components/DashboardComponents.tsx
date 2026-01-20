@@ -78,7 +78,7 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
                 <p className="text-xs text-gray-2 mt-1">توزيع أنواع الجلسات</p>
             </div>
 
-            <div className="flex-1 min-h-[200px] relative flex items-center justify-center">
+            <div className="flex-1 min-h-[180px] sm:min-h-[200px] relative flex items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie
@@ -87,7 +87,7 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
                             cy="50%"
                             labelLine={false}
                             label={renderCustomizedLabel}
-                            outerRadius={110}
+                            outerRadius="80%"
                             fill="#8884d8"
                             dataKey="value"
                             startAngle={90}
@@ -105,14 +105,14 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
             </div>
 
             {/* Legend */}
-            <div className="grid grid-cols-2 mt-6 rounded-md p-4 border-t border-gray-50 bg-[#F9F9F9]">
+            <div className="grid grid-cols-2 mt-4 sm:mt-6 rounded-md p-3 sm:p-4 border-t border-gray-50 bg-[#F9F9F9]">
                 {chartData.map((item) => (
                     <div key={item.name} className="flex flex-col items-center gap-1">
-                        <div className="flex items-center gap-2">
-                            <span className="w-3 h-3 rounded-xs" style={{ backgroundColor: item.color }} />
-                            <span className="text-xs text-gray-2 font-medium">{item.name}</span>
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-xs" style={{ backgroundColor: item.color }} />
+                            <span className="text-[10px] sm:text-xs text-gray-2 font-medium">{item.name}</span>
                         </div>
-                        <span className="text-sm font-bold ">{item.value}</span>
+                        <span className="text-sm font-bold">{item.value}</span>
                     </div>
                 ))}
             </div>

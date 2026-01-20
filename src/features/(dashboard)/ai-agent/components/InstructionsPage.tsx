@@ -56,20 +56,19 @@ export function InstructionsPage() {
     };
 
     return (
-        <div className="p-5" >
+        <div className="p-3 lg:p-5" >
             <div className="flex flex-col lg:flex-row gap-4 items-start">
 
-                <div className="hidden lg:block shrink-0 sticky top-25">
+                <div className="w-full lg:w-auto shrink-0 lg:sticky lg:top-25">
                     <Mosa3edySidebar isCollapsed />
                 </div>
-                <div className="hidden lg:block shrink-0 sticky top-25">
-                    <PlatformsSidebar
-                        activePlatform={activePlatform}
-                        onSelect={setActivePlatform}
-                    />
-                </div>
 
-                <div className="flex-1 w-full bg-white rounded-2xl border border-gray-200 p-8  h-[calc(100vh-124px)] flex flex-col">
+                <PlatformsSidebar
+                    activePlatform={activePlatform}
+                    onSelect={setActivePlatform}
+                />
+
+                <div className="flex-1 w-full bg-white rounded-2xl border border-gray-200 p-4 lg:p-8 h-[calc(100vh-200px)] lg:h-[calc(100vh-124px)] flex flex-col">
 
                     <div className="flex justify-between items-start mb-6">
                         <div>

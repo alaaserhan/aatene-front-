@@ -16,8 +16,8 @@ import { Database, MessageSquare, MessageCircle, Loader2 } from "lucide-react";
 
 export function HomePage() {
     const { data: overviewResponse, isLoading, isError } = useGetAgentOverview();
-      const { data: filesData } = useGetDriveFiles();
-    
+    const { data: filesData } = useGetDriveFiles();
+
     const data = overviewResponse?.overview;
 
     if (isLoading) {
@@ -42,12 +42,12 @@ export function HomePage() {
         : 0;
 
     return (
-        <div className="min-h-screen bg-[#F8F9FA] p-5" >
+        <div className="min-h-screen bg-[#F8F9FA] p-3 lg:p-5" >
 
             <div className="lg:grid lg:grid-cols-[270px_1fr] flex flex-col gap-4 items-start">
 
                 {/* Sidebar */}
-                <div className="hidden lg:block w-full sticky top-25">
+                <div className="w-full lg:sticky lg:top-25">
                     <Mosa3edySidebar />
                 </div>
 
