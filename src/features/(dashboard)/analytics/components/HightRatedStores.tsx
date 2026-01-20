@@ -1,16 +1,15 @@
 // src/components/(admin)/analytics/HightRatedStores.tsx
 "use client";
 
+import Link from "next/link";
 import { Loader2, ChevronLeft, TrendingUp } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { useGetAnalyticsLatests } from "../hooks";
-import { useRouter } from "next/navigation";
 
 export function HightRatedStores() {
     const { data, isLoading } = useGetAnalyticsLatests();
     const stores = data?.hightRatedStores || [];
-    const router = useRouter();
 
     if (isLoading) {
         return (
@@ -31,7 +30,6 @@ export function HightRatedStores() {
                     </div>
                     <p className="text-xs text-gray-2 font-medium">قائمة المتاجر التي حصلت علي اعلي تقييم</p>
                 </div>
-                {/* Optional Icon/Action on left if needed */}
             </div>
 
             {/* List with Custom Scrollbar */}
@@ -40,9 +38,11 @@ export function HightRatedStores() {
                     <div className="flex flex-col gap-4">
                         {stores.length > 0 ? (
                             stores.map((store, index) => (
-                                <div key={store.id} className="flex items-center justify-between group">
-
-
+                                <Link
+                                    href={`/stores/${store.id}`}
+                                    key={store.id}
+                                    className="flex items-center justify-between group cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors -mx-2"
+                                >
                                     {/* Right: Rank Number */}
                                     <div className="w-8 flex justify-center">
                                         <span className={cn(
@@ -71,15 +71,12 @@ export function HightRatedStores() {
                                                 </span>
                                             </div>
                                         </div>
-
-                                        {/* Logo */}
                                     </div>
 
-                                    <button onClick={() => router.push(`/stores/${store.id}`)} className="text-gray-2 cursor-pointer hover:text-[#3A5779] transition-colors">
+                                    <div className="text-gray-2 group-hover:text-[#3A5779] transition-colors">
                                         <ChevronLeft className="w-5 h-5" />
-                                    </button>
-
-                                </div>
+                                    </div>
+                                </Link>
                             ))
                         ) : (
                             <div className="text-center py-10 text-gray-2 text-sm">
