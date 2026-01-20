@@ -56,6 +56,11 @@ export function RichTextEditor({
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<ModalType>(null);
   const [savedRange, setSavedRange] = useState<Range | null>(null);
+  const [activeFormats, setActiveFormats] = useState<{
+    bold: boolean;
+    italic: boolean;
+    underline: boolean;
+  }>({ bold: false, italic: false, underline: false });
 
   const [urlInput, setUrlInput] = useState("");
   const [urlError, setUrlError] = useState(""); // حالة لرسالة خطأ الرابط
@@ -94,13 +99,22 @@ export function RichTextEditor({
     }
   };
 
+  const updateActiveFormats = useCallback(() => {
+    setActiveFormats({
+      bold: document.queryCommandState("bold"),
+      italic: document.queryCommandState("italic"),
+      underline: document.queryCommandState("underline"),
+    });
+  }, []);
+
   const execCommand = useCallback((command: string, value?: string) => {
     document.execCommand(command, false, value);
     if (editorRef.current) {
       onChange(editorRef.current.innerHTML);
       editorRef.current.focus();
+      updateActiveFormats();
     }
-  }, [onChange]);
+  }, [onChange, updateActiveFormats]);
 
   const handleInput = useCallback(() => {
     if (editorRef.current) {
@@ -225,13 +239,13 @@ export function RichTextEditor({
       >
         <div className="flex items-center p-2 bg-gray-50 border-b border-gray-200 overflow-x-auto shrink-0" dir="rtl">
           <div className="flex items-center gap-0.5 flex-nowrap">
-            <ToolbarButton onClick={() => execCommand("bold")} title="عريض">
+            <ToolbarButton onClick={() => execCommand("bold")} title="عريض" isActive={activeFormats.bold}>
               <span className="font-bold">B</span>
             </ToolbarButton>
-            <ToolbarButton onClick={() => execCommand("italic")} title="مائل">
+            <ToolbarButton onClick={() => execCommand("italic")} title="مائل" isActive={activeFormats.italic}>
               <span className="italic">I</span>
             </ToolbarButton>
-            <ToolbarButton onClick={() => execCommand("underline")} title="تسطير">
+            <ToolbarButton onClick={() => execCommand("underline")} title="تسطير" isActive={activeFormats.underline}>
               <span className="underline">U</span>
             </ToolbarButton>
 
@@ -351,6 +365,8 @@ export function RichTextEditor({
             onPaste={handlePaste}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
+            onKeyUp={updateActiveFormats}
+            onMouseUp={updateActiveFormats}
           />
           {isEmpty && (
             <div
@@ -564,11 +580,13 @@ function ToolbarButton({
   onClick,
   title,
   className,
+  isActive,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   title: string;
   className?: string;
+  isActive?: boolean;
 }) {
   return (
     <button
@@ -576,7 +594,10 @@ function ToolbarButton({
       onClick={onClick}
       title={title}
       className={cn(
-        "w-7 h-7 flex items-center justify-center rounded text-gray-2 hover:bg-gray-200 hover: transition-colors",
+        "w-7 h-7 flex cursor-pointer items-center justify-center rounded transition-colors",
+        isActive
+          ? "bg-blue-5  text-blue-4 hover:bg-blue-200"
+          : "text-gray-2 hover:bg-gray-200",
         className
       )}
     >

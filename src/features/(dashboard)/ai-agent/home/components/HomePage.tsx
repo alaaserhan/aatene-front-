@@ -61,7 +61,7 @@ export function HomePage() {
                         <StatCard
                             title="محادثات Live"
                             value={data.total_users || 0}
-                            icon={"chat"}
+                            icon={"message2"}
                             trend="+20"
                             iconColor="text-blue-500"
                             iconBg="bg-blue-50"

@@ -336,12 +336,8 @@ export function AverageRatingCard({ average = 0, total = 0 }: AverageRatingCardP
 
 export function PageHeader() {
     return (
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold ">الرئيسية</h1>
-            <button className="flex items-center gap-2 px-4 py-2 border border-blue-4 text-blue-3 cursor-pointer rounded-md transition-colors font-medium text-sm">
-                <img src="/icons/dashboard/export.svg" className="w-3.5" alt="" />
-                تصدير التقرير
-            </button>
         </div>
     );
 }

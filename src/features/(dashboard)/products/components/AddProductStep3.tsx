@@ -439,10 +439,10 @@ export function AddProductStep3({
                                                                         Number(e.target.value)
                                                                     )
                                                                 }
-                                                                className="w-full h-10 px-3 border border-gray-200 rounded-md text-sm text-center focus:ring-1 focus:ring-blue-300 outline-none"
+                                                                className="w-full h-10 px-2 border border-gray-200 rounded-md text-sm text-center focus:ring-1 focus:ring-blue-300 outline-none"
                                                                 placeholder="0.00"
                                                             />
-                                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-2 font-sans">
+                                                            <span className="absolute end-8 top-1/2 -translate-y-1/2  text-gray-2 font-sans">
                                                                 ₪
                                                             </span>
                                                         </div>

@@ -438,7 +438,7 @@ export function AddProductStep1({
                     maxLength={300}
                     rows={3}
                     className={cn(
-                      "w-full px-4 py-3 border rounded-lg focus:outline-none  text-sm resize-none placeholder:text-gray-2",
+                      "w-full px-4 py-3 border  rounded-lg  text-sm resize-none placeholder:text-gray-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500",
                       errors.short_description
                         ? "border-red-500"
                         : "border-gray-200"
@@ -465,7 +465,7 @@ export function AddProductStep1({
                       setFormData({ ...formData, description: val })
                     }
                     label="وصف المنتج"
-                    placeholder="...نص المحتوى"
+                    placeholder="اكتب وصفاً تفصيلاً..."
                     helpText="ماهو وصف المنتج"
                     helpTooltip="اكتب وصفًا تفصيليًا يشرح مميزات المنتج، خامته، طريقة استخدامه، والمعلومات الإضافية التي قد تساعد العميل في اتخاذ قرار الشراء. يمكنك استخدام فقرات أو نقاط مرتبة لتوضيح التفاصيل."
                     error={errors.description}

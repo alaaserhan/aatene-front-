@@ -61,7 +61,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
     toggle: () => setIsOpen((prev) => !prev),
   }));
 
-  const selectedOption = value
+  const selectedOption = value && value !== ""
     ? options.find((opt) => opt.value === value)
     : null;
 

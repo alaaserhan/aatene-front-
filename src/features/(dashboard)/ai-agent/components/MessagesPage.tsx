@@ -72,7 +72,14 @@ export function MessagesPage() {
                             <Switch
                                 id="human-filter"
                                 checked={showNeedsHuman}
-                                onCheckedChange={setShowNeedsHuman}
+                                onCheckedChange={(checked) => {
+                                    setShowNeedsHuman(checked);
+                                    if (checked) {
+                                        const params = new URLSearchParams(searchParams.toString());
+                                        params.delete("chatId");
+                                        router.push(`${pathname}?${params.toString()}`);
+                                    }
+                                }}
                                 dir="ltr"
                                 className="data-[state=checked]:bg-[#D97706]"
                             />

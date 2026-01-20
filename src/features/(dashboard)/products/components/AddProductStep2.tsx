@@ -62,7 +62,7 @@ export function AddProductStep2({
 
   const [formData, setFormData] = useState<ExtendedStep2FormData>({
     store_id: initialData?.store_id || (isAdmin ? 0 : Number(currentStoreId)),
-    section_id: initialData?.section_id || 0,
+    section_id: undefined,
     tags: initialData?.tags || [],
   });
 
@@ -145,7 +145,7 @@ export function AddProductStep2({
     setFormData({
       ...formData,
       store_id: Number(value),
-      section_id: 0,
+      section_id: undefined,
     });
   };
 
@@ -159,7 +159,7 @@ export function AddProductStep2({
       hasChanges = true;
     }
 
-    if (errors.section_id && formData.section_id) {
+    if (errors.section_id && formData.section_id && formData.section_id > 0) {
       delete newErrors.section_id;
       hasChanges = true;
     }
@@ -347,7 +347,7 @@ export function AddProductStep2({
                     <ReusableDropdown
                       options={sectionOptions}
                       value={
-                        formData.section_id ? String(formData.section_id) : ""
+                        formData.section_id && formData.section_id > 0 ? String(formData.section_id) : null
                       }
                       onChange={(value) =>
                         setFormData({ ...formData, section_id: Number(value) })
