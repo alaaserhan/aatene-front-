@@ -16,9 +16,9 @@ import { Button } from "@/src/components/ui/button";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
+import { MediaItem } from "../../mediaCenter/api";
 import { cn } from "@/src/lib/utils";
 import { ReportStatus } from "../api";
-import { toast } from "sonner";
 
 interface ReportDetailsPageProps {
   reportId: string;
@@ -51,14 +51,14 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
   // States
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [showMediaModal, setShowMediaModal] = useState(false);
-  const [replyText, setReplyText] = useState("");
+  // const [replyText, setReplyText] = useState("");
   const [attachments, setAttachments] = useState<MediaFile[]>([]);
 
   // Hooks
-  const { data, isLoading, refetch } = useGetSingleReport(reportId);
-  const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateReportStatus();
-  const { mutate: deleteReport, isPending: isDeleting } = useDeleteReport();
-  const { mutate: updateReport, isPending: isUpdatingReport } = useUpdateReport();
+  const { data, isLoading } = useGetSingleReport(reportId);
+  const { mutate: updateStatus } = useUpdateReportStatus();
+  const { mutate: deleteReport } = useDeleteReport();
+  const { mutate: updateReport } = useUpdateReport();
 
   const report = data?.record;
 
@@ -92,10 +92,19 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
     });
   };
 
-  const handleAddAttachment = (files: MediaFile | MediaFile[]) => {
+  const handleAddAttachment = (files: MediaItem | MediaItem[]) => {
     // Handling selection from MediaCenter
     const newFiles = Array.isArray(files) ? files : [files];
-    const updatedAttachments = [...attachments, ...newFiles];
+
+    // Map MediaItem to MediaFile to match state structure
+    const mappedFiles: MediaFile[] = newFiles.map(f => ({
+      id: String(f.id),
+      file_name: f.file_name,
+      src: f.src || f.url,
+      mime_type: f.file_type
+    }));
+
+    const updatedAttachments = [...attachments, ...mappedFiles];
     setAttachments(updatedAttachments);
     setShowMediaModal(false);
 
