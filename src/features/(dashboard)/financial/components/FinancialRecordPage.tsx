@@ -12,29 +12,25 @@ import { FinancialChart } from "./FinancialChart";
 import { useGetCoinsTransactions } from "../../coins/hooks";
 
 export function FinancialRecordPage({ storeId }: { storeId?: number }) {
-    // State
     const [currentPage, setCurrentPage] = useState(1);
-    const [dateRange, setDateRange] = useState("current_day");
+    const [createdAtFrom, setCreatedAtFrom] = useState("");
+    const [createdAtTo, setCreatedAtTo] = useState("");
     const [transactionType, setTransactionType] = useState("purchase");
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Stats are fetched internally by FinancialStatsCards
-    // Chart fetches its own data internally
-
-    // Transactions Data Fetching
     const transactionsParams = useMemo(() => {
         const params = new URLSearchParams();
         params.set("page", String(currentPage));
         params.set("per_page", "5");
         if (storeId) params.set("store_id", String(storeId));
 
-        // Filters
-        if (dateRange && dateRange !== "all_time") params.set("period", dateRange); // Assuming backend supports 'period' for transactions
+        if (createdAtFrom) params.set("created_at_from", createdAtFrom);
+        if (createdAtTo) params.set("created_at_to", createdAtTo);
         if (transactionType && transactionType !== "all") params.set("type", transactionType);
         if (searchQuery) params.set("search", searchQuery);
 
         return params;
-    }, [currentPage, storeId, dateRange, transactionType, searchQuery]);
+    }, [currentPage, storeId, createdAtFrom, createdAtTo, transactionType, searchQuery]);
 
     const { data: transactionsData, isLoading: isLoadingTransactions, isFetching } = useGetCoinsTransactions(transactionsParams, storeId);
 
@@ -44,7 +40,7 @@ export function FinancialRecordPage({ storeId }: { storeId?: number }) {
 
     const breadcrumbItems = [
         { label: "الرئيسية", href: "/admin" },
-        { label: "فواتير والسجل المالي" }, // Current page
+        { label: "فواتير والسجل المالي" },
     ];
 
     return (
@@ -56,7 +52,6 @@ export function FinancialRecordPage({ storeId }: { storeId?: number }) {
                 </div>
 
                 <Link href={`/admin/coins/buy`}>
-                    {/* Assuming route, or update to correct buy coins route */}
                     <Button className="bg-blue-3   gap-2">
                         <Plus className="w-4 h-4" />
                         <span>شراء عملات</span>
@@ -69,8 +64,10 @@ export function FinancialRecordPage({ storeId }: { storeId?: number }) {
 
             {/* Filters */}
             <FinancialFilters
-                dateRange={dateRange}
-                onDateRangeChange={(val) => { setDateRange(val); setCurrentPage(1); }}
+                createdAtFrom={createdAtFrom}
+                onCreatedAtFromChange={(val) => { setCreatedAtFrom(val); setCurrentPage(1); }}
+                createdAtTo={createdAtTo}
+                onCreatedAtToChange={(val) => { setCreatedAtTo(val); setCurrentPage(1); }}
                 transactionType={transactionType}
                 onTransactionTypeChange={(val) => { setTransactionType(val); setCurrentPage(1); }}
                 searchQuery={searchQuery}
