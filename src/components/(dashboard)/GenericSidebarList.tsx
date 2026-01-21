@@ -26,6 +26,7 @@ interface GenericSidebarListProps<T> {
   className?: string;
   triggerIcon?: ReactNode;
   selectedId?: number | string | null;
+  extraHeaderContent?: ReactNode;
   // --- Props الخاصة بالـ Infinite Scroll ---
   onLoadMore?: () => void;
   hasNextPage?: boolean;
@@ -48,6 +49,7 @@ export function GenericSidebarList<T extends { id: number | string }>({
   onLoadMore,
   hasNextPage,
   isFetchingNextPage,
+  extraHeaderContent,
 }: GenericSidebarListProps<T>) {
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -111,6 +113,8 @@ export function GenericSidebarList<T extends { id: number | string }>({
           />
         )}
       </div>
+
+      {extraHeaderContent}
 
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (

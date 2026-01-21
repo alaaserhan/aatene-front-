@@ -1,6 +1,7 @@
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getMessaging, getToken, Messaging } from "firebase/messaging";
+import { getFirestore, Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,13 +13,14 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 let messaging: Messaging | null = null;
+let db: Firestore | null = null;
 
 if (typeof window !== "undefined") {
     messaging = getMessaging(app);
+    db = getFirestore(app);
 }
 
 export const getFCMToken = async () => {
@@ -39,4 +41,5 @@ export const getFCMToken = async () => {
     }
 };
 
-export { app, messaging };
+export { app, messaging, db };
+

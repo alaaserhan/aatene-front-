@@ -25,7 +25,7 @@ export default async function DashboardLayout({
   if ((type === "admin" && role !== "admin" && role !== "merchant")) redirect(`/${locale}/dashboard`);
 
   return <>
-    <DashboardNavbar navPrefix={type === "admin" ? "/admin" : "/dashboard"} />
+    <DashboardNavbar navPrefix="/admin" />
     <StoreGuard>
       <div>
         {children}

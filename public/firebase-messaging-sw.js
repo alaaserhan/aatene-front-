@@ -23,4 +23,14 @@ messaging.onBackgroundMessage(function (payload) {
     };
 
     self.registration.showNotification(notificationTitle, notificationOptions);
+
+    // Broadcast to all clients (open tabs) to refresh
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clients) {
+        clients.forEach(function (client) {
+            client.postMessage({
+                type: 'FCM_MESSAGE_RECEIVED',
+                payload: payload
+            });
+        });
+    });
 });
