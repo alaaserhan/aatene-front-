@@ -155,7 +155,7 @@ export function ConversationListSidebar({
                 const displayName = getDisplayName(conversation);
                 const avatar = getAvatar(conversation);
                 const lastMessage = conversation.last_message;
-                const time = formatTime(conversation.updated_at || conversation.created_at);
+                const time = formatTime(lastMessage?.updated_at || conversation.updated_at || conversation.created_at);
 
                 return (
                     <div

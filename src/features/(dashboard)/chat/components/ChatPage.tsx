@@ -1,47 +1,73 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useConversations, useTotalUnreadCount } from "../hooks";
 import { Conversation } from "../api";
 import { ConversationListSidebar } from "./ConversationListSidebar";
+import { ChatWindow } from "./ChatWindow";
 import { ChatEmptyState } from "./ChatEmptyState";
+import { CreateGroupModal } from "./CreateGroupModal";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
 import { messaging } from "@/src/lib/firebase";
 import { onMessage, MessagePayload } from "firebase/messaging";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 import { toast } from "sonner";
 import { getFCMToken } from "@/src/lib/firebase";
 
 export function ChatPage() {
     const queryClient = useQueryClient();
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const { data, isLoading, isError, refetch } = useConversations();
     const { data: unreadData } = useTotalUnreadCount();
     const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("all");
+    const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
+
+    const allConversations = useMemo(() => data?.conversations || [], [data]);
 
     useEffect(() => {
-        // 1. Register Service Worker manually to ensure it works
+        const chatId = searchParams.get("chat");
+        if (chatId && allConversations.length > 0) {
+            const conv = allConversations.find(c => String(c.id) === chatId);
+            if (conv && (!selectedConversation || conv.id !== selectedConversation.id)) {
+                setSelectedConversation(conv);
+            }
+        }
+    }, [searchParams, allConversations, selectedConversation]);
+
+    const handleSelectConversation = useCallback((conversation: Conversation) => {
+        setSelectedConversation(conversation);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("chat", String(conversation.id));
+        router.push(`${pathname}?${params.toString()}`);
+    }, [searchParams, pathname, router]);
+
+    const handleCloseChat = useCallback(() => {
+        setSelectedConversation(null);
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("chat");
+        router.push(`${pathname}?${params.toString()}`);
+    }, [searchParams, pathname, router]);
+
+    useEffect(() => {
         if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
             navigator.serviceWorker
                 .register('/firebase-messaging-sw.js')
-                .then(() => {
-                    // Service Worker registered
-                })
-                .catch(() => {
-                    // Service Worker registration failed
-                });
+                .then(() => { })
+                .catch(() => { });
         }
 
-        // 2. Check FCM Token
         const checkToken = async () => {
             if (typeof window !== "undefined" && messaging) {
                 try {
                     await getFCMToken();
-                } catch {
-                    // Error getting FCM token
-                }
+                } catch { }
             }
         };
         checkToken();
@@ -51,20 +77,15 @@ export function ChatPage() {
         if (typeof window !== "undefined" && messaging) {
             const unsubscribe = onMessage(messaging, (payload: MessagePayload) => {
                 toast.info(`New message: ${payload.notification?.title || "No Title"}`);
-
                 refetch();
                 queryClient.invalidateQueries({ queryKey: ["conversations"] });
+                queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });
                 queryClient.invalidateQueries({ queryKey: ["total-unread"] });
             });
             return () => unsubscribe();
         }
     }, [refetch, queryClient]);
 
-    const allConversations = useMemo(() => data?.conversations || [], [data]);
-    const groupsCount = allConversations.filter(c => c.participants.length > 2).length;
-    const allCount = allConversations.length;
-
-    // Handle Background Messages (via Service Worker broadcast)
     useEffect(() => {
         if (typeof window !== "undefined" && "serviceWorker" in navigator) {
             const handler = (event: MessageEvent) => {
@@ -72,16 +93,18 @@ export function ChatPage() {
                     toast.info(`New message: ${event.data.payload.notification?.title || "No Title"}`);
                     refetch();
                     queryClient.invalidateQueries({ queryKey: ["conversations"] });
+                    queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });
                     queryClient.invalidateQueries({ queryKey: ["total-unread"] });
                 }
             };
             navigator.serviceWorker.addEventListener('message', handler);
-
             return () => navigator.serviceWorker.removeEventListener('message', handler);
         }
     }, [refetch, queryClient]);
 
-    // Dynamic Options with real counts
+    const groupsCount = allConversations.filter(c => c.participants.length > 2).length;
+    const allCount = allConversations.length;
+
     const sidebarOptions = [
         { name: `جميع المحادثات (${allCount})`, value: "all" },
         { name: `المجموعات (${groupsCount})`, value: "groups" },
@@ -89,36 +112,25 @@ export function ChatPage() {
 
     const filteredConversations = useMemo(() => {
         return allConversations.filter((conv) => {
-            // 1. Search Filter
             let matchesSearch = true;
             if (searchQuery) {
                 const name = conv.name || conv.participants[0]?.participant_data?.name || "";
                 matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase());
             }
-
-            // 2. Panel Filter (All vs Groups)
             let matchesFilter = true;
             if (activeFilter === "groups") {
-                // Filter groups as participants > 2
                 matchesFilter = conv.participants.length > 2;
             }
-
             return matchesSearch && matchesFilter;
         });
     }, [allConversations, searchQuery, activeFilter]);
 
     return (
-        <div className="p-6 space-y-4">
-            {/* <Breadcrumb items={breadcrumbItems} /> */}
-
-            <div className="flex gap-4 h-[calc(100vh-128px)]">
-                {/* Right Sidebar - Filter Panel */}
-                <div className="w-64 shrink-0">
+        <div className="p-2 md:p-6 space-y-2 md:space-y-4">
+            <div className="flex gap-2 md:gap-4 h-[calc(100vh-100px)] md:h-[calc(100vh-128px)]">
+                {/* Right Sidebar - Filter Panel (Hidden on mobile) */}
+                <div className="hidden lg:block w-64 shrink-0">
                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden h-full">
-                        {/* <div className="p-4 border-b border-gray-200 flex items-center gap-2">
-                            <MessageSquare className="w-4 h-4 text-blue-3" />
-                            <h2 className="font-semibold text-gray-800">جميع المحادثات (12)</h2>
-                        </div> */}
                         <SidebarFilterPanel
                             options={sidebarOptions}
                             activeValue={activeFilter}
@@ -127,34 +139,75 @@ export function ChatPage() {
                     </div>
                 </div>
 
-                {/* Middle - Conversation List */}
-                <div className="w-96 shrink-0">
+                {/* Conversation List - Full width on mobile when no chat selected */}
+                <div className={`
+                    ${selectedConversation ? 'hidden md:block' : 'flex-1 md:flex-none'}
+                    md:w-96 shrink-0 flex flex-col
+                `}>
+                    {/* Mobile Filter Buttons - Only visible on small screens */}
+                    <div className="lg:hidden flex gap-2 p-2 bg-white rounded-t-lg border border-b-0 border-gray-200">
+                        <button
+                            onClick={() => setActiveFilter("all")}
+                            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "all"
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                }`}
+                        >
+                            جميع المحادثات ({allCount})
+                        </button>
+                        <button
+                            onClick={() => setActiveFilter("groups")}
+                            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "groups"
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                }`}
+                        >
+                            المجموعات ({groupsCount})
+                        </button>
+                    </div>
                     <ConversationListSidebar
                         conversations={filteredConversations}
                         isLoading={isLoading}
                         isError={isError}
                         selectedConversationId={selectedConversation?.id || null}
-                        onSelectConversation={setSelectedConversation}
+                        onSelectConversation={handleSelectConversation}
                         searchQuery={searchQuery}
                         onSearchChange={setSearchQuery}
-                        className="max-h-[calc(100vh-128px)]"
+                        className="max-h-[calc(100vh-100px)] md:max-h-[calc(100vh-128px)] lg:rounded-t-lg"
                         totalUnreadCount={unreadData?.unread_count || 0}
                     />
                 </div>
 
-                {/* Left - Chat Area */}
-                <div className="flex-1 bg-white rounded-lg border border-gray-200 overflow-hidden">
+                {/* Chat Area - Full width on mobile when chat is selected */}
+                <div className={`
+                    ${selectedConversation ? 'flex-1' : 'hidden md:flex md:flex-1'}
+                    bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm h-full
+                `}>
                     {selectedConversation ? (
-                        <div className="flex items-center justify-center h-full text-gray-500">
-                            محادثة مع {selectedConversation.name || "مستخدم"}
-                            <br />
-                            (سيتم بناء واجهة الدردشة لاحقاً)
-                        </div>
+                        <ChatWindow
+                            conversation={selectedConversation}
+                            onClose={handleCloseChat}
+                        />
                     ) : (
-                        <ChatEmptyState />
+                        <ChatEmptyState
+                            isGroupsFilter={activeFilter === "groups"}
+                            onCreateGroup={() => setShowCreateGroupModal(true)}
+                        />
                     )}
                 </div>
             </div>
+
+            {/* Create Group Modal */}
+            <CreateGroupModal
+                isOpen={showCreateGroupModal}
+                onClose={() => setShowCreateGroupModal(false)}
+                onSuccess={(conversationId) => {
+                    const newConv = allConversations.find(c => c.id === conversationId);
+                    if (newConv) {
+                        handleSelectConversation(newConv);
+                    }
+                }}
+            />
         </div>
     );
 }
