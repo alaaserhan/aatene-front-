@@ -171,7 +171,7 @@ export function ImageGallerySelector({
                         onDragEnd={handleDragEnd}
                         onDragOver={(e) => e.preventDefault()}
                         className={cn(
-                            "flex-shrink-0 bg-white rounded-xl border border-gray-200 overflow-hidden transition-all cursor-move",
+                            "shrink-0 bg-white rounded-xl border border-gray-200 overflow-hidden transition-all cursor-move",
                             dragOverIndex === index && "border-blue-3 border-2"
                         )}
                         style={{ width: `${itemWidth}px` }}
@@ -246,7 +246,7 @@ export function ImageGallerySelector({
                     <div
                         onClick={() => setIsModalOpen(true)}
                         className={cn(
-                            "flex-shrink-0 rounded-lg",
+                            "shrink-0 rounded-lg",
                             "flex flex-col items-center justify-center gap-1 cursor-pointer transition-all",
                             "bg-[#F8F8F8]"
                         )}

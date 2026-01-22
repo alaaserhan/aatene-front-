@@ -253,7 +253,7 @@ export function AddShippingCompanyDialog({
                         <button
                           type="button"
                           className={cn(
-                            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer",
+                            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center shrink-0 cursor-pointer",
                             isSelected
                               ? "bg-blue-5 border-blue-4"
                               : "bg-white border-gray-300 group-hover:border-gray-2"

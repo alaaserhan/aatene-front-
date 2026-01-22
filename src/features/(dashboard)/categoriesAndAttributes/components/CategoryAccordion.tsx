@@ -33,7 +33,7 @@ function AttributeOptionRow({
       {isAdmin && (
         <button
           onClick={onDelete}
-          className="p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
+          className="p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer shrink-0"
         >
           <img
             src="/icons/dashboard/trash.svg"
@@ -107,7 +107,7 @@ function AttributeAccordionContent(props: AttributeProps) {
         {isAdmin && (
           <button
             onClick={() => onDelete(attribute.id)}
-            className="p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
+            className="p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer shrink-0"
           >
             <img
               src="/icons/dashboard/trash.svg"
@@ -121,7 +121,7 @@ function AttributeAccordionContent(props: AttributeProps) {
         {isAdmin && (
           <button
             onClick={() => onEdit(attribute)}
-            className="p-3 bg-blue-5 hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
+            className="p-3 bg-blue-5 hover:bg-blue-50 transition-colors cursor-pointer shrink-0"
           >
             <img src="/icons/dashboard/edit3.svg" alt="Edit" className="w-4 h-4" />
           </button>
@@ -150,7 +150,7 @@ function AttributeAccordionContent(props: AttributeProps) {
           onClick={() => isAdmin && onToggleStatus(attribute.id, !isActive, "attribute")}
           disabled={!isAdmin}
           className={cn(
-            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 flex-shrink-0",
+            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 shrink-0",
             isAdmin ? "cursor-pointer" : "cursor-not-allowed opacity-50",
             isActive
               ? "bg-blue-5 border-blue-4"
@@ -246,7 +246,7 @@ function CategoryAccordionContent(props: CategoryProps) {
         {isAdmin && (
           <button
             onClick={() => onDelete(category.id)}
-            className="p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer flex-shrink-0"
+            className="p-3 bg-[#FB37481A] hover:bg-[#FB374830] transition-colors cursor-pointer shrink-0"
           >
             <img
               src="/icons/dashboard/trash.svg"
@@ -260,7 +260,7 @@ function CategoryAccordionContent(props: CategoryProps) {
         {isAdmin && (
           <button
             onClick={() => onEdit(category)}
-            className="p-3 bg-blue-5 hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
+            className="p-3 bg-blue-5 hover:bg-blue-50 transition-colors cursor-pointer shrink-0"
           >
             <img src="/icons/dashboard/edit3.svg" alt="Edit" className="w-4 h-4" />
           </button>
@@ -270,7 +270,7 @@ function CategoryAccordionContent(props: CategoryProps) {
         {isAdmin && (
           <button
             onClick={() => onAddSubCategory(category.id, category?.name)}
-            className="p-3 bg-[#00D9C01A] hover:bg-[#00D9C030] transition-colors cursor-pointer flex-shrink-0"
+            className="p-3 bg-[#00D9C01A] hover:bg-[#00D9C030] transition-colors cursor-pointer shrink-0"
           >
             <svg
               width="16"
@@ -296,7 +296,7 @@ function CategoryAccordionContent(props: CategoryProps) {
               <button
                 key={idx}
                 onClick={() => onViewImages(images)}
-                className="flex-shrink-0 w-10 h-10 rounded overflow-hidden hover:border-blue-3 transition-colors cursor-pointer"
+                className="shrink-0 w-10 h-10 rounded overflow-hidden hover:border-blue-3 transition-colors cursor-pointer"
               >
                 <img
                   src={img}
@@ -306,7 +306,7 @@ function CategoryAccordionContent(props: CategoryProps) {
               </button>
             ))}
             {images.length > 4 && (
-              <div className="flex-shrink-0 w-10 h-10 rounded flex items-center justify-center text-sm font-medium text-gray-2 bg-gray-50">
+              <div className="shrink-0 w-10 h-10 rounded flex items-center justify-center text-sm font-medium text-gray-2 bg-gray-50">
                 +{images.length - 4}
               </div>
             )}
@@ -315,7 +315,7 @@ function CategoryAccordionContent(props: CategoryProps) {
 
         <div
           className={cn(
-            "flex items-center gap-0 flex-shrink-0",
+            "flex items-center gap-0 shrink-0",
             category.type === "service" && "flex-1 ms-4 justify-end"
           )}
         >
@@ -341,7 +341,7 @@ function CategoryAccordionContent(props: CategoryProps) {
           onClick={() => isAdmin && onToggleStatus(category.id, !isActive, "category")}
           disabled={!isAdmin}
           className={cn(
-            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 flex-shrink-0",
+            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 shrink-0",
             isAdmin ? "cursor-pointer" : "cursor-not-allowed opacity-50",
             isActive
               ? "bg-blue-5 border-blue-4"

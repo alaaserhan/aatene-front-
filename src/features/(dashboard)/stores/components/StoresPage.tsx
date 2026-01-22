@@ -88,7 +88,7 @@ export function StoresPage() {
                 )}
             >
                 <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
+                    <div className="shrink-0 w-12 h-12 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
                         <img
                             src={store.logo_url || "/default-store.png"}
                             alt={store.name}
@@ -105,7 +105,7 @@ export function StoresPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex items-center gap-3 shrink-0">
                     <div className="flex items-center gap-1.5">
                         <div className={cn("w-2 h-2 rounded-full", isActive ? "bg-green-500" : "bg-red-500")} />
                         <span className={cn("text-xs font-medium", isActive ? "text-green-600" : "text-red-600")}>

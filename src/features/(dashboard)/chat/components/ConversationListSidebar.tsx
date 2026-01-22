@@ -166,7 +166,7 @@ export function ConversationListSidebar({
                             isSelected ? "bg-blue-5" : "hover:bg-gray-50"
                         )}
                     >
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                             <img
                                 src={avatar}
                                 alt={displayName}

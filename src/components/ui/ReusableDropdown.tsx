@@ -112,7 +112,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
         </div>
         <ChevronDown
           className={cn(
-            "w-4 h-4 text-gray-2 transition-transform flex-shrink-0",
+            "w-4 h-4 text-gray-2 transition-transform shrink-0",
             isOpen && "rotate-180"
           )}
         />
@@ -167,7 +167,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
                     >
                       <div
                         className={cn(
-                          "w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
+                          "w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors",
                           isSelected
                             ? "border-blue-3 bg-blue-3"
                             : "border-gray-300 bg-white"

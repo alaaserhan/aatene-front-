@@ -18,24 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import {
-    ChevronDown,
-    LogOut,
-    Settings,
-    Coins,
-    FileText,
-    Users,
-    Compass,
-    Search,
-    Bell,
-    Star,
-    FileQuestion,
-    TicketPercent,
-    Truck,
-    LayoutTemplate,
-    FileEdit,
-    MessageSquareOff,
     Bot,
-    Store as StoreIcon,
     Frown,
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
@@ -47,7 +30,12 @@ export function DashboardUserMenu() {
 
     // State for store search
     const [storeSearch, setStoreSearch] = useState("");
-    const [currentStoreId, setCurrentStoreId] = useState<string | null>(null);
+    const [currentStoreId, setCurrentStoreId] = useState<string | null>(() => {
+        if (typeof window !== 'undefined') {
+            return Cookies.get("current_store_id") || null;
+        }
+        return null;
+    });
 
     const isAdmin = user?.user_type === "admin";
     const isMerchant = user?.user_type === "merchant";
@@ -62,16 +50,13 @@ export function DashboardUserMenu() {
 
     // قراءة المتجر الحالي من الكوكيز عند التحميل
     useEffect(() => {
-        const savedStoreId = Cookies.get("current_store_id");
-        if (savedStoreId) {
-            setCurrentStoreId(savedStoreId);
-        } else if (stores.length > 0 && !savedStoreId) {
-            // إذا لم يكن هناك متجر مختار، اختر الأول تلقائياً
-            setCurrentStoreId(String(stores[0].id));
-            Cookies.set("current_store_id", String(stores[0].id), { expires: 365 });
+        if (!currentStoreId && stores.length > 0) {
+            const firstStoreId = String(stores[0].id);
+            setCurrentStoreId(firstStoreId);
+            Cookies.set("current_store_id", firstStoreId, { expires: 365 });
             Cookies.set("store_type", stores[0].type, { expires: 365 });
         }
-    }, [stores.length]);
+    }, [stores, currentStoreId]);
 
     // تحديد المتجر النشط حالياً لعرض بياناته في الهيدر
     const activeStore = stores.find((s) => String(s.id) === currentStoreId);
@@ -188,7 +173,7 @@ export function DashboardUserMenu() {
                             </button>
                         </div>
 
-                        <div className="h-[1px] bg-gray-100 mx-4 mb-3" />
+                        <div className="h-px bg-gray-100 mx-4 mb-3" />
 
                         {/* --- Store Switcher Section --- */}
                         <div className="px-4 pb-4">
@@ -287,7 +272,7 @@ export function DashboardUserMenu() {
     );
 }
 
-function MenuItem({ href, icon: Icon, label }: { href: string; icon: any; label: string }) {
+function MenuItem({ href, icon: Icon, label }: { href: string; icon: React.ElementType; label: string }) {
     return (
         <Link
             href={href}

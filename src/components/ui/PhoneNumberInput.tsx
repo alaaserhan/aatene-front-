@@ -153,7 +153,7 @@ const PhoneNumberInput = React.forwardRef<
                                                 {/* Selection Indicator */}
                                                 <div
                                                     className={cn(
-                                                        "w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors",
+                                                        "w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors",
                                                         isSelected
                                                             ? "border-blue-3 bg-blue-3"
                                                             : "border-gray-300 bg-white"

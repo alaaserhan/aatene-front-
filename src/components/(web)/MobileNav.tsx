@@ -137,7 +137,7 @@ export default function MobileNav({
         {mobileMenuOpen && (
           <>
             <motion.div
-              className="fixed inset-0 bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-sm z-40"
+              className="fixed inset-0 bg-linear-to-br from-black/60 to-black/40 backdrop-blur-sm z-40"
               variants={overlayVariants}
               initial="closed"
               animate="open"
@@ -152,7 +152,7 @@ export default function MobileNav({
               exit="closed"
             >
               <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between p-6 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-gray-100">
+                <div className="flex items-center justify-between p-6 bg-linear-to-r from-primary/5 to-primary/10 border-b border-gray-100">
                   <Link
                     href={`/${lang}`}
                     onClick={() => setMobileMenuOpen(false)}

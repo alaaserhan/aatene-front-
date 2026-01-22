@@ -157,7 +157,7 @@ export function AddStoreStep3({
                         type="button"
                         onClick={toggleHidePhone}
                         className={cn(
-                          "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer",
+                          "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center shrink-0 cursor-pointer",
                           formData.hide_phone === "1"
                             ? "bg-blue-5 border-blue-4"
                             : "bg-white border-gray-300 group-hover:border-gray-2"
