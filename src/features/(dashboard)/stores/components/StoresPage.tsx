@@ -9,6 +9,7 @@ import { StoreEmptyState } from "./StoreEmptyState";
 import { StoreDetailsPage } from "./StoreDetailsPage";
 import { cn } from "@/src/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 import { Plus } from "lucide-react";
 
 const statusFilterOptions = [
@@ -89,10 +90,13 @@ export function StoresPage() {
             >
                 <div className="flex items-center gap-3">
                     <div className="shrink-0 w-12 h-12 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
-                        <img
+                        <Image
                             src={store.logo_url || "/default-store.png"}
                             alt={store.name}
+                            width={48}
+                            height={48}
                             className="w-full h-full object-cover"
+                            unoptimized
                         />
                     </div>
                     <div className="flex flex-col min-w-0">
@@ -161,7 +165,7 @@ export function StoresPage() {
                                 <div className="bg-white rounded-lg border border-gray-200 h-full flex items-center justify-center">
                                     <div className="text-center p-6">
                                         <div className="h-44 mx-auto mb-2 flex items-center justify-center">
-                                            <img src="/icons/dashboard/noStore.svg" className="h-44" alt="placeholder" />
+                                            <Image src="/icons/dashboard/noStore.svg" className="h-44" alt="placeholder" width={176} height={176} unoptimized />
                                         </div>
                                         <h3 className="text-xl font-bold">لم يتم اختيار متجر</h3>
                                         <p className="text-gray-3 text-sm mt-1">

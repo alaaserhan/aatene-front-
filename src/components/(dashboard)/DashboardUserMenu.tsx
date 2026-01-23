@@ -1,7 +1,7 @@
 // src/features/(dashboard)/components/DashboardUserMenu.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { useAuthStore } from "@/src/stores/auth-store";
@@ -18,6 +18,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import {
+    ChevronDown,
+    LogOut,
+    Settings,
+    FileText,
+    Compass,
+    Search,
+    Bell,
+    Star,
+    FileQuestion,
+    TicketPercent,
+    Truck,
+    LayoutTemplate,
+    FileEdit,
+    MessageSquareOff,
     Bot,
     Frown,
 } from "lucide-react";
@@ -46,15 +60,19 @@ export function DashboardUserMenu() {
         { enabled: isMerchant }
     );
 
-    const stores = storesData?.data || [];
+    const storesRaw = storesData?.data;
+    const stores = useMemo(() => storesRaw || [], [storesRaw]);
 
     // قراءة المتجر الحالي من الكوكيز عند التحميل
     useEffect(() => {
         if (!currentStoreId && stores.length > 0) {
-            const firstStoreId = String(stores[0].id);
-            setCurrentStoreId(firstStoreId);
-            Cookies.set("current_store_id", firstStoreId, { expires: 365 });
-            Cookies.set("store_type", stores[0].type, { expires: 365 });
+            const timer = setTimeout(() => {
+                const firstStoreId = String(stores[0].id);
+                setCurrentStoreId(firstStoreId);
+                Cookies.set("current_store_id", firstStoreId, { expires: 365 });
+                Cookies.set("store_type", stores[0].type, { expires: 365 });
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [stores, currentStoreId]);
 

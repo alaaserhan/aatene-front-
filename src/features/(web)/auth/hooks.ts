@@ -35,10 +35,8 @@ export const useLogin = () => {
       router.push(`/${lang}/`); // Redirect to language-specific home
       toast.success(data.message || "Login successful!");
     },
-    onError: (error) => {
+    onError: () => {
       // Axios interceptor already shows a toast for API errors
-      console.error("Login failed:", error);
-      // You could potentially add more specific UI feedback here if needed
     },
   });
 };
@@ -61,8 +59,7 @@ export const useRegister = () => {
       router.push(`/${lang}/`);
       toast.success(data.message || "Registration successful!");
     },
-    onError: (error) => {
-      console.error("Registration failed:", error);
+    onError: () => {
     },
   });
 };
@@ -82,8 +79,7 @@ export const useLogout = () => {
       toast.success(data.message || "Logout successful!");
       window.location.href = `/${lang}/login`;
     },
-    onError: (error) => {
-      console.error("Logout failed:", error);
+    onError: () => {
       logoutFromStore();
       queryClient.cancelQueries();
       queryClient.clear();
@@ -100,8 +96,7 @@ export const useSendPasswordCode = () => {
       toast.success(data.message || "Password reset code sent!");
       // Usually navigate to the Verify Code screen here, passing the 'id'
     },
-    onError: (error) => {
-      console.error("Send password code failed:", error);
+    onError: () => {
     },
   });
 };
@@ -130,8 +125,7 @@ export const useVerifyPasswordCode = () => {
       //   router.push(`/${lang}/`);
       // }
     },
-    onError: (error) => {
-      console.error("Verify password code failed:", error);
+    onError: () => {
     },
   });
 };
@@ -143,8 +137,7 @@ export const useResendOtpCode = () => {
     onSuccess: (data) => {
       toast.success(data.message || "Code resent successfully!");
     },
-    onError: (error) => {
-      console.error("Resend code failed:", error);
+    onError: () => {
     },
   });
 };

@@ -82,7 +82,7 @@ api.interceptors.response.use(
     }
 
     if (error.response && error.response.status !== 401) {
-      let message = "An unexpected error occurred.";
+      let message = "خطاء في كلمه المرور او البريد الالكتروني";
 
       const responseData = error.response.data as ErrorResponse;
 
