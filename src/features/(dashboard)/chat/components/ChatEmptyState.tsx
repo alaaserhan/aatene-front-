@@ -13,14 +13,14 @@ export function ChatEmptyState({ isGroupsFilter, onCreateGroup }: ChatEmptyState
         return (
             <div className="flex-1 flex flex-col items-center justify-center h-full bg-gray-50/30 p-8">
                 <div className="max-w-md text-center space-y-6">
-                    <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto">
-                        <Users className="w-10 h-10 text-blue-500" />
+                    <div className="w-20 h-20 rounded-full bg-blue-5 flex items-center justify-center mx-auto">
+                        <Users className="w-10 h-10 text-blue-3" />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-800">لا توجد مجموعات</h2>
                     <p className="text-gray-500">قم بإنشاء مجموعة جديدة للتواصل مع عدة مستخدمين</p>
                     <Button
                         onClick={onCreateGroup}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-8"
+                        className="bg-blue-3 hover:bg-blue-4 text-white px-8"
                     >
                         إنشاء مجموعة
                     </Button>

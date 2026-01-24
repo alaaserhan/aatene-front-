@@ -24,35 +24,30 @@ export function ChatPage() {
 
     const { data, isLoading, isError, refetch } = useConversations();
     const { data: unreadData } = useTotalUnreadCount();
-    const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("all");
     const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
 
     const allConversations = useMemo(() => data?.conversations || [], [data]);
 
-    useEffect(() => {
+    const selectedConversation = useMemo(() => {
         const chatId = searchParams.get("chat");
-        if (chatId && allConversations.length > 0) {
-            const conv = allConversations.find(c => String(c.id) === chatId);
-            if (conv && (!selectedConversation || conv.id !== selectedConversation.id)) {
-                setSelectedConversation(conv);
-            }
-        }
-    }, [searchParams, allConversations, selectedConversation]);
+        if (!chatId || allConversations.length === 0) return null;
+        return allConversations.find(c => String(c.id) === chatId) || null;
+    }, [searchParams, allConversations]);
 
     const handleSelectConversation = useCallback((conversation: Conversation) => {
-        setSelectedConversation(conversation);
         const params = new URLSearchParams(searchParams.toString());
         params.set("chat", String(conversation.id));
         router.push(`${pathname}?${params.toString()}`);
     }, [searchParams, pathname, router]);
 
     const handleCloseChat = useCallback(() => {
-        setSelectedConversation(null);
         const params = new URLSearchParams(searchParams.toString());
-        params.delete("chat");
-        router.push(`${pathname}?${params.toString()}`);
+        if (params.get("chat")) {
+            params.delete("chat");
+            router.push(`${pathname}?${params.toString()}`);
+        }
     }, [searchParams, pathname, router]);
 
     useEffect(() => {
@@ -102,12 +97,14 @@ export function ChatPage() {
         }
     }, [refetch, queryClient]);
 
-    const groupsCount = allConversations.filter(c => c.participants.length > 2).length;
+    const groupsCount = allConversations.filter(c => c.type === "group").length;
+    const directCount = allConversations.filter(c => c.type === "direct").length;
     const allCount = allConversations.length;
 
     const sidebarOptions = [
         { name: `جميع المحادثات (${allCount})`, value: "all" },
-        { name: `المجموعات (${groupsCount})`, value: "groups" },
+        { name: `الرسائل المباشرة (${directCount})`, value: "direct" },
+        { name: `المجموعات (${groupsCount})`, value: "group" },
     ];
 
     const filteredConversations = useMemo(() => {
@@ -118,8 +115,10 @@ export function ChatPage() {
                 matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase());
             }
             let matchesFilter = true;
-            if (activeFilter === "groups") {
-                matchesFilter = conv.participants.length > 2;
+            if (activeFilter === "group") {
+                matchesFilter = conv.type === "group";
+            } else if (activeFilter === "direct") {
+                matchesFilter = conv.type === "direct";
             }
             return matchesSearch && matchesFilter;
         });
@@ -145,24 +144,33 @@ export function ChatPage() {
                     md:w-96 shrink-0 flex flex-col
                 `}>
                     {/* Mobile Filter Buttons - Only visible on small screens */}
-                    <div className="lg:hidden flex gap-2 p-2 bg-white rounded-t-lg border border-b-0 border-gray-200">
+                    <div className="lg:hidden flex gap-2 p-2 bg-white rounded-t-lg border border-b-0 border-gray-200 overflow-x-auto">
                         <button
                             onClick={() => setActiveFilter("all")}
-                            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "all"
+                            className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "all"
                                 ? "bg-blue-500 text-white"
                                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                                 }`}
                         >
-                            جميع المحادثات ({allCount})
+                            الكل ({allCount})
                         </button>
                         <button
-                            onClick={() => setActiveFilter("groups")}
-                            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "groups"
+                            onClick={() => setActiveFilter("direct")}
+                            className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "direct"
                                 ? "bg-blue-500 text-white"
                                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                                 }`}
                         >
-                            المجموعات ({groupsCount})
+                            مباشرة ({directCount})
+                        </button>
+                        <button
+                            onClick={() => setActiveFilter("group")}
+                            className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "group"
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                }`}
+                        >
+                            مجموعات ({groupsCount})
                         </button>
                     </div>
                     <ConversationListSidebar
@@ -190,7 +198,7 @@ export function ChatPage() {
                         />
                     ) : (
                         <ChatEmptyState
-                            isGroupsFilter={activeFilter === "groups"}
+                            isGroupsFilter={activeFilter === "group"}
                             onCreateGroup={() => setShowCreateGroupModal(true)}
                         />
                     )}

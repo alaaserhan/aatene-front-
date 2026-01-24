@@ -210,6 +210,7 @@ export interface AddParticipantPayload {
 export interface AddParticipantResponse {
     status: boolean;
     message: string;
+    errors?: string;
     conversation: Conversation;
 }
 

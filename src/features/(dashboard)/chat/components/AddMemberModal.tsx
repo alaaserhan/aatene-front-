@@ -7,27 +7,25 @@ import {
     DialogTitle,
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
-import { usePreviousParticipants, useCreateConversation } from "../hooks";
+import { usePreviousParticipants, useAddParticipant } from "../hooks";
 import { Participant } from "../api";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { cn } from "@/src/lib/utils";
 
-interface CreateGroupModalProps {
+interface AddMemberModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSuccess?: (conversationId: number) => void;
+    conversationId: number;
 }
 
-export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModalProps) {
-    const [groupName, setGroupName] = useState("");
-    const [selectedParticipants, setSelectedParticipants] = useState<Set<string>>(new Set());
+export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberModalProps) {
+    const [selectedParticipant, setSelectedParticipant] = useState<string | null>(null);
 
     const { data: participantsData, isLoading } = usePreviousParticipants();
-    const { mutate: createConversation, isPending: isCreating } = useCreateConversation();
+    const { mutate: addParticipant, isPending: isAdding } = useAddParticipant();
 
     const uniqueParticipants = useMemo(() => {
         if (!participantsData?.participants) return [];
@@ -40,55 +38,48 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
         });
     }, [participantsData]);
 
-    const toggleParticipant = (participant: Participant) => {
+    const handleSelectParticipant = (participant: Participant) => {
         const key = `${participant.participant_data.type}-${participant.participant_data.id}`;
-        setSelectedParticipants((prev) => {
-            const newSet = new Set(prev);
-            if (newSet.has(key)) {
-                newSet.delete(key);
-            } else {
-                newSet.add(key);
-            }
-            return newSet;
-        });
+        setSelectedParticipant(key === selectedParticipant ? null : key);
     };
 
-    const handleCreate = () => {
-        if (!groupName.trim()) {
-            toast.error("يرجى إدخال عنوان المجموعة");
-            return;
-        }
-        if (selectedParticipants.size === 0) {
-            toast.error("يرجى اختيار مشارك واحد على الأقل");
+    const handleAdd = () => {
+        if (!selectedParticipant) {
+            toast.error("يرجى اختيار عضو");
             return;
         }
 
-        const participants = Array.from(selectedParticipants).map((key) => {
-            const [type, id] = key.split("-");
-            return { type: type as "user" | "store", id };
-        });
+        const [type, id] = selectedParticipant.split("-");
 
-        createConversation(
+        addParticipant(
             {
-                type: "group",
-                name: groupName.trim(),
-                participants,
+                conversationId,
+                payload: {
+                    type: type as "user" | "store",
+                    id,
+                },
             },
             {
                 onSuccess: (data) => {
-                    toast.success("تم إنشاء المجموعة بنجاح");
-                    setGroupName("");
-                    setSelectedParticipants(new Set());
-                    onClose();
-                    onSuccess?.(data.conversation.id);
+                    if (data.status) {
+                        toast.success("تم اضافة العضو بنجاح");
+                        setSelectedParticipant(null);
+                        onClose();
+                    } else {
+                        // Prioritize 'message' as requested, fallback to 'errors'
+                        toast.error(data.message || data.errors || "حدث خطأ أثناء إضافة العضو");
+                    }
                 },
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                onError: (error: any) => {
+                    toast.error(error?.response?.data?.message || "حدث خطأ أثناء إضافة العضو");
+                }
             }
         );
     };
 
     const handleClose = () => {
-        setGroupName("");
-        setSelectedParticipants(new Set());
+        setSelectedParticipant(null);
         onClose();
     };
 
@@ -97,35 +88,14 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
             <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col p-0 overflow-hidden text-right" dir="rtl">
                 <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-5/50">
                     <DialogTitle className="text-lg font-semibold text-gray-900">
-                        انشاء مجموعة
+                        اضافة عضو جديد
                     </DialogTitle>
                 </div>
 
                 <div className="flex-1 overflow-hidden p-6 space-y-6">
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                            عنوان المجموعة
-                            <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                            <Input
-                                value={groupName}
-                                onChange={(e) => setGroupName(e.target.value.slice(0, 50))}
-                                placeholder="مجموعة جديدة"
-                                className="text-right pr-10 focus-visible:ring-blue-3"
-                                dir="rtl"
-                                maxLength={50}
-                            />
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-                                T
-                            </span>
-                        </div>
-                        <span className="text-xs text-gray-400">{groupName.length}/50</span>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                            المستخدمين
+                            اختر العضو
                             <span className="text-red-500">*</span>
                         </label>
                         <ScrollArea className="h-[300px] border rounded-lg">
@@ -137,12 +107,12 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                                 <div className="divide-y">
                                     {uniqueParticipants.map((participant) => {
                                         const key = `${participant.participant_data.type}-${participant.participant_data.id}`;
-                                        const isSelected = selectedParticipants.has(key);
+                                        const isSelected = selectedParticipant === key;
                                         return (
                                             <div
                                                 key={participant.id}
                                                 className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer"
-                                                onClick={() => toggleParticipant(participant)}
+                                                onClick={() => handleSelectParticipant(participant)}
                                             >
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-xs text-gray-400">
@@ -173,29 +143,17 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                                                         )}
                                                     </div>
 
-                                                    {/* Custom Checkbox */}
+                                                    {/* Custom Radio/Checkbox */}
                                                     <div
                                                         className={cn(
-                                                            "w-5 h-5 rounded-xs border transition-colors flex items-center justify-center shrink-0",
+                                                            "w-5 h-5 rounded-full border transition-colors flex items-center justify-center shrink-0",
                                                             isSelected
-                                                                ? "bg-blue-5 border-blue-4"
-                                                                : "bg-white border-gray-300 group-hover:border-gray-400"
+                                                                ? "border-blue-3"
+                                                                : "border-gray-300 group-hover:border-gray-400"
                                                         )}
                                                     >
                                                         {isSelected && (
-                                                            <svg
-                                                                className="w-4 h-4 text-blue-4"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={3}
-                                                                    d="M5 13l4 4L19 7"
-                                                                />
-                                                            </svg>
+                                                            <div className="w-3 h-3 rounded-full bg-blue-3" />
                                                         )}
                                                     </div>
                                                 </div>
@@ -217,11 +175,11 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                         الغاء
                     </Button>
                     <Button
-                        onClick={handleCreate}
-                        disabled={isCreating || !groupName.trim() || selectedParticipants.size === 0}
+                        onClick={handleAdd}
+                        disabled={isAdding || !selectedParticipant}
                         className="px-6 py-2 rounded-md bg-blue-3 text-white font-medium hover:bg-blue-4 transition-colors h-auto"
                     >
-                        {isCreating ? "جاري الإنشاء..." : "انشاء"}
+                        {isAdding ? "جاري الاضافة..." : "اضافة"}
                     </Button>
                 </div>
             </DialogContent>

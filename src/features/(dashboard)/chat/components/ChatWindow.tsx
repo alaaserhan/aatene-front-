@@ -22,6 +22,8 @@ import { toast } from "sonner";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { BlockUserModal } from "./BlockUserModal";
 
+import { AddMemberModal } from "./AddMemberModal";
+
 interface ChatWindowProps {
     conversation: Conversation;
     onClose?: () => void;
@@ -45,6 +47,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
     }>>([]);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showBlockModal, setShowBlockModal] = useState(false);
+    const [showAddMemberModal, setShowAddMemberModal] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messageIdCounter = useRef(0);
@@ -149,7 +152,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
     };
 
     if (isLoading) {
-        return <div className="h-full flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-500" /></div>;
+        return <div className="h-full flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-3" /></div>;
     }
 
     return (
@@ -187,40 +190,60 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                             <MoreVertical className="w-5 h-5 text-gray-500" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48">
+                    <DropdownMenuContent align="end" className="w-56 p-2 border-gray-200">
                         <DropdownMenuItem
-                            className="gap-2 cursor-pointer"
-                            onSelect={(e) => {
-                                e.preventDefault();
+                            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
+                            onSelect={() => {
                                 onClose?.();
                             }}
                         >
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <span>اغلاق المحادثة</span>
+                            <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+                                <CheckCircle className="w-4 h-4 text-green-600" />
+                            </div>
+                            <span className="font-medium text-gray-700">اغلاق المحادثة</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 cursor-pointer">
-                            <UserPlus className="w-4 h-4 text-gray-600" />
-                            <span>اضافة عضو جديد</span>
-                        </DropdownMenuItem>
+
+                        <div className="h-px bg-gray-100 my-1" />
+
                         <DropdownMenuItem
-                            className="gap-2 cursor-pointer"
+                            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
+                            onSelect={(e) => {
+                                e.preventDefault();
+                                setShowAddMemberModal(true);
+                            }}
+                        >
+                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+                                <UserPlus className="w-4 h-4 text-gray-600" />
+                            </div>
+                            <span className="font-medium text-gray-700">اضافة عضو جديد</span>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
+                            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
                             onSelect={(e) => {
                                 e.preventDefault();
                                 setShowBlockModal(true);
                             }}
                         >
-                            <Ban className="w-4 h-4 text-gray-600" />
-                            <span>حظر المستخدم</span>
+                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+                                <Ban className="w-4 h-4 text-gray-600" />
+                            </div>
+                            <span className="font-medium text-gray-700">حظر المستخدم</span>
                         </DropdownMenuItem>
+
+                        <div className="h-px bg-gray-100 my-1" />
+
                         <DropdownMenuItem
-                            className="gap-2 cursor-pointer text-red-600 focus:text-red-600"
+                            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer group data-[highlighted]:bg-red-50 focus:bg-red-50 outline-none transition-colors"
                             onSelect={(e) => {
                                 e.preventDefault();
                                 setShowDeleteModal(true);
                             }}
                         >
-                            <Trash2 className="w-4 h-4" />
-                            <span>حذف المحادثة</span>
+                            <div className="w-8 h-8 rounded-lg bg-red-50 group-hover:bg-red-100 flex items-center justify-center shrink-0 transition-colors">
+                                <Trash2 className="w-4 h-4 text-red-600" />
+                            </div>
+                            <span className="font-medium text-red-600">حذف المحادثة</span>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -237,7 +260,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                             <div key={msg.id || index} className={cn("flex flex-col w-full", isMe ? "items-start" : "items-end")}>
                                 <div className={cn(
                                     "max-w-[75%] rounded-xl p-3 px-4 text-sm",
-                                    isMe ? "bg-blue-100 text-gray-800" : "bg-white text-gray-800 border border-gray-100 shadow-sm"
+                                    isMe ? "bg-blue-5 text-gray-800" : "bg-white text-gray-800 border border-gray-100 shadow-sm"
                                 )}>
                                     {msg.body && <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>}
 
@@ -271,7 +294,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                     {pendingMessages.map((msg) => (
                         <div key={msg.id} className="flex flex-col w-full items-start">
                             <div className={cn(
-                                "max-w-[75%] rounded-xl p-3 px-4 text-sm bg-blue-100 text-gray-800 relative",
+                                "max-w-[75%] rounded-xl p-3 px-4 text-sm bg-blue-5 text-gray-800 relative",
                                 msg.status === "failed" && "bg-red-50 border border-red-200"
                             )}>
                                 <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>
@@ -355,13 +378,20 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                         size="icon"
                         className={cn(
                             "rounded-full w-10 h-10 shrink-0 transition-all",
-                            (newMessage.trim() || selectedFiles.length > 0) ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-200 text-gray-400 hover:bg-gray-300"
+                            (newMessage.trim() || selectedFiles.length > 0) ? "bg-blue-3 hover:bg-blue-4" : "bg-gray-200 text-gray-400 hover:bg-gray-300"
                         )}
                     >
                         <Send className="w-5 h-5 rtl:rotate-180" />
                     </Button>
                 </div>
             </div>
+
+            {/* Add Member Modal */}
+            <AddMemberModal
+                isOpen={showAddMemberModal}
+                onClose={() => setShowAddMemberModal(false)}
+                conversationId={conversation.id}
+            />
 
             {/* Confirm Delete Modal */}
             <ConfirmDeleteModal
