@@ -174,7 +174,7 @@ export function ChatPage() {
                         searchQuery={searchQuery}
                         onSearchChange={setSearchQuery}
                         className="max-h-[calc(100vh-100px)] md:max-h-[calc(100vh-128px)] lg:rounded-t-lg"
-                        totalUnreadCount={unreadData?.unread_count || 0}
+                        totalUnreadCount={unreadData?.unread_conversations_count || 0}
                     />
                 </div>
 

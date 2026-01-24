@@ -32,6 +32,7 @@ import {
   Headset,
   Shield,
   ShieldOff,
+  Bell,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -162,6 +163,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "إدارة المحتوى", icon: FileText, href: "/content-management", show: isAdmin },
     { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: isAdmin },
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: isAdmin },
+    { label: "الإشعارات", icon: Bell, href: "/notifications", show: isAdmin },
   ];
 
   const mainNavItems = allNavItems.slice(0, 6);

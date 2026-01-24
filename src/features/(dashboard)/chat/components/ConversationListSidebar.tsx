@@ -63,7 +63,7 @@ export function ConversationListSidebar({
     // Helper to check if conversation is unread
     // Assuming unread if any participant (likely "me") has unread messages > 0
     const isUnread = (conversation: Conversation) => {
-        return conversation.participants.some(p => p.unread_messages_count > 0);
+        return conversation.unread_messages_count > 0;
     };
 
     const counts = useMemo(() => {

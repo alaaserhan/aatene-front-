@@ -67,7 +67,7 @@ export function HightRatedStores() {
                                             <div className="flex items-center gap-1 mt-0.5 bg-gray-50 px-2 py-0.5 rounded-md">
                                                 <span className="text-[11px] text-gray-2">عدد التقييمات</span>
                                                 <span className={`text-[11px] font-medium ${index === 0 ? "text-green-600" : "text-gray-600"}`}>
-                                                    {store.reviews_count || store.review_rate || 50} تقييم
+                                                    {store.review_count || store.review_rate || 50} تقييم
                                                 </span>
                                             </div>
                                         </div>

@@ -53,6 +53,7 @@ export interface Conversation {
     participants_count: number;
     participants: Participant[];
     last_message: Message | null;
+    unread_messages_count: number;
     created_at: string;
     updated_at: string;
 }
@@ -100,9 +101,9 @@ export const getConversationUnreadCount = async (id: number | string): Promise<{
     return data;
 };
 
-export const getTotalUnreadCount = async (storeId?: number | string): Promise<{ status: boolean; message: string; unread_count: number }> => {
+export const getTotalUnreadCount = async (storeId?: number | string): Promise<{ status: boolean; message: string; unread_conversations_count: number }> => {
     const headers = getHeaders(storeId);
-    const { data } = await api.get<{ status: boolean; message: string; unread_count: number }>("/messages/unread-count", {
+    const { data } = await api.get<{ status: boolean; message: string; unread_conversations_count: number }>("/conversations/unread-count", {
         headers,
     });
     return data;
