@@ -173,12 +173,12 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                         {otherParticipant?.participant_data.avatar ? (
                             <img src={otherParticipant.participant_data.avatar} alt="" className="w-full h-full object-cover" />
                         ) : (
-                            <span className="text-gray-500 font-bold text-lg">{otherParticipant?.participant_data.name?.[0] || "U"}</span>
+                            <span className="text-gray-2 font-bold text-lg">{otherParticipant?.participant_data.name?.[0] || "U"}</span>
                         )}
                     </div>
                     <div>
-                        <h3 className="font-bold text-gray-800 text-base">{otherParticipant?.participant_data.name || conversation.name || "مستخدم"}</h3>
-                        <p className="text-xs text-gray-400">
+                        <h3 className="font-medium  text-base">{otherParticipant?.participant_data.name || conversation.name || "مستخدم"}</h3>
+                        <p className="text-xs text-gray-2">
                             {format(new Date(conversation.updated_at), "hh:mm a", { locale: ar })}
                         </p>
                     </div>
@@ -381,7 +381,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                             (newMessage.trim() || selectedFiles.length > 0) ? "bg-blue-3 hover:bg-blue-4" : "bg-gray-200 text-gray-400 hover:bg-gray-300"
                         )}
                     >
-                        <Send className="w-5 h-5 rtl:rotate-180" />
+                        <Send className="w-5 h-5 rtl:-rotate-90" />
                     </Button>
                 </div>
             </div>

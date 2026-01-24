@@ -189,7 +189,7 @@ export function ChatPage() {
                 {/* Chat Area - Full width on mobile when chat is selected */}
                 <div className={`
                     ${selectedConversation ? 'flex-1' : 'hidden md:flex md:flex-1'}
-                    bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm h-full
+                    bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none h-full
                 `}>
                     {selectedConversation ? (
                         <ChatWindow
