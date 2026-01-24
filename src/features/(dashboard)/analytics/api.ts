@@ -55,7 +55,7 @@ export interface AnalyticsStore {
     description: string | null;
     address: string | null;
     review_rate: string | number | null;
-    reviews_count: number | null;
+    review_count: number | null;
     orders_count: number | null;
     completed_orders_count?: number | null;
     canceled_orders_count?: number | null;
