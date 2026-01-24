@@ -75,7 +75,7 @@ export const getBlogs = async (
 
 export const getSingleBlog = async (
     id: number | string,
-    storeId?: number | string
+    storeId?: number | string | null
 ): Promise<SingleBlogResponse> => {
     const endpoint = getDynamicEndpoint(`/blogs/${id}`);
     const headers = getHeaders(storeId);
@@ -84,7 +84,7 @@ export const getSingleBlog = async (
 };
 
 export const createBlog = async (
-    { payload, storeId }: { payload: BlogPayload; storeId?: number | string }
+    { payload, storeId }: { payload: BlogPayload; storeId?: number | string | null }
 ): Promise<CreateBlogResponse> => {
     const endpoint = getDynamicEndpoint("/blogs");
     const headers = getHeaders(storeId);
@@ -97,7 +97,7 @@ export const createBlog = async (
 export const updateBlog = async (
     id: number | string,
     payload: BlogPayload,
-    storeId?: number | string
+    storeId?: number | string | null
 ): Promise<SingleBlogResponse> => {
     const endpoint = getDynamicEndpoint(`/blogs/${id}`);
     const headers = getHeaders(storeId);
@@ -109,7 +109,7 @@ export const updateBlog = async (
 
 export const deleteBlog = async (
     id: number | string,
-    storeId?: number | string
+    storeId?: number | string | null
 ): Promise<BaseResponse> => {
     const endpoint = getDynamicEndpoint(`/blogs/${id}`);
     const headers = getHeaders(storeId);
