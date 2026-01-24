@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Filter, Store as StoreIcon } from "lucide-react";
+import { Plus, Search, Filter } from "lucide-react";
 import Cookies from "js-cookie";
 
 import { Button } from "@/src/components/ui/button";
@@ -13,7 +13,7 @@ import { Pagination } from "@/src/components/ui/Pagination";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
 import { useGetBlogs, useDeleteBlog } from "../hooks"; // خطافات المدونات
-import { useGetStores } from "../../stores/hooks"; // خطافات المتاجر (للأدمن)
+
 import { BlogsTable } from "./BlogsTable";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { StoreEmptyState } from "@/src/components/(dashboard)/StoreEmptyState";
@@ -27,7 +27,7 @@ export function BlogsPage() {
     const isMerchant = user?.user_type === "merchant";
 
     // 2. إدارة حالة المتجر المختار
-    const [selectedStoreId, setSelectedStoreId] = useState<string>(cookieStoreId || "");
+    const [selectedStoreId] = useState<string>(cookieStoreId || "");
 
     // 3. حالات البحث والفلترة
     const [searchQuery, setSearchQuery] = useState("");
@@ -38,23 +38,7 @@ export function BlogsPage() {
     const [blogToDelete, setBlogToDelete] = useState<number | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-    // 4. جلب قائمة المتاجر (فقط للأدمن)
-    const storesQueryParams = useMemo(() => {
-        const params = new URLSearchParams();
-        params.set("per_page", "100"); // جلب عدد كافي من المتاجر
-        return params;
-    }, []);
 
-    const { data: storesData } = useGetStores(storesQueryParams, {
-        enabled: !isMerchant, // تفعيل الجلب فقط إذا لم يكن تاجراً
-    });
-
-    const storeOptions = useMemo(() => {
-        return storesData?.data.map((store) => ({
-            label: store.name,
-            value: String(store.id),
-        })) || [];
-    }, [storesData]);
 
     const blogsQueryParams = useMemo(() => {
         const params = new URLSearchParams();
@@ -70,7 +54,7 @@ export function BlogsPage() {
     // لا نجلب المدونات إلا إذا تم تحديد المتجر
     const { data: blogsData, isLoading: isBlogsLoading } = useGetBlogs(
         blogsQueryParams,
-        selectedStoreId
+        !isMerchant ? null : selectedStoreId
     );
 
     const { mutate: deleteBlogMutation } = useDeleteBlog();
@@ -132,9 +116,11 @@ export function BlogsPage() {
 
                     <Button
                         onClick={() => {
-                            if (selectedStoreId) router.push(`/admin/blogs/${selectedStoreId}/add`);
+                            if (selectedStoreId || !isMerchant) {
+                                router.push(`/admin/blogs/${selectedStoreId || '0'}/add`);
+                            }
                         }}
-                        disabled={!selectedStoreId} // تعطيل الزر إذا لم يتم اختيار متجر
+                        disabled={!selectedStoreId && isMerchant} // تعطيل الزر إذا لم يتم اختيار متجر (للتاجر فقط)
                         className="bg-blue-3 hover:bg-blue-4 text-white gap-2 px-6 h-10 rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <Plus className="w-5 h-5" />
@@ -149,7 +135,7 @@ export function BlogsPage() {
                     {/* Main Content */}
                     <div className="col-span-12 flex flex-col gap-6">
 
-                        {selectedStoreId ? (
+                        {(selectedStoreId || !isMerchant) ? (
                             <>
                                 {/* Search & Filter Bar */}
                                 <div className="flex flex-col sm:flex-row gap-2">
@@ -165,21 +151,7 @@ export function BlogsPage() {
                                         />
                                         <Search className="absolute start-4 top-1/2 -translate-y-1/2 text-gray-2 w-5 h-5" />
                                     </div>
-                                    {!isMerchant && (
-                                        <div className="w-64">
-                                            <ReusableDropdown
-                                                options={storeOptions}
-                                                value={selectedStoreId}
-                                                onChange={(val) => {
-                                                    setSelectedStoreId(val);
-                                                    setCurrentPage(1); // إعادة تعيين الصفحة عند تغيير المتجر
-                                                }}
-                                                placeholder="اختر المتجر..."
-                                                triggerIcon={<StoreIcon className="w-4 h-4 text-gray-2" />}
-                                                className="h-11 bg-white"
-                                            />
-                                        </div>
-                                    )}
+
 
                                     <div className="w-full sm:w-40">
                                         <ReusableDropdown
@@ -197,7 +169,7 @@ export function BlogsPage() {
                                 <BlogsTable
                                     data={blogs}
                                     isLoading={isBlogsLoading}
-                                    onEdit={(blog) => router.push(`/admin/blogs/${selectedStoreId}/${blog.id}`)}
+                                    onEdit={(blog) => router.push(`/admin/blogs/${blog.store_id}/${blog.id}`)}
                                     onDelete={handleDeleteClick}
                                     onView={(id) => router.push(`/blogs/view/${selectedStoreId}/${id}`)}
                                 />

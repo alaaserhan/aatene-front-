@@ -10,14 +10,14 @@ import { AxiosError } from "axios";
 import * as api from "./api";
 import { toast } from "sonner";
 
-export function useGetBlogs(params?: URLSearchParams, storeId?: number | string) {
+export function useGetBlogs(params?: URLSearchParams, storeId?: number | string | null) {
     return useQuery({
         queryKey: ["blogs", params?.toString(), storeId],
         queryFn: () => api.getBlogs(params, storeId),
     });
 }
 
-export function useGetBlog(id: number | string, storeId?: number | string) {
+export function useGetBlog(id: number | string, storeId?: number | string | null) {
     return useQuery({
         queryKey: ["blogs", id, storeId],
         queryFn: () => api.getSingleBlog(id, storeId),
@@ -49,7 +49,7 @@ export function useUpdateBlog() {
         }: {
             id: number | string;
             payload: api.BlogPayload;
-            storeId?: number | string;
+            storeId?: number | string | null;
         }) => api.updateBlog(id, payload, storeId),
 
         onSuccess: (data, variables) => {
@@ -68,7 +68,7 @@ export function useUpdateBlog() {
 export function useDeleteBlog() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, storeId }: { id: number | string; storeId?: number | string }) =>
+        mutationFn: ({ id, storeId }: { id: number | string; storeId?: number | string | null }) =>
             api.deleteBlog(id, storeId),
         onSuccess: () => {
             toast.success("تم حذف المدونة بنجاح");

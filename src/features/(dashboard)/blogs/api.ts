@@ -51,16 +51,18 @@ export interface BlogPayload {
     thumbnail: string;
     category: string;
     content: BlogContent[];
+    store_id?: number | string;
 }
 
-const getHeaders = (storeId?: number | string) => {
+const getHeaders = (storeId?: number | string | null) => {
+    if (storeId === null) return undefined;
     const currentStoreId = storeId || Cookies.get("current_store_id");
     return currentStoreId ? { storeId: String(currentStoreId) } : undefined;
 };
 
 export const getBlogs = async (
     params?: URLSearchParams,
-    storeId?: number | string
+    storeId?: number | string | null
 ): Promise<BlogsResponse> => {
     const endpoint = getDynamicEndpoint("/blogs");
     const headers = getHeaders(storeId);

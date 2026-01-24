@@ -16,6 +16,7 @@ import { ProductFormActions } from "../../products/components/ProductFormActions
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface AddEditBlogPageProps {
   storeId: number | string;
@@ -31,6 +32,8 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
   const { data: blogData } = useGetBlog(blogId!, storeId); // enabled inside hook usually
   const createMutation = useCreateBlog();
   const updateMutation = useUpdateBlog();
+  const user = useAuthStore((state) => state.user);
+  const isMerchant = user?.user_type === "merchant";
 
   // --- State ---
   const [title, setTitle] = useState("");
@@ -185,7 +188,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
       category,
       description,
       content: paragraphs,
-      thumbnail: currentThumbnail // سيتم إرسال الرابط القديم أو الملف الجديد
+      thumbnail: currentThumbnail, // سيتم إرسال الرابط القديم أو الملف الجديد
     };
 
     const options = {
@@ -194,10 +197,12 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
       },
     };
 
+    const mutationStoreId = !isMerchant ? null : storeId;
+
     if (isEditMode && blogId) {
-      updateMutation.mutate({ id: blogId, payload, storeId }, options);
+      updateMutation.mutate({ id: blogId, payload, storeId: mutationStoreId }, options);
     } else {
-      createMutation.mutate({ payload, storeId }, options);
+      createMutation.mutate({ payload, storeId: mutationStoreId }, options);
     }
   };
 
