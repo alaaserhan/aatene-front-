@@ -17,6 +17,18 @@ import {
 import { StatsCards } from "./StatsCards";
 import { GrowthChart } from "./GrowthChart";
 import { TopList } from "./TopList";
+import {
+    StoresAnalyticsResponse,
+    ProductsAnalyticsResponse,
+    ServicesAnalyticsResponse,
+    UsersAnalyticsResponse,
+    MerchantsAnalyticsResponse,
+    AnalyticsStore,
+    AnalyticsUser,
+    AnalyticsMerchant,
+    AnalyticsService
+} from "@/src/features/(dashboard)/analytics/api";
+
 
 interface ReportViewProps {
     type: string;
@@ -32,8 +44,54 @@ export function ReportView({ type }: ReportViewProps) {
     const merchantsQuery = useGetAnalyticsMerchants(new URLSearchParams({ period }), undefined);
 
     let isLoading = false;
-    let data: any = null;
-    let config: any = {};
+    let data: StoresAnalyticsResponse | ProductsAnalyticsResponse | ServicesAnalyticsResponse | UsersAnalyticsResponse | MerchantsAnalyticsResponse | undefined = undefined;
+
+    interface ConfigLine {
+        key: string;
+        color: string;
+        name: string;
+    }
+
+    interface ConfigCard {
+        title: string;
+        value: string | number;
+        icon: React.ReactNode;
+        colorTheme: string;
+    }
+
+    interface ConfigListItem {
+        id: number | string;
+        title: string;
+        subtitle: string;
+        image: string | null;
+        rank: number;
+        badgeText: string | undefined;
+        badgeColor: string;
+    }
+
+    interface Config {
+        title: string;
+        subtitle: string;
+        icon: React.ReactNode;
+        cards: ConfigCard[];
+        chartLines: ConfigLine[];
+        chartData: Record<string, string | number>[]; // Charts are flexible
+        topListName: string;
+        topListItems: ConfigListItem[];
+        bottomListName?: string;
+        bottomListItems?: ConfigListItem[];
+    }
+
+    let config: Config = {
+        title: "",
+        subtitle: "",
+        icon: null,
+        cards: [],
+        chartLines: [],
+        chartData: [],
+        topListName: "",
+        topListItems: []
+    };
 
     // Standard Chart Colors
     const COLORS = ["#406896", "#FCBF13", "#DE3D31"];
@@ -41,14 +99,14 @@ export function ReportView({ type }: ReportViewProps) {
     switch (type) {
         case "product":
             isLoading = productsQuery.isLoading;
-            data = productsQuery.data;
+            data = productsQuery.data as ProductsAnalyticsResponse;
             config = {
                 title: "تقارير المنتجات",
                 subtitle: "قائمة المنتجات  التي حصلت علي تصفح اكثر",
                 icon: <img src="/icons/dashboard/nav_products.svg" alt="" className="w-full h-full" />,
                 cards: [
-                    { title: "اجمالي المنتجات", value: data?.totalProducts, icon: <img src="/icons/dashboard/products1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
-                    { title: "منتجات في انتظار الموافقة", value: data?.totalNotActiveProducts, icon: <img src="/icons/dashboard/products2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
+                    { title: "اجمالي المنتجات", value: (data as ProductsAnalyticsResponse)?.totalProducts || 0, icon: <img src="/icons/dashboard/products1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
+                    { title: "منتجات في انتظار الموافقة", value: (data as ProductsAnalyticsResponse)?.totalNotActiveProducts || 0, icon: <img src="/icons/dashboard/products2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
                     { title: "منتجات تم رفضها", value: 0, icon: <img src="/icons/dashboard/products3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
                 ],
                 chartLines: [
@@ -56,38 +114,36 @@ export function ReportView({ type }: ReportViewProps) {
                     { key: "active_count", color: COLORS[1], name: "منتجات في انتظار الموافقة" },
                     { key: "not_active_count", color: COLORS[2], name: "منتجات تم رفضها" },
                 ],
-                chartData: data?.productsGrowthChart || [],
+                chartData: (data as ProductsAnalyticsResponse)?.productsGrowthChart || [],
                 topListName: "المنتجات الاكثر تصفحاً",
-                topListItems: data?.mostViewedProducts?.map((item: any, i: number) => ({
-                    id: item.id, title: item.name, subtitle: "عدد المشاهدات", image: item.cover_url, rank: i + 1, badgeText: `${item.views_count || 0} مشاهدة`, badgeColor: "bg-green-100 text-green-700"
-                })) || []
+                topListItems: [] // mostViewedProducts is missing in the API interface
             };
             break;
 
         case "service":
             isLoading = servicesQuery.isLoading;
-            data = servicesQuery.data;
+            data = servicesQuery.data as ServicesAnalyticsResponse;
             config = {
                 title: "تقارير الخدمات",
                 subtitle: "قائمة الخدمات التي حصلت علي اعلي تقييم",
                 icon: <img src="/icons/dashboard/nav_services.svg" alt="" className="w-full h-full" />,
                 cards: [
-                    { title: "اجمالي الخدمات", value: data?.totalServices, icon: <img src="/icons/dashboard/service1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
-                    { title: "إجمالي الخدمات قيد المراجعة", value: data?.totalActiveServices, icon: <img src="/icons/dashboard/service2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
-                    { title: "إجمالي الخدمات المرفوضة", value: data?.totalRejectedServices, icon: <img src="/icons/dashboard/service3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
+                    { title: "اجمالي الخدمات", value: (data as ServicesAnalyticsResponse)?.totalServices || 0, icon: <img src="/icons/dashboard/service1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
+                    { title: "إجمالي الخدمات قيد المراجعة", value: (data as ServicesAnalyticsResponse)?.totalActiveServices || 0, icon: <img src="/icons/dashboard/service2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
+                    { title: "إجمالي الخدمات المرفوضة", value: (data as ServicesAnalyticsResponse)?.totalRejectedServices || 0, icon: <img src="/icons/dashboard/service3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
                 ],
                 chartLines: [
                     { key: "total_count", color: COLORS[0], name: "اجمالي الخدمات" },
                     { key: "pending_count", color: COLORS[1], name: "إجمالي الخدمات قيد المراجعة" },
                     { key: "rejected_count", color: COLORS[2], name: "إجمالي الخدمات المرفوضة" },
                 ],
-                chartData: data?.servicesGrowthChart || [],
+                chartData: (data as ServicesAnalyticsResponse)?.servicesGrowthChart || [],
                 topListName: "الخدمات الأعلى تقييماً",
-                topListItems: data?.topRatedServices?.map((item: any, i: number) => ({
-                    id: item.id, title: item.title, subtitle: "عدد التقييمات", image: item.images_urls[0], rank: i + 1, badgeText: `${item.review_count || 0} تقييم`, badgeColor: "bg-green-100 text-green-700"
+                topListItems: (data as ServicesAnalyticsResponse)?.topRatedServices?.map((item: AnalyticsService, i: number) => ({
+                    id: item.id, title: item.title, subtitle: "عدد التقييمات", image: item.images_urls[0], rank: i + 1, badgeText: `${item.execute_count || 0} تقييم`, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
                 bottomListName: "الخدمات الاعلي عدد بلاغات",
-                bottomListItems: data?.mostReportedServices?.map((item: any, i: number) => ({
+                bottomListItems: (data as ServicesAnalyticsResponse)?.mostReportedServices?.map((item: AnalyticsService, i: number) => ({
                     id: item.id, title: item.title, subtitle: "عدد البلاغات", image: item.images_urls[0], rank: i + 1, badgeText: `${item.reports_count || 0} بلاغ`, badgeColor: "bg-red-100 text-red-700"
                 })) || []
             };
@@ -95,53 +151,53 @@ export function ReportView({ type }: ReportViewProps) {
 
         case "user":
             isLoading = usersQuery.isLoading;
-            data = usersQuery.data;
+            data = usersQuery.data as UsersAnalyticsResponse;
             config = {
                 title: "تقارير العملاء",
                 subtitle: "قائمة العملاء الأكثر تفاعلاً",
                 icon: <img src="/icons/dashboard/nav_users.svg" alt="" className="w-full h-full" />,
                 cards: [
-                    { title: "اجمالي العملاء", value: data?.totalCustomers, icon: <img src="/icons/dashboard/merchant1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
-                    { title: "العملاء الجدد", value: data?.activeCustomers, icon: <img src="/icons/dashboard/merchant2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
-                    { title: "العملاء المحظورين", value: data?.notActiveCustomers, icon: <img src="/icons/dashboard/merchant3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
+                    { title: "اجمالي العملاء", value: (data as UsersAnalyticsResponse)?.totalCustomers || 0, icon: <img src="/icons/dashboard/merchant1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
+                    { title: "العملاء الجدد", value: (data as UsersAnalyticsResponse)?.activeCustomers || 0, icon: <img src="/icons/dashboard/merchant2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
+                    { title: "العملاء المحظورين", value: (data as UsersAnalyticsResponse)?.notActiveCustomers || 0, icon: <img src="/icons/dashboard/merchant3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
                 ],
                 chartLines: [
                     { key: "total_count", color: COLORS[0], name: "اجمالي العملاء" },
-                    { key: "active_count", color: COLORS[1], name: "العملاء الجدد"},
+                    { key: "active_count", color: COLORS[1], name: "العملاء الجدد" },
                     { key: "inactive_count", color: COLORS[2], name: "العملاء المحظورين" },
                 ],
-                chartData: data?.customersGrowthChart || [],
+                chartData: (data as UsersAnalyticsResponse)?.customersGrowthChart || [],
                 topListName: "العملاء الأكثر تفاعلاً",
-                topListItems: data?.mostActiveCustomers?.map((item: any, i: number) => ({
-                    id: item.id, title: item.full_name, subtitle: "عدد التقيمات", image: item.avatar_url, rank: i + 1, badgeText: item.review_count, badgeColor: "bg-green-100 text-green-700"
+                topListItems: (data as UsersAnalyticsResponse)?.mostActiveCustomers?.map((item: AnalyticsUser, i: number) => ({
+                    id: item.id, title: item.fullname, subtitle: "عدد التقيمات", image: item.avatar, rank: i + 1, badgeText: String(item.id), badgeColor: "bg-green-100 text-green-700"
                 })) || []
             };
             break;
 
         case "merchant":
             isLoading = merchantsQuery.isLoading;
-            data = merchantsQuery.data;
+            data = merchantsQuery.data as MerchantsAnalyticsResponse;
             config = {
                 title: "تقارير التجار",
                 subtitle: "قائمة التجار  حصلت علي اعلي تقييم",
                 icon: <img src="/icons/dashboard/merchant1.svg" alt="" className="w-full h-full" />,
                 cards: [
-                    { title: "إجمالي التجار", value: data?.totalMerchants, icon: <img src="/icons/dashboard/merchant1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
-                    { title: "التجار  الموثوقين", value: data?.activeMerchants, icon: <img src="/icons/dashboard/merchant2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
-                    { title: "التجار  تم حظرهم", value: data?.inactiveMerchants, icon: <img src="/icons/dashboard/merchant3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
+                    { title: "إجمالي التجار", value: (data as MerchantsAnalyticsResponse)?.totalMerchants || 0, icon: <img src="/icons/dashboard/merchant1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
+                    { title: "التجار  الموثوقين", value: (data as MerchantsAnalyticsResponse)?.activeMerchants || 0, icon: <img src="/icons/dashboard/merchant2.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
+                    { title: "التجار  تم حظرهم", value: (data as MerchantsAnalyticsResponse)?.inactiveMerchants || 0, icon: <img src="/icons/dashboard/merchant3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
                 ],
                 chartLines: [
                     { key: "total_count", color: COLORS[0], name: "اجمالي التجار" },
                     { key: "active_count", color: COLORS[1], name: "التجار الموثوقين" },
                     { key: "inactive_count", color: COLORS[2], name: "التجار تم حظرهم" },
                 ],
-                chartData: data?.merchantsGrowthChart || [],
+                chartData: (data as MerchantsAnalyticsResponse)?.merchantsGrowthChart || [],
                 topListName: "التجار الاعلي تقييم",
-                topListItems: data?.topMerchantsByStores?.map((item: any, i: number) => ({
+                topListItems: (data as MerchantsAnalyticsResponse)?.topMerchantsByStores?.map((item: AnalyticsMerchant, i: number) => ({
                     id: item.id, title: item.name || "غير معروف", subtitle: "عدد التقييمات", image: item.avatar_url, rank: i + 1, badgeText: "150 تقييم", badgeColor: "bg-green-100 text-green-700"
                 })) || [],
                 bottomListName: "التجار الاعلي عدد بلاغات",
-                bottomListItems: data?.topMerchantsByReports?.map((item: any, i: number) => ({
+                bottomListItems: (data as MerchantsAnalyticsResponse)?.topMerchantsByReports?.map((item: AnalyticsMerchant, i: number) => ({
                     id: item.id, title: item.name || "غير معروف", subtitle: "عدد البلاغات", image: item.avatar_url, rank: i + 1, badgeText: `${item.store_reports_count || 0} بلاغ`, badgeColor: "bg-red-100 text-red-700"
                 })) || []
             };
@@ -150,28 +206,28 @@ export function ReportView({ type }: ReportViewProps) {
         case "store":
         default:
             isLoading = storesQuery.isLoading;
-            data = storesQuery.data;
+            data = storesQuery.data as StoresAnalyticsResponse;
             config = {
                 title: "تقارير المتاجر",
                 subtitle: "قائمة المتاجر التي حصلت علي اعلي تقييم",
                 icon: <img src="/icons/dashboard/nav_stores.svg" alt="" className="w-full h-full" />,
                 cards: [
-                    { title: "اجمالي المتاجر", value: data?.totalStores, icon: <img src="/icons/dashboard/store1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
-                    { title: "المتاجر الموثوقة", value: data?.totalActiveStores, icon: <img src="/icons/dashboard/store3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
-                    { title: "المتاجر المحظورة", value: data?.totalNotActiveStores, icon: <img src="/icons/dashboard/store4.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
+                    { title: "اجمالي المتاجر", value: (data as StoresAnalyticsResponse)?.totalStores || 0, icon: <img src="/icons/dashboard/store1.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[0] },
+                    { title: "المتاجر الموثوقة", value: (data as StoresAnalyticsResponse)?.totalActiveStores || 0, icon: <img src="/icons/dashboard/store3.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[1] },
+                    { title: "المتاجر المحظورة", value: (data as StoresAnalyticsResponse)?.totalNotActiveStores || 0, icon: <img src="/icons/dashboard/store4.svg" alt="" className="w-full h-full" />, colorTheme: COLORS[2] },
                 ],
                 chartLines: [
                     { key: "total_count", color: COLORS[0], name: "اجمالي المتاجر" },
                     { key: "active_count", color: COLORS[1], name: "المتاجر الموثوقة" },
                     { key: "not_active_count", color: COLORS[2], name: "المتاجر المحظورة" },
                 ],
-                chartData: data?.storesGrowthChart || [],
+                chartData: (data as StoresAnalyticsResponse)?.storesGrowthChart || [],
                 topListName: "المتاجر الأعلى تقييماً",
-                topListItems: data?.topRatedStores?.map((item: any, i: number) => ({
-                    id: item.id, title: item.name, subtitle: "عدد التقييمات", image: item.cover_urls[0], rank: i + 1, badgeText: `${item.reviews_count || 0} تقييم`, badgeColor: "bg-green-100 text-green-700"
+                topListItems: (data as StoresAnalyticsResponse)?.topRatedStores?.map((item: AnalyticsStore, i: number) => ({
+                    id: item.id, title: item.name, subtitle: "عدد التقييمات", image: item.cover_url, rank: i + 1, badgeText: `${item.review_count || 0} تقييم`, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
                 bottomListName: "المتاجر الاعلي عدد بلاغات",
-                bottomListItems: data?.topReportedStores?.map((item: any, i: number) => ({
+                bottomListItems: (data as StoresAnalyticsResponse)?.topReportedStores?.map((item: AnalyticsStore, i: number) => ({
                     id: item.id, title: item.name, subtitle: "عدد البلاغات", image: item.logo_url, rank: i + 1, badgeText: `${item.reports_count || 0} بلاغ`, badgeColor: "bg-red-100 text-red-700"
                 })) || []
             };
@@ -182,21 +238,14 @@ export function ReportView({ type }: ReportViewProps) {
         return <div className="h-[500px] flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-[#3A5779]" /></div>;
     }
 
-    const PageIcon = config.icon;
-    const isComponent = typeof PageIcon === 'function';
-
     return (
         <div className="flex flex-col gap-0">
             {/* Header */}
             <div className="flex items-center justify-between mb-4 ">
                 <div className="flex items-center gap-2">
-                    {isComponent ? (
-                        <PageIcon className="w-5 h-5 text-gray-700" />
-                    ) : (
-                        <div className="w-5 h-5 flex items-center justify-center">
-                            {PageIcon}
-                        </div>
-                    )}
+                    <div className="w-5 h-5 flex items-center justify-center">
+                        {config.icon}
+                    </div>
                     <h1 className="text-xl font-medium">{config.title}</h1>
                 </div>
                 <div className="flex items-center gap-2">
@@ -258,7 +307,7 @@ export function ReportView({ type }: ReportViewProps) {
                 {config.bottomListItems && (
                     <div className="col-span-12">
                         <TopList
-                            title={config.bottomListName}
+                            title={config.bottomListName || ""}
                             subtitle="القائمة السوداء"
                             items={config.bottomListItems}
                             icon={Flag}

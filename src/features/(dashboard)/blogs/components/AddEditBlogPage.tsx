@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Edit2 } from "lucide-react";
 import { toast } from "sonner";
@@ -34,9 +34,12 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
   const isMerchant = user?.user_type === "merchant";
 
 
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
+
+  const [formData, setFormData] = useState({
+    title: "",
+    category: "",
+    description: "",
+  });
 
 
   const [thumbnailFiles, setThumbnailFiles] = useState<string[]>([]);
@@ -54,21 +57,21 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
   const [errors, setErrors] = useState<Record<string, string>>({});
 
 
-  useEffect(() => {
-    if (isEditMode && blogData?.blog) {
-      const { blog } = blogData;
-      setTitle(blog.title);
-      setCategory(blog.category);
-      setDescription(blog.description);
 
-      if (blog.thumbnail) {
-        setThumbnailPreviews([blog.thumbnail_url]);
-        setThumbnailFiles([blog.thumbnail]);
-      }
-
-      setParagraphs(blog.content || []);
-    }
-  }, [isEditMode, blogData]);
+  // Handle initialization during render to avoid cascading renders warning
+  const [lastBlogId, setLastBlogId] = useState<string | number | undefined>(undefined);
+  if (isEditMode && blogData?.blog && blogData.blog.id !== lastBlogId) {
+    setLastBlogId(blogData.blog.id);
+    const { blog } = blogData;
+    setFormData({
+      title: blog.title,
+      category: blog.category,
+      description: blog.description,
+    });
+    setThumbnailPreviews(blog.thumbnail ? [blog.thumbnail_url] : []);
+    setThumbnailFiles(blog.thumbnail ? [blog.thumbnail] : []);
+    setParagraphs(blog.content || []);
+  }
 
 
 
@@ -155,9 +158,9 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!title.trim()) newErrors.title = "عنوان المقال مطلوب";
-    if (!category.trim()) newErrors.category = "تصنيف المقال مطلوب";
-    if (!description.trim()) newErrors.description = "الوصف التعريفي مطلوب";
+    if (!formData.title.trim()) newErrors.title = "عنوان المقال مطلوب";
+    if (!formData.category.trim()) newErrors.category = "تصنيف المقال مطلوب";
+    if (!formData.description.trim()) newErrors.description = "الوصف التعريفي مطلوب";
     if (thumbnailFiles.length === 0 && !thumbnailPreviews[0]) newErrors.thumbnail = "صورة المقال مطلوبة";
 
     if (paragraphs.length === 0) newErrors.paragraphs = "يجب إضافة فقرة واحدة على الأقل";
@@ -175,9 +178,9 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
     const currentThumbnail = thumbnailFiles[0];
 
     const payload: BlogPayload = {
-      title,
-      category,
-      description,
+      title: formData.title,
+      category: formData.category,
+      description: formData.description,
       content: paragraphs,
       thumbnail: currentThumbnail,
     };
@@ -233,9 +236,9 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
                 <FormInput
                   label="عنوان المقال"
                   placeholder="أكتب عنوان المقال..."
-                  value={title}
+                  value={formData.title}
                   onChange={(e) => {
-                    setTitle(e.target.value);
+                    setFormData({ ...formData, title: e.target.value });
                     if (errors.title) setErrors({ ...errors, title: "" });
                   }}
                   error={errors.title}
@@ -248,9 +251,9 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
                 <FormInput
                   label="تصنيف المقال"
                   placeholder="أكتب تصنيف المقال (تكنولوجيا - ترفيهي - غير ذلك)..."
-                  value={category}
+                  value={formData.category}
                   onChange={(e) => {
-                    setCategory(e.target.value);
+                    setFormData({ ...formData, category: e.target.value });
                     if (errors.category) setErrors({ ...errors, category: "" });
                   }}
                   error={errors.category}
@@ -262,9 +265,9 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
                 <FormInput
                   label="الوصف التعريفي"
                   placeholder="أكتب وصف تعريفي للمقال..."
-                  value={description}
+                  value={formData.description}
                   onChange={(e) => {
-                    setDescription(e.target.value);
+                    setFormData({ ...formData, description: e.target.value });
                     if (errors.description) setErrors({ ...errors, description: "" });
                   }}
                   error={errors.description}

@@ -60,7 +60,7 @@ export function BlogsPage() {
     const { mutate: deleteBlogMutation } = useDeleteBlog();
 
     const blogs = blogsData?.records || [];
-    const totalPages = Math.ceil((blogsData?.recordsTotal || 0) / 10);
+    const totalPages = Math.ceil((blogsData?.recordsFiltered || 0) / 10);
 
     // --- خيارات القوائم ---
     const sidebarOptions = [

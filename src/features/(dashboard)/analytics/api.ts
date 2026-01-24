@@ -142,7 +142,7 @@ export interface UsersAnalyticsResponse extends BaseResponse {
     totalCustomers: number;
     activeCustomers: number;
     notActiveCustomers: number;
-    mostActiveCustomers: any[];
+    mostActiveCustomers: User[];
     customersGrowthChart: {
         date: string;
         total_count: string;

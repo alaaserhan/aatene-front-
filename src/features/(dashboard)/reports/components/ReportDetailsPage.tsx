@@ -1,7 +1,7 @@
 // src/features/(dashboard)/reports/components/ReportDetailsPage.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
@@ -56,6 +56,8 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
   const [replyText, setReplyText] = useState("");
   const [replyFiles, setReplyFiles] = useState<File[]>([]);
   const [attachments, setAttachments] = useState<MediaFile[]>([]);
+  const [prevReportId, setPrevReportId] = useState<number | null>(null);
+
 
   // Hooks
   const { data, isLoading } = useGetSingleReport(reportId);
@@ -66,10 +68,10 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
 
   const report = data?.record;
 
-  useEffect(() => {
-    if (report?.media) {
+  if (report && report.id !== prevReportId) {
+    setPrevReportId(report.id);
+    if (report.media) {
       const mediaData = Array.isArray(report.media) ? report.media : [report.media];
-
       const mappedAttachments: MediaFile[] = mediaData.map((item, index) => {
         if (typeof item === 'string') {
           return {
@@ -81,10 +83,9 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
         }
         return item as unknown as MediaFile;
       }).filter(Boolean);
-
       setAttachments(mappedAttachments);
     }
-  }, [report]);
+  }
 
   const breadcrumbItems = [
     { label: "الشكاوي", href: "/admin/reports" },
@@ -246,7 +247,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
                 <User className="w-5 h-5" />
                 <span>العميل</span>
               </div>
-              <div className=" font-medium w-4/5  flex items-center gap-2 cursor-pointer hover:text-blue-600" onClick={() => router.push(`/admin/users?userId=${report?.user?.id}`)}>
+              <div className=" font-medium w-4/5  flex items-center gap-2 cursor-pointer hover:underline" onClick={() => router.push(`/admin/users?userId=${report?.user?.id}`)}>
                 <span>{report?.user?.fullname || "غير معروف"}</span>
               </div>
             </div>

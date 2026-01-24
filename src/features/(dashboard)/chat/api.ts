@@ -147,7 +147,10 @@ export interface GetMessagesResponse {
 }
 
 export const getConversationMessages = async (conversationId: number | string): Promise<GetMessagesResponse> => {
-    const { data } = await api.get<GetMessagesResponse>(`/conversations/${conversationId}/messages`);
+    const headers = getHeaders();
+    const { data } = await api.get<GetMessagesResponse>(`/conversations/${conversationId}/messages`, {
+        headers,
+    });
     return data;
 };
 

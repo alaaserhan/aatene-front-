@@ -1,7 +1,7 @@
 // src/features/(dashboard)/services/components/ServicesPage.tsx
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search } from "lucide-react";
@@ -52,13 +52,11 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         storeId,
         { enabled: !!storeId }
     );
-    const sections = sectionsData?.data || [];
+    const sections = useMemo(() => sectionsData?.data || [], [sectionsData?.data]);
 
-    useEffect(() => {
-        if (sections.length > 0 && !selectedSectionId) {
-            setSelectedSectionId(String(sections[0].id));
-        }
-    }, [sections, selectedSectionId]);
+    if (sections.length > 0 && !selectedSectionId) {
+        setSelectedSectionId(String(sections[0].id));
+    }
 
 
     const approvedCountParams = useMemo(() => {

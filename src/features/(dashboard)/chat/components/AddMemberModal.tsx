@@ -85,47 +85,47 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col p-0 overflow-hidden text-right" dir="rtl">
+            <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col p-0 overflow-hidden " dir="rtl">
                 <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-5/50">
-                    <DialogTitle className="text-lg font-semibold text-gray-900">
+                    <DialogTitle className="text-lg font-semibold ">
                         اضافة عضو جديد
                     </DialogTitle>
                 </div>
 
-                <div className="flex-1 overflow-hidden p-6 space-y-6">
+                <div className="flex-1 overflow-hidden p-6 py-0  space-y-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                        <label className="text-sm font-medium  flex items-center gap-1">
                             اختر العضو
                             <span className="text-red-500">*</span>
                         </label>
-                        <ScrollArea className="h-[300px] border rounded-lg">
+                        <ScrollArea className="h-[300px] border border-gray-200 rounded-lg">
                             {isLoading ? (
                                 <div className="p-4 text-center text-gray-500">جاري التحميل...</div>
                             ) : uniqueParticipants.length === 0 ? (
                                 <div className="p-4 text-center text-gray-500">لا يوجد مستخدمين</div>
                             ) : (
-                                <div className="divide-y">
+                                <div>
                                     {uniqueParticipants.map((participant) => {
                                         const key = `${participant.participant_data.type}-${participant.participant_data.id}`;
                                         const isSelected = selectedParticipant === key;
                                         return (
                                             <div
                                                 key={participant.id}
-                                                className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer"
+                                                className="flex items-center  p-3 hover:bg-gray-50 cursor-pointer"
                                                 onClick={() => handleSelectParticipant(participant)}
                                             >
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex items-center justify-between flex-1 me-2 gap-3">
                                                     <span className="text-xs text-gray-400">
                                                         {format(new Date(participant.created_at), "M/d/yy", { locale: ar })}
                                                     </span>
-                                                    <div className="text-right">
-                                                        <p className="font-medium text-gray-800">
+                                                    <div className="">
+                                                        <p className="font-medium text-sm ">
                                                             {participant.participant_data.name}
                                                         </p>
-                                                        <p className="text-xs text-gray-500">السعر شامل التوصيل</p>
+                                                        {/* <p className="text-xs text-gray-500">السعر شامل التوصيل</p>
                                                         <span className="inline-block mt-1 px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded">
                                                             طلب
-                                                        </span>
+                                                        </span> */}
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-3">
@@ -146,14 +146,14 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
                                                     {/* Custom Radio/Checkbox */}
                                                     <div
                                                         className={cn(
-                                                            "w-5 h-5 rounded-full border transition-colors flex items-center justify-center shrink-0",
+                                                            "w-4 h-4 rounded-full border transition-colors flex items-center justify-center shrink-0",
                                                             isSelected
                                                                 ? "border-blue-3"
                                                                 : "border-gray-300 group-hover:border-gray-400"
                                                         )}
                                                     >
                                                         {isSelected && (
-                                                            <div className="w-3 h-3 rounded-full bg-blue-3" />
+                                                            <div className="w-2 h-2 rounded-full bg-blue-3" />
                                                         )}
                                                     </div>
                                                 </div>

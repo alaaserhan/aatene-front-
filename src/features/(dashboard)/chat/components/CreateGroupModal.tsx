@@ -7,12 +7,13 @@ import {
     DialogTitle,
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
+import { FormInput } from "@/src/components/ui/FormInput";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { usePreviousParticipants, useCreateConversation } from "../hooks";
 import { Participant } from "../api";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import Image from "next/image";
 import { ar } from "date-fns/locale";
 import { cn } from "@/src/lib/utils";
 
@@ -94,77 +95,67 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col p-0 overflow-hidden text-right" dir="rtl">
+            <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col p-0 overflow-hidden " dir="rtl">
                 <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-5/50">
-                    <DialogTitle className="text-lg font-semibold text-gray-900">
+                    <DialogTitle className="text-lg font-semibold ">
                         انشاء مجموعة
                     </DialogTitle>
                 </div>
 
-                <div className="flex-1 overflow-hidden p-6 space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                            عنوان المجموعة
-                            <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                            <Input
-                                value={groupName}
-                                onChange={(e) => setGroupName(e.target.value.slice(0, 50))}
-                                placeholder="مجموعة جديدة"
-                                className="text-right pr-10 focus-visible:ring-blue-3"
-                                dir="rtl"
-                                maxLength={50}
-                            />
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-                                T
-                            </span>
-                        </div>
-                        <span className="text-xs text-gray-400">{groupName.length}/50</span>
-                    </div>
+                <div className="flex-1 overflow-hidden p-6 py-0  space-y-6">
+                    <FormInput
+                        label="عنوان المجموعة"
+                        required
+                        value={groupName}
+                        onChange={(e) => setGroupName(e.target.value.slice(0, 50))}
+                        placeholder="مجموعة جديدة"
+                        maxLength={50}
+                        showCounter
+                        className="text-right focus-visible:ring-blue-3"
+                        dir="rtl"
+                    />
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                        <label className="text-sm font-medium  flex items-center gap-1">
                             المستخدمين
                             <span className="text-red-500">*</span>
                         </label>
-                        <ScrollArea className="h-[300px] border rounded-lg">
+                        <ScrollArea className="h-[300px] border border-gray-200 rounded-lg">
                             {isLoading ? (
                                 <div className="p-4 text-center text-gray-500">جاري التحميل...</div>
                             ) : uniqueParticipants.length === 0 ? (
                                 <div className="p-4 text-center text-gray-500">لا يوجد مستخدمين</div>
                             ) : (
-                                <div className="divide-y">
+                                <div>
                                     {uniqueParticipants.map((participant) => {
                                         const key = `${participant.participant_data.type}-${participant.participant_data.id}`;
                                         const isSelected = selectedParticipants.has(key);
                                         return (
                                             <div
                                                 key={participant.id}
-                                                className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer"
+                                                className="flex items-center  p-3 hover:bg-gray-50 cursor-pointer"
                                                 onClick={() => toggleParticipant(participant)}
                                             >
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex items-center justify-between flex-1 me-2 gap-3">
                                                     <span className="text-xs text-gray-400">
                                                         {format(new Date(participant.created_at), "M/d/yy", { locale: ar })}
                                                     </span>
-                                                    <div className="text-right">
-                                                        <p className="font-medium text-gray-800">
+                                                    <div className="">
+                                                        <p className="font-medium text-sm ">
                                                             {participant.participant_data.name}
                                                         </p>
-                                                        <p className="text-xs text-gray-500">السعر شامل التوصيل</p>
-                                                        <span className="inline-block mt-1 px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded">
-                                                            طلب
-                                                        </span>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
                                                         {participant.participant_data.avatar ? (
-                                                            <img
+                                                            <Image
                                                                 src={participant.participant_data.avatar}
-                                                                alt=""
+                                                                alt={participant.participant_data.name}
+                                                                width={40}
+                                                                height={40}
                                                                 className="w-full h-full object-cover"
+                                                                unoptimized
                                                             />
                                                         ) : (
                                                             <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold">
@@ -173,29 +164,17 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                                                         )}
                                                     </div>
 
-                                                    {/* Custom Checkbox */}
+                                                    {/* Custom Radio/Checkbox */}
                                                     <div
                                                         className={cn(
-                                                            "w-5 h-5 rounded-xs border transition-colors flex items-center justify-center shrink-0",
+                                                            "w-4 h-4 rounded-full border transition-colors flex items-center justify-center shrink-0",
                                                             isSelected
-                                                                ? "bg-blue-5 border-blue-4"
-                                                                : "bg-white border-gray-300 group-hover:border-gray-400"
+                                                                ? "border-blue-3"
+                                                                : "border-gray-300 group-hover:border-gray-400"
                                                         )}
                                                     >
                                                         {isSelected && (
-                                                            <svg
-                                                                className="w-4 h-4 text-blue-4"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={3}
-                                                                    d="M5 13l4 4L19 7"
-                                                                />
-                                                            </svg>
+                                                            <div className="w-2 h-2 rounded-full bg-blue-3" />
                                                         )}
                                                     </div>
                                                 </div>
