@@ -17,7 +17,8 @@ export interface BaseResponse {
 // --- Common Types ---
 export interface GrowthChartItem {
     date: string;
-    count: string;
+    count?: string;
+    total_count?: string;
 }
 
 // --- Analytics-specific Product type (for AnalyticsReportDetail, etc.) ---
@@ -113,6 +114,8 @@ export interface OverviewAnalyticsResponse extends BaseResponse {
     totalProductsThisDay: number;
     totalProductsYesterday: number;
     totalProductsThisYear: number;
+    storesGrowthLast7Days?: GrowthChartItem[];
+    stores_growth_last_7_days?: GrowthChartItem[];
 }
 
 export interface LatestsAnalyticsResponse extends BaseResponse {

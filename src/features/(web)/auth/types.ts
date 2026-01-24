@@ -19,6 +19,7 @@ export interface User {
   bio: string | null;
   date_of_birth: string | null; // Assuming ISO date string or similar
   user_type: string; // e.g., "client"
+  created_at: string;
 }
 
 // Response for successful Login or Register

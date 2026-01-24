@@ -9,6 +9,8 @@ import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteMo
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { cn } from "@/src/lib/utils";
 import { StoreStatus, WorkingTime, StoreManager } from "../api";
+import { formatDateArabic } from "@/src/lib/date-helper";
+
 
 interface StoreDetailsPageProps {
   storeId: number;
@@ -426,8 +428,7 @@ function ManagerRow({ manager }: ManagerRowProps) {
       <div className="flex flex-row gap-4 justify-center items-center">
         <div className="flex flex-col">
           <h3 className="font-medium">
-            {/* {manager.user_name} */}
-            احمد محمد
+            {manager.user_name}
           </h3>
           <div className="flex items-center gap-3">
             <a href={`https://wa.me/${manager.user?.phone}`} className="text-blue-4 font-medium underline">
@@ -472,7 +473,7 @@ function ManagerRow({ manager }: ManagerRowProps) {
           </div>
           <div>
             <p className="text-gray-2 mb-2">تاريخ الانضمام</p>
-            <p className="font-medium ">الاثنين، 18 سبتمبر 2023</p>
+            <p className="font-medium ">{manager.user?.created_at ? formatDateArabic(manager.user.created_at) : "-"}</p>
           </div>
         </div>
       </div>

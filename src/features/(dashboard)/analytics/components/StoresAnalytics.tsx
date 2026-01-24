@@ -2,17 +2,17 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { LineChart, Line, ResponsiveContainer, Tooltip, CartesianGrid, XAxis } from "recharts";
+import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { useGetAnalyticsOverview } from "../hooks";
 
 export function StoresAnalytics() {
     const { data, isLoading } = useGetAnalyticsOverview();
 
-    // تجهيز بيانات الشارت بناءً على المتاح (أمس واليوم)
-    const lineChartData = [
-        { name: "أمس", value: data?.totalStoresYesterday || 0 },
-        { name: "اليوم", value: data?.totalStoresThisDay || 0 },
-    ];
+    const rawData = data?.storesGrowthLast7Days || data?.stores_growth_last_7_days || [];
+    const lineChartData = rawData.map(item => ({
+        name: item.date,
+        value: Number(item.count || item.total_count || 0)
+    }));
 
     if (isLoading) {
         return (

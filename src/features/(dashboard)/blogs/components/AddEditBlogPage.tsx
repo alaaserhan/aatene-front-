@@ -8,7 +8,6 @@ import { useCreateBlog, useUpdateBlog, useGetBlog } from "../hooks";
 import { BlogPayload, BlogContent } from "../api";
 import { cn } from "@/src/lib/utils";
 
-// Components
 import { Button } from "@/src/components/ui/button";
 import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
 import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
@@ -28,34 +27,33 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
   const router = useRouter();
   const isEditMode = isEdit;
 
-  // --- API Hooks ---
-  const { data: blogData } = useGetBlog(blogId!, storeId); // enabled inside hook usually
+  const { data: blogData } = useGetBlog(blogId!, storeId);
   const createMutation = useCreateBlog();
   const updateMutation = useUpdateBlog();
   const user = useAuthStore((state) => state.user);
   const isMerchant = user?.user_type === "merchant";
 
-  // --- State ---
+
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
 
-  // Image State (Array to match ImageGallerySelector)
-  const [thumbnailFiles, setThumbnailFiles] = useState<any[]>([]);
+
+  const [thumbnailFiles, setThumbnailFiles] = useState<string[]>([]);
   const [thumbnailPreviews, setThumbnailPreviews] = useState<string[]>([]);
 
-  // Paragraphs State
+
   const [paragraphs, setParagraphs] = useState<BlogContent[]>([]);
 
-  // Current Paragraph Editor State
+
   const [currentParaTitle, setCurrentParaTitle] = useState("");
   const [currentParaContent, setCurrentParaContent] = useState("");
   const [editingParaIndex, setEditingParaIndex] = useState<number | null>(null);
 
-  // Errors State
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // --- Load Data for Edit Mode ---
+
   useEffect(() => {
     if (isEditMode && blogData?.blog) {
       const { blog } = blogData;
@@ -65,16 +63,16 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
 
       if (blog.thumbnail) {
         setThumbnailPreviews([blog.thumbnail_url]);
-        setThumbnailFiles([blog.thumbnail]); // Or handle as string if allowed
+        setThumbnailFiles([blog.thumbnail]);
       }
 
       setParagraphs(blog.content || []);
     }
   }, [isEditMode, blogData]);
 
-  // --- Handlers ---
 
-  const handleImageChange = (files: any[], urls: string[]) => {
+
+  const handleImageChange = (files: string[], urls: string[]) => {
     setThumbnailFiles(files);
     setThumbnailPreviews(urls);
     if (errors.thumbnail) setErrors({ ...errors, thumbnail: "" });
@@ -89,7 +87,6 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
       hasError = true;
     }
 
-    // Check for empty content (RichTextEditor often returns <p><br></p> for empty)
     if (!currentParaContent.trim() || currentParaContent === "<p><br></p>" || currentParaContent === "<br>") {
       newErrors.paraContent = "وصف الفقرة مطلوب";
       hasError = true;
@@ -125,7 +122,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
       const newErrors = { ...prev };
       delete newErrors.paraTitle;
       delete newErrors.paraContent;
-      delete newErrors.paragraphs; // Clear main form error for paragraphs
+      delete newErrors.paragraphs;
       return newErrors;
     });
   };
@@ -135,7 +132,6 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
     setCurrentParaTitle(para.title);
     setCurrentParaContent(para.paragraph);
     setEditingParaIndex(index);
-    // Clear any existing pargraph errors when starting edit
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors.paraTitle;
@@ -145,13 +141,11 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
   };
 
   const handleDeleteParagraph = (index: number) => {
-    // If we are deleting the paragraph that is currently being edited
     if (editingParaIndex === index) {
       setEditingParaIndex(null);
       setCurrentParaTitle("");
       setCurrentParaContent("");
     } else if (editingParaIndex !== null && index < editingParaIndex) {
-      // If we delete a paragraph before the one being edited, adjust the index
       setEditingParaIndex(editingParaIndex - 1);
     }
 
@@ -166,7 +160,6 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
     if (!description.trim()) newErrors.description = "الوصف التعريفي مطلوب";
     if (thumbnailFiles.length === 0 && !thumbnailPreviews[0]) newErrors.thumbnail = "صورة المقال مطلوبة";
 
-    // Check if at least one paragraph exists (optional, depends on requirements)
     if (paragraphs.length === 0) newErrors.paragraphs = "يجب إضافة فقرة واحدة على الأقل";
 
     setErrors(newErrors);
@@ -181,14 +174,12 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
 
     const currentThumbnail = thumbnailFiles[0];
 
-    // ✅ التعديل: إرسال الصورة دائماً سواء كانت ملف (جديدة) أو نص (قديمة)
-    // نستخدم as any لتجاوز تدقيق الأنواع مؤقتاً لأن الـ API قد يتوقع string فقط
-    const payload: any = {
+    const payload: BlogPayload = {
       title,
       category,
       description,
       content: paragraphs,
-      thumbnail: currentThumbnail, // سيتم إرسال الرابط القديم أو الملف الجديد
+      thumbnail: currentThumbnail,
     };
 
     const options = {
@@ -221,10 +212,8 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
 
         <div className="bg-white rounded-lg border border-gray-200  p-6 space-y-8">
 
-          {/* 1. Header & Image */}
           <div className="space-y-6">
             <div className=" space-y-8">
-              {/* Thumbnail */}
               <ImageGallerySelector
                 label="صورة المقال"
                 subLabel="اختر صورة تعبر عن محتوى المقال (png, jpg, svg)"
@@ -239,7 +228,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
                 allowedMediaTypes={["image"]}
               />
 
-              {/* Basic Fields */}
+
               <div className="grid gap-6">
                 <FormInput
                   label="عنوان المقال"
@@ -287,11 +276,10 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
             </div>
           </div>
 
-          {/* 2. Paragraphs Section */}
           <div className=" pt-6 border-t border-gray-100 space-y-6">
             <h3 className="text-lg font-bold ">محتوى المقال</h3>
 
-            {/* Added Paragraphs List */}
+
             <div className="space-y-3">
               <Label className="text-sm font-semibold text-gray-700">الفقرات المضافة</Label>
               {paragraphs.length > 0 ? (
@@ -342,7 +330,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
               {errors.paragraphs && <p className="text-xs text-red-500 mt-1">{errors.paragraphs}</p>}
             </div>
 
-            {/* Add/Edit Area */}
+
             <div className="bg-gray-50/50 rounded-xl p-6 border border-gray-200 space-y-6 mt-6">
               <h4 className="font-semibold  flex items-center gap-2">
                 {editingParaIndex !== null ? "تعديل الفقرة" : "إضافة فقرة جديدة"}
@@ -395,7 +383,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
         </div>
       </div>
 
-      {/* 3. Footer Actions */}
+
       <ProductFormActions
         onNext={handleSubmit}
         onCancel={() => router.push(`/admin/blogs/${storeId}`)}
