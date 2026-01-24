@@ -8,9 +8,11 @@ import {
   User,
   Hash,
   Loader2,
-  FileIcon
+  FileIcon,
+  Paperclip,
+  X
 } from "lucide-react";
-import { useGetSingleReport, useUpdateReportStatus, useDeleteReport, useUpdateReport } from "../hooks";
+import { useGetSingleReport, useUpdateReportStatus, useDeleteReport, useUpdateReport, useAddReportResponse } from "../hooks";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Button } from "@/src/components/ui/button";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -33,7 +35,7 @@ const STATUS_OPTIONS = [
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-red-100 text-red-600 border-red-200",
-  processing: "bg-blue-100 text-blue-600 border-blue-200",
+  processing: "bg-blue-100 text-blue-3 border-blue-200",
   finished: "bg-green-100 text-green-600 border-green-200",
   cancelled: "bg-gray-100 text-gray-2 border-gray-200",
 };
@@ -51,7 +53,8 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
   // States
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [showMediaModal, setShowMediaModal] = useState(false);
-  // const [replyText, setReplyText] = useState("");
+  const [replyText, setReplyText] = useState("");
+  const [replyFiles, setReplyFiles] = useState<File[]>([]);
   const [attachments, setAttachments] = useState<MediaFile[]>([]);
 
   // Hooks
@@ -59,15 +62,27 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
   const { mutate: updateStatus } = useUpdateReportStatus();
   const { mutate: deleteReport } = useDeleteReport();
   const { mutate: updateReport } = useUpdateReport();
+  const { mutate: addResponse, isPending: isSendingReply } = useAddReportResponse();
 
   const report = data?.record;
 
   useEffect(() => {
     if (report?.media) {
-      // Assuming media comes as array or single object, normalizing it for UI
       const mediaData = Array.isArray(report.media) ? report.media : [report.media];
-      // Filter out nulls if any
-      setAttachments(mediaData.filter(Boolean));
+
+      const mappedAttachments: MediaFile[] = mediaData.map((item, index) => {
+        if (typeof item === 'string') {
+          return {
+            id: String(index),
+            file_name: item.split('/').pop() || `attachment-${index}`,
+            src: item,
+            mime_type: item.match(/\.(jpeg|jpg|gif|png)$/i) ? 'image/jpeg' : 'application/pdf'
+          };
+        }
+        return item as unknown as MediaFile;
+      }).filter(Boolean);
+
+      setAttachments(mappedAttachments);
     }
   }, [report]);
 
@@ -123,12 +138,30 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
     }
   };
 
-  //   const handleSendReply = () => {
-  //     if (!replyText.trim()) return;
-  //     // Implement send reply logic here, or map it to updateReport content if that's the intention
-  //     toast.success("تم إرسال الرد بنجاح (محاكاة)");
-  //     setReplyText("");
-  //   };
+  const handleReplyFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setReplyFiles((prev) => [...prev, ...Array.from(e.target.files!)]);
+    }
+  };
+
+  const handleRemoveReplyFile = (index: number) => {
+    setReplyFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSendReply = () => {
+    if (!replyText.trim()) return;
+
+    addResponse({
+      id: reportId,
+      response_text: replyText,
+      response_files: replyFiles
+    }, {
+      onSuccess: () => {
+        setReplyText("");
+        setReplyFiles([]);
+      }
+    });
+  };
 
   if (isLoading) {
     return (
@@ -249,7 +282,14 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
             <div className="w-4/5 flex items-center justify-between">
               <div className="flex items-center gap-3 flex-wrap  ">
                 {attachments.map((file, idx) => (
-                  <div key={idx} title={file.file_name} className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200">
+                  <a
+                    key={idx}
+                    href={file.src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={file.file_name}
+                    className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200 hover:bg-gray-200 transition-colors"
+                  >
                     {file.mime_type?.includes('image') || file.src?.match(/\.(jpeg|jpg|gif|png)$/) ? (
                       <img src="/icons/dashboard/gallery.svg" className="w-4" alt="" />
                     ) : (
@@ -258,45 +298,104 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
                     <span className="text-xs font-medium text-gray-2  max-w-[100px] truncate" dir="ltr">
                       {file.file_name || "مرفق"}
                     </span>
-                  </div>
+                  </a>
                 ))}
               </div>
-
-              {/* <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowMediaModal(true)}
-                className="gap-2 bg-gray-50 hover:bg-gray-100 border-dashed border-gray-300 text-gray-2 rounded-full px-4"
-              >
-                <Plus className="w-4 h-4" />
-                ارفاق ملفات
-              </Button> */}
             </div>
           </div>
 
+          {/* Reply Section or Response Details */}
+          <div className="pt-6 border-t border-gray-100">
+            {report.response_text ? (
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-gray-800">الرد على الشكوى</h3>
+                  {report.responded_at && (
+                    <span className="text-xs text-gray-500">
+                      {format(new Date(report.responded_at), "yyyy-MM-dd HH:mm")}
+                    </span>
+                  )}
+                </div>
 
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {report.response_text}
+                </p>
 
-
-
-          {/* Reply Section (Visual Placeholder based on UI) */}
-          {/* <div className="pt-6 border-t border-gray-100">
-            <div className="relative">
-              <textarea
-                className="w-full h-32 p-4 bg-white border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all text-sm"
-                placeholder="اضافة رد ....."
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-              ></textarea>
-              <div className="absolute bottom-4 left-4">
-                <Button
-                  onClick={handleSendReply}
-                  className="bg-[#3A5779] hover:bg-[#2c4460] text-white px-6"
-                >
-                  اضافة
-                </Button>
+                {report.response_files && report.response_files.length > 0 && (
+                  <div className="flex items-center gap-3 flex-wrap mt-4 border-t border-gray-200 pt-4">
+                    {report.response_files.map((fileUrl, idx) => (
+                      <a
+                        key={idx}
+                        href={fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-gray-200 hover:bg-gray-100 transition-colors"
+                      >
+                        {fileUrl.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                          <img src="/icons/dashboard/gallery.svg" className="w-4" alt="" />
+                        ) : (
+                          <FileIcon className="w-4 h-4 text-blue-3" />
+                        )}
+                        <span className="text-xs font-medium text-gray-600 max-w-[200px] truncate" dir="ltr">
+                          {fileUrl.split('/').pop()}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          </div> */}
+            ) : (
+              <div className="relative border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all">
+                <textarea
+                  className="w-full h-32 p-4 resize-none outline-none text-sm placeholder:text-gray-400"
+                  placeholder="اضافة رد ....."
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                ></textarea>
+
+                {/* Selected Files for Reply */}
+                {replyFiles.length > 0 && (
+                  <div className="px-4 pb-2 flex gap-2 flex-wrap">
+                    {replyFiles.map((file, i) => (
+                      <div key={i} className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded text-xs border border-gray-200">
+                        <span className="max-w-[150px] truncate">{file.name}</span>
+                        <button onClick={() => handleRemoveReplyFile(i)} className="text-gray-400 hover:text-red-500">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 border-t border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      id="reply-file-upload"
+                      multiple
+                      className="hidden"
+                      onChange={handleReplyFileSelect}
+                    />
+                    <label
+                      htmlFor="reply-file-upload"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-600 text-sm cursor-pointer transition-colors"
+                    >
+                      <Paperclip className="w-4 h-4" />
+                      <span>ارفاق ملفات</span>
+                    </label>
+                  </div>
+
+                  <Button
+                    onClick={handleSendReply}
+                    disabled={isSendingReply || !replyText.trim()}
+                    className="bg-[#3A5779] hover:bg-[#2c4460] text-white px-6 h-9"
+                  >
+                    {isSendingReply ? <Loader2 className="w-4 h-4 animate-spin" /> : "اضافة"}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
 
         </div>
       </main>
@@ -309,17 +408,19 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
         description="سيتم حذف الشكوى نهائياً ولا يمكن استرجاعها."
       />
 
-      {showMediaModal && (
-        <MediaCenterModal
-          open={showMediaModal}
-          onOpenChange={() => setShowMediaModal(false)}
-          onSelect={handleAddAttachment}
-          multiple={true} // Allow multiple selection
-          allowedMediaTypes={["image", "gallery"]} // Adjust based on your MediaCenter config
-          selectionLimit={5}
-        />
-      )}
+      {
+        showMediaModal && (
+          <MediaCenterModal
+            open={showMediaModal}
+            onOpenChange={() => setShowMediaModal(false)}
+            onSelect={handleAddAttachment}
+            multiple={true} // Allow multiple selection
+            allowedMediaTypes={["image", "gallery"]} // Adjust based on your MediaCenter config
+            selectionLimit={5}
+          />
+        )
+      }
 
-    </div>
+    </div >
   );
 }

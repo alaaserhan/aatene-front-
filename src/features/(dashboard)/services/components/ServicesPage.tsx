@@ -66,7 +66,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         params.set("store_id", String(storeId));
         params.set("status", "approved");
         params.set("per_page", "1");
-        if (selectedSectionId) params.set("section_id", selectedSectionId);
+        if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
         if (searchQuery) params.set("search", searchQuery);
         return params;
     }, [storeId, selectedSectionId, searchQuery]);
@@ -76,7 +76,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         params.set("store_id", String(storeId));
         params.set("status", "pending");
         params.set("per_page", "1");
-        if (selectedSectionId) params.set("section_id", selectedSectionId);
+        if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
         if (searchQuery) params.set("search", searchQuery);
         return params;
     }, [storeId, selectedSectionId, searchQuery]);
@@ -86,7 +86,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         params.set("store_id", String(storeId));
         params.set("status", "rejected");
         params.set("per_page", "1");
-        if (selectedSectionId) params.set("section_id", selectedSectionId);
+        if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
         if (searchQuery) params.set("search", searchQuery);
         return params;
     }, [storeId, selectedSectionId, searchQuery]);
@@ -102,7 +102,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         params.set("per_page", "10");
 
         if (storeId) params.set("store_id", String(storeId));
-        if (selectedSectionId) params.set("section_id", selectedSectionId);
+        if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
         if (searchQuery) params.set("search", searchQuery);
         if (activeStatus) params.set("status", activeStatus);
 
@@ -142,10 +142,13 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         { label: `${store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "..."}` },
     ];
 
-    const sectionOptions = sections.map((s) => ({
-        name: s.name,
-        value: String(s.id),
-    }));
+    const sectionOptions = [
+        ...sections.map((s) => ({
+            name: s.name,
+            value: String(s.id),
+        })),
+        { name: "الكل", value: "other" }
+    ];
 
     const handleSaveSection = (data: SectionFormData) => {
         createSection.mutate({

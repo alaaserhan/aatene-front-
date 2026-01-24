@@ -102,7 +102,7 @@ export function ProductsPage() {
 
     if (isMerchant) {
       if (storeId) params.set("store_id", storeId);
-      if (selectedSectionId) params.set("section_id", selectedSectionId);
+      if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
     }
 
     if (searchQuery) {
@@ -249,10 +249,13 @@ export function ProductsPage() {
   const isNoSectionsEmptyState = isMerchant && !isLoadingSections && !hasSections;
   const isNoProductsEmptyState = isMerchant && selectedSectionId && !isLoadingProducts && products.length === 0;
 
-  const merchantSectionOptions = sections.map((s) => ({
-    name: s.name,
-    value: String(s.id),
-  }));
+  const merchantSectionOptions = [
+    ...sections.map((s) => ({
+      name: s.name,
+      value: String(s.id),
+    })),
+    { name: "الكل", value: "other" }
+  ];
 
   return (
     <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col">
@@ -296,7 +299,7 @@ export function ProductsPage() {
                       className="w-full  gap-2 text-blue-3 border-blue-3 rounded-xs border"
                       style={{ backgroundColor: "var(--blue-5)" }}
                     >
-                      اضافة أقسام جديدة 
+                      اضافة أقسام جديدة
                       <Plus className="w-4 h-4" />
                     </Button>
                   }

@@ -108,3 +108,20 @@ export function useUpdateReportStatus() {
     },
   });
 }
+
+export function useAddReportResponse() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, response_text, response_files }: { id: string | number; response_text: string; response_files: File[] }) =>
+      api.addReportResponse(id, response_text, response_files),
+    onSuccess: (data, variables) => {
+      toast.success(data.message || "تم إضافة الرد بنجاح");
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+      queryClient.invalidateQueries({ queryKey: ["report", variables.id] });
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      toast.error(error.response?.data?.message || "فشل إضافة الرد");
+    },
+  });
+}

@@ -10,7 +10,7 @@ import { Report } from "../api";
 
 const STATUS_STYLES: Record<string, string> = {
     pending: "bg-red-50 text-red-500",
-    processing: "bg-blue-50 text-blue-500",
+    processing: "bg-blue-1 text-blue-4",
     finished: "bg-green-50 text-green-500",
     cancelled: "bg-gray-50 text-gray-2",
 };

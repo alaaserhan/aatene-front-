@@ -46,8 +46,11 @@ export interface Report {
   store: Store | null;
   user: User | null;
   product: Product | null;
-  media: string | null;
+  media: string | string[] | null;
   content?: string;
+  response_text?: string;
+  response_files?: string[];
+  responded_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -174,5 +177,27 @@ export const createReportType = async (payload: CreateReportTypePayload): Promis
 export const updateReportStatus = async (id: string | number, payload: UpdateStatusPayload): Promise<GenericResponse> => {
   const endpoint = getDynamicEndpoint(`/reports/${id}/update-status`);
   const { data } = await api.post<GenericResponse>(endpoint, payload);
+  return data;
+};
+
+export const addReportResponse = async (
+  id: string | number,
+  response_text: string,
+  response_files: File[]
+): Promise<GenericResponse> => {
+  const endpoint = getDynamicEndpoint(`/reports/${id}/response`);
+  const formData = new FormData();
+  formData.append("response_text", response_text);
+  if (response_files && response_files.length > 0) {
+    response_files.forEach((file) => {
+      formData.append("response_files[]", file);
+    });
+  }
+
+  const { data } = await api.post<GenericResponse>(endpoint, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return data;
 };
