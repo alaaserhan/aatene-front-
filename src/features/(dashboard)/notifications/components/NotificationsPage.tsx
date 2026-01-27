@@ -58,16 +58,16 @@ export function NotificationsPage() {
     return (
 
         <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col ">
-            <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
-                <div className="flex items-center justify-between h-16 px-6">
-                    <nav className="flex items-center h-full">
-                        <ul className="flex items-center gap-8 h-full">
+            <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 sm:h-[65px]">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-3 sm:py-0 h-auto sm:h-16 px-4 sm:px-6">
+                    <nav className="w-full sm:w-auto overflow-x-auto no-scrollbar">
+                        <ul className="flex items-center gap-2 sm:gap-8 justify-between sm:justify-start h-full whitespace-nowrap min-w-max">
                             {TABS.map((tab) => (
                                 <li key={tab.id} className="h-full flex items-center">
                                     <button
                                         onClick={() => setActiveTab(tab.id)}
                                         className={cn(
-                                            "text-sm font-semibold h-full flex items-center transition-colors cursor-pointer border-b-2 px-1",
+                                            "text-sm font-semibold h-full flex items-center transition-colors cursor-pointer border-b-2  py-2 sm:py-0",
                                             activeTab === tab.id
                                                 ? "text-blue-3 border-blue-3"
                                                 : "text-gray-2 border-transparent hover:text-blue-3"
@@ -89,9 +89,9 @@ export function NotificationsPage() {
                                 setIsCreateModalOpen(true);
                             }
                         }}
-                        className="flex items-center gap-2 bg-blue-3 text-white px-6 py-2.5 rounded-sm text-sm hover:bg-blue-4 transition-colors font-medium cursor-pointer"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-3 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-sm text-xs sm:text-sm hover:bg-blue-4 transition-colors font-medium cursor-pointer shrink-0"
                     >
-                        <Plus className="w-5 h-5" />
+                        <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span>{isTemplates ? "اضافة قالب" : "اضافة تنبيه"}</span>
                     </button>
                 </div>
