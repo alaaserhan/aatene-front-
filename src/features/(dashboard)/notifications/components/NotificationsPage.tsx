@@ -57,7 +57,7 @@ export function NotificationsPage() {
 
     return (
 
-        <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col text-right" dir="rtl">
+        <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col ">
             <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
                 <div className="flex items-center justify-between h-16 px-6">
                     <nav className="flex items-center h-full">
@@ -121,6 +121,7 @@ export function NotificationsPage() {
                 <CreateNotificationModal
                     isOpen={isCreateModalOpen}
                     onClose={() => setIsCreateModalOpen(false)}
+                    defaultSendType={activeTab === 'templates' ? 'email' : activeTab as SendTypeOption}
                 />
 
                 <CreateTemplateModal

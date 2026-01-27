@@ -1,9 +1,14 @@
 "use client";
 
 import { Edit, RefreshCw, Trash2, Bell } from "lucide-react";
-import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
+import { useState } from "react";
 import { NotificationModel } from "../api";
+import { useDeleteNotification, useResendNotification } from "../hooks";
 import { Loader2 } from "lucide-react";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { toast } from "sonner";
+import { cn } from "@/src/lib/utils";
 
 interface NotificationsTableProps {
     data: NotificationModel[];
@@ -11,6 +16,38 @@ interface NotificationsTableProps {
 }
 
 export function NotificationsTable({ data, isLoading }: NotificationsTableProps) {
+    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successMsg, setSuccessMsg] = useState("");
+
+    const { mutate: deleteNotification, isPending: isDeleting } = useDeleteNotification();
+    const { mutate: resendNotification, isPending: isResending } = useResendNotification();
+
+    const handleDelete = () => {
+        if (!selectedId) return;
+        deleteNotification(selectedId, {
+            onSuccess: () => {
+                setSuccessMsg("تم حذف الإشعار بنجاح");
+                setShowSuccessModal(true);
+            },
+            onError: () => {
+                toast.error("حدث خطأ أثناء الحذف");
+            }
+        });
+    };
+
+    const handleResend = (id: number) => {
+        resendNotification(id, {
+            onSuccess: () => {
+                setSuccessMsg("تم إعادة إرسال الإشعار بنجاح");
+                setShowSuccessModal(true);
+            },
+            onError: () => {
+                toast.error("حدث خطأ أثناء إعادة الإرسال");
+            }
+        });
+    };
     if (isLoading) {
         return (
             <div className="w-full h-64 flex items-center justify-center bg-white rounded-lg shadow-sm">
@@ -46,28 +83,37 @@ export function NotificationsTable({ data, isLoading }: NotificationsTableProps)
                         const date = dateObj.toLocaleDateString("en-GB"); // DD/MM/YYYY
                         const time = dateObj.toLocaleTimeString("en-US", { hour: 'numeric', minute: 'numeric', hour12: true });
 
-                        const isSent = row.status === "sent";
-                        // Helper to get send_to label
-                        const sendToLabel = row.send_to?.join(", ") || "الكل";
+                        const sendToMap: Record<string, string> = {
+                            all: "الكل",
+                            merchant: "تجار",
+                            customers: "عملاء",
+                            product_stores: "متاجر منتجات",
+                            service_stores: "متاجر خدمات",
+                            store_followers: "متابعين متجر",
+                            selected_users: "اشخاص محددين",
+                        };
+
+                        const sendToLabel = row.send_to?.includes("all")
+                            ? "الكل"
+                            : row.send_to?.map(val => sendToMap[val] || val).join(", ") || "الكل";
 
                         return (
                             <tr key={row.id} className="hover:bg-gray-50/50 transition-colors">
-                                {/* Title + Indicator */}
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2">
                                         <span className="font-medium ">{row.title}</span>
-
                                     </div>
                                 </td>
 
-                                {/* Content */}
                                 <td className="px-6 py-4">
-                                    <div className="bg-blue-5 px-3 py-2 rounded-md max-w-[300px] text-gray-700 whitespace-normal line-clamp-2" title={row.message || row.body}>
+                                    <div
+                                        className="bg-[#F4F9FF] px-4 py-3 rounded-xl border border-blue-50 max-w-[340px] text-[#4B5563] text-sm whitespace-normal line-clamp-2 leading-relaxed"
+                                        title={row.message || row.body}
+                                    >
                                         {row.message || row.body}
                                     </div>
                                 </td>
 
-                                {/* Sent To */}
                                 <td className="px-6 py-4 text-gray-700 font-medium truncate max-w-[150px]" title={sendToLabel}>
                                     {sendToLabel}
                                 </td>
@@ -95,21 +141,30 @@ export function NotificationsTable({ data, isLoading }: NotificationsTableProps)
                                             disabled 
                                         /> */}
 
-                                        <button className="p-2 cursor-pointer bg-red-2 text-red-500 rounded-md hover:bg-red-100 transition-colors">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedId(row.id);
+                                                setShowDeleteModal(true);
+                                            }}
+                                            className="p-2 cursor-pointer bg-red-2 text-red-500 rounded-md hover:bg-red-100 transition-colors"
+                                            disabled={isDeleting}
+                                        >
                                             <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
                                         </button>
 
-                                        <button className="p-2 cursor-pointer bg-blue-50 text-blue-500 rounded-md hover:bg-blue-100 transition-colors">
-                                            <img src="/icons/dashboard/edit.svg" className="w-4 h-4" alt="" />
-                                        </button>
+                                        {row.status === "draft" && (
+                                            <button className="p-2 cursor-pointer bg-blue-50 text-blue-500 rounded-md hover:bg-blue-100 transition-colors">
+                                                <img src="/icons/dashboard/edit.svg" className="w-4 h-4" alt="" />
+                                            </button>
+                                        )}
 
-                                        <button className="p-2 cursor-pointer bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors">
-                                            <RefreshCw className="w-4 h-4" />
+                                        <button
+                                            onClick={() => handleResend(row.id)}
+                                            className="p-2 cursor-pointer bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors"
+                                            disabled={isResending}
+                                        >
+                                            <RefreshCw className={cn("w-4 h-4", isResending && "animate-spin")} />
                                         </button>
-
-                                        {/* <button className="p-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors">
-                                            <Bell className="w-4 h-4" />
-                                        </button> */}
                                     </div>
                                 </td>
                             </tr>
@@ -117,6 +172,21 @@ export function NotificationsTable({ data, isLoading }: NotificationsTableProps)
                     })}
                 </tbody>
             </table>
+
+            <ConfirmDeleteModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={handleDelete}
+                title="هل أنت متأكد من حذف هذا الإشعار؟"
+                description="سيتم حذف الإشعار نهائياً من القائمة."
+            />
+
+            <SuccessModal
+                isOpen={showSuccessModal}
+                onClose={() => setShowSuccessModal(false)}
+                title="نجاح!"
+                message={successMsg}
+            />
         </div>
     );
 }

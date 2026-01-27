@@ -18,15 +18,20 @@ import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { cn } from "@/src/lib/utils";
 import { useInfiniteGetStores } from "@/src/features/(dashboard)/stores/hooks";
 import { useInfiniteGetUsers } from "@/src/features/(dashboard)/users/hooks";
+import { useCreateNotification } from "@/src/features/(dashboard)/notifications/hooks";
+import { SendToOption, ExceptTypeOption, SendTypeOption, CreateNotificationPayload } from "../api";
+import { toast } from "sonner";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 
 // --- Types ---
 
 interface CreateNotificationModalProps {
     isOpen: boolean;
     onClose: () => void;
+    defaultSendType?: SendTypeOption;
 }
 
-type TabId = "data" | "included" | "excluded";
+type StepId = 1 | 2 | 3;
 
 interface NotificationFormData {
     // Step 1: Data
@@ -34,9 +39,10 @@ interface NotificationFormData {
     content: string;
     sendMethod: "immediate" | "scheduled" | "draft";
     scheduledDate: string;
+    sendTypes: SendTypeOption[]; // Added for API mapping
 
     // Step 2: Included
-    sendTo: string[]; // 'all', 'merchants', 'customers', etc.
+    sendTo: string[]; // 'all', 'merchants', 'customers', etc. (Stores user selection)
     selectedStores: { id: string; name: string }[]; // Store objects
     includeSpecificPersons: boolean;
     selectedPersons: { id: string; name: string }[]; // Person objects
@@ -56,34 +62,33 @@ interface DropdownItem {
     last_name?: string;
 }
 
-// Custom Tab Component
-function ModalTabs({
-    activeTab,
-    onTabChange,
+// Custom Tab/Stepper Component
+function ModalSteps({
+    currentStep,
 }: {
-    activeTab: TabId;
-    onTabChange: (tab: TabId) => void;
+    currentStep: StepId;
 }) {
-    const tabs = [
-        { id: "data", label: "بيانات الاشعار", icon: List },
-        { id: "included", label: "مشمول ف الاشعار", icon: Check },
-        { id: "excluded", label: "مستثني من الاشعار", icon: X },
+    const steps = [
+        { id: 1, label: "بيانات الاشعار", icon: List },
+        { id: 2, label: "مشمول ف الاشعار", icon: Check },
+        { id: 3, label: "مستثني من الاشعار", icon: X },
     ] as const;
 
     return (
         <div className="flex border rounded-sm border-blue-3 overflow-hidden mb-6">
-            {tabs.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
+            {steps.map((step) => {
+                const Icon = step.icon;
+                const isActive = currentStep === step.id;
+                const isCompleted = currentStep > step.id; // Optional: style completed steps
+
                 return (
-                    <button
-                        key={tab.id}
-                        onClick={() => onTabChange(tab.id)}
+                    <div
+                        key={step.id}
                         className={cn(
-                            "flex-1 flex flex-col sm:flex-row cursor-pointer items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ",
+                            "flex-1 flex flex-col sm:flex-row items-center justify-center gap-2 py-3 text-sm font-medium transition-colors cursor-default",
                             isActive
                                 ? "bg-blue-5 text-blue-3"
-                                : "bg-white hover:bg-gray-50"
+                                : isCompleted ? "bg-blue-50 text-blue-3" : "bg-white text-gray-500"
                         )}
                     >
                         <div
@@ -94,8 +99,8 @@ function ModalTabs({
                         >
                             <Icon className="w-3 h-3" />
                         </div>
-                        <span className="hidden sm:inline">{tab.label}</span>
-                    </button>
+                        <span className="hidden sm:inline">{step.label}</span>
+                    </div>
                 );
             })}
         </div>
@@ -216,14 +221,23 @@ function InfiniteMultiSelect({
 export function CreateNotificationModal({
     isOpen,
     onClose,
+    defaultSendType = "apps",
 }: CreateNotificationModalProps) {
-    const [activeTab, setActiveTab] = useState<TabId>("data");
+    const [currentStep, setCurrentStep] = useState<StepId>(1);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const { mutate: createNotification, isPending } = useCreateNotification();
+
+    const DEFAULT_NOTIFICATION_CONTENT = `مرحبًا عميلنا العزيز {client} 🌟،
+لديك خصم بقيمة {percent}% بانتظارك! 🛍️  
+ويوجد {Cart_number} منتج في سلتك لم تكمل الطلب عليه بعد.   سارع بإتمام الطلب قبل انتهاء العرض!  
+📦 اطلب الآن عبر: {link}`;
 
     const [formData, setFormData] = useState<NotificationFormData>({
         title: "",
-        content: "",
+        content: DEFAULT_NOTIFICATION_CONTENT,
         sendMethod: "immediate",
         scheduledDate: "",
+        sendTypes: [defaultSendType], // Default
         sendTo: [],
         selectedStores: [],
         includeSpecificPersons: false,
@@ -234,12 +248,123 @@ export function CreateNotificationModal({
         excludedPersons: [],
     });
 
+    // Reset step when modal opens/closes
+    useEffect(() => {
+        if (isOpen) {
+            setCurrentStep(1);
+            setFormData(prev => ({
+                ...prev,
+                sendTypes: [defaultSendType],
+            }));
+        }
+    }, [isOpen, defaultSendType]);
+
     const updateFormData = (updates: Partial<NotificationFormData>) => {
         setFormData((prev) => ({ ...prev, ...updates }));
     };
 
     const handleInsertVariable = (variable: string) => {
         updateFormData({ content: formData.content + " " + variable + " " });
+    };
+
+    // --- Validation Logic ---
+    const isStep1Valid = () => {
+        if (!formData.title.trim()) return false;
+        if (!formData.content.trim()) return false;
+        if (formData.sendMethod === "scheduled" && !formData.scheduledDate) return false;
+        if (formData.sendTypes.length === 0) return false;
+        return true;
+    };
+
+    const isStep2Valid = () => {
+        // At least one target channel must be selected OR 'followers' with stores OR specific persons with persons
+        const hasStandardSelection = formData.sendTo.some(id => id !== "followers");
+        const hasFollowersSelection = formData.sendTo.includes("followers") && formData.selectedStores.length > 0;
+        const hasSpecificPersons = formData.includeSpecificPersons && formData.selectedPersons.length > 0;
+
+        return hasStandardSelection || hasFollowersSelection || hasSpecificPersons;
+    };
+
+    const canProceed = () => {
+        if (currentStep === 1) return isStep1Valid();
+        if (currentStep === 2) return isStep2Valid();
+        return true; // Step 3 generally valid (optional) unless manual exclude is checked without persons
+    };
+
+    const isStep3Valid = () => {
+        if (formData.excludeManual && formData.excludedPersons.length === 0) return false;
+        return true;
+    };
+
+
+    const handleNext = () => {
+        if (canProceed()) {
+            setCurrentStep((prev) => (prev + 1) as StepId);
+        }
+    };
+
+    const handleSubmit = () => {
+        if (!isStep3Valid()) return;
+
+        const mappedSendTo: SendToOption[] = [];
+        const storeIds: number[] = [];
+        const userIds: number[] = [];
+
+        formData.sendTo.forEach(s => {
+            if (s === "followers") {
+                mappedSendTo.push("store_followers");
+                storeIds.push(...formData.selectedStores.map(st => Number(st.id)));
+            } else {
+                mappedSendTo.push(s as SendToOption);
+            }
+        });
+
+        if (formData.includeSpecificPersons) {
+            if (!mappedSendTo.includes("selected_users")) {
+                mappedSendTo.push("selected_users");
+            }
+            userIds.push(...formData.selectedPersons.map(p => Number(p.id)));
+        }
+
+        const payload: CreateNotificationPayload = {
+            title: formData.title,
+            message: formData.content,
+            send_types: formData.sendTypes,
+            send_time: formData.sendMethod === "draft" ? "template_only" : (formData.sendMethod === "scheduled" ? "later" : "now"),
+            send_to: mappedSendTo,
+        };
+
+        if (formData.sendMethod === "scheduled" && formData.scheduledDate) {
+            payload.scheduled_at = formData.scheduledDate;
+        }
+
+        if (storeIds.length > 0) payload.store_ids = [...new Set(storeIds)];
+        if (userIds.length > 0) payload.user_ids = [...new Set(userIds)];
+
+        // Exceptions
+        const exceptTypes: ExceptTypeOption[] = [];
+        const exceptUserIds: number[] = [];
+
+        if (formData.excludeOrderedBefore) exceptTypes.push("contact_store_before");
+        if (formData.excludeAddedToFav) exceptTypes.push("add_products_to_fav");
+        if (formData.excludeManual) {
+            exceptTypes.push("manual");
+            exceptUserIds.push(...formData.excludedPersons.map(p => Number(p.id)));
+        }
+
+        if (exceptTypes.length > 0) payload.except_types = exceptTypes;
+        if (exceptUserIds.length > 0) payload.except_user_ids = exceptUserIds;
+
+        // Call API
+        createNotification(payload, {
+            onSuccess: () => {
+                setShowSuccessModal(true);
+            },
+            onError: (error) => {
+                console.error(error);
+                toast.error("حدث خطأ اثناء انشاء الاشعار");
+            }
+        });
     };
 
     // --- Render Steps ---
@@ -266,30 +391,29 @@ export function CreateNotificationModal({
                     onChange={(e) => updateFormData({ content: e.target.value })}
                     placeholder="اكتب محتوى الاشعار هنا..."
                 />
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-4 items-center text-xs text-gray-600">
                     {[
-                        "{client}",
-                        "%{percent}",
-                        "{Cart_number}",
-                        "{link}",
-                        "{email}",
-                        "{product}",
-                        "{Store}",
-                    ].map((v) => (
-                        <button
-                            key={v}
-                            type="button"
-                            onClick={() => handleInsertVariable(v)}
-                            className="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs rounded-md border border-gray-300 transition-colors dir-ltr"
-                        >
-                            {v}
-                        </button>
+                        { label: "اسم منتج معين (في حالة الإشعار مرتبط بمنتج)", value: "{product}" },
+                        { label: "البريد الإلكتروني للعميل", value: "{email}" },
+                        { label: "رابط معين :", value: "{link}" },
+                        { label: "اسم العميل :", value: "{client}" },
+                        { label: "اسم المتجر أو التاجر", value: "{Store}" },
+                    ].map((item) => (
+                        <div key={item.value} className="flex items-center gap-2">
+                            <span>{item.label}</span>
+                            <button
+                                type="button"
+                                onClick={() => handleInsertVariable(item.value)}
+                                className="px-3 py-1 bg-blue-5 hover:bg-blue-100 text-gray-700 text-xs rounded-full border border-blue-1 transition-colors dir-ltr font-medium"
+                            >
+                                {item.value}
+                            </button>
+                        </div>
                     ))}
-                    <span className="text-xs text-gray-400 mr-auto self-center">
-                        اسم المتجر او التاجر {`{Store}`} ...
-                    </span>
                 </div>
             </div>
+
+
 
             <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700">
@@ -349,11 +473,10 @@ export function CreateNotificationModal({
                 <div className="grid grid-cols-2 gap-4">
                     {[
                         { id: "all", label: "الكل" },
-                        { id: "merchants", label: "تجار" },
+                        { id: "merchant", label: "تجار" },
                         { id: "customers", label: "عملاء" },
                         { id: "product_stores", label: "متاجر منتجات" },
                         { id: "service_stores", label: "متاجر خدمات" },
-                        { id: "followers", label: "متابعين متجر" },
                     ].map((opt) => {
                         const isChecked = formData.sendTo.includes(opt.id);
                         return (
@@ -404,18 +527,55 @@ export function CreateNotificationModal({
                 </div>
             </div>
 
-            {/* Store Dropdown */}
-            {formData.sendTo.includes("followers") && (
-                <InfiniteMultiSelect
-                    label="اختر المتجر"
-                    placeholder="اختر المتجر..."
-                    searchPlaceholder="ابحث عن المتجر..."
-                    selectedItems={formData.selectedStores}
-                    onChange={(items) => updateFormData({ selectedStores: items })}
-                    useInfiniteHook={useInfiniteGetStores}
-                    required
-                />
-            )}
+            {/* Followers Section */}
+            <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const isChecked = formData.sendTo.includes("followers");
+                            if (isChecked) updateFormData({ sendTo: formData.sendTo.filter(id => id !== "followers") });
+                            else updateFormData({ sendTo: [...formData.sendTo, "followers"] });
+                        }}
+                        className={cn(
+                            "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center shrink-0 cursor-pointer",
+                            formData.sendTo.includes("followers")
+                                ? "bg-blue-5 border-blue-4"
+                                : "bg-white border-gray-300 hover:border-gray-400"
+                        )}
+                        role="checkbox"
+                        aria-checked={formData.sendTo.includes("followers")}
+                    >
+                        {formData.sendTo.includes("followers") && (
+                            <svg className="w-4 h-4 text-blue-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                        )}
+                    </button>
+                    <label
+                        onClick={() => {
+                            const isChecked = formData.sendTo.includes("followers");
+                            if (isChecked) updateFormData({ sendTo: formData.sendTo.filter(id => id !== "followers") });
+                            else updateFormData({ sendTo: [...formData.sendTo, "followers"] });
+                        }}
+                        className="text-sm font-medium text-gray-700 cursor-pointer"
+                    >
+                        متابعين متجر
+                    </label>
+                </div>
+
+                {formData.sendTo.includes("followers") && (
+                    <InfiniteMultiSelect
+                        label="اختر المتجر"
+                        placeholder="اختر المتجر..."
+                        searchPlaceholder="ابحث عن المتجر..."
+                        selectedItems={formData.selectedStores}
+                        onChange={(items) => updateFormData({ selectedStores: items })}
+                        useInfiniteHook={useInfiniteGetStores}
+                        required
+                    />
+                )}
+            </div>
 
             <div className="space-y-3">
                 <div className="flex items-center gap-2">
@@ -474,7 +634,7 @@ export function CreateNotificationModal({
         <div className="space-y-6">
             <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700">
-                    لم يتم الارسال الي <span className="text-red-500">*</span>
+                    لم يتم الارسال الي
                 </label>
                 <div className="space-y-3">
                     <div className="flex items-center gap-2">
@@ -612,12 +772,12 @@ export function CreateNotificationModal({
                 </div>
 
                 <div className="p-6 py-0">
-                    <ModalTabs activeTab={activeTab} onTabChange={setActiveTab} />
+                    <ModalSteps currentStep={currentStep} />
 
                     <div className="mt-4 min-h-[400px]">
-                        {activeTab === "data" && renderDataStep()}
-                        {activeTab === "included" && renderIncludedStep()}
-                        {activeTab === "excluded" && renderExcludedStep()}
+                        {currentStep === 1 && renderDataStep()}
+                        {currentStep === 2 && renderIncludedStep()}
+                        {currentStep === 3 && renderExcludedStep()}
                     </div>
                 </div>
 
@@ -625,20 +785,40 @@ export function CreateNotificationModal({
                     <button
                         onClick={onClose}
                         className="px-6 py-2 rounded-md bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors"
+                        disabled={isPending}
                     >
                         الغاء
                     </button>
-                    <button
-                        className="px-6 py-2 rounded-md bg-blue-3 text-white font-medium hover:bg-blue-4 transition-colors"
-                        onClick={() => {
-                            console.log("Submit", formData);
-                            onClose();
-                        }}
-                    >
-                        حفظ
-                    </button>
+
+                    {currentStep < 3 ? (
+                        <button
+                            className="px-6 py-2 rounded-md bg-blue-3 text-white font-medium hover:bg-blue-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={handleNext}
+                            disabled={!canProceed()}
+                        >
+                            التالي
+                        </button>
+                    ) : (
+                        <button
+                            className="px-6 py-2 rounded-md bg-blue-3 text-white font-medium hover:bg-blue-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={handleSubmit}
+                            disabled={!isStep3Valid() || isPending}
+                        >
+                            {isPending ? "جاري الحفظ..." : "حفظ"}
+                        </button>
+                    )}
                 </div>
             </DialogContent>
+
+            <SuccessModal
+                isOpen={showSuccessModal}
+                onClose={() => {
+                    setShowSuccessModal(false);
+                    onClose();
+                }}
+                title="تم إنشاء الإشعار بنجاح"
+                message="تمت جدولة/إرسال الإشعار بنجاح إلى الفئات المحددة"
+            />
         </Dialog>
     );
 }

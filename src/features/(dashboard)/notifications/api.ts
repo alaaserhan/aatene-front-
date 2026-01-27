@@ -1,5 +1,6 @@
 // src/features/notifications/api.ts
 import api from "@/src/lib/axios";
+import { getDynamicEndpoint } from "@/src/lib/api-helper";
 
 // Definitions from previous steps
 export type SendToOption =
@@ -8,7 +9,8 @@ export type SendToOption =
   | "customers"
   | "product_stores"
   | "service_stores"
-  | "store_followers";
+  | "store_followers"
+  | "selected_users";
 
 export type ExceptTypeOption =
   | "contact_store_before"
@@ -169,7 +171,7 @@ export interface CreateNotificationResponse {
 
 export async function getNotifications(params: NotificationsParams) {
   const { data } = await api.get<NotificationsResponse>(
-    "/admin/notifications-management",
+    getDynamicEndpoint("/notifications-management"),
     { params }
   );
   return data;
@@ -177,14 +179,14 @@ export async function getNotifications(params: NotificationsParams) {
 
 export async function getNotification(id: number) {
   const { data } = await api.get<SingleNotificationResponse>(
-    `/admin/notifications-management/${id}`
+    getDynamicEndpoint(`/notifications-management/${id}`)
   );
   return data;
 }
 
 export async function createNotification(payload: CreateNotificationPayload) {
   const { data } = await api.post<CreateNotificationResponse>(
-    "/notifications/send",
+    getDynamicEndpoint("/notifications/send"),
     payload
   );
   return data;
@@ -192,28 +194,28 @@ export async function createNotification(payload: CreateNotificationPayload) {
 
 export async function deleteNotification(id: number) {
   const { data } = await api.delete<{ status: boolean; message: string }>(
-    `/admin/notifications-management/${id}`
+    getDynamicEndpoint(`/notifications-management/${id}`)
   );
   return data;
 }
 
 export async function cancelNotification(id: number) {
   const { data } = await api.post<SingleNotificationResponse>(
-    `/admin/notifications-management/${id}/cancel`
+    getDynamicEndpoint(`/notifications-management/${id}/cancel`)
   );
   return data;
 }
 
 export async function resendNotification(id: number) {
   const { data } = await api.post<SingleNotificationResponse>(
-    `/admin/notifications-management/${id}/resend`
+    getDynamicEndpoint(`/notifications-management/${id}/resend`)
   );
   return data;
 }
 
 export async function getNotificationTemplates(params: NotificationTemplatesParams) {
   const { data } = await api.get<NotificationTemplatesResponse>(
-    "/admin/notification-templates",
+    getDynamicEndpoint("/notification-templates"),
     { params }
   );
   return data;
@@ -221,7 +223,7 @@ export async function getNotificationTemplates(params: NotificationTemplatesPara
 
 export async function getNotificationTemplate(id: number | string) {
   const { data } = await api.get<NotificationTemplatesResponse>(
-    "/admin/notification-templates",
+    getDynamicEndpoint("/notification-templates"),
     { params: { id } }
   );
   return data;
@@ -229,7 +231,7 @@ export async function getNotificationTemplate(id: number | string) {
 
 export async function createNotificationTemplate(payload: CreateNotificationTemplatePayload) {
   const { data } = await api.post<CreateNotificationTemplateResponse>(
-    "/admin/notification-templates",
+    getDynamicEndpoint("/notification-templates"),
     payload
   );
   return data;
@@ -240,7 +242,7 @@ export async function updateNotificationTemplate(
   payload: UpdateNotificationTemplatePayload
 ) {
   const { data } = await api.put<{ status: boolean; message: string }>(
-    `/admin/notification-templates/${id}`,
+    getDynamicEndpoint(`/notification-templates/${id}`),
     payload
   );
   return data;
@@ -248,7 +250,7 @@ export async function updateNotificationTemplate(
 
 export async function deleteNotificationTemplate(id: number | string) {
   const { data } = await api.delete<{ status: boolean; message: string }>(
-    "/admin/notification-templates",
+    getDynamicEndpoint("/notification-templates"),
     { params: { id } }
   );
   return data;
