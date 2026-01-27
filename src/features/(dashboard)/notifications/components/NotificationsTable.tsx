@@ -28,9 +28,9 @@ export function NotificationsTable({ data, isLoading }: NotificationsTableProps)
     }
 
     return (
-        <div className="w-full overflow-x-auto bg-white rounded-lg shadow-sm">
-            <table className="w-full text-sm text-right">
-                <thead className="bg-gray-50 text-gray-500 font-medium">
+        <div className="w-full overflow-x-auto bg-white rounded-lg border border-gray-200">
+            <table className="w-full text-sm ">
+                <thead className="bg-gray-50 font-medium text-gray-500">
                     <tr>
                         <th className="px-6 py-4 whitespace-nowrap">عنوان الاشعار</th>
                         <th className="px-6 py-4 whitespace-nowrap">محتوي الاشعار</th>
@@ -54,18 +54,15 @@ export function NotificationsTable({ data, isLoading }: NotificationsTableProps)
                             <tr key={row.id} className="hover:bg-gray-50/50 transition-colors">
                                 {/* Title + Indicator */}
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2 justify-end">
-                                        <span className="font-medium text-gray-900">{row.title}</span>
-                                        <div
-                                            className={`w-3 h-3 rounded-sm ${isSent ? "bg-green-500" : "bg-gray-300"
-                                                }`}
-                                        />
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-medium ">{row.title}</span>
+
                                     </div>
                                 </td>
 
                                 {/* Content */}
                                 <td className="px-6 py-4">
-                                    <div className="bg-gray-50 px-3 py-2 rounded-md max-w-[300px] text-gray-700 whitespace-normal line-clamp-2" title={row.message || row.body}>
+                                    <div className="bg-blue-5 px-3 py-2 rounded-md max-w-[300px] text-gray-700 whitespace-normal line-clamp-2" title={row.message || row.body}>
                                         {row.message || row.body}
                                     </div>
                                 </td>
@@ -77,11 +74,11 @@ export function NotificationsTable({ data, isLoading }: NotificationsTableProps)
 
                                 {/* Date & Time */}
                                 <td className="px-6 py-4 text-gray-600 dir-rtl">
-                                    {date} - <span className="text-gray-400">{time}</span>
+                                    {date} - <span>{time}</span>
                                 </td>
 
                                 {/* Status */}
-                                <td className="px-6 py-4 text-gray-900 font-medium">
+                                <td className="px-6 py-4  font-medium">
                                     {row.status === "sent" && "تم الإرسال"}
                                     {row.status === "scheduled" && "مجدول"}
                                     {row.status === "draft" && "مسودة"}
@@ -92,27 +89,27 @@ export function NotificationsTable({ data, isLoading }: NotificationsTableProps)
                                 {/* Actions */}
                                 <td className="px-6 py-4">
                                     <div className="flex items-center justify-center gap-2">
-                                        <ToggleSwitch
-                                            enabled={row.status === "sent"} // Mock logic for enabled
+                                        {/* <ToggleSwitch
+                                            enabled={row.status === "sent"} 
                                             onChange={() => { }}
-                                            disabled // Disabled as per instruction
-                                        />
+                                            disabled 
+                                        /> */}
 
-                                        <button className="p-2 bg-red-50 text-red-500 rounded-md hover:bg-red-100 transition-colors">
-                                            <Trash2 className="w-4 h-4" />
+                                        <button className="p-2 cursor-pointer bg-red-2 text-red-500 rounded-md hover:bg-red-100 transition-colors">
+                                            <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
                                         </button>
 
-                                        <button className="p-2 bg-blue-50 text-blue-500 rounded-md hover:bg-blue-100 transition-colors">
-                                            <Edit className="w-4 h-4" />
+                                        <button className="p-2 cursor-pointer bg-blue-50 text-blue-500 rounded-md hover:bg-blue-100 transition-colors">
+                                            <img src="/icons/dashboard/edit.svg" className="w-4 h-4" alt="" />
                                         </button>
 
-                                        <button className="p-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors">
+                                        <button className="p-2 cursor-pointer bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors">
                                             <RefreshCw className="w-4 h-4" />
                                         </button>
 
-                                        <button className="p-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors">
+                                        {/* <button className="p-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors">
                                             <Bell className="w-4 h-4" />
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </td>
                             </tr>

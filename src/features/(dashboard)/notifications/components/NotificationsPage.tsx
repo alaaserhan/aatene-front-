@@ -4,12 +4,16 @@ import { useState } from "react";
 import { Plus, Filter, Bell } from "lucide-react";
 import { NotificationsTable } from "./NotificationsTable";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { NotificationTemplatesTable } from "./NotificationTemplatesTable";
 import { CreateNotificationModal } from "./CreateNotificationModal";
-import { useNotifications } from "../hooks";
+import { useNotifications, useNotificationTemplates } from "../hooks";
+import { SendTypeOption } from "../api";
 import { cn } from "@/src/lib/utils";
+import { CreateTemplateModal } from "./CreateTemplateModal";
+import { NotificationTemplate } from "../api";
 
 const TABS = [
-    { id: "notifications", label: "الاشعارات" },
+    { id: "apps", label: "الاشعارات" },
     { id: "sms", label: "رسائل SMS" },
     { id: "email", label: "البريد الالكتروني" },
     { id: "templates", label: "قوالب البريد الالكتروني" },
@@ -18,13 +22,32 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 export function NotificationsPage() {
-    const [activeTab, setActiveTab] = useState<TabId>("notifications");
+    // Default to 'apps' as per user request to start with valid tab if needed, or 'apps' is the first one.
+    // The previous code had "notifications" which might be invalid if not in TABS. 
+    // TABS have ids: "apps", "sms", "email", "templates". 
+    // So distinct state is better.
+    const [activeTab, setActiveTab] = useState<TabId>("apps");
     const [filterStatus, setFilterStatus] = useState("");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+    const [editingTemplate, setEditingTemplate] = useState<NotificationTemplate | null>(null);
 
-    const { data: notificationsData, isLoading } = useNotifications({
+    const isTemplates = activeTab === "templates";
+
+    // Data for Notifications
+    // We cast activeTab to SendTypeOption when it is not 'templates'
+    const sendType = !isTemplates ? (activeTab as SendTypeOption) : undefined;
+
+    const { data: notificationsData, isLoading: isLoadingNotifications } = useNotifications({
         page: 1,
         per_page: 10,
+        send_types: sendType,
+    });
+
+    // Data for Templates
+    const { data: templatesData, isLoading: isLoadingTemplates } = useNotificationTemplates({
+        page: 1,
+        per_page: 15,
     });
 
     const statusOptions = [
@@ -58,72 +81,38 @@ export function NotificationsPage() {
                     </nav>
 
                     <button
-                        onClick={() => setIsCreateModalOpen(true)}
+                        onClick={() => {
+                            if (isTemplates) {
+                                setEditingTemplate(null);
+                                setIsTemplateModalOpen(true);
+                            } else {
+                                setIsCreateModalOpen(true);
+                            }
+                        }}
                         className="flex items-center gap-2 bg-blue-3 text-white px-6 py-2.5 rounded-sm text-sm hover:bg-blue-4 transition-colors font-medium cursor-pointer"
                     >
                         <Plus className="w-5 h-5" />
-                        <span>اضافة تنبيه</span>
+                        <span>{isTemplates ? "اضافة قالب" : "اضافة تنبيه"}</span>
                     </button>
                 </div>
             </header>
 
             <main className="flex-1 p-2 sm:p-6 space-y-6 overflow-y-auto">
-                <div className="flex flex-col gap-4">
-                    {/* Filters & Stats Bar */}
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                        {/* Left Side: Actions */}
-                        <div className="flex items-center gap-3 w-full md:w-auto">
-                            <div className="flex items-center gap-2 text-blue-3 bg-blue-5 px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-4 transition-colors">
-                                <Filter className="w-4 h-4" />
-                                <span className="text-sm font-medium">تصفية</span>
-                            </div>
-                        </div>
-
-                        {/* Right Side: Stats & Filter Dropdown */}
-                        <div className="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
-
-                            {/* Stats */}
-                            <div className="flex items-center gap-4 text-sm">
-                                <span className="font-bold text-gray-900">الاشعارات</span>
-
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                                    <span className="text-gray-600">مفعل</span>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-gray-300" />
-                                    <span className="text-gray-600">معلق</span>
-                                </div>
-
-                                <Bell className="w-5 h-5 text-gray-400" />
-                            </div>
-
-                            {/* Dropdown Filter */}
-                            <div className="w-48">
-                                <ReusableDropdown
-                                    options={statusOptions}
-                                    value={filterStatus}
-                                    onChange={setFilterStatus}
-                                    placeholder="الحالة"
-                                    className="h-10"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 {/* Content */}
                 <div className="mt-4">
                     {activeTab === "templates" ? (
-                        <div className="flex flex-col items-center justify-center p-12 bg-white rounded-xl shadow-sm border border-gray-100 text-center">
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">قريباً</h3>
-                            <p className="text-gray-500">سيتم تفعيل هذه الميزة في وقت لاحق</p>
-                        </div>
+                        <NotificationTemplatesTable
+                            data={templatesData?.templates || []}
+                            isLoading={isLoadingTemplates}
+                            onEdit={(template) => {
+                                setEditingTemplate(template);
+                                setIsTemplateModalOpen(true);
+                            }}
+                        />
                     ) : (
                         <NotificationsTable
                             data={notificationsData?.data || []}
-                            isLoading={isLoading}
+                            isLoading={isLoadingNotifications}
                         />
                     )}
                 </div>
@@ -132,6 +121,16 @@ export function NotificationsPage() {
                 <CreateNotificationModal
                     isOpen={isCreateModalOpen}
                     onClose={() => setIsCreateModalOpen(false)}
+                />
+
+                <CreateTemplateModal
+                    key={editingTemplate ? `edit-${editingTemplate.id}` : "create"}
+                    isOpen={isTemplateModalOpen}
+                    onClose={() => {
+                        setIsTemplateModalOpen(false);
+                        setEditingTemplate(null);
+                    }}
+                    initialData={editingTemplate}
                 />
             </main>
         </div>

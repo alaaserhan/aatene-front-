@@ -2,22 +2,22 @@
 import api from "@/src/lib/axios";
 
 // Definitions from previous steps
-export type SendToOption = 
-  | "all" 
-  | "merchant" 
-  | "customers" 
-  | "product_stores" 
-  | "service_stores" 
+export type SendToOption =
+  | "all"
+  | "merchant"
+  | "customers"
+  | "product_stores"
+  | "service_stores"
   | "store_followers";
 
-export type ExceptTypeOption = 
-  | "contact_store_before" 
-  | "add_products_to_fav" 
+export type ExceptTypeOption =
+  | "contact_store_before"
+  | "add_products_to_fav"
   | "manual";
 
-export type SendTypeOption = 
-  | "apps" 
-  | "sms" 
+export type SendTypeOption =
+  | "apps"
+  | "sms"
   | "email";
 
 export type SendTimeOption = "now" | "later" | "template_only";
@@ -27,6 +27,51 @@ export interface Template {
   key: string;
   title: string;
   content: string;
+}
+
+export interface NotificationTemplate {
+  id: number;
+  key: string;
+  title: string;
+  content: string;
+  is_active: boolean;
+  usage_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NotificationTemplatesParams {
+  page?: number;
+  per_page?: number;
+  id?: number | string;
+}
+
+export interface NotificationTemplatesResponse {
+  status: boolean;
+  message: string;
+  recordsTotal: number;
+  recordsFiltered: number;
+  templates: NotificationTemplate[];
+}
+
+export interface CreateNotificationTemplatePayload {
+  key: string;
+  title: string;
+  content: string;
+  is_active: boolean;
+}
+
+export interface UpdateNotificationTemplatePayload {
+  key?: string;
+  title?: string;
+  content?: string;
+  is_active?: boolean;
+}
+
+export interface CreateNotificationTemplateResponse {
+  status: boolean;
+  message: string;
+  template: NotificationTemplate;
 }
 
 export interface Store {
@@ -119,7 +164,7 @@ export interface SingleNotificationResponse {
 export interface CreateNotificationResponse {
   status: boolean;
   message: string;
-  data?: NotificationModel; 
+  data?: NotificationModel;
 }
 
 export async function getNotifications(params: NotificationsParams) {
@@ -162,6 +207,49 @@ export async function cancelNotification(id: number) {
 export async function resendNotification(id: number) {
   const { data } = await api.post<SingleNotificationResponse>(
     `/admin/notifications-management/${id}/resend`
+  );
+  return data;
+}
+
+export async function getNotificationTemplates(params: NotificationTemplatesParams) {
+  const { data } = await api.get<NotificationTemplatesResponse>(
+    "/admin/notification-templates",
+    { params }
+  );
+  return data;
+}
+
+export async function getNotificationTemplate(id: number | string) {
+  const { data } = await api.get<NotificationTemplatesResponse>(
+    "/admin/notification-templates",
+    { params: { id } }
+  );
+  return data;
+}
+
+export async function createNotificationTemplate(payload: CreateNotificationTemplatePayload) {
+  const { data } = await api.post<CreateNotificationTemplateResponse>(
+    "/admin/notification-templates",
+    payload
+  );
+  return data;
+}
+
+export async function updateNotificationTemplate(
+  id: number | string,
+  payload: UpdateNotificationTemplatePayload
+) {
+  const { data } = await api.put<{ status: boolean; message: string }>(
+    `/admin/notification-templates/${id}`,
+    payload
+  );
+  return data;
+}
+
+export async function deleteNotificationTemplate(id: number | string) {
+  const { data } = await api.delete<{ status: boolean; message: string }>(
+    "/admin/notification-templates",
+    { params: { id } }
   );
   return data;
 }

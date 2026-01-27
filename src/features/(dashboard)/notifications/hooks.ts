@@ -7,7 +7,15 @@ import {
   deleteNotification,
   cancelNotification,
   resendNotification,
+  getNotificationTemplates,
+  getNotificationTemplate,
+  createNotificationTemplate,
+  updateNotificationTemplate,
+  deleteNotificationTemplate,
   NotificationsParams,
+  NotificationTemplatesParams,
+  UpdateNotificationTemplatePayload,
+  SingleNotificationResponse,
 } from "./api";
 
 export function useNotifications(params: NotificationsParams) {
@@ -53,7 +61,7 @@ export function useCancelNotification() {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.setQueryData(
         ["notifications", data.notification.id],
-        (oldData: any) => {
+        (oldData: SingleNotificationResponse | undefined) => {
           if (!oldData) return oldData;
           return { ...oldData, notification: data.notification };
         }
@@ -70,11 +78,62 @@ export function useResendNotification() {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.setQueryData(
         ["notifications", data.notification.id],
-        (oldData: any) => {
+        (oldData: SingleNotificationResponse | undefined) => {
           if (!oldData) return oldData;
           return { ...oldData, notification: data.notification };
         }
       );
+    },
+  });
+}
+
+export function useNotificationTemplates(params: NotificationTemplatesParams) {
+  return useQuery({
+    queryKey: ["notification-templates", params],
+    queryFn: () => getNotificationTemplates(params),
+  });
+}
+
+export function useNotificationTemplate(id: number | string) {
+  return useQuery({
+    queryKey: ["notification-templates", id],
+    queryFn: () => getNotificationTemplate(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateNotificationTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createNotificationTemplate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notification-templates"] });
+    },
+  });
+}
+
+export function useUpdateNotificationTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number | string;
+      payload: UpdateNotificationTemplatePayload;
+    }) => updateNotificationTemplate(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notification-templates"] });
+    },
+  });
+}
+
+export function useDeleteNotificationTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteNotificationTemplate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notification-templates"] });
     },
   });
 }

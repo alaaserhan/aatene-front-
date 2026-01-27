@@ -607,7 +607,7 @@ export function CreateNotificationModal({
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="max-w-xl p-0 overflow-hidden text-right" dir="rtl">
-                <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-5/50">
+                <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-5">
                     <DialogTitle className="text-lg font-semibold text-gray-900">اضافة اشعار</DialogTitle>
                 </div>
 
