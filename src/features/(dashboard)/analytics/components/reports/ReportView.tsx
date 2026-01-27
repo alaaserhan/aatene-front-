@@ -1,10 +1,13 @@
 // src/components/(admin)/analytics/reports/ReportView.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
     Download, Calendar, Flag, ChevronsUp, Loader2
 } from "lucide-react";
+import { toast } from "sonner";
+import jsPDF from "jspdf";
+import { toPng } from "html-to-image";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Button } from "@/src/components/ui/button";
 import {
@@ -36,6 +39,58 @@ interface ReportViewProps {
 
 export function ReportView({ type }: ReportViewProps) {
     const [period, setPeriod] = useState("last_year");
+    const [isExporting, setIsExporting] = useState(false);
+    const reportRef = useRef<HTMLDivElement>(null);
+
+    const handleExport = async () => {
+        if (!reportRef.current) return;
+        setIsExporting(true);
+
+        const generatePdf = (dataUrl: string) => {
+            const pdf = new jsPDF("p", "mm", "a4");
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (reportRef.current!.offsetHeight * pdfWidth) / reportRef.current!.offsetWidth;
+            pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`analytics_${type}_${period}.pdf`);
+        };
+
+        try {
+            // Attempt 1: Full fidelity
+            const dataUrl = await toPng(reportRef.current, {
+                cacheBust: true,
+                backgroundColor: "#ffffff",
+                quality: 0.95,
+                pixelRatio: 2,
+            });
+            generatePdf(dataUrl);
+            toast.success("تم تصدير التقرير بنجاح");
+        } catch (error) {
+            console.warn("Full export failed, retrying without external images...", error);
+            try {
+                // Attempt 2: Exclude external images (likely CORS issue)
+                const dataUrl = await toPng(reportRef.current, {
+                    cacheBust: true,
+                    backgroundColor: "#ffffff",
+                    quality: 0.95,
+                    pixelRatio: 2,
+                    filter: (node) => {
+                        // Exclude img tags with http/https sources (external)
+                        if (node.nodeName === 'IMG' && (node as HTMLImageElement).src?.startsWith('http')) {
+                            return false;
+                        }
+                        return true;
+                    }
+                });
+                generatePdf(dataUrl);
+                toast.success("تم تصدير التقرير (بدون الصور الخارجية)");
+            } catch (retryError) {
+                console.error("Export failed final attempt:", retryError);
+                toast.error("فشل تصدير التقرير");
+            }
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     const storesQuery = useGetAnalyticsStores(new URLSearchParams({ period }), undefined);
     const productsQuery = useGetAnalyticsProducts(new URLSearchParams({ period }), undefined);
@@ -169,7 +224,7 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: (data as UsersAnalyticsResponse)?.customersGrowthChart || [],
                 topListName: "العملاء الأكثر تفاعلاً",
                 topListItems: (data as UsersAnalyticsResponse)?.mostActiveCustomers?.map((item: AnalyticsUser, i: number) => ({
-                    id: item.id, title: item.fullname, subtitle: "عدد التقيمات", image: item.avatar, rank: i + 1, badgeText: String(item.id), badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.full_name, subtitle: "عدد التقيمات", image: item.avatar, rank: i + 1, badgeText: String(item.id), badgeColor: "bg-green-100 text-green-700"
                 })) || []
             };
             break;
@@ -268,54 +323,61 @@ export function ReportView({ type }: ReportViewProps) {
                             placeholder="الفترة"
                         />
                     </div>
-                    <Button className="bg-blue-4 rounded-sm text-white gap-2">
-                        <Download className="w-4 h-4" />
+                    <Button
+                        className="bg-blue-4 rounded-sm text-white gap-2"
+                        onClick={handleExport}
+                        disabled={isExporting}
+                    >
+                        {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                         تصدير
                     </Button>
                 </div>
             </div>
 
-            {/* Top Stats Cards */}
-            <StatsCards cards={config.cards} />
+            {/* Report Content to Export */}
+            <div ref={reportRef} className="flex flex-col gap-4 p-2 bg-white">
+                {/* Top Stats Cards */}
+                <StatsCards cards={config.cards} />
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-12 gap-4">
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-12 gap-4">
 
-                {/* 1. Top List (Right in RTL - displayed left in code order) */}
-                <div className="col-span-12 lg:col-span-4">
-                    <TopList
-                        title={config.topListName}
-                        subtitle={config.subtitle}
-                        items={config.topListItems}
-                        className="h-[450px]"
-                        icon={ChevronsUp}
-                        iconClassName="text-green-500"
-                    />
-                </div>
-
-                {/* 2. Growth Chart (Left in RTL) */}
-                <div className="col-span-12 lg:col-span-8">
-                    <GrowthChart
-                        data={config.chartData}
-                        title="تحليل النمو"
-                        lines={config.chartLines}
-                        className="h-[450px]"
-                    />
-                </div>
-
-                {/* 3. Bottom Full Width List (If available) */}
-                {config.bottomListItems && (
-                    <div className="col-span-12">
+                    {/* 1. Top List (Right in RTL - displayed left in code order) */}
+                    <div className="col-span-12 lg:col-span-4">
                         <TopList
-                            title={config.bottomListName || ""}
-                            subtitle="القائمة السوداء"
-                            items={config.bottomListItems}
-                            icon={Flag}
-                            className="w-full"
-                            rankColor="text-red-500"
+                            title={config.topListName}
+                            subtitle={config.subtitle}
+                            items={config.topListItems}
+                            className="h-[450px]"
+                            icon={ChevronsUp}
+                            iconClassName="text-green-500"
                         />
                     </div>
-                )}
+
+                    {/* 2. Growth Chart (Left in RTL) */}
+                    <div className="col-span-12 lg:col-span-8">
+                        <GrowthChart
+                            data={config.chartData}
+                            title="تحليل النمو"
+                            lines={config.chartLines}
+                            className="h-[450px]"
+                        />
+                    </div>
+
+                    {/* 3. Bottom Full Width List (If available) */}
+                    {config.bottomListItems && (
+                        <div className="col-span-12">
+                            <TopList
+                                title={config.bottomListName || ""}
+                                subtitle="القائمة السوداء"
+                                items={config.bottomListItems}
+                                icon={Flag}
+                                className="w-full"
+                                rankColor="text-red-500"
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

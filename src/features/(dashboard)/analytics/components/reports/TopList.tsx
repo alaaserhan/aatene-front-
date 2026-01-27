@@ -65,7 +65,7 @@ export function TopList({ title, subtitle, items, className, icon: Icon, iconCla
                                         )}
                                     </div>
                                     <div className="flex flex-col  gap-1">
-                                        <span className="text-sm font-medium  line-clamp-1">{item.title.trim() || "-"}</span>
+                                        <span className="text-sm font-medium  line-clamp-1">{item.title?.trim() || "-"}</span>
                                         <div className="flex items-center gap-2 flex-wrap ">
                                             {item.subtitle && <span className="text-[11px] text-gray-2 font-medium">{item.subtitle}</span>}
                                             {item.badgeText && (

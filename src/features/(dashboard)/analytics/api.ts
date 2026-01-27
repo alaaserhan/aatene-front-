@@ -65,7 +65,7 @@ export interface AnalyticsStore {
 
 export interface AnalyticsUser {
     id: number;
-    fullname: string;
+    full_name: string;
     avatar: string | null;
     email: string;
     phone: string | null;
