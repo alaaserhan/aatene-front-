@@ -1,5 +1,43 @@
+import { format } from "date-fns";
+import { arSA } from "date-fns/locale";
+
+/**
+ * Converts a server date string (UTC) to a local Date object.
+ * Attempts to handle cases where the server string implies UTC but lacks the 'Z' suffix.
+ */
+export function toLocal(dateString: string | Date | null | undefined): Date {
+    if (!dateString) return new Date();
+    if (dateString instanceof Date) return dateString;
+
+    let str = String(dateString);
+    // If it looks like "yyyy-MM-dd HH:mm:ss" replacing space with T makes it ISO compatible
+    if (str.includes(" ")) {
+        str = str.replace(" ", "T");
+    }
+    // If it doesn't indicate timezone, assume UTC
+    if (!str.endsWith("Z") && !str.includes("+")) {
+        str += "Z";
+    }
+    return new Date(str);
+}
+
+export function formatDateTime(dateString: string | Date | null | undefined, pattern: string = "dd/MM/yyyy - hh:mm aa"): string {
+    if (!dateString) return "-";
+    const date = toLocal(dateString);
+    // Check for invalid date
+    if (isNaN(date.getTime())) return "-";
+    return format(date, pattern, { locale: arSA });
+}
+
+export function formatDate(dateString: string | Date | null | undefined, pattern: string = "dd/MM/yyyy"): string {
+    if (!dateString) return "-";
+    const date = toLocal(dateString);
+    if (isNaN(date.getTime())) return "-";
+    return format(date, pattern, { locale: arSA });
+}
+
 export function getRelativeTimeArabic(dateString: string): string {
-    const date = new Date(dateString);
+    const date = toLocal(dateString); // Use toLocal here as well for consistency
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
@@ -50,7 +88,7 @@ export function getRelativeTimeArabic(dateString: string): string {
 }
 
 export function formatDateArabic(dateString: string): string {
-    const date = new Date(dateString);
+    const date = toLocal(dateString);
     return date.toLocaleDateString('ar-EG', {
         year: 'numeric',
         month: 'numeric',

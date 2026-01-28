@@ -24,7 +24,7 @@ export function MessagesPage() {
 
     const getPlatformTitle = (id: string) => {
         switch (id) {
-            case "whatsapp": return "رسائل وتساب";
+            case "whatsapp": return "رسائل واتساب";
             case "messenger": return "رسائل ماسنجر";
             case "instagram": return "رسائل انستجرام";
             default: return "الرسائل";

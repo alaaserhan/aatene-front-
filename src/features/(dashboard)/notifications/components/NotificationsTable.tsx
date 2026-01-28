@@ -9,6 +9,8 @@ import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteMo
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { toast } from "sonner";
 import { cn } from "@/src/lib/utils";
+import { formatDateTime, formatDate, toLocal } from "@/src/lib/date-helper";
+import { format } from "date-fns";
 
 interface NotificationsTableProps {
     data: NotificationModel[];
@@ -81,9 +83,8 @@ export function NotificationsTable({ data, isLoading }: NotificationsTableProps)
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                         {data.map((row) => {
-                            const dateObj = new Date(row.created_at);
-                            const date = dateObj.toLocaleDateString("en-GB");
-                            const time = dateObj.toLocaleTimeString("en-US", { hour: 'numeric', minute: 'numeric', hour12: true });
+                            const date = formatDate(row.created_at, "dd-MM-yyyy");
+                            const time = format(toLocal(row.created_at), "hh:mm a");
 
                             const sendToMap: Record<string, string> = {
                                 all: "الكل",
@@ -170,9 +171,8 @@ export function NotificationsTable({ data, isLoading }: NotificationsTableProps)
             {/* --- Mobile View --- */}
             <div className="md:hidden space-y-4 pb-20">
                 {data.map((row) => {
-                    const dateObj = new Date(row.created_at);
-                    const date = dateObj.toLocaleDateString("en-GB");
-                    const time = dateObj.toLocaleTimeString("en-US", { hour: 'numeric', minute: 'numeric', hour12: true });
+                    const date = formatDate(row.created_at, "dd-MM-yyyy");
+                    const time = format(toLocal(row.created_at), "hh:mm a");
 
                     const sendToMap: Record<string, string> = {
                         all: "الكل",

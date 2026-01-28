@@ -2,8 +2,9 @@
 
 import { Loader2 } from "lucide-react";
 import { NotificationTemplate } from "../api";
-import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { useDeleteNotificationTemplate } from "../hooks";
+import { format } from "date-fns";
+import { formatDate, toLocal } from "@/src/lib/date-helper";
 
 interface NotificationTemplatesTableProps {
     data: NotificationTemplate[];
@@ -47,9 +48,8 @@ export function NotificationTemplatesTable({ data, isLoading, onEdit }: Notifica
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                     {data.map((row) => {
-                        const dateObj = new Date(row.created_at);
-                        const date = dateObj.toLocaleDateString("en-GB"); // e.g. 22-05-2025
-                        const time = dateObj.toLocaleTimeString("en-US", { hour: 'numeric', minute: 'numeric', hour12: true }); // e.g. 10am
+                        const date = formatDate(row.created_at, "dd-MM-yyyy");
+                        const time = format(toLocal(row.created_at), "hh:mm a");
 
                         return (
                             <tr key={row.id} className="hover:bg-gray-50/50 transition-colors">
@@ -66,11 +66,6 @@ export function NotificationTemplatesTable({ data, isLoading, onEdit }: Notifica
                                 {/* Actions */}
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2">
-                                        {/* <ToggleSwitch
-                                            enabled={row.is_active}
-                                            onChange={() => { }}
-                                        /> */}
-
                                         <button
                                             onClick={() => handleDelete(row.id)}
                                             disabled={deleteMutation.isPending}

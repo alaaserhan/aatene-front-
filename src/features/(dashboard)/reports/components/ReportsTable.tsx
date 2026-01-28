@@ -2,11 +2,12 @@
 "use client";
 
 import Link from "next/link";
-import { format, formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { Report } from "../api";
+import { toLocal, getRelativeTimeArabic, formatDateTime } from "@/src/lib/date-helper";
 
 const STATUS_STYLES: Record<string, string> = {
     pending: "bg-red-50 text-red-500",
@@ -100,13 +101,13 @@ export function ReportsTable({ reports, isLoading, showStore = true, emptyMessag
 
                                 <td className="px-6 py-4 whitespace-nowrap text-center">
                                     <span className="text-sm text-gray-2 font-medium">
-                                        {formatDistanceToNow(new Date(report.created_at), { addSuffix: true, locale: arSA })}
+                                        {getRelativeTimeArabic(String(report.created_at))}
                                     </span>
                                 </td>
 
                                 <td className="px-6 py-4 whitespace-nowrap text-center">
                                     <span className="text-sm font-medium" dir="ltr">
-                                        {format(new Date(report.created_at), "dd/MM/yyyy - hh:mm aa", { locale: arSA })}
+                                        {formatDateTime(report.created_at)}
                                     </span>
                                 </td>
 
