@@ -1,11 +1,8 @@
 // src/features/(dashboard)/ai-agent/components/KnowledgeBaseTable.tsx
 "use client";
 
-import { Trash2, FileText } from "lucide-react";
 import { DriveFile } from "../api";
-import { cn } from "@/src/lib/utils";
-import { format } from "date-fns";
-import { arSA } from "date-fns/locale";
+import { formatDateTime } from "@/src/lib/date-helper";
 
 interface KnowledgeBaseTableProps {
   files: DriveFile[];
@@ -44,10 +41,11 @@ export function KnowledgeBaseTable({ files, onDelete }: KnowledgeBaseTableProps)
                 </span>
               </td>
 
+
               {/* Date */}
               <td className="px-6 py-5 text-center">
                 <span className="text-sm font-medium " >
-                  {format(new Date(file.created_time), "yyyy-MM-dd - p", { locale: arSA })}
+                  {formatDateTime(file.created_time)}
                 </span>
               </td>
 

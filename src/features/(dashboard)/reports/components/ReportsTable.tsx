@@ -2,12 +2,11 @@
 "use client";
 
 import Link from "next/link";
-import { format } from "date-fns";
-import { arSA } from "date-fns/locale";
+
 import { Loader2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { Report } from "../api";
-import { toLocal, getRelativeTimeArabic, formatDateTime } from "@/src/lib/date-helper";
+import { getRelativeTimeArabic, formatDateTime } from "@/src/lib/date-helper";
 
 const STATUS_STYLES: Record<string, string> = {
     pending: "bg-red-50 text-red-500",

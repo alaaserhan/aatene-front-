@@ -3,8 +3,7 @@
 import { Eye, Pencil, Trash2, Star } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Blog } from "../api";
-import { format } from "date-fns";
-import { ar } from "date-fns/locale";
+import { formatDate } from "@/src/lib/date-helper";
 
 interface BlogsTableProps {
   data: Blog[];
@@ -75,10 +74,11 @@ export function BlogsTable({
                   <span className="text-sm text-gray-2">{blog.review_count || 0}</span>
                 </td>
 
+
                 <td className="px-6 py-4 text-center">
                   <span className="text-xs  font-medium">
                     {blog.created_at
-                      ? format(new Date(blog.created_at), "yyyy-MM-dd", { locale: ar })
+                      ? formatDate(blog.created_at)
                       : "-"}
                   </span>
                 </td>

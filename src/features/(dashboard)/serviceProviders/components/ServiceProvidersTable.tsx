@@ -13,6 +13,7 @@ import {
 import { Pagination } from "@/src/components/ui/Pagination";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Store } from "../../stores/api";
+import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 
 interface ServiceProvidersTableProps {
     stores: Store[];
@@ -85,7 +86,7 @@ export function ServiceProvidersTable({
                     <tbody className="divide-y divide-gray-100">
                         {stores.map((store) => {
                             const servicesCount = (store as Store).services_count || 0;
-                            const lastActive = "منذ 3 ساعات";
+                            const lastActive = store.owner?.last_login_at ? getRelativeTimeArabic(store.owner.last_login_at) : "-";
 
                             return (
                                 <tr key={store.id} className="hover:bg-gray-50/50 transition-colors">

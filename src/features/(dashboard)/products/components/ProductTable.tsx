@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { formatDate } from "@/src/lib/date-helper";
 import { MoreHorizontal, Share2, Eye, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Product } from "../api";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
@@ -131,8 +132,9 @@ export function ProductTable({
                                         )}
                                     </div>
                                 </td>
+
                                 <td className="px-6 py-4 text-sm  text-center font-medium">
-                                    {product.end_date || "-"}
+                                    {formatDate(product.end_date) || "-"}
                                 </td>
                                 <td className="px-6 py-4 text-sm  text-center font-medium">
                                     {product.favorites_count || 0}

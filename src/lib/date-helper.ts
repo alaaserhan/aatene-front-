@@ -36,7 +36,8 @@ export function formatDate(dateString: string | Date | null | undefined, pattern
     return format(date, pattern, { locale: arSA });
 }
 
-export function getRelativeTimeArabic(dateString: string): string {
+export function getRelativeTimeArabic(dateString: string | Date | null | undefined): string {
+    if (!dateString) return "-";
     const date = toLocal(dateString); // Use toLocal here as well for consistency
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
@@ -87,8 +88,10 @@ export function getRelativeTimeArabic(dateString: string): string {
     return `منذ ${diffInYears} سنة`;
 }
 
-export function formatDateArabic(dateString: string): string {
+export function formatDateArabic(dateString: string | Date | null | undefined): string {
+    if (!dateString) return "-";
     const date = toLocal(dateString);
+    if (isNaN(date.getTime())) return "-";
     return date.toLocaleDateString('ar-EG', {
         year: 'numeric',
         month: 'numeric',

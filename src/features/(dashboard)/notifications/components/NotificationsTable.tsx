@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit, RefreshCw, Trash2, Bell } from "lucide-react";
+import { Edit, RefreshCw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { NotificationModel } from "../api";
 import { useDeleteNotification, useResendNotification } from "../hooks";
@@ -9,7 +9,7 @@ import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteMo
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { toast } from "sonner";
 import { cn } from "@/src/lib/utils";
-import { formatDateTime, formatDate, toLocal } from "@/src/lib/date-helper";
+import { formatDate, toLocal } from "@/src/lib/date-helper";
 import { format } from "date-fns";
 
 interface NotificationsTableProps {

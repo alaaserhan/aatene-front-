@@ -23,6 +23,7 @@ export interface Banner {
   mobile_banner: string;
   labtop_banner_url?: string;
   mobile_banner_url?: string;
+  created_at: string;
 }
 
 export interface BaseResponse {

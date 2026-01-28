@@ -1,12 +1,11 @@
 // src/features/(dashboard)/ai-agent/components/ChatListSidebar.tsx
 "use client";
 
-import { Loader2, User } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useGetPlatformUsersInfo } from "../hooks";
 import { PlatformType } from "../api";
 import { cn } from "@/src/lib/utils";
-import { formatDistanceToNow } from "date-fns";
-import { arSA } from "date-fns/locale";
+import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 
 interface ChatListSidebarProps {
   platform: string;
@@ -68,9 +67,10 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsH
                 <h4 className="text-sm font-bold  truncate">
                   {user.user_info.first_name || user.user_info.phone_number}
                 </h4>
-                <span className="text-xs text-gray-2 shrink-0">
+
+                <span className="text-sm text-gray-2 shrink-0">
                   {user.last_message?.created_at
-                    ? formatDistanceToNow(new Date(user.last_message.created_at), { addSuffix: true, locale: arSA })
+                    ? getRelativeTimeArabic(user.last_message.created_at)
                     : "الآن"}
                 </span>
               </div>

@@ -4,6 +4,7 @@
 import { useState, useMemo } from "react";
 import { Search, HelpCircle, Loader2, Eye, Pencil, Circle, Plus } from "lucide-react";
 import { Banner } from "../api";
+import { formatDate } from "@/src/lib/date-helper";
 import {
   useGetBanners,
   useDeleteBanner,
@@ -217,9 +218,6 @@ export function BannersPage() {
                   <th className="px-4 py-4 text-start text-sm font-medium text-gray-1 ">
                     تاريخ البدء والانتهاء
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1 ">
-                    تاريخ الانشاء
-                  </th>
                   <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">
                     ترتيب العرض
                   </th>
@@ -293,19 +291,15 @@ export function BannersPage() {
                         </a>
                       </td>
 
+
                       <td className="px-4 py-4">
                         <div className="text-sm ">
                           <div className="whitespace-nowrap">
-                            {banner.start_date} / {banner.end_date}
+                            {formatDate(banner.start_date)} - {formatDate(banner.end_date)}
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-4 py-4">
-                        <span className="text-sm  whitespace-nowrap">
-                          {banner.start_date}
-                        </span>
-                      </td>
 
                       <td className="px-4 py-4">
                         <span className="text-sm   text-center block">

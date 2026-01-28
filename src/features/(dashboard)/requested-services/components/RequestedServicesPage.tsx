@@ -10,7 +10,7 @@ import {
   Loader2
 } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
+
 import { toast } from "sonner";
 
 import { useGetRequestedServices, useDeleteRequestedService, useUpdateRequestedServiceStatus } from "../hooks";
@@ -21,6 +21,7 @@ import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { cn } from "@/src/lib/utils";
 import { Button } from "@/src/components/ui/button";
+import { formatDate } from "@/src/lib/date-helper";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -231,7 +232,7 @@ export function RequestedServicesPage() {
           {idCell}
           {ownerCell}
           <td className="px-6 py-4 text-center text-sm font-medium dir-ltr">
-            {item.created_at ? format(new Date(item.created_at), "dd-MM-yyyy") : "-"}
+            {item.created_at ? formatDate(item.created_at, "dd-MM-yyyy") : "-"}
           </td>
           <td className="px-6 py-4 text-center">
             <div className="flex justify-center">

@@ -28,6 +28,7 @@ import { AbusiveComment } from "../api";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { formatDate } from "@/src/lib/date-helper";
 
 const SIDEBAR_TABS = [
     { name: "المستخدمين المسيئين", value: "abusive-users" },
@@ -213,14 +214,7 @@ export function AbusiveWordsPage() {
         });
     };
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-        }).replace(/\//g, "-");
-    };
+
 
     return (
         <div className="min-h-[calc(100vh-80px)]">
@@ -311,7 +305,7 @@ export function AbusiveWordsPage() {
                                                             </div>
                                                         </td>
                                                         <td className="p-4 text-gray-2">
-                                                            {formatDate(comment.created_at)}
+                                                            {formatDate(comment.created_at, "dd-MM-yyyy")}
                                                         </td>
                                                         <td className="p-4 text-center">
                                                             <span className="inline-flex items-center gap-1 px-3 py-2 bg-red-2 rounded-sm text-xs font-medium">
@@ -505,7 +499,7 @@ export function AbusiveWordsPage() {
                             <div>
                                 <h4 className="text-sm font-medium text-gray-2 mb-1">تاريخ النشر</h4>
                                 <p className="">
-                                    {formatDate(selectedComment.created_at)}
+                                    {formatDate(selectedComment.created_at, "dd-MM-yyyy")}
                                 </p>
                             </div>
                         </div>
