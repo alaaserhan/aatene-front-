@@ -8,11 +8,16 @@ import { useGetAnalyticsOverview } from "../hooks";
 export function ProductsAnalytics() {
     const { data, isLoading } = useGetAnalyticsOverview();
 
-    // تجهيز بيانات الشارت (أمس واليوم)
-    const barChartData = [
-        { name: "أمس", value: data?.totalProductsYesterday || 0 },
-        { name: "اليوم", value: data?.totalProductsThisDay || 0 },
-    ];
+    // تجهيز بيانات الشارت (آخر 7 أيام أو أمس واليوم كاحتياطي)
+    const barChartData = data?.productsGrowthLast7Days
+        ? data.productsGrowthLast7Days.map((item) => ({
+            name: item.date,
+            value: Number(item.total_count ?? 0),
+        }))
+        : [
+            { name: "أمس", value: data?.totalProductsYesterday || 0 },
+            { name: "اليوم", value: data?.totalProductsThisDay || 0 },
+        ];
 
     if (isLoading) {
         return (

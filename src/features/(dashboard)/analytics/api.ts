@@ -116,6 +116,7 @@ export interface OverviewAnalyticsResponse extends BaseResponse {
     totalProductsThisYear: number;
     storesGrowthLast7Days?: GrowthChartItem[];
     stores_growth_last_7_days?: GrowthChartItem[];
+    productsGrowthLast7Days?: GrowthChartItem[];
 }
 
 export interface LatestsAnalyticsResponse extends BaseResponse {
