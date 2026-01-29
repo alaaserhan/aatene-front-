@@ -242,6 +242,7 @@ export interface MerchantOverviewAnalyticsResponse extends BaseResponse {
     current_week_views: number;
     current_day_views: number;
     yesterday_views: number;
+    viewsGrowthLast7Days?: GrowthChartItem[];
 }
 
 export interface MerchantFollowersAnalyticsResponse extends BaseResponse {

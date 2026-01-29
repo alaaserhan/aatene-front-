@@ -8,11 +8,15 @@ import { useGetMerchantAnalyticsOverview } from "../../hooks";
 export function MerchantProfileViews() {
     const { data, isLoading } = useGetMerchantAnalyticsOverview();
 
-    // تجهيز بيانات الشارت (أمس واليوم) لتطابق نمط StoresAnalytics
-    const lineChartData = [
-        { name: "أمس", value: data?.yesterday_views || 0 },
-        { name: "اليوم", value: data?.current_day_views || 0 },
-    ];
+    const lineChartData = data?.viewsGrowthLast7Days
+        ? data.viewsGrowthLast7Days.map((item) => ({
+            name: item.date,
+            value: Number(item.total_count ?? 0),
+        }))
+        : [
+            { name: "أمس", value: data?.yesterday_views || 0 },
+            { name: "اليوم", value: data?.current_day_views || 0 },
+        ];
 
     // تنسيق الأرقام الكبيرة
     const formatNumber = (num: number) => {
