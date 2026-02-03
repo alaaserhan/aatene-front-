@@ -41,19 +41,26 @@ export interface SendCodeResponse {
   status: boolean;
   message: string;
   id: string; // The ID needed for resend/verify
+  code: string;
 }
 
-// Response for verifying password reset code (assuming structure)
+// Response for verifying password reset code
 export interface VerifyCodeResponse {
   status: boolean;
   message: string;
-  // Maybe returns a token if it logs the user in? Add if needed
-  // token?: string;
-  // user?: User;
+  verified: boolean;
+  id: string;
 }
 
-// Response for resending OTP code (assuming structure)
+// Response for resending OTP code
 export interface ResendCodeResponse {
+  status: boolean;
+  message: string;
+  id: string;
+  code: string;
+}
+
+export interface ResetPasswordResponse {
   status: boolean;
   message: string;
 }
@@ -84,10 +91,22 @@ export interface RegisterData {
 }
 
 export interface SendCodePayload {
-  identifier: string; // email or phone
+  identifier: string; // email@email.com
+}
+
+export interface ResendCodePayload {
+  id: string;
+  otp: boolean;
 }
 
 export interface VerifyCodePayload {
+  id: string;
   code: string;
-  password?: string;
+}
+
+export interface ResetPasswordPayload {
+  id: string;
+  code: string;
+  password: string;
+  password_confirmation: string;
 }

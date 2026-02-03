@@ -7,9 +7,12 @@ import {
   RegisterData,
   SendCodePayload,
   SendCodeResponse,
+  ResendCodePayload,
+  ResendCodeResponse,
   VerifyCodePayload,
   VerifyCodeResponse,
-  ResendCodeResponse,
+  ResetPasswordPayload,
+  ResetPasswordResponse,
 } from "./types";
 
 type Primitive = string | number | boolean;
@@ -73,46 +76,50 @@ export const logoutUser = async (): Promise<LogoutResponse> => {
   return data;
 };
 
-// Send Password Reset Code
-export const sendPasswordCode = async (
+// Send Code
+export const sendCode = async (
   payload: SendCodePayload
 ): Promise<SendCodeResponse> => {
   const formData = createFormData(payload);
-  const { data } = await api.post<SendCodeResponse>(
-    "/auth/password/send_code",
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
-  );
+  const { data } = await api.post<SendCodeResponse>("/auth/password/send_code", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return data;
 };
 
-// Verify Password Reset Code
-export const verifyPasswordCode = async (
-  id: string,
+// Resend Code
+export const resendCode = async (
+  payload: ResendCodePayload
+): Promise<ResendCodeResponse> => {
+  const { id, ...body } = payload;
+  const formData = createFormData(body);
+  const { data } = await api.post<ResendCodeResponse>(`/auth/otp/resend/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+};
+
+// Verify Code
+export const verifyCode = async (
   payload: VerifyCodePayload
 ): Promise<VerifyCodeResponse> => {
-  const formData = createFormData(payload);
-  const { data } = await api.post<VerifyCodeResponse>(
-    `/auth/password/verify_code/${id}`,
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
-  );
+  const { id, ...body } = payload;
+  const formData = createFormData(body);
+  const { data } = await api.post<VerifyCodeResponse>(`/auth/password/verify_code/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return data;
 };
 
-// Resend OTP Code
-export const resendOtpCode = async (id: string): Promise<ResendCodeResponse> => {
-  const formData = createFormData({ otp: "true" }); // As per image_3dccfe.png
-  const { data } = await api.post<ResendCodeResponse>(
-    `/auth/otp/resend/${id}`,
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
-  );
+// Reset Password
+export const resetPassword = async (
+  payload: ResetPasswordPayload
+): Promise<ResetPasswordResponse> => {
+  const { id, ...body } = payload;
+  const formData = createFormData(body);
+  const { data } = await api.post<ResetPasswordResponse>(`/auth/password/reset/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return data;
 };
+

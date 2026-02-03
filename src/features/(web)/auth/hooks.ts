@@ -7,9 +7,10 @@ import {
   loginUser,
   registerUser,
   logoutUser,
-  sendPasswordCode,
-  verifyPasswordCode,
-  resendOtpCode,
+  sendCode,
+  resendCode,
+  verifyCode,
+  resetPassword,
 } from "./api";
 import { useAuthStore } from "@/src/stores/auth-store"; // Import the store
 import { toast } from "sonner"; // For specific success/error messages if needed
@@ -87,57 +88,46 @@ export const useLogout = () => {
     },
   });
 };
-
-// --- Send Password Reset Code Hook ---
-export const useSendPasswordCode = () => {
+// --- Send Code Hook ---
+export const useSendCode = () => {
   return useMutation({
-    mutationFn: sendPasswordCode,
+    mutationFn: sendCode,
     onSuccess: (data) => {
-      toast.success(data.message || "Password reset code sent!");
-      // Usually navigate to the Verify Code screen here, passing the 'id'
-    },
-    onError: () => {
+      toast.success(data.message || "Code sent successfully!");
     },
   });
 };
 
-// --- Verify Password Reset Code Hook ---
-export const useVerifyPasswordCode = () => {
-  const router = useRouter();
-  const lang = useLanguage();
-  // Potentially log user in if API returns token
-  // const loginToStore = useAuthStore((state) => state.login);
-
+// --- Resend Code Hook ---
+export const useResendCode = () => {
   return useMutation({
-    // mutationFn expects ONE argument, so wrap if needed
-    mutationFn: (variables: { id: string; code: string; password?: string }) =>
-      verifyPasswordCode(variables.id, {
-        code: variables.code,
-        password: variables.password,
-      }),
-    onSuccess: (data) => {
-      toast.success(data.message || "Password reset successful!");
-      // Redirect to login page
-      router.push(`/${lang}/login`);
-      // If verify logs the user in:
-      // if (data.token && data.user) {
-      //   loginToStore(data.token, data.user);
-      //   router.push(`/${lang}/`);
-      // }
-    },
-    onError: () => {
-    },
-  });
-};
-
-// --- Resend OTP Code Hook ---
-export const useResendOtpCode = () => {
-  return useMutation({
-    mutationFn: resendOtpCode, // Assumes it takes only id
+    mutationFn: resendCode,
     onSuccess: (data) => {
       toast.success(data.message || "Code resent successfully!");
     },
-    onError: () => {
+  });
+};
+
+// --- Verify Code Hook ---
+export const useVerifyCode = () => {
+  return useMutation({
+    mutationFn: verifyCode,
+    onSuccess: (data) => {
+      toast.success(data.message || "Code verified successfully!");
+    },
+  });
+};
+
+// --- Reset Password Hook ---
+export const useResetPassword = () => {
+  const router = useRouter();
+  const lang = useLanguage();
+
+  return useMutation({
+    mutationFn: resetPassword,
+    onSuccess: (data) => {
+      toast.success(data.message || "Password reset successfully!");
+      router.push(`/${lang}/login`);
     },
   });
 };
