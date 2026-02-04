@@ -30,8 +30,6 @@ export default async function HomePage({
   const t = await getI18n();
 
   return (
-    <div className="container mx-auto py-10 ">
-      <h1 className="text-4xl font-bold py-4 text-center">أهلاً بك في {t('site.name')} <span className="text-gray-2 text-base ">جاري تطوير الموقع ...</span></h1>
-    </div>
+    <p>جاري تطوير الموقع ...</p>
   );
 }

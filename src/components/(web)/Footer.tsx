@@ -60,7 +60,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer dir="rtl" style={footerStyle} className="bg-white text-gray-700 border-t border-gray-200 ">
+    <footer dir="rtl"  className="bg-white shadow-xs text-gray-700 ">
       {/* Main Footer Content */}
       <div className="bg-white container my-6 sm:my-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8">

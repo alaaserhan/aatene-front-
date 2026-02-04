@@ -41,7 +41,7 @@ const Navbar = () => {
   ) || [];
 
   return (
-    <div className="w-full shadow-sm" dir="rtl">
+    <div className="w-full shadow-xs bg-white min-h-[72px] flex items-center" dir="rtl">
       {/* Mobile Navigation */}
       <MobileNav
         searchQuery={searchQuery}
