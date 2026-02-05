@@ -35,10 +35,10 @@ const QK = {
     },
 };
 
-export const useGetFavoriteLists = () => {
+export const useGetFavoriteLists = (type?: string) => {
     return useQuery({
-        queryKey: QK.list(),
-        queryFn: () => getFavoriteLists(),
+        queryKey: [...QK.list(), type],
+        queryFn: () => getFavoriteLists(type),
     });
 };
 

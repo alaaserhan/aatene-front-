@@ -97,8 +97,10 @@ export interface FavoriteItemsResponse extends BaseResponse {
     total: number;
 }
 
-export const getFavoriteLists = async (): Promise<FavoriteListsResponse> => {
-    const endpoint = "/favorite-lists";
+export const getFavoriteLists = async (
+    type?: string
+): Promise<FavoriteListsResponse> => {
+    const endpoint = type ? `/favorite-lists?type=${type}` : "/favorite-lists";
     const { data } = await api.get<FavoriteListsResponse>(endpoint);
     return data;
 };
