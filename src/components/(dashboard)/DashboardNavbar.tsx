@@ -542,7 +542,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                           {
                             isAdmin && (
                               <Link
-                                href={`/${lang}/admin/settings`}
+                                href={`/${lang}/settings`}
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="flex items-center gap-3 text-sm text-gray-600"
                               >

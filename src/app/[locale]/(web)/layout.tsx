@@ -11,7 +11,7 @@ export default function WebLayout({
   return (
     <div className="flex flex-col min-h-screen justify-between">
       <Navbar />
-      <main className="flex-1 flex flex-col">{children}</main>
+      <main className="flex-1 flex flex-col bg-white">{children}</main>
       <Footer />
     </div>
   );

@@ -167,7 +167,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               <span dir="ltr" className="font-medium">استعلام عن شكوى</span>
             </Link>
 
-            <Link href={`/${lang}/profile`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
+            <Link href={`/${lang}/settings`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
               <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
                 <Settings size={12} />
               </div>
@@ -301,7 +301,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               <span dir="ltr" className="font-medium">استعلام عن شكوى</span>
             </Link>
 
-            <Link href={`/${lang}/profile`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
+            <Link href={`/${lang}/settings`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
               <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
                 <Settings size={12} />
               </div>
