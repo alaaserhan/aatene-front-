@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import api from "@/src/lib/axios";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useLogout } from "@/src/features/(web)/auth/hooks";
+import { useConvertToMerchant } from "@/src/features/(web)/settings/hooks";
 import { Button } from "../ui/button";
 
 interface UserMenuProps {
@@ -20,31 +21,17 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
   const user = useAuthStore((state) => state.user);
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const lang = useLanguage();
   const { mutate: logoutMutation } = useLogout();
+  const { mutate: convertToMerchant, isPending: isLoading } = useConvertToMerchant();
 
-  const handleTheClientClick = async () => {
-    try {
-      setIsLoading(true);
-      const response = await api.post("/convert-to-merchant", {});
-
-      if (response.data.status) {
-        toast.success("تم التحويل لتاجر بنجاح");
-
-        // ✅ التعديل هنا: تسجيل الخروج بدلاً من إعادة تحميل الصفحة
-        logoutMutation();
-
+  const handleTheClientClick = () => {
+    convertToMerchant(undefined, {
+      onSuccess: () => {
         setIsOpen(false);
         onClose?.();
-      } else {
-        throw new Error(response.data.message);
       }
-    } catch (error) {
-      toast.error("حدث خطأ ما");
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   const handleLinkClick = () => {

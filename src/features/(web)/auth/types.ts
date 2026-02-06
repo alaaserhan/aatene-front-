@@ -4,7 +4,7 @@
 export interface User {
   id: number;
   fullname: string;
-  avatar: string;
+  avatar: string | null;
   avatar_url: string | null;
   first_name: string;
   last_name: string;
@@ -14,8 +14,8 @@ export interface User {
   gender: string | null;
   referral_code: string | null;
   last_login_at: string; // ISO date string
-  followers_count: number;
-  followings_count: number;
+  followers_count: number | string;
+  followings_count: number | string;
   bio: string | null;
   date_of_birth: string | null; // Assuming ISO date string or similar
   user_type: string; // e.g., "client"

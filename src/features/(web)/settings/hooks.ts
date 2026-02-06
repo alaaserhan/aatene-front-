@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useAuthStore } from "@/src/stores/auth-store";
 import {
     getCities,
     getCity,
@@ -230,7 +231,13 @@ export const useDeleteHighlight = () => {
 export const useGetAccount = () => {
     return useQuery({
         queryKey: QK.account.profile,
-        queryFn: getAccount,
+        queryFn: async () => {
+            const data = await getAccount();
+            if (data?.user) {
+                useAuthStore.getState().updateUser(data.user);
+            }
+            return data;
+        },
     });
 };
 
@@ -238,8 +245,11 @@ export const useUpdateAvatar = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (avatar: File) => updateAvatar(avatar),
-        onSuccess: () => {
+        onSuccess: (data) => {
             toast.success("Avatar updated successfully");
+            if (data?.data?.avatar) {
+                useAuthStore.getState().updateUser({ avatar: data.data.avatar });
+            }
         },
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.account.profile });
@@ -251,8 +261,15 @@ export const useUpdateAccount = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (payload: UpdateAccountPayload) => updateAccount(payload),
-        onSuccess: (data) => {
+        onSuccess: (data, variables) => {
             toast.success(data.message || "Account updated successfully");
+            // Update auth store with the new data
+            useAuthStore.getState().updateUser({
+                first_name: variables.first_name,
+                last_name: variables.last_name,
+                // fullname might need to be constructed if the store uses it
+                fullname: `${variables.first_name} ${variables.last_name}`,
+            });
         },
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.account.profile });
@@ -264,8 +281,9 @@ export const useUpdateEmail = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (email: string) => updateEmail(email),
-        onSuccess: (data) => {
+        onSuccess: (data, variables) => {
             toast.success(data.message || "Email updated successfully");
+            useAuthStore.getState().updateUser({ email: variables });
         },
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.account.profile });
@@ -277,8 +295,9 @@ export const useUpdatePhone = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (phone: string) => updatePhone(phone),
-        onSuccess: (data) => { // BaseResponse
+        onSuccess: (data, variables) => { // BaseResponse
             toast.success(data.message || "Phone updated successfully");
+            useAuthStore.getState().updateUser({ phone: variables });
         },
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.account.profile });
@@ -321,6 +340,7 @@ export const useConvertToMerchant = () => {
         mutationFn: convertToMerchant,
         onSuccess: () => {
             toast.success("Account converted to merchant successfully");
+            useAuthStore.getState().updateUser({ user_type: "merchant" });
         },
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.account.profile });

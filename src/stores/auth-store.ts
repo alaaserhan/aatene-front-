@@ -11,6 +11,7 @@ interface AuthState {
   login: (token: string, userData: User) => void;
   logout: () => void;
   hydrate: () => void;
+  updateUser: (userData: Partial<User>) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -37,6 +38,13 @@ export const useAuthStore = create<AuthState>()(
         Cookies.remove("current_store_id");
         Cookies.remove("store_type");
         set({ isLoggedIn: false, user: null });
+      },
+
+      updateUser: (userData) => {
+        const currentUser = get().user;
+        if (currentUser) {
+          set({ user: { ...currentUser, ...userData } });
+        }
       },
 
       hydrate: () => {
