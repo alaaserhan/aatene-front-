@@ -302,7 +302,7 @@ export default function PersonalInfoTab() {
                                     className="w-full px-6 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-gray-400 text-right resize-none placeholder:text-gray-300 transition-colors"
                                 />
                             </div>
-                            <div className="flex justify-between items-center text-xs text-gray-400 mt-1">
+                            <div className="flex justify-between items-center text-xs text-gray-400 ">
                                 <div className="flex items-center gap-1.5 ">
                                     <div className="w-4 h-4 rounded-full border border-blue-3 flex items-center justify-center text-blue-3 text-[11px] font-medium">i</div>
                                     <span className="text-right">لا بأس إن تجاوز النص 300 كلمة، يسمح بمرونة في عدد الكلمات حسب الحاجة.</span>

@@ -2,6 +2,7 @@
 
 import { SettingsTab } from "../SettingsPage";
 import { cn } from "@/src/lib/utils";
+import { useAuthStore } from "@/src/stores/auth-store";
 import {
     User,
     Mail,
@@ -30,7 +31,7 @@ interface TabItem {
     danger?: boolean;
 }
 
-const tabs: TabItem[] = [
+const allTabs: TabItem[] = [
     {
         id: "account",
         label: "معلومات الحساب",
@@ -97,6 +98,15 @@ export default function SettingsSidebar({
     activeTab,
     onTabChange,
 }: SettingsSidebarProps) {
+    const user = useAuthStore((state) => state.user);
+
+    const tabs = allTabs.filter(tab => {
+        if (tab.id === "merchant") {
+            return user?.user_type === "client";
+        }
+        return true;
+    });
+
     const handleLogout = () => {
         // TODO: Implement logout logic
         console.log("Logout clicked");

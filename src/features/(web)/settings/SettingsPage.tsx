@@ -3,6 +3,12 @@
 import { useState } from "react";
 import SettingsSidebar from "./components/SettingsSidebar";
 import PersonalInfoTab from "./components/tabs/PersonalInfoTab";
+import EmailTab from "./components/tabs/EmailTab";
+import PhoneTab from "./components/tabs/PhoneTab";
+import PasswordTab from "./components/tabs/PasswordTab";
+import MerchantTab from "./components/tabs/MerchantTab";
+import BlockedTab from "./components/tabs/BlockedTab";
+import NotificationsTab from "./components/tabs/NotificationsTab";
 
 export type SettingsTab =
     | "account"
@@ -25,19 +31,19 @@ export default function SettingsPage() {
             case "account":
                 return <PersonalInfoTab />;
             case "email":
-                return <div className="text-center py-10">بريد إلكتروني - قريبًا</div>;
+                return <EmailTab />;
             case "phone":
-                return <div className="text-center py-10">رقم الهاتف - قريبًا</div>;
+                return <PhoneTab />;
             case "password":
-                return <div className="text-center py-10">كلمة المرور - قريبًا</div>;
+                return <PasswordTab />;
             case "merchant":
-                return <div className="text-center py-10">كن تاجر - قريبًا</div>;
+                return <MerchantTab />;
             case "blocked":
-                return <div className="text-center py-10">قائمة الحظر - قريبًا</div>;
+                return <BlockedTab />;
             case "followers":
                 return <div className="text-center py-10">قائمة المتابعين - قريبًا</div>;
             case "notifications":
-                return <div className="text-center py-10">إعدادات التنبيهات - قريبًا</div>;
+                return <NotificationsTab />;
             case "stories":
                 return <div className="text-center py-10">القصص والهايلايت - قريبًا</div>;
             case "topic":

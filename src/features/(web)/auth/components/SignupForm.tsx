@@ -66,7 +66,13 @@ export function SignupForm() {
   const onSubmit = (data: SignupFormData) => {
     const { confirmPassword, terms, ...credentials } = data;
 
-    signupMutation(credentials, {
+    // Combine country code and phone number. 
+    // If the phone starts with 0, we usually strip it when prepending country code, 
+    // but the backend error suggests it might want a specific format. 
+    // Let's prepend the code.
+    const formattedPhone = `${countryCode}${data.phone.startsWith('0') ? data.phone.slice(1) : data.phone}`;
+
+    signupMutation({ ...credentials, phone: formattedPhone }, {
       onError: (error) => {
         form.clearErrors();
         if (error instanceof AxiosError) {

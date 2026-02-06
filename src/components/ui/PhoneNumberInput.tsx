@@ -9,6 +9,7 @@ import { ChevronDown } from "lucide-react";
 interface PhoneNumberInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     error?: string;
+    required?: boolean;
     countryCode: string;
     onCountryCodeChange: (value: string) => void;
     containerClassName?: string;
@@ -31,6 +32,7 @@ const PhoneNumberInput = React.forwardRef<
         {
             label,
             error,
+            required,
             countryCode,
             onCountryCodeChange,
             className,
@@ -47,31 +49,8 @@ const PhoneNumberInput = React.forwardRef<
         const [isOpen, setIsOpen] = React.useState(false);
         const dropdownRef = React.useRef<HTMLDivElement>(null);
 
-        const currentRule = COUNTRY_RULES[countryCode] || { min: 8, max: 15, name: "" };
-        const inputValue = String(value || "");
-        const currentLength = inputValue.length;
-
-        // منطق التحقق الجديد
-        let customError = null;
-
-        if (currentLength > 0) {
-            // 1. التحقق من أن المدخلات أرقام فقط
-            const isNumeric = /^\d+$/.test(inputValue);
-
-            if (!isNumeric) {
-                customError = "يجب إدخال أرقام فقط";
-            } else {
-                // 2. إذا كانت أرقاماً، نتحقق من الطول
-                if (currentLength < currentRule.min) {
-                    customError = `رقم الهاتف يجب أن يكون ${currentRule.min} أرقام على الأقل`;
-                } else if (currentLength > currentRule.max) {
-                    customError = `رقم الهاتف لا يجب أن يتجاوز ${currentRule.max} رقمًا`;
-                }
-            }
-        }
-
-        // الأولوية للخطأ القادم من الخارج (مثل react-hook-form) ثم خطأ التحقق الداخلي
-        const errorMessage = error || customError;
+        // Remove complex internal validation per user request
+        const errorMessage = error;
 
         // Calculate radius classes
         const containerRounded = rounded || (roundedFull ? "rounded-full" : "rounded-lg");
@@ -93,6 +72,7 @@ const PhoneNumberInput = React.forwardRef<
             <div className={cn("space-y-2", containerClassName)}>
                 <label className="block text-sm font-medium text-start">
                     {label}
+                    {required && <span className="text-red-500 mr-1">*</span>}
                 </label>
 
                 <div
