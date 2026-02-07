@@ -121,7 +121,7 @@ export function DashboardUserMenu() {
                 >
                     <Avatar className="w-10 h-10 border-2 border-white group-hover:border-blue-100 transition-colors">
                         {/* هنا في الزر الخارجي، نعرض صورة المستخدم كما هي */}
-                        <AvatarImage src={user?.avatar} alt={user?.fullname} />
+                        <AvatarImage src={user?.avatar || undefined} alt={user?.fullname} />
                         <AvatarFallback className="bg-blue-4 text-white">
                             {user?.fullname?.[0]?.toUpperCase()}
                         </AvatarFallback>
