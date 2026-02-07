@@ -137,14 +137,14 @@ const SearchBar = ({
     <div className="relative flex">
       <input
         type="text"
-        className="w-full border border-[#287CDA] rounded-md h-10 py-2 pr-3 focus:outline-none"
+        className="w-full border border-blue-4 rounded-md h-10 py-2 pr-3 focus:outline-none"
         placeholder="البحث"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         onKeyPress={handleKeyPress}
       />
       <button
-        className="absolute cursor-pointer left-0 top-0 lg:text-base text-sm bg-[#287CDA] text-white px-6 rounded-l-md h-10 flex items-center"
+        className="absolute cursor-pointer left-0 top-0 lg:text-base text-sm bg-blue-4 text-white px-6 rounded-l-md h-10 flex items-center"
         aria-label="بحث"
         onClick={handleSearch}
       >
@@ -170,7 +170,7 @@ const SearchBar = ({
               role="listbox"
             >
               <button
-                className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${selectedCategory.id === null ? 'bg-gray-50 text-[#287CDA] font-medium' : 'text-gray-700'
+                className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${selectedCategory.id === null ? 'bg-gray-50 text-blue-4 font-medium' : 'text-gray-2'
                   }`}
                 onClick={() => handleCategorySelect({ id: null, name: "جميع الفئات" })}
                 role="option"
@@ -181,7 +181,7 @@ const SearchBar = ({
               {categories.map((category) => (
                 <button
                   key={category.id}
-                  className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${selectedCategory.id === category.id ? 'bg-gray-50 text-[#287CDA] font-medium' : 'text-gray-700'
+                  className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${selectedCategory.id === category.id ? 'bg-gray-50 text-blue-4 font-medium' : 'text-gray-2'
                     }`}
                   onClick={() => handleCategorySelect({ id: category.id, name: category.name })}
                   role="option"

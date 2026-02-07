@@ -89,7 +89,7 @@ export function SearchBar({ categories, isLoadingCategories, currentLocale }: Se
     <div className="relative flex w-full">
       <Input
         type="text"
-        className="h-10 rounded-r-none border-primary focus-visible:ring-primary rtl:rounded-l-none rtl:rounded-r-md"
+        className="h-10 rounded-r-none border-blue-3 focus-visible:ring-blue-3 rtl:rounded-l-none rtl:rounded-r-md"
         placeholder={t('search_placeholder')}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}

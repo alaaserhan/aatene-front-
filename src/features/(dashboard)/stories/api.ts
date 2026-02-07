@@ -6,15 +6,15 @@ import Cookies from "js-cookie";
 export interface Story {
   id: number;
   image: string | null;
-  text: string;
-  color: string;
+  text: string | null;
+  color: string | null;
   created_at: string;
 }
 
 export interface Highlight {
   id: number;
   name: string;
-  stories: Story[]; 
+  stories: Story[];
 }
 export interface BaseResponse {
   status: boolean;
@@ -43,14 +43,14 @@ export interface SingleHighlightResponse extends BaseResponse {
 
 export interface CreateStoryPayload {
   image: string | null;
-  text: string;
-  color: string;
+  text: string | null;
+  color: string | null;
 }
 
 export interface UpdateStoryPayload {
   image: string | null;
-  text: string;
-  color: string;
+  text: string | null;
+  color: string | null;
 }
 
 export interface CreateHighlightPayload {
@@ -141,7 +141,7 @@ export const getHighlights = async (
   storeId?: number | string
 ): Promise<HighlightsResponse> => {
   const endpoint = getDynamicEndpoint("/highlights");
-  const headers = getHeaders(storeId); 
+  const headers = getHeaders(storeId);
   const { data } = await api.get<HighlightsResponse>(endpoint, { headers });
   return data;
 };

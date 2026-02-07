@@ -17,10 +17,21 @@ import { Button } from "@/src/components/ui/button";
 
 interface StoriesListProps {
   stories: Story[];
-  storeId: number;
+  onCreateStory: (payload: any, onSuccess?: () => void) => void;
+  onUpdateStory: (id: number, payload: any, onSuccess?: () => void) => void;
+  onDeleteStory: (id: number) => void;
+  isPending: boolean;
+  MediaPickerComponent: React.ComponentType<any>;
 }
 
-export function StoriesList({ stories, storeId }: StoriesListProps) {
+export function StoriesList({
+  stories,
+  onCreateStory,
+  onUpdateStory,
+  onDeleteStory,
+  isPending,
+  MediaPickerComponent
+}: StoriesListProps) {
   // States for Add Modal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addMode, setAddMode] = useState<"text" | "media">("text");
@@ -38,6 +49,13 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
   const handleStoryClick = (index: number) => {
     setInitialStoryIndex(index);
     setIsShowModalOpen(true);
+  };
+
+  // Function to handle update from ShowStoryModal which passes payload directly
+  const handleUpdateFromModal = (payload: any, onSuccess?: () => void) => {
+    if (initialStoryIndex !== null && stories[initialStoryIndex]) {
+      onUpdateStory(stories[initialStoryIndex].id, payload, onSuccess);
+    }
   };
 
   return (
@@ -88,11 +106,11 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
 
       {/* Empty State */}
       {stories.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center bg-white rounded-xl border border-dashed border-gray-200 m-2">
-          <div className="relative mb-4">
-            <img src="/icons/dashboard/emptyStories.svg" alt="" className="h-44 opacity-80" />
+        <div className="flex flex-col items-center justify-center py-5.5 text-center bg-white rounded-xl border border-dashed border-gray-200 m-2">
+          <div className="relative mb-2">
+            <img src="/icons/dashboard/emptyStories.svg" alt="" className="h-47 opacity-80" />
           </div>
-          <h3 className="text-lg font-bold mb-1 ">لا يوجد قصص حتي الان</h3>
+          <h3 className="text-lg font-medium ">لا يوجد قصص حتي الان</h3>
           <p className="text-gray-2 text-sm">بمجرد متابعتك من احد الاشخاص سيظهر هنا من يتابعك</p>
         </div>
       ) : (
@@ -101,7 +119,7 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
           {stories.map((story, index) => (
             // ✅ 4. جعل العنصر قابلاً للضغط وتمرير الاندكس
             <div key={story.id} onClick={() => handleStoryClick(index)} className="cursor-pointer">
-              <StoryItem story={story} storeId={storeId} />
+              <StoryItem story={story} onDelete={onDeleteStory} />
             </div>
           ))}
         </div>
@@ -112,7 +130,9 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         mode={addMode}
-        storeId={storeId}
+        onSave={onCreateStory}
+        isPending={isPending}
+        MediaPickerComponent={MediaPickerComponent}
       />
 
       {/* ✅ 5. عرض مودال عرض القصص */}
@@ -121,7 +141,10 @@ export function StoriesList({ stories, storeId }: StoriesListProps) {
         onClose={() => setIsShowModalOpen(false)}
         stories={stories}
         initialIndex={initialStoryIndex}
-        storeId={storeId}
+        onDelete={onDeleteStory}
+        onSave={handleUpdateFromModal}
+        isPending={isPending}
+        MediaPickerComponent={MediaPickerComponent}
       />
     </div>
   );

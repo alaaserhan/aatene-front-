@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+
 import SettingsSidebar from "./components/SettingsSidebar";
 import PersonalInfoTab from "./components/tabs/PersonalInfoTab";
 import EmailTab from "./components/tabs/EmailTab";
@@ -9,6 +9,7 @@ import PasswordTab from "./components/tabs/PasswordTab";
 import MerchantTab from "./components/tabs/MerchantTab";
 import BlockedTab from "./components/tabs/BlockedTab";
 import NotificationsTab from "./components/tabs/NotificationsTab";
+import { StoriesTab } from "./components/tabs/StoriesTab";
 
 export type SettingsTab =
     | "account"
@@ -23,8 +24,18 @@ export type SettingsTab =
     | "topic"
     | "logout";
 
+import { useRouter, useSearchParams } from "next/navigation";
+
 export default function SettingsPage() {
-    const [activeTab, setActiveTab] = useState<SettingsTab>("account");
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const activeTab = (searchParams.get("tab") as SettingsTab) || "account";
+
+    const setActiveTab = (tab: SettingsTab) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("tab", tab);
+        router.push(`?${params.toString()}`);
+    };
 
     const renderContent = () => {
         switch (activeTab) {
@@ -45,7 +56,7 @@ export default function SettingsPage() {
             case "notifications":
                 return <NotificationsTab />;
             case "stories":
-                return <div className="text-center py-10">القصص والهايلايت - قريبًا</div>;
+                return <StoriesTab />;
             case "topic":
                 return <div className="text-center py-10">أضف موضوع - قريبًا</div>;
             default:

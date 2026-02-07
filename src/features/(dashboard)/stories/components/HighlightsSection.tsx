@@ -11,10 +11,20 @@ import { cn } from "@/src/lib/utils";
 interface HighlightsSectionProps {
   highlights: Highlight[];
   stories: Story[];
-  storeId: number;
+  onCreateHighlight: (payload: any, onSuccess?: () => void) => void;
+  onUpdateHighlight: (id: number, payload: any, onSuccess?: () => void) => void;
+  onDeleteHighlight: (id: number) => void;
+  isPending: boolean;
 }
 
-export function HighlightsSection({ highlights, stories, storeId }: HighlightsSectionProps) {
+export function HighlightsSection({
+  highlights,
+  stories,
+  onCreateHighlight,
+  onUpdateHighlight,
+  onDeleteHighlight,
+  isPending
+}: HighlightsSectionProps) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const [isShowModalOpen, setIsShowModalOpen] = useState(false);
@@ -32,6 +42,13 @@ export function HighlightsSection({ highlights, stories, storeId }: HighlightsSe
     return highlight.stories[highlight.stories.length - 1];
   };
 
+  // Function to handle update from ShowHighlightModal
+  const handleUpdateFromModal = (payload: any, onSuccess?: () => void) => {
+    if (selectedHighlight) {
+      onUpdateHighlight(selectedHighlight.id, payload, onSuccess);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
@@ -39,7 +56,7 @@ export function HighlightsSection({ highlights, stories, storeId }: HighlightsSe
         <h2 className="text-lg font-bold ">القصص المميزة (highlights)</h2>
       </div>
 
-      <div className="flex items-start gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-200">
+      <div className="flex items-start gap-0 sm:gap-2 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-200">
 
         {/* زر إضافة جديد */}
         <div className="flex flex-col items-center gap-2 cursor-pointer group" onClick={() => setIsCreateModalOpen(true)}>
@@ -92,8 +109,9 @@ export function HighlightsSection({ highlights, stories, storeId }: HighlightsSe
       <CreateHighlightModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        storeId={storeId}
         availableStories={stories}
+        onSave={onCreateHighlight}
+        isPending={isPending}
       />
 
       <ShowHighlightModal
@@ -101,7 +119,9 @@ export function HighlightsSection({ highlights, stories, storeId }: HighlightsSe
         onClose={() => setIsShowModalOpen(false)}
         highlight={selectedHighlight}
         allStories={stories}
-        storeId={storeId}
+        onDelete={onDeleteHighlight}
+        onSave={handleUpdateFromModal}
+        isPending={isPending}
       />
     </div>
   );

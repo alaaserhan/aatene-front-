@@ -18,7 +18,6 @@ import {
     PopoverContent,
     PopoverTrigger
 } from "@/src/components/ui/popover";
-import { useDeleteHighlight } from "../hooks";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { CreateHighlightModal } from "./CreateHighlightModal";
 
@@ -27,7 +26,9 @@ interface ShowHighlightModalProps {
     onClose: () => void;
     highlight: Highlight | null;
     allStories: Story[];
-    storeId: number;
+    onDelete: (id: number) => void;
+    onSave: (payload: any, onSuccess?: () => void) => void;
+    isPending: boolean;
 }
 
 export function ShowHighlightModal({
@@ -35,13 +36,13 @@ export function ShowHighlightModal({
     onClose,
     highlight,
     allStories,
-    storeId
+    onDelete,
+    onSave,
+    isPending
 }: ShowHighlightModalProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-    const { mutate: deleteHighlight } = useDeleteHighlight();
 
     // ✅ تحديث: استخدام القصص من الهايلايت مباشرة
     const highlightStories = highlight?.stories || [];
@@ -65,12 +66,9 @@ export function ShowHighlightModal({
     };
 
     const handleDelete = () => {
-        deleteHighlight({ id: String(highlight.id), storeId: String(storeId) }, {
-            onSuccess: () => {
-                onClose();
-                setIsMenuOpen(false);
-            }
-        });
+        onDelete(highlight.id);
+        onClose();
+        setIsMenuOpen(false);
     };
 
     const handleEdit = () => {
@@ -171,7 +169,7 @@ export function ShowHighlightModal({
 
                                                     <div className="flex items-center gap-3">
                                                         <div className="flex flex-col text-right text-white">
-                                                            <span className="text-sm font-bold">{highlight.name}</span>
+                                                            <span className="text-xs font-bold">{highlight.name}</span>
                                                             <span className="text-xs opacity-80">{getTimeAgo(story.created_at)}</span>
                                                         </div>
                                                     </div>
@@ -235,9 +233,10 @@ export function ShowHighlightModal({
                 <CreateHighlightModal
                     isOpen={isEditModalOpen}
                     onClose={() => setIsEditModalOpen(false)}
-                    storeId={storeId}
                     availableStories={allStories}
                     highlightToEdit={highlight}
+                    onSave={onSave}
+                    isPending={isPending}
                 />
             )}
         </>

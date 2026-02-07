@@ -22,7 +22,6 @@ import {
     PopoverTrigger
 } from "@/src/components/ui/popover";
 import { toast } from "sonner";
-import { useDeleteStory } from "../hooks";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { AddStoryModal } from "./AddStoryModal";
 
@@ -31,7 +30,10 @@ interface ShowStoryModalProps {
     onClose: () => void;
     stories: Story[];
     initialIndex: number;
-    storeId: number;
+    onDelete: (id: number) => void;
+    onSave: (payload: any, onSuccess?: () => void) => void;
+    isPending: boolean;
+    MediaPickerComponent: React.ComponentType<any>;
 }
 
 export function ShowStoryModal({
@@ -39,10 +41,12 @@ export function ShowStoryModal({
     onClose,
     stories,
     initialIndex,
-    storeId
+    onDelete,
+    onSave,
+    isPending,
+    MediaPickerComponent
 }: ShowStoryModalProps) {
     const [activeIndex, setActiveIndex] = useState(initialIndex);
-    const { mutate: deleteStory } = useDeleteStory();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     // حالة لفتح مودال التعديل
@@ -124,16 +128,13 @@ export function ShowStoryModal({
     };
 
     const handleDelete = () => {
-        deleteStory({ id: String(activeStory.id), storeId: String(storeId) }, {
-            onSuccess: () => {
-                if (stories.length === 1) {
-                    onClose();
-                } else if (activeIndex === stories.length - 1) {
-                    setActiveIndex(prev => prev - 1);
-                }
-                setIsMenuOpen(false);
-            }
-        });
+        onDelete(activeStory.id);
+        if (stories.length === 1) {
+            onClose();
+        } else if (activeIndex === stories.length - 1) {
+            setActiveIndex(prev => prev - 1);
+        }
+        setIsMenuOpen(false);
     };
 
     const getTimeAgo = (dateString: string) => {
@@ -319,8 +320,10 @@ export function ShowStoryModal({
                 <AddStoryModal
                     isOpen={isEditModalOpen}
                     onClose={() => setIsEditModalOpen(false)}
-                    storeId={storeId}
                     storyToEdit={activeStory}
+                    onSave={onSave}
+                    isPending={isPending}
+                    MediaPickerComponent={MediaPickerComponent}
                 />
             )}
         </>

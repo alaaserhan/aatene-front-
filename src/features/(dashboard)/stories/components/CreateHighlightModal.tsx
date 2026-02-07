@@ -4,7 +4,6 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
-import { useCreateHighlight, useUpdateHighlight } from "../hooks";
 import { Story, Highlight } from "../api";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { Input } from "@/src/components/ui/input";
@@ -16,25 +15,22 @@ import { FormInput } from "@/src/components/ui/FormInput";
 interface CreateHighlightModalProps {
   isOpen: boolean;
   onClose: () => void;
-  storeId: number;
   availableStories: Story[];
   highlightToEdit?: Highlight | null;
+  onSave: (payload: any, onSuccess?: () => void) => void;
+  isPending: boolean;
 }
 
 export function CreateHighlightModal({
   isOpen,
   onClose,
-  storeId,
   availableStories,
-  highlightToEdit
+  highlightToEdit,
+  onSave,
+  isPending
 }: CreateHighlightModalProps) {
   const [name, setName] = useState("");
   const [selectedStories, setSelectedStories] = useState<number[]>([]);
-
-  const { mutate: createHighlight, isPending: isCreating } = useCreateHighlight();
-  const { mutate: updateHighlight, isPending: isUpdating } = useUpdateHighlight();
-
-  const isPending = isCreating || isUpdating;
 
   useEffect(() => {
     if (isOpen) {
@@ -65,27 +61,9 @@ export function CreateHighlightModal({
     }
 
     const payload = { name, stories: selectedStories };
-
-    if (highlightToEdit) {
-      updateHighlight({
-        id: String(highlightToEdit.id),
-        payload,
-        storeId: String(storeId)
-      }, {
-        onSuccess: () => {
-          onClose();
-        }
-      });
-    } else {
-      createHighlight({
-        payload,
-        storeId: String(storeId)
-      }, {
-        onSuccess: () => {
-          onClose();
-        }
-      });
-    }
+    onSave(payload, () => {
+      onClose();
+    });
   };
 
   return (
@@ -104,7 +82,7 @@ export function CreateHighlightModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="h-12 text-right border-gray-200"
-            error={!name.trim() && isPending ? "يرجى كتابة اسم المجموعة" : undefined} 
+            error={!name.trim() && isPending ? "يرجى كتابة اسم المجموعة" : undefined}
           />
 
           <div className="space-y-2">

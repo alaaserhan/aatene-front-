@@ -151,6 +151,7 @@ export const useUpdateStory = () => {
         onSettled: (_data, _error, variables) => {
             qc.invalidateQueries({ queryKey: QK.stories.all });
             qc.invalidateQueries({ queryKey: QK.stories.single(variables.id) });
+            qc.invalidateQueries({ queryKey: QK.highlights.all });
         },
     });
 };
@@ -165,6 +166,7 @@ export const useDeleteStory = () => {
         onSettled: (_data, _error, id) => {
             qc.invalidateQueries({ queryKey: QK.stories.all });
             qc.invalidateQueries({ queryKey: QK.stories.single(id) });
+            qc.invalidateQueries({ queryKey: QK.highlights.all });
         },
     });
 };

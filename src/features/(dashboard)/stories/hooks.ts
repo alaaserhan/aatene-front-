@@ -28,6 +28,7 @@ export function useCreateStory() {
     onSuccess: () => {
       toast.success("تم إنشاء القصة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["stories"] });
+      queryClient.invalidateQueries({ queryKey: ["highlights"] });
     },
     onError: (error: AxiosError<api.BaseResponse>) => {
       toast.error(error.response?.data?.message || "حدث خطأ أثناء الإنشاء");
@@ -42,6 +43,7 @@ export function useUpdateStory() {
     onSuccess: (data) => {
       toast.success(data.message || "تم تعديل القصة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["stories"] });
+      queryClient.invalidateQueries({ queryKey: ["highlights"] });
     },
     onError: (error: AxiosError<api.BaseResponse>) => {
       toast.error(error.response?.data?.message || "حدث خطأ أثناء التعديل");

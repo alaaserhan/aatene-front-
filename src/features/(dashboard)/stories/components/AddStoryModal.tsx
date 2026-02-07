@@ -10,19 +10,19 @@ import {
     DialogFooter,
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
-import { useCreateStory, useUpdateStory } from "../hooks";
-import { CreateStoryPayload, Story } from "../api";
+import { Story } from "../api";
 import { Loader2, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
-import { MediaCenterModal } from "@/src/features/(dashboard)/mediaCenter/components/MediaCenterModal";
 import { cn } from "@/src/lib/utils";
 
 interface AddStoryModalProps {
     isOpen: boolean;
     onClose: () => void;
     mode?: "text" | "media";
-    storeId: number;
     storyToEdit?: Story | null;
+    onSave: (payload: any, onSuccess?: () => void) => void;
+    isPending: boolean;
+    MediaPickerComponent: React.ComponentType<any>;
 }
 
 const COLORS = [
@@ -40,8 +40,10 @@ export function AddStoryModal({
     isOpen,
     onClose,
     mode: initialMode = "text",
-    storeId,
     storyToEdit,
+    onSave,
+    isPending,
+    MediaPickerComponent
 }: AddStoryModalProps) {
     const [currentMode, setCurrentMode] = useState<"text" | "media">(initialMode);
 
@@ -53,11 +55,6 @@ export function AddStoryModal({
     } | null>(null);
 
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
-
-    const { mutate: createStory, isPending: isCreating } = useCreateStory();
-    const { mutate: updateStory, isPending: isUpdating } = useUpdateStory();
-
-    const isPending = isCreating || isUpdating;
 
     useEffect(() => {
         if (isOpen) {
@@ -99,31 +96,9 @@ export function AddStoryModal({
             ? { image: selectedFile?.name }
             : { text, color: selectedColor };
 
-        if (storyToEdit) {
-            updateStory(
-                { id: String(storyToEdit.id), payload, storeId: String(storeId) },
-                {
-                    onSuccess: () => {
-/*************  ✨ Windsurf Command ⭐  *************/
-/**
- * Called when the request is successful.
- * Closes the modal.
- */
-/*******  bfe0b90c-e5dd-4b26-a2b9-134b70dffb04  *******/                        onClose();
-                        toast.success("تم تعديل القصة بنجاح");
-                    },
-                }
-            );
-        } else {
-            createStory(
-                { payload, storeId: String(storeId) },
-                {
-                    onSuccess: () => {
-                        onClose();
-                    },
-                }
-            );
-        }
+        onSave(payload, () => {
+            onClose();
+        });
     };
 
     return (
@@ -228,14 +203,14 @@ export function AddStoryModal({
                 </DialogFooter>
             </DialogContent>
 
-            <MediaCenterModal
+            <MediaPickerComponent
                 open={isMediaModalOpen}
                 onOpenChange={setIsMediaModalOpen}
-                onSelect={(items) => {
+                onSelect={(items: any) => {
                     const item = Array.isArray(items) ? items[0] : items;
                     setSelectedFile({
-                        name: item.file_name,
-                        url: item.src,
+                        name: item.file_name || item.name, // Handle different property names (Dashboard vs Web)
+                        url: item.src || item.url || URL.createObjectURL(item), // Handle different property names
                     });
                     setIsMediaModalOpen(false);
                 }}

@@ -4,12 +4,11 @@
 import { useState } from "react";
 import { Story } from "../api";
 import { Trash2, Loader2 } from "lucide-react";
-import { useDeleteStory } from "../hooks";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
 interface StoryItemProps {
   story: Story;
-  storeId: number;
+  onDelete: (id: number) => void;
 }
 
 // دالة مساعدة لحساب الوقت المنقضي
@@ -30,14 +29,12 @@ function getTimeAgo(dateString: string) {
   return "الآن";
 }
 
-export function StoryItem({ story, storeId }: StoryItemProps) {
+export function StoryItem({ story, onDelete }: StoryItemProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const { mutate: deleteStory, isPending } = useDeleteStory();
 
   const handleDelete = () => {
-    deleteStory({ id: String(story.id), storeId: String(storeId) }, {
-      onSuccess: () => setDeleteOpen(false)
-    });
+    onDelete(story.id);
+    setDeleteOpen(false);
   };
 
   const timeAgo = getTimeAgo(story.created_at);
