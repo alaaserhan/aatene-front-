@@ -151,7 +151,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                                                         {participant.participant_data.avatar ? (
                                                             <Image
                                                                 src={participant.participant_data.avatar}
-                                                                alt={participant.participant_data.name}
+                                                                alt={participant.participant_data.name || "Participant"}
                                                                 width={40}
                                                                 height={40}
                                                                 className="w-full h-full object-cover"
