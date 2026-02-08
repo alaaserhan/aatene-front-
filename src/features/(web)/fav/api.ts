@@ -141,9 +141,10 @@ export const deleteFavoriteList = async (
 // Note: The structure for getFavoritesInList response params is not explicitly defined in the original code helper for cities,
 // but assuming standard GET request.
 export const getFavoritesInList = async (
-    id: number | string
+    id: number | string,
+    page: number = 1
 ): Promise<FavoriteItemsResponse> => {
-    const endpoint = `/favorite-lists/${id}/favs`;
+    const endpoint = `/favorite-lists/${id}/favs?page=${page}`;
     const { data } = await api.get<FavoriteItemsResponse>(endpoint);
     return data;
 };
@@ -173,16 +174,17 @@ export const removeFromFavorites = async (
     return data;
 };
 
-export const getFavorites = async (): Promise<FavoriteItemsResponse> => {
-    const endpoint = "/favorites";
+export const getFavorites = async (page: number = 1): Promise<FavoriteItemsResponse> => {
+    const endpoint = `/favorites?page=${page}`;
     const { data } = await api.get<FavoriteItemsResponse>(endpoint);
     return data;
 };
 
 export const getFavoritesByType = async (
-    type: string
+    type: string,
+    page: number = 1
 ): Promise<FavoriteItemsResponse> => {
-    const endpoint = `/favorites/type/${type}`;
+    const endpoint = `/favorites/type/${type}?page=${page}`;
     const { data } = await api.get<FavoriteItemsResponse>(endpoint);
     return data;
 };

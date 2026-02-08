@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Star } from "lucide-react";
 import { cn } from "@/src/lib/utils";
+import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
 
 export interface ProductCardProps {
     id: number | string;
@@ -18,6 +19,7 @@ export interface ProductCardProps {
     onFavoriteClick?: (id: number | string) => void;
     onClick?: () => void;
     className?: string;
+    type?: "product" | "store" | "service" | "blog";
 }
 
 export default function ProductCard({
@@ -32,13 +34,37 @@ export default function ProductCard({
     onFavoriteClick,
     onClick,
     className,
+    type = "product", // Default type
 }: ProductCardProps) {
+    const props = { type }; // Helper to access type in handler without changing handler signature heavily
+
     const displayPrice = priceAfterDiscount || price;
     const hasDiscount = priceAfterDiscount && priceAfterDiscount !== price;
     const rating = parseFloat(reviewRate || "0");
 
+    const { mutate: addToFavorites } = useAddToFavorites();
+    const { mutate: removeFromFavorites } = useRemoveFromFavorites();
+
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
+
+        // Use the passed type or default to 'product' 
+        // Note: The prop 'type' needs to be added to the interface and destructured
+        const itemType = (props as any).type || "product";
+
+        if (isFavorite) {
+            removeFromFavorites({
+                favs_type: itemType,
+                favs_id: id
+            });
+        } else {
+            addToFavorites({
+                favs_type: itemType,
+                favs_id: String(id)
+            });
+        }
+
+        // Execute callback if provided, though hooks handle the logic now
         onFavoriteClick?.(id);
     };
 

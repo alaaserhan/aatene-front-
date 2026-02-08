@@ -94,11 +94,12 @@ export const useDeleteFavoriteList = () => {
     });
 };
 
-export const useGetFavoritesInList = (id: string | number) => {
+export const useGetFavoritesInList = (id: string | number, page: number = 1) => {
     return useQuery({
-        queryKey: QK.items(id),
-        queryFn: () => getFavoritesInList(id),
+        queryKey: [...QK.items(id), page],
+        queryFn: () => getFavoritesInList(id, page),
         enabled: !!id,
+        placeholderData: (previousData) => previousData,
     });
 };
 
@@ -114,8 +115,8 @@ export const useAddFavoritesToList = () => {
         },
         onSettled: (_data, _error, variables) => {
             qc.invalidateQueries({ queryKey: QK.items(variables.id) });
-            qc.invalidateQueries({ queryKey: QK.single(variables.id) }); // Also invalidate single list as it might contain count/preview
-            qc.invalidateQueries({ queryKey: QK.list() }); // Invalidate list for counts update if needed
+            qc.invalidateQueries({ queryKey: QK.single(variables.id) });
+            qc.invalidateQueries({ queryKey: QK.list() });
         },
     });
 };
@@ -146,8 +147,43 @@ export const useRemoveFromFavorites = () => {
     return useMutation({
         mutationFn: (payload: RemoveFromFavoritesPayload) =>
             removeFromFavorites(payload),
+        onMutate: async (payload) => {
+            // Cancel any outgoing refetches
+            await qc.cancelQueries({ queryKey: QK.favorites.all });
+            await qc.cancelQueries({ queryKey: QK.favorites.byType(payload.favs_type) });
+            await qc.cancelQueries({ queryKey: ["favorite-lists", "items"] });
+
+            // Helper function to filter out the removed item
+            const updateCache = (oldData: any) => {
+                if (!oldData?.favorites) return oldData;
+                return {
+                    ...oldData,
+                    favorites: oldData.favorites.filter(
+                        (item: any) =>
+                            !(
+                                item.favs_type === payload.favs_type &&
+                                String(item.favs?.id) === String(payload.favs_id)
+                            )
+                    ),
+                    total: Math.max(0, oldData.total - 1),
+                };
+            };
+
+            // Optimistically update all matching queries
+            // Using setQueriesData to match all paginated queries
+            qc.setQueriesData({ queryKey: QK.favorites.all }, updateCache);
+            qc.setQueriesData({ queryKey: QK.favorites.byType(payload.favs_type) }, updateCache);
+            qc.setQueriesData({ queryKey: ["favorite-lists", "items"] }, updateCache);
+
+            return { payload };
+        },
         onSuccess: (data) => {
             toast.success(data.message || "تم الحذف من المفضلة بنجاح");
+        },
+        onError: (_err, _variables, context) => {
+            // If error, we might want to invalidate to restore state, 
+            // or if we had a snapshot we could rollback. 
+            // For now, invalidation in onSettled covers restoration on error mostly.
         },
         onSettled: (_data, _error, variables) => {
             qc.invalidateQueries({ queryKey: QK.favorites.all });
@@ -155,22 +191,25 @@ export const useRemoveFromFavorites = () => {
             qc.invalidateQueries({
                 queryKey: QK.favorites.check(variables.favs_type, variables.favs_id),
             });
+            qc.invalidateQueries({ queryKey: ["favorite-lists", "items"] });
         },
     });
 };
 
-export const useGetFavorites = () => {
+export const useGetFavorites = (page: number = 1) => {
     return useQuery({
-        queryKey: QK.favorites.all,
-        queryFn: () => getFavorites(),
+        queryKey: [...QK.favorites.all, page],
+        queryFn: () => getFavorites(page),
+        placeholderData: (previousData) => previousData,
     });
 };
 
-export const useGetFavoritesByType = (type: string) => {
+export const useGetFavoritesByType = (type: string, page: number = 1) => {
     return useQuery({
-        queryKey: QK.favorites.byType(type),
-        queryFn: () => getFavoritesByType(type),
+        queryKey: [...QK.favorites.byType(type), page],
+        queryFn: () => getFavoritesByType(type, page),
         enabled: !!type,
+        placeholderData: (previousData) => previousData,
     });
 };
 

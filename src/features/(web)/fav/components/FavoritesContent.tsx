@@ -15,32 +15,42 @@ import { Search, CheckSquare, Plus } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { cn } from "@/src/lib/utils";
 import { CreateCollectionModal } from "./CreateCollectionModal";
+import { Pagination } from "@/src/components/ui/Pagination";
 
 interface FavoritesContentProps {
     selectedType: FavoritesType;
 }
+
+const ITEMS_PER_PAGE = 20;
 
 export default function FavoritesContent({
     selectedType,
 }: FavoritesContentProps) {
     const user = useAuthStore((state) => state.user);
 
-    // State for selected list badge
+    // State
     const [selectedListId, setSelectedListId] = useState<number | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editListData, setEditListData] = useState<any>(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
-    // Reset selected list when type changes
+    // Reset selected list and pagination when type changes
     useEffect(() => {
         setSelectedListId(null);
+        setCurrentPage(1);
     }, [selectedType]);
 
+    // Reset pagination when list changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedListId]);
+
     // Fetch all favorites (for "all" type)
-    const { data: allFavorites, isLoading: isLoadingAll } = useGetFavorites();
+    const { data: allFavorites, isLoading: isLoadingAll } = useGetFavorites(currentPage);
 
     // Fetch favorites by type
     const { data: typeFavorites, isLoading: isLoadingType } =
-        useGetFavoritesByType(selectedType === "all" ? "" : selectedType);
+        useGetFavoritesByType(selectedType === "all" ? "" : selectedType, currentPage);
 
     // Fetch favorite lists (for badge tabs)
     const { data: listsData, isLoading: isLoadingLists } = useGetFavoriteLists(
@@ -49,7 +59,8 @@ export default function FavoritesContent({
 
     // Fetch items in selected list
     const { data: listItems, isLoading: isLoadingListItems } = useGetFavoritesInList(
-        selectedListId || 0
+        selectedListId || 0,
+        currentPage
     );
 
     // Determine loading state
@@ -60,10 +71,14 @@ export default function FavoritesContent({
     // Get the favorites list to display
     const lists = listsData?.lists || [];
 
-    // If a list is selected, show items from that list, otherwise show all favorites
-    const favoritesList: FavoriteItem[] = selectedListId
-        ? (listItems?.favorites || [])
-        : (selectedType === "all" ? allFavorites?.favorites : typeFavorites?.favorites) || [];
+    // Determine current data source
+    const currentData = selectedListId
+        ? listItems
+        : (selectedType === "all" ? allFavorites : typeFavorites);
+
+    const favoritesList = currentData?.favorites || [];
+    const totalItems = currentData?.total || 0;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
     // Handle list badge click
     const handleListClick = (listId: number | null) => {
@@ -94,7 +109,6 @@ export default function FavoritesContent({
                         احفظ منتجاتك ومحلاتك المفضلة في مكان واحد، وارجع لها وقت ما تحتاج بسهولة.
                     </p>
                 </div>
-                {/* Add New Collection Button */}
                 {/* Add New Collection Button - Only show if not "all" */}
                 {selectedType !== "all" && (
                     <button
@@ -111,7 +125,6 @@ export default function FavoritesContent({
 
             </div>
 
-
             {/* Top Bar: Button + Search */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                 {/* Search */}
@@ -125,8 +138,6 @@ export default function FavoritesContent({
                         <Search className="w-4 h-4 text-white" />
                     </div>
                 </div>
-
-
             </div>
 
             {/* List Badges/Tabs */}
@@ -174,7 +185,7 @@ export default function FavoritesContent({
                             قسم {lists.find(l => l.id === selectedListId)?.name || "المفضلة"}
                         </h3>
                         <p className="text-sm text-gray-500">
-                            {lists.find(l => l.id === selectedListId)?.is_private ? "مجموعة خاصة" : "مجموعة عامة"} - عدد العناصر: {listItems?.favorites?.length || 0}
+                            {lists.find(l => l.id === selectedListId)?.is_private ? "مجموعة خاصة" : "مجموعة عامة"} - عدد العناصر: {totalItems}
                         </p>
                     </div>
                 </div>
@@ -192,31 +203,45 @@ export default function FavoritesContent({
 
             {/* Products Grid */}
             {favoritesList && favoritesList.length > 0 && !isLoadingListItems && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                    {favoritesList.map((item) => (
-                        <ProductCard
-                            key={item.id}
-                            id={item.favs?.id || item.id}
-                            name={item.favs?.name || "اسم المنتج"}
-                            slug={item.favs?.slug}
-                            cover={item.favs?.cover || ""}
-                            price={item.favs?.price || "0"}
-                            priceAfterDiscount={item.favs?.price_after_discount}
-                            discountPercent={item.favs?.discount_present}
-                            reviewRate={item.favs?.review_rate}
-                            reviewCount={item.favs?.review_count}
-                            isFavorite={item.favs?.is_favorite ?? true}
-                            onFavoriteClick={(id) => {
-                                // Handle remove from favorites
-                                console.log("Remove from favorites:", id);
-                            }}
-                            onClick={() => {
-                                // Navigate to product page
-                                console.log("Navigate to:", item.favs?.slug);
-                            }}
-                        />
-                    ))}
-                </div>
+                <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                        {favoritesList.map((item) => (
+                            <ProductCard
+                                key={item.id}
+                                id={item.favs?.id || item.id}
+                                name={item.favs?.name || "اسم المنتج"}
+                                slug={item.favs?.slug}
+                                cover={item.favs?.cover || ""}
+                                price={item.favs?.price || "0"}
+                                priceAfterDiscount={item.favs?.price_after_discount}
+                                discountPercent={item.favs?.discount_present}
+                                reviewRate={item.favs?.review_rate}
+                                reviewCount={item.favs?.review_count}
+                                isFavorite={item.favs?.is_favorite ?? true}
+                                onFavoriteClick={(id) => {
+                                    // Handle remove from favorites
+                                    console.log("Remove from favorites:", id);
+                                }}
+                                onClick={() => {
+                                    // Navigate to product page
+                                    console.log("Navigate to:", item.favs?.slug);
+                                }}
+                                type={item.favs_type as any || "product"}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="mt-8 flex justify-center dir-ltr">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                            />
+                        </div>
+                    )}
+                </>
             )}
 
             <CreateCollectionModal
