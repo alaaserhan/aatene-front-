@@ -2,21 +2,22 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { ChevronDown, Heart, Menu, X, Search, ChevronLeft, ArrowDownUp } from "lucide-react";
+import { ChevronLeft, Menu, X, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import UserMenu from "./UserMenu";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
-import { Category } from "@/src/features/(web)/product/types";
+import { cn } from "@/src/lib/utils";
 
-interface MobileNavProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  selectedCategory: { id: number | null; name: string };
-  setSelectedCategory: (category: { id: number | null; name: string }) => void;
-  categories: Category[];
-}
+type SearchType = "products" | "services" | "stores" | "users";
+
+const SEARCH_TYPES: { value: SearchType; label: string }[] = [
+  { value: "products", label: "منتجات" },
+  { value: "services", label: "خدمات" },
+  { value: "stores", label: "متاجر" },
+  { value: "users", label: "مستخدمين" },
+];
 
 const menuVariants: Variants = {
   closed: {
@@ -45,16 +46,12 @@ const searchVariants: Variants = {
   },
 };
 
-export default function MobileNav({
-  searchQuery,
-  setSearchQuery,
-  selectedCategory,
-  setSelectedCategory,
-  categories,
-}: MobileNavProps) {
+export default function MobileNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState<SearchType>("products");
+
   const router = useRouter();
   const lang = useLanguage();
   const user = useAuthStore((state) => state.user);
@@ -74,39 +71,18 @@ export default function MobileNav({
     const params = new URLSearchParams();
 
     if (searchQuery.trim()) {
-      params.set('search', searchQuery.trim());
+      params.set("q", searchQuery.trim());
     }
+    params.set("type", selectedType);
 
-    if (selectedCategory.id !== null) {
-      params.set('category_id', selectedCategory.id.toString());
-    }
-
-    router.push(`/${lang}/products?${params.toString()}`);
+    router.push(`/${lang}/search?${params.toString()}`);
     setMobileSearchOpen(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch();
     }
-  };
-
-  const handleCategorySelect = (category: { id: number | null; name: string }) => {
-    setSelectedCategory(category);
-    setCategoryOpen(false);
-
-    const params = new URLSearchParams();
-
-    if (searchQuery.trim()) {
-      params.set('search', searchQuery.trim());
-    }
-
-    if (category.id !== null) {
-      params.set('category_id', category.id.toString());
-    }
-
-    router.push(`/${lang}/products?${params.toString()}`);
-    setMobileSearchOpen(false);
   };
 
   return (
@@ -180,7 +156,7 @@ export default function MobileNav({
                       transition={{ delay: 0.2 }}
                     >
                       <div className="mb-4">
-                        <h3 className=" font-medium text-gray-2 uppercase tracking-wider mb-3">التصفح</h3>
+                        <h3 className="font-medium text-gray-2 uppercase tracking-wider mb-3">التصفح</h3>
                       </div>
 
                       <Link
@@ -206,7 +182,7 @@ export default function MobileNav({
                       >
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <img src="/icons/heart.svg" alt="Messages" className="h-7 w-7" />
+                            <img src="/icons/heart.svg" alt="Favorites" className="h-7 w-7" />
                           </div>
                           <span className="font-medium">المفضلة</span>
                         </div>
@@ -222,7 +198,7 @@ export default function MobileNav({
                       >
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <img src="/icons/compare.svg" alt="Messages" className="h-7 w-7" />
+                            <img src="/icons/compare.svg" alt="Compare" className="h-7 w-7" />
                           </div>
                           <span className="font-medium">المقارنات</span>
                         </div>
@@ -231,7 +207,6 @@ export default function MobileNav({
                         </div>
                       </Link>
 
-
                       <Link
                         href={`/${lang}/notifications`}
                         className="group flex items-center justify-between gap-4 p-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all duration-200"
@@ -239,7 +214,7 @@ export default function MobileNav({
                       >
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <img src="/icons/Notification.svg" alt="Messages" className="h-7 w-7" />
+                            <img src="/icons/Notification.svg" alt="Notifications" className="h-7 w-7" />
                           </div>
                           <span className="font-medium">الاشعارات</span>
                         </div>
@@ -247,6 +222,7 @@ export default function MobileNav({
                           <ChevronLeft size={16} className="text-gray-2" />
                         </div>
                       </Link>
+
                       {userType === "admin" && (
                         <Link
                           href={`/${lang}/admin/stores`}
@@ -255,7 +231,7 @@ export default function MobileNav({
                         >
                           <div className="flex items-center gap-4">
                             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                              <img src="/icons/shop.svg" alt="" />
+                              <img src="/icons/shop.svg" alt="Stores" />
                             </div>
                             <span className="font-medium">المتاجر</span>
                           </div>
@@ -301,11 +277,13 @@ export default function MobileNav({
                     <X size={24} />
                   </button>
                 </div>
+
+                {/* Search Input */}
                 <div className="relative">
                   <input
                     type="text"
                     className="w-full border border-[#287CDA] h-10 rounded-md py-2 pr-3 focus:outline-none"
-                    placeholder="البحث"
+                    placeholder="بحث"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={handleKeyPress}
@@ -317,52 +295,24 @@ export default function MobileNav({
                   >
                     البحث
                   </button>
-                  <div className="mt-4">
+                </div>
+
+                {/* Type Tabs */}
+                <div className="flex items-center gap-2 flex-wrap mt-4">
+                  {SEARCH_TYPES.map((type) => (
                     <button
-                      className="flex items-center gap-1 text-gray-2 text-sm"
-                      onClick={() => setCategoryOpen(!categoryOpen)}
-                      aria-label={categoryOpen ? "إغلاق قائمة الفئات" : "فتح قائمة الفئات"}
-                    >
-                      <span>{selectedCategory.name}</span>
-                      <ChevronDown size={16} />
-                    </button>
-                    <AnimatePresence>
-                      {categoryOpen && (
-                        <motion.div
-                          className="mt-2 bg-white border border-gray-200 rounded-md shadow-sm max-h-60 overflow-y-auto"
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <button
-                            className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${selectedCategory.id === null ? 'bg-gray-50 text-[#287CDA] font-medium' : 'text-gray-700'
-                              }`}
-                            onClick={() => handleCategorySelect({ id: null, name: "جميع الفئات" })}
-                          >
-                            جميع الفئات
-                          </button>
-
-                          {categories.map((category) => (
-                            <button
-                              key={category.id}
-                              className={`block w-full text-right px-4 py-2 text-sm hover:bg-gray-100 ${selectedCategory.id === category.id ? 'bg-gray-50 text-[#287CDA] font-medium' : 'text-gray-700'
-                                }`}
-                              onClick={() => handleCategorySelect({ id: category.id, name: category.name })}
-                            >
-                              {category.name}
-                            </button>
-                          ))}
-
-                          {categories.length === 0 && (
-                            <div className="px-4 py-2 text-sm text-gray-2">
-                              لا توجد فئات متاحة
-                            </div>
-                          )}
-                        </motion.div>
+                      key={type.value}
+                      onClick={() => setSelectedType(type.value)}
+                      className={cn(
+                        "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer border",
+                        selectedType === type.value
+                          ? "bg-[#3D5E83] text-white border-[#3D5E83]"
+                          : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
                       )}
-                    </AnimatePresence>
-                  </div>
+                    >
+                      {type.label}
+                    </button>
+                  ))}
                 </div>
               </div>
             </motion.div>
