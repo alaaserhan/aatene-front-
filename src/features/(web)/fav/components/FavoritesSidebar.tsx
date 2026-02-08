@@ -26,7 +26,7 @@ export default function FavoritesSidebar({
                     key={item.value}
                     onClick={() => onSelect(item.value)}
                     className={cn(
-                        "w-full py-3 px-4 cursor-pointer rounded-md text-center transition-colors duration-200 font-medium  ",
+                        "w-full py-3 px-4 cursor-pointer rounded-md text-center transition-colors duration-200 text-sm font-medium  ",
                         selectedType === item.value
                             ? "bg-blue-3 text-white border border-[#C8D7E8]"
                             : "bg-blue-5 text-[#3D5E83] hover:bg-[#E5E7EB]"

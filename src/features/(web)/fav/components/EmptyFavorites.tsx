@@ -20,9 +20,6 @@ export default function EmptyFavorites() {
                 ابدأ بإضافة منتجاتك المفضلة أو أنشئ مجموعة جديدة لتنظيمها بسهولة، وارجع
                 إليها وقت ما تحتاج.
             </p>
-            <button className="bg-blue-4 font-medium text-sm text-white px-8 py-3 rounded-md  transition-colors">
-                إبدأ بإضافة أول مجموعاتك للمفضلة
-            </button>
         </div>
     );
 }

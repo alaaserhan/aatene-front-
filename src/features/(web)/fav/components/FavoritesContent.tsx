@@ -28,6 +28,7 @@ export default function FavoritesContent({
     // State for selected list badge
     const [selectedListId, setSelectedListId] = useState<number | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [editListData, setEditListData] = useState<any>(null);
 
     // Reset selected list when type changes
     useEffect(() => {
@@ -69,6 +70,14 @@ export default function FavoritesContent({
         setSelectedListId(listId);
     };
 
+    const handleEditList = () => {
+        const currentList = lists.find(l => l.id === selectedListId);
+        if (currentList) {
+            setEditListData(currentList);
+            setIsCreateModalOpen(true);
+        }
+    };
+
     if (isLoading) {
         return <div className="text-center py-10">جاري التحميل...</div>;
     }
@@ -86,13 +95,19 @@ export default function FavoritesContent({
                     </p>
                 </div>
                 {/* Add New Collection Button */}
-                <button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="bg-blue-3 text-white h-fit cursor-pointer px-5 py-2.5 rounded-lg text-sm font-medium  transition-colors flex items-center justify-center gap-2 whitespace-nowrap order-1 sm:order-none"
-                >
-                    <Plus className="w-4 h-4" />
-                    إضافة مجموعة جديدة
-                </button>
+                {/* Add New Collection Button - Only show if not "all" */}
+                {selectedType !== "all" && (
+                    <button
+                        onClick={() => {
+                            setEditListData(null);
+                            setIsCreateModalOpen(true);
+                        }}
+                        className="bg-blue-3 text-white h-fit cursor-pointer px-5 py-2.5 rounded-lg text-sm font-medium  transition-colors flex items-center justify-center gap-2 whitespace-nowrap order-1 sm:order-none"
+                    >
+                        <Plus className="w-4 h-4" />
+                        إضافة مجموعة جديدة
+                    </button>
+                )}
 
             </div>
 
@@ -151,7 +166,9 @@ export default function FavoritesContent({
             {/* Selected List Info */}
             {selectedListId && (
                 <div className="flex items-center gap-3 text-right">
-                    <CheckSquare className="w-5 h-5 text-[#3D5E83]" />
+                    <div onClick={handleEditList} className="cursor-pointer">
+                        <img src="icons/dashboard/edit.svg" alt="" className="w-5 h-5" />
+                    </div>
                     <div>
                         <h3 className="font-semibold text-[#1F2A37]">
                             قسم {lists.find(l => l.id === selectedListId)?.name || "المفضلة"}
@@ -204,7 +221,11 @@ export default function FavoritesContent({
 
             <CreateCollectionModal
                 isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
+                onClose={() => {
+                    setIsCreateModalOpen(false);
+                    setEditListData(null);
+                }}
+                editData={editListData}
                 type={selectedType === "all" ? "product" : selectedType} // Default to product if all, otherwise specific type
             />
         </div>

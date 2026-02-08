@@ -1,13 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import FavoritesSidebar from "./components/FavoritesSidebar";
 import FavoritesContent from "./components/FavoritesContent";
 
 export type FavoritesType = "all" | "product" | "store" | "service";
 
 export default function FavoritesPage() {
-    const [selectedType, setSelectedType] = useState<FavoritesType>("all");
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Get type from URL or default to "all"
+    const selectedType = (searchParams.get("type") as FavoritesType) || "all";
+
+    const handleTypeSelect = (type: FavoritesType) => {
+        // Update URL when type changes
+        const params = new URLSearchParams(searchParams.toString());
+        if (type === "all") {
+            params.delete("type");
+        } else {
+            params.set("type", type);
+        }
+        router.push(`?${params.toString()}`);
+    };
 
     return (
         <div className="container mx-auto my-8 min-h-[calc(100vh-200px)]">
@@ -16,7 +31,7 @@ export default function FavoritesPage() {
                 <div className="lg:col-span-1">
                     <FavoritesSidebar
                         selectedType={selectedType}
-                        onSelect={setSelectedType}
+                        onSelect={handleTypeSelect}
                     />
                 </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/src/lib/utils";
 import {
     Dialog,
@@ -13,8 +13,8 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
-import { useCreateFavoriteList } from "../hooks";
-import { CreateListPayload } from "../api";
+import { useCreateFavoriteList, useUpdateFavoriteList } from "../hooks";
+import { CreateListPayload, FavoriteList, UpdateListPayload } from "../api";
 
 export interface CollectionFormData {
     name: string;
@@ -25,6 +25,7 @@ interface CreateCollectionModalProps {
     isOpen: boolean;
     onClose: () => void;
     type: "product" | "store" | "service" | "blog" | "all";
+    editData?: FavoriteList | null;
 }
 
 const defaultFormState: CollectionFormData = {
@@ -36,44 +37,64 @@ export function CreateCollectionModal({
     isOpen,
     onClose,
     type,
+    editData,
 }: CreateCollectionModalProps) {
     const [formData, setFormData] = useState<CollectionFormData>(defaultFormState);
-    const { mutate: createList, isPending } = useCreateFavoriteList();
+    const { mutate: createList, isPending: isCreating } = useCreateFavoriteList();
+    const { mutate: updateList, isPending: isUpdating } = useUpdateFavoriteList();
+
+    const isPending = isCreating || isUpdating;
+    const isEditMode = !!editData;
+
+    useEffect(() => {
+        if (editData && isOpen) {
+            setFormData({
+                name: editData.name,
+                is_private: editData.is_private,
+            });
+        } else if (!isOpen) {
+            setFormData(defaultFormState);
+        }
+    }, [editData, isOpen]);
 
     const handleSave = () => {
         if (!formData.name.trim()) return;
 
-        // Determinte the type to send. If 'all', default to 'product' or let user choose? 
-        // For now, if 'all' is selected, we might default to 'product' or handle it logic wise.
-        // The API requires a type. 
-        // Let's assume if "all" is active, we default to "product" or use a selector if needed.
-        // But the modal design doesn't show type selection.
-        // I will default to "product" if "all" is selected, otherwise use the selected type.
-        // Actually, let's use the `type` prop passed, defaulting "all" to "product".
+        if (isEditMode && editData) {
+            const payload: UpdateListPayload = {
+                name: formData.name,
+                is_private: formData.is_private ? 1 : 0,
+            };
 
-        const listType = type === "all" ? "product" : type;
+            updateList({ id: editData.id, payload }, {
+                onSuccess: () => {
+                    onClose();
+                },
+            });
+        } else {
+            const listType = type === "all" ? "product" : type;
 
-        const payload: CreateListPayload = {
-            name: formData.name,
-            description: "", // Not in UI
-            type: listType as any,
-            is_private: formData.is_private ? 1 : 0,
-        };
+            const payload: CreateListPayload = {
+                name: formData.name,
+                description: "", // Not in UI
+                type: listType as any,
+                is_private: formData.is_private ? 1 : 0,
+            };
 
-        createList(payload, {
-            onSuccess: () => {
-                setFormData(defaultFormState);
-                onClose();
-            },
-        });
+            createList(payload, {
+                onSuccess: () => {
+                    onClose();
+                },
+            });
+        }
     };
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-lg" dir="rtl">
                 <DialogHeader className="text-center sm:text-center">
-                    <DialogTitle className="text-2xl font-bold text-[#1F2A37] mb-2">
-                        إنشاء مجموعة جديدة
+                    <DialogTitle className="text-xl font-medium  mb-2">
+                        {isEditMode ? "تعديل المجموعة" : "إنشاء مجموعة جديدة"}
                     </DialogTitle>
                 </DialogHeader>
 
@@ -81,7 +102,7 @@ export function CreateCollectionModal({
                     <div className="grid gap-3">
                         <Label
                             htmlFor="name"
-                            className="text-right font-bold text-[#1F2A37]"
+                            className="text-right font-medium "
                         >
                             اسم المجموعة
                         </Label>
@@ -92,13 +113,13 @@ export function CreateCollectionModal({
                                 setFormData({ ...formData, name: e.target.value })
                             }
                             placeholder="هدايا"
-                            className="w-full px-4 py-3 border-gray-300 rounded-lg focus:ring-1 focus:ring-[#3D5E83] focus:border-[#3D5E83] text-right"
+                            className="w-full px-4 py-3 border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-3 focus:border-blue-3 text-right"
                         />
                     </div>
 
                     <div className="flex flex-col gap-2">
                         <div className="flex flex-row items-center justify-between">
-                            <Label className="text-base font-bold text-[#1F2A37]">
+                            <Label className="text-base font-medium ">
                                 تعيين المجموعة خاصة؟
                             </Label>
                             <ToggleSwitch
@@ -121,17 +142,19 @@ export function CreateCollectionModal({
                         onClick={handleSave}
                         disabled={!formData.name.trim() || isPending}
                         className={cn(
-                            "w-full px-6 py-6 rounded-lg font-bold text-lg transition-colors",
+                            "w-full px-6 py-6 rounded-lg font-medium  transition-colors",
                             formData.name.trim()
-                                ? "bg-[#3D5E83] hover:bg-[#2D496A] text-white"
-                                : "bg-[#3D5E83]/50 cursor-not-allowed text-white/80"
+                                ? "bg-blue-3 hover:bg-[#2D496A] text-white"
+                                : "bg-blue-3/50 cursor-not-allowed text-white/80"
                         )}
                     >
-                        {isPending ? "جاري الإنشاء..." : "إنشاء مجموعة جديدة"}
+                        {isPending
+                            ? (isEditMode ? "جاري التعديل..." : "جاري الإنشاء...")
+                            : (isEditMode ? "تعديل المجموعة" : "إنشاء مجموعة جديدة")}
                     </Button>
                     <button
                         onClick={onClose}
-                        className="w-full text-[#3D5E83] font-bold py-2 hover:underline"
+                        className="w-full text-sm text-blue-3 font-medium cursor-pointer py-2 hover:underline"
                     >
                         إلغاء
                     </button>
