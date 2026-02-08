@@ -110,8 +110,8 @@ export default function MobileNav({
   };
 
   return (
-    <div className="md:hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-white shadow-sm">
+    <div className="md:hidden w-full">
+      <div className="flex items-center justify-between px-4 py-3 w-full">
         <button
           className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
           onClick={toggleMobileMenu}
@@ -174,13 +174,13 @@ export default function MobileNav({
                   <div className="flex flex-col justify-between h-full">
                     {/* Navigation Links */}
                     <motion.div
-                      className="px-4 py-4 space-y-2"
+                      className="px-4 py-4 space-y-1"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 }}
                     >
                       <div className="mb-4">
-                        <h3 className="text-xs font-semibold text-gray-2 uppercase tracking-wider mb-3">التصفح</h3>
+                        <h3 className=" font-medium text-gray-2 uppercase tracking-wider mb-3">التصفح</h3>
                       </div>
 
                       <Link
@@ -189,8 +189,8 @@ export default function MobileNav({
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <img src="/icons/chat.svg" alt="Messages" className="h-5 w-5" />
+                          <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                            <img src="/icons/chat.svg" alt="Messages" className="h-7 w-7" />
                           </div>
                           <span className="font-medium">الرسائل</span>
                         </div>
@@ -205,8 +205,8 @@ export default function MobileNav({
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <Heart size={20} className="text-gray-2" />
+                          <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                            <img src="/icons/heart.svg" alt="Messages" className="h-7 w-7" />
                           </div>
                           <span className="font-medium">المفضلة</span>
                         </div>
@@ -221,8 +221,8 @@ export default function MobileNav({
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <ArrowDownUp size={20} className="text-gray-2" />
+                          <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                            <img src="/icons/compare.svg" alt="Messages" className="h-7 w-7" />
                           </div>
                           <span className="font-medium">المقارنات</span>
                         </div>
@@ -231,6 +231,22 @@ export default function MobileNav({
                         </div>
                       </Link>
 
+
+                      <Link
+                        href={`/${lang}/notifications`}
+                        className="group flex items-center justify-between gap-4 p-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all duration-200"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                            <img src="/icons/Notification.svg" alt="Messages" className="h-7 w-7" />
+                          </div>
+                          <span className="font-medium">الاشعارات</span>
+                        </div>
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <ChevronLeft size={16} className="text-gray-2" />
+                        </div>
+                      </Link>
                       {userType === "admin" && (
                         <Link
                           href={`/${lang}/admin/stores`}

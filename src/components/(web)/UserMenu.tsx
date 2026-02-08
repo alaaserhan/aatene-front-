@@ -148,15 +148,15 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
           {/* User Details */}
           <div className="space-y-2">
             <Link href={`/${lang}/report/inquiry`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
-              <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
-                <Headset size={12} />
+              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <Headset size={16} />
               </div>
               <span dir="ltr" className="font-medium">استعلام عن شكوى</span>
             </Link>
 
             <Link href={`/${lang}/settings`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
-              <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
-                <Settings size={12} />
+              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <Settings size={16} />
               </div>
               <span className="font-medium">الاعدادات</span>
             </Link>
@@ -203,8 +203,8 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               onClick={handleLinkClick}
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                  <Store size={16} className="text-blue-600" />
+                <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                  <Store size={16} className="text-blue-3" />
                 </div>
                 <span className="font-medium">لوحة التحكم</span>
               </div>
@@ -235,7 +235,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
     <div className="relative z-50" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-700 hover: rounded-lg hover:bg-gray-50 transition-all duration-200"
+        className="group flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-700  transition-all duration-200"
       >
         <div className="relative">
           {user.avatar ? (
@@ -282,15 +282,15 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
           {/* User Info Section */}
           <div className="px-6 py-4 space-y-3 border-b border-gray-100">
             <Link href={`/${lang}/report/inquiry`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
-              <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
-                <Headset size={12} />
+              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <Headset size={16} />
               </div>
               <span dir="ltr" className="font-medium">استعلام عن شكوى</span>
             </Link>
 
             <Link href={`/${lang}/settings`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
-              <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
-                <Settings size={12} />
+              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <Settings size={16} />
               </div>
               <span className="font-medium">الاعدادات</span>
             </Link>
@@ -315,7 +315,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             {user.user_type === "admin" && (
               <Link
                 href={`/${lang}/admin/home`}
-                className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group"
+                className="flex items-center gap-3 w-full text-sm text-gray-700 "
                 onClick={handleLinkClick}
               >
                 <div className="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
@@ -328,7 +328,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             {user.user_type === "merchant" && (
               <Link
                 href={`/${lang}/admin/home`}
-                className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group"
+                className="flex items-center gap-3 w-full px-2 text-sm text-gray-700 "
                 onClick={handleLinkClick}
               >
                 <div className="flex items-center gap-3">

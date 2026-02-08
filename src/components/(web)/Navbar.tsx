@@ -209,27 +209,32 @@ const NavIcons = () => {
   const userType = user?.user_type;
 
   return (
-    <div className="flex items-center gap-4 lg:gap-7 text-gray-2">
+    <div className="flex items-center gap-4  text-gray-2">
+       <Link href={`/${lang}/notifications`} className="flex items-center">
+        <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="المقارنات">
+          <img src="/icons/Notification.svg" alt="" className="h-6 w-6"/>
+        </button>
+      </Link>
       <Link href={`/${lang}/compare`} className="flex items-center">
-        <button className="text-gray-2 cursor-pointer" aria-label="المقارنات">
-          <ArrowDownUp className="h-5 w-5" />
+        <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="المقارنات">
+          <img src="/icons/Compare.svg" alt="" className="h-6 w-6"/>
         </button>
       </Link>
       {userType === "admin" && (
         <Link href={`/${lang}/admin/stores`} className="flex items-center">
-          <button className="hover:text-gray-700 cursor-pointer" aria-label="الفئات">
-            <img src="/icons/shop.svg" alt="" />
+          <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="الفئات">
+            <img src="/icons/shop.svg" alt="" className="h-6 w-6"/>
           </button>
         </Link>
       )}
       <Link href={`/${lang}/favourites`} className="flex items-center">
-        <button className="hover:text-gray-700 cursor-pointer" aria-label="المفضلة">
-          <img src="/icons/heart.svg" alt="Favorites" className="h-5 w-5" />
+        <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="المفضلة">
+          <img src="/icons/heart.svg" alt="Favorites" className="h-6 w-6" />
         </button>
       </Link>
       <Link href={`/${lang}/chat`} className="flex items-center">
-        <button className="hover:text-gray-700 cursor-pointer" aria-label="الرسائل">
-          <img src="/icons/chat.svg" alt="Messages" className="h-5 w-5" />
+        <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="الرسائل">
+          <img src="/icons/chat.svg" alt="Messages" className="h-6 w-6" />
         </button>
       </Link>
     </div>
