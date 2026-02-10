@@ -45,10 +45,11 @@ export default function ReportInquiryPage() {
         }));
     };
 
-    const handleCategoryChange = (typeId: string) => {
+    const handleCategoryChange = (type: string) => {
         setFilters((prev) => ({
             ...prev,
-            report_type_id: typeId ? Number(typeId) : undefined,
+            type: type || undefined,
+            report_type_id: undefined, // Clear standard category id if we use 'type'
         }));
     };
 
@@ -79,10 +80,14 @@ export default function ReportInquiryPage() {
         },
     ];
 
-    // Prepare dropdown options
+    // Prepare dropdown options - Static 5 Types
     const categoryOptions = [
         { value: "", label: "الكل" },
-        ...reportTypes.map((t) => ({ value: t.id.toString(), label: t.name })),
+        { value: "store", label: "متاجر" },
+        { value: "product", label: "منتجات" },
+        { value: "service", label: "خدمات" },
+        { value: "requested_service", label: "الخدمات المطلوبة" },
+        { value: "comment", label: "تعليقات" },
     ];
 
     return (
@@ -128,7 +133,6 @@ export default function ReportInquiryPage() {
                                 placeholder="اكتب هنا"
                                 className="w-full h-full px-4 ps-10 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#3d5e83] transition-colors placeholder:text-[#bdc4cd]"
                             />
-                            {/* Wait, design screenshot shows no icon on left? The user screenshot has it. Figma design provided: placeholder "اكتب هنا" on right. */}
                         </div>
                     </div>
                     {/* Category Filter - Leftmost in design but 3rd in RTL flow */}
@@ -137,7 +141,7 @@ export default function ReportInquiryPage() {
                         <div className="relative h-[45px]">
                             <ReusableDropdown
                                 options={categoryOptions}
-                                value={filters.report_type_id?.toString() || ""}
+                                value={filters.type || ""}
                                 onChange={handleCategoryChange}
                                 placeholder="الكل"
                                 className="h-full border-gray-300 rounded-md"

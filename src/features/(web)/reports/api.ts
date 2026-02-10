@@ -98,6 +98,7 @@ export interface GetReportStatsResponse extends BaseResponse, ReportStats { }
 export interface GetReportsParams {
     report_type_id?: number;
     content?: string;
+    type?: string;
     status?: "pending" | "processing" | "finished" | "cancelled";
 }
 
