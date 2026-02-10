@@ -18,6 +18,9 @@ interface SearchResultsProps {
     onPageChange: (page: number) => void;
     isLoading?: boolean;
     perPage?: number;
+    compareMode?: boolean;
+    selectedCompareIds?: Set<number>;
+    onCompareToggle?: (id: number) => void;
 }
 
 export default function SearchResults({
@@ -28,6 +31,9 @@ export default function SearchResults({
     onPageChange,
     isLoading = false,
     perPage = 12,
+    compareMode = false,
+    selectedCompareIds = new Set(),
+    onCompareToggle,
 }: SearchResultsProps) {
     const totalPages = Math.ceil(total / perPage);
     const startItem = (currentPage - 1) * perPage + 1;
@@ -73,12 +79,21 @@ export default function SearchResults({
                             reviewCount={product.review_count}
                             isFavorite={product.is_favorite}
                             type="product"
+                            compareMode={compareMode}
+                            isSelectedForCompare={selectedCompareIds.has(product.id)}
+                            onCompareToggle={() => onCompareToggle?.(product.id)}
                         />
                     ))}
 
                 {type === "services" &&
                     (items as Service[]).map((service) => (
-                        <ServiceCard key={service.id} service={service} />
+                        <ServiceCard
+                            key={service.id}
+                            service={service}
+                            compareMode={compareMode}
+                            isSelectedForCompare={selectedCompareIds.has(service.id)}
+                            onCompareToggle={() => onCompareToggle?.(service.id)}
+                        />
                     ))}
 
                 {type === "stores" &&

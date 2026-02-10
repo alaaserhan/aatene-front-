@@ -138,20 +138,23 @@ export function CreateCollectionModal({
                 </div>
 
                 <DialogFooter className="flex-col sm:flex-col gap-3 sm:gap-3">
-                    <Button
-                        onClick={handleSave}
-                        disabled={!formData.name.trim() || isPending}
-                        className={cn(
-                            "w-full px-6 py-6 rounded-lg font-medium  transition-colors",
-                            formData.name.trim()
-                                ? "bg-blue-3 hover:bg-[#2D496A] text-white"
-                                : "bg-blue-3/50 cursor-not-allowed text-white/80"
-                        )}
-                    >
-                        {isPending
-                            ? (isEditMode ? "جاري التعديل..." : "جاري الإنشاء...")
-                            : (isEditMode ? "تعديل المجموعة" : "إنشاء مجموعة جديدة")}
-                    </Button>
+                    {
+                        (formData.name.trim() && !isPending) && (
+                            <Button
+                                onClick={handleSave}
+                                className={cn(
+                                    "w-full px-6 py-6 rounded-lg font-medium  transition-colors",
+                                    formData.name.trim()
+                                        ? "bg-blue-3 hover:bg-[#2D496A] text-white"
+                                        : "bg-blue-3/50 cursor-not-allowed text-white/80"
+                                )}
+                            >
+                                {isPending
+                                    ? (isEditMode ? "جاري التعديل..." : "جاري الإنشاء...")
+                                    : (isEditMode ? "تعديل المجموعة" : "إنشاء مجموعة جديدة")}
+                            </Button>
+                        )
+                    }
                     <button
                         onClick={onClose}
                         className="w-full text-sm text-blue-3 font-medium cursor-pointer py-2 hover:underline"

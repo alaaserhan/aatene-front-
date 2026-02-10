@@ -19,6 +19,8 @@ import {
 import { SlidersHorizontal, Tag as TagIcon } from "lucide-react";
 import { Tag } from "../searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
+import CompareBottomDrawer from "../compares/components/CompareBottomDrawer";
+import { useAddProductToCompare, useAddServiceToCompare } from "../compares/hooks";
 
 export type SearchType = "products" | "services" | "stores" | "users";
 
@@ -166,6 +168,83 @@ export default function SearchResultsPage() {
     // Using first 10 for display in header as "Related" or "Popular" tags
     const displayTags = filterData.tags;
 
+    // ─── Compare Mode Logic ─────────────────────────────────────────────
+
+    // Detect compare mode from URL
+    const compareMode = searchParams.get("compare") === "products" || searchParams.get("compare") === "services";
+    const compareType = (searchParams.get("compare") as "products" | "services") || null;
+
+    // Track selected items for comparison
+    const [selectedCompareIds, setSelectedCompareIds] = useState<Set<number>>(new Set());
+
+    // Reset selection when compare mode or type changes
+    useEffect(() => {
+        if (!compareMode) {
+            setSelectedCompareIds(new Set());
+        }
+    }, [compareMode, compareType]);
+
+    // Handle toggle item
+    const handleCompareToggle = (id: number) => {
+        const newSet = new Set(selectedCompareIds);
+        if (newSet.has(id)) {
+            newSet.delete(id);
+        } else {
+            // Limit to e.g. 4 items
+            if (newSet.size >= 4) {
+                // toast.error("يمكنك مقارنة 4 عناصر كحد أقصى");
+                return;
+            }
+            newSet.add(id);
+        }
+        setSelectedCompareIds(newSet);
+    };
+
+    // Derived selected items list for the drawer
+    const selectedItemsForDrawer = useMemo(() => {
+        if (!compareMode || selectedCompareIds.size === 0) return [];
+
+        const currentItems = items as any[]; // Product[] | Service[]
+        return currentItems
+            .filter((item) => selectedCompareIds.has(item.id))
+            .map((item) => ({
+                id: item.id,
+                name: (item as any).name || (item as any).title,
+                image: (item as any).cover || (item as any).image_url || (item as any).images_urls?.[0],
+            }));
+    }, [items, selectedCompareIds, compareMode]);
+
+    // API Mutations for adding to compare
+    const { mutate: addProductToCompare, isPending: isAddingProduct } = useAddProductToCompare();
+    const { mutate: addServiceToCompare, isPending: isAddingService } = useAddServiceToCompare();
+
+    // Handle "Go to Compare"
+    const handleGoToCompare = () => {
+        const ids = Array.from(selectedCompareIds);
+        if (ids.length === 0) return;
+
+        ids.forEach((id) => {
+            if (compareType === "products") {
+                addProductToCompare(id);
+            } else if (compareType === "services") {
+                addServiceToCompare(id);
+            }
+        });
+
+        // Navigate to compare page
+        router.push("/compare");
+    };
+
+    const handleClearCompare = () => {
+        setSelectedCompareIds(new Set());
+    };
+
+    const handleRemoveFromDrawer = (id: number) => {
+        const newSet = new Set(selectedCompareIds);
+        newSet.delete(id);
+        setSelectedCompareIds(newSet);
+    };
+
     return (
         <div className="container mx-auto my-10 px-4 md:px-6" dir="rtl">
             <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -252,6 +331,9 @@ export default function SearchResultsPage() {
                         onPageChange={handlePageChange}
                         isLoading={isLoading}
                         perPage={PER_PAGE}
+                        compareMode={compareMode && compareType === type}
+                        selectedCompareIds={selectedCompareIds}
+                        onCompareToggle={handleCompareToggle}
                     />
                 </main>
             </div>
@@ -267,6 +349,17 @@ export default function SearchResultsPage() {
                 categories={filterData.categories}
                 cities={filterData.cities}
                 tags={filterData.tags}
+            />
+
+            {/* Compare Bottom Drawer */}
+            <CompareBottomDrawer
+                isOpen={compareMode && selectedCompareIds.size > 0}
+                selectedItems={selectedItemsForDrawer}
+                onRemoveItem={handleRemoveFromDrawer}
+                onClearAll={handleClearCompare}
+                onGoToCompare={handleGoToCompare}
+                isAdding={isAddingProduct || isAddingService}
+                type={compareType || "products"}
             />
         </div>
     );

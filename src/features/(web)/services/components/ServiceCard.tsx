@@ -9,24 +9,59 @@ interface ServiceCardProps {
     service: Service;
     className?: string;
     onClick?: () => void;
+    compareMode?: boolean;
+    isSelectedForCompare?: boolean;
+    onCompareToggle?: (id: number) => void;
 }
 
-export default function ServiceCard({ service, className, onClick }: ServiceCardProps) {
+export default function ServiceCard({ service, className, onClick, compareMode, isSelectedForCompare, onCompareToggle }: ServiceCardProps) {
     const rating = parseFloat(service.review_rate || "0");
     const reviewCount = parseInt(service.review_count || "0");
     const price = parseFloat(service.price || "0");
     const cityName = service.store?.service_cities?.[0]?.name || "فلسطين";
     const providerName = service.store?.name || "مقدم الخدمة";
 
+    const handleCompareToggle = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onCompareToggle?.(service.id);
+    };
+
     return (
         <div
             className={cn(
-                "bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col group cursor-pointer hover:shadow-xl transition-all duration-300 w-full",
+                "bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col group cursor-pointer hover:shadow-xl transition-all duration-300 w-full relative",
                 className
             )}
             onClick={onClick}
             dir="rtl"
         >
+            {/* Compare Mode Checkbox Overlay */}
+            {compareMode && (
+                <div
+                    className="absolute top-2 left-2 z-20 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm cursor-pointer hover:bg-white transition-colors"
+                    onClick={handleCompareToggle}
+                >
+                    <div className={cn(
+                        "w-5 h-5 rounded border flex items-center justify-center transition-colors",
+                        isSelectedForCompare
+                            ? "bg-[#3D5E83] border-[#3D5E83]"
+                            : "border-gray-300 bg-white"
+                    )}>
+                        {isSelectedForCompare && (
+                            <svg
+                                className="w-3.5 h-3.5 text-white"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                        )}
+                    </div>
+                    <span className="text-xs font-semibold text-[#3D5E83]">اضف للمقارنة</span>
+                </div>
+            )}
+
             {/* Service Image */}
             <div className="relative aspect-[4/3] w-full bg-gray-50">
                 <Image
