@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Star } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
+import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
 
 export interface ProductCardProps {
     id: number | string;
@@ -71,15 +72,7 @@ export default function ProductCard({
     // Star color from design: rgba(251, 146, 60, 1)
     const starColor = "rgb(251, 146, 60)";
 
-    // Compare Mode Checkbox
-    const isSelectedForCompare = (props as any).isSelectedForCompare;
-    const compareMode = (props as any).compareMode;
-    const onCompareToggle = (props as any).onCompareToggle;
 
-    const handleCompareToggle = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onCompareToggle?.(id);
-    };
 
     return (
         <div
@@ -89,32 +82,10 @@ export default function ProductCard({
             )}
             onClick={onClick}
         >
-            {/* Compare Mode Checkbox Overlay */}
-            {compareMode && (
-                <div
-                    className="absolute top-2 left-2 z-20 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm cursor-pointer hover:bg-white transition-colors"
-                    onClick={handleCompareToggle}
-                >
-                    <div className={cn(
-                        "w-5 h-5 rounded border flex items-center justify-center transition-colors",
-                        isSelectedForCompare
-                            ? "bg-[#3D5E83] border-[#3D5E83]"
-                            : "border-gray-300 bg-white"
-                    )}>
-                        {isSelectedForCompare && (
-                            <svg
-                                className="w-3.5 h-3.5 text-white"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                        )}
-                    </div>
-                    <span className="text-xs font-semibold text-[#3D5E83]">اضف للمقارنة</span>
-                </div>
-            )}
+            {/* Compare Checkbox - Always Visible */}
+            <div className="absolute top-2 right-2 z-20">
+                <CompareCheckbox id={id} type="product" />
+            </div>
 
             {/* Image Container */}
             <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-gray-100">
@@ -129,29 +100,27 @@ export default function ProductCard({
                 />
 
                 {/* Favorite Button - Top Left */}
-                {!compareMode && (
-                    <button
-                        onClick={handleFavoriteClick}
-                        className="absolute top-3 left-3 w-10 h-10 rounded-full bg-[#ffffffc9] cursor-pointer flex items-center justify-center shadow-md hover:scale-110 transition-transform"
-                        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-                    >
-                        {isFavorite ? (
-                            <Image
-                                src="/icons/HeartRed.png"
-                                alt="Favorite"
-                                width={20}
-                                height={20}
-                            />
-                        ) : (
-                            <Image
-                                src="/icons/heart.svg"
-                                alt="Favorite"
-                                width={20}
-                                height={20}
-                            />
-                        )}
-                    </button>
-                )}
+                <button
+                    onClick={handleFavoriteClick}
+                    className="absolute top-3 left-3 w-10 h-10 rounded-full bg-[#ffffffc9] cursor-pointer flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                    aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                >
+                    {isFavorite ? (
+                        <Image
+                            src="/icons/HeartRed.png"
+                            alt="Favorite"
+                            width={20}
+                            height={20}
+                        />
+                    ) : (
+                        <Image
+                            src="/icons/heart.svg"
+                            alt="Favorite"
+                            width={20}
+                            height={20}
+                        />
+                    )}
+                </button>
 
                 {/* Discount Badge */}
                 {hasDiscount && discountPercent && discountPercent > 0 && (
@@ -210,7 +179,4 @@ export interface ProductCardProps {
     onClick?: () => void;
     className?: string;
     type?: "product" | "store" | "service" | "blog";
-    compareMode?: boolean;
-    isSelectedForCompare?: boolean;
-    onCompareToggle?: (id: number | string) => void;
 }
