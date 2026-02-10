@@ -24,16 +24,13 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
     return (
         <div
             className={cn(
-                "bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col group cursor-pointer hover:shadow-xl transition-all duration-300 w-full relative",
+                "bg-white  overflow-hidden flex flex-col group cursor-pointer hover:shadow-xl transition-all duration-300 w-full relative",
                 className
             )}
             onClick={onClick}
             dir="rtl"
         >
-            {/* Compare Checkbox - Always Visible */}
-            <div className="absolute top-2 right-2 z-20">
-                <CompareCheckbox id={service.id} type="service" />
-            </div>
+            <CompareCheckbox id={service.id} type="service" />
 
             {/* Service Image */}
             <div className="relative aspect-[4/3] w-full bg-gray-50">
@@ -64,7 +61,7 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                 </div>
 
                 {/* Separator - Subtle Glassmorphic line */}
-                <div className="h-[1px] bg-gradient-to-l from-transparent via-gray-100 to-transparent w-full mb-4" />
+                <div className="h-[1px] bg-gray-200 w-full mb-4" />
 
                 {/* Provider Info */}
                 <div className="flex items-center gap-3">
@@ -90,17 +87,30 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
 
                         {/* Stats Row */}
                         <div className="flex items-center justify-between mt-0.5">
-                            {/* Rating */}
-                            <div className="flex items-center gap-1 text-[10px] text-gray-400" dir="ltr">
-                                <span>({reviewCount})</span>
-                                <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                            </div>
-
                             {/* Location */}
                             <div className="flex items-center gap-1 text-[10px] text-gray-500">
                                 <MapPin className="w-3 h-3 text-[#3D5E83]" />
                                 <span className="truncate max-w-[60px]">{cityName}</span>
                             </div>
+                            {/* Rating */}
+                            <div className="flex items-center gap-0.5">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star
+                                        key={i}
+                                        className={cn(
+                                            "w-3 h-3",
+                                            i < Math.round(rating)
+                                                ? "fill-[#FB923C] text-[#FB923C]"
+                                                : "fill-gray-200 text-gray-200"
+                                        )}
+                                    />
+                                ))}
+                                <span className="text-[10px] font-medium text-[#FB923C] mx-1">
+                                    {rating.toFixed(1)}
+                                </span>
+                            </div>
+
+                            
                         </div>
                     </div>
                 </div>

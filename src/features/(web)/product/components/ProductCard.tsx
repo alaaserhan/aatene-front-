@@ -82,10 +82,7 @@ export default function ProductCard({
             )}
             onClick={onClick}
         >
-            {/* Compare Checkbox - Always Visible */}
-            <div className="absolute top-2 right-2 z-20">
-                <CompareCheckbox id={id} type="product" />
-            </div>
+            <CompareCheckbox id={id} type="product" />
 
             {/* Image Container */}
             <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-gray-100">
@@ -124,7 +121,7 @@ export default function ProductCard({
 
                 {/* Discount Badge */}
                 {hasDiscount && discountPercent && discountPercent > 0 && (
-                    <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md">
+                    <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-md">
                         -{discountPercent}%
                     </div>
                 )}
@@ -133,15 +130,26 @@ export default function ProductCard({
             {/* Content - RTL aligned */}
             <div className="pt-3 text-right" dir="rtl">
                 {/* Product Name */}
-                <h3 className="font-bold text-base text-[#1F2A37] mb-1.5 line-clamp-1 group-hover:text-[#3D5E83] transition-colors">
+                <h3 className="font-medium text-base text-[#1F2A37] mb-1.5 line-clamp-1 group-hover:text-[#3D5E83] transition-colors">
                     {name || "اسم المنتج"}
                 </h3>
 
                 {/* Rating */}
                 <div className="flex items-center gap-1.5 mb-2">
-                    <div className="flex items-center gap-0.5" dir="ltr">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        <span className="text-xs font-bold text-amber-500">
+                    <div className="flex items-center gap-0.5" >
+
+                        {[...Array(5)].map((_, i) => (
+                            <Star
+                                key={i}
+                                className={cn(
+                                    "w-3.5 h-3.5",
+                                    i < Math.round(rating)
+                                        ? "fill-[#FB923C] text-[#FB923C]"
+                                        : "fill-gray-200 text-gray-200"
+                                )}
+                            />
+                        ))}
+                        <span className="text-xs font-medium text-[#FB923C] mx-1.5">
                             {rating.toFixed(1)}
                         </span>
                     </div>
@@ -149,12 +157,12 @@ export default function ProductCard({
 
                 {/* Price */}
                 <div className="flex items-baseline gap-2 justify-start">
-                    <span className="text-xl font-black text-[#1F2A37]">
-                        {parseFloat(displayPrice).toFixed(2)} <span className="text-sm font-medium">₪</span>
+                    <span className=" font-medium text-[#1F2A37]">
+                        {parseFloat(displayPrice).toFixed(2)} <span className="text-xl font-medium">₪</span>
                     </span>
                     {hasDiscount && (
-                        <span className="text-sm text-gray-400 line-through">
-                            {parseFloat(price).toFixed(2)} <span className="text-xs">₪</span>
+                        <span className="text-lg font-medium text-gray-400 line-through">
+                            {parseFloat(price).toFixed(2)} <span className="text-xl font-medium">₪</span>
                         </span>
                     )}
                 </div>

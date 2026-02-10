@@ -26,8 +26,8 @@ export default function ComparePage() {
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const { mutate: removeFromFav } = useRemoveFromFavorites();
-    const initialTab = searchParams.get("tab") as CompareType;
-    const [compareType, setCompareType] = useState<CompareType>(initialTab === "services" ? "services" : "products");
+    const initialType = searchParams.get("type") as CompareType;
+    const [compareType, setCompareType] = useState<CompareType>(initialType === "services" ? "services" : "products");
 
     // Modal State
     const [isFavModalOpen, setIsFavModalOpen] = useState(false);
@@ -35,8 +35,8 @@ export default function ComparePage() {
 
     useEffect(() => {
         const params = new URLSearchParams(searchParams.toString());
-        if (params.get("tab") !== compareType) {
-            params.set("tab", compareType);
+        if (params.get("type") !== compareType) {
+            params.set("type", compareType);
             router.replace(`?${params.toString()}`, { scroll: false });
         }
     }, [compareType, router, searchParams]);

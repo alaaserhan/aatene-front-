@@ -76,7 +76,7 @@ export function AddToFavoritesModal({ isOpen, onClose, type, itemId, isFavorite,
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent className="sm:max-w-md max-h-[90vh] flex flex-col p-0 overflow-hidden" dir="rtl">
-                <div className="p-6 pb-2 text-center">
+                <div className="p-4 pb-2 ">
                     <DialogTitle className="text-xl font-medium text-gray-800">
                         إضافة إلى المجموعة
                     </DialogTitle>
@@ -84,10 +84,10 @@ export function AddToFavoritesModal({ isOpen, onClose, type, itemId, isFavorite,
 
                 <div className="flex-1 overflow-hidden px-6 py-2 space-y-4">
                     {/* Create New List Section */}
-                    <div className="bg-gray-50/50 rounded-lg p-1">
+                    <div className="bg-blue-5 rounded-lg border border-gray-200 ">
                         <button
                             onClick={() => setIsCreateCollectionOpen(true)}
-                            className="w-full flex items-center gap-2 p-2 rounded-sm  cursor-pointer"
+                            className="w-full flex items-center gap-2 p-2  cursor-pointer"
                         >
                             <div className="bg-blue-3 text-white p-1 rounded-md">
                                 <Plus className="w-4 h-4" />
@@ -97,7 +97,7 @@ export function AddToFavoritesModal({ isOpen, onClose, type, itemId, isFavorite,
                     </div>
 
                     {/* Lists Selection */}
-                    <ScrollArea className="h-[200px] pr-2 -ml-2" dir="rtl">
+                    <ScrollArea className="h-[200px] pl-2 " dir="rtl">
                         <div className="space-y-2 p-2 pt-0">
 
 
@@ -146,11 +146,11 @@ export function AddToFavoritesModal({ isOpen, onClose, type, itemId, isFavorite,
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="p-6 bg-white border-t border-gray-100 flex flex-col gap-3">
+                <div className="p-4 bg-white border-t border-gray-100 flex flex-col gap-3">
                     <Button
                         onClick={handleSave}
                         disabled={isAdding}
-                        className="w-full bg-blue-3 hover:bg-[#2d4a6b] text-white font-medium h-11 rounded-xl shadow-lg shadow-blue-900/10"
+                        className="w-full bg-blue-3 hover:bg-[#2d4a6b] text-white font-medium h-11 rounded-md"
                     >
                         {isAdding ? "جاري الحفظ..." : "حفظ"}
                     </Button>

@@ -28,29 +28,37 @@ export function CompareCheckbox({ id, type, className }: CompareCheckboxProps) {
 
     const handleToggle = (e: React.MouseEvent) => {
         e.stopPropagation();
-        e.preventDefault(); // Prevent link navigation
+        e.preventDefault();
 
         if (isInCompare) {
-            if (type === "product") removeProduct(numericId);
-            else removeService(numericId);
+            // If already in list, remove it
+            if (type === "product") {
+                removeProduct(numericId);
+            } else {
+                removeService(numericId);
+            }
         } else {
-            if (type === "product") addProduct(numericId);
-            else addService(numericId);
+            // Not in list, add it
+            if (type === "product") {
+                addProduct(numericId);
+            } else {
+                addService(numericId);
+            }
         }
     };
 
     return (
         <div
             className={cn(
-                "flex items-center gap-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm cursor-pointer hover:bg-white transition-colors z-20",
+                "flex items-center gap-2  cursor-pointer  transition-colors z-20 py-2",
                 className
             )}
             onClick={handleToggle}
         >
             <div className={cn(
-                "w-5 h-5 rounded border flex items-center justify-center transition-colors shrink-0",
+                "w-4.5 h-4.5 rounded border flex items-center justify-center transition-colors shrink-0",
                 isInCompare
-                    ? "bg-[#3D5E83] border-[#3D5E83]"
+                    ? "bg-blue-3 border-blue-3"
                     : "border-gray-300 bg-white"
             )}>
                 {isInCompare && (
@@ -64,7 +72,7 @@ export function CompareCheckbox({ id, type, className }: CompareCheckboxProps) {
                     </svg>
                 )}
             </div>
-            <span className="text-xs font-semibold text-[#3D5E83] whitespace-nowrap select-none">اضف للمقارنة</span>
+            <span className="text-sm font-medium text-blue-3 whitespace-nowrap select-none">اضف للمقارنة</span>
         </div>
     );
 }

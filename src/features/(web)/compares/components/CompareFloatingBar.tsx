@@ -35,15 +35,13 @@ export function CompareFloatingBar() {
 
     // Auto-switch tab or open behavior
     useEffect(() => {
-        if (totalCount > 0) {
-            setIsOpen(true);
-        } else {
+        if (totalCount === 0) {
             setIsOpen(false);
         }
 
         if (serviceCount > 0 && productCount === 0) setActiveTab("services");
         else if (productCount > 0 && serviceCount === 0) setActiveTab("products");
-    }, [totalCount]); // Only run on total count change to auto open
+    }, [totalCount, serviceCount, productCount]);
 
     if (totalCount === 0) return null;
 
@@ -51,12 +49,15 @@ export function CompareFloatingBar() {
     const countLabel = activeTab === "products" ? "منتجات" : "خدمات";
 
     const handleRemove = (id: number) => {
-        if (activeTab === "products") removeProduct(id);
-        else removeService(id);
+        if (activeTab === "products") {
+            removeProduct(id);
+        } else {
+            removeService(id);
+        }
     };
 
     const handleGoToCompare = () => {
-        router.push(`/compare?tab=${activeTab}`);
+        router.push(`/compare?type=${activeTab}`);
     };
 
     if (!isOpen) {
