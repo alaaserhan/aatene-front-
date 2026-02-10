@@ -73,14 +73,14 @@ export function SearchBar({
         <div className="relative">
           <input
             type="text"
-            className="w-full border border-blue-3 h-10 rounded-md py-2 pr-12 focus:outline-none text-right pl-20"
+            className="w-full border border-blue-4 h-10 rounded-md py-2 pr-12 focus:outline-none text-right pl-20"
             placeholder="بحث"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyPress}
           />
           <button
-            className="absolute left-0 top-0 h-10 bg-blue-3 cursor-pointer text-white px-4 rounded-l-md hover:bg-[#206bc4] transition-colors"
+            className="absolute left-0 top-0 h-10 bg-blue-4 cursor-pointer text-white px-4 rounded-l-md hover:bg-[#206bc4] transition-colors"
             aria-label="بحث"
             onClick={handleSearch}
           >
@@ -122,13 +122,13 @@ export function SearchBar({
           <div className="relative w-full">
             <input
               type="text"
-              className="w-full border border-[#287CDA] h-10 rounded-md py-2 pr-10 focus:outline-none text-right pl-4"
+              className="w-full border border-blue-1 h-10 rounded-md py-2 pr-10 focus:outline-none text-right pl-4"
               placeholder="بحث"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleKeyPress}
             />
-            <div className="absolute right-0 top-0 h-10 w-10 flex items-center justify-center pointer-events-none text-[#287CDA]">
+            <div className="absolute right-0 top-0 h-10 w-10 flex items-center justify-center pointer-events-none text-blue-4">
               <Search className="w-5 h-5" />
             </div>
           </div>
@@ -154,12 +154,12 @@ export function SearchBar({
 
         {/* Desktop Layout: Pill Shape */}
         <div className={cn(
-          "hidden sm:flex items-center w-full border border-[#287CDA] rounded-full overflow-hidden bg-white h-12 shadow-sm",
+          "hidden sm:flex items-center w-full border border-blue-1 rounded-full overflow-hidden bg-white h-12",
         )}>
 
           {/* Search Input Section */}
           <div className="flex-1 flex items-center px-4 gap-2">
-            <Search className="text-[#287CDA] w-5 h-5 ml-2 shrink-0" />
+            <Search className="text-blue-4 w-5 h-5 ml-2 shrink-0" />
             <input
               type="text"
               className="flex-1 h-full text-right focus:outline-none placeholder-gray-400 text-gray-700 bg-transparent"
