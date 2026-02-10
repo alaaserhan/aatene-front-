@@ -50,12 +50,12 @@ export default function UserCard({ user, className }: UserCardProps) {
                 */}
                 <div className="absolute -top-[2.5rem] left-1/2 -translate-x-1/2 w-20 h-20 rounded-full border-[2px] border-white overflow-hidden shadow-sm bg-gray-50 z-10">
                     <Image
-                        src={user.avatar || "/placeholder-user.jpg"}
+                        src={user.avatar || "/default-avatar.png"}
                         alt={user.name}
                         fill
                         className="object-cover"
                         onError={(e) => {
-                            e.currentTarget.src = "https://placehold.co/150x150/e5e7eb/a1a1aa?text=User";
+                            e.currentTarget.src = "/default-avatar.png";
                         }}
                     />
                 </div>

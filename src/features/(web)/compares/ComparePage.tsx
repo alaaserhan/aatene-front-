@@ -130,102 +130,104 @@ export default function ComparePage() {
                 </div>
 
                 {/* Compare Table */}
-                <div className="flex flex-col gap-4">
-                    {/* Table Header */}
-                    <div className="bg-white border border-gray-200 rounded-lg flex items-center h-14 px-6 md:px-12 gap-6">
-                        {columns.map((col, i) => (
-                            <div
-                                key={i}
-                                className={cn(
-                                    "text-center text-sm font-medium text-gray-700",
-                                    i === 0 ? "w-36 shrink-0" : "flex-1"
-                                )}
-                            >
-                                {col}
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Loading State */}
-                    {isLoading && (
-                        <div className="flex items-center justify-center py-20">
-                            <div className="w-8 h-8 border-4 border-blue-3 border-t-transparent rounded-full animate-spin" />
-                        </div>
-                    )}
-
-                    {/* Data Rows */}
-                    {!isLoading && compareType === "products" && products.map((item) => (
-                        <ProductCompareRow
-                            key={item.id}
-                            item={item}
-                            onRemove={() => handleRemoveItem(item.id)}
-                            onToggleFavorite={() => handleToggleFavorite({ id: item.id, isFavorite: item.is_favorite })}
-                        />
-                    ))}
-
-                    {!isLoading && compareType === "services" && services.map((item) => (
-                        <ServiceCompareRow
-                            key={item.id}
-                            item={item}
-                            onRemove={() => handleRemoveItem(item.id)}
-                            onToggleFavorite={() => handleToggleFavorite({ id: item.id, isFavorite: item.is_favorite })}
-                        />
-                    ))}
-
-                    {/* Empty Placeholder Row */}
-                    <div className="bg-gray-50/70 border border-gray-200/60 rounded-lg flex items-center px-6 md:px-12 py-8 opacity-70 gap-6">
-                        {/* Add Item Button */}
-                        <div className="w-36 shrink-0 flex flex-col items-center justify-center gap-3">
-                            <button
-                                onClick={handleAddItem}
-                                className="w-36 h-36 rounded-3xl bg-gray-100 border border-gray-200/50 flex flex-col items-center justify-center gap-2 hover:bg-gray-200/60 transition-colors cursor-pointer group"
-                            >
-                                <PlusCircle className="w-14 h-14 text-blue-3 opacity-60 group-hover:opacity-100 transition-opacity" />
-                                <span className="text-blue-3 text-[10px] font-semibold">أضف منتج أو خدمة</span>
-                            </button>
-                            {/* Placeholder info */}
-                            <div className="flex items-center gap-3">
-                                <div className="flex flex-col gap-1">
-                                    <div className="w-20 h-2 bg-gray-200/50 rounded-full" />
-                                    <div className="w-20 h-2 bg-gray-200/50 rounded-full" />
+                <div className="w-full overflow-x-auto pb-6 -mb-6">
+                    <div className="flex flex-col gap-4 min-w-[900px] pb-4">
+                        {/* Table Header */}
+                        <div className="bg-white border border-gray-200 rounded-lg flex items-center h-14 px-6 md:px-12 gap-6">
+                            {columns.map((col, i) => (
+                                <div
+                                    key={i}
+                                    className={cn(
+                                        "text-center text-sm font-medium text-gray-700",
+                                        i === 0 ? "w-36 shrink-0" : "flex-1"
+                                    )}
+                                >
+                                    {col}
                                 </div>
-                                <div className="w-6 h-6 bg-gray-200/50 rounded-full" />
-                            </div>
-                        </div>
-
-                        {/* Description placeholder */}
-                        <div className="flex-1 flex flex-col items-center justify-center gap-2">
-                            {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="w-full h-2 bg-gray-200/50 rounded-full" />
                             ))}
                         </div>
 
-                        {/* Price placeholder */}
-                        <div className="flex-1 flex flex-col items-center justify-center gap-2">
-                            <div className="w-16 h-4 bg-gray-200/50 rounded-full" />
-                            <div className="w-12 h-2 bg-gray-200/50 rounded-full" />
-                        </div>
+                        {/* Loading State */}
+                        {isLoading && (
+                            <div className="flex items-center justify-center py-20 bg-white border border-gray-200 rounded-lg">
+                                <div className="w-8 h-8 border-4 border-blue-3 border-t-transparent rounded-full animate-spin" />
+                            </div>
+                        )}
 
-                        {/* Delivery/Execute placeholder */}
-                        <div className="flex-1 flex items-center justify-center">
-                            <div className="w-16 h-3 bg-gray-200/50 rounded-full" />
-                        </div>
+                        {/* Data Rows */}
+                        {!isLoading && compareType === "products" && products.map((item) => (
+                            <ProductCompareRow
+                                key={item.id}
+                                item={item}
+                                onRemove={() => handleRemoveItem(item.id)}
+                                onToggleFavorite={() => handleToggleFavorite({ id: item.id, isFavorite: item.is_favorite })}
+                            />
+                        ))}
 
-                        {/* Rating placeholder */}
-                        <div className="flex-1 flex flex-col items-center justify-center gap-2">
-                            <div className="w-12 h-6 bg-gray-200/50 rounded-full" />
-                            <div className="flex gap-1">
-                                {[1, 2, 3, 4, 5].map((i) => (
-                                    <div key={i} className="w-3 h-3 bg-gray-200/50 rounded-full" />
+                        {!isLoading && compareType === "services" && services.map((item) => (
+                            <ServiceCompareRow
+                                key={item.id}
+                                item={item}
+                                onRemove={() => handleRemoveItem(item.id)}
+                                onToggleFavorite={() => handleToggleFavorite({ id: item.id, isFavorite: item.is_favorite })}
+                            />
+                        ))}
+
+                        {/* Empty Placeholder Row */}
+                        <div className="bg-gray-50/70 border border-gray-200/60 rounded-lg flex items-center px-6 md:px-12 py-8 opacity-70 gap-6">
+                            {/* Add Item Button */}
+                            <div className="w-36 shrink-0 flex flex-col items-center justify-center gap-3">
+                                <button
+                                    onClick={handleAddItem}
+                                    className="w-36 h-36 rounded-3xl bg-gray-100 border border-gray-200/50 flex flex-col items-center justify-center gap-2 hover:bg-gray-200/60 transition-colors cursor-pointer group"
+                                >
+                                    <PlusCircle className="w-14 h-14 text-blue-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+                                    <span className="text-blue-3 text-[10px] font-medium">أضف عنصر</span>
+                                </button>
+                                {/* Placeholder info */}
+                                <div className="flex items-center gap-3">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="w-20 h-2 bg-gray-200/50 rounded-full" />
+                                        <div className="w-20 h-2 bg-gray-200/50 rounded-full" />
+                                    </div>
+                                    <div className="w-6 h-6 bg-gray-200/50 rounded-full" />
+                                </div>
+                            </div>
+
+                            {/* Description placeholder */}
+                            <div className="flex-1 flex flex-col items-center justify-center gap-2">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div key={i} className="w-full h-2 bg-gray-200/50 rounded-full" />
                                 ))}
                             </div>
-                        </div>
 
-                        {/* Action placeholders */}
-                        <div className="flex-1 flex items-center justify-center gap-2">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="w-9 h-9 bg-gray-200/50 rounded-md" />
-                            ))}
+                            {/* Price placeholder */}
+                            <div className="flex-1 flex flex-col items-center justify-center gap-2">
+                                <div className="w-16 h-4 bg-gray-200/50 rounded-full" />
+                                <div className="w-12 h-2 bg-gray-200/50 rounded-full" />
+                            </div>
+
+                            {/* Delivery/Execute placeholder */}
+                            <div className="flex-1 flex items-center justify-center">
+                                <div className="w-16 h-3 bg-gray-200/50 rounded-full" />
+                            </div>
+
+                            {/* Rating placeholder */}
+                            <div className="flex-1 flex flex-col items-center justify-center gap-2">
+                                <div className="w-12 h-6 bg-gray-200/50 rounded-full" />
+                                <div className="flex gap-1">
+                                    {[1, 2, 3, 4, 5].map((i) => (
+                                        <div key={i} className="w-3 h-3 bg-gray-200/50 rounded-full" />
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Action placeholders */}
+                            <div className="flex-1 flex items-center justify-center gap-2">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="w-9 h-9 bg-gray-200/50 rounded-md" />
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -261,16 +263,16 @@ function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: Product
             <div className="flex flex-col items-center gap-2 shrink-0">
                 <div className="relative w-36 h-36 rounded-3xl overflow-hidden bg-gray-100">
                     <Image
-                        src={item.cover || "/placeholder-service.jpg"}
+                        src={item.cover || "/placeholder.png"}
                         alt={item.name}
                         fill
                         className="object-cover"
                         onError={(e) => {
-                            e.currentTarget.src = "https://placehold.co/300x300/f3f4f6/9ca3af?text=Product";
+                            e.currentTarget.src = "/placeholder.png";
                         }}
                     />
                 </div>
-                <p className="font-bold text-xs text-gray-700 text-right w-36 line-clamp-3 leading-relaxed">
+                <p className="font-medium text-xs text-gray-700 text-right w-36 line-clamp-3 leading-relaxed">
                     {item.name}
                 </p>
             </div>
@@ -304,7 +306,7 @@ function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: Product
 
             {/* Rating */}
             <div className="flex-1 flex flex-col items-center justify-center gap-2">
-                <span className="text-3xl font-bold text-amber-400">{rating.toFixed(1)}</span>
+                <span className="text-3xl font-medium text-amber-400">{rating.toFixed(1)}</span>
                 <div className="flex items-center gap-0.5">
                     {[1, 2, 3, 4, 5].map((s) => (
                         <Star
@@ -355,16 +357,16 @@ function ServiceCompareRow({ item, onRemove, onToggleFavorite }: { item: Service
             <div className="flex flex-col items-center gap-2 shrink-0">
                 <div className="relative w-36 h-36 rounded-3xl overflow-hidden bg-gray-100">
                     <Image
-                        src={item.image_url || item.images_urls?.[0] || "/placeholder-service.jpg"}
+                        src={item.image_url || item.images_urls?.[0] || "/placeholder.png"}
                         alt={item.title}
                         fill
                         className="object-cover"
                         onError={(e) => {
-                            e.currentTarget.src = "https://placehold.co/300x300/f3f4f6/9ca3af?text=Service";
+                            e.currentTarget.src = "/placeholder.png";
                         }}
                     />
                 </div>
-                <p className="font-bold text-xs text-gray-700 text-right w-36 line-clamp-3 leading-relaxed">
+                <p className="font-medium text-xs text-gray-700 text-right w-36 line-clamp-3 leading-relaxed">
                     {item.title}
                 </p>
             </div>
@@ -388,7 +390,7 @@ function ServiceCompareRow({ item, onRemove, onToggleFavorite }: { item: Service
 
             {/* Rating */}
             <div className="flex-1 flex flex-col items-center justify-center gap-2">
-                <span className="text-3xl font-bold text-amber-400">{rating.toFixed(1)}</span>
+                <span className="text-3xl font-medium text-amber-400">{rating.toFixed(1)}</span>
                 <div className="flex items-center gap-0.5">
                     {[1, 2, 3, 4, 5].map((s) => (
                         <Star

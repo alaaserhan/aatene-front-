@@ -68,7 +68,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
         }
     }, [imagesList, activeImage]);
 
-    const displayImage = activeImage || (imagesList.length > 0 ? imagesList[0] : "/placeholder-service.jpg");
+    const displayImage = activeImage || (imagesList.length > 0 ? imagesList[0] : "/placeholder.png");
 
     // --- Handlers ---
 

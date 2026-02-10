@@ -5,19 +5,11 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronLeft, Menu, X, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SearchBar } from "./SearchBar";
 import UserMenu from "./UserMenu";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
-
-type SearchType = "products" | "services" | "stores" | "users";
-
-const SEARCH_TYPES: { value: SearchType; label: string }[] = [
-  { value: "products", label: "منتجات" },
-  { value: "services", label: "خدمات" },
-  { value: "stores", label: "متاجر" },
-  { value: "users", label: "مستخدمين" },
-];
 
 const menuVariants: Variants = {
   closed: {
@@ -49,8 +41,6 @@ const searchVariants: Variants = {
 export default function MobileNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedType, setSelectedType] = useState<SearchType>("products");
 
   const router = useRouter();
   const lang = useLanguage();
@@ -65,24 +55,6 @@ export default function MobileNav() {
   const toggleMobileSearch = () => {
     setMobileSearchOpen(!mobileSearchOpen);
     if (mobileMenuOpen) setMobileMenuOpen(false);
-  };
-
-  const handleSearch = () => {
-    const params = new URLSearchParams();
-
-    if (searchQuery.trim()) {
-      params.set("q", searchQuery.trim());
-    }
-    params.set("type", selectedType);
-
-    router.push(`/${lang}/search?${params.toString()}`);
-    setMobileSearchOpen(false);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
   };
 
   return (
@@ -278,41 +250,13 @@ export default function MobileNav() {
                   </button>
                 </div>
 
-                {/* Search Input */}
-                <div className="relative">
-                  <input
-                    type="text"
-                    className="w-full border border-[#287CDA] h-10 rounded-md py-2 pr-3 focus:outline-none"
-                    placeholder="بحث"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={handleKeyPress}
+                {/* Search Component */}
+                <div className="mt-2">
+                  <SearchBar
+                    currentLocale={lang}
+                    variant="mobile"
+                    onSearch={() => setMobileSearchOpen(false)}
                   />
-                  <button
-                    className="absolute left-0 top-0 h-10 bg-[#287CDA] cursor-pointer text-white px-4 rounded-l-md"
-                    aria-label="بحث"
-                    onClick={handleSearch}
-                  >
-                    البحث
-                  </button>
-                </div>
-
-                {/* Type Tabs */}
-                <div className="flex items-center gap-2 flex-wrap mt-4">
-                  {SEARCH_TYPES.map((type) => (
-                    <button
-                      key={type.value}
-                      onClick={() => setSelectedType(type.value)}
-                      className={cn(
-                        "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer border",
-                        selectedType === type.value
-                          ? "bg-[#3D5E83] text-white border-[#3D5E83]"
-                          : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
-                      )}
-                    >
-                      {type.label}
-                    </button>
-                  ))}
                 </div>
               </div>
             </motion.div>

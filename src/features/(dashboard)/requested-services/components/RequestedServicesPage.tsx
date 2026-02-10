@@ -173,7 +173,7 @@ export function RequestedServicesPage() {
           <div className="flex items-center justify-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-200 shrink-0">
               <img
-                src={item.user?.avatar_url || "/placeholder-user.jpg"}
+                src={item.user?.avatar_url || "/default-avatar.png"}
                 alt={item.user?.first_name}
                 className="w-full h-full object-cover"
               />

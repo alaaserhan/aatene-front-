@@ -35,12 +35,12 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
             {/* Service Image */}
             <div className="relative aspect-[4/3] w-full bg-gray-50">
                 <Image
-                    src={service.image_url || service.images_urls?.[0] || "/placeholder-service.jpg"}
+                    src={service.image_url || service.images_urls?.[0] || "/placeholder.png"}
                     alt={service.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                     onError={(e) => {
-                        e.currentTarget.src = "https://placehold.co/600x400/f3f4f6/9ca3af?text=Service";
+                        e.currentTarget.src = "/placeholder.png";
                     }}
                 />
             </div>
@@ -68,12 +68,12 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                     {/* Avatar */}
                     <div className="relative w-10 h-10 shrink-0 rounded-full overflow-hidden border-2 border-white shadow-sm ring-1 ring-gray-100">
                         <Image
-                            src={service.store?.logo || "/placeholder-user.jpg"}
+                            src={service.store?.logo || "/default-avatar.png"}
                             alt={providerName}
                             fill
                             className="object-cover"
                             onError={(e) => {
-                                e.currentTarget.src = "https://placehold.co/100x100/e5e7eb/a1a1aa?text=User";
+                                e.currentTarget.src = "/default-avatar.png";
                             }}
                         />
                     </div>
@@ -110,7 +110,7 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                                 </span>
                             </div>
 
-                            
+
                         </div>
                     </div>
                 </div>
