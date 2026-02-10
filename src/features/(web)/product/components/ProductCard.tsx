@@ -122,42 +122,31 @@ export default function ProductCard({
                 )}
             </div>
 
-            {/* Content - Centered */}
-            <div className="pt-3 ">
+            {/* Content - RTL aligned */}
+            <div className="pt-3 text-right" dir="rtl">
                 {/* Product Name */}
-                <h3 className="font-medium text-base text-[#1F2A37] mb-1.5 line-clamp-1 group-hover:text-[#3D5E83] transition-colors">
+                <h3 className="font-bold text-base text-[#1F2A37] mb-1.5 line-clamp-1 group-hover:text-[#3D5E83] transition-colors">
                     {name || "اسم المنتج"}
                 </h3>
 
                 {/* Rating */}
-                <div className="flex items-center  gap-1 mb-1.5">
-                    <div className="flex items-center gap-0.5">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                                key={star}
-                                className="w-4 h-4"
-                                style={{
-                                    color: star <= Math.round(rating) ? starColor : "#D1D5DB",
-                                    fill: star <= Math.round(rating) ? starColor : "none",
-                                }}
-                            />
-                        ))}
+                <div className="flex items-center gap-1.5 mb-2">
+                    <div className="flex items-center gap-0.5" dir="ltr">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span className="text-xs font-bold text-amber-500">
+                            {rating.toFixed(1)}
+                        </span>
                     </div>
-                    <span className="text-sm" style={{
-                        color: "rgba(251, 146, 60, 1)"
-                    }}>
-                        {rating.toFixed(1)}
-                    </span>
                 </div>
 
                 {/* Price */}
-                <div className="flex items-center gap-2">
-                    <span className="text-lg font-medium text-[#1F2A37]">
-                        ${parseFloat(displayPrice).toFixed(2)}
+                <div className="flex items-baseline gap-2 justify-start">
+                    <span className="text-xl font-black text-[#1F2A37]">
+                        {parseFloat(displayPrice).toFixed(2)} <span className="text-sm font-medium">₪</span>
                     </span>
                     {hasDiscount && (
                         <span className="text-sm text-gray-400 line-through">
-                            ${parseFloat(price).toFixed(2)}
+                            {parseFloat(price).toFixed(2)} <span className="text-xs">₪</span>
                         </span>
                     )}
                 </div>

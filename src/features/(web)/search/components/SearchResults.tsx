@@ -94,7 +94,7 @@ export default function SearchResults({
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="mt-8 flex justify-center" dir="ltr">
+                <div className="mt-8 flex justify-center">
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}

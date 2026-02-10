@@ -16,8 +16,9 @@ import {
     useStoresSearchPage,
     useUsersSearchPage,
 } from "./hooks";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, Tag as TagIcon } from "lucide-react";
 import { Tag } from "../searchAndFilter/api";
+import { cn } from "@/src/lib/utils";
 
 export type SearchType = "products" | "services" | "stores" | "users";
 
@@ -28,6 +29,7 @@ interface FilterState {
     min_price?: number;
     max_price?: number;
     review_rate?: number;
+    variation_options?: number[];
 }
 
 const PER_PAGE = 12;
@@ -62,27 +64,31 @@ export default function SearchResultsPage() {
                     categories: productsPageData?.categories || [],
                     cities: productsPageData?.cities || [],
                     tags: productsPageData?.tags || [],
+                    attributes: productsPageData?.attributes || [],
                 };
             case "services":
                 return {
                     categories: servicesPageData?.categories || [],
                     cities: servicesPageData?.cities || [],
                     tags: servicesPageData?.tags || [],
+                    attributes: [],
                 };
             case "stores":
                 return {
                     categories: storesPageData?.categories || [],
                     cities: storesPageData?.cities || [],
                     tags: storesPageData?.tags || [],
+                    attributes: [],
                 };
             case "users":
                 return {
                     categories: [],
                     cities: usersPageData?.cities || [],
                     tags: usersPageData?.tags || [],
+                    attributes: [],
                 };
             default:
-                return { categories: [], cities: [], tags: [] };
+                return { categories: [], cities: [], tags: [], attributes: [] };
         }
     }, [type, productsPageData, servicesPageData, storesPageData, usersPageData]);
 
@@ -96,6 +102,7 @@ export default function SearchResultsPage() {
             min_price: filters.min_price,
             max_price: filters.max_price,
             review_rate: filters.review_rate,
+            variation_options: filters.variation_options, // Assuming backend handles arrays
             page,
             per_page: PER_PAGE,
         };
@@ -146,50 +153,25 @@ export default function SearchResultsPage() {
         router.push(`?${params.toString()}`);
     };
 
-    // Sample related tags
-    const relatedTags: Tag[] = [
-        { id: 1, title: "Investors" },
-        { id: 2, title: "Books" },
-        { id: 3, title: "Muse" },
-        { id: 4, title: "Movies" },
-        { id: 5, title: "Interaction ideas" },
-        { id: 6, title: "Portfolios" },
-        { id: 7, title: "Read later" },
-    ];
+    // Handle tag toggle (same function as filter)
+    const handleTagToggle = (tagId: number) => {
+        const currentTags = filters.tags || [];
+        const newTags = currentTags.includes(tagId)
+            ? currentTags.filter((id) => id !== tagId)
+            : [...currentTags, tagId];
+        setFilters({ ...filters, tags: newTags });
+    };
+
+    // Use available tags from filter data, maybe limit if too many?
+    // Using first 10 for display in header as "Related" or "Popular" tags
+    const displayTags = filterData.tags;
 
     return (
-        <div className="container mx-auto py-8">
-            {/* Page Header */}
-            <div className="text-center mb-8">
-                <h1 className="text-2xl md:text-3xl font-medium mb-4">
-                    استكشف المزيد من عمليات البحث ذات الصلة
-                </h1>
+        <div className="container mx-auto my-10 px-4 md:px-6" dir="rtl">
+            <div className="flex flex-col lg:flex-row gap-8 items-start">
 
-                {/* Related Tags */}
-                <div className="flex items-center justify-center gap-3 flex-wrap mb-6">
-                    <span className="text-gray-500 text-sm flex items-center gap-1">
-                        <span>العلامات:</span>
-                    </span>
-                    {relatedTags.map((tag) => (
-                        <button
-                            key={tag.id}
-                            className="px-4 py-2 border border-gray-200 rounded-full text-sm text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
-                        >
-                            {tag.title}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Search Bar */}
-                <div className="max-w-2xl mx-auto">
-                    <SearchBar currentLocale="ar" defaultType={type} />
-                </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="flex gap-6" dir="rtl">
-                {/* Filters Sidebar - Desktop */}
-                <aside className="hidden lg:block w-72 shrink-0">
+                {/* Right Column: Filters Sidebar (Desktop) */}
+                <aside className="hidden lg:block w-80 shrink-0 sticky top-24 self-start">
                     <SearchFilters
                         type={type}
                         filters={filters}
@@ -197,22 +179,71 @@ export default function SearchResultsPage() {
                         categories={filterData.categories}
                         cities={filterData.cities}
                         tags={filterData.tags}
+                        attributes={filterData.attributes}
                     />
                 </aside>
 
-                {/* Results */}
-                <main className="flex-1">
-                    {/* Mobile Filter Button */}
-                    <div className="lg:hidden mb-4">
-                        <button
-                            onClick={() => setIsFilterOpen(true)}
-                            className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer"
-                        >
-                            <SlidersHorizontal className="w-5 h-5 text-[#3D5E83]" />
-                            <span className="font-medium text-[#1F2A37]">فلتر</span>
-                        </button>
+                {/* Left Column: Main Content */}
+                <main className="flex-1 w-full flex flex-col gap-6">
+
+                    {/* Header Section */}
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-row items-start md:items-center justify-between gap-4">
+                            <h1 className="text-xl md:text-2xl font-medium">
+                                استكشف المزيد من عمليات البحث ذات الصلة
+                            </h1>
+
+                            {/* Mobile Filter Button */}
+                            <div className="lg:hidden flex justify-end">
+                                <button
+                                    onClick={() => setIsFilterOpen(true)}
+                                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer text-[#3D5E83]"
+                                >
+                                    <SlidersHorizontal className="w-5 h-5" />
+                                    <span className="font-medium">فلتر</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Related Tags / Functional Tags */}
+                        {displayTags.length > 0 && (
+                            <div className="flex items-center flex-wrap gap-2">
+                                <span className="text-gray-500 text-sm whitespace-nowrap ml-2 flex items-center gap-1">
+                                    <TagIcon className="w-4 h-4" />
+                                    <span>العلامات:</span>
+                                </span>
+                                {displayTags.map((tag) => {
+                                    const isSelected = filters.tags?.includes(tag.id);
+                                    return (
+                                        <button
+                                            key={tag.id}
+                                            onClick={() => handleTagToggle(tag.id)}
+                                            className={cn(
+                                                "px-4 py-1.5 rounded-full text-sm transition-colors cursor-pointer",
+                                                isSelected
+                                                    ? "bg-[#3D5E83] text-white"
+                                                    : "bg-[#E5E7EB] hover:bg-gray-200"
+                                            )}
+                                        >
+                                            {tag.title}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {/* Search Bar */}
+                        <div className="w-full mt-2">
+                            <SearchBar
+                                currentLocale="ar"
+                                defaultType={type}
+                                variant="rounded"
+                            />
+                        </div>
                     </div>
 
+
+                    {/* Results Section */}
                     <SearchResults
                         type={type}
                         items={items}
@@ -232,7 +263,7 @@ export default function SearchResultsPage() {
                 type={type}
                 filters={filters}
                 onFilterChange={setFilters}
-                onApply={() => { }}
+                onApply={() => setIsFilterOpen(false)}
                 categories={filterData.categories}
                 cities={filterData.cities}
                 tags={filterData.tags}

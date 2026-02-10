@@ -2,7 +2,7 @@
 
 import { User } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
-import { Star, MapPin } from "lucide-react";
+import { Star, MapPin, Crown } from "lucide-react";
 import Image from "next/image";
 
 interface UserCardProps {
@@ -10,31 +10,45 @@ interface UserCardProps {
     className?: string;
 }
 
+// In a real app this would be in the user object
+const USER_COVERS = [
+    "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80"
+];
+
 export default function UserCard({ user, className }: UserCardProps) {
-    // Determine rating color (yellow/orange)
-    const starColor = "rgb(251, 146, 60)"; // Matches other cards
+    const rating = parseFloat(user.review_rate || "0").toFixed(1);
+    const cityName = user.city?.name || "الخليل";
+    // Deterministic cover based on user ID or random
+    const coverIndex = user.id ? user.id % USER_COVERS.length : 0;
+    const coverImage = USER_COVERS[coverIndex];
 
     return (
-        <div className={cn("bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-all duration-300", className)}>
-            {/* Cover Image - Top Half */}
-            <div className="relative h-48 w-full bg-gray-200">
-                {/* We don't have a cover image in the User type, so we'll use a placeholder or avatar if available as fallback pattern */}
+        <div className={cn(
+            "bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col group cursor-pointer hover:shadow-lg transition-all duration-300 w-full max-w-[320px] mx-auto",
+            className
+        )}>
+            {/* Cover Image */}
+            <div className="relative h-32 w-full bg-gray-100">
                 <Image
-                    src={"/placeholder-cover.jpg"} // Replace with actual placeholder or user.cover if added
+                    src={coverImage}
                     alt="Cover"
                     fill
                     className="object-cover"
-                    onError={(e) => {
-                        // Fallback
-                        e.currentTarget.src = "https://placehold.co/600x400/f3f4f6/9ca3af?text=Cover";
-                    }}
+                    priority
                 />
             </div>
 
             {/* Content Section */}
-            <div className="relative px-4 pb-6 pt-12 flex flex-col items-center text-center">
-                {/* Profile Picture - Overlapping */}
-                <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-28 h-28 rounded-full border-4 border-white overflow-hidden shadow-sm bg-gray-50">
+            <div className="relative px-3 pb-3 pt-12 flex flex-col items-center text-center">
+
+                {/* Profile Picture - Centered & Overlapping */}
+                {/* Positioned absolute relative to this container. 
+                    Top padding (pt-16) pushes content down.
+                    Avatar is pulled up with negative top margin or absolute positioning from top of container.
+                */}
+                <div className="absolute -top-[2.5rem] left-1/2 -translate-x-1/2 w-20 h-20 rounded-full border-[2px] border-white overflow-hidden shadow-sm bg-gray-50 z-10">
                     <Image
                         src={user.avatar || "/placeholder-user.jpg"}
                         alt={user.name}
@@ -47,35 +61,28 @@ export default function UserCard({ user, className }: UserCardProps) {
                 </div>
 
                 {/* Name & Crown */}
-                <div className="flex items-center gap-2 mb-2 mt-2">
-                    <h3 className="text-xl font-bold text-[#1F2A37]">{user.name}</h3>
-                    {/* Assuming we might want to show a crown for some users, but no field in API yet. 
-                        Image shows a gold crown. */}
-                    <span className="text-amber-400 text-xl">♛</span>
+                <div className="flex items-center justify-center gap-2 mb-2 w-full px-4" dir="rtl">
+                    <Crown className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
+                    <h3 className="font-medium truncate">{user.name}</h3>
                 </div>
 
                 {/* Bio / Job Title */}
-                <p className="text-[#6B7280] text-base mb-4 line-clamp-2">
-                    {user.bio || "لا يوجد نبذة تعريفية"}
+                <p className="text-gray-500 text-xs font-medium mb-5 truncate w-full px-4" dir="rtl">
+                    {user.bio || "مهندس معماري وديكور داخلي"}
                 </p>
 
-                {/* Location & Rating */}
-                <div className="flex items-center justify-center gap-6 text-[#4B5563]">
-                    {/* Location */}
-                    {user.city && (
-                        <div className="flex items-center gap-1.5">
-                            <span className="text-lg">{user.city.name}</span>
-                            <MapPin className="w-5 h-5 text-green-500" />
-                        </div>
-                    )}
-
-                    {/* Rating */}
+                {/* Location & Rating Row */}
+                <div className="flex items-center justify-center gap-4 text-xs w-full" dir="rtl">
                     <div className="flex items-center gap-1.5">
-                        <span className="text-xl font-medium pt-1">{parseFloat(user.review_rate || "0").toFixed(1)}</span>
-                        <div className="bg-amber-100 rounded-full p-0.5">
-                            <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-                        </div>
+                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                        <span className="font-medium  pt-0.5" >{rating}</span>
                     </div>
+                    <div className="flex items-center gap-1.5">
+                        <MapPin className="w-4 h-4 text-emerald-500" />
+                        <span className="font-medium ">{cityName}</span>
+                    </div>
+
+
                 </div>
             </div>
         </div>
