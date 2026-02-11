@@ -82,21 +82,16 @@ api.interceptors.response.use(
     }
 
     if (error.response && error.response.status !== 401) {
-      let message = "هناك خطأ ما";
-
       const responseData = error.response.data as ErrorResponse;
+      let message = responseData?.message || "هناك خطأ ما";
 
       // ⭐ أولاً: حاول أخذ أول خطأ من errors object
-      if (responseData?.errors) {
+      if (responseData?.errors && Object.keys(responseData.errors).length > 0) {
         const firstErrorKey = Object.keys(responseData.errors)[0];
         const firstErrorArray = responseData.errors[firstErrorKey];
         if (firstErrorArray && firstErrorArray.length > 0) {
           message = firstErrorArray[0];
         }
-      }
-      // ثانياً: إذا لم يكن هناك errors، استخدم message
-      else if (responseData?.message) {
-        message = responseData.message;
       }
 
       if (typeof window !== "undefined") {

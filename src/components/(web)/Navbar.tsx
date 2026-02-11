@@ -17,7 +17,7 @@ const Navbar = () => {
       <MobileNav />
 
       {/* Desktop Navigation */}
-      <div className="hidden md:block container my-2">
+      <div className="hidden min-[1100px]:block container my-2">
         <div className="flex items-center justify-between gap-6">
           <Link href={`/${lang}`} className="flex items-center gap-4">
             <img src="/black.svg" className="h-10" alt="logo" />

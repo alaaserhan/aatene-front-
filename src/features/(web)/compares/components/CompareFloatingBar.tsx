@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { ChevronDown, Trash2 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
@@ -16,6 +16,8 @@ import {
 
 export function CompareFloatingBar() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const isCompareMode = searchParams.get("compare");
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<"products" | "services">("services");
 
@@ -43,6 +45,8 @@ export function CompareFloatingBar() {
         else if (productCount > 0 && serviceCount === 0) setActiveTab("products");
     }, [totalCount, serviceCount, productCount]);
 
+
+    if (!isCompareMode) return null;
     if (totalCount === 0) return null;
 
     const currentItems = activeTab === "products" ? products : services;

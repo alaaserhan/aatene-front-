@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Star } from "lucide-react";
 import { cn } from "@/src/lib/utils";
-import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
+import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
 
 export interface ProductCardProps {
@@ -37,42 +37,9 @@ export default function ProductCard({
     className,
     type = "product", // Default type
 }: ProductCardProps) {
-    const props = { type }; // Helper to access type in handler without changing handler signature heavily
-
     const displayPrice = priceAfterDiscount || price;
     const hasDiscount = priceAfterDiscount && priceAfterDiscount !== price;
     const rating = parseFloat(reviewRate || "0");
-
-    const { mutate: addToFavorites } = useAddToFavorites();
-    const { mutate: removeFromFavorites } = useRemoveFromFavorites();
-
-    const handleFavoriteClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-
-        // Use the passed type or default to 'product' 
-        // Note: The prop 'type' needs to be added to the interface and destructured
-        const itemType = (props as any).type || "product";
-
-        if (isFavorite) {
-            removeFromFavorites({
-                favs_type: itemType,
-                favs_id: id
-            });
-        } else {
-            addToFavorites({
-                favs_type: itemType,
-                favs_id: String(id)
-            });
-        }
-
-        // Execute callback if provided, though hooks handle the logic now
-        onFavoriteClick?.(id);
-    };
-
-    // Star color from design: rgba(251, 146, 60, 1)
-    const starColor = "rgb(251, 146, 60)";
-
-
 
     return (
         <div
@@ -97,27 +64,16 @@ export default function ProductCard({
                 />
 
                 {/* Favorite Button - Top Left */}
-                <button
-                    onClick={handleFavoriteClick}
-                    className="absolute top-3 left-3 w-10 h-10 rounded-full bg-[#ffffffc9] cursor-pointer flex items-center justify-center shadow-md hover:scale-110 transition-transform"
-                    aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-                >
-                    {isFavorite ? (
-                        <Image
-                            src="/icons/HeartRed.png"
-                            alt="Favorite"
-                            width={20}
-                            height={20}
-                        />
-                    ) : (
-                        <Image
-                            src="/icons/heart.svg"
-                            alt="Favorite"
-                            width={20}
-                            height={20}
-                        />
-                    )}
-                </button>
+                <div className="absolute top-3 left-3 z-10 w-10 h-10 rounded-full bg-[#ffffffc9] flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+                    <FavoriteButton
+                        id={id}
+                        type={type}
+                        isFavorite={isFavorite}
+                        onSuccess={() => onFavoriteClick?.(id)}
+                        className="w-full h-full rounded-full"
+                        iconClassName="w-5 h-5"
+                    />
+                </div>
 
                 {/* Discount Badge */}
                 {hasDiscount && discountPercent && discountPercent > 0 && (
@@ -169,22 +125,4 @@ export default function ProductCard({
             </div>
         </div>
     );
-}
-
-// Update interface to include new props
-export interface ProductCardProps {
-    id: number | string;
-    name: string;
-    slug?: string;
-    cover: string;
-    price: string;
-    priceAfterDiscount?: string;
-    discountPercent?: number;
-    reviewRate?: string;
-    reviewCount?: string;
-    isFavorite?: boolean;
-    onFavoriteClick?: (id: number | string) => void;
-    onClick?: () => void;
-    className?: string;
-    type?: "product" | "store" | "service" | "blog";
 }

@@ -5,6 +5,7 @@ import { cn } from "@/src/lib/utils";
 import { Star, MapPin } from "lucide-react";
 import Image from "next/image";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
+import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 
 interface ServiceCardProps {
     service: Service;
@@ -43,6 +44,17 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                         e.currentTarget.src = "/placeholder.png";
                     }}
                 />
+
+                {/* Favorite Button - Top Left */}
+                <div className="absolute top-3 left-3 z-10 w-10 h-10 rounded-full bg-[#ffffffc9] flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+                    <FavoriteButton
+                        id={service.id}
+                        type="service"
+                        isFavorite={service.is_favorite}
+                        className="w-full h-full rounded-full"
+                        iconClassName="w-5 h-5"
+                    />
+                </div>
             </div>
 
             {/* Content Section */}

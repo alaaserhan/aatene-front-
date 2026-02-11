@@ -58,7 +58,7 @@ export default function MobileNav() {
   };
 
   return (
-    <div className="md:hidden w-full">
+    <div className="min-[1100px]:hidden w-full">
       <div className="flex items-center justify-between px-4 py-3 w-full">
         <button
           className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"

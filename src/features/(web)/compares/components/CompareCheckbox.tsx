@@ -2,6 +2,7 @@
 
 import { useGetProductCompareList, useGetServiceCompareList, useAddProductToCompare, useAddServiceToCompare, useRemoveProductFromCompare, useRemoveServiceFromCompare } from "../hooks";
 import { cn } from "@/src/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 interface CompareCheckboxProps {
     id: number | string;
@@ -10,7 +11,12 @@ interface CompareCheckboxProps {
 }
 
 export function CompareCheckbox({ id, type, className }: CompareCheckboxProps) {
+    const searchParams = useSearchParams();
+    const isCompareMode = searchParams.get("compare");
+
     const numericId = Number(id);
+
+    if (!isCompareMode) return null;
 
     // Hooks
     const { data: productData } = useGetProductCompareList();

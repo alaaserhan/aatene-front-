@@ -45,10 +45,13 @@ export default function SearchResultsPage() {
 
     const [filters, setFilters] = useState<FilterState>({});
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [showAllTags, setShowAllTags] = useState(false);
+    const TAGS_LIMIT = 20;
 
     // Reset filters when type changes
     useEffect(() => {
         setFilters({});
+        setShowAllTags(false);
     }, [type]);
 
     // Fetch filter options based on type
@@ -170,7 +173,7 @@ export default function SearchResultsPage() {
 
 
     return (
-        <div className="container mx-auto my-10 px-4 md:px-6" dir="rtl">
+        <div className="container mx-auto my-6 sm:my-10 px-4 md:px-6" dir="rtl">
             <div className="flex flex-col lg:flex-row gap-8 items-start">
 
                 {/* Right Column: Filters Sidebar (Desktop) */}
@@ -203,7 +206,7 @@ export default function SearchResultsPage() {
                                     className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer text-[#3D5E83]"
                                 >
                                     <SlidersHorizontal className="w-5 h-5" />
-                                    <span className="font-medium">فلتر</span>
+                                    <span className="font-medium text-sm sm:text-base">فلتر</span>
                                 </button>
                             </div>
                         </div>
@@ -215,7 +218,7 @@ export default function SearchResultsPage() {
                                     <TagIcon className="w-4 h-4" />
                                     <span>العلامات:</span>
                                 </span>
-                                {displayTags.map((tag) => {
+                                {displayTags.slice(0, showAllTags ? undefined : TAGS_LIMIT).map((tag) => {
                                     const isSelected = filters.tags?.includes(tag.id);
                                     return (
                                         <button
@@ -232,6 +235,14 @@ export default function SearchResultsPage() {
                                         </button>
                                     );
                                 })}
+                                {displayTags.length > TAGS_LIMIT && (
+                                    <button
+                                        onClick={() => setShowAllTags(!showAllTags)}
+                                        className="px-3 cursor-pointer py-1.5 text-sm font-medium text-blue-3 hover:text-blue-700 transition-colors"
+                                    >
+                                        {showAllTags ? "عرض أقل" : "عرض المزيد..."}
+                                    </button>
+                                )}
                             </div>
                         )}
 
