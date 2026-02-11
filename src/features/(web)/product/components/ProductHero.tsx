@@ -1,0 +1,303 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import { Star, Heart, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MessageCircle, MoreVertical } from "lucide-react";
+import { Product, Store } from "../api";
+import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
+import { useAddProductToCompare } from "@/src/features/(web)/compares/hooks";
+import { cn } from "@/src/lib/utils";
+
+interface ProductHeroProps {
+    product: Product;
+    store: Store;
+    attributes: any[];
+}
+
+export default function ProductHero({ product, store, attributes }: ProductHeroProps) {
+    const allMedia = useMemo(() => {
+        const items: { type: "image" | "video"; url: string }[] = [];
+        if (product.cover) items.push({ type: "image", url: product.cover });
+        if (product.gallery) {
+            product.gallery.forEach((img) => items.push({ type: "image", url: img }));
+        }
+        if (product.video) items.push({ type: "video", url: product.video });
+        return items;
+    }, [product]);
+
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [showMenu, setShowMenu] = useState(false);
+    const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
+
+    const { mutate: addToCompare } = useAddProductToCompare();
+
+    const currentMedia = allMedia[selectedIndex] || allMedia[0];
+    const rating = parseFloat(product.review_rate || "0");
+    const hasDiscount = product.price_after_discount && product.price_after_discount !== product.price;
+    const displayPrice = product.price_after_discount || product.price;
+
+    const handlePrev = () => {
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : allMedia.length - 1));
+    };
+
+    const handleNext = () => {
+        setSelectedIndex((prev) => (prev < allMedia.length - 1 ? prev + 1 : 0));
+    };
+
+    const handleAddToCompare = () => {
+        addToCompare(product.id);
+    };
+
+    return (
+        <div className="flex flex-col gap-5">
+            {/* Breadcrumb */}
+            <nav className="flex items-center gap-1 text-sm">
+                <span className="text-gray-500">قائمة المنتجات</span>
+                <ChevronLeft className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-700">{product.name}</span>
+            </nav>
+
+            {/* Main Content: Info Left, Gallery Right */}
+            <div className="flex flex-col-reverse lg:flex-row gap-10">
+                {/* Left Side: Product Info */}
+                <div className="flex-1 flex flex-col gap-6">
+                    {/* Price Row */}
+                    <div className="flex items-center flex-wrap gap-3">
+                        {/* Countdown timer placeholder */}
+                        {hasDiscount && product.discount_present && product.discount_present > 0 && (
+                            <div className="bg-gradient-to-t from-[#d54102] to-[#ff530a] text-white text-xs font-medium px-4 py-1.5 rounded-full">
+                                عرض محدود
+                            </div>
+                        )}
+
+                        <span className="text-2xl font-normal text-gray-800">
+                            {parseFloat(displayPrice).toFixed(2)} ₪
+                        </span>
+
+                        {hasDiscount && (
+                            <span className="text-sm text-red-500 line-through">
+                                {parseFloat(product.price).toFixed(2)} ₪
+                            </span>
+                        )}
+
+                        {hasDiscount && product.discount_present && product.discount_present > 0 && (
+                            <div className="bg-gradient-to-t from-[rgba(20,97,70,0.3)] to-[rgba(0,255,166,0.3)] text-gray-900 text-xs font-medium px-3 py-1 rounded-full">
+                                {product.discount_present}% off
+                            </div>
+                        )}
+
+                        {/* Separator */}
+                        <div className="w-px h-6 bg-gray-300 mx-1 hidden sm:block" />
+
+                        {/* Rating */}
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-0.5">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star
+                                        key={i}
+                                        className={cn(
+                                            "w-4 h-4",
+                                            i < Math.round(rating)
+                                                ? "fill-[#FB923C] text-[#FB923C]"
+                                                : "fill-gray-200 text-gray-200"
+                                        )}
+                                    />
+                                ))}
+                            </div>
+                            <span className="text-sm text-gray-600">
+                                ( {product.review_count || 0} مراجعة )
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Title Row */}
+                    <div className="flex items-start justify-between gap-3">
+                        <h1 className="text-2xl font-bold text-gray-900 leading-relaxed">
+                            {product.name}
+                        </h1>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <FavoriteButton
+                                id={product.id}
+                                type="product"
+                                isFavorite={product.is_favorite}
+                                className="w-8 h-8 rounded-full"
+                                iconClassName="w-5 h-5"
+                            />
+                            {/* More menu (share/report) */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowMenu(!showMenu)}
+                                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                                >
+                                    <MoreVertical className="w-5 h-5 text-gray-600" />
+                                </button>
+                                {showMenu && (
+                                    <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[160px] z-30">
+                                        <button className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                            <Share2 className="w-4 h-4" />
+                                            مشاركة المنتج
+                                        </button>
+                                        <button className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                            <Flag className="w-4 h-4" />
+                                            ابلاغ عن المنتج
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Divider */}
+                    <hr className="border-gray-200" />
+
+                    {/* Short Description */}
+                    {product.short_description && (
+                        <p className="text-gray-600 text-[15px] leading-relaxed">
+                            وصف موجز: {product.short_description}
+                        </p>
+                    )}
+
+                    {/* Variation Selectors */}
+                    {attributes && attributes.length > 0 && (
+                        <div className="flex flex-col gap-3">
+                            {attributes.map((attr: any) => (
+                                <div key={attr.id} className="relative">
+                                    <select
+                                        className="w-full h-10 px-4 border border-gray-300 rounded-md text-gray-800 bg-white appearance-none cursor-pointer focus:outline-none focus:border-blue-3 text-sm"
+                                        value={selectedVariations[attr.id] || ""}
+                                        onChange={(e) =>
+                                            setSelectedVariations((prev) => ({
+                                                ...prev,
+                                                [attr.id]: e.target.value,
+                                            }))
+                                        }
+                                    >
+                                        <option value="">اختر {attr.title}</option>
+                                        {attr.options?.map((option: any) => (
+                                            <option key={option.id} value={option.id}>
+                                                {option.title}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ChevronLeft className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none rotate-[-90deg]" />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* CTA Buttons */}
+                    <div className="flex flex-col gap-3">
+                        {/* Phone Button */}
+                        {store.phone && (
+                            <a
+                                href={`tel:${store.phone}`}
+                                className="flex items-center justify-center gap-2 bg-blue-3 text-white h-12 rounded-full font-bold text-lg hover:opacity-90 transition-opacity"
+                            >
+                                <Phone className="w-5 h-5" />
+                                <span dir="ltr">{store.phone?.replace(/(\d{3})(\d{3})(\d{3})(\d+)/, "+$1 *** *** ***")}</span>
+                            </a>
+                        )}
+
+                        {/* Chat Button */}
+                        <button className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-12 rounded-full font-bold text-lg hover:bg-gray-50 transition-colors">
+                            <MessageCircle className="w-5 h-5" />
+                            دردش
+                        </button>
+
+                        {/* Compare Link */}
+                        <button
+                            onClick={handleAddToCompare}
+                            className="text-blue-3 text-lg font-bold underline underline-offset-4 hover:opacity-80 transition-opacity cursor-pointer"
+                        >
+                            أضف هذا المنتج للمقارنة
+                        </button>
+                    </div>
+                </div>
+
+                {/* Right Side: Image Gallery */}
+                <div className="flex gap-3 lg:w-[55%]">
+                    {/* Main Image */}
+                    <div className="flex-1 relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
+                        {currentMedia?.type === "video" ? (
+                            <video
+                                src={currentMedia.url}
+                                controls
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <img
+                                src={currentMedia?.url || "/placeholder.png"}
+                                alt={product.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    e.currentTarget.src = "/placeholder.png";
+                                    e.currentTarget.onerror = null;
+                                }}
+                            />
+                        )}
+
+                        {/* Navigation Arrows */}
+                        {allMedia.length > 1 && (
+                            <>
+                                <button
+                                    onClick={handleNext}
+                                    className="absolute top-1/2 right-4 -translate-y-1/2 w-12 h-12 rounded-full bg-white/60 shadow-lg flex items-center justify-center hover:bg-white/80 transition-colors backdrop-blur-sm"
+                                >
+                                    <ChevronRight className="w-5 h-5 text-gray-700" />
+                                </button>
+                                <button
+                                    onClick={handlePrev}
+                                    className="absolute top-1/2 left-4 -translate-y-1/2 w-12 h-12 rounded-full bg-white/60 shadow-lg flex items-center justify-center hover:bg-white/80 transition-colors backdrop-blur-sm"
+                                >
+                                    <ChevronLeft className="w-5 h-5 text-gray-700" />
+                                </button>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Thumbnails Strip */}
+                    {allMedia.length > 1 && (
+                        <div className="flex flex-col gap-2.5 overflow-y-auto max-h-[600px] w-[100px] shrink-0">
+                            {allMedia.map((item, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => setSelectedIndex(index)}
+                                    className={cn(
+                                        "relative w-[100px] h-[100px] rounded-md overflow-hidden shrink-0 border-2 transition-colors",
+                                        selectedIndex === index
+                                            ? "border-[#046cff]"
+                                            : "border-transparent hover:border-gray-300"
+                                    )}
+                                >
+                                    {item.type === "video" ? (
+                                        <div className="relative w-full h-full">
+                                            <img
+                                                src={product.cover || "/placeholder.png"}
+                                                alt="Video"
+                                                className="w-full h-full object-cover"
+                                            />
+                                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                                <div className="w-[50px] h-[50px] bg-white rounded-full flex items-center justify-center">
+                                                    <Play className="w-6 h-6 text-gray-700 fill-gray-700" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <img
+                                            src={item.url}
+                                            alt={`${product.name} - ${index + 1}`}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.src = "/placeholder.png";
+                                                e.currentTarget.onerror = null;
+                                            }}
+                                        />
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}

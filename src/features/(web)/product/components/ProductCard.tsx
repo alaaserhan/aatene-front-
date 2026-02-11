@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Star } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
@@ -26,6 +27,7 @@ export interface ProductCardProps {
 export default function ProductCard({
     id,
     name,
+    slug,
     cover,
     price,
     priceAfterDiscount,
@@ -52,7 +54,7 @@ export default function ProductCard({
             <CompareCheckbox id={id} type="product" />
 
             {/* Image Container */}
-            <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-gray-100">
+            <Link href={slug ? `/product/${slug}` : "#"} className="relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 block">
                 <img
                     src={cover || "/placeholder.png"}
                     alt={name}
@@ -81,14 +83,16 @@ export default function ProductCard({
                         -{discountPercent}%
                     </div>
                 )}
-            </div>
+            </Link>
 
             {/* Content - RTL aligned */}
             <div className="pt-3 text-right" dir="rtl">
                 {/* Product Name */}
-                <h3 className="font-medium text-base text-[#1F2A37] mb-1.5 line-clamp-1 group-hover:text-[#3D5E83] transition-colors">
-                    {name || "اسم المنتج"}
-                </h3>
+                <Link href={slug ? `/product/${slug}` : "#"} className="block">
+                    <h3 className="font-medium text-base text-[#1F2A37] mb-1.5 line-clamp-1 group-hover:text-blue-3 transition-colors">
+                        {name || "اسم المنتج"}
+                    </h3>
+                </Link>
 
                 {/* Rating */}
                 <div className="flex items-center gap-1.5 mb-2">
