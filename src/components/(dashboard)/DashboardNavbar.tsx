@@ -332,7 +332,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               aria-label="الرسائل"
               asChild
             >
-              <Link href={`${navPrefix}/chat`}>
+              <Link href={`/chat`}>
                 <img src="/icons/chat.svg" className="w-5 h-5" alt="chat" />
               </Link>
             </Button>

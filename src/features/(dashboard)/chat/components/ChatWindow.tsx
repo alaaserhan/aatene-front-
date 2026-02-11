@@ -31,6 +31,7 @@ interface ChatWindowProps {
 
 export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
     const user = useAuthStore((state) => state.user);
+    console.log(user);
     const { data: messagesData, isLoading } = useConversationMessages(conversation.id);
     const { mutate: sendMessage } = useSendMessage();
     const { mutate: markSeen } = useMarkMessageAsSeen();
@@ -56,8 +57,8 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
 
     const isMerchant = user?.user_type === "merchant";
     const currentParticipantType = isMerchant ? "store" : "user";
-    const currentParticipantId = isMerchant ? Cookies.get("current_store_id") : String(user?.id);
-
+    const currentParticipantId = isMerchant ? Cookies.get("current_store_id") : (user?.id ? String(user.id) : undefined);
+    console.log(currentParticipantId);
     const otherParticipant = conversation.participants.find(
         p => !(p.participant_data.type === currentParticipantType && String(p.participant_data.id) === String(currentParticipantId))
     );
@@ -82,7 +83,11 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
 
 
     const handleSend = () => {
-        if ((!newMessage.trim() && selectedFiles.length === 0) || !currentParticipantId) return;
+        if (!currentParticipantId) {
+            toast.error("عفواً، حدث خطأ في بيانات المستخدم");
+            return;
+        }
+        if (!newMessage.trim() && selectedFiles.length === 0) return;
 
         messageIdCounter.current += 1;
         const tempId = `temp-${messageIdCounter.current}`;

@@ -70,6 +70,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
+    // Check if error is due to cancellation (e.g. on logout)
+    if (axios.isCancel(error) || error.message === "Canceled") {
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401) {
       if (typeof window !== "undefined") {

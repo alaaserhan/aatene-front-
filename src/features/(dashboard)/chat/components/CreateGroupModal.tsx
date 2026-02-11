@@ -10,7 +10,7 @@ import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { usePreviousParticipants, useCreateConversation } from "../hooks";
-import { Participant } from "../api";
+import { ParticipantData } from "../api";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import Image from "next/image";
@@ -34,15 +34,15 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
         if (!participantsData?.participants) return [];
         const seen = new Set<string>();
         return participantsData.participants.filter((p) => {
-            const key = `${p.participant_data.type}-${p.participant_data.id}`;
+            const key = `${p.type}-${p.id}`;
             if (seen.has(key)) return false;
             seen.add(key);
             return true;
         });
     }, [participantsData]);
 
-    const toggleParticipant = (participant: Participant) => {
-        const key = `${participant.participant_data.type}-${participant.participant_data.id}`;
+    const toggleParticipant = (participant: ParticipantData) => {
+        const key = `${participant.type}-${participant.id}`;
         setSelectedParticipants((prev) => {
             const newSet = new Set(prev);
             if (newSet.has(key)) {
@@ -120,7 +120,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                             المستخدمين
                             <span className="text-red-500">*</span>
                         </label>
-                        <ScrollArea className="h-[300px] border border-gray-200 rounded-lg">
+                        <ScrollArea className="h-[300px] border border-gray-200 rounded-lg" dir="rtl">
                             {isLoading ? (
                                 <div className="p-4 text-center text-gray-500">جاري التحميل...</div>
                             ) : uniqueParticipants.length === 0 ? (
@@ -128,7 +128,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                             ) : (
                                 <div>
                                     {uniqueParticipants.map((participant) => {
-                                        const key = `${participant.participant_data.type}-${participant.participant_data.id}`;
+                                        const key = `${participant.type}-${participant.id}`;
                                         const isSelected = selectedParticipants.has(key);
                                         return (
                                             <div
@@ -136,46 +136,44 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                                                 className="flex items-center  p-3 hover:bg-gray-50 cursor-pointer"
                                                 onClick={() => toggleParticipant(participant)}
                                             >
-                                                <div className="flex items-center justify-between flex-1 me-2 gap-3">
-                                                    <span className="text-xs text-gray-400">
-                                                        {format(new Date(participant.created_at), "M/d/yy", { locale: ar })}
-                                                    </span>
+                                                <div className="flex items-center flex-1 me-2 gap-3">
+                                                    <div className="flex items-center gap-3">
+                                                        {/* Custom Radio/Checkbox */}
+                                                        <div
+                                                            className={cn(
+                                                                "w-4 h-4 rounded-full border transition-colors flex items-center justify-center shrink-0",
+                                                                isSelected
+                                                                    ? "border-blue-3"
+                                                                    : "border-gray-300 group-hover:border-gray-400"
+                                                            )}
+                                                        >
+                                                            {isSelected && (
+                                                                <div className="w-2 h-2 rounded-full bg-blue-3" />
+                                                            )}
+                                                        </div>
+                                                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                                                            {participant.avatar ? (
+                                                                <Image
+                                                                    src={participant.avatar}
+                                                                    alt={participant.name || "Participant"}
+                                                                    width={40}
+                                                                    height={40}
+                                                                    className="w-full h-full object-cover"
+                                                                    unoptimized
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold">
+                                                                    {participant.name?.[0] || "U"}
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+
+                                                    </div>
                                                     <div className="">
                                                         <p className="font-medium text-sm ">
-                                                            {participant.participant_data.name}
+                                                            {participant.name}
                                                         </p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-                                                        {participant.participant_data.avatar ? (
-                                                            <Image
-                                                                src={participant.participant_data.avatar}
-                                                                alt={participant.participant_data.name || "Participant"}
-                                                                width={40}
-                                                                height={40}
-                                                                className="w-full h-full object-cover"
-                                                                unoptimized
-                                                            />
-                                                        ) : (
-                                                            <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold">
-                                                                {participant.participant_data.name?.[0] || "U"}
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Custom Radio/Checkbox */}
-                                                    <div
-                                                        className={cn(
-                                                            "w-4 h-4 rounded-full border transition-colors flex items-center justify-center shrink-0",
-                                                            isSelected
-                                                                ? "border-blue-3"
-                                                                : "border-gray-300 group-hover:border-gray-400"
-                                                        )}
-                                                    >
-                                                        {isSelected && (
-                                                            <div className="w-2 h-2 rounded-full bg-blue-3" />
-                                                        )}
                                                     </div>
                                                 </div>
                                             </div>

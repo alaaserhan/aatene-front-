@@ -9,7 +9,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { usePreviousParticipants, useAddParticipant } from "../hooks";
-import { Participant } from "../api";
+import { ParticipantData } from "../api";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -31,15 +31,15 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
         if (!participantsData?.participants) return [];
         const seen = new Set<string>();
         return participantsData.participants.filter((p) => {
-            const key = `${p.participant_data.type}-${p.participant_data.id}`;
+            const key = `${p.type}-${p.id}`;
             if (seen.has(key)) return false;
             seen.add(key);
             return true;
         });
     }, [participantsData]);
 
-    const handleSelectParticipant = (participant: Participant) => {
-        const key = `${participant.participant_data.type}-${participant.participant_data.id}`;
+    const handleSelectParticipant = (participant: ParticipantData) => {
+        const key = `${participant.type}-${participant.id}`;
         setSelectedParticipant(key === selectedParticipant ? null : key);
     };
 
@@ -106,7 +106,7 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
                             ) : (
                                 <div>
                                     {uniqueParticipants.map((participant) => {
-                                        const key = `${participant.participant_data.type}-${participant.participant_data.id}`;
+                                        const key = `${participant.type}-${participant.id}`;
                                         const isSelected = selectedParticipant === key;
                                         return (
                                             <div
@@ -115,30 +115,23 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
                                                 onClick={() => handleSelectParticipant(participant)}
                                             >
                                                 <div className="flex items-center justify-between flex-1 me-2 gap-3">
-                                                    <span className="text-xs text-gray-400">
-                                                        {format(new Date(participant.created_at), "M/d/yy", { locale: ar })}
-                                                    </span>
                                                     <div className="">
                                                         <p className="font-medium text-sm ">
-                                                            {participant.participant_data.name}
+                                                            {participant.name}
                                                         </p>
-                                                        {/* <p className="text-xs text-gray-500">السعر شامل التوصيل</p>
-                                                        <span className="inline-block mt-1 px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded">
-                                                            طلب
-                                                        </span> */}
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-                                                        {participant.participant_data.avatar ? (
+                                                        {participant.avatar ? (
                                                             <img
-                                                                src={participant.participant_data.avatar}
-                                                                alt=""
+                                                                src={participant.avatar}
+                                                                alt={participant.name || ""}
                                                                 className="w-full h-full object-cover"
                                                             />
                                                         ) : (
                                                             <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold">
-                                                                {participant.participant_data.name?.[0] || "U"}
+                                                                {participant.name?.[0] || "U"}
                                                             </div>
                                                         )}
                                                     </div>

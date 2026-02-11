@@ -230,7 +230,8 @@ export const addParticipant = async (conversationId: number | string, payload: A
 export interface GetPreviousParticipantsResponse {
     status: boolean;
     message: string;
-    participants: Participant[];
+    total: number;
+    participants: ParticipantData[];
 }
 
 export const getPreviousParticipants = async (): Promise<GetPreviousParticipantsResponse> => {
