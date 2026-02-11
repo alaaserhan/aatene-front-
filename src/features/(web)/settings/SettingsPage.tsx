@@ -8,6 +8,7 @@ import PhoneTab from "./components/tabs/PhoneTab";
 import PasswordTab from "./components/tabs/PasswordTab";
 import MerchantTab from "./components/tabs/MerchantTab";
 import BlockedTab from "./components/tabs/BlockedTab";
+import FollowingsTab from "./components/tabs/FollowingsTab";
 import NotificationsTab from "./components/tabs/NotificationsTab";
 import { StoriesTab } from "./components/tabs/StoriesTab";
 
@@ -52,7 +53,7 @@ export default function SettingsPage() {
             case "blocked":
                 return <BlockedTab />;
             case "followers":
-                return <div className="text-center py-10">قائمة المتابعين - قريبًا</div>;
+                return <FollowingsTab />;
             case "notifications":
                 return <NotificationsTab />;
             case "stories":

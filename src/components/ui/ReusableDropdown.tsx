@@ -24,6 +24,7 @@ interface ReusableDropdownProps {
   triggerIcon?: React.ReactNode;
   className?: string;
   error?: string;
+  disabled?: boolean;
   dropdownPosition?: "top" | "bottom";
   onReachEnd?: () => void;
   isLoadingMore?: boolean;
@@ -43,6 +44,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
   triggerIcon,
   className,
   error,
+  disabled = false,
   dropdownPosition = "bottom",
   onReachEnd,
   isLoadingMore = false,
@@ -92,9 +94,11 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
     <div className={cn("relative", className)} ref={dropdownRef}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        disabled={disabled}
         className={cn(
           "w-full flex items-center gap-2 px-4 h-10 border rounded-sm bg-white hover:bg-gray-50 transition-colors cursor-pointer justify-between",
+          disabled && "opacity-50 cursor-not-allowed bg-gray-100",
           error ? "border-red-500" : "border-gray-200",
           className
         )}

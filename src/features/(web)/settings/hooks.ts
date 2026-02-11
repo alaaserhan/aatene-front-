@@ -6,6 +6,7 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import {
     getCities,
     getCity,
+    getDistricts,
     getBlockedUsers,
     blockUser,
     unblockUser,
@@ -35,12 +36,24 @@ import {
     UpdateAccountPayload,
     UpdatePasswordPayload,
     UpdateDevicePreferencesPayload,
+    FollowPayload,
+    UnfollowPayload,
+    followUserOrStore,
+    unfollowUserOrStore,
+    removeFollower,
+    getFollowers,
+    getFollowings,
+    getFollowersCount,
 } from "./api";
 
 const QK = {
     cities: {
         all: ["cities"] as const,
         single: (id: string | number) => ["cities", String(id)] as const,
+    },
+    districts: {
+        all: ["districts"] as const,
+        byCity: (cityId: string | number) => ["districts", String(cityId)] as const,
     },
     blocks: {
         list: (type: string) => ["blocked-users", type] as const,
@@ -57,6 +70,11 @@ const QK = {
         profile: ["account-profile"] as const,
         device: ["device-settings"] as const,
     },
+    follows: {
+        followers: (name?: string) => ["followers", name] as const,
+        followings: (name?: string) => ["followings", name] as const,
+        count: ["followers-count"] as const,
+    },
 };
 
 // --- Cities ---
@@ -72,6 +90,14 @@ export const useGetCity = (id: string | number) => {
         queryKey: QK.cities.single(id),
         queryFn: () => getCity(id),
         enabled: !!id,
+    });
+};
+
+export const useGetDistricts = (cityId?: string | number) => {
+    return useQuery({
+        queryKey: QK.districts.byCity(cityId || "all"),
+        queryFn: () => getDistricts(cityId),
+        enabled: !!cityId,
     });
 };
 
@@ -347,5 +373,72 @@ export const useConvertToMerchant = () => {
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.account.profile });
         },
+    });
+};
+
+// --- Followings ---
+export const useFollowUserOrStore = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (payload: FollowPayload) => followUserOrStore(payload),
+        onSuccess: (data) => {
+            toast.success(data.message || "Followed successfully");
+        },
+        onSettled: () => {
+            qc.invalidateQueries({ queryKey: QK.follows.followings() });
+            qc.invalidateQueries({ queryKey: QK.account.profile });
+        },
+    });
+};
+
+export const useUnfollowUserOrStore = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (payload: UnfollowPayload) => unfollowUserOrStore(payload),
+        onSuccess: (data) => {
+            toast.success(data.message || "Unfollowed successfully");
+        },
+        onSettled: () => {
+            qc.invalidateQueries({ queryKey: QK.follows.followings() });
+            qc.invalidateQueries({ queryKey: QK.account.profile });
+        },
+    });
+};
+
+export const useRemoveFollower = () => {
+    const qc = useQueryClient();
+    // Assuming body is not critical or is passed as is
+    return useMutation({
+        mutationFn: (payload?: any) => removeFollower(payload),
+        onSuccess: (data) => {
+            // data.followers_count is returned
+            toast.success(data.message || "Follower removed successfully");
+        },
+        onSettled: () => {
+            qc.invalidateQueries({ queryKey: QK.follows.followers() });
+            qc.invalidateQueries({ queryKey: QK.follows.count });
+            qc.invalidateQueries({ queryKey: QK.account.profile });
+        },
+    });
+};
+
+export const useGetFollowers = (name?: string) => {
+    return useQuery({
+        queryKey: QK.follows.followers(name),
+        queryFn: () => getFollowers(name),
+    });
+};
+
+export const useGetFollowings = (name?: string) => {
+    return useQuery({
+        queryKey: QK.follows.followings(name),
+        queryFn: () => getFollowings(name),
+    });
+};
+
+export const useGetFollowersCount = () => {
+    return useQuery({
+        queryKey: QK.follows.count,
+        queryFn: getFollowersCount,
     });
 };

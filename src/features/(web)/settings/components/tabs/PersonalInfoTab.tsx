@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Camera, Calendar as CalendarIcon } from "lucide-react";
-import { useGetAccount, useUpdateAccount, useUpdateAvatar, useGetCities } from "../../hooks";
+import { useGetAccount, useUpdateAccount, useUpdateAvatar, useGetCities, useGetDistricts } from "../../hooks";
 import { cn } from "@/src/lib/utils";
 import Image from "next/image";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -18,6 +18,7 @@ const personalInfoSchema = z.object({
     date_of_birth: z.string().min(1, "تاريخ الميلاد مطلوب"),
     gender: z.string().min(1, "الجنس مطلوب"),
     city_id: z.number().min(1, "المدينة مطلوبة"),
+    district_id: z.number().min(1, "الحي مطلوب"),
     bio: z.string().optional(),
 });
 
@@ -37,8 +38,11 @@ export default function PersonalInfoTab() {
         date_of_birth: "",
         gender: "male",
         city_id: 0,
+        district_id: 0,
         bio: "",
     });
+
+    const { data: districtsData } = useGetDistricts(formData.city_id);
 
     const [errors, setErrors] = useState<FormErrors>({});
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -53,6 +57,7 @@ export default function PersonalInfoTab() {
                 date_of_birth: user.date_of_birth ? user.date_of_birth.split("T")[0] : "", // Format YYYY-MM-DD
                 gender: user.gender || "male",
                 city_id: user.city?.id || 0,
+                district_id: user.district?.id || 0,
                 bio: user.bio || "",
             });
             setAvatarPreview(user.avatar);
@@ -183,7 +188,10 @@ export default function PersonalInfoTab() {
                                 <input
                                     type="text"
                                     value={formData.first_name}
-                                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                                    onChange={(e) => {
+                                        setFormData({ ...formData, first_name: e.target.value });
+                                        if (errors.first_name) setErrors((prev) => ({ ...prev, first_name: undefined }));
+                                    }}
                                     placeholder="الاسم الأول"
                                     className={cn(
                                         "w-full px-6 py-3.5 border rounded-full focus:outline-none focus:border-gray-400 text-right bg-[#FFFFFF] transition-colors",
@@ -201,7 +209,10 @@ export default function PersonalInfoTab() {
                                 <input
                                     type="text"
                                     value={formData.last_name}
-                                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                                    onChange={(e) => {
+                                        setFormData({ ...formData, last_name: e.target.value });
+                                        if (errors.last_name) setErrors((prev) => ({ ...prev, last_name: undefined }));
+                                    }}
                                     placeholder="الاسم الأخير"
                                     className={cn(
                                         "w-full px-6 py-3.5 border rounded-full focus:outline-none focus:border-gray-400 text-right bg-[#FFFFFF] transition-colors",
@@ -239,6 +250,7 @@ export default function PersonalInfoTab() {
                                         onSelect={(date) => {
                                             if (date) {
                                                 setFormData({ ...formData, date_of_birth: format(date, "yyyy-MM-dd") });
+                                                if (errors.date_of_birth) setErrors((prev) => ({ ...prev, date_of_birth: undefined }));
                                             }
                                         }}
                                         disabled={(date) =>
@@ -259,7 +271,10 @@ export default function PersonalInfoTab() {
                             <ReusableDropdown
                                 options={genderOptions}
                                 value={formData.gender}
-                                onChange={(val) => setFormData({ ...formData, gender: val })}
+                                onChange={(val) => {
+                                    setFormData({ ...formData, gender: val });
+                                    if (errors.gender) setErrors((prev) => ({ ...prev, gender: undefined }));
+                                }}
                                 placeholder="ذكر"
                                 className={cn(
                                     "rounded-full h-[54px] focus-within:ring-0 focus-within:border-gray-400",
@@ -277,13 +292,38 @@ export default function PersonalInfoTab() {
                             <ReusableDropdown
                                 options={cityOptions}
                                 value={String(formData.city_id)}
-                                onChange={(val) => setFormData({ ...formData, city_id: Number(val) })}
+                                onChange={(val) => {
+                                    setFormData({ ...formData, city_id: Number(val), district_id: 0 });
+                                    if (errors.city_id) setErrors((prev) => ({ ...prev, city_id: undefined }));
+                                }}
                                 placeholder="اختر المدينة"
                                 className={cn(
                                     "rounded-full h-[54px] focus-within:ring-0 focus-within:border-gray-400",
                                     errors.city_id ? "border-red-500" : "border-gray-200"
                                 )}
                                 error={errors.city_id}
+                            />
+                        </div>
+
+                        {/* District */}
+                        <div className="flex flex-col gap-3">
+                            <label className="text-sm font-medium text-[#4B5563] text-right">
+                                الحي <span className="text-red-500">*</span>
+                            </label>
+                            <ReusableDropdown
+                                options={districtsData?.districts?.map((d: any) => ({ value: String(d.id), label: d.name })) || []}
+                                value={String(formData.district_id)}
+                                onChange={(val) => {
+                                    setFormData({ ...formData, district_id: Number(val) });
+                                    if (errors.district_id) setErrors((prev) => ({ ...prev, district_id: undefined }));
+                                }}
+                                placeholder="اختر الحي"
+                                className={cn(
+                                    "rounded-full h-[54px] focus-within:ring-0 focus-within:border-gray-400",
+                                    errors.district_id ? "border-red-500" : "border-gray-200"
+                                )}
+                                error={errors.district_id}
+                                disabled={!formData.city_id}
                             />
                         </div>
 

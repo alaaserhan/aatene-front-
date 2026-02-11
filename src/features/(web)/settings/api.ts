@@ -18,6 +18,17 @@ export interface GetCitiesResponse extends BaseResponse {
     cities: City[];
 }
 
+// 1.1 Districts
+export interface District {
+    id: number;
+    name: string;
+    city_id: string; // From JSON it looks like string "2"
+}
+
+export interface GetDistrictsResponse extends BaseResponse {
+    districts: District[];
+}
+
 // 2. Blocked Users
 export interface BlockedParticipant {
     id: number;
@@ -136,6 +147,7 @@ export interface UpdateAccountPayload {
     date_of_birth?: string;
     bio?: string;
     city_id?: number;
+    district_id?: number;
 }
 
 export interface UpdatePasswordPayload {
@@ -167,6 +179,45 @@ export interface UpdateDevicePreferencesPayload {
     notify_recommendations?: boolean;
 }
 
+// 6. Followings
+export interface FollowPayload {
+    followed_type: "user" | "store" | "product";
+    followed_id: number;
+}
+
+export interface FollowResponse extends BaseResponse {
+    following: {
+        id: number;
+        followed_type: string;
+        followed: any; // Could be precise if needed
+    };
+}
+
+export interface UnfollowPayload {
+    followed_type: "store" | "user" | "product"; // Assuming product is possible
+    followed_id: number;
+}
+
+export interface UnfollowResponse extends BaseResponse {
+    errors: any[];
+}
+
+export interface RemoveFollowerResponse extends BaseResponse {
+    followers_count: number;
+}
+
+export interface FollowersResponse extends BaseResponse {
+    recordsTotal: number;
+    recordsFiltered: number;
+    data: any[]; // User or Store
+}
+
+export interface FollowingsResponse extends BaseResponse {
+    recordsTotal: number;
+    recordsFiltered: number;
+    data: any[]; // User or Store
+}
+
 // --- API Functions ---
 
 // 1. Cities
@@ -175,13 +226,20 @@ export const getCities = async (): Promise<GetCitiesResponse> => {
     return data;
 };
 
-export const getCity = async (id: number | string): Promise<any> => { // Response type generic for error as per example
+export const getCity = async (id: number | string): Promise<any> => {
     try {
         const { data } = await api.get(`/cities/${id}`);
         return data;
     } catch (error) {
         throw error;
     }
+};
+
+export const getDistricts = async (city_id?: number | string): Promise<GetDistrictsResponse> => {
+    // Screenshot shows /districts with query params if any
+    const url = city_id ? `/districts?city_id=${city_id}` : "/districts";
+    const { data } = await api.get<GetDistrictsResponse>(url);
+    return data;
 };
 
 // 2. Blocking
@@ -305,5 +363,37 @@ export const updateDevicePreferences = async (payload: UpdateDevicePreferencesPa
 
 export const convertToMerchant = async (): Promise<BaseResponse> => {
     const { data } = await api.post<BaseResponse>("/convert-to-merchant");
+    return data;
+};
+
+// 6. Followings
+export const followUserOrStore = async (payload: FollowPayload): Promise<FollowResponse> => {
+    const { data } = await api.post<FollowResponse>("/followings/follow", payload);
+    return data;
+};
+
+export const unfollowUserOrStore = async (payload: UnfollowPayload): Promise<UnfollowResponse> => {
+    const { data } = await api.post<UnfollowResponse>("/followings/unfollow", payload);
+    return data;
+};
+
+export const removeFollower = async (params?: any): Promise<RemoveFollowerResponse> => {
+    // Body "Not specified", assuming empty or some ID
+    const { data } = await api.post<RemoveFollowerResponse>("/followers/remove", params);
+    return data;
+};
+
+export const getFollowers = async (name?: string): Promise<FollowersResponse> => {
+    const { data } = await api.get<FollowersResponse>("/followers", { params: { name } });
+    return data;
+};
+
+export const getFollowings = async (name?: string): Promise<FollowingsResponse> => {
+    const { data } = await api.get<FollowingsResponse>("/followings", { params: { name } });
+    return data;
+};
+
+export const getFollowersCount = async (): Promise<any> => {
+    const { data } = await api.get("/followers/count");
     return data;
 };
