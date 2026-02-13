@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MessageCircle, MoreVertical } from "lucide-react";
+import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MessageCircle, MoreVertical, Send } from "lucide-react";
 import { Product, Store, Attribute, AttributeOption } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddProductToCompare } from "@/src/features/(web)/compares/hooks";
@@ -167,7 +167,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                         )}
 
                         {hasDiscount && product.discount_present && product.discount_present > 0 && (
-                            <div className="bg-gradient-to-t from-[rgba(20,97,70,0.3)] to-[rgba(0,255,166,0.3)] text-gray-900 text-xs font-medium px-3 py-1 rounded-full">
+                            <div className="bg-gradient-to-t from-[rgba(20,97,70,0.3)] to-[rgba(0,255,166,0.3)]  text-xs font-medium px-3 py-1 rounded-full">
                                 {product.discount_present}% off
                             </div>
                         )}
@@ -198,7 +198,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
 
                     {/* Title Row */}
                     <div className="flex items-start justify-between gap-3">
-                        <h1 className="text-2xl font-bold text-gray-900 leading-relaxed">
+                        <h1 className="text-2xl font-medium  leading-relaxed">
                             {product.name}
                         </h1>
                         <div className="flex items-center gap-2 shrink-0">
@@ -271,23 +271,23 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                         {store.phone && (
                             <a
                                 href={`tel:${store.phone}`}
-                                className="flex items-center justify-center gap-2 bg-blue-3 text-white h-12 rounded-full font-bold text-lg hover:opacity-90 transition-opacity"
+                                className="flex items-center justify-center gap-2 bg-blue-3 text-white h-11 rounded-full font-medium hover:opacity-90 transition-opacity"
                             >
-                                <Phone className="w-5 h-5" />
                                 <span dir="ltr">{store.phone?.replace(/(\d{3})(\d{3})(\d{3})(\d+)/, "+$1 *** *** ***")}</span>
+                                <Phone className="w-5 h-5" />
                             </a>
                         )}
 
                         {/* Chat Button */}
-                        <button className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-12 rounded-full font-bold text-lg hover:bg-gray-50 transition-colors">
-                            <MessageCircle className="w-5 h-5" />
+                        <button className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-11 cursor-pointer rounded-full font-medium  hover:bg-gray-50 transition-colors">
                             دردش
+                            <Send className="w-5 h-5" />
                         </button>
 
                         {/* Compare Link */}
                         <button
                             onClick={handleAddToCompare}
-                            className="text-blue-3 text-lg font-bold underline underline-offset-4 hover:opacity-80 transition-opacity cursor-pointer"
+                            className="text-blue-4 text-sm font-medium underline underline-offset-4 cursor-pointer"
                         >
                             أضف هذا المنتج للمقارنة
                         </button>

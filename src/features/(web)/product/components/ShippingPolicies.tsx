@@ -41,12 +41,12 @@ export default function ShippingPolicies({ product, store }: ShippingPoliciesPro
             </div>
 
             {/* Delivery Company */}
-            <div className="flex items-center justify-between flex-wrap gap-4 border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center justify-between flex-wrap gap-4 border border-gray-200 rounded-lg p-3">
                 <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-lg bg-blue-3 flex items-center justify-center">
                         <Building2 className="w-6 h-6 text-white" />
                     </div>
-                    <span className="font-bold text-gray-800 text-lg">
+                    <span className="font-medium  text-lg">
                         شركة مرسال للتوصيل
                     </span>
                 </div>
@@ -54,10 +54,10 @@ export default function ShippingPolicies({ product, store }: ShippingPoliciesPro
                 {store.phone && (
                     <a
                         href={`tel:${store.phone}`}
-                        className="flex items-center gap-2 bg-blue-3 text-white px-5 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
+                        className="flex items-center gap-2 bg-blue-5 text-blue-4 px-5 py-2 rounded-full text-sm font-medium border border-blue-1"
                     >
-                        <Phone className="w-4 h-4" />
                         <span dir="ltr">{store.phone?.replace(/(\d{3})(\d{3})(\d{3})(\d+)/, "+$1 *** *** ***")}</span>
+                        <Phone className="w-4 h-4" />
                     </a>
                 )}
             </div>
