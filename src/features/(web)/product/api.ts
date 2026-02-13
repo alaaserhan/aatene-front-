@@ -1,6 +1,7 @@
 // src/features/product/api.ts
 import api from "@/src/lib/axios";
-import { SearchPageData } from "./types";
+import { SearchPageData, Category, Attribute, AttributeOption } from "./types";
+export type { SearchPageData, Category, Attribute, AttributeOption };
 
 export interface Store {
   id: number;
@@ -47,8 +48,8 @@ export interface Product {
   view_count: number;
   is_favorite: boolean;
   in_compare: boolean;
-  category: any;
-  variations: any[];
+  category: Category | null;
+  variations: unknown[];
   crossSells: Product[];
   upSells: Product[];
   created_at?: string;
@@ -62,16 +63,14 @@ export interface ProductDetailsResponse {
   message: string;
   product: Product;
   store: Store;
-  attributes: any[];
+  attributes: Attribute[];
   similar: Product[];
-  categories: any[];
+  categories: Category[];
 }
 
 export const getSearchPageData = async (): Promise<SearchPageData> => {
-  // (1) ⭐️ تعديل الـ Endpoint
   const { data } = await api.get<SearchPageData>("/products/search-page");
 
-  // (2) ⭐️ الـ Response الجديد هو الداتا مباشرة
   return data;
 };
 

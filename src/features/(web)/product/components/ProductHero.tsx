@@ -1,16 +1,18 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Star, Heart, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MessageCircle, MoreVertical } from "lucide-react";
-import { Product, Store } from "../api";
+import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MessageCircle, MoreVertical } from "lucide-react";
+import { Product, Store, Attribute, AttributeOption } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddProductToCompare } from "@/src/features/(web)/compares/hooks";
 import { cn } from "@/src/lib/utils";
 
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+
 interface ProductHeroProps {
     product: Product;
     store: Store;
-    attributes: any[];
+    attributes: Attribute[];
 }
 
 export default function ProductHero({ product, store, attributes }: ProductHeroProps) {
@@ -58,6 +60,91 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
 
             {/* Main Content: Info Left, Gallery Right */}
             <div className="flex flex-col-reverse lg:flex-row gap-10">
+                {/* Right Side: Image Gallery */}
+                <div className="flex gap-3 lg:w-[55%]">
+                    {/* Thumbnails Strip */}
+                    {allMedia.length > 1 && (
+                        <div className="flex flex-col gap-2.5 overflow-y-auto max-h-[600px] w-[100px] shrink-0">
+                            {allMedia.map((item, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => setSelectedIndex(index)}
+                                    className={cn(
+                                        "relative w-[100px] h-[100px] rounded-md overflow-hidden shrink-0 border-2 transition-colors",
+                                        selectedIndex === index
+                                            ? "border-[#046cff]"
+                                            : "border-transparent hover:border-gray-300"
+                                    )}
+                                >
+                                    {item.type === "video" ? (
+                                        <div className="relative w-full h-full">
+                                            <img
+                                                src={product.cover || "/placeholder.png"}
+                                                alt="Video"
+                                                className="w-full h-full object-cover"
+                                            />
+                                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                                <div className="w-[50px] h-[50px] bg-white rounded-full flex items-center justify-center">
+                                                    <Play className="w-6 h-6 text-gray-700 fill-gray-700" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <img
+                                            src={item.url}
+                                            alt={`${product.name} - ${index + 1}`}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.src = "/placeholder.png";
+                                                e.currentTarget.onerror = null;
+                                            }}
+                                        />
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                    {/* Main Image */}
+                    <div className="flex-1 relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
+                        {currentMedia?.type === "video" ? (
+                            <video
+                                src={currentMedia.url}
+                                controls
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <img
+                                src={currentMedia?.url || "/placeholder.png"}
+                                alt={product.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    e.currentTarget.src = "/placeholder.png";
+                                    e.currentTarget.onerror = null;
+                                }}
+                            />
+                        )}
+
+                        {/* Navigation Arrows */}
+                        {allMedia.length > 1 && (
+                            <>
+                                <button
+                                    onClick={handleNext}
+                                    className="absolute top-1/2 right-4 -translate-y-1/2 w-12 h-12 rounded-full bg-white/60 shadow-lg flex items-center justify-center hover:bg-white/80 transition-colors backdrop-blur-sm"
+                                >
+                                    <ChevronRight className="w-5 h-5 text-gray-700" />
+                                </button>
+                                <button
+                                    onClick={handlePrev}
+                                    className="absolute top-1/2 left-4 -translate-y-1/2 w-12 h-12 rounded-full bg-white/60 shadow-lg flex items-center justify-center hover:bg-white/80 transition-colors backdrop-blur-sm"
+                                >
+                                    <ChevronLeft className="w-5 h-5 text-gray-700" />
+                                </button>
+                            </>
+                        )}
+                    </div>
+
+
+                </div>
                 {/* Left Side: Product Info */}
                 <div className="flex-1 flex flex-col gap-6">
                     {/* Price Row */}
@@ -156,30 +243,24 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                         </p>
                     )}
 
-                    {/* Variation Selectors */}
                     {attributes && attributes.length > 0 && (
                         <div className="flex flex-col gap-3">
-                            {attributes.map((attr: any) => (
-                                <div key={attr.id} className="relative">
-                                    <select
-                                        className="w-full h-10 px-4 border border-gray-300 rounded-md text-gray-800 bg-white appearance-none cursor-pointer focus:outline-none focus:border-blue-3 text-sm"
-                                        value={selectedVariations[attr.id] || ""}
-                                        onChange={(e) =>
-                                            setSelectedVariations((prev) => ({
-                                                ...prev,
-                                                [attr.id]: e.target.value,
-                                            }))
-                                        }
-                                    >
-                                        <option value="">اختر {attr.title}</option>
-                                        {attr.options?.map((option: any) => (
-                                            <option key={option.id} value={option.id}>
-                                                {option.title}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <ChevronLeft className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none rotate-[-90deg]" />
-                                </div>
+                            {attributes.map((attr) => (
+                                <ReusableDropdown
+                                    key={attr.id}
+                                    placeholder={`اختر ${attr.title}`}
+                                    options={attr.options?.map((option: AttributeOption) => ({
+                                        value: option.id.toString(),
+                                        label: option.title,
+                                    })) || []}
+                                    value={selectedVariations[attr.id] || ""}
+                                    onChange={(val) =>
+                                        setSelectedVariations((prev) => ({
+                                            ...prev,
+                                            [attr.id]: val,
+                                        }))
+                                    }
+                                />
                             ))}
                         </div>
                     )}
@@ -213,90 +294,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                     </div>
                 </div>
 
-                {/* Right Side: Image Gallery */}
-                <div className="flex gap-3 lg:w-[55%]">
-                    {/* Main Image */}
-                    <div className="flex-1 relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
-                        {currentMedia?.type === "video" ? (
-                            <video
-                                src={currentMedia.url}
-                                controls
-                                className="w-full h-full object-cover"
-                            />
-                        ) : (
-                            <img
-                                src={currentMedia?.url || "/placeholder.png"}
-                                alt={product.name}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                    e.currentTarget.src = "/placeholder.png";
-                                    e.currentTarget.onerror = null;
-                                }}
-                            />
-                        )}
 
-                        {/* Navigation Arrows */}
-                        {allMedia.length > 1 && (
-                            <>
-                                <button
-                                    onClick={handleNext}
-                                    className="absolute top-1/2 right-4 -translate-y-1/2 w-12 h-12 rounded-full bg-white/60 shadow-lg flex items-center justify-center hover:bg-white/80 transition-colors backdrop-blur-sm"
-                                >
-                                    <ChevronRight className="w-5 h-5 text-gray-700" />
-                                </button>
-                                <button
-                                    onClick={handlePrev}
-                                    className="absolute top-1/2 left-4 -translate-y-1/2 w-12 h-12 rounded-full bg-white/60 shadow-lg flex items-center justify-center hover:bg-white/80 transition-colors backdrop-blur-sm"
-                                >
-                                    <ChevronLeft className="w-5 h-5 text-gray-700" />
-                                </button>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Thumbnails Strip */}
-                    {allMedia.length > 1 && (
-                        <div className="flex flex-col gap-2.5 overflow-y-auto max-h-[600px] w-[100px] shrink-0">
-                            {allMedia.map((item, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setSelectedIndex(index)}
-                                    className={cn(
-                                        "relative w-[100px] h-[100px] rounded-md overflow-hidden shrink-0 border-2 transition-colors",
-                                        selectedIndex === index
-                                            ? "border-[#046cff]"
-                                            : "border-transparent hover:border-gray-300"
-                                    )}
-                                >
-                                    {item.type === "video" ? (
-                                        <div className="relative w-full h-full">
-                                            <img
-                                                src={product.cover || "/placeholder.png"}
-                                                alt="Video"
-                                                className="w-full h-full object-cover"
-                                            />
-                                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                                                <div className="w-[50px] h-[50px] bg-white rounded-full flex items-center justify-center">
-                                                    <Play className="w-6 h-6 text-gray-700 fill-gray-700" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <img
-                                            src={item.url}
-                                            alt={`${product.name} - ${index + 1}`}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                                e.currentTarget.src = "/placeholder.png";
-                                                e.currentTarget.onerror = null;
-                                            }}
-                                        />
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
             </div>
         </div>
     );
