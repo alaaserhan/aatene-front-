@@ -7,6 +7,7 @@ import { MapPin, Flag, Plus, Star, ShieldCheck, ShoppingCart, AlarmClock } from 
 import { cn } from "@/src/lib/utils";
 import { Store } from "@/src/features/(dashboard)/stores/api";
 
+// src/components/(dashboard)/ProviderInfoCard.tsx
 export interface ProviderData {
     name: string;
     avatar: string;
@@ -15,6 +16,7 @@ export interface ProviderData {
     rating: string;
     ordersCount: number | string;
     isVerified?: boolean;
+    isFollowing?: boolean;
 }
 
 interface ProviderInfoCardProps {
@@ -22,9 +24,11 @@ interface ProviderInfoCardProps {
     provider?: ProviderData;
     className?: string;
     onReport?: () => void;
+    onFollow?: () => void;
+    isFollowing?: boolean;
 }
 
-export function ProviderInfoCard({ store, provider, className, onReport }: ProviderInfoCardProps) {
+export function ProviderInfoCard({ store, provider, className, onReport, onFollow, isFollowing }: ProviderInfoCardProps) {
     // If store is provided, map it to ProviderData
     const data: ProviderData | null = store ? {
         name: `${store.owner?.first_name} ${store.owner?.last_name}`,
@@ -35,8 +39,12 @@ export function ProviderInfoCard({ store, provider, className, onReport }: Provi
             : "N/A",
         rating: store.review_rate || "5.0",
         ordersCount: store.conversations_count || 0,
-        isVerified: true // Assuming dashboard stores are verified or we default to true/false
-    } : provider || null;
+        isVerified: true, // Assuming dashboard stores are verified or we default to true/false
+        isFollowing: isFollowing !== undefined ? isFollowing : store.am_i_following
+    } : provider ? {
+        ...provider,
+        isFollowing: isFollowing !== undefined ? isFollowing : provider.isFollowing
+    } : null;
 
     if (!data) return null;
 
@@ -62,14 +70,30 @@ export function ProviderInfoCard({ store, provider, className, onReport }: Provi
                 </div>
 
                 <div className="flex gap-2  w-full md:w-auto">
-                    <Button className="bg-[#0F2942] hover:bg-[#1A2D42] text-white font-bold h-8 px-8 gap-2 rounded-md flex-1 md:flex-none">
-                        <Plus className="w-4 h-4" />
-                        <span>تابع</span>
+                    <Button
+                        onClick={onFollow}
+                        className={cn(
+                            "font-medium h-8 px-8 gap-2 rounded-full flex-1 md:flex-none transition-colors",
+                            data.isFollowing
+                                ? "bg-gray-100 hover:bg-gray-200 text-gray-800 "
+                                : "bg-blue-3 text-white"
+                        )}
+                    >
+                        {data.isFollowing ? (
+                            <>
+                                <span>الغاء المتابعة</span>
+                            </>
+                        ) : (
+                            <>
+                                <Plus className="w-4 h-4" />
+                                <span>تابع</span>
+                            </>
+                        )}
                     </Button>
                     <Button
                         variant="destructive"
                         onClick={onReport}
-                        className="bg-[#EF4444] hover:bg-[#d93838] text-white font-bold h-8 px-6 gap-2 rounded-md flex-1 md:flex-none"
+                        className="bg-[#D00416] hover:bg-[#d93838] text-white font-medium h-8 px-8 gap-2 rounded-full flex-1 md:flex-none"
                     >
                         <Flag className="w-4 h-4" />
                         <span>بلغ عن إساءة</span>
