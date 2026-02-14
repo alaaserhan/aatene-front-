@@ -19,28 +19,9 @@ function CommentCard({
     onOpenMedia: (media: string[], index: number) => void;
 }) {
     return (
-        <div className="bg-gray-50/50 border border-gray-100 rounded-xl p-5 flex flex-col gap-4 relative transition-all hover:bg-gray-50 hover:border-blue-100">
+        <div className="bg-blue-5 rounded-lg p-5 flex flex-col gap-4 relative transition-all hover:bg-gray-50 hover:border-blue-100">
             <div className="flex items-start justify-between gap-4">
-                <ReportAbuse type="comment" id={comment.id}>
-                    <button
-                        className="flex items-center gap-1.5 text-red-500 text-[11px] font-medium hover:underline opacity-60 hover:opacity-100 transition-all px-2 py-1 rounded bg-red-50/50 hover:bg-red-50"
-                    >
-                        <Flag className="w-3 h-3" />
-                        <span>إبلاغ</span>
-                    </button>
-                </ReportAbuse>
-
                 <div className="flex items-center gap-3 text-right">
-                    <div className="flex flex-col items-end">
-                        <p className="text-gray-900 text-sm font-semibold">
-                            {comment.user.name}
-                        </p>
-                        {comment.created_at && (
-                            <p className="text-gray-400 text-[11px] font-medium">
-                                {getRelativeTimeArabic(comment.created_at)}
-                            </p>
-                        )}
-                    </div>
                     <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-100 bg-white">
                         {comment.user.avatar ? (
                             <Image
@@ -56,10 +37,29 @@ function CommentCard({
                             </div>
                         )}
                     </div>
+                    <div className="flex flex-col ">
+                        <p className="text-blue-4 text-sm font-medium">
+                            {comment.user.name}
+                        </p>
+                        {comment.created_at && (
+                            <p className="text-gray-2 text-xs  mt-1">
+                                {getRelativeTimeArabic(comment.created_at)}
+                            </p>
+                        )}
+                    </div>
                 </div>
+                <ReportAbuse type="comment" id={comment.id}>
+                    <button
+                        className="flex items-center gap-1.5 text-red-500 text-xs font-medium cursor-pointer"
+                    >
+                        <Flag className="w-3 h-3" />
+                        <span>بلغ عن إساءة</span>
+                    </button>
+                </ReportAbuse>
+
             </div>
 
-            <p className="text-gray-700 text-sm font-medium leading-relaxed text-right whitespace-pre-wrap">
+            <p className="text-gray-2 text-sm leading-relaxed  whitespace-pre-wrap">
                 {comment.content}
             </p>
 
@@ -90,7 +90,7 @@ function CommentCard({
 function AddCommentForm({ slug }: { slug: string | number }) {
     const [content, setContent] = useState("");
     const { mutate, isPending } = useAddRequestedServiceComment();
-    const maxLength = 1000;
+    const maxLength = 300;
 
     const handleSubmit = () => {
         if (!content.trim() || isPending) return;
@@ -107,41 +107,49 @@ function AddCommentForm({ slug }: { slug: string | number }) {
     };
 
     return (
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-            <h3 className="text-right text-lg font-bold text-gray-900 mb-4">أضف ردك</h3>
-            <div className="flex flex-col gap-4">
-                <div className="relative">
-                    <textarea
-                        value={content}
-                        onChange={(e) => {
-                            if (e.target.value.length <= maxLength) {
-                                setContent(e.target.value);
-                            }
-                        }}
-                        placeholder="اكتب تعليقك هنا..."
-                        className="w-full min-h-[120px] bg-gray-50 border border-gray-200 rounded-xl p-4 text-right text-gray-800 text-sm font-medium resize-none focus:outline-none focus:border-blue-400 focus:bg-white transition-all placeholder:text-gray-400"
-                        dir="rtl"
-                    />
-                    <div className="absolute bottom-3 left-3 text-xs text-gray-400 font-medium bg-gray-100/80 px-2 py-0.5 rounded-full">
-                        {content.length} / {maxLength}
+        <div className="border border-gray-200 rounded-xl px-5 py-4">
+            <div className="bg-blue-5 rounded-xl p-5 flex flex-col gap-3">
+                <div className="flex gap-3 items-start">
+                    <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
+                        <Image
+                            src="/assets/images/placeholder.jpg"
+                            alt="user"
+                            width={40}
+                            height={40}
+                            className="object-cover w-full h-full"
+                        />
+                    </div>
+                    <div className="flex-1">
+                        <textarea
+                            value={content}
+                            onChange={(e) => {
+                                if (e.target.value.length <= maxLength) {
+                                    setContent(e.target.value);
+                                }
+                            }}
+                            placeholder="أضف تعليقك هنا"
+                            className="w-full min-h-[100px] bg-white border border-gray-200 rounded-lg p-4 text-right text-sm resize-none focus:outline-none focus:border-blue-3 transition-colors"
+                            dir="rtl"
+                        />
+                        <p className="text-gray-2 text-xs text-end mt-1.5">
+                            {content.length} /{maxLength}
+                        </p>
                     </div>
                 </div>
 
                 <div className="flex items-center justify-end gap-3">
                     <button
                         onClick={() => setContent("")}
-                        className="text-gray-500 text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
-                        disabled={!content}
+                        className="text-blue-3 text-sm font-medium px-3 py-2 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
                     >
-                        إلغاء
+                        إغلاق
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={isPending || !content.trim()}
-                        className="bg-[#3d5e83] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm shadow-blue-900/10 cursor-pointer"
+                        className="bg-blue-3 border border-blue-4 text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
-                        {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-                        {isPending ? "جاري النشر..." : "نشر التعليق"}
+                        {isPending ? "جاري الإرسال..." : "إضافة الإجابة"}
                     </button>
                 </div>
             </div>
@@ -206,15 +214,15 @@ export default function RequestedServiceDetailsPage() {
 
             {/* Header */}
             <div className="flex items-center justify-between gap-4 mb-8">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-normal">
+                <h1 className="text-2xl md:text-3xl font-medium ">
                     {service.title}
                 </h1>
                 <ReportAbuse type="requested_service" id={service.id}>
                     <button
-                        className="flex cursor-pointer items-center gap-2 bg-red-50 text-red-500 text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-red-100 transition-colors shrink-0 border border-red-100"
+                        className="flex cursor-pointer items-center gap-2 bg-red-600 text-white text-xs font-medium px-4 py-2 rounded-md shrink-0 border border-red-100"
                     >
                         <Flag className="w-4 h-4" />
-                        <span>إبلاغ عن المحتوى</span>
+                        <span>بلغ عن إساءة</span>
                     </button>
                 </ReportAbuse>
             </div>
@@ -224,9 +232,9 @@ export default function RequestedServiceDetailsPage() {
                 {/* Main Content (Right in RTL) */}
                 <div className="flex-1 w-full flex flex-col gap-8 order-2 lg:order-1">
                     {/* Service Content Card */}
-                    <div className="bg-white border border-gray-100 rounded-2xl p-6 md:p-8 shadow-sm">
+                    <div className="bg-[#EFF4FA66]  rounded-xl p-6 md:p-8 ">
                         {/* Author Header */}
-                        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100">
+                        <div className="flex items-center gap-4 mb-8 pb-6 ">
                             <div className="w-14 h-14 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
                                 {service.user?.avatar_url ? (
                                     <Image
@@ -243,13 +251,13 @@ export default function RequestedServiceDetailsPage() {
                                 )}
                             </div>
                             <div className="flex flex-col gap-1 items-start">
-                                <p className="text-gray-900 text-base font-bold">
+                                <p className="text-base font-medium">
                                     {(service.user?.first_name || service.user?.last_name)
                                         ? `${service.user?.first_name || ""} ${service.user?.last_name || ""}`
                                         : "مستخدم"}
                                 </p>
                                 {service.user?.is_active && (
-                                    <span className="bg-blue-50 text-[#3d5e83] text-[10px] px-2 py-0.5 rounded-full font-bold">
+                                    <span className="bg-blue-50 text-[#3d5e83] text-[10px] px-2 py-0.5 rounded-full font-medium">
                                         بائع مميز
                                     </span>
                                 )}
@@ -258,14 +266,14 @@ export default function RequestedServiceDetailsPage() {
 
                         {/* Text Content */}
                         <div
-                            className="text-gray-700 text-base md:text-lg font-medium leading-[1.8] text-right whitespace-pre-wrap"
+                            className=" text-sm  font-medium leading-[1.8] whitespace-pre-wrap"
                             dangerouslySetInnerHTML={{ __html: service.content }}
                         />
 
                         {/* Attachments */}
                         {service.images_urls && service.images_urls.length > 0 && (
-                            <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col gap-3 items-start">
-                                <p className="text-gray-900 text-sm font-bold flex items-center gap-2">
+                            <div className="mt-8 pt-6  flex flex-col gap-3 items-start">
+                                <p className="text-sm font-medium flex items-center gap-2">
                                     <ImageIcon className="w-4 h-4 text-gray-500" />
                                     المرفقات ({service.images_urls.length})
                                 </p>
@@ -293,7 +301,7 @@ export default function RequestedServiceDetailsPage() {
 
                     {/* Comments Section */}
                     <div className="flex flex-col gap-6">
-                        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                        <h2 className="text-xl font-medium flex items-center gap-2">
                             التعليقات
                             <span className="text-gray-400 font-medium text-lg">({totalComments})</span>
                         </h2>
@@ -307,8 +315,8 @@ export default function RequestedServiceDetailsPage() {
                                 />
                             ))}
                             {comments.length === 0 && (
-                                <div className="bg-gray-50 rounded-2xl p-8 text-center border border-dashed border-gray-200">
-                                    <p className="text-gray-400 font-medium">لا توجد تعليقات حتى الآن. كن أول من يضيف تعليقاً!</p>
+                                <div className="bg-gray-50 rounded-xl p-8 text-center border border-dashed border-gray-200">
+                                    <p className="text-gray-2 font-medium text-sm">لا توجد تعليقات حتى الآن. كن أول من يضيف تعليقاً!</p>
                                 </div>
                             )}
                         </div>
@@ -322,41 +330,37 @@ export default function RequestedServiceDetailsPage() {
                 <div className="w-full lg:w-[360px] shrink-0 flex flex-col gap-6 order-1 lg:order-2">
 
                     {/* Publication Stats */}
-                    <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col gap-5">
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                            <span className="text-gray-500 text-sm font-medium">تاريخ النشر</span>
-                            <span className="text-gray-900 text-sm font-bold dir-ltr">
+                    <div className="bg-[#EFF4FA66] rounded-xl p-8 flex flex-col gap-6">
+                        <div className="flex items-center justify-between">
+                            <span className="text-[#3d5e83] text-[15px] font-medium">تاريخ النشر</span>
+                            <span className="text-black-1 text-sm ">
                                 {getRelativeTimeArabic(service.created_at)}
                             </span>
                         </div>
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                            <span className="text-gray-500 text-sm font-medium">عدد التعليقات</span>
-                            <span className="text-gray-900 text-sm font-bold">
-                                {service.comments_count}
+                        <div className="flex items-center justify-between">
+                            <span className="text-[#3d5e83] text-[15px] font-medium">عدد التعليقات</span>
+                            <span className="text-black-1 text-sm ">
+                                {service.comments_count} تعليق
                             </span>
                         </div>
                     </div>
 
                     {/* Latest Contributions / Activity */}
                     {latestActivity && latestActivity.length > 0 && (
-                        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col gap-6">
-                            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-                                <h3 className="text-gray-900 font-bold">آخر المساهمات</h3>
-                                {/* Optional: Link to see all if applicable */}
+                        <div className="bg-[#EFF4FA66] rounded-xl p-8 flex flex-col gap-6">
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-[#3d5e83] text-[15px] font-medium">آخر المساهمات</h3>
                             </div>
-                            <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-5">
                                 {latestActivity.slice(0, 5).map((item) => (
                                     <Link
                                         key={item.id}
                                         href={`/requested-services/${item.slug}`}
-                                        className="group block p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+                                        className="group block transition-colors cursor-pointer text-right"
                                     >
-                                        <h4 className="text-gray-900 font-semibold text-sm line-clamp-1 mb-1 group-hover:text-[#3d5e83] transition-colors">
+                                        <h4 className="text-black-1 font-medium text-sm leading-relaxed group-hover:text-[#3d5e83] transition-colors">
                                             {item.title}
                                         </h4>
-                                        <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed">
-                                            {item.content}
-                                        </p>
                                     </Link>
                                 ))}
                             </div>
