@@ -41,13 +41,11 @@ export function SuccessModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md" dir="rtl">
         <DialogHeader className="flex flex-col items-center pt-4">
-          <div className="w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6">
-            <div className="w-16 h-16 rounded-full bg-green-200 flex items-center justify-center">
-              <Check className="w-10 h-10 text-green-600" strokeWidth={2} />
-            </div>
+          <div className="w-24 h-24 flex items-center justify-center mb-6">
+            <img src="/icons/success.svg" alt="success" />
           </div>
 
-          <DialogTitle className="text-xl font-bold text-center text-brand-black-1">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-center text-brand-black-1">
             {title}
           </DialogTitle>
 

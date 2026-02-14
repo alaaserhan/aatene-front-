@@ -15,6 +15,8 @@ import { Label } from "@/src/components/ui/label";
 import { useAuthStore } from "@/src/stores/auth-store";
 import Image from "next/image";
 
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+
 interface AddEditMyBlogPageProps {
     blogId?: number | string;
     isEdit?: boolean;
@@ -24,6 +26,8 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
     const router = useRouter();
     const isEditMode = isEdit;
     const user = useAuthStore((state) => state.user);
+
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const { data: blogData } = useBlog(blogId!, !!isEditMode);
     const createMutation = useCreateBlog();
@@ -167,7 +171,8 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
 
         const options = {
             onSuccess: () => {
-                router.push(`/blogs`); // Redirect to public blogs listing or user's blogs
+                // Show success modal
+                setShowSuccessModal(true);
             },
         };
 
@@ -176,6 +181,11 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
         } else {
             createMutation.mutate(payload, options);
         }
+    };
+
+    const handleSuccessModalClose = () => {
+        setShowSuccessModal(false);
+        router.push('/blogs');
     };
 
     const handleDeleteBlog = () => {
@@ -337,14 +347,14 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
                                             {para.title}
                                         </span>
                                     </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => handleDeleteParagraph(index)}
-                                            className="text-red-500 "
-                                        >
-                                            <img src="/icons/dashboard/trash.svg" alt="delete" />
-                                        </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleDeleteParagraph(index)}
+                                        className="text-red-500 "
+                                    >
+                                        <img src="/icons/dashboard/trash.svg" alt="delete" />
+                                    </Button>
                                     <Button
                                         variant="ghost"
                                         size="sm"
@@ -369,7 +379,7 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
                         <div className="space-y-4">
                             {/* Para Title */}
                             <div className="space-y-2">
- 
+
                                 <FormInput
                                     label="عنوان الفقرة"
                                     required
@@ -420,6 +430,16 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
 
 
             </div>
-        </div>
+
+
+            <SuccessModal
+                isOpen={showSuccessModal}
+                onClose={handleSuccessModalClose}
+                title={isEditMode ? "تم تعديل المقال بنجاح" : "تمت إضافة المقال بنجاح"}
+                message={isEditMode ? "تم تحديث بيانات المقال ويمكنك مشاهدتها الآن." : "تم نشر المقال بنجاح ويمكنك مشاهدته الآن."}
+                buttonText="الذهاب إلى المقالات"
+                onButtonClick={handleSuccessModalClose}
+            />
+        </div >
     );
 }
