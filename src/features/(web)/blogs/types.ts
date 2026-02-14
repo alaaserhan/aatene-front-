@@ -65,6 +65,8 @@ export interface BlogReview {
     rate: string | null;
     images: string[];
     user: BlogReviewUser;
+    created_at?: string;
+    has_replies?: boolean;
 }
 
 export interface BaseResponse {
@@ -86,7 +88,8 @@ export interface BlogsResponse extends BaseResponse {
 }
 
 export interface SingleBlogResponse extends BaseResponse {
-    record: Blog;
+    record?: Blog;
+    blog?: Blog;
 }
 
 export interface CreateBlogData {

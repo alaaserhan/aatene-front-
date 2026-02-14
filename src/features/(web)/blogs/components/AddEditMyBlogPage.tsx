@@ -52,9 +52,9 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
 
     // Initialize with edit data
     const [lastBlogId, setLastBlogId] = useState<string | number | undefined>(undefined);
-    if (isEditMode && blogData?.record && blogData.record.id !== lastBlogId) {
-        setLastBlogId(blogData.record.id);
-        const { record } = blogData;
+    const record = blogData?.blog || blogData?.record;
+    if (isEditMode && record && record.id !== lastBlogId) {
+        setLastBlogId(record.id);
         setFormData({
             title: record.title,
             category: record.category,

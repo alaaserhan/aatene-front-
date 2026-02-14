@@ -71,7 +71,10 @@ export function useUpdateBlog() {
         onSuccess: (data) => {
             toast.success("تم تعديل المدونة بنجاح");
             queryClient.invalidateQueries({ queryKey: blogsKeys.my() });
-            queryClient.invalidateQueries({ queryKey: blogsKeys.detail(data.record.id) });
+            const id = data.blog?.id || data.record?.id;
+            if (id) {
+                queryClient.invalidateQueries({ queryKey: blogsKeys.detail(id) });
+            }
         },
         onError: (error: AxiosError<BaseResponse>) => {
             toast.error(error?.response?.data?.message || "حدث خطأ ما");

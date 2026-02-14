@@ -114,6 +114,8 @@ export default function AddEditRequestedServicePage({
         if (imageFiles.length === 0) newErrors.images = "يجب إضافة صورة واحدة على الأقل";
         if (!formData.services_follows_rules)
             newErrors.services_follows_rules = "يجب الموافقة على السياسات";
+        if (!formData.have_searched_for_services_before)
+            newErrors.have_searched_for_services_before = "يجب التأكيد على البحث المسبق";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -172,11 +174,10 @@ export default function AddEditRequestedServicePage({
                 <div className=" space-y-10 ">
                     {/* Title Field */}
                     <div className="space-y-4">
-                        <Label className="text-sm font-medium block ">
-                            عنوان الخدمة
-                        </Label>
                         <FormInput
                             placeholder="عنوان الخدمة"
+                            label="عنوان الخدمة"
+                            required
                             value={formData.title}
                             onChange={(e) => {
                                 setFormData({ ...formData, title: e.target.value });
@@ -192,7 +193,7 @@ export default function AddEditRequestedServicePage({
                     {/* Images Field */}
                     <div className="space-y-4">
                         <Label className="text-sm font-medium block ">
-                            الصور
+                            الصور <span className="text-red-500 ms-1">*</span>
                         </Label>
                         <p className="text-xs text-gray-2 ">
                             يمكنك إضافة حتى (10) صور و (1) فيديو
@@ -212,9 +213,6 @@ export default function AddEditRequestedServicePage({
 
                     {/* Content Field */}
                     <div className="space-y-4">
-                        <Label className="text-sm font-medium block ">
-                            محتوى الخدمة
-                        </Label>
                         <RichTextEditor
                             value={formData.content}
                             onChange={(val) => {
@@ -224,17 +222,18 @@ export default function AddEditRequestedServicePage({
                             placeholder="محتوى الخدمة"
                             className="min-h-[300px]"
                             error={errors.content}
-                            label=""
+                            label="محتوى الخدمة"
+                            required
                             helpText=""
-                            helpTooltip=""
+                            helpTooltip="اكتب وصفاً مفصلاً للموضوع بلغة سليمة خالية من الأخطاء، لاحقاً خلال ما سيحصل بالتفصيل في الموضوع."
                         />
                         <p className="text-xs text-gray-2 ">
-                            اكتب وصفاً مفصلاً للموضوع بلغة سليمة خالية من الأخطاء، لاحقاً خلال ما سيحصل بالتفصيل في الموضوع.
+
                         </p>
                     </div>
 
                     {/* Checkboxes */}
-                    <div className="space-y-4 pt-2">
+                    <div className="space-y-4">
                         <div className="flex items-center gap-3 ">
                             <CustomCheckbox
                                 id="policy"
@@ -259,9 +258,10 @@ export default function AddEditRequestedServicePage({
                             <CustomCheckbox
                                 id="search-before"
                                 checked={formData.have_searched_for_services_before}
-                                onCheckedChange={(checked) =>
-                                    setFormData({ ...formData, have_searched_for_services_before: !!checked })
-                                }
+                                onCheckedChange={(checked) => {
+                                    setFormData({ ...formData, have_searched_for_services_before: !!checked });
+                                    if (errors.have_searched_for_services_before) setErrors({ ...errors, have_searched_for_services_before: "" });
+                                }}
                             />
                             <Label
                                 htmlFor="search-before"
@@ -270,6 +270,9 @@ export default function AddEditRequestedServicePage({
                                 بحثت في الخدمات الموجودة قبل نشر هذا الطلب للتأكد من عدم توفره مسبقاً.
                             </Label>
                         </div>
+                        {errors.have_searched_for_services_before && (
+                            <p className="text-xs text-red-500 text-right">{errors.have_searched_for_services_before}</p>
+                        )}
                     </div>
                     {/* Submit Button */}
                     <div className="">

@@ -9,6 +9,7 @@ import { Store } from "@/src/features/(dashboard)/stores/api";
 
 // src/components/(dashboard)/ProviderInfoCard.tsx
 export interface ProviderData {
+    id?: number;
     name: string;
     avatar: string;
     location: string;
@@ -28,9 +29,12 @@ interface ProviderInfoCardProps {
     isFollowing?: boolean;
 }
 
+import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
+
 export function ProviderInfoCard({ store, provider, className, onReport, onFollow, isFollowing }: ProviderInfoCardProps) {
     // If store is provided, map it to ProviderData
     const data: ProviderData | null = store ? {
+        id: store.id,
         name: `${store.owner?.first_name} ${store.owner?.last_name}`,
         avatar: store.owner?.avatar_url || "",
         location: store.serviceCities?.[0]?.name || "فلسطين، الخليل",
@@ -90,14 +94,27 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
                             </>
                         )}
                     </Button>
-                    <Button
-                        variant="destructive"
-                        onClick={onReport}
-                        className="bg-[#D00416] hover:bg-[#d93838] text-white font-medium h-8 px-8 gap-2 rounded-full flex-1 md:flex-none"
-                    >
-                        <Flag className="w-4 h-4" />
-                        <span>بلغ عن إساءة</span>
-                    </Button>
+
+                    {data.id ? (
+                        <ReportAbuse type="store" id={data.id}>
+                            <Button
+                                variant="destructive"
+                                className="bg-[#D00416] hover:bg-[#d93838] cursor-pointer text-white font-medium h-8 px-8 gap-2 rounded-full flex-1 md:flex-none"
+                            >
+                                <Flag className="w-4 h-4" />
+                                <span>بلغ عن إساءة</span>
+                            </Button>
+                        </ReportAbuse>
+                    ) : (
+                        <Button
+                            variant="destructive"
+                            onClick={onReport}
+                            className="bg-[#D00416] hover:bg-[#d93838] cursor-pointer text-white font-medium h-8 px-8 gap-2 rounded-full flex-1 md:flex-none"
+                        >
+                            <Flag className="w-4 h-4" />
+                            <span>بلغ عن إساءة</span>
+                        </Button>
+                    )}
                 </div>
 
             </div>

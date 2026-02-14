@@ -5,9 +5,10 @@ import { useRequestedServiceBySlug, useRequestedServiceComments, useAddRequested
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { Loader2, Flag } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+
 import { useState } from "react";
 import { RequestedServiceComment } from "../types";
+import { ReportAbuse } from "../../reports/components/ReportAbuse";
 
 function CommentCard({ comment }: { comment: RequestedServiceComment }) {
     return (
@@ -34,13 +35,15 @@ function CommentCard({ comment }: { comment: RequestedServiceComment }) {
                 </div>
             </div>
 
-            <Link
-                href={`/report/create/review/${comment.id}`}
-                className="absolute top-3 left-3 flex items-center gap-1 text-red-1 text-[10px] font-medium hover:underline"
-            >
-                <span>بلغ عن إساءة</span>
-                <Flag className="w-3 h-3" />
-            </Link>
+
+            <ReportAbuse type="comment" id={comment.id}>
+                <button
+                    className="absolute cursor-pointer top-3 left-3 flex items-center gap-1 text-red-1 text-[10px] font-medium hover:underline"
+                >
+                    <span>بلغ عن إساءة</span>
+                    <Flag className="w-3 h-3" />
+                </button>
+            </ReportAbuse>
 
             <p className="text-gray-2 text-sm font-medium leading-[1.705] text-right">
                 {comment.content}
@@ -158,13 +161,17 @@ export default function RequestedServiceDetailsPage() {
                 <h1 className="text-2xl md:text-[36px] font-medium text-black-1 leading-normal">
                     {service.title}
                 </h1>
-                <Link
-                    href={`/report/create/requested_service/${service.id}`}
-                    className="flex items-center gap-1.5 bg-red-1 text-white text-xs font-medium px-4 py-2 rounded-lg hover:opacity-90 transition-colors shrink-0"
-                >
-                    <span>بلغ عن إساءة</span>
-                    <Flag className="w-4 h-4" />
-                </Link>
+                <h1 className="text-2xl md:text-[36px] font-medium text-black-1 leading-normal">
+                    {service.title}
+                </h1>
+                <ReportAbuse type="requested_service" id={service.id}>
+                    <button
+                        className="flex cursor-pointer items-center gap-1.5 bg-red-1 text-white text-xs font-medium px-4 py-2 rounded-lg hover:opacity-90 transition-colors shrink-0"
+                    >
+                        <span>بلغ عن إساءة</span>
+                        <Flag className="w-4 h-4" />
+                    </button>
+                </ReportAbuse>
             </div>
 
             <div className="flex flex-col-reverse lg:flex-row gap-10">

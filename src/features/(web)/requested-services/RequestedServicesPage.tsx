@@ -8,6 +8,7 @@ import { Search, CirclePlus, Flag } from "lucide-react";
 import { RequestedService } from "./types";
 import Image from "next/image";
 import Link from "next/link";
+import { ReportAbuse } from "../reports/components/ReportAbuse";
 
 const PER_PAGE = 10;
 
@@ -34,13 +35,15 @@ function ServiceCard({ service }: { service: RequestedService }) {
                         <Link href={`/requested-services/${service.slug}`} className="font-medium leading-normal line-clamp-2 hover:text-blue-2 transition-colors">
                             {service.title}
                         </Link>
-                        <Link
-                            href={`/report/create/requested_service/${service.id}`}
-                            className="flex items-center gap-1 text-[#F00] font-medium text-xs hover:underline shrink-0"
-                        >
-                            <Flag className="w-3 h-3" />
-                            <span>بلغ عن إساءة</span>
-                        </Link>
+
+                        <ReportAbuse type="requested_service" id={service.id}>
+                            <button
+                                className="flex cursor-pointer items-center gap-1 text-[#F00] font-medium text-xs hover:underline shrink-0"
+                            >
+                                <Flag className="w-3 h-3" />
+                                <span>بلغ عن إساءة</span>
+                            </button>
+                        </ReportAbuse>
                     </div>
                     <p className="text-gray-2 text-sm leading-[1.7] line-clamp-2">
                         {service.content}
