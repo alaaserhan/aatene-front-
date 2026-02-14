@@ -20,6 +20,7 @@ import {
     ChevronLeft,
 } from "lucide-react";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
+import { MediaViewer } from "@/src/components/ui/MediaViewer";
 
 function StarRating({
     rating,
@@ -104,7 +105,7 @@ function AuthorCard({ blog }: { blog: Blog }) {
                 {blog.description?.slice(0, 150) || "لا يوجد وصف"}
             </p>
             <div className="flex items-center gap-2 w-full">
-                <button className="flex-1 flex items-center justify-center gap-1 bg-gradient-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap">
+                <button className="flex-1 flex items-center justify-center gap-1 bg-gradient-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer">
                     <MessageSquare size={13} />
                     تواصل معي
                 </button>
@@ -143,7 +144,7 @@ function TableOfContents({
                     <button
                         key={index}
                         onClick={() => onSelect(index)}
-                        className={`text-right pr-5 py-2.5 text-[16px] transition-all border-r-[3px] ${activeIndex === index
+                        className={`text-right pr-5 py-2.5 text-[16px] transition-all border-r-[3px] cursor-pointer ${activeIndex === index
                             ? "border-[#3d22cf] text-[#3d22cf] font-medium"
                             : "border-transparent "
                             }`}
@@ -159,34 +160,10 @@ function TableOfContents({
 
 
 
-function ImageOverlay({ src, onClose }: { src: string; onClose: () => void }) {
-    if (!src) return null;
-    return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-            onClick={onClose}
-        >
-            <div className="relative max-w-[90vw] max-h-[90vh] w-full h-full flex items-center justify-center p-4">
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
-                >
-                    <X size={32} />
-                </button>
-                <div className="relative w-full h-full max-w-4xl max-h-[80vh]">
-                    <Image
-                        src={src}
-                        alt="Preview"
-                        fill
-                        className="object-contain"
-                    />
-                </div>
-            </div>
-        </div>
-    );
-}
+// ImageOverlay removed
 
-function ReviewItem({ review, onImageClick }: { review: BlogReview; onImageClick?: (src: string) => void }) {
+
+function ReviewItem({ review, onOpenMedia }: { review: BlogReview; onOpenMedia?: (media: string[], index: number) => void }) {
     const isReply = !!review.parent_id;
     return (
         <div className={`bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-4 ${isReply ? "mr-8 md:mr-16" : ""}`}>
@@ -228,7 +205,7 @@ function ReviewItem({ review, onImageClick }: { review: BlogReview; onImageClick
                 <div className="flex gap-2 ">
                     {review.images.map((img, i) => (
                         <div key={i}
-                            onClick={() => onImageClick?.(img)}
+                            onClick={() => onOpenMedia?.(review.images || [], i)}
                             className="relative w-[80px] h-[80px] rounded-lg overflow-hidden border border-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
                         >
                             <Image src={img} alt="" fill className="object-cover" />
@@ -242,7 +219,7 @@ function ReviewItem({ review, onImageClick }: { review: BlogReview; onImageClick
                 {/* Interactions (Right) */}
                 <div className="flex items-center gap-5 text-[14px] font-medium text-blue-4">
                     <span>{getRelativeTimeArabic(review.created_at)}</span>
-                    <button className="hover:underline">رد</button>
+                    <button className="hover:underline cursor-pointer">رد</button>
                 </div>
                 {/* Report (Left) */}
                 <ReportAbuse type="comment" id={review.id}>
@@ -334,7 +311,7 @@ function ReviewForm({ slug }: { slug: string }) {
                     ))}
                     <button
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-[100px] h-[100px] rounded-[15px] border border-dashed border-[#046cff] bg-[rgba(166,166,166,0.3)] flex items-center justify-center"
+                        className="w-[100px] h-[100px] rounded-[15px] border border-dashed border-[#046cff] bg-[rgba(166,166,166,0.3)] flex items-center justify-center cursor-pointer"
                     >
                         <div className="bg-[#006cff] rounded-full p-2">
                             <Plus size={24} className="text-white" />
@@ -372,7 +349,23 @@ export default function BlogDetailsPage() {
     const params = useParams();
     const slug = params.slug as string;
     const [activeContentIndex, setActiveContentIndex] = useState(0);
-    const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [mediaViewerState, setMediaViewerState] = useState<{
+        isOpen: boolean;
+        media: string[];
+        index: number;
+    }>({
+        isOpen: false,
+        media: [],
+        index: 0,
+    });
+
+    const openMedia = (media: string[], index: number = 0) => {
+        setMediaViewerState({ isOpen: true, media, index });
+    };
+
+    const closeMedia = () => {
+        setMediaViewerState((prev) => ({ ...prev, isOpen: false }));
+    };
     const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     const { data: blogData, isLoading, error } = useBlog(slug);
@@ -508,13 +501,20 @@ export default function BlogDetailsPage() {
                             <h3 className="text-xl font-medium ">التعليقات</h3>
                             <div className="flex flex-col gap-4">
                                 {reviews.map((review) => (
-                                    <ReviewItem key={review.id} review={review} onImageClick={setPreviewImage} />
+                                    <ReviewItem key={review.id} review={review} onOpenMedia={openMedia} />
                                 ))}
                             </div>
                         </div>
                     )}
 
-                    <ImageOverlay src={previewImage || ""} onClose={() => setPreviewImage(null)} />
+                    {mediaViewerState.isOpen && (
+                        <MediaViewer
+                            isOpen={mediaViewerState.isOpen}
+                            onClose={closeMedia}
+                            media={mediaViewerState.media}
+                            initialIndex={mediaViewerState.index}
+                        />
+                    )}
 
                     {/* Review Form */}
                     <ReviewForm slug={slug} />

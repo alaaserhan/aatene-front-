@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent } from "@/src/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import { useGetReportTypes, useCreateReport } from "../hooks";
 import { CreateReportPayload } from "../api";
 import { CheckCircle2, Loader2 } from "lucide-react";
@@ -82,7 +82,7 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                 {step === 1 && (
                     <div className="flex flex-col items-center gap-6">
                         <div className="text-center space-y-2">
-                            <h2 className="text-xl font-bold">الإبلاغ عن إساءة</h2>
+                            <DialogTitle className="text-xl font-bold">الإبلاغ عن إساءة</DialogTitle>
                             <p className="text-gray-500 text-sm">ما الذي نقدر ان نساعدك بيه ؟</p>
                         </div>
 
@@ -131,7 +131,7 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                 {step === 2 && (
                     <div className="flex flex-col items-center gap-6">
                         <div className="text-center space-y-2">
-                            <h2 className="text-xl font-bold">الإبلاغ عن إساءة</h2>
+                            <DialogTitle className="text-xl font-bold">الإبلاغ عن إساءة</DialogTitle>
                             <p className="text-gray-500 text-sm">ما الذي نقدر ان نساعدك بيه ؟</p>
                         </div>
 
@@ -184,7 +184,7 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                         </div>
 
                         <div className="text-center space-y-2">
-                            <h2 className="text-2xl font-bold">شكرًا لك!</h2>
+                            <DialogTitle className="text-2xl font-bold">شكرًا لك!</DialogTitle>
                             <p className="text-gray-500 text-sm max-w-[300px]">
                                 تم إرسال طلبك وهو في الطريق. تحقق من بريدك الإلكتروني للحصول على التفاصيل.
                             </p>

@@ -3,63 +3,82 @@
 import { useParams } from "next/navigation";
 import { useRequestedServiceBySlug, useRequestedServiceComments, useAddRequestedServiceComment } from "../hooks";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
-import { Loader2, Flag } from "lucide-react";
+import { Loader2, Flag, ImageIcon, User } from "lucide-react";
 import Image from "next/image";
-
+import Link from "next/link";
 import { useState } from "react";
 import { RequestedServiceComment } from "../types";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
+import { MediaViewer } from "@/src/components/ui/MediaViewer";
 
-function CommentCard({ comment }: { comment: RequestedServiceComment }) {
+function CommentCard({
+    comment,
+    onOpenMedia
+}: {
+    comment: RequestedServiceComment;
+    onOpenMedia: (media: string[], index: number) => void;
+}) {
     return (
-        <div className="bg-blue-5 rounded-[20px] p-5 flex flex-col gap-3 relative">
-            <div className="flex items-center gap-3 justify-end">
-                <div className="flex flex-col items-end gap-1">
-                    <p className="text-blue-2 text-sm font-medium">
-                        {comment.user.name}
-                    </p>
-                    {comment.created_at && (
-                        <p className="text-gray-2 text-xs font-medium">
-                            {getRelativeTimeArabic(comment.created_at)}
+        <div className="bg-gray-50/50 border border-gray-100 rounded-xl p-5 flex flex-col gap-4 relative transition-all hover:bg-gray-50 hover:border-blue-100">
+            <div className="flex items-start justify-between gap-4">
+                <ReportAbuse type="comment" id={comment.id}>
+                    <button
+                        className="flex items-center gap-1.5 text-red-500 text-[11px] font-medium hover:underline opacity-60 hover:opacity-100 transition-all px-2 py-1 rounded bg-red-50/50 hover:bg-red-50"
+                    >
+                        <Flag className="w-3 h-3" />
+                        <span>إبلاغ</span>
+                    </button>
+                </ReportAbuse>
+
+                <div className="flex items-center gap-3 text-right">
+                    <div className="flex flex-col items-end">
+                        <p className="text-gray-900 text-sm font-semibold">
+                            {comment.user.name}
                         </p>
-                    )}
-                </div>
-                <div className="w-[50px] h-[50px] rounded-full overflow-hidden shrink-0">
-                    <Image
-                        src={comment.user.avatar}
-                        alt={comment.user.name}
-                        width={50}
-                        height={50}
-                        className="object-cover w-full h-full"
-                    />
+                        {comment.created_at && (
+                            <p className="text-gray-400 text-[11px] font-medium">
+                                {getRelativeTimeArabic(comment.created_at)}
+                            </p>
+                        )}
+                    </div>
+                    <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-100 bg-white">
+                        {comment.user.avatar ? (
+                            <Image
+                                src={comment.user.avatar}
+                                alt={comment.user.name}
+                                width={40}
+                                height={40}
+                                className="object-cover w-full h-full"
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
+                                <User className="w-5 h-5" />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
-
-            <ReportAbuse type="comment" id={comment.id}>
-                <button
-                    className="absolute cursor-pointer top-3 left-3 flex items-center gap-1 text-red-1 text-[10px] font-medium hover:underline"
-                >
-                    <span>بلغ عن إساءة</span>
-                    <Flag className="w-3 h-3" />
-                </button>
-            </ReportAbuse>
-
-            <p className="text-gray-2 text-sm font-medium leading-[1.705] text-right">
+            <p className="text-gray-700 text-sm font-medium leading-relaxed text-right whitespace-pre-wrap">
                 {comment.content}
             </p>
 
             {comment.images && comment.images.length > 0 && (
-                <div className="flex gap-2 justify-end flex-wrap">
+                <div className="flex gap-2 justify-end flex-wrap mt-1">
                     {comment.images.map((img, i) => (
-                        <div key={i} className="w-[80px] h-[80px] rounded-lg overflow-hidden border border-gray-200">
+                        <div
+                            key={i}
+                            className="w-16 h-16 rounded-lg overflow-hidden border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity relative group"
+                            onClick={() => onOpenMedia(comment.images || [], i)}
+                        >
                             <Image
                                 src={img}
                                 alt=""
-                                width={80}
-                                height={80}
+                                width={64}
+                                height={64}
                                 className="object-cover w-full h-full"
                             />
+                            <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                     ))}
                 </div>
@@ -71,7 +90,7 @@ function CommentCard({ comment }: { comment: RequestedServiceComment }) {
 function AddCommentForm({ slug }: { slug: string | number }) {
     const [content, setContent] = useState("");
     const { mutate, isPending } = useAddRequestedServiceComment();
-    const maxLength = 300;
+    const maxLength = 1000;
 
     const handleSubmit = () => {
         if (!content.trim() || isPending) return;
@@ -88,40 +107,41 @@ function AddCommentForm({ slug }: { slug: string | number }) {
     };
 
     return (
-        <div className="border border-gray-4 rounded-[14px] px-5 py-4">
-            <div className="bg-blue-5 rounded-[10px] p-4 flex flex-col gap-3">
-                <div className="flex gap-2 items-start justify-end">
-                    <div className="flex-1">
-                        <textarea
-                            value={content}
-                            onChange={(e) => {
-                                if (e.target.value.length <= maxLength) {
-                                    setContent(e.target.value);
-                                }
-                            }}
-                            placeholder="أضف تعليقك هنا"
-                            className="w-full min-h-[100px] bg-white border border-gray-4 rounded p-4 text-right text-gray-2 text-base font-medium resize-none focus:outline-none focus:border-blue-2 transition-colors"
-                            dir="rtl"
-                        />
-                        <p className="text-gray-2 text-sm text-right mt-1">
-                            {content.length} / {maxLength}
-                        </p>
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <h3 className="text-right text-lg font-bold text-gray-900 mb-4">أضف ردك</h3>
+            <div className="flex flex-col gap-4">
+                <div className="relative">
+                    <textarea
+                        value={content}
+                        onChange={(e) => {
+                            if (e.target.value.length <= maxLength) {
+                                setContent(e.target.value);
+                            }
+                        }}
+                        placeholder="اكتب تعليقك هنا..."
+                        className="w-full min-h-[120px] bg-gray-50 border border-gray-200 rounded-xl p-4 text-right text-gray-800 text-sm font-medium resize-none focus:outline-none focus:border-blue-400 focus:bg-white transition-all placeholder:text-gray-400"
+                        dir="rtl"
+                    />
+                    <div className="absolute bottom-3 left-3 text-xs text-gray-400 font-medium bg-gray-100/80 px-2 py-0.5 rounded-full">
+                        {content.length} / {maxLength}
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center justify-end gap-3">
+                    <button
+                        onClick={() => setContent("")}
+                        className="text-gray-500 text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                        disabled={!content}
+                    >
+                        إلغاء
+                    </button>
                     <button
                         onClick={handleSubmit}
                         disabled={isPending || !content.trim()}
-                        className="bg-blue-3 border border-blue-4 text-white px-3 py-2 rounded-lg text-base font-medium hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-[#3d5e83] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm shadow-blue-900/10 cursor-pointer"
                     >
-                        {isPending ? "جاري الإرسال..." : "إضافة الإجابة"}
-                    </button>
-                    <button
-                        onClick={() => setContent("")}
-                        className="text-blue-2 px-3 py-2 rounded-lg text-base font-medium hover:bg-gray-50 transition-colors"
-                    >
-                        إغلاق
+                        {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                        {isPending ? "جاري النشر..." : "نشر التعليق"}
                     </button>
                 </div>
             </div>
@@ -135,10 +155,28 @@ export default function RequestedServiceDetailsPage() {
     const { data: serviceData, isLoading, isError } = useRequestedServiceBySlug(slug);
     const { data: commentsData } = useRequestedServiceComments(slug);
 
+    const [mediaViewerState, setMediaViewerState] = useState<{
+        isOpen: boolean;
+        media: string[];
+        index: number;
+    }>({
+        isOpen: false,
+        media: [],
+        index: 0,
+    });
+
+    const openMedia = (media: string[], index: number = 0) => {
+        setMediaViewerState({ isOpen: true, media, index });
+    };
+
+    const closeMedia = () => {
+        setMediaViewerState((prev) => ({ ...prev, isOpen: false }));
+    };
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-40">
-                <Loader2 className="w-10 h-10 animate-spin text-blue-3" />
+                <Loader2 className="w-10 h-10 animate-spin text-[#3d5e83]" />
             </div>
         );
     }
@@ -146,166 +184,186 @@ export default function RequestedServiceDetailsPage() {
     if (isError || !serviceData?.record) {
         return (
             <div className="text-center py-40" dir="rtl">
-                <p className="text-gray-2 text-lg">عذراً، لم يتم العثور على الخدمة المطلوبة</p>
+                <p className="text-gray-500 text-lg">عذراً، لم يتم العثور على الخدمة المطلوبة</p>
             </div>
         );
     }
 
-    const service = serviceData.record;
+    const { record: service, latestActivity } = serviceData;
     const comments = commentsData?.reviews || [];
     const totalComments = commentsData?.total || 0;
 
     return (
-        <div className="max-w-[1340px] mx-auto w-full px-4 md:px-8 lg:px-[100px] py-8 md:py-12" dir="rtl">
-            <div className="flex items-start justify-between gap-4 mb-6">
-                <h1 className="text-2xl md:text-[36px] font-medium text-black-1 leading-normal">
-                    {service.title}
-                </h1>
-                <h1 className="text-2xl md:text-[36px] font-medium text-black-1 leading-normal">
+        <div className="max-w-[1300px] mx-auto w-full px-4 md:px-8 py-8 md:py-12" dir="rtl">
+            {mediaViewerState.isOpen && (
+                <MediaViewer
+                    isOpen={mediaViewerState.isOpen}
+                    onClose={closeMedia}
+                    media={mediaViewerState.media}
+                    initialIndex={mediaViewerState.index}
+                />
+            )}
+
+            {/* Header */}
+            <div className="flex items-center justify-between gap-4 mb-8">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-normal">
                     {service.title}
                 </h1>
                 <ReportAbuse type="requested_service" id={service.id}>
                     <button
-                        className="flex cursor-pointer items-center gap-1.5 bg-red-1 text-white text-xs font-medium px-4 py-2 rounded-lg hover:opacity-90 transition-colors shrink-0"
+                        className="flex cursor-pointer items-center gap-2 bg-red-50 text-red-500 text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-red-100 transition-colors shrink-0 border border-red-100"
                     >
-                        <span>بلغ عن إساءة</span>
                         <Flag className="w-4 h-4" />
+                        <span>إبلاغ عن المحتوى</span>
                     </button>
                 </ReportAbuse>
             </div>
 
-            <div className="flex flex-col-reverse lg:flex-row gap-10">
-                <div className="lg:w-[392px] shrink-0 flex flex-col gap-10">
-                    <div className="bg-blue-6 backdrop-blur-sm rounded-[20px] px-5 py-5">
-                        <div className="flex flex-col gap-5">
-                            <div className="flex items-center justify-between">
-                                <p className="text-black-1 text-sm font-medium">
-                                    {getRelativeTimeArabic(service.created_at)}
-                                </p>
-                                <p className="text-blue-2 text-sm font-medium">
-                                    تاريخ النشر
-                                </p>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <p className="text-black-1 text-sm font-medium">
-                                    {service.comments_count} تعليق
-                                </p>
-                                <p className="text-blue-2 text-sm font-medium">
-                                    عدد التعليقات
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+            <div className="flex flex-col lg:flex-row gap-8 items-start">
 
-                    <div className="bg-white-1 backdrop-blur-sm rounded-[20px] px-5 py-5">
-                        <div className="flex flex-col gap-6">
-                            <div className="flex items-center justify-between">
-                                <p className="text-blue-4 text-sm font-medium cursor-pointer hover:underline">
-                                    عرض المزيد
-                                </p>
-                                <p className="text-blue-3 text-sm font-medium">
-                                    آخر المساهمات
-                                </p>
+                {/* Main Content (Right in RTL) */}
+                <div className="flex-1 w-full flex flex-col gap-8 order-2 lg:order-1">
+                    {/* Service Content Card */}
+                    <div className="bg-white border border-gray-100 rounded-2xl p-6 md:p-8 shadow-sm">
+                        {/* Author Header */}
+                        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100">
+                            <div className="w-14 h-14 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
+                                {service.user?.avatar_url ? (
+                                    <Image
+                                        src={service.user.avatar_url}
+                                        alt={`${service.user.first_name || ""} ${service.user.last_name || ""}`}
+                                        width={56}
+                                        height={56}
+                                        className="object-cover w-full h-full"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                        <User className="w-7 h-7" />
+                                    </div>
+                                )}
                             </div>
-                            <div className="flex flex-col gap-6 text-sm font-medium text-black-1 text-right leading-[1.7]">
-                                {comments.slice(0, 3).map((c) => (
-                                    <p key={c.id} className="line-clamp-1">
-                                        {c.content}
-                                    </p>
-                                ))}
-                                {comments.length === 0 && (
-                                    <p className="text-gray-2 text-sm">لا توجد مساهمات بعد</p>
+                            <div className="flex flex-col gap-1 items-start">
+                                <p className="text-gray-900 text-base font-bold">
+                                    {(service.user?.first_name || service.user?.last_name)
+                                        ? `${service.user?.first_name || ""} ${service.user?.last_name || ""}`
+                                        : "مستخدم"}
+                                </p>
+                                {service.user?.is_active && (
+                                    <span className="bg-blue-50 text-[#3d5e83] text-[10px] px-2 py-0.5 rounded-full font-bold">
+                                        بائع مميز
+                                    </span>
                                 )}
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <div className="flex-1 flex flex-col gap-10">
-                    <div className="bg-blue-6 rounded-[20px] px-5 py-6">
-                        <div className="flex flex-col gap-3">
-                            <div className="flex items-center gap-3 justify-end">
-                                <div className="flex flex-col items-end gap-1">
-                                    <p className="text-blue-2 text-sm font-medium">
-                                        {(service.user?.first_name || service.user?.last_name)
-                                            ? `${service.user?.first_name || ""} ${service.user?.last_name || ""}`
-                                            : "مستخدم"}
-                                    </p>
-                                    {service.user?.is_active && (
-                                        <p className="text-gray-2 text-xs font-medium">
-                                            بائع مميز
-                                        </p>
-                                    )}
-                                </div>
-                                <div className="w-[60px] h-[60px] rounded-full overflow-hidden shrink-0 bg-gray-100 flex items-center justify-center border border-gray-200">
-                                    {service.user?.avatar_url ? (
-                                        <Image
-                                            src={service.user.avatar_url}
-                                            alt={`${service.user.first_name || ""} ${service.user.last_name || ""}`}
-                                            width={60}
-                                            height={60}
-                                            className="object-cover w-full h-full"
-                                        />
-                                    ) : (
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-gray-400">
-                                            <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
-                                        </svg>
-                                    )}
-                                </div>
-                            </div>
+                        {/* Text Content */}
+                        <div
+                            className="text-gray-700 text-base md:text-lg font-medium leading-[1.8] text-right whitespace-pre-wrap"
+                            dangerouslySetInnerHTML={{ __html: service.content }}
+                        />
 
-                            <div
-                                className="text-gray-2 text-base font-medium leading-[30px] text-right whitespace-pre-wrap"
-                                dangerouslySetInnerHTML={{ __html: service.content }}
-                            />
-                        </div>
-                    </div>
-
-                    {service.images_urls && service.images_urls.length > 0 && (
-                        <div className="flex flex-col gap-3 items-end">
-                            <p className="text-blue-2 text-base font-medium w-full text-right">
-                                المرفقات
-                            </p>
-                            <div className="bg-blue-6 rounded-[20px] px-5 py-6 w-full">
-                                <div className="flex gap-3 flex-wrap justify-end">
+                        {/* Attachments */}
+                        {service.images_urls && service.images_urls.length > 0 && (
+                            <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col gap-3 items-start">
+                                <p className="text-gray-900 text-sm font-bold flex items-center gap-2">
+                                    <ImageIcon className="w-4 h-4 text-gray-500" />
+                                    المرفقات ({service.images_urls.length})
+                                </p>
+                                <div className="flex gap-3 flex-wrap">
                                     {service.images_urls.map((imgUrl, i) => (
                                         <div
                                             key={i}
-                                            className="bg-white-1 border border-gray-4 rounded-[10px] overflow-hidden w-[196px] h-[145px]"
+                                            className="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border border-gray-200 cursor-pointer relative group"
+                                            onClick={() => openMedia(service.images_urls || [], i)}
                                         >
                                             <Image
                                                 src={imgUrl}
-                                                alt=""
-                                                width={196}
-                                                height={145}
-                                                className="object-cover w-full h-full"
+                                                alt={`Attachment ${i + 1}`}
+                                                width={128}
+                                                height={128}
+                                                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
                                             />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                                         </div>
                                     ))}
                                 </div>
                             </div>
+                        )}
+                    </div>
+
+                    {/* Comments Section */}
+                    <div className="flex flex-col gap-6">
+                        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                            التعليقات
+                            <span className="text-gray-400 font-medium text-lg">({totalComments})</span>
+                        </h2>
+
+                        <div className="flex flex-col gap-4">
+                            {comments.map((comment) => (
+                                <CommentCard
+                                    key={comment.id}
+                                    comment={comment}
+                                    onOpenMedia={openMedia}
+                                />
+                            ))}
+                            {comments.length === 0 && (
+                                <div className="bg-gray-50 rounded-2xl p-8 text-center border border-dashed border-gray-200">
+                                    <p className="text-gray-400 font-medium">لا توجد تعليقات حتى الآن. كن أول من يضيف تعليقاً!</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Add Comment */}
+                    <AddCommentForm slug={slug} />
+                </div>
+
+                {/* Sidebar (Left in RTL) */}
+                <div className="w-full lg:w-[360px] shrink-0 flex flex-col gap-6 order-1 lg:order-2">
+
+                    {/* Publication Stats */}
+                    <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col gap-5">
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                            <span className="text-gray-500 text-sm font-medium">تاريخ النشر</span>
+                            <span className="text-gray-900 text-sm font-bold dir-ltr">
+                                {getRelativeTimeArabic(service.created_at)}
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                            <span className="text-gray-500 text-sm font-medium">عدد التعليقات</span>
+                            <span className="text-gray-900 text-sm font-bold">
+                                {service.comments_count}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Latest Contributions / Activity */}
+                    {latestActivity && latestActivity.length > 0 && (
+                        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col gap-6">
+                            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                                <h3 className="text-gray-900 font-bold">آخر المساهمات</h3>
+                                {/* Optional: Link to see all if applicable */}
+                            </div>
+                            <div className="flex flex-col gap-4">
+                                {latestActivity.slice(0, 5).map((item) => (
+                                    <Link
+                                        key={item.id}
+                                        href={`/requested-services/${item.slug}`}
+                                        className="group block p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+                                    >
+                                        <h4 className="text-gray-900 font-semibold text-sm line-clamp-1 mb-1 group-hover:text-[#3d5e83] transition-colors">
+                                            {item.title}
+                                        </h4>
+                                        <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed">
+                                            {item.content}
+                                        </p>
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>
-            </div>
 
-            <div className="mt-12 flex flex-col gap-5">
-                <p className="text-blue-2 text-base font-medium text-right">
-                    التعليقات ({totalComments})
-                </p>
-
-                <div className="flex flex-col gap-5">
-                    {comments.map((comment) => (
-                        <CommentCard key={comment.id} comment={comment} />
-                    ))}
-                    {comments.length === 0 && (
-                        <p className="text-gray-2 text-sm text-right py-8">لا توجد تعليقات بعد</p>
-                    )}
-                </div>
-            </div>
-
-            <div className="mt-8">
-                <AddCommentForm slug={slug} />
             </div>
         </div>
     );

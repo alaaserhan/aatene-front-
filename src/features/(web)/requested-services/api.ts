@@ -4,9 +4,10 @@ import {
     CreateRequestedServiceResponse,
     GetRequestedServicesParams,
     GetRequestedServicesResponse,
-    RequestedService,
+    // RequestedService, // Unused
     GetRequestedServiceCommentsResponse,
     AddRequestedServiceCommentResponse,
+    GetRequestedServiceBySlugResponse,
 } from "./types";
 
 export const getRequestedServices = async (
@@ -31,11 +32,7 @@ export const getMyRequestedServices = async (
 
 
 export const getRequestedServiceBySlug = async (slugOrId: string | number) => {
-    const { data } = await api.get<{
-        status: boolean;
-        message: string;
-        record: RequestedService;
-    }>(`/requested-services/${slugOrId}`);
+    const { data } = await api.get<GetRequestedServiceBySlugResponse>(`/requested-services/${slugOrId}`);
     return data;
 };
 

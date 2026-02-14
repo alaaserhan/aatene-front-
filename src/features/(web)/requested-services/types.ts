@@ -33,6 +33,7 @@ export interface RequestedService {
     comments_count: string;
     created_at: string;
     updated_at: string;
+    last_comment?: RequestedServiceComment | null;
 }
 
 export interface GetRequestedServicesResponse {
@@ -96,4 +97,10 @@ export interface AddRequestedServiceCommentResponse {
     status: boolean;
     message: string;
     data: RequestedServiceComment;
+}
+export interface GetRequestedServiceBySlugResponse {
+    status: boolean;
+    message: string;
+    record: RequestedService;
+    latestActivity: RequestedService[];
 }
