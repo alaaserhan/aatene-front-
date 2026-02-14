@@ -7,14 +7,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { MessageCircle, Heart, Plus } from "lucide-react";
-import { cn } from "@/src/lib/utils";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { useState } from "react";
 
 function BlogCard({ blog, isHero = false }: { blog: Blog; isHero?: boolean }) {
     if (isHero) {
         return (
-            <div className="relative w-full h-full min-h-[400px] rounded-2xl overflow-hidden group">
+            <Link href={`/blogs/${blog.slug || blog.id}`} className="block relative w-full h-full min-h-[400px] rounded-2xl overflow-hidden group">
                 {/* Background Image */}
                 <div className="absolute inset-0">
                     <Image
@@ -23,61 +22,56 @@ function BlogCard({ blog, isHero = false }: { blog: Blog; isHero?: boolean }) {
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 </div>
 
-                {/* Content Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                    <div className="bg-white/95 backdrop-blur-sm rounded-xl p-6 shadow-lg max-w-2xl transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center gap-4 text-gray-500 text-sm">
-                                <div className="flex items-center gap-1">
-                                    <MessageCircle size={16} />
-                                    <span>{blog.review_count || 0}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <Heart size={16} />
-                                    <span>{blog.favorites_count || 0}</span>
-                                </div>
+                {/* Content Overlay Card */}
+                <div className="absolute bottom-6 left-6 right-6">
+                    <div className="bg-white rounded-xl p-5 shadow-lg">
+                        <div className="flex flex-col gap-2">
+                            {/* Category Badge */}
+                            <div className="flex ">
+                                <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-md font-medium">
+                                    {blog.category}
+                                </span>
                             </div>
-                        </div>
 
-                        <Link href={`/blogs/${blog.slug || blog.id}`}>
-                            <h2 className="text-2xl font-medium  mb-2 hover:text-blue-600 transition-colors line-clamp-2">
+                            {/* Title */}
+                            <h2 className="text-2xl md:text-3xl font-medium  pb-2">
                                 {blog.title}
                             </h2>
-                        </Link>
 
-                        <p className="text-gray-600 mb-4 line-clamp-2 text-sm">
-                            {blog.description}
-                        </p>
+                            {/* Footer: Date (Right) and Icons (Left) */}
+                            <div className="flex items-center justify-between text-gray-400 text-sm mt-2  pt-4">
+                                <span>{getRelativeTimeArabic(blog.created_at)}</span>
+                                <div className="flex items-center gap-6">
+                                    {/* Comment Icon with Badge */}
+                                    <div className="relative">
+                                        <MessageCircle className="w-5 h-5 text-gray-900" strokeWidth={1.5} />
+                                        <span className="absolute -top-2 border-2 border-white -right-4 bg-blue-3 text-white text-[8px] md:text-[9px] font-medium px-2 py-[1px] rounded-full min-w-[24px] flex items-center justify-center">
+                                            {blog.review_count || "+99"}
+                                        </span>
+                                    </div>
 
-                        <div className="flex items-center justify-between text-xs text-gray-400 border-t pt-4">
-                            <div className="flex items-center gap-2">
-                                {blog.user?.avatar_url ? (
-                                    <Image
-                                        src={blog.user.avatar_url}
-                                        alt={blog.user.first_name}
-                                        width={24}
-                                        height={24}
-                                        className="rounded-full"
-                                    />
-                                ) : (
-                                    <div className="w-6 h-6 rounded-full bg-gray-200" />
-                                )}
-                                <span>{blog.user?.first_name} {blog.user?.last_name}</span>
+                                    {/* Heart Icon with Badge */}
+                                    <div className="relative">
+                                        <Heart className="w-5 h-5 text-gray-900" strokeWidth={1.5} />
+                                        <span className="absolute -top-2 border-2 border-white -right-4 bg-blue-3 text-white text-[8px] md:text-[9px] font-medium px-2 py-[1px] rounded-full min-w-[20px] flex items-center justify-center">
+                                            {blog.favorites_count || "6"}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <span>{getRelativeTimeArabic(blog.created_at)}</span>
                         </div>
                     </div>
                 </div>
-            </div>
+            </Link>
         );
     }
 
     return (
-        <div className="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 group flex flex-col h-full">
-            <div className="relative h-48 w-full overflow-hidden">
+        <Link href={`/blogs/${blog.slug || blog.id}`} className="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-sm transition-all duration-300 group flex flex-col h-full">
+            <div className="relative h-56 w-full overflow-hidden">
                 <Image
                     src={blog.thumbnail_url || "/assets/images/placeholder.jpg"}
                     alt={blog.title}
@@ -86,21 +80,22 @@ function BlogCard({ blog, isHero = false }: { blog: Blog; isHero?: boolean }) {
                 />
             </div>
 
-            <div className="p-4 flex-1 flex flex-col">
-                <Link href={`/blogs/${blog.slug || blog.id}`} className="flex-1">
-                    <h3 className="text-lg font-medium  mb-2 hover:text-blue-600 transition-colors line-clamp-2">
-                        {blog.title}
-                    </h3>
-                </Link>
+            <div className="p-5 flex-1 flex flex-col items-start text-right">
 
-                <div className="mt-4 flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-gray-50">
+                {/* Category Badge - Light Blue */}
+                <span className="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded-md font-medium mb-3 inline-block">
+                    {blog.category}
+                </span>
+
+                <h3 className="text-xl font-medium mb-3 transition-colors line-clamp-2 leading-relaxed">
+                    {blog.title}
+                </h3>
+
+                <div className="mt-auto flex items-center w-full text-xs text-gray-400">
                     <span>{getRelativeTimeArabic(blog.created_at)}</span>
-                    {/* 
-                     // Optional: Add more stats here if needed for small cards 
-                     */}
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }
 
@@ -134,9 +129,9 @@ export default function BlogsPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 my-4 md:my-8">
+        <div className="container mx-auto px-4 my-4 md:my-6">
             {/* Header */}
-            <div className="flex items-center justify-between mb-8 md:mb-12">
+            <div className="flex justify-between mb-8 md:mb-12">
                 <h1 className="text-2xl font-medium ">جميع المقالات</h1>
 
                 {isLoggedIn && (

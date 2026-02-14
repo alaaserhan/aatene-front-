@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Trash2, Edit2, Save, X, MessageCircle, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { useCreateBlog, useUpdateBlog, useBlog, useDeleteBlog } from "../hooks";
-import {  BlogContent, CreateBlogData } from "../types"; // Assuming api types align
+import { BlogContent, CreateBlogData } from "../types"; // Assuming api types align
 import { cn } from "@/src/lib/utils";
 import { Button } from "@/src/components/ui/button";
 import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
@@ -193,81 +193,76 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
     const isSubmitting = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
 
     return (
-        <div className="bg-[#f5f5f5] min-h-screen p-4 md:p-8 flex flex-col gap-6">
+        <div className=" min-h-screen p-4 md:p-8 my-4 md:my-6 flex flex-col gap-4 container mx-auto">
 
             {/* Top Header Section */}
-            <div className="bg-white rounded-xl p-6 flex flex-col md:flex-row items-stretch md:items-center gap-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 border border-gray-200 flex flex-col md:flex-row items-stretch md:items-center gap-6 ">
 
                 {/* Action Buttons (Left side on LTR, Right on RTL - handled by order/flex direction) */}
                 {/* We want Buttons on LEFT visually for RTL layout shown in screenshot? No, sidebar is Left. Main is Right. 
             The Header had Buttons on Left (RTL Left) and Input on Right.
         */}
-         {/* Title Input */}
-                <div className="flex-1 ">
+                {/* Title Input */}
+                <div className="flex-1">
                     <div className="flex items-center gap-1 mb-2">
                         <span className="text-red-500">*</span>
-                        <Label className="text-gray-700 text-lg font-medium">عنوان المقال</Label>
+                        <Label className="font-medium">عنوان المقال</Label>
                     </div>
-                    <div className="bg-white border border-gray-200 rounded-lg p-3 flex flex-col">
-                        <input
-                            type="text"
-                            value={formData.title}
-                            onChange={(e) => {
-                                setFormData({ ...formData, title: e.target.value });
-                                if (errors.title) setErrors({ ...errors, title: "" });
-                            }}
-                            placeholder="أكتب عنوان المقال ..."
-                            className="w-full text-base outline-none placeholder:text-gray-400 text-gray-800"
-                            maxLength={75}
-                        />
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-400 mt-1">
-                        <span>{formData.title.length}/75</span>
-                        <span>قم بتضمين الكلمات الرئيسية التي يستخدمها المشترون للبحث عن هذا العنصر.</span>
-                    </div>
-                    {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
+                    <FormInput
+                        label=""
+                        value={formData.title}
+                        onChange={(e) => {
+                            setFormData({ ...formData, title: e.target.value });
+                            if (errors.title) setErrors({ ...errors, title: "" });
+                        }}
+                        placeholder="أكتب عنوان المقال ..."
+                        error={errors.title}
+                        maxLength={75}
+                        showCounter
+                        hint="قم بتضمين الكلمات الرئيسية التي يستخدمها المشترون للبحث عن هذا العنصر."
+                    />
                 </div>
                 <div className="flex gap-4 shrink-0">
                     <button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className="bg-[#ccf4d7] cursor-pointer hover:bg-[#b0eac0] text-[#03551a] w-32 h-24 rounded-xl flex flex-col items-center justify-center gap-3 transition-colors"
+                    >
+                        <div className="">
+                            <img src="/icons/create.svg" alt="" className="w-6 h-6" />
+                        </div>
+                        <span className="font-medium text-sm">
+                            {isEditMode ? "حفظ التعديلات" : "حفظ المقال"}
+                        </span>
+                    </button>
+                    <button
                         onClick={handleDeleteBlog}
                         disabled={isSubmitting}
-                        className="bg-[#ffe5e5] hover:bg-[#ffcccc] text-[#d00416] w-32 h-24 rounded-xl flex flex-col items-center justify-center gap-2 transition-colors"
+                        className="bg-[#ffe5e5] cursor-pointer hover:bg-[#ffcccc] text-[#d00416] w-32 h-24 rounded-xl flex flex-col items-center justify-center gap-3 transition-colors"
                     >
-                        <div className="bg-white/50 p-2 rounded-full">
-                            <Trash2 className="w-6 h-6" />
+                        <div className="">
+                            <img src="/icons/dashboard/trash.svg" alt="" className="w-6 h-6" />
                         </div>
                         <span className="font-medium text-sm">
                             {isEditMode ? "حذف المقال" : "إلغاء"}
                         </span>
                     </button>
 
-                    <button
-                        onClick={handleSubmit}
-                        disabled={isSubmitting}
-                        className="bg-[#ccf4d7] hover:bg-[#b0eac0] text-[#03551a] w-32 h-24 rounded-xl flex flex-col items-center justify-center gap-2 transition-colors"
-                    >
-                        <div className="bg-white/50 p-2 rounded-full">
-                            <Save className="w-6 h-6" />
-                        </div>
-                        <span className="font-medium text-sm">
-                            {isEditMode ? "حفظ التعديلات" : "حفظ المقال"}
-                        </span>
-                    </button>
                 </div>
 
-               
+
             </div>
 
             {/* Main Content Area */}
-            <div className="flex flex-col lg:flex-row gap-6 items-start">
-                 {/* Form Content (Right on LTR, mimics Figma Main Content) */}
-                <div className="flex-1 bg-white rounded-xl p-6 border border-gray-200 shadow-sm w-full  space-y-8">
+            <div className="flex flex-col lg:flex-row gap-4 items-start">
+                {/* Form Content (Right on LTR, mimics Figma Main Content) */}
+                <div className="flex-1 bg-white rounded-xl p-6 border border-gray-200  w-full  space-y-8">
 
                     {/* Image Upload */}
                     <div className="space-y-2">
                         <div className="flex items-center gap-1">
+                            <Label className="  font-medium">صورة المقال</Label>
                             <span className="text-red-500">*</span>
-                            <Label className="text-gray-700 text-lg font-medium">صورة المقال</Label>
                         </div>
                         <ImageGallerySelector
                             label=""
@@ -287,12 +282,8 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
 
                     {/* Category */}
                     <div className="space-y-2">
-                        <div className="flex items-center gap-1">
-                            <span className="text-red-500">*</span>
-                            <Label className="text-gray-700 text-lg font-medium">تصنيف المقال</Label>
-                        </div>
                         <FormInput
-                            label=""
+                            label="تصنيف المقال"
                             placeholder="أكتب تصنيف المقال (تكنولوجيا - ترفيهي - غير ذلك)..."
                             value={formData.category}
                             onChange={(e) => {
@@ -309,12 +300,8 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
 
                     {/* Description */}
                     <div className="space-y-2">
-                        <div className="flex items-center gap-1">
-                            <span className="text-red-500">*</span>
-                            <Label className="text-gray-700 text-lg font-medium">الوصف التعريفي</Label>
-                        </div>
                         <FormInput
-                            label=""
+                            label="الوصف التعريفي"
                             placeholder="أكتب وصف تعريفي قصير للمقال..."
                             value={formData.description}
                             onChange={(e) => {
@@ -332,8 +319,8 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
                     {/* Paragraphs List */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-1">
+                            <Label className="  font-medium">الفقرات</Label>
                             <span className="text-red-500">*</span>
-                            <Label className="text-gray-700 text-lg font-medium">الفقرات</Label>
                         </div>
 
                         <div className="space-y-3">
@@ -342,34 +329,34 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
                                     key={index}
                                     className={cn(
                                         "flex items-center justify-between p-4 rounded-lg bg-[#eaedf0] border border-gray-200 transition-all",
-                                        editingParaIndex === index && "ring-2 ring-blue-400"
+                                        editingParaIndex === index && "ring-1 ring-blue-200"
                                     )}
                                 >
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex flex-1 items-center gap-4">
+                                        <span className="font-medium text-base">
+                                            {para.title}
+                                        </span>
+                                    </div>
                                         <Button
                                             variant="ghost"
                                             size="icon"
                                             onClick={() => handleDeleteParagraph(index)}
-                                            className="text-red-500 hover:bg-red-50"
+                                            className="text-red-500 "
                                         >
-                                            <Trash2 className="w-5 h-5" />
+                                            <img src="/icons/dashboard/trash.svg" alt="delete" />
                                         </Button>
-                                        <span className="font-medium text-gray-800 text-base">
-                                            {para.title}
-                                        </span>
-                                    </div>
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => handleEditParagraphClick(index)}
                                         className="text-blue-500 hover:text-blue-700"
                                     >
-                                        <Edit2 className="w-4 h-4" />
+                                        <img src="/icons/dashboard/edit2.svg" alt="edit" />
                                     </Button>
                                 </div>
                             ))}
                             {paragraphs.length === 0 && (
-                                <div className="text-center p-6 bg-gray-50 border border-dashed border-gray-200 rounded-lg text-gray-400">
+                                <div className="text-center p-6 bg-gray-50 border border-dashed border-gray-200 text-sm rounded-lg text-gray-400">
                                     لا توجد فقرات مضافة بعد
                                 </div>
                             )}
@@ -382,12 +369,10 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
                         <div className="space-y-4">
                             {/* Para Title */}
                             <div className="space-y-2">
-                                <div className="flex items-center gap-1">
-                                    <span className="text-red-500">*</span>
-                                    <Label className="text-gray-700 text-lg font-medium">عنوان الفقرة</Label>
-                                </div>
+ 
                                 <FormInput
-                                    label=""
+                                    label="عنوان الفقرة"
+                                    required
                                     placeholder="أكتب عنوان الفقرة ..."
                                     value={currentParaTitle}
                                     onChange={(e) => {
@@ -403,27 +388,26 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
 
                             {/* Para Content */}
                             <div className="space-y-2">
-                                <div className="flex items-center gap-1">
-                                    <span className="text-red-500">*</span>
-                                    <Label className="text-gray-700 text-lg font-medium">وصف الفقرة</Label>
-                                </div>
                                 <RichTextEditor
                                     value={currentParaContent}
                                     onChange={(val) => {
                                         setCurrentParaContent(val);
                                         if (errors.paraContent) setErrors(prev => ({ ...prev, paraContent: "" }));
                                     }}
-                                    label=""
+                                    label="وصف الفقرة"
+                                    required
+                                    helpTooltip=""
+                                    helpText=""
                                     placeholder="... نص المحتوى"
                                     className="min-h-[300px]"
                                     error={errors.paraContent}
                                 />
                             </div>
 
-                            <div className="flex justify-end">
+                            <div className="flex ">
                                 <button
                                     onClick={handleAddOrUpdateParagraph}
-                                    className="bg-[#406896] hover:bg-[#325275] text-white px-8 py-3 rounded-xl font-medium text-lg transition-colors flex items-center justify-center min-w-[160px]"
+                                    className="bg-[#406896] hover:bg-[#325275] text-white px-8 py-3 rounded-lg text-sm font-medium  transition-colors flex items-center justify-center min-w-[160px]"
                                 >
                                     {editingParaIndex !== null ? "تحديث الفقرة" : "إضافة الفقرة"}
                                 </button>
@@ -433,56 +417,8 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
 
                 </div>
 
-                {/* Sidebar (Left on LTR, mimics Figma Left Panel) */}
-                <div className="w-full lg:w-80 shrink-0 space-y-6 ">
-                    <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col items-center text-center shadow-sm">
-                        <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-gray-100">
-                            <Image
-                                src={user?.avatar_url || "/assets/images/placeholder-user.jpg"}
-                                alt={user?.first_name || "User"}
-                                width={96}
-                                height={96}
-                                className="object-cover w-full h-full"
-                            />
-                        </div>
 
-                        <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                            {user?.first_name} {user?.last_name}
-                        </h3>
 
-                        {/* Rating Placeholder */}
-                        <div className="flex items-center gap-1 mb-6">
-                            <div className="flex text-yellow-400 text-xs">★★★★★</div>
-                            <span className="text-xs text-gray-400">100%</span>
-                        </div>
-
-                        <p className="text-xs text-gray-500 mb-6 leading-relaxed">
-                            لوريم إيبسوم ألم سيت أميت، كونسيكتيور أديبي سكينج إليت، سيد ديام نونومي نيبه إيسمود تينسيدونت أوت لاوريت
-                        </p>
-
-                        <div className="flex gap-2 w-full">
-                            <button className="flex-1 bg-white border border-red-400 text-red-500 rounded-full py-1.5 text-xs font-medium flex items-center justify-center gap-1 hover:bg-red-50 transition-colors">
-                                <AlertTriangle className="w-3 h-3" />
-                                <span>ابلغ عن إساءة</span>
-                            </button>
-                            <button className="flex-1 bg-gradient-to-r from-blue-400 to-blue-600 text-white rounded-full py-1.5 text-xs font-medium flex items-center justify-center gap-1 hover:opacity-90 transition-opacity">
-                                <MessageCircle className="w-3 h-3" />
-                                <span>تواصل معي</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Ad Space Placeholder from Figma */}
-                    <div className="bg-[#e8e8ea] rounded-xl h-[100px] flex items-center justify-center text-gray-500 text-center p-4">
-                        <div>
-                            <p className="text-xs">Advertisement</p>
-                            <p className="font-semibold text-sm">You can place ads</p>
-                            <p className="text-xs">750x100</p>
-                        </div>
-                    </div>
-                </div>
-
-               
             </div>
         </div>
     );
