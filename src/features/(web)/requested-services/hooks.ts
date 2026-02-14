@@ -8,6 +8,9 @@ import {
     createRequestedService,
     getRequestedServiceBySlug,
     updateRequestedService,
+    getRequestedServiceComments,
+    addRequestedServiceComment,
+    getMyRequestedServices,
 } from "./api";
 import {
     CreateRequestedServicePayload,
@@ -16,10 +19,18 @@ import {
 
 export const useRequestedServices = (params?: GetRequestedServicesParams) => {
     return useApiQuery({
-        queryKey: ["requested-services", params],
+        queryKey: ["requested-services", JSON.stringify(params)],
         queryFn: () => getRequestedServices(params),
     });
 };
+
+export const useMyRequestedServices = (params?: GetRequestedServicesParams) => {
+    return useApiQuery({
+        queryKey: ["my-requested-services", JSON.stringify(params)],
+        queryFn: () => getMyRequestedServices(params),
+    });
+};
+
 
 export const useRequestedServiceBySlug = (slugOrId: string | number) => {
     return useApiQuery({
@@ -56,6 +67,39 @@ export const useUpdateRequestedService = () => {
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["requested-services"] });
             queryClient.invalidateQueries({ queryKey: ["requested-service"] });
+        },
+    });
+};
+
+export const useRequestedServiceComments = (slug: string | number) => {
+    return useApiQuery({
+        queryKey: ["requested-service-comments", slug],
+        queryFn: () => getRequestedServiceComments(slug),
+        enabled: !!slug,
+    });
+};
+
+export const useAddRequestedServiceComment = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({
+            slug,
+            payload,
+        }: {
+            slug: string | number;
+            payload: FormData;
+        }) => addRequestedServiceComment(slug, payload),
+        onSuccess: (data) => {
+            toast.success(data.message || "Comment added successfully");
+        },
+        onSettled: (_, __, { slug }) => {
+            queryClient.invalidateQueries({
+                queryKey: ["requested-service-comments", slug],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["requested-service", slug],
+            });
         },
     });
 };

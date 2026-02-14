@@ -17,6 +17,7 @@ import {
     LogOut,
     ChevronLeft,
 } from "lucide-react";
+import Link from "next/link";
 
 interface SettingsSidebarProps {
     activeTab: SettingsTab;
@@ -29,6 +30,7 @@ interface TabItem {
     description: string;
     icon: React.ReactNode;
     danger?: boolean;
+    href?: string;
 }
 
 const allTabs: TabItem[] = [
@@ -91,6 +93,7 @@ const allTabs: TabItem[] = [
         label: "أضف موضوع",
         description: "إن كنت تبحث عن خدمة أو منتج غير موجود",
         icon: <MessageSquarePlus className="w-5 h-5" />,
+        href: "/requested-services/create",
     },
 ];
 
@@ -120,57 +123,73 @@ export default function SettingsSidebar({
             </h2>
 
             {/* Tab Items */}
-            {tabs.map((tab) => (
-                <button
-                    key={tab.id}
-                    onClick={() => onTabChange(tab.id)}
-                    className={cn(
-                        "flex items-center justify-between gap-1.5 p-2 rounded-lg transition-all duration-200 cursor-pointer",
-                        activeTab === tab.id
-                            ? "bg-blue-3 text-white shadow-md"
-                            : "bg-blue-5 border border-gray-200 text-gray-700 hover:bg-gray-50"
-                    )}
-                >
+            {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                const className = cn(
+                    "flex items-center justify-between gap-1.5 p-2 rounded-lg transition-all duration-200 cursor-pointer w-full text-right",
+                    isActive
+                        ? "bg-blue-3 text-white shadow-md"
+                        : "bg-blue-5 border border-gray-200 text-gray-700 hover:bg-gray-50"
+                );
 
+                const content = (
+                    <>
+                        <div
+                            className={cn(
+                                "p-2 rounded-full"
+                            )}
+                        >
+                            <span className={isActive ? "text-white" : "text-[#92AFD0]"}>
+                                {tab.icon}
+                            </span>
+                        </div>
+                        <div className="flex-1 text-right">
+                            <p
+                                className={cn(
+                                    "font-medium text-sm",
+                                    isActive ? "text-white" : "text-blue-4"
+                                )}
+                            >
+                                {tab.label}
+                            </p>
+                            <p
+                                className={cn(
+                                    "text-xs mt-0.5",
+                                    isActive ? "text-white/80" : "text-gray-2"
+                                )}
+                            >
+                                {tab.description}
+                            </p>
+                        </div>
 
-                    <div
-                        className={cn(
-                            "p-2 rounded-full"
-                        )}
+                        {/* Arrow (Left side for RTL) */}
+                        <ChevronLeft
+                            className={cn(
+                                "w-5 h-5",
+                                isActive ? "text-white" : "text-[#92AFD0]"
+                            )}
+                        />
+                    </>
+                );
+
+                if (tab.href) {
+                    return (
+                        <Link key={tab.id} href={tab.href} className={className}>
+                            {content}
+                        </Link>
+                    );
+                }
+
+                return (
+                    <button
+                        key={tab.id}
+                        onClick={() => onTabChange(tab.id)}
+                        className={className}
                     >
-                        <span className={activeTab === tab.id ? "text-white" : "text-[#92AFD0]"}>
-                            {tab.icon}
-                        </span>
-                    </div>
-                    <div className="flex-1 text-right">
-                        <p
-                            className={cn(
-                                "font-medium text-sm",
-                                activeTab === tab.id ? "text-white" : "text-blue-4"
-                            )}
-                        >
-                            {tab.label}
-                        </p>
-                        <p
-                            className={cn(
-                                "text-xs mt-0.5",
-                                activeTab === tab.id ? "text-white/80" : "text-gray-2"
-                            )}
-                        >
-                            {tab.description}
-                        </p>
-                    </div>
-
-                    {/* Arrow (Left side for RTL) */}
-                    <ChevronLeft
-                        className={cn(
-                            "w-5 h-5",
-                            activeTab === tab.id ? "text-white" : "text-[#92AFD0]"
-                        )}
-                    />
-
-                </button>
-            ))}
+                        {content}
+                    </button>
+                );
+            })}
 
             {/* Logout Button */}
             <button

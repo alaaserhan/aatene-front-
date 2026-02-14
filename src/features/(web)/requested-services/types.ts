@@ -27,7 +27,7 @@ export interface RequestedService {
     content: string;
     services_follows_rules: boolean | null;
     have_searched_for_services_before: boolean | null;
-    user: RequestedServiceUser;
+    user?: RequestedServiceUser;
     reject_reason: string | null;
     reports_count: string;
     comments_count: string;
@@ -65,4 +65,35 @@ export interface CreateRequestedServiceResponse {
     status: boolean;
     message: string;
     record: RequestedService;
+}
+
+export interface RequestedServiceCommentUser {
+    name: string;
+    email: string;
+    avatar: string;
+}
+
+export interface RequestedServiceComment {
+    id: number;
+    content: string;
+    parent_id: number | null;
+    rate: number | null;
+    images: string[];
+    user: RequestedServiceCommentUser;
+    created_at?: string;
+}
+
+export interface GetRequestedServiceCommentsResponse {
+    status: boolean;
+    message: string;
+    total: number;
+    reviews: RequestedServiceComment[];
+    avg_rate: string;
+    rate_stats: Record<string, number>;
+}
+
+export interface AddRequestedServiceCommentResponse {
+    status: boolean;
+    message: string;
+    data: RequestedServiceComment;
 }

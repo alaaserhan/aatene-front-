@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useRequestedServices } from "./hooks";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
-import { Search, Clock, User, CirclePlus, Flag } from "lucide-react";
+import { Search, CirclePlus, Flag } from "lucide-react";
 import { RequestedService } from "./types";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,23 +12,28 @@ import Link from "next/link";
 const PER_PAGE = 10;
 
 function ServiceCard({ service }: { service: RequestedService }) {
+    const user = service.user;
     return (
         <div className="border border-gray-200 rounded-lg p-6 flex flex-col gap-4 ">
             <div className="flex gap-4 items-start">
-                <div className="shrink-0 w-[50px] h-[50px] rounded-full overflow-hidden border border-gray-200">
-                    <Image
-                        src={service.user.avatar_url}
-                        alt={`${service.user.first_name} ${service.user.last_name}`}
-                        width={50}
-                        height={50}
-                        className="object-cover w-full h-full"
-                    />
+                <div className="shrink-0 w-[50px] h-[50px] rounded-full overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
+                    {user?.avatar_url ? (
+                        <Image
+                            src={user.avatar_url}
+                            alt={`${user.first_name || ""} ${user.last_name || ""}`}
+                            width={50}
+                            height={50}
+                            className="object-cover w-full h-full"
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gray-200" />
+                    )}
                 </div>
                 <div className="flex-1 flex flex-col gap-3 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                        <h3 className=" font-medium leading-normal line-clamp-2">
+                        <Link href={`/requested-services/${service.slug}`} className="font-medium leading-normal line-clamp-2 hover:text-blue-2 transition-colors">
                             {service.title}
-                        </h3>
+                        </Link>
                         <Link
                             href={`/report/create/requested_service/${service.id}`}
                             className="flex items-center gap-1 text-[#F00] font-medium text-xs hover:underline shrink-0"
@@ -44,7 +49,7 @@ function ServiceCard({ service }: { service: RequestedService }) {
                         <div className="flex items-center gap-1.5 text-blue-3">
                             <img src="/icons/Profile.svg" alt="Profile" />
                             <span className="text-sm">
-                                {service.user.first_name} {service.user.last_name}
+                                {user ? `${user.first_name} ${user.last_name}` : "مستخدم"}
                             </span>
                         </div>
                         <div className="flex items-center gap-1.5 text-blue-3">
@@ -55,14 +60,18 @@ function ServiceCard({ service }: { service: RequestedService }) {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-100">
-                            <Image
-                                src={service.user.avatar_url}
-                                alt="User"
-                                width={24}
-                                height={24}
-                                className="object-cover w-full h-full"
-                            />
+                        <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+                            {user?.avatar_url ? (
+                                <Image
+                                    src={user.avatar_url}
+                                    alt="User"
+                                    width={24}
+                                    height={24}
+                                    className="object-cover w-full h-full"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-gray-200" />
+                            )}
                         </div>
                         <div className="flex items-center gap-1 text-xs text-blue-3">
                             <span>آخر تفاعل</span>
@@ -71,15 +80,12 @@ function ServiceCard({ service }: { service: RequestedService }) {
                             </span>
                             <span>من قبل</span>
                             <span className="text-blue-3">
-                                {service.user.first_name} {service.user.last_name}
+                                {user ? `${user.first_name} ${user.last_name}` : "مستخدم"}
                             </span>
                         </div>
                     </div>
                 </div>
             </div>
-
-
-
         </div>
     );
 }

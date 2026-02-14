@@ -5,6 +5,8 @@ import {
     GetRequestedServicesParams,
     GetRequestedServicesResponse,
     RequestedService,
+    GetRequestedServiceCommentsResponse,
+    AddRequestedServiceCommentResponse,
 } from "./types";
 
 export const getRequestedServices = async (
@@ -16,6 +18,17 @@ export const getRequestedServices = async (
     );
     return data;
 };
+
+export const getMyRequestedServices = async (
+    params?: GetRequestedServicesParams
+) => {
+    const { data } = await api.get<GetRequestedServicesResponse>(
+        "/my/requested-services",
+        { params }
+    );
+    return data;
+};
+
 
 export const getRequestedServiceBySlug = async (slugOrId: string | number) => {
     const { data } = await api.get<{
@@ -42,6 +55,24 @@ export const updateRequestedService = async (
 ) => {
     const { data } = await api.put<CreateRequestedServiceResponse>(
         `/my/requested-services/${id}`,
+        payload
+    );
+    return data;
+};
+
+export const getRequestedServiceComments = async (slug: string | number) => {
+    const { data } = await api.get<GetRequestedServiceCommentsResponse>(
+        `/reviews/requested-service/${slug}`
+    );
+    return data;
+};
+
+export const addRequestedServiceComment = async (
+    slug: string | number,
+    payload: FormData
+) => {
+    const { data } = await api.post<AddRequestedServiceCommentResponse>(
+        `/reviews/requested-service/${slug}`,
         payload
     );
     return data;

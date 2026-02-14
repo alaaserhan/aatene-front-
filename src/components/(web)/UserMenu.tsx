@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { LogOut, User, Store, Crown, Shield, ChevronRight, ChevronLeft, ChevronDown, Settings, Headset } from "lucide-react";
+import { LogOut, User, Store, Crown, Shield, ChevronRight, ChevronLeft, ChevronDown, Settings, Headset, MessageSquarePlus } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import api from "@/src/lib/axios";
@@ -286,6 +286,13 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
                 <Headset size={16} />
               </div>
               <span dir="ltr" className="font-medium">استعلام عن شكوى</span>
+            </Link>
+
+            <Link href={`/requested-services/my`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
+              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <MessageSquarePlus size={16} />
+              </div>
+              <span className="font-medium">طلباتي</span>
             </Link>
 
             <Link href={`/${lang}/settings`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
