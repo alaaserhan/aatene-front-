@@ -62,7 +62,7 @@ export function AddProductStep2({
 
   const [formData, setFormData] = useState<ExtendedStep2FormData>({
     store_id: initialData?.store_id || (isAdmin ? 0 : Number(currentStoreId)),
-    section_id: undefined,
+    section_id: initialData?.section_id,
     tags: initialData?.tags || [],
   });
 

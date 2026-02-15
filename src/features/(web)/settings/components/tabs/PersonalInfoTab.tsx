@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Camera, Calendar as CalendarIcon } from "lucide-react";
-import { useGetAccount, useUpdateAccount, useUpdateAvatar, useGetCities, useGetDistricts } from "../../hooks";
+import { useGetAccount, useUpdateAccount, useUpdateAvatar, useGetCities } from "../../hooks";
 import { cn } from "@/src/lib/utils";
 import Image from "next/image";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -18,7 +18,6 @@ const personalInfoSchema = z.object({
     date_of_birth: z.string().min(1, "تاريخ الميلاد مطلوب"),
     gender: z.string().min(1, "الجنس مطلوب"),
     city_id: z.number().min(1, "المدينة مطلوبة"),
-    district_id: z.number().min(1, "الحي مطلوب"),
     bio: z.string().optional(),
 });
 
@@ -38,11 +37,8 @@ export default function PersonalInfoTab() {
         date_of_birth: "",
         gender: "male",
         city_id: 0,
-        district_id: 0,
         bio: "",
     });
-
-    const { data: districtsData } = useGetDistricts(formData.city_id);
 
     const [errors, setErrors] = useState<FormErrors>({});
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -57,7 +53,6 @@ export default function PersonalInfoTab() {
                 date_of_birth: user.date_of_birth ? user.date_of_birth.split("T")[0] : "", // Format YYYY-MM-DD
                 gender: user.gender || "male",
                 city_id: user.city?.id || 0,
-                district_id: user.district?.id || 0,
                 bio: user.bio || "",
             });
             setAvatarPreview(user.avatar);
@@ -293,7 +288,7 @@ export default function PersonalInfoTab() {
                                 options={cityOptions}
                                 value={String(formData.city_id)}
                                 onChange={(val) => {
-                                    setFormData({ ...formData, city_id: Number(val), district_id: 0 });
+                                    setFormData({ ...formData, city_id: Number(val) });
                                     if (errors.city_id) setErrors((prev) => ({ ...prev, city_id: undefined }));
                                 }}
                                 placeholder="اختر المدينة"
@@ -305,27 +300,7 @@ export default function PersonalInfoTab() {
                             />
                         </div>
 
-                        {/* District */}
-                        <div className="flex flex-col gap-3">
-                            <label className="text-sm font-medium text-[#4B5563] text-right">
-                                الحي <span className="text-red-500">*</span>
-                            </label>
-                            <ReusableDropdown
-                                options={districtsData?.districts?.map((d: any) => ({ value: String(d.id), label: d.name })) || []}
-                                value={String(formData.district_id)}
-                                onChange={(val) => {
-                                    setFormData({ ...formData, district_id: Number(val) });
-                                    if (errors.district_id) setErrors((prev) => ({ ...prev, district_id: undefined }));
-                                }}
-                                placeholder="اختر الحي"
-                                className={cn(
-                                    "rounded-full h-[54px] focus-within:ring-0 focus-within:border-gray-400",
-                                    errors.district_id ? "border-red-500" : "border-gray-200"
-                                )}
-                                error={errors.district_id}
-                                disabled={!formData.city_id}
-                            />
-                        </div>
+
 
 
                         {/* Bio */}
