@@ -61,10 +61,10 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
             {/* Main Content: Info Left, Gallery Right */}
             <div className="flex flex-col-reverse lg:flex-row gap-10">
                 {/* Right Side: Image Gallery */}
-                <div className="flex gap-3 lg:w-[55%]">
+                <div className="flex flex-col-reverse lg:flex-row gap-3 lg:w-[55%]">
                     {/* Thumbnails Strip */}
                     {allMedia.length > 1 && (
-                        <div className="flex flex-col gap-2.5 overflow-y-auto max-h-[600px] w-[100px] shrink-0">
+                        <div className="flex gap-2.5 overflow-auto shrink-0 flex-row w-full h-[100px] lg:flex-col lg:w-[100px] lg:h-auto lg:max-h-[600px]">
                             {allMedia.map((item, index) => (
                                 <button
                                     key={index}
@@ -285,12 +285,14 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                         </button>
 
                         {/* Compare Link */}
-                        <button
-                            onClick={handleAddToCompare}
-                            className="text-blue-4 text-sm font-medium underline underline-offset-4 cursor-pointer"
-                        >
-                            أضف هذا المنتج للمقارنة
-                        </button>
+                        {!product.in_compare && (
+                            <button
+                                onClick={handleAddToCompare}
+                                className="text-blue-4 text-sm font-medium underline underline-offset-4 cursor-pointer"
+                            >
+                                أضف هذا المنتج للمقارنة
+                            </button>
+                        )}
                     </div>
                 </div>
 

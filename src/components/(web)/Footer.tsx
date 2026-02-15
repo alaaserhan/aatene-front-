@@ -14,39 +14,38 @@ const Footer = () => {
 
   const navigationSections = [
     {
-      title: "عن",
+      title: "روابط مهمة",
+      links: [
+        { label: "الرئيسية", href: `/${lang}/` },
+        { label: "منتجات", href: `/${lang}/products` },
+        { label: "متاجر", href: `/${lang}/stores` },
+        { label: "خدمات", href: `/${lang}/services` }
+      ]
+    },
+    {
+      title: "عن المنصة",
       links: [
         { label: "معلومات عنا", href: `/${lang}/about` },
-        { label: "البحث عن المتجر", href: `/${lang}/stores` },
-        { label: "فئات", href: `/${lang}/categories` },
+        { label: "المستخدمين", href: `/${lang}/users` },
+        { label: "قواعد السلامة", href: `/${lang}/safety-rules` },
+        { label: "كن تاجراً", href: `/${lang}/become-seller` },
         { label: "المدونات", href: `/${lang}/blogs` }
       ]
     },
     {
-      title: "شراكة",
-      links: [
-        { label: "معلومات عنا", href: `/${lang}/partnership/about` },
-        { label: "البحث عن المتجر", href: `/${lang}/partnership/stores` },
-        { label: "فئات", href: `/${lang}/partnership/categories` },
-        { label: "المدونات", href: `/${lang}/partnership/blogs` }
-      ]
-    },
-    {
-      title: "معلومة",
-      links: [
-        { label: "مركز المساعدة", href: `/${lang}/help` },
-        { label: "استرداد الأموال", href: `/${lang}/refund` },
-        { label: "شحن", href: `/${lang}/shipping` },
-        { label: "اتصل بنا", href: `/${lang}/contact` }
-      ]
-    },
-    {
-      title: "للمستخدمين",
+      title: "حسابي",
       links: [
         { label: "تسجيل الدخول", href: `/${lang}/login` },
-        { label: "يسجل", href: `/${lang}/signup` },
-        { label: "إعدادات", href: `/${lang}/settings` },
-        { label: "أوامري", href: `/${lang}/o rders` }
+        { label: "إنشاء حساب", href: `/${lang}/signup` },
+        { label: "إعدادات", href: `/${lang}/settings` }
+      ]
+    },
+    {
+      title: "الدعم والمساعدة",
+      links: [
+        { label: "الشكاوي والاقتراحات", href: `/${lang}/complaints` },
+        { label: "الأسئلة الشائعة", href: `/${lang}/faq` },
+        { label: "اتصل بنا", href: `/${lang}/contact` }
       ]
     },
   ];
@@ -60,7 +59,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer dir="rtl"  className="bg-white shadow-xs text-gray-700 border-t border-gray-200 ">
+    <footer dir="rtl" className="bg-white shadow-xs text-gray-700 border-t border-gray-200 ">
       {/* Main Footer Content */}
       <div className="bg-white container my-6 sm:my-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8">
@@ -183,40 +182,17 @@ const Footer = () => {
       {/* Bottom Bar */}
       <div className="bg-[#EFF2F4] border-t border-gray-200 ">
         <div className="container">
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-4 lg:gap-6 py-2">
-            <div className="flex flex-wrap justify-center lg:justify-end items-center gap-2 sm:gap-3 text-xs sm:text-sm text-[#1C1C1C]">
-              <div className="flex items-center gap-1 hover:text-gray-2 transition-colors cursor-pointer">
-                <span>مصر</span>
-                <Earth className="w-3 h-3 sm:w-4 sm:h-4" />
-              </div>
-              <span className="text-gray-2">|</span>
-              <div className="flex items-center gap-1">
-                <span>₪ (NIS)</span>
-              </div>
-              <span className="text-gray-2">|</span>
-              <div className="flex items-center gap-1">
-                <span>عربي (AR)</span>
-              </div>
-            </div>
+          <div className="flex flex-wrap justify-end items-center gap-4 text-xs sm:text-sm py-4 w-full">
 
-            {/* Copyright and Legal Links */}
-            <div className="flex flex-wrap justify-center lg:justify-start items-center gap-3 sm:gap-4 text-xs sm:text-sm text-[#1C1C1C] font-normal">
-              <Link href={`/${lang}/regions`} className="hover:text-gray-2 transition-colors whitespace-nowrap">
-                المناطق
-              </Link>
-              <Link href={`/${lang}/local-stores`} className="hover:text-gray-2 transition-colors whitespace-nowrap">
-                المتاجر المحلية
-              </Link>
-              <Link href={`/${lang}/join-ads`} className="hover:text-gray-2 transition-colors whitespace-nowrap">
-                الإعلانات القائمة على الانضمام
-              </Link>
-              <Link href={`/${lang}/privacy`} className="hover:text-gray-2 transition-colors whitespace-nowrap">
-                خصوصية
-              </Link>
-              <Link href={`/${lang}/terms`} className="hover:text-gray-2 transition-colors whitespace-nowrap">
+
+            <div className="flex items-center gap-4 mr-auto">
+              <span className="whitespace-nowrap opacity-60">© 2025 Aatene, Inc.</span>
+              <Link href={`/${lang}/terms-of-use`} className="hover:text-blue-4 transition-colors whitespace-nowrap">
                 شروط الاستخدام
               </Link>
-              <span className="whitespace-nowrap">© 2025 Aatene, Inc.</span>
+              <Link href={`/${lang}/privacy-policy`} className="hover:text-blue-4 transition-colors whitespace-nowrap">
+                خصوصية
+              </Link>
             </div>
           </div>
         </div>

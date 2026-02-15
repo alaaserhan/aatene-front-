@@ -165,7 +165,6 @@ export function AddProductStep2({
     }
 
     if (hasChanges) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       setErrors(newErrors);
     }
   }, [formData.store_id, formData.section_id, errors]);
