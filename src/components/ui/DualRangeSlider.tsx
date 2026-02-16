@@ -37,7 +37,8 @@ export function DualRangeSlider({
         if (!sliderRef.current || !isDragging.current) return;
 
         const rect = sliderRef.current.getBoundingClientRect();
-        const percent = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
+        // Invert calculation for RTL: 0 is on the right
+        const percent = Math.min(Math.max((rect.right - clientX) / rect.width, 0), 1);
         const rawValue = percent * (max - min) + min;
         const newValue = Math.round(rawValue / step) * step;
 
@@ -94,15 +95,15 @@ export function DualRangeSlider({
                 <div
                     className="absolute h-full bg-blue-4 rounded-full"
                     style={{
-                        left: `${getPercentage(localValue[0])}%`,
+                        right: `${getPercentage(localValue[0])}%`,
                         width: `${getPercentage(localValue[1]) - getPercentage(localValue[0])}%`,
                     }}
                 />
 
                 {/* Min Thumb */}
                 <div
-                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-blue-4 border-2 border-white rounded-full shadow cursor-grab active:cursor-grabbing hover:scale-110 transition-transform z-10 box-content"
-                    style={{ left: `${getPercentage(localValue[0])}%` }}
+                    className="absolute top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 bg-blue-4 border-2 border-white rounded-full shadow cursor-grab active:cursor-grabbing hover:scale-110 transition-transform z-10 box-content"
+                    style={{ right: `${getPercentage(localValue[0])}%` }}
                     onMouseDown={handleMouseDown("min")}
                     onTouchStart={handleMouseDown("min")}
                 >
@@ -114,8 +115,8 @@ export function DualRangeSlider({
 
                 {/* Max Thumb */}
                 <div
-                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-blue-4 border-2 border-white rounded-full shadow cursor-grab active:cursor-grabbing hover:scale-110 transition-transform z-10 box-content"
-                    style={{ left: `${getPercentage(localValue[1])}%` }}
+                    className="absolute top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 bg-blue-4 border-2 border-white rounded-full shadow cursor-grab active:cursor-grabbing hover:scale-110 transition-transform z-10 box-content"
+                    style={{ right: `${getPercentage(localValue[1])}%` }}
                     onMouseDown={handleMouseDown("max")}
                     onTouchStart={handleMouseDown("max")}
                 >

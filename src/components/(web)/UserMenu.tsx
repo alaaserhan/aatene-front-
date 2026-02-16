@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { LogOut, User, Store, Crown, Shield, ChevronRight, ChevronLeft, ChevronDown, Settings, Headset, MessageSquarePlus } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { toast } from "sonner";
 import api from "@/src/lib/axios";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -19,6 +20,7 @@ interface UserMenuProps {
 const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
   const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
   const user = useAuthStore((state) => state.user);
+  console.log(user);
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const lang = useLanguage();
@@ -125,10 +127,12 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
         {/* User Profile Card */}
         <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-4 mb-4">
           <div className="flex items-center gap-4 mb-4">
-            {user.avatar ? (
-              <img
-                src={user.avatar}
+            {user.avatar_url ? (
+              <Image
+                src={user.avatar_url}
                 alt={user.fullname}
+                width={56}
+                height={56}
                 className="w-14 h-14 rounded-full object-cover ring-3 ring-white shadow-lg"
               />
             ) : (
@@ -238,10 +242,12 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
         className="group flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-700  transition-all duration-200"
       >
         <div className="relative">
-          {user.avatar ? (
-            <img
-              src={user.avatar}
+          {user.avatar_url ? (
+            <Image
+              src={user.avatar_url}
               alt={user.fullname}
+              width={40}
+              height={40}
               className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-primary/30 transition-all duration-200"
             />
           ) : (
@@ -258,10 +264,12 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
           {/* Header Section */}
           <div className="px-6 py-4 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100">
             <div className="flex items-center gap-4">
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
+              {user.avatar_url ? (
+                <Image
+                  src={user.avatar_url}
                   alt={user.fullname}
+                  width={56}
+                  height={56}
                   className="w-14 h-14 rounded-full object-cover ring-3 ring-white shadow-md"
                 />
               ) : (
