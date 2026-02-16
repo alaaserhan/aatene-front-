@@ -82,9 +82,10 @@ export function TrashPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-  // حالة نافذة التأكيد
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<"delete" | "bulk-delete">(
+  // حالة نوافذ التأكيد
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [confirmRestoreOpen, setConfirmRestoreOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<"delete" | "bulk-delete" | "restore" | "bulk-restore">(
     "delete"
   );
   const [targetId, setTargetId] = useState<number | null>(null);
@@ -172,19 +173,34 @@ export function TrashPage() {
   );
 
   const handleRestore = (id: number) => {
-    setRestoringId(id);
-    restoreMutation.mutate(id, {
-      onSettled: () => {
-        setRestoringId(null);
-        setSelectedIds((prev) => prev.filter((x) => x !== id));
-      },
-    });
+    setTargetId(id);
+    setConfirmAction("restore");
+    setConfirmRestoreOpen(true);
   };
 
   const handleForceDelete = (id: number) => {
     setTargetId(id);
     setConfirmAction("delete");
-    setConfirmOpen(true);
+    setConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmRestore = () => {
+    if (confirmAction === "restore" && targetId !== null) {
+      setRestoringId(targetId);
+      restoreMutation.mutate(targetId, {
+        onSettled: () => {
+          setRestoringId(null);
+          setTargetId(null);
+          setSelectedIds((prev) => prev.filter((x) => x !== targetId));
+        },
+      });
+    } else if (confirmAction === "bulk-restore") {
+      bulkRestoreMutation.mutate(selectedIds, {
+        onSettled: () => {
+          setSelectedIds([]);
+        },
+      });
+    }
   };
 
   const handleConfirmDelete = () => {
@@ -207,14 +223,13 @@ export function TrashPage() {
   };
 
   const handleBulkRestore = () => {
-    bulkRestoreMutation.mutate(selectedIds, {
-      onSettled: () => setSelectedIds([]),
-    });
+    setConfirmAction("bulk-restore");
+    setConfirmRestoreOpen(true);
   };
 
   const handleBulkForceDelete = () => {
     setConfirmAction("bulk-delete");
-    setConfirmOpen(true);
+    setConfirmDeleteOpen(true);
   };
 
   return (
@@ -283,14 +298,28 @@ export function TrashPage() {
         </div>
       </main>
 
+      {/* مودال تأكيد الاسترجاع */}
       <ConfirmDeleteModal
-        isOpen={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
+        isOpen={confirmRestoreOpen}
+        onClose={() => setConfirmRestoreOpen(false)}
+        onConfirm={handleConfirmRestore}
+        title="هل أنت متأكد من الاسترجاع؟"
+        description="سيتم استرجاع العنصر وإعادته إلى مكانه الأصلي."
+        confirmText="نعم، استرجاع"
+        cancelText="إلغاء"
+        variant="restore"
+      />
+
+      {/* مودال تأكيد الحذف النهائي */}
+      <ConfirmDeleteModal
+        isOpen={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
         onConfirm={handleConfirmDelete}
         title="هل أنت متأكد من الحذف النهائي؟"
         description="لن تتمكن من استرجاع هذا العنصر بعد الحذف النهائي."
         confirmText="نعم، حذف نهائي"
         cancelText="إلغاء"
+        variant="delete"
       />
     </div>
   );
