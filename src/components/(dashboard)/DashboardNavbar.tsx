@@ -1,4 +1,4 @@
-// src/features/(dashboard)/home/components/DashboardNavbar.tsx
+
 "use client";
 
 import React, { useState } from "react";
@@ -33,6 +33,7 @@ import {
   Shield,
   ShieldOff,
   Bell,
+
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -393,7 +394,18 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-lg hover:bg-white/20 relative"
+              aria-label="المحذوفات"
+              asChild
+            >
+              <Link href={`/${lang}${navPrefix}/trash`}>
+                <img src="/icons/dashboard/delete-02.png" className="w-5 h-5" alt="trash" />
+              </Link>
+            </Button>
             <div className="hidden lg:block">
               <DashboardUserMenu />
             </div>

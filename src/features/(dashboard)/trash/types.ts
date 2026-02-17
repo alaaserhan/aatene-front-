@@ -1,8 +1,7 @@
-// فئات الشريط الجانبي
-export interface TrashCategory {
-  id: string;
+// خيار من /admin/trashed/options 
+export interface TrashOption {
+  slug: string;
   name: string;
-  count?: number;
 }
 
 // عنصر محذوف في الجدول
@@ -14,12 +13,14 @@ export interface TrashedItem {
   deleted_at?: string;
 }
 
-export interface TrashCategoriesResponse {
+// استجابة جلب الخيارات المتاحة
+export interface TrashOptionsResponse {
   status: boolean;
   message: string;
-  data: TrashCategory[];
+  data: TrashOption[];
 }
 
+// استجابة جلب العناصر المحذوفة (مع pagination)
 export interface TrashedItemsResponse {
   status: boolean;
   message: string;
@@ -28,6 +29,7 @@ export interface TrashedItemsResponse {
   data: TrashedItem[];
 }
 
+// استجابة الاسترجاع أو الحذف النهائي
 export interface TrashActionResponse {
   status: boolean;
   message: string;

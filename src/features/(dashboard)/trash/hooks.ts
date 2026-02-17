@@ -9,43 +9,45 @@ import {
 import { toast } from "sonner";
 import * as api from "./api";
 import type {
-  TrashCategoriesResponse,
+  TrashOptionsResponse,
   TrashedItemsResponse,
   TrashActionResponse,
 } from "./types";
 
-// مفاتيح الكاش للاستعلامات
+// مفاتيح الكاش
 const TrashQK = {
   all: ["trash"] as const,
-  categories: ["trash", "categories"] as const,
-  items: (params: string) => ["trash", "items", params] as const,
-  itemsAny: ["trash", "items"] as const,
+  options: ["trash", "options"] as const,
+  items: (slug: string, params: string) => ["trash", "items", slug, params] as const,
 };
 
-export const useGetTrashCategories = (
-  options?: Partial<UseQueryOptions<TrashCategoriesResponse, Error>>
+// جلب الخيارات المتاحة (الشريط الجانبي)
+export const useGetTrashOptions = (
+  options?: Partial<UseQueryOptions<TrashOptionsResponse, Error>>
 ) =>
   useQuery({
-    queryKey: TrashQK.categories,
-    queryFn: api.getTrashCategories,
+    queryKey: TrashQK.options,
+    queryFn: api.getTrashOptions,
     ...options,
   });
 
+// جلب العناصر المحذوفة حسب الفئة
 export const useGetTrashedItems = (
+  slug: string,
   params: URLSearchParams,
   options?: Partial<UseQueryOptions<TrashedItemsResponse, Error>>
 ) =>
   useQuery({
-    queryKey: TrashQK.items(params.toString()),
-    queryFn: () => api.getTrashedItems(params),
+    queryKey: TrashQK.items(slug, params.toString()),
+    queryFn: () => api.getTrashedItems(slug, params),
     ...options,
   });
 
-// استرجاع عنصر واحد مع تحديث البيانات تلقائياً
+// استرجاع عنصر واحد
 export const useRestoreItem = () => {
   const qc = useQueryClient();
-  return useMutation<TrashActionResponse, Error, number>({
-    mutationFn: api.restoreItem,
+  return useMutation<TrashActionResponse, Error, { slug: string; id: number }>({
+    mutationFn: ({ slug, id }) => api.restoreItem(slug, id),
     onSuccess: (data) => {
       toast.success(data.message || "تم الاسترجاع بنجاح");
       qc.invalidateQueries({ queryKey: TrashQK.all });
@@ -59,36 +61,8 @@ export const useRestoreItem = () => {
 // حذف نهائي لعنصر واحد
 export const useForceDeleteItem = () => {
   const qc = useQueryClient();
-  return useMutation<TrashActionResponse, Error, number>({
-    mutationFn: api.forceDeleteItem,
-    onSuccess: (data) => {
-      toast.success(data.message || "تم الحذف نهائياً");
-      qc.invalidateQueries({ queryKey: TrashQK.all });
-    },
-    onError: () => {
-      toast.error("حدث خطأ أثناء الحذف");
-    },
-  });
-};
-
-export const useBulkRestore = () => {
-  const qc = useQueryClient();
-  return useMutation<TrashActionResponse, Error, number[]>({
-    mutationFn: api.bulkRestoreItems,
-    onSuccess: (data) => {
-      toast.success(data.message || "تم استرجاع المحدد بنجاح");
-      qc.invalidateQueries({ queryKey: TrashQK.all });
-    },
-    onError: () => {
-      toast.error("حدث خطأ أثناء الاسترجاع");
-    },
-  });
-};
-
-export const useBulkForceDelete = () => {
-  const qc = useQueryClient();
-  return useMutation<TrashActionResponse, Error, number[]>({
-    mutationFn: api.bulkForceDeleteItems,
+  return useMutation<TrashActionResponse, Error, { slug: string; id: number }>({
+    mutationFn: ({ slug, id }) => api.forceDeleteItem(slug, id),
     onSuccess: (data) => {
       toast.success(data.message || "تم الحذف نهائياً");
       qc.invalidateQueries({ queryKey: TrashQK.all });

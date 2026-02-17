@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { Plus, Search } from "lucide-react";
-import Link from "next/link";
+import { Search } from "lucide-react";
 import { useLanguage } from "@/src/hooks/use-language";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
@@ -10,79 +9,23 @@ import { TrashTable } from "./TrashTable";
 import { TrashBulkActions } from "./TrashBulkActions";
 import { Input } from "@/src/components/ui/input";
 import {
+  useGetTrashOptions,
   useGetTrashedItems,
   useRestoreItem,
   useForceDeleteItem,
-  useBulkRestore,
-  useBulkForceDelete,
 } from "../hooks";
-import { useGetAttributes } from "@/src/features/(dashboard)/categoriesAndAttributes/hooks";
 import type { TrashedItem } from "../types";
-import { Button } from "@/src/components/ui/button";
-
-// للمعاينة فقط - غيّر إلى false عند توفر الباك إند
-const USE_FAKE_DATA = true;
-
-// بيانات تجريبية للعرض
-const FAKE_TRASH_ITEMS: Record<string, TrashedItem[]> = {
-  all: [
-    { id: 1, name: "الأزياء", shown: true, category_name: "المنتجات" },
-    { id: 2, name: "الإلكترونيات", shown: true, category_name: "المنتجات" },
-    { id: 3, name: "المنزل والمطبخ", shown: false, category_name: "المنتجات" },
-    { id: 4, name: "الرعاية والصحة", shown: true, category_name: "الخدمات" },
-    { id: 5, name: "المنزل والحديقة", shown: true, category_name: "المنتجات" },
-    { id: 6, name: "أحمد محمد", shown: true, category_name: "المستخدمين" },
-    { id: 7, name: "الصحة والجمال", shown: true, category_name: "الخدمات" },
-    { id: 8, name: "الديكور", shown: true, category_name: "المتاجر" },
-    { id: 9, name: "الأثاث", shown: true, category_name: "المنتجات" },
-  ],
-  users: [
-    { id: 6, name: "أحمد محمد", shown: true, category_name: "المستخدمين" },
-    { id: 10, name: "سارة خالد", shown: true, category_name: "المستخدمين" },
-    { id: 11, name: "محمد علي", shown: false, category_name: "المستخدمين" },
-  ],
-  stores: [
-    { id: 8, name: "الديكور", shown: true, category_name: "المتاجر" },
-    { id: 12, name: "متجر الأناقة", shown: true, category_name: "المتاجر" },
-  ],
-  products: [
-    { id: 1, name: "الأزياء", shown: true, category_name: "المنتجات" },
-    { id: 2, name: "الإلكترونيات", shown: true, category_name: "المنتجات" },
-    { id: 3, name: "المنزل والمطبخ", shown: false, category_name: "المنتجات" },
-    { id: 5, name: "المنزل والحديقة", shown: true, category_name: "المنتجات" },
-    { id: 9, name: "الأثاث", shown: true, category_name: "المنتجات" },
-  ],
-  services: [
-    { id: 4, name: "الرعاية والصحة", shown: true, category_name: "الخدمات" },
-    { id: 7, name: "الصحة والجمال", shown: true, category_name: "الخدمات" },
-  ],
-  attributes: [
-    { id: 20, name: "اللون", shown: true, category_name: "السمات" },
-    { id: 21, name: "المقاس", shown: true, category_name: "السمات" },
-    { id: 22, name: "الخامة", shown: false, category_name: "السمات" },
-    { id: 23, name: "الوزن", shown: true, category_name: "السمات" },
-  ],
-};
-
-const SIDEBAR_CATEGORIES = [
-  { name: "الكل", value: "all" },
-  { name: "المستخدمين", value: "users" },
-  { name: "المتاجر", value: "stores" },
-  { name: "المنتجات", value: "products" },
-  { name: "الخدمات", value: "services" },
-  { name: "السمات", value: "attributes" },
-];
+import { toast } from "sonner";
 
 export function TrashPage() {
   const lang = useLanguage();
 
-  // حالة الفلاتر والبحث
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [activeSlug, setActiveSlug] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-  // حالة نوافذ التأكيد
+  // نوافذ التأكيد
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [confirmRestoreOpen, setConfirmRestoreOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<"delete" | "bulk-delete" | "restore" | "bulk-restore">(
@@ -90,75 +33,47 @@ export function TrashPage() {
   );
   const [targetId, setTargetId] = useState<number | null>(null);
 
-  // تتبع حالة التحميل لكل عنصر
   const [restoringId, setRestoringId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [bulkLoading, setBulkLoading] = useState(false);
+
+  // جلب الخيارات المتاحة من الباك إند
+  const { data: optionsData } = useGetTrashOptions();
+
+  // تحويل الخيارات لتنسيق الشريط الجانبي
+  const sidebarOptions = useMemo(() => {
+    const apiOptions = (optionsData?.data || []).map((opt) => ({
+      name: opt.name,
+      value: opt.slug,
+    }));
+    return [{ name: "الكل", value: "all" }, ...apiOptions];
+  }, [optionsData]);
 
   const queryParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("page", String(currentPage));
-    params.set("per_page", "10");
-    if (activeCategory !== "all" && activeCategory !== "attributes") {
-      params.set("category", activeCategory);
-    }
-    if (searchQuery) {
-      params.set("search", searchQuery);
-    }
-    return params;
-  }, [activeCategory, searchQuery, currentPage]);
-
-  const isAttributesTab = activeCategory === "attributes";
-
-  // جلب العناصر المحذوفة من API
-  const { data: itemsData, isLoading: isLoadingItems } =
-    useGetTrashedItems(queryParams, { enabled: !USE_FAKE_DATA && !isAttributesTab });
-
-  // السمات لها API مختلف
-  const attributesParams = useMemo(() => {
-    const params = new URLSearchParams();
-    params.set("page", String(currentPage));
-    params.set("per_page", "10");
+    params.set("per_page", "15");
     if (searchQuery) {
       params.set("search", searchQuery);
     }
     return params;
   }, [searchQuery, currentPage]);
 
-  const { data: attributesData, isLoading: isLoadingAttributes } =
-    useGetAttributes(attributesParams, { enabled: !USE_FAKE_DATA && isAttributesTab });
+  // جلب العناصر المحذوفة حسب الفئة
+  const { data: itemsData, isLoading } = useGetTrashedItems(
+    activeSlug,
+    queryParams,
+    { enabled: activeSlug !== "all" }
+  );
 
   const restoreMutation = useRestoreItem();
   const forceDeleteMutation = useForceDeleteItem();
-  const bulkRestoreMutation = useBulkRestore();
-  const bulkForceDeleteMutation = useBulkForceDelete();
 
-  // تحديد مصدر البيانات حسب الوضع
-  const items: TrashedItem[] = useMemo(() => {
-    if (USE_FAKE_DATA) {
-      return FAKE_TRASH_ITEMS[activeCategory] || FAKE_TRASH_ITEMS.all;
-    }
-    // معالجة خاصة لتبويب السمات
-    if (isAttributesTab) {
-      return (attributesData?.data || []).map((attr) => ({
-        id: attr.id,
-        name: attr.title,
-        shown: attr.is_active === true || attr.is_active === "1",
-        category_name: "السمات",
-      }));
-    }
-    return itemsData?.data || [];
-  }, [USE_FAKE_DATA, activeCategory, isAttributesTab, attributesData, itemsData]);
+  const items: TrashedItem[] = itemsData?.data || [];
+  const totalPages = Math.ceil((itemsData?.recordsFiltered || 0) / 15);
 
-  const totalPages = USE_FAKE_DATA
-    ? 1
-    : isAttributesTab
-      ? Math.ceil((attributesData?.recordsFiltered || 0) / 10)
-      : Math.ceil((itemsData?.recordsFiltered || 0) / 10);
-
-  const isLoading = USE_FAKE_DATA ? false : (isAttributesTab ? isLoadingAttributes : isLoadingItems);
-
-  const handleCategoryChange = (value: string) => {
-    setActiveCategory(value);
+  const handleSlugChange = (value: string) => {
+    setActiveSlug(value);
     setCurrentPage(1);
     setSelectedIds([]);
   };
@@ -184,41 +99,69 @@ export function TrashPage() {
     setConfirmDeleteOpen(true);
   };
 
-  const handleConfirmRestore = () => {
+  // تنفيذ الاسترجاع بعد التأكيد
+  const handleConfirmRestore = async () => {
     if (confirmAction === "restore" && targetId !== null) {
       setRestoringId(targetId);
-      restoreMutation.mutate(targetId, {
-        onSettled: () => {
-          setRestoringId(null);
-          setTargetId(null);
-          setSelectedIds((prev) => prev.filter((x) => x !== targetId));
-        },
-      });
+      restoreMutation.mutate(
+        { slug: activeSlug, id: targetId },
+        {
+          onSettled: () => {
+            setRestoringId(null);
+            setTargetId(null);
+            setSelectedIds((prev) => prev.filter((x) => x !== targetId));
+          },
+        }
+      );
     } else if (confirmAction === "bulk-restore") {
-      bulkRestoreMutation.mutate(selectedIds, {
-        onSettled: () => {
-          setSelectedIds([]);
-        },
-      });
+      setBulkLoading(true);
+      let successCount = 0;
+      for (const id of selectedIds) {
+        try {
+          await restoreMutation.mutateAsync({ slug: activeSlug, id });
+          successCount++;
+        } catch {
+          // الخطأ يُعرض تلقائياً من الـ hook
+        }
+      }
+      if (successCount > 0) {
+        toast.success(`تم استرجاع ${successCount} عنصر بنجاح`);
+      }
+      setSelectedIds([]);
+      setBulkLoading(false);
     }
   };
 
-  const handleConfirmDelete = () => {
+  // تنفيذ الحذف النهائي بعد التأكيد
+  const handleConfirmDelete = async () => {
     if (confirmAction === "delete" && targetId !== null) {
       setDeletingId(targetId);
-      forceDeleteMutation.mutate(targetId, {
-        onSettled: () => {
-          setDeletingId(null);
-          setTargetId(null);
-          setSelectedIds((prev) => prev.filter((x) => x !== targetId));
-        },
-      });
+      forceDeleteMutation.mutate(
+        { slug: activeSlug, id: targetId },
+        {
+          onSettled: () => {
+            setDeletingId(null);
+            setTargetId(null);
+            setSelectedIds((prev) => prev.filter((x) => x !== targetId));
+          },
+        }
+      );
     } else if (confirmAction === "bulk-delete") {
-      bulkForceDeleteMutation.mutate(selectedIds, {
-        onSettled: () => {
-          setSelectedIds([]);
-        },
-      });
+      setBulkLoading(true);
+      let successCount = 0;
+      for (const id of selectedIds) {
+        try {
+          await forceDeleteMutation.mutateAsync({ slug: activeSlug, id });
+          successCount++;
+        } catch {
+          // الخطأ يُعرض تلقائياً من الـ hook
+        }
+      }
+      if (successCount > 0) {
+        toast.success(`تم حذف ${successCount} عنصر نهائياً`);
+      }
+      setSelectedIds([]);
+      setBulkLoading(false);
     }
   };
 
@@ -236,24 +179,15 @@ export function TrashPage() {
     <div className="flex flex-col h-full">
       <header className="flex items-center justify-between p-4 sm:px-6 sm:py-4">
         <h1 className="text-xl font-bold text-blue-3">المحذوفات</h1>
-        <Link href={`/${lang}/admin/categories`}>
-          <Button
-            size="sm"
-            className="gap-1.5 bg-blue-3 hover:bg-blue-3/90 text-white cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            إضافة فئة للمحذوفات
-          </Button>
-        </Link>
       </header>
 
       <main className="flex-1 p-2 sm:p-6 h-[calc(100vh-65px)]">
         <div className="grid grid-cols-12 gap-6 h-full">
           <div className="col-span-12 lg:col-span-2 h-full">
             <SidebarFilterPanel
-              options={SIDEBAR_CATEGORIES}
-              activeValue={activeCategory}
-              onValueChange={handleCategoryChange}
+              options={sidebarOptions}
+              activeValue={activeSlug}
+              onValueChange={handleSlugChange}
               className="h-full"
             />
           </div>
@@ -277,8 +211,8 @@ export function TrashPage() {
               selectedCount={selectedIds.length}
               onBulkRestore={handleBulkRestore}
               onBulkForceDelete={handleBulkForceDelete}
-              isRestoring={bulkRestoreMutation.isPending}
-              isDeleting={bulkForceDeleteMutation.isPending}
+              isRestoring={bulkLoading && confirmAction === "bulk-restore"}
+              isDeleting={bulkLoading && confirmAction === "bulk-delete"}
             />
 
             <TrashTable
