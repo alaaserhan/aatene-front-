@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Search } from "lucide-react";
 import { useLanguage } from "@/src/hooks/use-language";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
@@ -20,7 +20,7 @@ import { toast } from "sonner";
 export function TrashPage() {
   const lang = useLanguage();
 
-  const [activeSlug, setActiveSlug] = useState("all");
+  const [activeSlug, setActiveSlug] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -42,12 +42,18 @@ export function TrashPage() {
 
   // تحويل الخيارات لتنسيق الشريط الجانبي
   const sidebarOptions = useMemo(() => {
-    const apiOptions = (optionsData?.data || []).map((opt) => ({
+    return (optionsData?.options || []).map((opt) => ({
       name: opt.name,
       value: opt.slug,
     }));
-    return [{ name: "الكل", value: "all" }, ...apiOptions];
   }, [optionsData]);
+
+  // تعيين الفئة النشطة الافتراضية (أول فئة من القائمة)
+  React.useEffect(() => {
+    if (sidebarOptions.length > 0 && !activeSlug) {
+      setActiveSlug(sidebarOptions[0].value);
+    }
+  }, [sidebarOptions, activeSlug]);
 
   const queryParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -63,7 +69,9 @@ export function TrashPage() {
   const { data: itemsData, isLoading } = useGetTrashedItems(
     activeSlug,
     queryParams,
-    { enabled: activeSlug !== "all" }
+    { 
+      enabled: !!activeSlug && sidebarOptions.length > 0,
+    }
   );
 
   const restoreMutation = useRestoreItem();

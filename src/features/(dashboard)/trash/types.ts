@@ -8,6 +8,7 @@ export interface TrashOption {
 export interface TrashedItem {
   id: number;
   name: string;
+  // الحقول التالية اختيارية لأن الباك اند يُرجع فقط id و name
   category_name?: string;
   shown?: boolean;
   deleted_at?: string;
@@ -17,7 +18,7 @@ export interface TrashedItem {
 export interface TrashOptionsResponse {
   status: boolean;
   message: string;
-  data: TrashOption[];
+  options: TrashOption[]; 
 }
 
 // استجابة جلب العناصر المحذوفة (مع pagination)
