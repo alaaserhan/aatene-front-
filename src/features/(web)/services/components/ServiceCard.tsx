@@ -1,11 +1,12 @@
 "use client";
 
-import { Service } from "@/src/features/(web)/searchAndFilter/api";
+import { Service } from "../api";
 import { cn } from "@/src/lib/utils";
 import { Star, MapPin } from "lucide-react";
 import Image from "next/image";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
+import { useRouter } from "next/navigation";
 
 interface ServiceCardProps {
     service: Service;
@@ -14,27 +15,33 @@ interface ServiceCardProps {
 }
 
 export default function ServiceCard({ service, className, onClick }: ServiceCardProps) {
-    const rating = parseFloat(service.review_rate || "0");
-    const reviewCount = parseInt(service.review_count || "0");
+    const router = useRouter();
+
     const price = parseFloat(service.price || "0");
     const cityName = service.store?.service_cities?.[0]?.name || "فلسطين";
     const providerName = service.store?.name || "مقدم الخدمة";
 
-
+    const handleClick = () => {
+        if (onClick) {
+            onClick();
+        } else {
+            router.push(`/services/${service.slug}`);
+        }
+    };
 
     return (
         <div
             className={cn(
-                "bg-white  overflow-hidden flex flex-col group cursor-pointer hover:shadow-xl transition-all duration-300 w-full relative",
+                "bg-white  overflow-hidden flex flex-col group cursor-pointer hover:shadow-sm rounded transition-all duration-300 w-full relative",
                 className
             )}
-            onClick={onClick}
+            onClick={handleClick}
             dir="rtl"
         >
             <CompareCheckbox id={service.id} type="service" />
 
             {/* Service Image */}
-            <div className="relative aspect-[4/3] w-full bg-gray-50">
+            <div className="relative aspect-[4/3] w-full bg-gray-50 overflow-hidden">
                 <Image
                     src={service.image_url || service.images_urls?.[0] || "/placeholder.png"}
                     alt={service.title}
@@ -67,7 +74,7 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                 {/* Price */}
                 <div className="flex justify-start w-full mb-4">
                     <p className="flex font-medium items-baseline gap-1">
-                        <span className="text-lg">{price.toFixed(2)}</span>
+                        <span className="">{price.toFixed(2)}</span>
                         <span className="text-xl ">₪</span>
                     </p>
                 </div>
@@ -105,21 +112,9 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                                 <span className="truncate max-w-[60px]">{cityName}</span>
                             </div>
                             {/* Rating */}
-                            <div className="flex items-center gap-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        className={cn(
-                                            "w-3 h-3",
-                                            i < Math.round(rating)
-                                                ? "fill-[#FB923C] text-[#FB923C]"
-                                                : "fill-gray-200 text-gray-200"
-                                        )}
-                                    />
-                                ))}
-                                <span className="text-[10px] font-medium text-[#FB923C] mx-1">
-                                    {rating.toFixed(1)}
-                                </span>
+                            <div className="flex items-center gap-1 text-xs">
+                                <Star className="w-3 h-3 fill-[#FFC220] text-[#FFC220]" />
+                                <span className="whitespace-nowrap">( {service.review_count || 0} مراجعة )</span>
                             </div>
 
 

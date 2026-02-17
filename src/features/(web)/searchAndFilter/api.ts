@@ -158,7 +158,7 @@ export interface Service {
     slug: string;
     title: string;
     description: string;
-    images: any[]; // Adjust if you know the type
+    images: string[];
     images_urls: string[];
     image: string | null;
     image_url: string | null;

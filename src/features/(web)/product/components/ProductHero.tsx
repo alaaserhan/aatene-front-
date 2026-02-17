@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MessageCircle, MoreVertical, Send } from "lucide-react";
+import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send } from "lucide-react";
 import { Product, Store, Attribute, AttributeOption } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddProductToCompare } from "@/src/features/(web)/compares/hooks";
 import { cn } from "@/src/lib/utils";
 
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { ReportAbuse } from "../../reports/components/ReportAbuse";
 
 interface ProductHeroProps {
     product: Product;
@@ -223,10 +224,15 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                             <Share2 className="w-4 h-4" />
                                             مشاركة المنتج
                                         </button>
-                                        <button className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                                            <Flag className="w-4 h-4" />
-                                            ابلاغ عن المنتج
-                                        </button>
+                                        <ReportAbuse type="product" id={product.id}>
+                                            <button
+                                                onClick={() => setShowMenu(false)}
+                                                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                            >
+                                                <Flag className="w-4 h-4" />
+                                                ابلاغ عن المنتج
+                                            </button>
+                                        </ReportAbuse>
                                     </div>
                                 )}
                             </div>

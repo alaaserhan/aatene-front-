@@ -21,8 +21,12 @@ export function ReportAbuse({ type, id, children }: ReportAbuseProps) {
     return (
         <>
             {isValidElement(children) ? (
-                cloneElement(children as React.ReactElement<any>, {
-                    onClick: handleOpen,
+                cloneElement(children as React.ReactElement<{ onClick?: React.MouseEventHandler }>, {
+                    onClick: (e: React.MouseEvent) => {
+                        handleOpen(e);
+                        const element = children as React.ReactElement<{ onClick?: React.MouseEventHandler }>;
+                        element.props.onClick?.(e);
+                    },
                 })
             ) : (
                 <span onClick={handleOpen} className="cursor-pointer">
