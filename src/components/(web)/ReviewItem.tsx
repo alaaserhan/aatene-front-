@@ -89,7 +89,7 @@ export function ReviewItem({
                 )}
 
                 <div className="flex items-center justify-between mt-1">
-                    <div className="flex items-center gap-5 text-[14px] font-medium text-blue-4">
+                    <div className="flex items-center md:gap-7 gap-4 md:text-[14px] text-[12px] font-medium text-blue-4">
                         <span>{getRelativeTimeArabic(review.created_at)}</span>
                         {!isReply && (
                             <button onClick={() => onReply?.(review.id, review.user.name)} className="hover:underline cursor-pointer">رد</button>
@@ -99,8 +99,8 @@ export function ReviewItem({
                                 onClick={() => onToggleReplies?.(review.id)}
                                 className="flex items-center gap-1 hover:underline cursor-pointer"
                             >
-                                {showReplies ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                                 {showReplies ? "إخفاء الردود" : `عرض الردود`}
+                                {showReplies ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                             </button>
                         )}
                     </div>

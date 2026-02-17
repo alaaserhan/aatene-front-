@@ -54,13 +54,13 @@ const NavIcons = () => {
           <img src="/icons/Compare.svg" alt="" className="h-6 w-6" />
         </button>
       </Link>
-      {userType === "admin" && (
+      {/* {userType === "admin" && (
         <Link href={`/${lang}/admin/stores`} className="flex items-center">
           <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="المتاجر">
             <img src="/icons/shop.svg" alt="" className="h-6 w-6" />
           </button>
         </Link>
-      )}
+      )} */}
       <Link href={`/${lang}/favourites`} className="flex items-center">
         <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="المفضلة">
           <img src="/icons/heart.svg" alt="Favorites" className="h-6 w-6" />
