@@ -63,7 +63,7 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
         };
 
         return (
-            <div ref={containerRef} className="bg-[#f2f2f2] border border-gray-200 rounded-xl p-6 flex gap-5">
+            <div ref={containerRef} className="bg-[#AAAAAA1A] border border-gray-200 rounded-xl p-6 flex gap-5">
                 <div className="relative w-[52px] h-[52px] rounded-full overflow-hidden shrink-0">
                     <Image
                         src={user?.avatar_url || "/assets/images/placeholder.jpg"}
@@ -74,12 +74,12 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
                 </div>
                 <div className="flex-1 flex flex-col gap-6">
                     {parentId && replyToName && (
-                        <div className="flex items-center justify-between text-sm bg-blue-50 text-blue-4 px-3 py-2 rounded-lg border border-blue-100">
+                        <div className="flex items-center justify-between text-sm bg-blue-5 text-blue-4 px-3 py-2 rounded-lg border border-blue-100">
                             <span className="font-medium">الرد على {replyToName}</span>
                             <button
                                 type="button"
                                 onClick={onCancelReply}
-                                className="text-blue-600 hover:text-blue-800 p-1 cursor-pointer"
+                                className="text-blue-4  p-1 cursor-pointer"
                             >
                                 <X size={14} />
                             </button>
@@ -118,9 +118,9 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
                         ))}
                         <button
                             onClick={() => fileInputRef.current?.click()}
-                            className="w-[100px] h-[100px] rounded-[15px] border border-dashed border-[#046cff] bg-[rgba(166,166,166,0.3)] flex items-center justify-center cursor-pointer"
+                            className="w-[100px] h-[100px] rounded-[15px] border border-dashed border-blue-3 bg-[rgba(166,166,166,0.3)] flex items-center justify-center cursor-pointer"
                         >
-                            <div className="bg-[#006cff] rounded-full p-2">
+                            <div className="bg-blue-3 rounded-full p-2">
                                 <Plus size={24} className="text-white" />
                             </div>
                         </button>
@@ -144,7 +144,7 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
                         <button
                             onClick={handleSafeSubmit}
                             disabled={isSubmitting}
-                            className="bg-linear-to-b from-[#127fff] to-[#0067ff] text-white rounded-full px-4 py-2 flex items-center gap-1 font-medium text-sm cursor-pointer capitalize disabled:opacity-50"
+                            className="bg-blue-3 text-white rounded-full px-4 py-2 flex items-center gap-1 font-medium text-sm cursor-pointer capitalize disabled:opacity-50"
                         >
                             {parentId ? "إرسال الرد" : "ارسال"}    <ChevronLeft size={20} />
                         </button>

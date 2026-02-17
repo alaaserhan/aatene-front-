@@ -70,24 +70,24 @@ function ProductAndStoreReviews({ product, store }: { product: Product; store: S
 
     return (
         <div className="space-y-8">
-            <div className="flex gap-4 border-b border-gray-100 pb-2">
+            <div className="flex gap-4 border-b border-gray-100">
                 <button
                     onClick={() => setSubTab("product")}
-                    className={`py-2 px-4 rounded-full text-sm font-medium transition-all ${subTab === "product"
-                        ? "bg-blue-3 text-white shadow-md shadow-blue-3/10"
-                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                    className={`py-2 px-4 cursor-pointer  text-sm font-medium flex items-center gap-2 transition-all ${subTab === "product"
+                        ? "border-b-2 border-blue-3"
+                        : ""
                         }`}
                 >
-                    مراجعات لهذا العنصر ({product.review_count || 0})
+                    مراجعات لهذا العنصر <div className="bg-blue-4 text-white  rounded-full px-2 py-1 text-xs">{product.review_count || 0}</div>
                 </button>
                 <button
                     onClick={() => setSubTab("store")}
-                    className={`py-2 px-4 rounded-full text-sm font-medium transition-all ${subTab === "store"
-                        ? "bg-blue-3 text-white shadow-md shadow-blue-3/10"
-                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                    className={`py-2 px-4 cursor-pointer text-sm font-medium transition-all flex items-center gap-2 ${subTab === "store"
+                        ? "border-b-2 border-blue-3"
+                        : ""
                         }`}
                 >
-                    مراجعات لهذا المتجر ({store.review_count || 0})
+                    مراجعات لهذا المتجر <div className="bg-blue-4 text-white  rounded-full px-2 py-1 text-xs">{store.review_count || 0}</div>
                 </button>
             </div>
 
@@ -111,10 +111,10 @@ function ReviewStatisticsDisplay({ stats }: { stats: ReviewStatistics }) {
 
     return (
         <div className="w-full">
-            <div className="flex flex-col md:flex-row gap-8 items-start mb-8 pb-8 border-b border-gray-100">
+            <div className="flex flex-col md:flex-row gap-8 items-start mb-8">
                 {/* Overall Rating Card */}
-                <div className="w-full md:w-[220px] shrink-0 bg-[#F9F9F9] rounded-2xl p-6 flex flex-col items-center justify-center gap-2 h-[160px]">
-                    <span className="text-5xl font-bold text-black tracking-tighter">{Number(stats.average_rate).toFixed(1)}</span>
+                <div className="w-full md:w-[220px] shrink-0 bg-[#AAAAAA1A] rounded-2xl p-6 flex flex-col items-center justify-center gap-2 h-[160px]">
+                    <span className="text-5xl font-medium">{Number(stats.average_rate).toFixed(1)}</span>
                     <span className="text-xs text-gray-400">من {stats.total_reviews} مراجعة</span>
                     <StarRating rating={Number(stats.average_rate)} size={20} />
                 </div>
@@ -132,14 +132,14 @@ function ReviewStatisticsDisplay({ stats }: { stats: ReviewStatistics }) {
                         const percentage = total > 0 ? (count / total) * 100 : 0;
                         return (
                             <div key={star} className="flex items-center gap-4">
-                                <span className="w-14 text-right text-sm text-gray-800 font-medium">{starLabels[star as keyof typeof starLabels]}</span>
+                                <span className="w-14 text-sm font-medium">{starLabels[star as keyof typeof starLabels]}</span>
                                 <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                                     <div
                                         className="h-full bg-[#FA9130] rounded-full"
                                         style={{ width: `${percentage}%` }}
                                     />
                                 </div>
-                                <span className="w-8 text-left text-sm text-gray-400 font-medium">{count}</span>
+                                <span className="w-8 text-sm text-gray-2 font-medium">{count}</span>
                             </div>
                         );
                     })}
@@ -395,7 +395,7 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
     return (
         <div className="space-y-6">
             {statistics && (
-                <ReviewStatisticsDisplay stats={statistics}/>
+                <ReviewStatisticsDisplay stats={statistics} />
             )}
 
 
