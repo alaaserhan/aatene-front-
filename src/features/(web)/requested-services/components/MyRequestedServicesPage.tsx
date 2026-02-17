@@ -13,46 +13,57 @@ import { cn } from "@/src/lib/utils";
 const PER_PAGE = 10;
 
 const statusMap: Record<string, { label: string; color: string }> = {
-    pending: { label: "قيد المراجعة", color: "bg-yellow-100 text-yellow-600" },
-    active: { label: "نشط", color: "bg-blue-100 text-blue-600" },
-    closed: { label: "مغلق", color: "bg-red-100 text-red-600" },
-    rejected: { label: "مرفوض", color: "bg-red-100 text-red-600" },
-    approved: { label: "نشط", color: "bg-blue-100 text-blue-600" }, // Mapping approved to active if needed
+    pending: { label: "قيد المراجعة", color: "bg-amber-50 text-amber-600 border-amber-100" },
+    approved: { label: "تمت الموافقة", color: "bg-emerald-50 text-emerald-600 border-emerald-100" },
+    rejected: { label: "تم الرفض", color: "bg-rose-50 text-rose-600 border-rose-100" },
 };
 
 function MyRequestedServiceCard({ service }: { service: RequestedService }) {
-    const statusInfo = statusMap[service.status] || { label: service.status, color: "bg-gray-100 text-gray-600" };
-    const user = service.user; // User object from API
+    const statusInfo = statusMap[service.status] || { label: service.status, color: "bg-gray-50 text-gray-500 border-gray-100" };
+    const user = service.user;
 
     return (
-        <div className="border border-gray-200 rounded-lg p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <Link
+            href={`/requested-services/${service.slug}`}
+            className="border border-gray-200 rounded-xl p-5 flex flex-col md:flex-row items-start justify-between gap-5 cursor-pointer"
+        >
             <div className="flex-1 flex flex-col gap-3 w-full">
                 <div className="flex items-center justify-between">
-                    <Link href={`/requested-services/${service.slug}`} className="text-base font-medium  hover:text-blue-600 transition-colors line-clamp-1">
+                    <h3 className="text-lg font-medium text-blue-3 group-hover:underline transition-colors line-clamp-1">
                         {service.title}
-                    </Link>
+                    </h3>
                 </div>
-                <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
+                <p className="text-gray-2 text-sm leading-relaxed line-clamp-2">
                     {service.content}
                 </p>
-                <div className="flex items-center gap-4 text-xs text-blue-3 mt-2">
-                    <span className="flex items-center gap-1">
-                        <img src="/icons/Time.svg" alt="Time" className="w-4 h-4" />
-                        <span>منذ {getRelativeTimeArabic(service.created_at)}</span>
+
+                {service.status === "rejected" && service.reject_reason && (
+                    <div className="bg-rose-50 border border-rose-100 p-3 rounded-lg mt-1">
+                        <p className="text-rose-600 text-xs flex flex-col gap-1">
+                            <span className="font-bold underline">سبب الرفض:</span>
+                            <span>{service.reject_reason}</span>
+                        </p>
+                    </div>
+                )}
+
+                <div className="flex items-center gap-4 text-xs text-gray-400 mt-2">
+                    <span className="flex items-center gap-1.5">
+                        <img src="/icons/Time.svg" alt="Time" className="w-4 h-4 opacity-60" />
+                        <span>{getRelativeTimeArabic(service.created_at)}</span>
                     </span>
-                    <span className="flex items-center gap-1">
-                        <img src="/icons/Profile.svg" alt="User" className="w-4 h-4" />
-                        <span>{user ? `${user.first_name} ${user.last_name}` : "مستخدم"}</span>
+                    <span className="flex items-center gap-1.5">
+                        <img src="/icons/Profile.svg" alt="User" className="w-4 h-4 opacity-60" />
+                        <span>{user ? `${user.first_name} ${user.last_name || ""}` : "مستخدم"}</span>
                     </span>
                 </div>
             </div>
 
-            <div className="shrink-0 flex md:flex-col items-end gap-2 self-start md:self-center">
-                <span className={cn("px-3 py-1 rounded-full text-xs font-medium w-fit whitespace-nowrap", statusInfo.color)}>
+            <div className="shrink-0 flex md:flex-col items-center md:items-end justify-between md:justify-start w-full md:w-auto mt-2 md:mt-0">
+                <span className={cn("px-4 py-1.5 rounded-full text-xs font-medium border transition-colors", statusInfo.color)}>
                     {statusInfo.label}
                 </span>
             </div>
-        </div>
+        </Link>
     );
 }
 
@@ -107,9 +118,9 @@ export default function MyRequestedServicesPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 md:px-6 my-8">
+        <div className="container mx-auto px-4 md:px-6 my-4 md:my-8">
             <div className="flex flex-col gap-6 max-w-[1000px] mx-auto">
-                <div className="flex flex-col gap-2 text-center md:text-right">
+                <div className="flex flex-col gap-2">
                     <h1 className="text-2xl md:text-3xl font-medium ">
                         طلباتي
                     </h1>
@@ -137,7 +148,7 @@ export default function MyRequestedServicesPage() {
                     </div>
                     <Link
                         href="/requested-services/create"
-                        className="bg-blue-4 flex items-center justify-center gap-2.5 px-8 py-2 h-10 rounded-full text-white text-sm shrink-0"
+                        className="bg-blue-4 flex items-center font-medium justify-center gap-2.5 px-8 py-2 h-10 rounded-full text-white text-sm shrink-0"
                     >
                         <CirclePlus className="w-5 h-5" />
                         <span>موضوع جديد</span>

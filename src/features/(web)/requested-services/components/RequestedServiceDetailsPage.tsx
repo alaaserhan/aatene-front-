@@ -3,13 +3,14 @@
 import { useParams } from "next/navigation";
 import { useRequestedServiceBySlug, useRequestedServiceComments, useAddRequestedServiceComment } from "../hooks";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
-import { Loader2, Flag, ImageIcon, User } from "lucide-react";
+import { Loader2, Flag, User, Play } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { RequestedServiceComment } from "../types";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 function CommentCard({
     comment,
@@ -91,6 +92,7 @@ function AddCommentForm({ slug }: { slug: string | number }) {
     const [content, setContent] = useState("");
     const { mutate, isPending } = useAddRequestedServiceComment();
     const maxLength = 300;
+    const user = useAuthStore((s) => s.user);
 
     const handleSubmit = () => {
         if (!content.trim() || isPending) return;
@@ -110,12 +112,12 @@ function AddCommentForm({ slug }: { slug: string | number }) {
         <div className="border border-gray-200 rounded-xl px-5 py-4">
             <div className="bg-blue-5 rounded-xl p-5 flex flex-col gap-3">
                 <div className="flex gap-3 items-start">
-                    <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
+                    <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
                         <Image
-                            src="/assets/images/placeholder.jpg"
+                            src={user?.avatar_url || ""}
                             alt="user"
-                            width={40}
-                            height={40}
+                            width={45}
+                            height={45}
                             className="object-cover w-full h-full"
                         />
                     </div>
@@ -139,17 +141,11 @@ function AddCommentForm({ slug }: { slug: string | number }) {
 
                 <div className="flex items-center justify-end gap-3">
                     <button
-                        onClick={() => setContent("")}
-                        className="text-blue-3 text-sm font-medium px-3 py-2 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
-                    >
-                        إغلاق
-                    </button>
-                    <button
                         onClick={handleSubmit}
                         disabled={isPending || !content.trim()}
                         className="bg-blue-3 border border-blue-4 text-white px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
-                        {isPending ? "جاري الإرسال..." : "إضافة الإجابة"}
+                        {isPending ? "جاري الإرسال..." : "إضافة تعليق"}
                     </button>
                 </div>
             </div>
@@ -202,7 +198,7 @@ export default function RequestedServiceDetailsPage() {
     const totalComments = commentsData?.total || 0;
 
     return (
-        <div className="max-w-[1300px] mx-auto w-full px-4 md:px-8 py-8 md:py-12" dir="rtl">
+        <div className="container mx-auto w-full px-4 md:px-8 my-4 nmd:my-8">
             {mediaViewerState.isOpen && (
                 <MediaViewer
                     isOpen={mediaViewerState.isOpen}
@@ -227,15 +223,15 @@ export default function RequestedServiceDetailsPage() {
                 </ReportAbuse>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-8 items-start">
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
 
                 {/* Main Content (Right in RTL) */}
-                <div className="flex-1 w-full flex flex-col gap-8 order-2 lg:order-1">
+                <div className="flex-1 w-full flex flex-col gap-6 order-2 lg:order-1">
                     {/* Service Content Card */}
-                    <div className="bg-[#EFF4FA66]  rounded-xl p-6 md:p-8 ">
+                    <div className="bg-[#EBEFF24D]  rounded-xl p-4 ">
                         {/* Author Header */}
                         <div className="flex items-center gap-4 mb-8 pb-6 ">
-                            <div className="w-14 h-14 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
+                            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
                                 {service.user?.avatar_url ? (
                                     <Image
                                         src={service.user.avatar_url}
@@ -269,41 +265,43 @@ export default function RequestedServiceDetailsPage() {
                             className=" text-sm  font-medium leading-[1.8] whitespace-pre-wrap"
                             dangerouslySetInnerHTML={{ __html: service.content }}
                         />
+                    </div>
 
-                        {/* Attachments */}
-                        {service.images_urls && service.images_urls.length > 0 && (
-                            <div className="mt-8 pt-6  flex flex-col gap-3 items-start">
-                                <p className="text-sm font-medium flex items-center gap-2">
-                                    <ImageIcon className="w-4 h-4 text-gray-500" />
-                                    المرفقات ({service.images_urls.length})
-                                </p>
-                                <div className="flex gap-3 flex-wrap">
+                    {/* Attachments Section */}
+                    {service.images_urls && service.images_urls.length > 0 && (
+                        <div className="flex flex-col gap-3">
+                            <h2 className="text-sm font-medium text-blue-3">المرفقات</h2>
+                            <div className="">
+                                <div className="flex gap-4 flex-wrap">
                                     {service.images_urls.map((imgUrl, i) => (
                                         <div
                                             key={i}
-                                            className="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border border-gray-200 cursor-pointer relative group"
+                                            className="w-full sm:w-48 aspect-video rounded-xl overflow-hidden border border-white shadow-sm cursor-pointer relative group"
                                             onClick={() => openMedia(service.images_urls || [], i)}
                                         >
                                             <Image
                                                 src={imgUrl}
                                                 alt={`Attachment ${i + 1}`}
-                                                width={128}
-                                                height={128}
-                                                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                                                fill
+                                                className="object-cover transition-transform duration-500 group-hover:scale-110"
                                             />
-                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                                                <div className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                                                    <Play className="w-5 h-5 fill-[#3D5E83] text-[#3D5E83] ml-1" />
+                                                </div>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
 
                     {/* Comments Section */}
-                    <div className="flex flex-col gap-6">
-                        <h2 className="text-xl font-medium flex items-center gap-2">
+                    <div className="flex flex-col gap-3 mt-8">
+                        <h2 className="text-sm font-medium flex items-center gap-2 text-blue-3">
                             التعليقات
-                            <span className="text-gray-400 font-medium text-lg">({totalComments})</span>
+                            <span className="font-medium">({totalComments})</span>
                         </h2>
 
                         <div className="flex flex-col gap-4">
@@ -330,15 +328,15 @@ export default function RequestedServiceDetailsPage() {
                 <div className="w-full lg:w-[360px] shrink-0 flex flex-col gap-6 order-1 lg:order-2">
 
                     {/* Publication Stats */}
-                    <div className="bg-[#EFF4FA66] rounded-xl p-8 flex flex-col gap-6">
+                    <div className="bg-[#EBEFF24D] rounded-xl p-6 flex flex-col gap-4">
                         <div className="flex items-center justify-between">
-                            <span className="text-[#3d5e83] text-[15px] font-medium">تاريخ النشر</span>
+                            <span className="text-[#3d5e83] text-sm font-medium">تاريخ النشر</span>
                             <span className="text-black-1 text-sm ">
                                 {getRelativeTimeArabic(service.created_at)}
                             </span>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-[#3d5e83] text-[15px] font-medium">عدد التعليقات</span>
+                            <span className="text-[#3d5e83] text-sm font-medium">عدد التعليقات</span>
                             <span className="text-black-1 text-sm ">
                                 {service.comments_count} تعليق
                             </span>
@@ -347,9 +345,9 @@ export default function RequestedServiceDetailsPage() {
 
                     {/* Latest Contributions / Activity */}
                     {latestActivity && latestActivity.length > 0 && (
-                        <div className="bg-[#EFF4FA66] rounded-xl p-8 flex flex-col gap-6">
-                            <div className="flex items-center justify-between mb-2">
-                                <h3 className="text-[#3d5e83] text-[15px] font-medium">آخر المساهمات</h3>
+                        <div className="bg-[#EBEFF24D] rounded-xl p-6 flex flex-col gap-4">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-[#3d5e83] text-sm font-medium">آخر المساهمات</h3>
                             </div>
                             <div className="flex flex-col gap-5">
                                 {latestActivity.slice(0, 5).map((item) => (
@@ -358,7 +356,7 @@ export default function RequestedServiceDetailsPage() {
                                         href={`/requested-services/${item.slug}`}
                                         className="group block transition-colors cursor-pointer text-right"
                                     >
-                                        <h4 className="text-black-1 font-medium text-sm leading-relaxed group-hover:text-[#3d5e83] transition-colors">
+                                        <h4 className=" text-sm leading-relaxed group-hover:text-[#3d5e83] transition-colors">
                                             {item.title}
                                         </h4>
                                     </Link>

@@ -93,7 +93,7 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
   ];
 
   return (
-    <div className="flex flex-col gap-6 p-6 min-h-screen bg-[#F8F9FC]">
+    <div className="flex flex-col gap-6 p-4 min-h-screen bg-[#F8F9FC]">
 
       {/* Header & Breadcrumb */}
       <div className="flex flex-col gap-4">
