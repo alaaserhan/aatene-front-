@@ -53,7 +53,7 @@ export default function StoreInfoBar({ store }: StoreInfoBarProps) {
 
     const providerData: ProviderData = {
         name: store.name,
-        avatar: store.logo,
+        avatar: store.logo || "",
         location: store.address || "فلسطين",
         memberSince: store.created_at
             ? format(new Date(store.created_at), "dd-MM-yyyy", { locale: ar })

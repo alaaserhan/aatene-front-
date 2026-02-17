@@ -56,7 +56,7 @@ export default function ProductDetailsPage() {
             {/* Component 3: Store Info Bar */}
             <StoreInfoBar store={store} />
 
-                        {/* Component 5: Cross-Sells Bundle */}
+            {/* Component 5: Cross-Sells Bundle */}
             {product.crossSells && product.crossSells.length > 0 && (
                 <CrossSellsSection
                     crossSells={product.crossSells}
@@ -65,7 +65,7 @@ export default function ProductDetailsPage() {
             )}
 
             {/* Component 4: Description & Reviews Tabs */}
-            <ProductTabs product={product} />
+            <ProductTabs product={product} store={store} />
 
             {/* Component 5: Products Choose For You */}
             {pageData?.productsChooseForYou && pageData.productsChooseForYou.length > 0 && (

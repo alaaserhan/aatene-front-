@@ -191,3 +191,43 @@ export interface ProductDetailsResponse {
   similar: Product[];
   categories: Category[];
 }
+
+export interface ReviewUser {
+  name: string;
+  email: string;
+  avatar: string | null;
+}
+
+export interface Review {
+  id: number;
+  content: string;
+  parent_id: number | null;
+  rate: string;
+  images: string[];
+  user: ReviewUser;
+  has_replies: boolean;
+  replies_count: string | null | number;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface AddReviewPayload {
+  content: string;
+  rate: string;
+  images?: File[];
+  parent_id?: number | null;
+}
+
+export interface AddReviewResponse {
+  status: boolean;
+  message: string;
+  data: Review;
+}
+
+export interface GetReviewsResponse {
+  status: boolean;
+  message: string;
+  total: number;
+  reviews: Review[];
+}

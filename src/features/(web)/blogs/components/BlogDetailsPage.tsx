@@ -1,8 +1,10 @@
 "use client";
 
 import { useBlog, useBlogReviews, useAddBlogReview, usePublicBlogs } from "../hooks";
-import { Blog, BlogContent, BlogReview } from "../types";
+import { Blog } from "../types";
 import { BlogCard } from "./BlogCard";
+import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
+import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import Link from "next/link";
 import Image from "next/image";
@@ -15,9 +17,6 @@ import {
     Link2,
     Flag,
     MessageSquare,
-    Plus,
-    X,
-    ChevronLeft,
 } from "lucide-react";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
@@ -48,40 +47,7 @@ function StarRating({
     );
 }
 
-function InteractiveStarRating({
-    rating,
-    onRate,
-    size = 20,
-}: {
-    rating: number;
-    onRate: (val: number) => void;
-    size?: number;
-}) {
-    const [hover, setHover] = useState(0);
-    return (
-        <div className="flex items-center gap-1">
-            {Array.from({ length: 5 }).map((_, i) => (
-                <button
-                    key={i}
-                    type="button"
-                    onClick={() => onRate(i + 1)}
-                    onMouseEnter={() => setHover(i + 1)}
-                    onMouseLeave={() => setHover(0)}
-                    className="focus:outline-none"
-                >
-                    <Star
-                        size={size}
-                        className={
-                            i < (hover || rating)
-                                ? "fill-[#FB923C] text-[#FB923C]"
-                                : "fill-gray-200 text-gray-200"
-                        }
-                    />
-                </button>
-            ))}
-        </div>
-    );
-}
+
 
 function AuthorCard({ blog }: { blog: Blog }) {
     const user = blog.user;
@@ -105,7 +71,7 @@ function AuthorCard({ blog }: { blog: Blog }) {
                 {blog.description?.slice(0, 150) || "لا يوجد وصف"}
             </p>
             <div className="flex items-center gap-2 w-full">
-                <button className="flex-1 flex items-center justify-center gap-1 bg-gradient-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer">
+                <button className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer">
                     <MessageSquare size={13} />
                     تواصل معي
                 </button>
@@ -127,35 +93,7 @@ function AuthorCard({ blog }: { blog: Blog }) {
     );
 }
 
-function TableOfContents({
-    contents,
-    activeIndex,
-    onSelect,
-}: {
-    contents: BlogContent[];
-    activeIndex: number;
-    onSelect: (index: number) => void;
-}) {
-    return (
-        <div className="flex flex-col gap-5">
-            <h3 className="text-[20px] font-medium ">في هذه المقالة</h3>
-            <div className="flex flex-col gap-2">
-                {contents.map((item, index) => (
-                    <button
-                        key={index}
-                        onClick={() => onSelect(index)}
-                        className={`text-right pr-5 py-2.5 text-[16px] transition-all border-r-[3px] cursor-pointer ${activeIndex === index
-                            ? "border-[#3d22cf] text-[#3d22cf] font-medium"
-                            : "border-transparent "
-                            }`}
-                    >
-                        {item.title}
-                    </button>
-                ))}
-            </div>
-        </div>
-    );
-}
+
 
 
 
@@ -163,192 +101,21 @@ function TableOfContents({
 // ImageOverlay removed
 
 
-function ReviewItem({ review, onOpenMedia }: { review: BlogReview; onOpenMedia?: (media: string[], index: number) => void }) {
-    const isReply = !!review.parent_id;
-    return (
-        <div className={`bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-4 ${isReply ? "mr-8 md:mr-16" : ""}`}>
-            {/* Header: Rating (Left) - User Info (Right) */}
-            <div className="flex items-start justify-between">
-                {/* User Info (Right) */}
-                <div className="flex items-center gap-3">
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-100">
-                        <Image
-                            src={review.user.avatar || "/assets/images/placeholder.jpg"}
-                            alt={review.user.name}
-                            fill
-                            className="object-cover"
-                        />
-                    </div>
-                    <div className="flex flex-col ">
-                        <h4 className="text-sm font-medium ">{review.user.name}</h4>
-                    </div>
-                </div>
-                {/* Rating (Left) */}
-                <div className="flex items-center gap-1">
-                    {review.rate ? (
-                        <>
-                            <StarRating rating={parseFloat(review.rate)} size={15} />
-                            {/* <span className="text-[12px] font-medium text-gray-500 pt-0.5">({parseFloat(review.rate).toFixed(1)})</span> */}
-                        </>
-                    ) : null}
-                </div>
-
-            </div>
-
-            {/* Content */}
-            <p className="text-[14px] text-[#606060] text-right leading-relaxed">
-                {review.content}
-            </p>
-
-            {/* Images */}
-            {review.images && review.images.length > 0 && (
-                <div className="flex gap-2 ">
-                    {review.images.map((img, i) => (
-                        <div key={i}
-                            onClick={() => onOpenMedia?.(review.images || [], i)}
-                            className="relative w-[80px] h-[80px] rounded-lg overflow-hidden border border-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
-                        >
-                            <Image src={img} alt="" fill className="object-cover" />
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {/* Footer Actions */}
-            <div className="flex items-center justify-between mt-1">
-                {/* Interactions (Right) */}
-                <div className="flex items-center gap-5 text-[14px] font-medium text-blue-4">
-                    <span>{getRelativeTimeArabic(review.created_at)}</span>
-                    <button className="hover:underline cursor-pointer">رد</button>
-                </div>
-                {/* Report (Left) */}
-                <ReportAbuse type="comment" id={review.id}>
-                    <button className="flex cursor-pointer items-center gap-1 text-[#d32f2f] text-[12px] font-medium transition-colors hover:text-red-700">
-                        <Flag size={14} />
-                        <span>بلغ عن إساءة</span>
-                    </button>
-                </ReportAbuse>
-
-            </div>
-        </div>
-    );
-}
-
-function ReviewForm({ slug }: { slug: string }) {
-    const [content, setContent] = useState("");
-    const [rate, setRate] = useState(0);
-    const [images, setImages] = useState<File[]>([]);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const addReview = useAddBlogReview();
-
-    const handleSubmit = () => {
-        if (!content.trim()) return;
-        const formData = new FormData();
-        formData.append("content", content);
-        if (rate > 0) formData.append("rate", String(rate));
-        images.forEach((file) => formData.append("images[]", file));
-        addReview.mutate(
-            { slug, data: formData },
-            {
-                onSuccess: () => {
-                    setContent("");
-                    setRate(0);
-                    setImages([]);
-                },
-            }
-        );
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setImages((prev) => [...prev, ...Array.from(e.target.files!)]);
-        }
-    };
-
-    const removeImage = (index: number) => {
-        setImages((prev) => prev.filter((_, i) => i !== index));
-    };
-
-    return (
-        <div className="bg-[#f2f2f2] border border-gray-200 rounded-xl p-6 flex gap-5">
-            <div className="relative w-[52px] h-[52px] rounded-full overflow-hidden shrink-0">
-                <Image
-                    src="/assets/images/placeholder.jpg"
-                    alt="user"
-                    fill
-                    className="object-cover"
-                />
-            </div>
-            <div className="flex-1 flex flex-col gap-6">
-                <div className=" bg-white/50 border border-gray-200 rounded-lg p-4 min-h-[136px]">
-                    <textarea
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        placeholder="اكتب مراجعتك . . ."
-                        className="w-full h-full min-h-[100px] bg-transparent text-sm  placeholder:text-[#949494] outline-none resize-none"
-                    />
-                </div>
-
-                <div className="flex items-start gap-2 flex-wrap">
-                    {images.map((file, i) => (
-                        <div
-                            key={i}
-                            className="relative w-[100px] h-[100px] rounded-[15px] overflow-hidden border border-dashed border-gray-300"
-                        >
-                            <Image
-                                src={URL.createObjectURL(file)}
-                                alt=""
-                                fill
-                                className="object-cover"
-                            />
-                            <button
-                                onClick={() => removeImage(i)}
-                                className="absolute cursor-pointer top-1 right-1 bg-red-500 text-white rounded-full p-0.5"
-                            >
-                                <X size={12} />
-                            </button>
-                        </div>
-                    ))}
-                    <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-[100px] h-[100px] rounded-[15px] border border-dashed border-[#046cff] bg-[rgba(166,166,166,0.3)] flex items-center justify-center cursor-pointer"
-                    >
-                        <div className="bg-[#006cff] rounded-full p-2">
-                            <Plus size={24} className="text-white" />
-                        </div>
-                    </button>
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileChange}
-                        className="hidden"
-                    />
-                </div>
-
-                <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-4">
-                        <span className="text-sm">تقييماتك:</span>
-                        <InteractiveStarRating rating={rate} onRate={setRate} />
-                    </div>
-                    <button
-                        onClick={handleSubmit}
-                        disabled={addReview.isPending}
-                        className="bg-gradient-to-b from-[#127fff] to-[#0067ff] text-white rounded-full px-4 py-2 flex items-center gap-1 font-medium text-sm cursor-pointer capitalize disabled:opacity-50"
-                    >
-                        ارسال    <ChevronLeft size={20} />
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
+// ReviewItem and ReviewForm removed as they are now imported 
+// Also StarRating and InteractiveStarRating are used inside reusable components, 
+// so we don't need to redefine them here unless used elsewhere (StarRating is used in Header).
+// But Header StarRating is locally defined at top. 
+// Reusable components import their own StarRating. 
+// We should probably keep local StarRating for Header if it differs, or use reusable one.
+// Header uses local StarRating. Let's keep it for now to minimize diff, or better: replace it too.
+// The user request was to use reusable components for Reviews.
+// I will keep local StarRating for now to avoid breaking Header layout if styles differ slighty, 
+// but I will remove local ReviewItem and ReviewForm.
 
 export default function BlogDetailsPage() {
     const params = useParams();
     const slug = params.slug as string;
-    const [activeContentIndex, setActiveContentIndex] = useState(0);
+    const contentRefs = useRef<(HTMLDivElement | null)[]>([]); // Restore contentRefs
     const [mediaViewerState, setMediaViewerState] = useState<{
         isOpen: boolean;
         media: string[];
@@ -366,7 +133,44 @@ export default function BlogDetailsPage() {
     const closeMedia = () => {
         setMediaViewerState((prev) => ({ ...prev, isOpen: false }));
     };
-    const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const [parentId, setParentId] = useState<number | null>(null);
+    const [replyToName, setReplyToName] = useState<string | null>(null);
+    const formRef = useRef<ReviewFormRef>(null);
+    const addReview = useAddBlogReview();
+
+    const handleReply = (id: number, userName: string) => {
+        setParentId(id);
+        setReplyToName(userName);
+        formRef.current?.scrollToForm();
+        formRef.current?.focusTextarea();
+    };
+
+    const handleCancelReply = () => {
+        setParentId(null);
+        setReplyToName(null);
+    };
+
+    const handleSubmitReview = async (data: { content: string; rate: number; images: File[]; parent_id?: number | null }) => {
+        const formData = new FormData();
+        formData.append("content", data.content);
+        if (data.rate > 0) formData.append("rate", String(data.rate));
+        if (data.parent_id) formData.append("parent_id", String(data.parent_id));
+        data.images.forEach((file) => formData.append("images[]", file));
+
+        return new Promise<void>((resolve, reject) => {
+            addReview.mutate(
+                { slug, data: formData },
+                {
+                    onSuccess: () => {
+                        setParentId(null);
+                        setReplyToName(null);
+                        resolve();
+                    },
+                    onError: () => reject(),
+                }
+            );
+        });
+    };
 
     const { data: blogData, isLoading, error } = useBlog(slug);
     const { data: reviewsData } = useBlogReviews(slug);
@@ -378,10 +182,7 @@ export default function BlogDetailsPage() {
         (b) => b.slug !== slug && b.id !== Number(slug)
     );
 
-    const scrollToContent = (index: number) => {
-        setActiveContentIndex(index);
-        contentRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "start" });
-    };
+
 
     if (isLoading) {
         return (
@@ -488,7 +289,7 @@ export default function BlogDetailsPage() {
                                     {section.title}
                                 </h2>
                                 <div
-                                    className="text-sm  leading-[1.5] whitespace-pre-wrap"
+                                    className="text-sm  leading-normal whitespace-pre-wrap"
                                     dangerouslySetInnerHTML={{ __html: section.paragraph }}
                                 />
                             </div>
@@ -501,7 +302,12 @@ export default function BlogDetailsPage() {
                             <h3 className="text-xl font-medium ">التعليقات</h3>
                             <div className="flex flex-col gap-4">
                                 {reviews.map((review) => (
-                                    <ReviewItem key={review.id} review={review} onOpenMedia={openMedia} />
+                                    <ReviewItem
+                                        key={review.id}
+                                        review={review as unknown as SharedReview}
+                                        onOpenMedia={openMedia}
+                                        onReply={handleReply}
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -517,7 +323,14 @@ export default function BlogDetailsPage() {
                     )}
 
                     {/* Review Form */}
-                    <ReviewForm slug={slug} />
+                    <ReviewForm
+                        ref={formRef}
+                        onSubmit={handleSubmitReview}
+                        isSubmitting={addReview.isPending}
+                        parentId={parentId}
+                        replyToName={replyToName}
+                        onCancelReply={handleCancelReply}
+                    />
                 </div>
                 {/* Left Sidebar */}
                 <div className="w-full lg:w-[320px] shrink-0 flex flex-col gap-16">
