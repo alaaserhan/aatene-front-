@@ -1,16 +1,14 @@
 // src/features/product/types.ts
 
-// (1) تحديث الـ Category
 export interface Category {
   id: number;
   slug: string;
   name: string;
   image: string | null;
-  parent_id: string | number | null; // الـ parent_id بيرجع كـ string أحياناً
+  parent_id: string | number | null;
   products_count: string;
 }
 
-// (2) إضافة Types جديدة للـ Response
 export interface Section {
   id: number;
   name: string;
@@ -45,15 +43,151 @@ export interface Attribute {
   options: AttributeOption[];
 }
 
-// (3) تحديث الـ Response الأساسي
-// (ده هيحل محل SearchPageData القديم)
 export interface SearchPageData {
   status: boolean;
   message: string;
-  category: string | null; // (أو أي نوع تاني لو بيرجع object)
+  category: string | null;
   categories: Category[];
   sections: Section[];
   tags: Tag[];
   price_range: PriceRange;
   attributes: Attribute[];
+}
+
+export interface ShippingCity {
+  id: number;
+  name: string;
+  is_active: boolean;
+}
+
+export interface ShippingDetails {
+  id: number;
+  city_id: string;
+  city: ShippingCity;
+  days: string;
+  price: string;
+}
+
+export interface ShippingCompany {
+  id: number;
+  name: string;
+  phone: string;
+  prices: unknown[];
+}
+
+export interface ProductInPageData {
+  id: number;
+  slug: string;
+  name: string;
+  description: string;
+  short_description: string;
+  cover: string | null;
+  shown: boolean;
+  is_favorite: boolean;
+  in_compare: boolean;
+  price: string;
+  price_after_discount: string;
+  discount_present: number;
+  end_date: string | null;
+  review_rate: string;
+  review_count: string;
+}
+
+export interface StoreInPageData {
+  id: number;
+  slug: string;
+  name: string;
+  status: string;
+  phone: string | null;
+  whats_app: string | null;
+  email: string | null;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  logo: string | null;
+  cover: string | null;
+  review_rate: string;
+  review_count: string;
+  open_status: string;
+  am_i_following: boolean;
+  is_favorite: boolean;
+  view_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProductPageDataResponse {
+  status: boolean;
+  message: string;
+  shippingCompany: ShippingCompany;
+  shippingDetails: ShippingDetails;
+  productsChooseForYou: ProductInPageData[];
+  storesYouMayLike: StoreInPageData[];
+  similar: unknown[];
+  categories: Category[];
+}
+
+export interface Store {
+  id: number;
+  slug: string;
+  name: string;
+  status: string;
+  phone: string | null;
+  whats_app: string | null;
+  email: string | null;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  logo: string | null;
+  cover: string | null;
+  review_rate: string;
+  review_count: string;
+  open_status: string;
+  am_i_following: boolean;
+  is_favorite: boolean;
+  view_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Product {
+  id: number;
+  sku: string;
+  name: string;
+  slug: string;
+  short_description: string;
+  description: string;
+  cover: string | null;
+  gallery: string[];
+  video_type: string | null;
+  video: string | null;
+  type: string;
+  condition: string;
+  status: string;
+  shown: boolean;
+  review_rate: string;
+  review_count: string;
+  price: string;
+  cross_sells_price: string;
+  view_count: number;
+  is_favorite: boolean;
+  in_compare: boolean;
+  category: Category | null;
+  variations: unknown[];
+  crossSells: Product[];
+  upSells: Product[];
+  created_at?: string;
+  updated_at?: string;
+  price_after_discount?: string;
+  discount_present?: number;
+}
+
+export interface ProductDetailsResponse {
+  status: boolean;
+  message: string;
+  product: Product;
+  store: Store;
+  attributes: Attribute[];
+  similar: Product[];
+  categories: Category[];
 }

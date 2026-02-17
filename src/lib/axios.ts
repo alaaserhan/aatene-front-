@@ -40,16 +40,9 @@ api.interceptors.request.use(
       lang = Cookies.get("lang");
     }
 
-    const isAuthEndpoint = config.url?.includes("/login") ||
-      config.url?.includes("/register") ||
-      config.url?.includes("/password");
+    // We no longer abort requests if there's no token. 
+    // Public endpoints should be accessible, and private ones will be handled by the response interceptor (401).
 
-    if (!token && !isAuthEndpoint && typeof window !== "undefined") {
-      const controller = new AbortController();
-      config.signal = controller.signal;
-      controller.abort();
-      return config;
-    }
 
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;

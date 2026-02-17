@@ -6,13 +6,11 @@ import {
     removeServiceFromCompare,
     getServiceCompareList,
     clearServiceCompareList,
-    checkServiceInCompare,
     getServiceCompareCount,
     addProductToCompare,
     removeProductFromCompare,
     getProductCompareList,
     clearProductCompareList,
-    checkProductInCompare,
     getProductCompareCount,
 } from "./api";
 
@@ -21,28 +19,28 @@ export const COMPARE_QK = {
     services: {
         list: ["compare-services"] as const,
         count: ["compare-services-count"] as const,
-        check: (id: number) => ["compare-services-check", id] as const,
     },
     products: {
         list: ["compare-products"] as const,
         count: ["compare-products-count"] as const,
-        check: (id: number) => ["compare-products-check", id] as const,
     },
 };
 
 // --- Services Hooks ---
 
-export const useGetServiceCompareList = () => {
+export const useGetServiceCompareList = (enabled = true) => {
     return useQuery({
         queryKey: COMPARE_QK.services.list,
         queryFn: getServiceCompareList,
+        enabled,
     });
 };
 
-export const useGetServiceCompareCount = () => {
+export const useGetServiceCompareCount = (enabled = true) => {
     return useQuery({
         queryKey: COMPARE_QK.services.count,
         queryFn: getServiceCompareCount,
+        enabled,
     });
 };
 
@@ -55,8 +53,9 @@ export const useAddServiceToCompare = () => {
             qc.invalidateQueries({ queryKey: COMPARE_QK.services.list });
             qc.invalidateQueries({ queryKey: COMPARE_QK.services.count });
         },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || "Failed to add to comparison list");
+        onError: (error: Error) => {
+            const apiError = error as { response?: { data?: { message?: string } } };
+            toast.error(apiError.response?.data?.message || "Operation failed");
         },
     });
 };
@@ -70,8 +69,9 @@ export const useRemoveServiceFromCompare = () => {
             qc.invalidateQueries({ queryKey: COMPARE_QK.services.list });
             qc.invalidateQueries({ queryKey: COMPARE_QK.services.count });
         },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || "Failed to remove from comparison list");
+        onError: (error: Error) => {
+            const apiError = error as { response?: { data?: { message?: string } } };
+            toast.error(apiError.response?.data?.message || "Operation failed");
         },
     });
 };
@@ -94,17 +94,19 @@ export const useClearServiceCompareList = () => {
 
 // --- Products Hooks ---
 
-export const useGetProductCompareList = () => {
+export const useGetProductCompareList = (enabled = true) => {
     return useQuery({
         queryKey: COMPARE_QK.products.list,
         queryFn: getProductCompareList,
+        enabled,
     });
 };
 
-export const useGetProductCompareCount = () => {
+export const useGetProductCompareCount = (enabled = true) => {
     return useQuery({
         queryKey: COMPARE_QK.products.count,
         queryFn: getProductCompareCount,
+        enabled,
     });
 };
 
@@ -117,8 +119,9 @@ export const useAddProductToCompare = () => {
             qc.invalidateQueries({ queryKey: COMPARE_QK.products.list });
             qc.invalidateQueries({ queryKey: COMPARE_QK.products.count });
         },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || "Failed to add to comparison list");
+        onError: (error: Error) => {
+            const apiError = error as { response?: { data?: { message?: string } } };
+            toast.error(apiError.response?.data?.message || "Operation failed");
         },
     });
 };
@@ -132,8 +135,9 @@ export const useRemoveProductFromCompare = () => {
             qc.invalidateQueries({ queryKey: COMPARE_QK.products.list });
             qc.invalidateQueries({ queryKey: COMPARE_QK.products.count });
         },
-        onError: (error: any) => {
-            toast.error(error?.response?.data?.message || "Failed to remove from comparison list");
+        onError: (error: Error) => {
+            const apiError = error as { response?: { data?: { message?: string } } };
+            toast.error(apiError.response?.data?.message || "Operation failed");
         },
     });
 };

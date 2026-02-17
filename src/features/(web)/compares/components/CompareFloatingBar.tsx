@@ -1,9 +1,10 @@
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { ChevronDown, Trash2 } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { ScrollArea } from "@/src/components/ui/scroll-area"; // Keep using ScrollArea for custom scrollbar
 import { cn } from "@/src/lib/utils";
@@ -13,17 +14,22 @@ import {
     useRemoveProductFromCompare,
     useRemoveServiceFromCompare,
 } from "../hooks";
+import {
+    ProductCompareItem,
+    ServiceCompareItem,
+} from "../api";
 
 export function CompareFloatingBar() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const isCompareMode = searchParams.get("compare");
     const [isOpen, setIsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<"products" | "services">("services");
 
-    // Fetch lists
-    const { data: productData } = useGetProductCompareList();
-    const { data: serviceData } = useGetServiceCompareList();
+
+    // Fetch lists only if in compare mode (from URL query)
+    const { data: productData } = useGetProductCompareList(!!isCompareMode);
+    const { data: serviceData } = useGetServiceCompareList(!!isCompareMode);
+
 
     const { mutate: removeProduct } = useRemoveProductFromCompare();
     const { mutate: removeService } = useRemoveServiceFromCompare();
@@ -35,25 +41,20 @@ export function CompareFloatingBar() {
     const serviceCount = services.length;
     const totalCount = productCount + serviceCount;
 
-    // Auto-switch tab or open behavior
-    useEffect(() => {
-        if (totalCount === 0) {
-            setIsOpen(false);
-        }
+    const tabToDisplay = (serviceCount > 0 && productCount === 0)
+        ? "services"
+        : "products";
 
-        if (serviceCount > 0 && productCount === 0) setActiveTab("services");
-        else if (productCount > 0 && serviceCount === 0) setActiveTab("products");
-    }, [totalCount, serviceCount, productCount]);
 
 
     if (!isCompareMode) return null;
     if (totalCount === 0) return null;
 
-    const currentItems = activeTab === "products" ? products : services;
-    const countLabel = activeTab === "products" ? "منتجات" : "خدمات";
+    const currentItems = tabToDisplay === "products" ? products : services;
+    const countLabel = tabToDisplay === "products" ? "منتجات" : "خدمات";
 
     const handleRemove = (id: number) => {
-        if (activeTab === "products") {
+        if (tabToDisplay === "products") {
             removeProduct(id);
         } else {
             removeService(id);
@@ -61,7 +62,7 @@ export function CompareFloatingBar() {
     };
 
     const handleGoToCompare = () => {
-        router.push(`/compare?type=${activeTab}`);
+        router.push(`/compare?type=${tabToDisplay}`);
     };
 
     if (!isOpen) {
@@ -98,42 +99,50 @@ export function CompareFloatingBar() {
                 {/* Items List */}
                 <ScrollArea className="h-[210px] bg-white w-full" dir="rtl">
                     <div className="flex flex-col w-full">
-                        {currentItems.map((item, index) => (
-                            <div
-                                key={item.id}
-                                className={cn(
-                                    "flex items-center justify-between px-5 py-4 group hover:bg-gray-50 transition-colors w-full gap-4",
-                                    index !== currentItems.length - 1 && "border-b border-gray-100"
-                                )}
-                            >
-                                <div className="flex items-center gap-4 flex-1 ">
+                        {currentItems.map((item, index) => {
+                            let itemName = "";
+                            let itemImage = "/placeholder.png";
 
-                                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0 relative">
-                                        <Image
-                                            src={
-                                                (activeTab === "products"
-                                                    ? (item as any).cover
-                                                    : ((item as any).image_url || (item as any).images_urls?.[0]))
-                                                || "/placeholder.png"
-                                            }
-                                            alt={(item as any).name || (item as any).title}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
-                                    <p className="text-sm font-medium leading-snug">
-                                        {(item as any).name || (item as any).title}
-                                    </p>
+                            if (tabToDisplay === "products") {
+                                const product = item as ProductCompareItem;
+                                itemName = product.name;
+                                itemImage = product.cover || "/placeholder.png";
+                            } else {
+                                const service = item as ServiceCompareItem;
+                                itemName = service.title;
+                                itemImage = service.image_url || service.images_urls?.[0] || "/placeholder.png";
+                            }
 
-                                </div>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); handleRemove(item.id); }}
-                                    className="cursor-pointer"
+                            return (
+                                <div
+                                    key={item.id}
+                                    className={cn(
+                                        "flex items-center justify-between px-5 py-4 group hover:bg-gray-50 transition-colors w-full gap-4",
+                                        index !== currentItems.length - 1 && "border-b border-gray-100"
+                                    )}
                                 >
-                                    <img src="/icons/dashboard/trash.svg" alt="" className="w-4.5 h-4.5" />
-                                </button>
-                            </div>
-                        ))}
+                                    <div className="flex items-center gap-4 flex-1 ">
+                                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0 relative">
+                                            <Image
+                                                src={itemImage}
+                                                alt={itemName}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                        <p className="text-sm font-medium leading-snug">
+                                            {itemName}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleRemove(item.id); }}
+                                        className="cursor-pointer"
+                                    >
+                                        <Image src="/icons/dashboard/trash.svg" alt="Delete" width={18} height={18} />
+                                    </button>
+                                </div>
+                            );
+                        })}
                     </div>
                 </ScrollArea>
 

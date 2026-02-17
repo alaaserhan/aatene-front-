@@ -1,7 +1,7 @@
 // src/features/product/api.ts
 import api from "@/src/lib/axios";
-import { SearchPageData, Category, Attribute, AttributeOption } from "./types";
-export type { SearchPageData, Category, Attribute, AttributeOption };
+import { SearchPageData, Category, Attribute, AttributeOption, ProductPageDataResponse } from "./types";
+export type { SearchPageData, Category, Attribute, AttributeOption, ProductPageDataResponse };
 
 export interface Store {
   id: number;
@@ -76,5 +76,10 @@ export const getSearchPageData = async (): Promise<SearchPageData> => {
 
 export const getProductBySlug = async (slug: string): Promise<ProductDetailsResponse> => {
   const { data } = await api.get<ProductDetailsResponse>(`/products/search/${slug}`);
+  return data;
+};
+
+export const getProductPageDataBySlug = async (slug: string): Promise<ProductPageDataResponse> => {
+  const { data } = await api.get<ProductPageDataResponse>(`/products/search/${slug}/pageData`);
   return data;
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SearchBar } from "@/src/components/(web)/SearchBar";
 import SearchFilters from "./components/SearchFilters";
@@ -17,7 +17,6 @@ import {
     useUsersSearchPage,
 } from "./hooks";
 import { SlidersHorizontal, Tag as TagIcon } from "lucide-react";
-import { Tag } from "../searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
 import { CompareFloatingBar } from "../compares/components/CompareFloatingBar";
 
@@ -37,9 +36,19 @@ const PER_PAGE = 12;
 
 export default function SearchResultsPage() {
     const searchParams = useSearchParams();
-    const router = useRouter();
-
     const type = (searchParams.get("type") as SearchType) || "products";
+
+    return (
+        <div className="container mx-auto my-6 sm:my-10 px-4 md:px-6" dir="rtl">
+            <SearchContent key={type} type={type} />
+            <CompareFloatingBar />
+        </div>
+    );
+}
+
+function SearchContent({ type }: { type: SearchType }) {
+    const searchParams = useSearchParams();
+    const router = useRouter();
     const query = searchParams.get("q") || "";
     const page = parseInt(searchParams.get("page") || "1");
 
@@ -47,12 +56,6 @@ export default function SearchResultsPage() {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [showAllTags, setShowAllTags] = useState(false);
     const TAGS_LIMIT = 20;
-
-    // Reset filters when type changes
-    useEffect(() => {
-        setFilters({});
-        setShowAllTags(false);
-    }, [type]);
 
     // Fetch filter options based on type
     const { data: productsPageData } = useProductsSearchPage();
@@ -106,7 +109,7 @@ export default function SearchResultsPage() {
             min_price: filters.min_price,
             max_price: filters.max_price,
             review_rate: filters.review_rate,
-            variation_options: filters.variation_options, // Assuming backend handles arrays
+            variation_options: filters.variation_options,
             page,
             per_page: PER_PAGE,
         };
@@ -157,7 +160,7 @@ export default function SearchResultsPage() {
         router.push(`?${params.toString()}`);
     };
 
-    // Handle tag toggle (same function as filter)
+    // Handle tag toggle
     const handleTagToggle = (tagId: number) => {
         const currentTags = filters.tags || [];
         const newTags = currentTags.includes(tagId)
@@ -166,109 +169,100 @@ export default function SearchResultsPage() {
         setFilters({ ...filters, tags: newTags });
     };
 
-    // Use available tags from filter data, maybe limit if too many?
-    // Using first 10 for display in header as "Related" or "Popular" tags
     const displayTags = filterData.tags;
 
-
-
     return (
-        <div className="container mx-auto my-6 sm:my-10 px-4 md:px-6" dir="rtl">
-            <div className="flex flex-col lg:flex-row gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+            {/* Right Column: Filters Sidebar (Desktop) */}
+            <aside className="hidden lg:block w-80 shrink-0 sticky top-24 self-start">
+                <SearchFilters
+                    type={type}
+                    filters={filters}
+                    onFilterChange={setFilters}
+                    categories={filterData.categories}
+                    cities={filterData.cities}
+                    tags={filterData.tags}
+                    attributes={filterData.attributes}
+                />
+            </aside>
 
-                {/* Right Column: Filters Sidebar (Desktop) */}
-                <aside className="hidden lg:block w-80 shrink-0 sticky top-24 self-start">
-                    <SearchFilters
-                        type={type}
-                        filters={filters}
-                        onFilterChange={setFilters}
-                        categories={filterData.categories}
-                        cities={filterData.cities}
-                        tags={filterData.tags}
-                        attributes={filterData.attributes}
-                    />
-                </aside>
+            {/* Left Column: Main Content */}
+            <main className="flex-1 w-full flex flex-col gap-6">
+                {/* Header Section */}
+                <div className="flex flex-col gap-4">
+                    <div className="flex flex-row items-start md:items-center justify-between gap-4">
+                        <h1 className="text-xl md:text-2xl font-medium">
+                            استكشف المزيد من عمليات البحث ذات الصلة
+                        </h1>
 
-                {/* Left Column: Main Content */}
-                <main className="flex-1 w-full flex flex-col gap-6">
-
-                    {/* Header Section */}
-                    <div className="flex flex-col gap-4">
-                        <div className="flex flex-row items-start md:items-center justify-between gap-4">
-                            <h1 className="text-xl md:text-2xl font-medium">
-                                استكشف المزيد من عمليات البحث ذات الصلة
-                            </h1>
-
-                            {/* Mobile Filter Button */}
-                            <div className="lg:hidden flex justify-end">
-                                <button
-                                    onClick={() => setIsFilterOpen(true)}
-                                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer text-[#3D5E83]"
-                                >
-                                    <SlidersHorizontal className="w-5 h-5" />
-                                    <span className="font-medium text-sm sm:text-base">فلتر</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Related Tags / Functional Tags */}
-                        {displayTags.length > 0 && (
-                            <div className="flex items-center flex-wrap gap-2">
-                                <span className="text-gray-500 text-sm whitespace-nowrap ml-2 flex items-center gap-1">
-                                    <TagIcon className="w-4 h-4" />
-                                    <span>العلامات:</span>
-                                </span>
-                                {displayTags.slice(0, showAllTags ? undefined : TAGS_LIMIT).map((tag) => {
-                                    const isSelected = filters.tags?.includes(tag.id);
-                                    return (
-                                        <button
-                                            key={tag.id}
-                                            onClick={() => handleTagToggle(tag.id)}
-                                            className={cn(
-                                                "px-4 py-1.5 rounded-full text-sm transition-colors cursor-pointer",
-                                                isSelected
-                                                    ? "bg-[#3D5E83] text-white"
-                                                    : "bg-[#E5E7EB] hover:bg-gray-200"
-                                            )}
-                                        >
-                                            {tag.title}
-                                        </button>
-                                    );
-                                })}
-                                {displayTags.length > TAGS_LIMIT && (
-                                    <button
-                                        onClick={() => setShowAllTags(!showAllTags)}
-                                        className="px-3 cursor-pointer py-1.5 text-sm font-medium text-blue-3 hover:text-blue-700 transition-colors"
-                                    >
-                                        {showAllTags ? "عرض أقل" : "عرض المزيد..."}
-                                    </button>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Search Bar */}
-                        <div className="w-full mt-2">
-                            <SearchBar
-                                currentLocale="ar"
-                                defaultType={type}
-                                variant="rounded"
-                            />
+                        {/* Mobile Filter Button */}
+                        <div className="lg:hidden flex justify-end">
+                            <button
+                                onClick={() => setIsFilterOpen(true)}
+                                className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer text-[#3D5E83]"
+                            >
+                                <SlidersHorizontal className="w-5 h-5" />
+                                <span className="font-medium text-sm sm:text-base">فلتر</span>
+                            </button>
                         </div>
                     </div>
 
+                    {/* Related Tags */}
+                    {displayTags.length > 0 && (
+                        <div className="flex items-center flex-wrap gap-2">
+                            <span className="text-gray-500 text-sm whitespace-nowrap ml-2 flex items-center gap-1">
+                                <TagIcon className="w-4 h-4" />
+                                <span>العلامات:</span>
+                            </span>
+                            {displayTags.slice(0, showAllTags ? undefined : TAGS_LIMIT).map((tag) => {
+                                const isSelected = filters.tags?.includes(tag.id);
+                                return (
+                                    <button
+                                        key={tag.id}
+                                        onClick={() => handleTagToggle(tag.id)}
+                                        className={cn(
+                                            "px-4 py-1.5 rounded-full text-sm transition-colors cursor-pointer",
+                                            isSelected
+                                                ? "bg-[#3D5E83] text-white"
+                                                : "bg-[#E5E7EB] hover:bg-gray-200"
+                                        )}
+                                    >
+                                        {tag.title}
+                                    </button>
+                                );
+                            })}
+                            {displayTags.length > TAGS_LIMIT && (
+                                <button
+                                    onClick={() => setShowAllTags(!showAllTags)}
+                                    className="px-3 cursor-pointer py-1.5 text-sm font-medium text-blue-3 hover:text-blue-700 transition-colors"
+                                >
+                                    {showAllTags ? "عرض أقل" : "عرض المزيد..."}
+                                </button>
+                            )}
+                        </div>
+                    )}
 
-                    {/* Results Section */}
-                    <SearchResults
-                        type={type}
-                        items={items}
-                        total={total}
-                        currentPage={page}
-                        onPageChange={handlePageChange}
-                        isLoading={isLoading}
-                        perPage={PER_PAGE}
-                    />
-                </main>
-            </div>
+                    {/* Search Bar */}
+                    <div className="w-full mt-2">
+                        <SearchBar
+                            currentLocale="ar"
+                            defaultType={type}
+                            variant="rounded"
+                        />
+                    </div>
+                </div>
+
+                {/* Results Section */}
+                <SearchResults
+                    type={type}
+                    items={items}
+                    total={total}
+                    currentPage={page}
+                    onPageChange={handlePageChange}
+                    isLoading={isLoading}
+                    perPage={PER_PAGE}
+                />
+            </main>
 
             {/* Mobile Filter Drawer */}
             <MobileFilterDrawer
@@ -282,10 +276,7 @@ export default function SearchResultsPage() {
                 cities={filterData.cities}
                 tags={filterData.tags}
             />
-
-
-            {/* Compare Floating Bar */}
-            <CompareFloatingBar />
         </div>
     );
 }
+

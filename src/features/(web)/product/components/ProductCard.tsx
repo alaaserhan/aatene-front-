@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
@@ -24,7 +25,7 @@ export interface ProductCardProps {
     type?: "product" | "store" | "service" | "blog";
 }
 
-export default function ProductCard({
+const ProductCard = memo(({
     id,
     name,
     slug,
@@ -38,7 +39,8 @@ export default function ProductCard({
     onClick,
     className,
     type = "product", // Default type
-}: ProductCardProps) {
+}: ProductCardProps) => {
+    const [imgSrc, setImgSrc] = useState(cover || "/placeholder.png");
     const displayPrice = priceAfterDiscount || price;
     const hasDiscount = priceAfterDiscount && priceAfterDiscount !== price;
     const rating = parseFloat(reviewRate || "0");
@@ -54,14 +56,14 @@ export default function ProductCard({
             <CompareCheckbox id={id} type="product" />
 
             {/* Image Container */}
-            <Link href={slug ? `/product/${slug}` : "#"} className="relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 block">
-                <img
-                    src={cover || "/placeholder.png"}
+            <Link href={slug ? `/product/${slug}` : "#"} className="relative w-full aspect-3/4 rounded-xl overflow-hidden bg-gray-100 block">
+                <Image
+                    src={imgSrc}
                     alt={name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                        e.currentTarget.src = "https://placehold.co/300x400/f3f4f6/9ca3af?text=No+Image";
-                        e.currentTarget.onerror = null;
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={() => {
+                        setImgSrc("https://placehold.co/300x400/f3f4f6/9ca3af?text=No+Image");
                     }}
                 />
 
@@ -97,7 +99,6 @@ export default function ProductCard({
                 {/* Rating */}
                 <div className="flex items-center gap-1.5 mb-2">
                     <div className="flex items-center gap-0.5" >
-
                         {[...Array(5)].map((_, i) => (
                             <Star
                                 key={i}
@@ -129,4 +130,8 @@ export default function ProductCard({
             </div>
         </div>
     );
-}
+});
+
+ProductCard.displayName = "ProductCard";
+
+export default ProductCard;

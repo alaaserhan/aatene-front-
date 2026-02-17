@@ -1,17 +1,21 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useGetProductBySlug } from "./hooks";
+import { useGetProductBySlug, useGetProductPageDataBySlug } from "./hooks";
 import { Loader2 } from "lucide-react";
 import ProductHero from "./components/ProductHero";
 import ShippingPolicies from "./components/ShippingPolicies";
 import StoreInfoBar from "./components/StoreInfoBar";
 import CrossSellsSection from "./components/CrossSellsSection";
+import ProductTabs from "./components/ProductTabs";
+import ProductsChooseForYou from "./components/ProductsChooseForYou";
+import StoresYouMayLike from "./components/StoresYouMayLike";
 
 export default function ProductDetailsPage() {
     const params = useParams();
     const slug = params?.slug as string;
     const { data, isLoading, isError } = useGetProductBySlug(slug);
+    const { data: pageData } = useGetProductPageDataBySlug(slug);
 
     if (isLoading) {
         return (
@@ -29,7 +33,7 @@ export default function ProductDetailsPage() {
         );
     }
 
-    const { product, store, attributes, similar, categories } = data;
+    const { product, store, attributes } = data;
 
     return (
         <div className="max-w-[1280px] mx-auto w-full px-4 md:px-8 lg:px-16 py-8" dir="rtl">
@@ -41,12 +45,31 @@ export default function ProductDetailsPage() {
             />
 
             {/* Component 2: Shipping & Policies */}
-            <ShippingPolicies product={product} store={store} />
+
+            <ShippingPolicies
+                product={product}
+                store={store}
+                shippingCompany={pageData?.shippingCompany}
+                shippingDetails={pageData?.shippingDetails}
+            />
 
             {/* Component 3: Store Info Bar */}
             <StoreInfoBar store={store} />
 
-            {/* Component 4: Cross-Sells Bundle */}
+            {/* Component 4: Description & Reviews Tabs */}
+            <ProductTabs product={product} />
+
+            {/* Component 5: Products Choose For You */}
+            {pageData?.productsChooseForYou && pageData.productsChooseForYou.length > 0 && (
+                <ProductsChooseForYou products={pageData.productsChooseForYou} />
+            )}
+
+            {/* Component 6: Stores You May Like */}
+            {pageData?.storesYouMayLike && pageData.storesYouMayLike.length > 0 && (
+                <StoresYouMayLike stores={pageData.storesYouMayLike} />
+            )}
+
+            {/* Component 5: Cross-Sells Bundle */}
             {product.crossSells && product.crossSells.length > 0 && (
                 <CrossSellsSection
                     crossSells={product.crossSells}

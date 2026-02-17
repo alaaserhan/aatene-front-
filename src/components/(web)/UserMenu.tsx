@@ -20,7 +20,6 @@ interface UserMenuProps {
 const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
   const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
   const user = useAuthStore((state) => state.user);
-  console.log(user);
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const lang = useLanguage();

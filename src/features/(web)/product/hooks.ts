@@ -1,7 +1,7 @@
 "use client";
 
 import { useApiQuery } from "@/src/hooks/use-api-query"; // Our custom hook
-import { getSearchPageData, getProductBySlug } from "./api";
+import { getSearchPageData, getProductBySlug, getProductPageDataBySlug } from "./api";
 
 export const useSearchData = () => {
   return useApiQuery({
@@ -16,6 +16,14 @@ export const useGetProductBySlug = (slug: string) => {
   return useApiQuery({
     queryKey: ["product", slug],
     queryFn: () => getProductBySlug(slug),
+    enabled: !!slug,
+  });
+};
+
+export const useGetProductPageDataBySlug = (slug: string) => {
+  return useApiQuery({
+    queryKey: ["productPageData", slug],
+    queryFn: () => getProductPageDataBySlug(slug),
     enabled: !!slug,
   });
 };
