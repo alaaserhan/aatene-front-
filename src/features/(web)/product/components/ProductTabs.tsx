@@ -1,13 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Product, Store } from "../api";
+import { Product, Store, ReviewStatistics } from "../api";
 import { Loader2 } from "lucide-react";
 import { useAddProductReview, useGetProductReviews, useGetProductReviewReplies } from "../hooks";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../../stores/hooks";
 import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
 import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
+import { StarRating } from "@/src/components/ui/StarRating";
 
 interface ProductTabsProps {
     product: Product;
@@ -56,7 +57,7 @@ export default function ProductTabs({ product, store }: ProductTabsProps) {
                     </div>
                 ) : (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-                        <ProductAndStoreReviews productSlug={product.slug} storeSlug={store.slug} />
+                        <ProductAndStoreReviews product={product} store={store} />
                     </div>
                 )}
             </div>
@@ -64,7 +65,7 @@ export default function ProductTabs({ product, store }: ProductTabsProps) {
     );
 }
 
-function ProductAndStoreReviews({ productSlug, storeSlug }: { productSlug: string; storeSlug: string }) {
+function ProductAndStoreReviews({ product, store }: { product: Product; store: Store }) {
     const [subTab, setSubTab] = useState<"product" | "store">("product");
 
     return (
@@ -77,7 +78,7 @@ function ProductAndStoreReviews({ productSlug, storeSlug }: { productSlug: strin
                         : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                         }`}
                 >
-                    مراجعات لهذا العنصر
+                    مراجعات لهذا العنصر ({product.review_count || 0})
                 </button>
                 <button
                     onClick={() => setSubTab("store")}
@@ -86,20 +87,69 @@ function ProductAndStoreReviews({ productSlug, storeSlug }: { productSlug: strin
                         : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                         }`}
                 >
-                    مراجعات لهذا المتجر
+                    مراجعات لهذا المتجر ({store.review_count || 0})
                 </button>
             </div>
 
             {subTab === "product" ? (
-                <ProductReviewsSection slug={productSlug} />
+                <ProductReviewsSection slug={product.slug} summary={{ count: Number(product.review_count) || 0, rate: Number(product.review_rate) || 0 }} />
             ) : (
-                <StoreReviewsSection slug={storeSlug} />
+                <StoreReviewsSection slug={store.slug} summary={{ count: Number(store.review_count) || 0, rate: Number(store.review_rate) || 0 }} />
             )}
         </div>
     );
 }
 
-function ProductReviewsSection({ slug }: { slug: string }) {
+function ReviewStatisticsDisplay({ stats }: { stats: ReviewStatistics }) {
+    const starLabels = {
+        5: "ممتاز",
+        4: "جيد",
+        3: "متوسط",
+        2: "ليس سيئاً",
+        1: "سيئ",
+    };
+
+    return (
+        <div className="w-full">
+            <div className="flex flex-col md:flex-row gap-8 items-start mb-8 pb-8 border-b border-gray-100">
+                {/* Overall Rating Card */}
+                <div className="w-full md:w-[220px] shrink-0 bg-[#F9F9F9] rounded-2xl p-6 flex flex-col items-center justify-center gap-2 h-[160px]">
+                    <span className="text-5xl font-bold text-black tracking-tighter">{Number(stats.average_rate).toFixed(1)}</span>
+                    <span className="text-xs text-gray-400">من {stats.total_reviews} مراجعة</span>
+                    <StarRating rating={Number(stats.average_rate)} size={20} />
+                </div>
+
+                {/* Progress Bars */}
+                <div className="flex-1 w-full flex flex-col justify-center h-[160px] gap-2">
+                    {[5, 4, 3, 2, 1].map((star) => {
+                        const starValue = stats.stars[star as keyof typeof stats.stars];
+                        const count = Number(starValue) || 0;
+
+                        // Calculate total from stars if needed, or use stats.total_reviews
+                        const calculatedTotal = Object.values(stats.stars).reduce((acc, val) => acc + (Number(val) || 0), 0);
+                        const total = stats.total_reviews || calculatedTotal || 1;
+
+                        const percentage = total > 0 ? (count / total) * 100 : 0;
+                        return (
+                            <div key={star} className="flex items-center gap-4">
+                                <span className="w-14 text-right text-sm text-gray-800 font-medium">{starLabels[star as keyof typeof starLabels]}</span>
+                                <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-[#FA9130] rounded-full"
+                                        style={{ width: `${percentage}%` }}
+                                    />
+                                </div>
+                                <span className="w-8 text-left text-sm text-gray-400 font-medium">{count}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ProductReviewsSection({ slug, summary }: { slug: string; summary: { count: number; rate: number } }) {
     const formRef = useRef<ReviewFormRef>(null);
     const [parentId, setParentId] = useState<number | null>(null);
     const [replyToName, setReplyToName] = useState<string | null>(null);
@@ -164,11 +214,27 @@ function ProductReviewsSection({ slug }: { slug: string }) {
 
     const reviews = data?.reviews || [];
 
+
+    let statistics: ReviewStatistics | undefined;
+    if (data?.rate_stats) {
+        statistics = {
+            total_reviews: data.total || 0,
+            average_rate: Number(data.avg_rate) || 0,
+            stars: data.rate_stats
+        };
+    } else if (summary.count > 0) {
+        statistics = {
+            total_reviews: summary.count,
+            average_rate: summary.rate,
+            stars: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+        };
+    }
+
     return (
         <div className="space-y-6">
-            <h3 className="font-bold text-lg text-gray-800">
-                مراجعات لهذا العنصر <span className="text-gray-400 text-sm font-normal">({reviews.length})</span>
-            </h3>
+            {statistics && (
+                <ReviewStatisticsDisplay stats={statistics} />
+            )}
 
             {reviews.length > 0 ? (
                 <div className="space-y-4">
@@ -186,7 +252,7 @@ function ProductReviewsSection({ slug }: { slug: string }) {
                 </div>
             ) : (
                 <div className="text-center py-10 bg-gray-50 rounded-lg">
-                    <p className="text-gray-500">لا توجد مراجعات بعد</p>
+                    <p className="text-gray-2">لا توجد مراجعات بعد</p>
                 </div>
             )}
 
@@ -247,7 +313,7 @@ function ProductReviewWithReplies({
     );
 }
 
-function StoreReviewsSection({ slug }: { slug: string }) {
+function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count: number; rate: number } }) {
     const formRef = useRef<ReviewFormRef>(null);
     const [parentId, setParentId] = useState<number | null>(null);
     const [replyToName, setReplyToName] = useState<string | null>(null);
@@ -311,12 +377,27 @@ function StoreReviewsSection({ slug }: { slug: string }) {
     if (isLoading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin text-blue-3" /></div>;
 
     const reviews = data?.reviews || [];
+    let statistics: ReviewStatistics | undefined;
+    if (data?.rate_stats) {
+        statistics = {
+            total_reviews: data.total || 0,
+            average_rate: Number(data.avg_rate) || 0,
+            stars: data.rate_stats
+        };
+    } else if (summary.count > 0) {
+        statistics = {
+            total_reviews: summary.count,
+            average_rate: summary.rate,
+            stars: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+        };
+    }
 
     return (
         <div className="space-y-6">
-            <h3 className="font-bold text-lg text-gray-800">
-                مراجعات لهذا المتجر <span className="text-gray-400 text-sm font-normal">({reviews.length})</span>
-            </h3>
+            {statistics && (
+                <ReviewStatisticsDisplay stats={statistics}/>
+            )}
+
 
             {reviews.length > 0 ? (
                 <div className="space-y-4">

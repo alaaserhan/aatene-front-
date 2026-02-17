@@ -27,6 +27,19 @@ export interface AddStoreReviewPayload {
     parent_id?: number | null;
 }
 
+
+export interface ReviewStatistics {
+    total_reviews: number;
+    average_rate: number;
+    stars: {
+        1: number | string;
+        2: number | string;
+        3: number | string;
+        4: number | string;
+        5: number | string;
+    };
+}
+
 export interface AddStoreReviewResponse {
     status: boolean;
     message: string;
@@ -37,6 +50,9 @@ export interface GetStoreReviewsResponse {
     status: boolean;
     message: string;
     total: number;
+    // statistics?: ReviewStatistics;
+    avg_rate: string;
+    rate_stats: ReviewStatistics['stars'];
     reviews: StoreReview[];
 }
 

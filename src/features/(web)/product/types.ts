@@ -212,6 +212,20 @@ export interface Review {
   deleted_at: string | null;
 }
 
+export interface RateStats {
+  1: number | string;
+  2: number | string;
+  3: number | string;
+  4: number | string;
+  5: number | string;
+}
+
+export interface ReviewStatistics {
+  total_reviews: number;
+  average_rate: number;
+  stars: RateStats;
+}
+
 export interface AddReviewPayload {
   content: string;
   rate: string;
@@ -229,5 +243,8 @@ export interface GetReviewsResponse {
   status: boolean;
   message: string;
   total: number;
+  // statistics?: ReviewStatistics; // Dictionary mismatch
+  avg_rate: string;
+  rate_stats: RateStats;
   reviews: Review[];
 }

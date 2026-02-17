@@ -12,7 +12,8 @@ import {
   GetReviewsResponse,
   Store,
   Product,
-  ProductDetailsResponse
+  ProductDetailsResponse,
+  ReviewStatistics
 } from "./types";
 
 export type {
@@ -27,7 +28,8 @@ export type {
   GetReviewsResponse,
   Store,
   Product,
-  ProductDetailsResponse
+  ProductDetailsResponse,
+  ReviewStatistics
 };
 
 // Interfaces removed from here as they are now imported from ./types.ts
