@@ -137,8 +137,8 @@ export interface ServiceStore {
     whats_app: string | null;
     email: string;
     address: string;
-    lat: string | null;
-    lng: string | null;
+    lat: number | null;
+    lng: number | null;
     logo: string | null;
     cover: string | null;
     review_rate: string;
@@ -163,6 +163,7 @@ export interface Service {
     image: string | null;
     image_url: string | null;
     is_favorite: boolean;
+    in_compare: boolean;
     price: string;
     execute_type: string;
     execute_count: string;
@@ -266,8 +267,8 @@ export interface Store {
     whats_app: string | null;
     email: string;
     address: string;
-    lat: string | null;
-    lng: string | null;
+    lat: number | null;
+    lng: number | null;
     logo: string | null;
     cover: string | null;
     review_rate: string;

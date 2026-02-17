@@ -64,6 +64,7 @@ export interface Service {
     image: string | null;
     image_url: string | null;
     is_favorite: boolean;
+    in_compare: boolean;
     price: string;
     execute_type: string;
     execute_count: string;

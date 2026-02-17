@@ -101,7 +101,7 @@ export default function HomeStories({ stories }: HomeStoriesProps) {
                                                 className="w-full h-full flex items-center justify-center p-4 text-center"
                                                 style={{ backgroundColor: story.color || '#e5e7eb' }}
                                             >
-                                                <span className="text-sm font-medium line-clamp-4">
+                                                <span className="text-sm font-medium text-white line-clamp-4">
                                                     {story.text}
                                                 </span>
                                             </div>

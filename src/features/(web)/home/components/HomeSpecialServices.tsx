@@ -28,9 +28,7 @@ export default function HomeSpecialServices({ services }: HomeSpecialServicesPro
                     {services.slice(0, 4).map((service) => (
                         <ServiceCard
                             key={service.id}
-                            // @ts-expect-error - Home Service and Features Service are compatible but types might differ slightly in imports
                             service={service}
-                            
                         />
                     ))}
                 </div>
