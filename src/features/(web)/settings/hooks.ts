@@ -44,6 +44,7 @@ import {
     getFollowers,
     getFollowings,
     getFollowersCount,
+    RemoveFollowerPayload,
 } from "./api";
 
 const QK = {
@@ -409,7 +410,7 @@ export const useRemoveFollower = () => {
     const qc = useQueryClient();
     // Assuming body is not critical or is passed as is
     return useMutation({
-        mutationFn: (payload?: any) => removeFollower(payload),
+        mutationFn: (payload: RemoveFollowerPayload) => removeFollower(payload),
         onSuccess: (data) => {
             // data.followers_count is returned
             toast.success(data.message || "Follower removed successfully");

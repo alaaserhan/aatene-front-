@@ -3,8 +3,14 @@
 import { Mail } from "lucide-react";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const NewsletterFooter = () => {
+    const pathname = usePathname();
+    const isAuthPage = pathname?.includes("/login") || pathname?.includes("/signup") || pathname?.includes("/forgot-password");
+
+    if (isAuthPage) return null;
+
     return (
         <div className="px-2 my-8">
             <MaxWidthWrapper className="bg-linear-to-l overflow-hidden relative from-[#0A5DC2] to-[#052C5C] text-white p-6 md:p-10 rounded-2xl max-w-6xl mx-auto text-center md:text-right ">

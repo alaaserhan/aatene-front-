@@ -128,7 +128,7 @@ export interface User {
     date_of_birth: string | null;
     bio: string | null;
     city: City | null;
-    district: any | null;
+    district: District | null;
     user_type: string;
     email: string;
     phone: string;
@@ -189,8 +189,30 @@ export interface FollowResponse extends BaseResponse {
     following: {
         id: number;
         followed_type: string;
-        followed: any; // Could be precise if needed
+        followed: FollowableEntity;
     };
+}
+
+export interface FollowableEntity {
+    id: number | string;
+    name?: string | null;
+    fullname?: string | null;
+    avatar?: string | null;
+    logo?: string | null;
+    followers_count?: number | string;
+}
+
+export interface FollowingItem {
+    id: number;
+    followed_type: string;
+    followed: FollowableEntity;
+}
+
+export interface FollowerItem {
+    id: number;
+    follower_type: string;
+    follower?: FollowableEntity;
+    user?: FollowableEntity;
 }
 
 export interface UnfollowPayload {
@@ -199,7 +221,7 @@ export interface UnfollowPayload {
 }
 
 export interface UnfollowResponse extends BaseResponse {
-    errors: any[];
+    errors: string[];
 }
 
 export interface RemoveFollowerResponse extends BaseResponse {
@@ -209,13 +231,13 @@ export interface RemoveFollowerResponse extends BaseResponse {
 export interface FollowersResponse extends BaseResponse {
     recordsTotal: number;
     recordsFiltered: number;
-    data: any[]; // User or Store
+    data: FollowerItem[];
 }
 
 export interface FollowingsResponse extends BaseResponse {
     recordsTotal: number;
     recordsFiltered: number;
-    data: any[]; // User or Store
+    data: FollowingItem[];
 }
 
 // --- API Functions ---
@@ -226,9 +248,9 @@ export const getCities = async (): Promise<GetCitiesResponse> => {
     return data;
 };
 
-export const getCity = async (id: number | string): Promise<any> => {
+export const getCity = async (id: number | string): Promise<BaseResponse & { city: City }> => {
     try {
-        const { data } = await api.get(`/cities/${id}`);
+        const { data } = await api.get<BaseResponse & { city: City }>(`/cities/${id}`);
         return data;
     } catch (error) {
         throw error;
@@ -266,25 +288,23 @@ export const getStories = async (): Promise<GetStoriesResponse> => {
     return data;
 };
 
-export const getStory = async (id: number | string): Promise<any> => {
-    const { data } = await api.get(`/profile/stories/${id}`);
+export const getStory = async (id: number | string): Promise<BaseResponse & { record: Story }> => {
+    const { data } = await api.get<BaseResponse & { record: Story }>(`/profile/stories/${id}`);
     return data;
 };
 
-export const createStory = async (payload: CreateStoryPayload): Promise<any> => {
-    const { data } = await api.post("/profile/stories", payload);
+export const createStory = async (payload: CreateStoryPayload): Promise<BaseResponse & { record: Story }> => {
+    const { data } = await api.post<BaseResponse & { record: Story }>("/profile/stories", payload);
     return data;
 };
 
-export const updateStory = async (id: number | string, payload: CreateStoryPayload): Promise<any> => {
-    // Note: User prompt mentions "Should use PUT method" for update, but example says "Method: POST" then "Response: 405... Should use PUT".
-    // I will assume PUT is the correct method to implement.
-    const { data } = await api.put(`/profile/stories/${id}`, payload);
+export const updateStory = async (id: number | string, payload: CreateStoryPayload): Promise<BaseResponse & { record: Story }> => {
+    const { data } = await api.put<BaseResponse & { record: Story }>(`/profile/stories/${id}`, payload);
     return data;
 };
 
-export const deleteStory = async (id: number | string): Promise<any> => {
-    const { data } = await api.delete(`/profile/stories/${id}`);
+export const deleteStory = async (id: number | string): Promise<BaseResponse> => {
+    const { data } = await api.delete<BaseResponse>(`/profile/stories/${id}`);
     return data;
 };
 
@@ -294,8 +314,8 @@ export const getHighlights = async (): Promise<GetHighlightsResponse> => {
     return data;
 };
 
-export const getHighlight = async (id: number | string): Promise<any> => {
-    const { data } = await api.get(`/profile/highlights/${id}`);
+export const getHighlight = async (id: number | string): Promise<HighlightResponse> => {
+    const { data } = await api.get<HighlightResponse>(`/profile/highlights/${id}`);
     return data;
 };
 
@@ -320,11 +340,11 @@ export const getAccount = async (): Promise<AccountResponse> => {
     return data;
 };
 
-export const updateAvatar = async (avatar: File): Promise<any> => {
+export const updateAvatar = async (avatar: File): Promise<BaseResponse & { data: { avatar: string } }> => {
     const formData = new FormData();
     formData.append("avatar", avatar);
     // Use POST as typically usually used for file uploads, prompt says POST.
-    const { data } = await api.post("/auth/account/update_avatar", formData, {
+    const { data } = await api.post<BaseResponse & { data: { avatar: string } }>("/auth/account/update_avatar", formData, {
         headers: { "Content-Type": "multipart/form-data" },
     });
     return data;
@@ -377,9 +397,13 @@ export const unfollowUserOrStore = async (payload: UnfollowPayload): Promise<Unf
     return data;
 };
 
-export const removeFollower = async (params?: any): Promise<RemoveFollowerResponse> => {
+export interface RemoveFollowerPayload {
+    follower_id: number | string;
+}
+
+export const removeFollower = async (payload: RemoveFollowerPayload): Promise<RemoveFollowerResponse> => {
     // Body "Not specified", assuming empty or some ID
-    const { data } = await api.post<RemoveFollowerResponse>("/followers/remove", params);
+    const { data } = await api.post<RemoveFollowerResponse>("/followers/remove", payload);
     return data;
 };
 
@@ -393,7 +417,7 @@ export const getFollowings = async (name?: string): Promise<FollowingsResponse> 
     return data;
 };
 
-export const getFollowersCount = async (): Promise<any> => {
-    const { data } = await api.get("/followers/count");
+export const getFollowersCount = async (): Promise<BaseResponse & { count: number }> => {
+    const { data } = await api.get<BaseResponse & { count: number }>("/followers/count");
     return data;
 };

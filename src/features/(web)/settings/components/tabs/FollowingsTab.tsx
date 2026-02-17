@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search, Loader2 } from "lucide-react";
 import { useGetFollowers, useGetFollowings, useRemoveFollower, useUnfollowUserOrStore } from "../../hooks";
+import { FollowerItem, FollowingItem, FollowableEntity } from "../../api";
 import { cn } from "@/src/lib/utils";
 import { Avatar, AvatarImage, AvatarFallback } from "@/src/components/ui/avatar";
 
@@ -19,38 +20,29 @@ export default function FollowingsTab() {
     const isLoading = activeTab === "followings" ? isLoadingFollowings : isLoadingFollowers;
     const dataList = activeTab === "followings" ? followingsData?.data : followersData?.data;
 
-    const filteredList = dataList?.filter((item: any) => {
-        const entity = item.followed || item.follower; // Depending on which endpoint, key might differ?
-        // Step 459: followings response: item.followed
-        // followers response: item.follower or item.user?
-        // Step 459: URL /followers response "Not available" (item 7) / "Body: not specified" (item 4).
-        // Standard convention:
-        // /followings returns items where user is follower. item.followed is the followed entity.
-        // /followers returns items where user is followed. item.follower is the follower entity.
-        // I should check if `item.follower` exists. If not, maybe use `item.followed` (unlikely)?
-        // Or maybe `item` itself is the user object for `followers`?
-        // But `item` in `followings` had `id`, `followed_type`, `followed`.
-        // I will assume consistent structure: wrapper object.
-        // For `followers`, wrapper probably has `follower_type` and `follower`.
-        const target = activeTab === "followings" ? item.followed : (item.follower || item.user || item);
+    const filteredList = dataList?.filter((item: FollowingItem | FollowerItem) => {
+        const target = activeTab === "followings"
+            ? (item as FollowingItem).followed
+            : ((item as FollowerItem).follower || (item as FollowerItem).user || (item as FollowableEntity));
+
         const name = target?.name || target?.fullname || "";
         return name.toLowerCase().includes(searchQuery.toLowerCase());
     }) || [];
 
-    const handleAction = (item: any) => {
+    const handleAction = (item: FollowingItem | FollowerItem) => {
         if (activeTab === "followings") {
             // Unfollow
+            const following = item as FollowingItem;
             unfollow({
-                followed_type: item.followed_type,
-                followed_id: item.followed.id
+                followed_type: following.followed_type as "user" | "store" | "product",
+                followed_id: Number(following.followed.id)
             });
         } else {
             // Remove Follower
+            const followerItem = item as FollowerItem;
+            const target = followerItem.follower || followerItem.user || (followerItem as unknown as { id: number | string });
             removeFollower({
-                follower_id: item.follower?.id || item.user?.id || item.id // API needs id?
-                // Wait, hook `useRemoveFollower` takes `payload?: any`.
-                // Step 470: `removeFollower` endpoint `/followers/remove` (POST). Payload `params`.
-                // Assuming it needs `follower_id`.
+                follower_id: target.id
             });
         }
     };
@@ -118,8 +110,11 @@ export default function FollowingsTab() {
                         <Loader2 className="h-8 w-8 animate-spin text-blue-3" />
                     </div>
                 ) : filteredList.length > 0 ? (
-                    filteredList.map((item: any, index: number) => {
-                        const target = activeTab === "followings" ? item.followed : (item.follower || item.user || item);
+                    filteredList.map((item: FollowingItem | FollowerItem, index: number) => {
+                        const target = activeTab === "followings"
+                            ? (item as FollowingItem).followed
+                            : ((item as FollowerItem).follower || (item as FollowerItem).user || (item as unknown as FollowableEntity));
+
                         const name = target?.name || target?.fullname || "مستخدم";
                         const avatar = target?.avatar || target?.logo || "";
                         const count = target?.followers_count || 0;
