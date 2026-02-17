@@ -96,7 +96,12 @@ export function SearchBar({
           {SEARCH_TYPES.map((type) => (
             <button
               key={type.value}
-              onClick={() => setSelectedType(type.value)}
+              onClick={() => {
+                setSelectedType(type.value);
+                const params = new URLSearchParams(searchParams.toString());
+                params.set("type", type.value);
+                router.push(`/${currentLocale}/search?${params.toString()}`);
+              }}
               className={cn(
                 "py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full",
                 selectedType === type.value
@@ -138,7 +143,12 @@ export function SearchBar({
             {SEARCH_TYPES.map((type) => (
               <button
                 key={type.value}
-                onClick={() => setSelectedType(type.value)}
+                onClick={() => {
+                  setSelectedType(type.value);
+                  const params = new URLSearchParams(searchParams.toString());
+                  params.set("type", type.value);
+                  router.push(`/${currentLocale}/search?${params.toString()}`);
+                }}
                 className={cn(
                   "py-2 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full",
                   selectedType === type.value
@@ -178,7 +188,12 @@ export function SearchBar({
             {SEARCH_TYPES.map((type) => (
               <button
                 key={type.value}
-                onClick={() => setSelectedType(type.value)}
+                onClick={() => {
+                  setSelectedType(type.value);
+                  const params = new URLSearchParams(searchParams.toString());
+                  params.set("type", type.value);
+                  router.push(`/${currentLocale}/search?${params.toString()}`);
+                }}
                 className={cn(
                   "px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap rounded-full shrink-0",
                   selectedType === type.value
@@ -212,7 +227,12 @@ export function SearchBar({
         {SEARCH_TYPES.map((type) => (
           <button
             key={type.value}
-            onClick={() => setSelectedType(type.value)}
+            onClick={() => {
+              setSelectedType(type.value);
+              const params = new URLSearchParams(searchParams.toString());
+              params.set("type", type.value);
+              router.push(`/${currentLocale}/search?${params.toString()}`);
+            }}
             className={cn(
               "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap",
               selectedType === type.value

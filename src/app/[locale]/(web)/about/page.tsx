@@ -309,7 +309,7 @@ export default function AboutPage() {
                                 ابحث عن خدمة أو منتج محدّد
                             </Link>
                             <Link
-                                href={`/${lang}/products`}
+                                href={`/${lang}/search?type=products`}
                                 className="bg-blue-4 text-white px-6 py-3 rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
                             >
                                 تصفح العروض الآن

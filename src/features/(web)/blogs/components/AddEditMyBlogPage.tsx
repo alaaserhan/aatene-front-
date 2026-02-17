@@ -285,7 +285,7 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
                             showMainSelector={false}
                             mainImageLabel=""
                             showDragHint={true}
-                            allowedMediaTypes={["image"]}
+                            allowedMediaTypes={["image","gallery"]}
                             required
                         />
                     </div>

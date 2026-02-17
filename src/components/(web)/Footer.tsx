@@ -17,9 +17,10 @@ const Footer = () => {
       title: "روابط مهمة",
       links: [
         { label: "الرئيسية", href: `/${lang}/` },
-        { label: "منتجات", href: `/${lang}/products` },
-        { label: "متاجر", href: `/${lang}/stores` },
-        { label: "خدمات", href: `/${lang}/services` }
+        { label: "منتجات", href: `/${lang}/search?type=products` },
+        { label: "متاجر", href: `/${lang}/search?type=stores` },
+        { label: "خدمات", href: `/${lang}/search?type=services` },
+        { label: "المدونات", href: `/${lang}/blogs` }
       ]
     },
     {
@@ -29,7 +30,6 @@ const Footer = () => {
         { label: "المستخدمين", href: `/${lang}/users` },
         { label: "قواعد السلامة", href: `/${lang}/safety-rules` },
         { label: "كن تاجراً", href: `/${lang}/become-seller` },
-        { label: "المدونات", href: `/${lang}/blogs` }
       ]
     },
     {

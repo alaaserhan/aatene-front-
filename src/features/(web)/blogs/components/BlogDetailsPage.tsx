@@ -298,7 +298,7 @@ export default function BlogDetailsPage() {
 
                     {/* Reviews Section */}
                     {reviews.length > 0 && (
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4 mt-8">
                             <h3 className="text-xl font-medium ">التعليقات</h3>
                             <div className="flex flex-col gap-4">
                                 {reviews.map((review) => (
