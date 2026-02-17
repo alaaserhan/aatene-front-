@@ -285,7 +285,7 @@ export default function BlogDetailsPage() {
                                 }}
                                 className="flex flex-col gap-5 text-right"
                             >
-                                <h2 className="text-[27px] font-medium  leading-normal">
+                                <h2 className="text-lg font-medium  leading-normal">
                                     {section.title}
                                 </h2>
                                 <div

@@ -31,7 +31,7 @@ const StoreCard = memo(({
 
     return (
         <div className={cn(
-            "bg-white rounded-lg border border-gray-100 overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300",
+            "bg-white  h-full rounded-lg border border-gray-100 overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300",
             className
         )}>
             {/* Cover Image */}

@@ -22,13 +22,13 @@ export function NavIcons({ userType, currentLocale }: NavIconsProps) {
         </Link>
       </Button>
 
-      {userType === "admin" && (
+      {/* {userType === "admin" && (
          <Button variant="ghost" size="icon" asChild>
             <Link href={`/${currentLocale}/admin/stores`} title={t('admin_stores')} aria-label={t('admin_stores')}>
                 <Store className="h-5 w-5" />
             </Link>
          </Button>
-      )}
+      )} */}
 
       <Button variant="ghost" size="icon" asChild>
         <Link href={`/${currentLocale}/favourites`} title={t('favourites')} aria-label={t('favourites')}>

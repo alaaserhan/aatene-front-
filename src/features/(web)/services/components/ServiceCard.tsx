@@ -80,12 +80,12 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                 </div>
 
                 {/* Separator - Subtle Glassmorphic line */}
-                <div className="h-[1px] bg-gray-200 w-full mb-4" />
+                <div className="h-[1px] bg-gray-200 w-full mb-2" />
 
                 {/* Provider Info */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     {/* Avatar */}
-                    <div className="relative w-10 h-10 shrink-0 rounded-full overflow-hidden border-2 border-white shadow-sm ring-1 ring-gray-100">
+                    <div className="relative w-10 h-10 shrink-0 rounded-full overflow-hidden shadow-sm ring-1 ring-gray-100">
                         <Image
                             src={service.store?.logo || "/default-avatar.png"}
                             alt={providerName}
@@ -100,12 +100,12 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                     {/* Info Stack */}
                     <div className="flex flex-col min-w-0 flex-1">
                         {/* Name */}
-                        <p className="text-sm font-bold  truncate">
+                        <p className="text-sm font-medium  truncate">
                             {providerName}
                         </p>
 
                         {/* Stats Row */}
-                        <div className="flex items-center justify-between mt-0.5">
+                        <div className="flex items-center justify-between mt-1">
                             {/* Location */}
                             <div className="flex items-center gap-1 text-[10px] text-gray-500">
                                 <MapPin className="w-3 h-3 text-[#3D5E83]" />

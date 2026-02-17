@@ -2,6 +2,7 @@
 import { Metadata } from "next";
 import { getI18n } from "@/src/i18n/server";
 import { setStaticParamsLocale } from "next-international/server";
+import HomePage from "@/src/features/(web)/home/components/HomePage";
 
 export const metadata: Metadata = {
   description: "الصفحة الرئيسية لموقع أعطيني...",
@@ -17,7 +18,7 @@ export async function generateStaticParams() {
 }
 
 // ⭐ Add params
-export default async function HomePage({
+export default async function page({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -30,6 +31,6 @@ export default async function HomePage({
   const t = await getI18n();
 
   return (
-    <p>جاري تطوير الموقع ...</p>
+    <HomePage />
   );
 }

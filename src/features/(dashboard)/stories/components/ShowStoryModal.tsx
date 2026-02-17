@@ -30,10 +30,11 @@ interface ShowStoryModalProps {
     onClose: () => void;
     stories: Story[];
     initialIndex: number;
-    onDelete: (id: number) => void;
-    onSave: (payload: any, onSuccess?: () => void) => void;
-    isPending: boolean;
-    MediaPickerComponent: React.ComponentType<any>;
+    onDelete?: (id: number) => void;
+    onSave?: (payload: any, onSuccess?: () => void) => void;
+    isPending?: boolean;
+    MediaPickerComponent?: React.ComponentType<any>;
+    showActions?: boolean;
 }
 
 export function ShowStoryModal({
@@ -43,8 +44,9 @@ export function ShowStoryModal({
     initialIndex,
     onDelete,
     onSave,
-    isPending,
-    MediaPickerComponent
+    isPending = false,
+    MediaPickerComponent,
+    showActions = true
 }: ShowStoryModalProps) {
     const [activeIndex, setActiveIndex] = useState(initialIndex);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -128,13 +130,15 @@ export function ShowStoryModal({
     };
 
     const handleDelete = () => {
-        onDelete(activeStory.id);
-        if (stories.length === 1) {
-            onClose();
-        } else if (activeIndex === stories.length - 1) {
-            setActiveIndex(prev => prev - 1);
+        if (onDelete) {
+            onDelete(activeStory.id);
+            if (stories.length === 1) {
+                onClose();
+            } else if (activeIndex === stories.length - 1) {
+                setActiveIndex(prev => prev - 1);
+            }
+            setIsMenuOpen(false);
         }
-        setIsMenuOpen(false);
     };
 
     const getTimeAgo = (dateString: string) => {
@@ -182,12 +186,16 @@ export function ShowStoryModal({
                         </button>
                     )}
 
-                    <div className="relative w-full h-full flex items-center overflow-hidden">
+                    <div
+                        className="relative w-full h-full flex items-center overflow-hidden"
+                        onClick={onClose}
+                    >
                         <div
                             className="flex items-center gap-8 absolute left-1/2 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
                             style={{
                                 transform: `translateX(calc(-${ACTIVE_WIDTH / 2}px - (${activeIndex} * ${INACTIVE_WIDTH + GAP}px)))`,
                             }}
+                            onClick={(e) => e.stopPropagation()}
                         >
                             {stories.map((story, index) => {
                                 const isActive = index === activeIndex;
@@ -234,54 +242,56 @@ export function ShowStoryModal({
                                                         </div>
                                                     </div>
 
-                                                    <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                                                        <PopoverTrigger asChild>
-                                                            <button className="p-2 bg-black/20 cursor-pointer hover:bg-black/40 rounded-full transition-colors backdrop-blur-md">
-                                                                <MoreHorizontal className="w-6 h-6 text-white" />
-                                                            </button>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-56 p-1 bg-white/95 backdrop-blur-md rounded-xl shadow-xl ml-4 border-gray-100" align="start" side="bottom">
-                                                            <div className="flex flex-col">
-
-                                                                <button
-                                                                    onClick={handleEdit}
-                                                                    className="flex items-center cursor-pointer gap-3 p-3 hover:bg-blue-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl"
-                                                                >
-                                                                    <img src="/icons/dashboard/edit3.svg" className="w-4 h-4 " />
-                                                                    <span className="font-bold text-sm">تعديل القصة</span>
+                                                    {showActions && (
+                                                        <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                                                            <PopoverTrigger asChild>
+                                                                <button className="p-2 bg-black/20 cursor-pointer hover:bg-black/40 rounded-full transition-colors backdrop-blur-md">
+                                                                    <MoreHorizontal className="w-6 h-6 text-white" />
                                                                 </button>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-56 p-1 bg-white/95 backdrop-blur-md rounded-xl shadow-xl ml-4 border-gray-100" align="start" side="bottom">
+                                                                <div className="flex flex-col">
 
-                                                                {story.image && (
                                                                     <button
-                                                                        onClick={handleDownload}
-                                                                        disabled={isDownloading}
-                                                                        className="flex items-center cursor-pointer gap-3 p-3 hover:bg-green-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl"
+                                                                        onClick={handleEdit}
+                                                                        className="flex items-center cursor-pointer gap-3 p-3 hover:bg-blue-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl"
                                                                     >
-                                                                        {isDownloading ? (
-                                                                            <Loader2 className="w-4 h-4 text-green-600 animate-spin" />
-                                                                        ) : (
-                                                                            <Download className="w-4 h-4 text-green-600" />
-                                                                        )}
-                                                                        <span className="font-bold text-sm">
-                                                                            {isDownloading ? "جاري التنزيل..." : "تنزيل القصة"}
-                                                                        </span>
+                                                                        <img src="/icons/dashboard/edit3.svg" className="w-4 h-4 " />
+                                                                        <span className="font-bold text-sm">تعديل القصة</span>
                                                                     </button>
-                                                                )}
 
-                                                                <button onClick={handleCopyLink} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-orange-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl">
-                                                                    <LinkIcon className="w-4 h-4 text-orange-500" />
-                                                                    <span className="font-bold text-sm">نسخ الرابط</span>
-                                                                </button>
+                                                                    {story.image && (
+                                                                        <button
+                                                                            onClick={handleDownload}
+                                                                            disabled={isDownloading}
+                                                                            className="flex items-center cursor-pointer gap-3 p-3 hover:bg-green-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl"
+                                                                        >
+                                                                            {isDownloading ? (
+                                                                                <Loader2 className="w-4 h-4 text-green-600 animate-spin" />
+                                                                            ) : (
+                                                                                <Download className="w-4 h-4 text-green-600" />
+                                                                            )}
+                                                                            <span className="font-bold text-sm">
+                                                                                {isDownloading ? "جاري التنزيل..." : "تنزيل القصة"}
+                                                                            </span>
+                                                                        </button>
+                                                                    )}
 
-                                                                <div className="h-px bg-gray-100 my-1 mx-2" />
+                                                                    <button onClick={handleCopyLink} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-orange-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl">
+                                                                        <LinkIcon className="w-4 h-4 text-orange-500" />
+                                                                        <span className="font-bold text-sm">نسخ الرابط</span>
+                                                                    </button>
 
-                                                                <button onClick={handleDelete} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-red-50 text-red-600 rounded-lg transition-colors w-full text-right" dir="rtl">
-                                                                    <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
-                                                                    <span className="font-bold text-sm">حذف القصة</span>
-                                                                </button>
-                                                            </div>
-                                                        </PopoverContent>
-                                                    </Popover>
+                                                                    <div className="h-px bg-gray-100 my-1 mx-2" />
+
+                                                                    <button onClick={handleDelete} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-red-50 text-red-600 rounded-lg transition-colors w-full text-right" dir="rtl">
+                                                                        <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
+                                                                        <span className="font-bold text-sm">حذف القصة</span>
+                                                                    </button>
+                                                                </div>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    )}
                                                 </div>
 
                                                 <div className="absolute bottom-0 left-0 right-0 p-4 z-30 flex flex-col gap-4">
@@ -316,7 +326,7 @@ export function ShowStoryModal({
             </Dialog>
 
             {/* مودال التعديل */}
-            {activeStory && (
+            {activeStory && isEditModalOpen && onSave && MediaPickerComponent && (
                 <AddStoryModal
                     isOpen={isEditModalOpen}
                     onClose={() => setIsEditModalOpen(false)}
