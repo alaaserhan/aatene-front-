@@ -10,8 +10,10 @@ import HomeSpecialMerchants from "./HomeSpecialMerchants";
 import HomeNewProducts from "./HomeNewProducts";
 import HomeMostPopularServices from "./HomeMostPopularServices";
 import HomeTodayOffers from "./HomeTodayOffers";
-import HomeMostPopularProducts from "./HomeMostPopularProducts";
 import HomeRequestedServices from "./HomeRequestedServices";
+import HomeCustomizedProducts from "./HomeCustomizedProducts";
+import HomeProductsYouMayLike from "./HomeProductsYouMayLike";
+import HomeLatestBlogs from "./HomeLatestBlogs";
 
 export default function HomePage() {
     const { data, isLoading, isError } = useHomePageData();
@@ -33,7 +35,7 @@ export default function HomePage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
+        <div className="min-h-screen">
             {/* Banners Section */}
             {data?.banners && <HomeBanners banners={data.banners} />}
 
@@ -67,40 +69,27 @@ export default function HomePage() {
                 <HomeTodayOffers offers={data.toDayBiggestOffers} />
             )}
 
-            {/* Most Popular Products */}
+            {/* Customized Products (from mostPopularProduct) */}
             {data?.mostPopularProduct && (
-                // API returns a single product for 'mostPopularProduct' but likely we want a list or similar logic?
-                // Wait, the interface says `mostPopularProduct: ProductInPageData;` (Singular).
-                // But the variable name in request is `mostPopularProducts` (Plural).
-                // Let's check `types.ts`.
-                // types.ts: mostPopularProduct: ProductInPageData;
-                // But the user request said "mostPopularProducts".
-                // I created HomeMostPopularProducts taking an ARRAY.
-                // If the API returns a sigle object, I wrap it in array or update type.
-                // Let's assume for now I should pass it as array or check if there is another field.
-                // Actually looking at `data` structure in types.ts, `mostPopularProduct` is singular.
-                // Maybe I should use `productsYouMayLike` or something else?
-                // Or maybe the type definition is wrong and it should be an array.
-                // Given the UI shows a list (grid), it MUST be an array.
-                // I will assume for now I can pass `[data.mostPopularProduct]` if it's singular, or cast/fix type later.
-                // Let's wrap it for now: `products={[data.mostPopularProduct]}`
-                // Wait, look at `productsYouMayLike`. That is an array.
-                // User said "mostPopularProducts".
-                // Let's check the API response interface again.
-                // Line 130: mostPopularProduct: ProductInPageData;
-                // Line 135: productsYouMayLike: ProductInPageData[];
-                // I will use `productsYouMayLike` as a fallback or just wrap the singular one if that's all I have.
-                // But typically "Most Popular" implies a list.
-                // I'll comment on this potential issue.
-                // For now, let's try to use `productsYouMayLike` if `mostPopularProduct` is just one.
-                // Or maybe I just use `[data.mostPopularProduct]`.
-                <HomeMostPopularProducts products={[data.mostPopularProduct]} />
+                <HomeCustomizedProducts products={[data.mostPopularProduct]} />
+            )}
+
+            {/* Products You May Like */}
+            {data?.productsYouMayLike && data.productsYouMayLike.length > 0 && (
+                <HomeProductsYouMayLike products={data.productsYouMayLike} />
             )}
 
             {/* Requested Services */}
             {data?.requestedServices && data.requestedServices.length > 0 && (
                 <HomeRequestedServices requests={data.requestedServices} />
             )}
+
+            {/* Latest Blogs */}
+            {data?.latestBlogs && data.latestBlogs.length > 0 && (
+                <HomeLatestBlogs blogs={data.latestBlogs} />
+            )}
+
+
 
         </div>
     );

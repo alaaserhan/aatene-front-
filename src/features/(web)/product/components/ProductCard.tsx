@@ -91,7 +91,7 @@ const ProductCard = memo(({
             <div className="pt-3 text-right" dir="rtl">
                 {/* Product Name */}
                 <Link href={slug ? `/product/${slug}` : "#"} className="block">
-                    <h3 className="font-medium text-base text-[#1F2A37] mb-1.5 line-clamp-1 group-hover:text-blue-3 transition-colors">
+                    <h3 className="font-medium text-base mb-1.5 line-clamp-1 group-hover:text-blue-3 transition-colors">
                         {name || "اسم المنتج"}
                     </h3>
                 </Link>
@@ -118,11 +118,11 @@ const ProductCard = memo(({
 
                 {/* Price */}
                 <div className="flex items-baseline gap-2 justify-start">
-                    <span className=" font-medium text-[#1F2A37]">
+                    <span className=" font-medium ">
                         {parseFloat(displayPrice).toFixed(2)} <span className="text-xl font-medium">₪</span>
                     </span>
                     {hasDiscount && (
-                        <span className="text-lg font-medium text-gray-400 line-through">
+                        <span className="font-medium text-gray-400 line-through">
                             {parseFloat(price).toFixed(2)} <span className="text-xl font-medium">₪</span>
                         </span>
                     )}

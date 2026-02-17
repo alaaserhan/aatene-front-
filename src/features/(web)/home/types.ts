@@ -1,5 +1,6 @@
 
 import { ProductInPageData, StoreInPageData } from "../product/types";
+import { Blog } from "../blogs/types";
 
 export interface Story {
     id: number;
@@ -134,4 +135,5 @@ export interface HomePageResponse {
     requestedServices: ServiceRequest[];
     toRatedCategories: HomeCategory[];
     productsYouMayLike: ProductInPageData[];
+    latestBlogs: Blog[];
 }

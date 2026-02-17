@@ -161,13 +161,13 @@ export default function AboutPage() {
                     <div className="flex flex-col md:flex-row gap-8 md:gap-12">
                         <div className="md:w-2/5 shrink-0">
                             <div className="relative">
-                                <div className="bg-blue-5 rounded-lg w-full aspect-[4/3] absolute top-4 start-4" />
+                                <div className="bg-blue-5 rounded-lg w-full aspect-4/3 absolute top-4 start-4" />
                                 <Image
                                     src="/Frame 1000005424.png"
                                     alt="Nazareth city"
                                     width={500}
                                     height={380}
-                                    className="relative rounded-lg w-full aspect-[4/3] object-cover shadow-md"
+                                    className="relative rounded-lg w-full aspect-4/3 object-cover shadow-md"
                                 />
                             </div>
                         </div>

@@ -41,7 +41,7 @@ export default function BlogsPage() {
     return (
         <div className="container mx-auto px-4 my-4 md:my-6">
             {/* Header */}
-            <div className="flex justify-between mb-8 md:mb-12">
+            <div className="flex justify-between mb-5">
                 <h1 className="text-2xl font-medium ">جميع المقالات</h1>
 
                 {isLoggedIn && (
