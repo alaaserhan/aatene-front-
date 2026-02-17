@@ -56,6 +56,14 @@ export default function ProductDetailsPage() {
             {/* Component 3: Store Info Bar */}
             <StoreInfoBar store={store} />
 
+                        {/* Component 5: Cross-Sells Bundle */}
+            {product.crossSells && product.crossSells.length > 0 && (
+                <CrossSellsSection
+                    crossSells={product.crossSells}
+                    crossSellsPrice={product.cross_sells_price}
+                />
+            )}
+
             {/* Component 4: Description & Reviews Tabs */}
             <ProductTabs product={product} />
 
@@ -67,14 +75,6 @@ export default function ProductDetailsPage() {
             {/* Component 6: Stores You May Like */}
             {pageData?.storesYouMayLike && pageData.storesYouMayLike.length > 0 && (
                 <StoresYouMayLike stores={pageData.storesYouMayLike} />
-            )}
-
-            {/* Component 5: Cross-Sells Bundle */}
-            {product.crossSells && product.crossSells.length > 0 && (
-                <CrossSellsSection
-                    crossSells={product.crossSells}
-                    crossSellsPrice={product.cross_sells_price}
-                />
             )}
         </div>
     );
