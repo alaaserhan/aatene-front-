@@ -10,8 +10,7 @@ import { Button } from "@/src/components/ui/button";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { useGetFavoriteLists, useAddToFavorites, useRemoveFromFavorites } from "../hooks";
 import { CreateCollectionModal } from "./CreateCollectionModal";
-import { toast } from "sonner";
-import { Plus, Trash2, Lock, FolderHeart, LockKeyhole } from "lucide-react";
+import { Plus, Trash2, LockKeyhole } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
 interface AddToFavoritesModalProps {
@@ -28,7 +27,7 @@ export function AddToFavoritesModal({ isOpen, onClose, type, itemId, isFavorite,
     const [selectedListId, setSelectedListId] = useState<number | string | null>(null);
 
     // Queries & Mutations
-    const { data: listsData, isLoading: isLoadingLists } = useGetFavoriteLists(type);
+    const { data: listsData, isLoading: isLoadingLists } = useGetFavoriteLists(type as string, isOpen);
     const { mutate: addToFav, isPending: isAdding } = useAddToFavorites();
     const { mutate: removeFromFav, isPending: isRemoving } = useRemoveFromFavorites();
 

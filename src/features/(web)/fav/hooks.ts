@@ -35,10 +35,11 @@ const QK = {
     },
 };
 
-export const useGetFavoriteLists = (type?: string) => {
+export const useGetFavoriteLists = (type?: string, enabled = true) => {
     return useQuery({
         queryKey: [...QK.list(), type],
         queryFn: () => getFavoriteLists(type),
+        enabled,
     });
 };
 
@@ -154,12 +155,12 @@ export const useRemoveFromFavorites = () => {
             await qc.cancelQueries({ queryKey: ["favorite-lists", "items"] });
 
             // Helper function to filter out the removed item
-            const updateCache = (oldData: any) => {
+            const updateCache = (oldData: { favorites: { favs_type: string; favs: { id: number | string } }[]; total: number } | undefined) => {
                 if (!oldData?.favorites) return oldData;
                 return {
                     ...oldData,
                     favorites: oldData.favorites.filter(
-                        (item: any) =>
+                        (item) =>
                             !(
                                 item.favs_type === payload.favs_type &&
                                 String(item.favs?.id) === String(payload.favs_id)
@@ -180,10 +181,8 @@ export const useRemoveFromFavorites = () => {
         onSuccess: (data) => {
             toast.success(data.message || "تم الحذف من المفضلة بنجاح");
         },
-        onError: (_err, _variables, context) => {
-            // If error, we might want to invalidate to restore state, 
-            // or if we had a snapshot we could rollback. 
-            // For now, invalidation in onSettled covers restoration on error mostly.
+        onError: () => {
+            // Error handling
         },
         onSettled: (_data, _error, variables) => {
             qc.invalidateQueries({ queryKey: QK.favorites.all });
