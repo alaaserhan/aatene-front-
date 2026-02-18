@@ -15,6 +15,7 @@ import HomeCustomizedProducts from "./HomeCustomizedProducts";
 import HomeProductsYouMayLike from "./HomeProductsYouMayLike";
 import HomeLatestBlogs from "./HomeLatestBlogs";
 import HomeCategoriesWithProducts from "./HomeCategoriesWithProducts";
+import HomeWeeklyOffers from "./HomeWeeklyOffers";
 
 export default function HomePage() {
     const { data, isLoading, isError } = useHomePageData();
@@ -73,6 +74,11 @@ export default function HomePage() {
             {/* Today's Biggest Offers */}
             {data?.toDayBiggestOffers && data.toDayBiggestOffers.length > 0 && (
                 <HomeTodayOffers offers={data.toDayBiggestOffers} />
+            )}
+
+            {/* Weekly Offers */}
+            {data?.thisWeekBiggestOffers && data.thisWeekBiggestOffers.length > 0 && (
+                <HomeWeeklyOffers offers={data.thisWeekBiggestOffers} />
             )}
 
             {/* Customized Products (from mostPopularProduct) */}
