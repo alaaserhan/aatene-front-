@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SearchBar } from "@/src/components/(web)/SearchBar";
 import SearchFilters from "./components/SearchFilters";
@@ -52,7 +52,30 @@ function SearchContent({ type }: { type: SearchType }) {
     const query = searchParams.get("q") || "";
     const page = parseInt(searchParams.get("page") || "1");
 
-    const [filters, setFilters] = useState<FilterState>({});
+    // Initialize filters from URL
+    const initialFilters: FilterState = useMemo(() => {
+        const tags = searchParams.getAll("tags").map(t => parseInt(t)).filter(n => !isNaN(n));
+        const variations = searchParams.getAll("variation_options").map(v => parseInt(v)).filter(n => !isNaN(n));
+
+        return {
+            category_id: searchParams.get("category_id") ? parseInt(searchParams.get("category_id")!) : undefined,
+            city_id: searchParams.get("city_id") ? parseInt(searchParams.get("city_id")!) : undefined,
+            tags: tags.length > 0 ? tags : undefined,
+            variation_options: variations.length > 0 ? variations : undefined,
+            min_price: searchParams.get("min_price") ? parseInt(searchParams.get("min_price")!) : undefined,
+            max_price: searchParams.get("max_price") ? parseInt(searchParams.get("max_price")!) : undefined,
+            review_rate: searchParams.get("review_rate") ? parseInt(searchParams.get("review_rate")!) : undefined,
+        };
+    }, [searchParams]);
+
+    // Use local state for immediate UI feedback, but sync with URL
+    const [filters, setFilters] = useState<FilterState>(initialFilters);
+
+    // Sync state with URL when URL changes (e.g. back button)
+    useEffect(() => {
+        setFilters(initialFilters);
+    }, [initialFilters]);
+
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [showAllTags, setShowAllTags] = useState(false);
     const TAGS_LIMIT = 20;
@@ -99,7 +122,49 @@ function SearchContent({ type }: { type: SearchType }) {
         }
     }, [type, productsPageData, servicesPageData, storesPageData, usersPageData]);
 
-    // Build search params
+    // Update URL helper
+    const updateUrl = (newFilters: FilterState) => {
+        const params = new URLSearchParams(searchParams.toString());
+
+        // Update params based on newFilters
+        if (newFilters.category_id) params.set("category_id", newFilters.category_id.toString());
+        else params.delete("category_id");
+
+        if (newFilters.city_id) params.set("city_id", newFilters.city_id.toString());
+        else params.delete("city_id");
+
+        // Handle array params
+        params.delete("tags");
+        if (newFilters.tags && newFilters.tags.length > 0) {
+            newFilters.tags.forEach(tag => params.append("tags", tag.toString()));
+        }
+
+        params.delete("variation_options");
+        if (newFilters.variation_options && newFilters.variation_options.length > 0) {
+            newFilters.variation_options.forEach(opt => params.append("variation_options", opt.toString()));
+        }
+
+        if (newFilters.min_price !== undefined) params.set("min_price", newFilters.min_price.toString());
+        else params.delete("min_price");
+
+        if (newFilters.max_price !== undefined) params.set("max_price", newFilters.max_price.toString());
+        else params.delete("max_price");
+
+        if (newFilters.review_rate !== undefined) params.set("review_rate", newFilters.review_rate.toString());
+        else params.delete("review_rate");
+
+        // Reset page to 1 on filter change
+        params.set("page", "1");
+
+        router.push(`?${params.toString()}`, { scroll: false });
+    };
+
+    const handleFilterChange = (newFilters: FilterState) => {
+        setFilters(newFilters);
+        updateUrl(newFilters);
+    };
+
+    // Build search params for API call
     const searchParamsObj = useMemo(() => {
         return {
             search: query || undefined,
@@ -166,7 +231,7 @@ function SearchContent({ type }: { type: SearchType }) {
         const newTags = currentTags.includes(tagId)
             ? currentTags.filter((id) => id !== tagId)
             : [...currentTags, tagId];
-        setFilters({ ...filters, tags: newTags });
+        handleFilterChange({ ...filters, tags: newTags });
     };
 
     const displayTags = filterData.tags;
@@ -178,7 +243,7 @@ function SearchContent({ type }: { type: SearchType }) {
                 <SearchFilters
                     type={type}
                     filters={filters}
-                    onFilterChange={setFilters}
+                    onFilterChange={handleFilterChange}
                     categories={filterData.categories}
                     cities={filterData.cities}
                     tags={filterData.tags}
@@ -270,7 +335,7 @@ function SearchContent({ type }: { type: SearchType }) {
                 onClose={() => setIsFilterOpen(false)}
                 type={type}
                 filters={filters}
-                onFilterChange={setFilters}
+                onFilterChange={handleFilterChange}
                 onApply={() => setIsFilterOpen(false)}
                 categories={filterData.categories}
                 cities={filterData.cities}
@@ -279,4 +344,3 @@ function SearchContent({ type }: { type: SearchType }) {
         </div>
     );
 }
-

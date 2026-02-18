@@ -14,6 +14,7 @@ import HomeRequestedServices from "./HomeRequestedServices";
 import HomeCustomizedProducts from "./HomeCustomizedProducts";
 import HomeProductsYouMayLike from "./HomeProductsYouMayLike";
 import HomeLatestBlogs from "./HomeLatestBlogs";
+import HomeCategoriesWithProducts from "./HomeCategoriesWithProducts";
 
 export default function HomePage() {
     const { data, isLoading, isError } = useHomePageData();
@@ -52,6 +53,11 @@ export default function HomePage() {
 
             {data?.specialMerchants && data.specialMerchants.length > 0 && (
                 <HomeSpecialMerchants merchants={data.specialMerchants} />
+            )}
+
+            {/* Categories With Products */}
+            {data?.categoriesWithProducts && data.categoriesWithProducts.length > 0 && (
+                <HomeCategoriesWithProducts categories={data.categoriesWithProducts} />
             )}
 
             {/* Chosen For You (New Products) */}
