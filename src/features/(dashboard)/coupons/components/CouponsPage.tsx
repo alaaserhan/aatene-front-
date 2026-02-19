@@ -3,15 +3,19 @@
 import { useState, useMemo } from "react";
 import { useGetCoupons, useDeleteCoupon, useUpdateCouponStatus } from "../hooks";
 import { Coupon } from "../types";
-import { format } from "date-fns";
+
+
+
 import { Plus, Loader2, Trash2, Edit, Search, FileDown } from "lucide-react";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { CreateCouponModal } from "./CreateCouponModal";
 
+import { formatDateArabic } from "@/src/lib/date-helper";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { Pagination } from "@/src/components/ui/Pagination";
 
 const ITEMS_PER_PAGE = 10;
+
 
 export function CouponsPage() {
     // Pagination & Search State
@@ -135,13 +139,13 @@ export function CouponsPage() {
                         <table className="w-full table-fixed min-w-[800px]">
                             <thead>
                                 <tr className="bg-gray-50">
-                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">الكود</th>
-                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">النوع</th>
-                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">القيمة</th>
-                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">تاريخ البداية</th>
-                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">تاريخ الانتهاء</th>
-                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">الحالة</th>
-                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">الإجراءات</th>
+                                    <th className="px-4 py-4 text-start text-sm font-medium ">الكود</th>
+                                    <th className="px-4 py-4 text-start text-sm font-medium ">النوع</th>
+                                    <th className="px-4 py-4 text-start text-sm font-medium ">القيمة</th>
+                                    <th className="px-4 py-4 text-start text-sm font-medium ">تاريخ البداية</th>
+                                    <th className="px-4 py-4 text-start text-sm font-medium ">تاريخ الانتهاء</th>
+                                    <th className="px-4 py-4 text-start text-sm font-medium ">الحالة</th>
+                                    <th className="px-4 py-4 text-start text-sm font-medium ">الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -169,19 +173,20 @@ export function CouponsPage() {
                                 ) : (
                                     coupons.map((coupon) => (
                                         <tr key={coupon.id} className="border-b border-gray-200 hover:bg-gray-50 last:border-b-0 transition-colors">
-                                            <td className="px-4 py-4 font-medium text-gray-900">{coupon.code}</td>
-                                            <td className="px-4 py-4 text-gray-700">
+                                            <td className="px-4 py-4 font-medium ">{coupon.code}</td>
+                                            <td className="px-4 py-4 text-gray-2">
                                                 {coupon.type === "value" ? "قيمة ثابتة" : "نسبة مئوية"}
                                             </td>
-                                            <td className="px-4 py-4 text-gray-700">
-                                                {coupon.value} {coupon.type === "percentage" ? "%" : "رس"}
+                                            <td className="px-4 py-4 text-gray-2">
+                                                {coupon.value} {coupon.type === "percentage" ? "%" : ""}
                                             </td>
-                                            <td className="px-4 py-4 text-gray-500 dir-rtl">
-                                                {format(new Date(coupon.start_date), "dd/MM/yyyy")}
+                                            <td className="px-4 py-4 text-gray-2 text-sm dir-rtl">
+                                                {formatDateArabic(coupon.start_date)}
                                             </td>
-                                            <td className="px-4 py-4 text-gray-500 dir-rtl">
-                                                {format(new Date(coupon.end_date), "dd/MM/yyyy")}
+                                            <td className="px-4 py-4 text-gray-2 text-sm dir-rtl">
+                                                {formatDateArabic(coupon.end_date)}
                                             </td>
+
                                             <td className="px-4 py-4">
                                                 <ToggleSwitch
                                                     enabled={coupon.status === "active"}
@@ -194,13 +199,13 @@ export function CouponsPage() {
                                                         onClick={() => handleEditClick(coupon)}
                                                         className="p-2.5 bg-blue-5 cursor-pointer rounded transition-colors group text-blue-600 hover:text-blue-700"
                                                     >
-                                                       <img src="/icons/dashboard/edit.svg" alt="" className="w-5 h-5"/>
+                                                        <img src="/icons/dashboard/edit.svg" alt="" className="w-5 h-5" />
                                                     </button>
                                                     <button
                                                         onClick={() => handleDeleteClick(coupon.id)}
                                                         className="p-2.5 bg-[#FB37481A] rounded cursor-pointer transition-colors group text-red-600 hover:text-red-700"
                                                     >
-                                                         <img src="/icons/dashboard/trash.svg" alt="" className="w-5 h-5"/>
+                                                        <img src="/icons/dashboard/trash.svg" alt="" className="w-5 h-5" />
                                                     </button>
                                                 </div>
                                             </td>

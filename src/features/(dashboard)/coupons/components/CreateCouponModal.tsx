@@ -6,6 +6,7 @@ import {
     List,
     DollarSign,
     Percent,
+    Loader2,
 } from "lucide-react";
 import { InfiniteData } from "@tanstack/react-query";
 import { SelectOptionsResponse } from "@/src/features/(dashboard)/categoriesAndAttributes/api";
@@ -21,7 +22,8 @@ import { DatePicker } from "@/src/components/ui/DatePicker";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { cn } from "@/src/lib/utils";
 import { useInfiniteCategoryOptions } from "@/src/features/(dashboard)/categoriesAndAttributes/hooks";
-import { useCreateCoupon, useUpdateCoupon } from "../hooks";
+import { useCreateCoupon, useUpdateCoupon, useGetCoupon } from "../hooks";
+
 import { Coupon, CouponPayload } from "../types";
 import { ProductsSelectionModal } from "./ProductsSelectionModal";
 
@@ -221,6 +223,11 @@ export function CreateCouponModal({
     const { mutate: createCoupon, isPending: isCreating } = useCreateCoupon();
     const { mutate: updateCoupon, isPending: isUpdating } = useUpdateCoupon();
 
+    // Fetch coupon details if in edit mode
+    // We pass 0 if no id, and hook deals with enabled
+    const { data: couponDetails, isLoading: isLoadingDetails } = useGetCoupon(couponToEdit?.id || 0);
+
+
     const isPending = isCreating || isUpdating;
     const isEditMode = !!couponToEdit;
 
@@ -275,6 +282,29 @@ export function CreateCouponModal({
             }
         }
     }, [isOpen, couponToEdit]);
+
+    // Populate form data when full details arrive
+    useEffect(() => {
+        if (couponDetails?.record && isOpen && couponToEdit) {
+            const record = couponDetails.record;
+            setFormData((prev) => ({
+                ...prev,
+                code: record.code,
+                type: (record.type as "value" | "percentage") || "percentage",
+                value: record.value,
+                start_date: record.start_date?.split(" ")[0] || "",
+                end_date: record.end_date?.split(" ")[0] || "",
+                // Handle mixed types (number or object)
+                categories: record.categories?.map(c =>
+                    typeof c === 'object' ? { id: String(c.id), name: c.name } : { id: String(c), name: '' }
+                ) || [],
+                products: record.products?.map(p =>
+                    typeof p === 'object' ? { id: String(p.id), name: p.name } : { id: String(p), name: '' }
+                ) || [],
+            }));
+        }
+    }, [couponDetails, isOpen, couponToEdit]);
+
 
     const updateFormData = (updates: Partial<CouponFormData>) => {
         setFormData((prev) => ({ ...prev, ...updates }));
@@ -501,9 +531,19 @@ export function CreateCouponModal({
                     <ModalSteps currentStep={currentStep} />
 
                     <div className="mt-4 min-h-[350px]">
-                        {currentStep === 1 && renderDataStep()}
-                        {currentStep === 2 && renderIncludedStep()}
+                        {isLoadingDetails ? (
+                            <div className="flex flex-col items-center justify-center h-[300px] gap-3">
+                                <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
+                                <span className="text-gray-500 text-sm">جاري تحميل بيانات الكوبون...</span>
+                            </div>
+                        ) : (
+                            <>
+                                {currentStep === 1 && renderDataStep()}
+                                {currentStep === 2 && renderIncludedStep()}
+                            </>
+                        )}
                     </div>
+
                 </div>
 
                 <div className="p-4 bg-gray-50 flex items-center justify-end gap-3 border-t border-gray-100">

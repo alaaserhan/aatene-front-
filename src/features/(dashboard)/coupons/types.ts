@@ -1,3 +1,18 @@
+export interface CouponCategory {
+    id: number;
+    name: string;
+    slug?: string;
+    image?: string | null;
+}
+
+export interface CouponProduct {
+    id: number;
+    name: string;
+    slug?: string;
+    cover?: string | null;
+    price?: string;
+}
+
 export interface Coupon {
     id: number;
     code: string;
@@ -6,10 +21,11 @@ export interface Coupon {
     start_date: string;
     end_date: string;
     status: "active" | "not-active" | string;
-    categories?: number[];
-    products?: number[];
+    categories?: (number | CouponCategory)[];
+    products?: (number | CouponProduct)[];
     store_id?: string | number;
 }
+
 
 export interface CouponPayload {
     code: string;
@@ -34,8 +50,9 @@ export interface CouponResponse {
 export interface SingleCouponResponse {
     status: boolean;
     message: string;
-    data: Coupon;
+    record: Coupon;
 }
+
 
 export interface CreateCouponResponse {
     status: boolean;

@@ -5,28 +5,11 @@ import { useState } from "react";
 import { Story } from "../api";
 import { Trash2, Loader2 } from "lucide-react";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 
 interface StoryItemProps {
   story: Story;
   onDelete: (id: number) => void;
-}
-
-// دالة مساعدة لحساب الوقت المنقضي
-function getTimeAgo(dateString: string) {
-  if (!dateString) return "";
-
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  const minutes = Math.floor(diffInSeconds / 60);
-  const hours = Math.floor(diffInSeconds / 3600);
-  const days = Math.floor(diffInSeconds / 86400);
-
-  if (days > 0) return `منذ ${days} يوم`;
-  if (hours > 0) return `منذ ${hours} ساعة`;
-  if (minutes > 0) return `منذ ${minutes} دقيقة`;
-  return "الآن";
 }
 
 export function StoryItem({ story, onDelete }: StoryItemProps) {
@@ -37,7 +20,7 @@ export function StoryItem({ story, onDelete }: StoryItemProps) {
     setDeleteOpen(false);
   };
 
-  const timeAgo = getTimeAgo(story.created_at);
+  const timeAgo = getRelativeTimeArabic(story.created_at);
 
   return (
     <>
@@ -64,7 +47,10 @@ export function StoryItem({ story, onDelete }: StoryItemProps) {
               </div>
             )}
           </div>
-          <span className="text-sm font-medium ">{timeAgo}</span>
+          <div className="flex flex-col">
+            <span className="text-sm font-medium text-gray-700">قصة</span>
+            <span className="text-xs text-gray-400">{timeAgo}</span>
+          </div>
         </div>
 
         {/* الجزء الأيسر: زر الحذف */}

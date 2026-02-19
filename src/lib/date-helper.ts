@@ -96,8 +96,5 @@ export function formatDateArabic(dateString: string | Date | null | undefined): 
         year: 'numeric',
         month: 'numeric',
         day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
     });
 }
