@@ -34,6 +34,7 @@ import {
   ShieldOff,
   Bell,
 
+  TicketPercent,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -165,6 +166,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: isAdmin },
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: isAdmin },
     { label: "الإشعارات", icon: Bell, href: "/notifications", show: isAdmin },
+    { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant },
   ];
 
   const mainNavItems = allNavItems.slice(0, 6);
@@ -394,7 +396,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            
+
             <Button
               variant="ghost"
               size="icon"
