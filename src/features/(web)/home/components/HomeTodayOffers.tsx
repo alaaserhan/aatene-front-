@@ -3,27 +3,16 @@
 import React from "react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
-import { Offer } from "../types";
+import { ProductInPageData } from "@/src/features/(web)/product/types"; // Import ProductInPageData
 import { ChevronsLeft } from "lucide-react";
 import Link from "next/link";
 
 interface HomeTodayOffersProps {
-    offers: Offer[];
+    products: ProductInPageData[]; // Changed prop name and type
 }
 
-export default function HomeTodayOffers({ offers }: HomeTodayOffersProps) {
-    if (!offers || offers.length === 0) return null;
-
-    // Flatten products from all offers or pick a strategy. 
-    // The design shows a list of products under "Today's Biggest Offers".
-    // Assuming each offer might contain a list of products or the offer itself is associated with products.
-    // The Offer interface has 'products: ProductInPageData[]'.
-
-    // Let's aggregate products from the first few offers or display them sectioned?
-    // The design just shows a grid of products. I'll take all products from the offers.
-    const allProducts = offers.flatMap(offer => offer.products);
-    const uniqueProducts = Array.from(new Map(allProducts.map(item => [item.id, item])).values());
-
+export default function HomeTodayOffers({ products }: HomeTodayOffersProps) {
+    if (!products || products.length === 0) return null;
 
     return (
         <section className="py-12 bg-gray-50 bg-linear-to-b from-gray-50 to-white" dir="rtl">
@@ -39,7 +28,7 @@ export default function HomeTodayOffers({ offers }: HomeTodayOffersProps) {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-                    {uniqueProducts.slice(0, 5).map((product) => (
+                    {products.slice(0, 5).map((product) => (
                         <ProductCard
                             key={product.id}
                             id={product.id}

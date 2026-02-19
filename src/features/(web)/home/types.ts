@@ -116,24 +116,32 @@ export interface CategoryWithProducts {
     products: ProductInPageData[];
 }
 
+export interface ThisWeekOffers {
+    last_date: string;
+    products: ProductInPageData[];
+}
+
 export interface HomePageResponse {
     status: boolean;
     message: string;
-    banners: Banner[];
+    bannersSliders: Banner[];
     stories: Story[];
-    latestBiggestOffers: Offer[];
+    bannersOffers: Offer[];
     specialServices: Service[];
-    topJob: ServiceRequest | null;
+    bannerJobs: ServiceRequest | null;
     specialMerchants: StoreInPageData[];
     newProducts: ProductInPageData[];
     mostPopularServices: ServiceRequest[];
-    toDayBiggestOffers: Offer[];
-    categoriesWithProducts: CategoryWithProducts[];
-    mostPopularProduct: ProductInPageData;
-    thisWeekBiggestOffers: Offer[];
-    services: Service[];
-    requestedServices: ServiceRequest[];
+    toDayBiggestOffers: ProductInPageData[];
+    secBannerOffers: Offer[];
     toRatedCategories: HomeCategory[];
+    productSelectedForYou: ProductInPageData[];
+    thirdBannerOffers: Offer[];
     productsYouMayLike: ProductInPageData[];
+    thisWeekBiggestOffers: ThisWeekOffers;
+    categoriesWithProducts: CategoryWithProducts[];
+    forthBannerOffers: Offer[] | null;
     latestBlogs: Blog[];
+    mostPopularProducts: ProductInPageData[];
+    requestedServices: ServiceRequest[];
 }

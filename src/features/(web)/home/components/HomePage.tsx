@@ -39,7 +39,7 @@ export default function HomePage() {
     return (
         <div className="min-h-screen">
             {/* Banners Section */}
-            {data?.banners && <HomeBanners banners={data.banners} />}
+            {data?.bannersSliders && <HomeBanners banners={data.bannersSliders} />}
 
             {/* Stories Section */}
             {data?.stories && data.stories.length > 0 && <HomeStories stories={data.stories} />}
@@ -50,7 +50,7 @@ export default function HomePage() {
             )}
 
             {/* Top Job Section */}
-            {data?.topJob && <HomeTopJob topJob={data.topJob} />}
+            {data?.bannerJobs && <HomeTopJob topJob={data.bannerJobs} />}
 
             {data?.specialMerchants && data.specialMerchants.length > 0 && (
                 <HomeSpecialMerchants merchants={data.specialMerchants} />
@@ -73,17 +73,17 @@ export default function HomePage() {
 
             {/* Today's Biggest Offers */}
             {data?.toDayBiggestOffers && data.toDayBiggestOffers.length > 0 && (
-                <HomeTodayOffers offers={data.toDayBiggestOffers} />
+                <HomeTodayOffers products={data.toDayBiggestOffers} />
             )}
 
             {/* Weekly Offers */}
-            {data?.thisWeekBiggestOffers && data.thisWeekBiggestOffers.length > 0 && (
-                <HomeWeeklyOffers offers={data.thisWeekBiggestOffers} />
+            {data?.thisWeekBiggestOffers && data.thisWeekBiggestOffers.products?.length > 0 && (
+                <HomeWeeklyOffers data={data.thisWeekBiggestOffers} />
             )}
 
-            {/* Customized Products (from mostPopularProduct) */}
-            {data?.mostPopularProduct && (
-                <HomeCustomizedProducts products={[data.mostPopularProduct]} />
+            {/* Customized Products (from mostPopularProducts) */}
+            {data?.mostPopularProducts && data.mostPopularProducts.length > 0 && (
+                <HomeCustomizedProducts products={data.mostPopularProducts} />
             )}
 
             {/* Products You May Like */}

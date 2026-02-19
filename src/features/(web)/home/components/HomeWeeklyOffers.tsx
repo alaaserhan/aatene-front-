@@ -2,29 +2,25 @@
 
 import React, { useEffect, useState } from "react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
-import { Offer } from "../types";
+import { ThisWeekOffers } from "../types";
 import Image from "next/image";
 import Link from "next/link";
-import { useLanguage } from "@/src/hooks/use-language";
 
 interface HomeWeeklyOffersProps {
-    offers: Offer[];
+    data: ThisWeekOffers | null;
 }
 
-export default function HomeWeeklyOffers({ offers }: HomeWeeklyOffersProps) {
-    if (!offers || offers.length === 0) return null;
+export default function HomeWeeklyOffers({ data }: HomeWeeklyOffersProps) {
+    if (!data || !data.products || data.products.length === 0) return null;
 
-    const mainOffer = offers[0];
-
-    const allProducts = offers.flatMap(offer =>
-        offer.products.map(product => ({ product, offer }))
-    );
+    const products = data.products;
+    const endDate = data.last_date;
 
     // Show up to 4 products
-    const displayItems = allProducts.slice(0, 4);
+    const displayItems = products.slice(0, 4);
 
     return (
-        <section className="py-8 bg-gray-50" dir="rtl">
+        <section className="py-8 bg-gray-50 bg-linear-to-b from-gray-50 to-white" dir="rtl">
             <MaxWidthWrapper>
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="flex flex-col lg:flex-row">
@@ -32,12 +28,12 @@ export default function HomeWeeklyOffers({ offers }: HomeWeeklyOffersProps) {
                         <div className="w-full lg:w-[300px] p-6 lg:p-8 flex flex-col items-center justify-center gap-6 text-center border-b lg:border-b-0 lg:border-l border-gray-100 shrink-0">
                             <h2 className="text-2xl font-medium">الصفقات والعروض</h2>
 
-                            <CountdownTimer targetDate={mainOffer.end_date} />
+                            <CountdownTimer targetDate={endDate} />
                         </div>
 
                         {/* Left Side: Products Grid */}
                         <div className="flex-1 grid grid-cols-2 md:grid-cols-4 divide-x divide-x-reverse divide-gray-100">
-                            {displayItems.map(({ product, offer }) => (
+                            {displayItems.map((product) => (
                                 <Link
                                     key={product.id}
                                     href={`/products/${product.slug}`}
@@ -56,9 +52,9 @@ export default function HomeWeeklyOffers({ offers }: HomeWeeklyOffersProps) {
                                         {product.name}
                                     </h3>
 
-                                    {offer.value && (
+                                    {product.discount_present > 0 && (
                                         <span className="inline-block bg-[#FFE3E3] text-[#EB001B] text-xs font-medium px-3 pb-0.5 rounded-full" dir="ltr">
-                                            -{parseInt(offer.value)} <span className="text-base">{offer.type === "percentage" ? "%" : "₪"}</span>
+                                            -{product.discount_present}%
                                         </span>
                                     )}
                                 </Link>
