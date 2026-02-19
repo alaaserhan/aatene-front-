@@ -14,10 +14,8 @@ interface HomeWeeklyOffersProps {
 export default function HomeWeeklyOffers({ offers }: HomeWeeklyOffersProps) {
     if (!offers || offers.length === 0) return null;
 
-    // Use the first offer for the countdown
     const mainOffer = offers[0];
 
-    // Flatten products from all offers and attach their offer details
     const allProducts = offers.flatMap(offer =>
         offer.products.map(product => ({ product, offer }))
     );
