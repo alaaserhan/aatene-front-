@@ -4,6 +4,7 @@ import { User } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
 import { Star, MapPin, Crown } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface UserCardProps {
     user: User;
@@ -24,11 +25,16 @@ export default function UserCard({ user, className }: UserCardProps) {
     const coverIndex = user.id ? user.id % USER_COVERS.length : 0;
     const coverImage = USER_COVERS[coverIndex];
 
+    // Use slug if available, otherwise ID
+    const profileLink = `/profile/${user.slug || user.id}`;
+
     return (
-        <div className={cn(
-            "bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col group cursor-pointer hover:shadow-lg transition-all duration-300 w-full max-w-[320px] mx-auto",
-            className
-        )}>
+        <Link
+            href={profileLink}
+            className={cn(
+                "bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col group cursor-pointer hover:shadow-lg transition-all duration-300 w-full max-w-[320px] mx-auto",
+                className
+            )}>
             {/* Cover Image */}
             <div className="relative h-32 w-full bg-gray-100">
                 <Image
@@ -85,6 +91,6 @@ export default function UserCard({ user, className }: UserCardProps) {
 
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }

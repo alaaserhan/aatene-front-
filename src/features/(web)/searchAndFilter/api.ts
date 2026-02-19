@@ -221,6 +221,7 @@ export interface User {
     review_count: string;
     city: City | null;
     is_following: boolean;
+    slug?: string;
 }
 
 export interface UsersSearchResponse extends GenericPaginationResponse {
