@@ -7,12 +7,14 @@ import { CategoryAccordion } from "./CategoryAccordion";
 import { CategoryModal, CategoryFormData } from "./CategoryModal";
 import { AttributeModal } from "./AttributeModal";
 import { ImageViewerModal } from "./ImageViewerModal";
+import { LinkAttributesView } from "./LinkAttributesView";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
-import { Category, Attribute } from "../api";
+import { Category, Attribute, linkAttributesToCategory } from "../api";
 import {
   useGetParentCategories,
+  useGetCategories,
   useGetCategoryOptions,
   useCreateCategory,
   useUpdateCategory,
@@ -33,11 +35,12 @@ import { cn } from "@/src/lib/utils";
 import * as api from "../api";
 import Cookies from "js-cookie";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { Value } from "@radix-ui/react-select";
 
 const ITEMS_PER_PAGE = 10;
 
 type PageMode = "product" | "service";
-type ProductSubMode = "categories" | "attributes";
+type ProductSubMode = "categories" | "attributes" | "link-attributes";
 
 interface OptionToDelete {
   optionId: number;
@@ -88,12 +91,16 @@ export function CategoriesPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [viewerImages, setViewerImages] = useState<string[]>([]);
 
   const activeType = pageMode;
   const isAttributeMode =
     pageMode === "product" && productSubMode === "attributes";
+  const isLinkAttributesMode =
+    pageMode === "product" && productSubMode === "link-attributes";
 
   const queryParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -102,25 +109,41 @@ export function CategoriesPage() {
 
     if (isAttributeMode) {
       if (searchQuery) params.set("title", searchQuery);
-    } else {
+    } else if (!isLinkAttributesMode) {
       params.set("type", activeType);
       if (searchQuery) params.set("name", searchQuery);
     }
     return params;
-  }, [activeType, currentPage, searchQuery, isAttributeMode]);
+  }, [activeType, currentPage, searchQuery, isAttributeMode, isLinkAttributesMode]);
+
+  // For link-attributes mode, get all categories without pagination
+  const allCategoriesParams = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("type", activeType);
+    params.set("per_page", "1000"); // Get all categories
+    // parent - including subcategories
+    return params;
+  }, [activeType]);
 
   const { data: categoriesData, isLoading: categoriesLoading } =
     useGetParentCategories(queryParams, {
-      enabled: !isAttributeMode,
+      enabled: !isAttributeMode && !isLinkAttributesMode,
     });
+  
+  // For link-attributes, use getCategories directly ( parent + sub)
+  const { data: allCategoriesData, isLoading: allCategoriesLoading } =
+    useGetCategories(allCategoriesParams, {
+      enabled: isLinkAttributesMode,
+    });
+    
   const { data: categoryOptionsData } = useGetCategoryOptions();
 
   const { data: attributesData, isLoading: attributesLoading } =
     useGetAttributes(queryParams, {
-      enabled: isAttributeMode,
+      enabled: isAttributeMode || isLinkAttributesMode,
     });
 
-  const isLoading = categoriesLoading || attributesLoading;
+  const isLoading = categoriesLoading || attributesLoading || allCategoriesLoading;
 
   const { mutate: createCategoryMutation, isPending: isCreatingCategory } = useCreateCategory();
   const { mutate: updateCategoryMutation, isPending: isUpdatingCategory } = useUpdateCategory();
@@ -133,6 +156,7 @@ export function CategoriesPage() {
   const { mutate: updateAttributeStatusMutation } = useUpdateAttributeStatus();
 
   const categories = categoriesData?.data || [];
+  const allCategories = allCategoriesData?.data || [];
   const attributes = attributesData?.data || [];
   const totalCategoriesPages = Math.ceil(
     (categoriesData?.recordsFiltered || 0) / ITEMS_PER_PAGE
@@ -147,7 +171,8 @@ export function CategoriesPage() {
 
   const filterOptions = [
     { name: "الفئات", value: "categories" },
-    { name: "السمات", value: "attributes" },
+    { name: "إدارة الخصائص والسمات", value: "attributes" },
+    { name: "تعيين السمات للفئات", value: "link-attributes" },
   ];
 
   const handleAddCategory = () => {
@@ -312,6 +337,20 @@ export function CategoriesPage() {
     setImageViewerOpen(true);
   };
 
+  // handler للحفظ من LinkAttributesView
+  const handleSaveFromView = async (categoryId: number, attributeIds: number[]) => {
+    try {
+      await linkAttributesToCategory(categoryId, { attribute_ids: attributeIds });
+      const category = allCategories.find(c => c.id === categoryId);
+      setSuccessMessage(`تم ربط ${attributeIds.length} سمة بفئة "${category?.name}" بنجاح`);
+      setSuccessModalOpen(true);
+    } catch (error: any) {
+      console.error("Error linking attributes:", error);
+      setErrorMessage(error?.response?.data?.message || "حدث خطأ أثناء ربط السمات بالفئة");
+      setErrorModalOpen(true);
+    }
+  };
+
   const getDeleteModalTexts = () => {
     if (optionToDelete) {
       return {
@@ -405,10 +444,19 @@ export function CategoriesPage() {
                 : "col-span-12"
             )}
           >
-            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-              <div className="relative flex-1 w-full sm:w-auto">
-                <Input
-                  type="text"
+            {/* ✅ جديد: عرض LinkAttributesView عند تحديد التبويب الثالث */}
+            {isLinkAttributesMode ? (
+              <LinkAttributesView
+                categories={allCategories}
+                attributes={attributes}
+                onSave={handleSaveFromView}
+              />
+            ) : (
+              <>
+                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                  <div className="relative flex-1 w-full sm:w-auto">
+                    <Input
+                      type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={
@@ -511,6 +559,8 @@ export function CategoriesPage() {
                 </div>
               )}
             </div>
+              </>
+            )}
           </div>
         </div>
       </main>
@@ -556,6 +606,14 @@ export function CategoriesPage() {
         onClose={() => setSuccessModalOpen(false)}
         title="تمت العملية بنجاح"
         message={successMessage}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        onConfirm={() => setErrorModalOpen(false)}
+        title="حدث خطأ"
+        description={errorMessage}
       />
     </div>
   );

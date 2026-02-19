@@ -110,11 +110,10 @@ export function AttributeModal({
       >
         <DialogHeader className="p-6 pb-4 text-start">
           <DialogTitle className="text-xl font-medium ">
-            {mode === "edit" ? "تعديل السمة" : "إضافة سمة جديدة"}
+            {mode === "edit" ? "عدّل سمات منتجاتك بسهولة" : "إضافة سمة جديدة"}
           </DialogTitle>
           <p className="text-sm text-gray-2 pt-2">
-            أضف سمات جديدة لمنتجاتك مثل اللون، المقاس، الخامة وغيرها لتساعد
-            عملائك على اختيار المنتج المناسب بسهولة.
+            يمكنك تحديث السمات الموجودة أو إضافة سمات جديدة مثل اللون، المقاس، الخامة، الوزن، أو أي تفاصيل أخرى تميز منتجاتك.
           </p>
         </DialogHeader>
 
@@ -184,7 +183,7 @@ export function AttributeModal({
                   جاري الحفظ...
                 </>
               ) : (
-                mode === "edit" ? "حفظ التعديلات" : "إضافة الفئة"
+                mode === "edit" ? "حفظ التعديلات" : "إضافة السمة"
               )}
             </Button>
             <Button

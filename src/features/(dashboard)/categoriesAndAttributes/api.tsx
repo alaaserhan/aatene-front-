@@ -13,6 +13,8 @@ export interface Category {
   parent_id: string | null;
   subCategories: Category[];
   sub_categories_count?: string;
+  attributes?: number[]; 
+  linked_attributes?: Attribute[]; 
 }
 
 export interface CategorySelectOption {
@@ -313,5 +315,44 @@ export const deleteAttribute = async (
   const headers = userType === "merchant" && storeId ? { storeId } : undefined;
 
   const { data } = await api.delete<BaseResponse>(endpoint, { headers });
+  return data;
+};
+
+// --- Category-Attribute Linking Functions ---
+
+export interface CategoryAttributeLinkPayload {
+  attribute_ids: number[];
+}
+
+export interface CategoryAttributesResponse extends BaseResponse {
+  attributes: Attribute[];
+}
+
+// Get attributes linked to a category
+export const getCategoryAttributes = async (
+  categoryId: string | number
+): Promise<CategoryAttributesResponse> => {
+  const endpoint = getDynamicEndpoint(`/categories/${categoryId}/attributes`);
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.get<CategoryAttributesResponse>(endpoint, { headers });
+  return data;
+};
+
+// Link/Update attributes to a category
+export const linkAttributesToCategory = async (
+  categoryId: string | number,
+  payload: CategoryAttributeLinkPayload
+): Promise<BaseResponse> => {
+  const endpoint = getDynamicEndpoint(`/categories/${categoryId}/attributes`);
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.post<BaseResponse>(endpoint, payload, { headers });
   return data;
 };
