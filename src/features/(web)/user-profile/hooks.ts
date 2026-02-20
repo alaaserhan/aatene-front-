@@ -17,7 +17,7 @@ const USER_PROFILE_KEYS = {
     favProducts: (favById: number, page: number) => [...USER_PROFILE_KEYS.all, "favProducts", favById, page] as const,
     reviews: (userId: number, page: number) => [...USER_PROFILE_KEYS.all, "reviews", userId, page] as const,
     replies: (userId: number, reviewId: number) => [...USER_PROFILE_KEYS.all, "replies", userId, reviewId] as const,
-    products: (userId: number, sectionId: number | null, page: number) => [...USER_PROFILE_KEYS.all, "products", userId, sectionId, page] as const,
+    products: (userId: number, sectionId: number | null, page: number, name?: string) => [...USER_PROFILE_KEYS.all, "products", userId, sectionId, page, name] as const,
 };
 
 export const useUserProfile = (slugOrId: string | number) => {
@@ -70,13 +70,14 @@ export const useUserReviewReplies = (userId: number, reviewId: number, options?:
     });
 };
 
-export const useUserProducts = (userId: number, sectionId: number | null, page: number = 1) => {
+export const useUserProducts = (userId: number, sectionId: number | null, page: number = 1, name?: string) => {
     return useQuery({
-        queryKey: USER_PROFILE_KEYS.products(userId, sectionId, page),
+        queryKey: USER_PROFILE_KEYS.products(userId, sectionId, page, name),
         queryFn: () => getUserProducts({
             fav_by_id: userId,
             section_id: sectionId,
             page,
+            name,
         }),
         enabled: !!userId,
     });

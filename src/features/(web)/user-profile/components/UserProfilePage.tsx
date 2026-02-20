@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UserProfile, UserStory, UserFollower } from "../types";
 import Image from "next/image";
-import { Star, PenLine, Loader2, UserPlus, MessageSquare, MoreHorizontal, Plus, Type, Image as ImageIcon } from "lucide-react";
+import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, Type, Image as ImageIcon } from "lucide-react";
 import { useUserProfile, useUserProfilePageData, useUserFavProducts, useUserProducts } from "../hooks";
 import { useParams, useRouter } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
@@ -384,7 +384,18 @@ function FavoritesSection({ userId }: { userId: number }) {
 function ProductsSection({ userId, sections }: { userId: number; sections: { id: number; name: string; products_count: string }[] }) {
     const [selectedSection, setSelectedSection] = useState<number | null>(null);
     const [page, setPage] = useState(1);
-    const { data, isLoading } = useUserProducts(userId, selectedSection, page);
+    const [searchInput, setSearchInput] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchInput);
+            setPage(1);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchInput]);
+
+    const { data, isLoading } = useUserProducts(userId, selectedSection, page, debouncedSearch);
 
     const products = data?.products || [];
     const totalPages = data ? Math.ceil(data.total / 12) : 1;
@@ -398,7 +409,7 @@ function ProductsSection({ userId, sections }: { userId: number; sections: { id:
         <div className="mb-8">
             <h2 className="text-lg font-medium mb-4 text-center" dir="rtl">كل المنتجات</h2>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6" dir="rtl">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6" dir="rtl">
                 <aside className="lg:col-span-1">
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sticky top-4">
                         <h3 className="font-medium mb-3 text-sm border-b border-gray-100 pb-2">المتجر</h3>
@@ -436,7 +447,18 @@ function ProductsSection({ userId, sections }: { userId: number; sections: { id:
                     </div>
                 </aside>
 
-                <div className="lg:col-span-3">
+                <div className="lg:col-span-4 flex flex-col gap-4">
+                    <div className="relative w-full max-w-sm">
+                        <input
+                            type="text"
+                            placeholder="ابحث عن منتج..."
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-3 focus:ring-1 focus:ring-blue-3 transition-colors"
+                        />
+                        <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+
                     {isLoading ? (
                         <div className="flex justify-center p-10">
                             <Loader2 className="animate-spin text-blue-3" />
@@ -447,7 +469,7 @@ function ProductsSection({ userId, sections }: { userId: number; sections: { id:
                         </div>
                     ) : (
                         <>
-                            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4  gap-4">
                                 {products.map((product) => (
                                     <ProductCard
                                         key={product.id}

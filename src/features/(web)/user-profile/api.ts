@@ -42,7 +42,7 @@ export const getUserReviewReplies = async (userId: number, reviewId: number): Pr
     return response.data;
 };
 
-export const getUserProducts = async (params: { fav_by_id: number; section_id?: number | null; page?: number; per_page?: number }): Promise<{ status: boolean; message: string; total: number; products: ProductInPageData[] }> => {
+export const getUserProducts = async (params: { fav_by_id: number; section_id?: number | null; page?: number; per_page?: number; name?: string }): Promise<{ status: boolean; message: string; total: number; products: ProductInPageData[] }> => {
     const response = await api.get(`/products/search`, { params });
     return response.data;
 };
