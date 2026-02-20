@@ -139,6 +139,7 @@ export const useAddToFavorites = () => {
             qc.invalidateQueries({
                 queryKey: QK.favorites.check(variables.favs_type, variables.favs_id),
             });
+            qc.invalidateQueries({ queryKey: ["userProfile"] }); // To trigger FavoritesSection update
         },
     });
 };
@@ -191,6 +192,7 @@ export const useRemoveFromFavorites = () => {
                 queryKey: QK.favorites.check(variables.favs_type, variables.favs_id),
             });
             qc.invalidateQueries({ queryKey: ["favorite-lists", "items"] });
+            qc.invalidateQueries({ queryKey: ["userProfile"] }); // To trigger FavoritesSection update
         },
     });
 };

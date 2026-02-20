@@ -8,20 +8,29 @@ import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/utils";
 
 interface SimpleMediaPickerProps {
-    isOpen: boolean;
-    onClose: () => void;
+    isOpen?: boolean;
+    onClose?: () => void;
     onSelect: (file: File) => void;
     storeId?: string; // Optional, to match signature
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
 }
 
-export function SimpleMediaPicker({ isOpen, onClose, onSelect }: SimpleMediaPickerProps) {
+export function SimpleMediaPicker({ isOpen, onClose, onSelect, open, onOpenChange }: SimpleMediaPickerProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const [dragActive, setDragActive] = useState(false);
+
+    const isModalOpen = isOpen ?? open ?? false;
+
+    const handleClose = () => {
+        if (onClose) onClose();
+        if (onOpenChange) onOpenChange(false);
+    };
 
     const handleFile = (file: File) => {
         if (file && file.type.startsWith("image/")) {
             onSelect(file);
-            onClose();
+            handleClose();
         }
     };
 
@@ -52,8 +61,8 @@ export function SimpleMediaPicker({ isOpen, onClose, onSelect }: SimpleMediaPick
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md">
+        <Dialog open={isModalOpen} onOpenChange={handleClose}>
+            <DialogContent className="sm:max-w-md z-[20000]">
                 <DialogHeader>
                     <DialogTitle className="text-center">رفع صورة</DialogTitle>
                 </DialogHeader>
@@ -84,7 +93,7 @@ export function SimpleMediaPicker({ isOpen, onClose, onSelect }: SimpleMediaPick
                     />
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
-                    <Button variant="outline" onClick={onClose}>
+                    <Button variant="outline" onClick={handleClose}>
                         إلغاء
                     </Button>
                 </div>

@@ -68,7 +68,10 @@ const ProductCard = memo(({
                 />
 
                 {/* Favorite Button - Top Left */}
-                <div className="absolute top-3 left-3 z-10 w-10 h-10 rounded-full bg-[#ffffffc9] flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+                <div
+                    className="absolute top-3 left-3 z-10 w-10 h-10 rounded-full bg-[#ffffffc9] flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                >
                     <FavoriteButton
                         id={id}
                         type={type}

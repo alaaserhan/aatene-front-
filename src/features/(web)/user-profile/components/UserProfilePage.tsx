@@ -1,122 +1,178 @@
 "use client";
 
 import { useState } from "react";
-import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
-import { UserProfile, UserStory } from "../types";
+import { UserProfile, UserStory, UserFollower } from "../types";
 import Image from "next/image";
-import { Star, PenLine, Loader2 } from "lucide-react";
+import { Star, PenLine, Loader2, UserPlus, MessageSquare, MoreHorizontal, Plus, Type, Image as ImageIcon } from "lucide-react";
 import { useUserProfile, useUserProfilePageData, useUserFavProducts, useUserProducts } from "../hooks";
 import { useParams, useRouter } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
 import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
+import { useFollowUserOrStore, useUnfollowUserOrStore, useCreateStory } from "@/src/features/(web)/settings/hooks";
+import { useQueryClient } from "@tanstack/react-query";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
-import { Story } from "@/src/features/(dashboard)/stories/api";
+import { AddStoryModal } from "@/src/features/(dashboard)/stories/components/AddStoryModal";
+import { MediaCenterModal } from "@/src/features/(dashboard)/mediaCenter/components/MediaCenterModal";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu";
+import { CreateStoryPayload, Story } from "@/src/features/(dashboard)/stories/api";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 
-function UserHeader({ user, isOwnProfile }: { user: UserProfile; isOwnProfile: boolean }) {
+function UserHeader({ user, isOwnProfile, followers }: {
+    user: UserProfile;
+    isOwnProfile: boolean;
+    followers: UserFollower[];
+}) {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
 
     const handleFollowToggle = () => {
+        const onSuccess = () => {
+            queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+        };
+
         if (user.am_i_following) {
-            unfollow({ followed_type: "user", followed_id: user.id });
+            unfollow({ followed_type: "user", followed_id: user.id }, { onSuccess });
         } else {
-            follow({ followed_type: "user", followed_id: user.id });
+            follow({ followed_type: "user", followed_id: user.id }, { onSuccess });
         }
     };
 
     return (
-        <div className="relative mb-8">
-            <div className="relative h-48 md:h-56 rounded-t-2xl overflow-hidden bg-gradient-to-r from-blue-4 to-blue-3">
-                {user.cover_url && (
-                    <Image
-                        src={user.cover_url}
-                        alt="cover"
-                        fill
-                        className="object-cover"
-                    />
-                )}
+        <div className="relative mb-8 bg-white shadow-sm border-b border-gray-100 pb-2 md:pb-6">
+            <div className="relative h-32 md:h-[200px] lg:h-[250px] overflow-hidden w-full">
+                <Image
+                    src={user.cover_url || "/background.svg"}
+                    alt="cover"
+                    fill
+                    className="object-cover"
+                />
             </div>
 
-            <div className="bg-white rounded-b-2xl shadow-sm border border-gray-100 border-t-0 px-6 pb-6 pt-4">
-                <div className="flex flex-col md:flex-row items-center md:items-end gap-4 -mt-16 md:-mt-14">
-                    <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg shrink-0 bg-gray-100">
-                        <Image
-                            src={user.avatar_url || "/default-avatar.png"}
-                            alt={user.fullname}
-                            fill
-                            className="object-cover"
-                        />
-                    </div>
+            <div className="container relative">
+                <div className="flex flex-col md:grid md:grid-cols-[max-content_1fr] gap-4 md:gap-8 items-center md:items-start text-center md:text-start">
 
-                    <div className="flex-1 text-center md:text-right mt-2 md:mt-0">
-                        <h1 className="text-xl font-bold">{user.fullname}</h1>
-                        <p className="text-sm text-blue-3">{user.slug}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">فلسطين · الخليل</p>
-                    </div>
-
-                    <div className="flex flex-col items-center gap-1 shrink-0">
-                        <div className="flex items-center gap-0.5">
-                            {[...Array(5)].map((_, i) => (
-                                <Star
-                                    key={i}
-                                    className={cn(
-                                        "w-4 h-4",
-                                        i < Math.round(Number(user.review_rate))
-                                            ? "fill-amber-400 text-amber-400"
-                                            : "fill-gray-200 text-gray-200"
-                                    )}
+                    {/* Column 1: Avatar & Meta Stats */}
+                    <div className="flex flex-col items-center relative -mt-16 md:-mt-[100px] z-10 w-full md:w-auto">
+                        <div className="relative group">
+                            <div className="w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white shadow-sm shrink-0 bg-gray-100 overflow-hidden relative">
+                                <Image
+                                    src={user.avatar_url || "/default-avatar.png"}
+                                    alt={user.fullname}
+                                    fill
+                                    className="object-cover"
                                 />
-                            ))}
+                            </div>
+
                         </div>
-                        <span className="text-xs text-gray-500">( {user.review_count} مراجعة )</span>
-                    </div>
-                </div>
 
-                <div className="flex flex-col md:flex-row items-center justify-between mt-5 gap-4">
-                    {isOwnProfile ? (
-                        <button
-                            onClick={() => router.push("/settings")}
-                            className="flex items-center justify-center gap-2 px-10 py-2.5 border border-blue-3 text-blue-3 rounded-full hover:bg-blue-50 transition-colors cursor-pointer text-sm font-medium"
-                        >
-                            <PenLine className="w-4 h-4" />
-                            تعديل
-                        </button>
-                    ) : (
-                        <button
-                            onClick={handleFollowToggle}
-                            disabled={isFollowing || isUnfollowing}
-                            className={cn(
-                                "flex items-center justify-center gap-2 px-10 py-2.5 rounded-full transition-colors cursor-pointer text-sm font-medium",
-                                user.am_i_following
-                                    ? "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                                    : "bg-blue-4 text-white hover:bg-blue-3"
+                        <div className="flex flex-row md:flex-col items-center justify-center gap-6 md:gap-4 mt-1 md:mt-2 px-2">
+                            {/* Stars */}
+                            <div className="flex flex-col items-center">
+                                <div className="flex items-center gap-1 mb-1">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            className={cn(
+                                                "w-4 h-4 md:w-[18px] md:h-[18px]",
+                                                i < Math.round(Number(user.review_rate))
+                                                    ? "fill-[#FACC15] text-[#FACC15]"
+                                                    : "fill-[#D4D4D8] text-[#D4D4D8]"
+                                            )}
+                                        />
+                                    ))}
+                                </div>
+                                <span className="text-gray-500 text-xs md:text-sm font-medium">( {user.review_count} مراجعة )</span>
+                            </div>
+
+                            {/* Mobile Divider */}
+                            <div className="w-px h-8 bg-gray-200 block md:hidden"></div>
+
+                            {/* Followers */}
+                            <div className="flex items-center gap-3">
+                                <div className="flex -space-x-2 md:-space-x-3 space-x-reverse hidden sm:flex">
+                                    {followers && followers.length > 0 ? (
+                                        followers.slice(0, 3).map((follower, idx) => (
+                                            <div key={follower.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10">
+                                                <Image src={follower.avatar_url || "/default-avatar.png"} fill className="object-cover" alt="follower" />
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100" />
+                                    )}
+                                </div>
+                                <span className="text-gray-500 text-xs md:text-sm font-medium">{user.followers_count || 0} متابع</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Column 2: User Personal Information & Action Buttons */}
+                    <div className="flex flex-col py-2">
+                        <h1 className="text-2xl md:text-3xl font-medium leading-tight mb-1 ">{user.fullname}</h1>
+                        <p className="text-gray-500 text-sm md:text-base font-medium mb-3 md:mb-5">{user.slug}</p>
+
+                        {/* Dynamic Button Action Mapping */}
+                        <div className="flex items-stretch md:items-center justify-center md:justify-start gap-3 flex-1">
+                            {isOwnProfile ? (
+                                <button
+                                    onClick={() => router.push("/settings")}
+                                    className="flex items-center justify-center gap-2 px-12 py-1.5 border border-blue-1 text-blue-4 rounded-full hover:bg-blue-50 transition-colors cursor-pointer text-sm font-medium w-full md:w-auto"
+                                >
+                                    <img src="/icons/dashboard/edit2.svg" alt="" className="w-4" />
+                                    تعديل
+                                </button>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={handleFollowToggle}
+                                        disabled={isFollowing || isUnfollowing}
+                                        className={cn(
+                                            "flex items-center min-w-[100px] justify-center gap-2 px-4 md:px-8 py-2 rounded-full transition-colors cursor-pointer text-sm font-medium flex-1 md:flex-none",
+                                            user.am_i_following
+                                                ? "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                                                : "bg-[#456A8E] text-white hover:bg-[#355A7E]"
+                                        )}
+                                    >
+                                        {(isFollowing || isUnfollowing) ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <UserPlus className="w-4 h-4" />
+                                        )}
+                                        {user.am_i_following ? "إلغاء المتابعة" : "تابع المتجر"}
+                                    </button>
+
+                                    <button className="flex items-center min-w-[100px] justify-center cursor-pointer gap-2 border border-[#456A8E] text-[#456A8E] bg-white px-4 md:px-8 py-2 rounded-full font-medium hover:bg-blue-50 transition-colors text-sm flex-1 md:flex-none">
+                                        <MessageSquare className="w-4 h-4" />
+                                        الدردشة
+                                    </button>
+                                </>
                             )}
-                        >
-                            {(isFollowing || isUnfollowing) && <Loader2 className="w-4 h-4 animate-spin" />}
-                            {user.am_i_following ? "إلغاء المتابعة" : "متابعة"}
-                        </button>
-                    )}
-
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <span className="font-bold">{user.followers_count}</span>
-                        <span>متابع</span>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
     );
 }
 
-function StoriesSection({ stories }: { stories: UserStory[] }) {
+function StoriesSection({ stories, isOwnProfile, onAddStory }: {
+    stories: UserStory[];
+    isOwnProfile: boolean;
+    onAddStory: (mode: "text" | "media") => void;
+}) {
     const [storyModalOpen, setStoryModalOpen] = useState(false);
     const [storyIndex, setStoryIndex] = useState(0);
 
-    if (!stories || stories.length === 0) return null;
+    if (!isOwnProfile && (!stories || stories.length === 0)) return null;
 
     const mappedStories: Story[] = stories.map(s => ({
         id: s.id,
@@ -132,9 +188,51 @@ function StoriesSection({ stories }: { stories: UserStory[] }) {
     };
 
     return (
-        <div className="mb-8">
-            <h2 className="text-lg font-bold mb-4" dir="rtl">أبرز الأحداث</h2>
-            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" dir="rtl">
+        <div className="mb-8 bg-white p-3 rounded-lg border border-gray-100">
+            <h2 className=" font-medium mb-2 px-1 border-b border-gray-100 pb-2" dir="rtl">أبرز الأحداث</h2>
+            <div className="flex gap-4 overflow-x-auto py-2 px-1 scrollbar-hide" dir="rtl">
+                {isOwnProfile && (
+                    <DropdownMenu dir="rtl">
+                        <DropdownMenuTrigger asChild>
+                            <button className="shrink-0 flex flex-col items-center gap-1.5 cursor-pointer group outline-none">
+                                <div className="w-[66px] h-[66px] rounded-full overflow-hidden border-[2.5px] border-[#F05A28] p-0.5 group-hover:scale-105 transition-transform flex items-center justify-center bg-white">
+                                    <div className="w-full h-full rounded-full border border-gray-100 flex items-center justify-center bg-white">
+                                        <Plus className="w-7 h-7 text-[#7352C7]" />
+                                    </div>
+                                </div>
+                                <span className="text-[13px] font-medium text-[#3F3F46]">أضف قصتك</span>
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-56 p-2 rounded-lg border border-gray-200 shadow-none bg-white z-50">
+                            <DropdownMenuItem
+                                onSelect={() => onAddStory("text")}
+                                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg focus:bg-gray-50"
+                            >
+                                <div className="bg-blue-5 p-2 rounded">
+                                    <Type className="w-5 h-5 text-blue-4" />
+                                </div>
+                                <div className="flex flex-col text-right">
+                                    <span className="font-medium text-blue-4 text-sm">نص</span>
+                                    <span className="text-xs text-gray-2 mt-0.5">قم باضافة نص الي قصتك</span>
+                                </div>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
+                                onSelect={() => onAddStory("media")}
+                                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg mt-1 focus:bg-gray-50"
+                            >
+                                <div className="bg-blue-5 p-2 rounded">
+                                    <ImageIcon className="w-5 h-5 text-blue-4" />
+                                </div>
+                                <div className="flex flex-col text-right">
+                                    <span className="font-medium text-blue-4 text-sm">صورة او فيديو</span>
+                                    <span className="text-xs text-gray-2 mt-0.5">قم باضافة صورة او فيديو الي قصتك</span>
+                                </div>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                )}
+
                 {stories.map((story, index) => (
                     <button
                         key={story.id}
@@ -157,12 +255,13 @@ function StoriesSection({ stories }: { stories: UserStory[] }) {
                                         className="w-full h-full object-cover rounded-full"
                                     />
                                 ) : (
-                                    <span className="text-white text-xs font-bold text-center px-1 line-clamp-2">
+                                    <span className="text-white text-xs font-medium text-center px-1 line-clamp-2">
                                         {story.text}
                                     </span>
                                 )}
                             </div>
                         </div>
+                        <span className="text-[13px] font-medium text-[#3F3F46] max-w-[66px] truncate">{story.text || "قصة"}</span>
                     </button>
                 ))}
             </div>
@@ -232,15 +331,21 @@ function FavoritesSection({ userId }: { userId: number }) {
     const { data, isLoading } = useUserFavProducts(userId, page);
 
     const products = data?.products || [];
-    const totalPages = data ? Math.ceil(data.total / 12) : 1;
+    const totalPages = data ? Math.ceil(data.total / 5) : 1;
 
     return (
         <div className="mb-8">
-            <div className="flex items-center justify-between mb-4" dir="rtl">
-                <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold">المفضلة</h2>
-                    {data && <span className="text-xs text-gray-500">يحتوي على {data.total} منتج</span>}
-                </div>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 border-b border-gray-100 pb-3" dir="rtl">
+                <h2 className="md:text-2xl text-xl font-medium  mb-3 sm:mb-0">المفضلة</h2>
+                {totalPages > 1 && (
+                    <div dir="rtl">
+                        <Pagination
+                            totalPages={totalPages}
+                            currentPage={page}
+                            onPageChange={setPage}
+                        />
+                    </div>
+                )}
             </div>
 
             {isLoading ? (
@@ -270,13 +375,6 @@ function FavoritesSection({ userId }: { userId: number }) {
                             />
                         ))}
                     </div>
-                    <div className="mt-6" dir="ltr">
-                        <Pagination
-                            totalPages={totalPages}
-                            currentPage={page}
-                            onPageChange={setPage}
-                        />
-                    </div>
                 </>
             )}
         </div>
@@ -298,18 +396,18 @@ function ProductsSection({ userId, sections }: { userId: number; sections: { id:
 
     return (
         <div className="mb-8">
-            <h2 className="text-lg font-bold mb-4 text-center" dir="rtl">كل المنتجات</h2>
+            <h2 className="text-lg font-medium mb-4 text-center" dir="rtl">كل المنتجات</h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6" dir="rtl">
                 <aside className="lg:col-span-1">
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sticky top-4">
-                        <h3 className="font-bold mb-3 text-sm border-b border-gray-100 pb-2">المتجر</h3>
+                        <h3 className="font-medium mb-3 text-sm border-b border-gray-100 pb-2">المتجر</h3>
                         <ul className="space-y-1">
                             <li>
                                 <button
                                     onClick={() => handleSectionChange(null)}
                                     className={cn(
-                                        "w-full flex items-center justify-between p-2.5 rounded-lg text-sm transition-colors cursor-pointer",
+                                        "w-full flex items-center justify-between p-2 rounded-lg text-sm transition-colors cursor-pointer",
                                         selectedSection === null
                                             ? "bg-blue-50 text-blue-3 font-medium"
                                             : "text-gray-600 hover:bg-gray-50"
@@ -323,7 +421,7 @@ function ProductsSection({ userId, sections }: { userId: number; sections: { id:
                                     <button
                                         onClick={() => handleSectionChange(section.id)}
                                         className={cn(
-                                            "w-full flex items-center justify-between p-2.5 rounded-lg text-sm transition-colors cursor-pointer",
+                                            "w-full flex items-center justify-between p-2 rounded-lg text-sm transition-colors cursor-pointer",
                                             selectedSection === section.id
                                                 ? "bg-blue-50 text-blue-3 font-medium"
                                                 : "text-gray-600 hover:bg-gray-50"
@@ -385,9 +483,28 @@ export default function UserProfilePage() {
     const params = useParams();
     const slugOrId = params.slugOrId as string;
     const authUser = useAuthStore(state => state.user);
+    const queryClient = useQueryClient();
+
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [addMode, setAddMode] = useState<"text" | "media">("text");
+    const { mutate: createStory, isPending: isCreatingStory } = useCreateStory();
 
     const { data: profileData, isLoading: isProfileLoading } = useUserProfile(slugOrId);
     const { data: pageData, isLoading: isPageDataLoading } = useUserProfilePageData(slugOrId);
+
+    const handleOpenAdd = (mode: "text" | "media") => {
+        setAddMode(mode);
+        setIsAddModalOpen(true);
+    };
+
+    const handleCreateStory = (payload: CreateStoryPayload, onSuccess?: () => void) => {
+        createStory(payload, {
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+                onSuccess?.();
+            }
+        });
+    };
 
     if (isProfileLoading || isPageDataLoading) {
         return (
@@ -405,13 +522,22 @@ export default function UserProfilePage() {
     const isOwnProfile = authUser?.id === user.id;
     const stories = pageData?.stories || [];
     const sections = pageData?.sections || [];
+    const followers = pageData?.followers || [];
 
     return (
         <div className="bg-gray-50 min-h-screen pb-20" dir="rtl">
-            <MaxWidthWrapper className="py-6">
-                <UserHeader user={user} isOwnProfile={isOwnProfile} />
+            <UserHeader
+                user={user}
+                isOwnProfile={isOwnProfile}
+                followers={followers}
+            />
+            <div className="container ">
 
-                <StoriesSection stories={stories} />
+                <StoriesSection
+                    stories={stories}
+                    isOwnProfile={isOwnProfile}
+                    onAddStory={handleOpenAdd}
+                />
 
                 <ProfileTabs user={user} />
 
@@ -420,7 +546,16 @@ export default function UserProfilePage() {
                 {sections.length > 0 && (
                     <ProductsSection userId={user.id} sections={sections} />
                 )}
-            </MaxWidthWrapper>
+            </div>
+
+            <AddStoryModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                mode={addMode}
+                onSave={handleCreateStory}
+                isPending={isCreatingStory}
+                MediaPickerComponent={MediaCenterModal}
+            />
         </div>
     );
 }

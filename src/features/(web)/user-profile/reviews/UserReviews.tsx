@@ -82,27 +82,27 @@ export default function UserReviews({ userId }: UserReviewsProps) {
         <div className="space-y-8">
             {statistics && <ReviewStatisticsDisplay stats={statistics} />}
 
-            <ReviewForm
-                ref={formRef}
-                onSubmit={handleSubmit}
-                isSubmitting={isAdding}
-                parentId={replyingTo?.id}
-                replyToName={replyingTo?.name}
-                onCancelReply={() => setReplyingTo(null)}
-            />
 
             <div className="space-y-4">
                 {reviews.map((review) => (
                     <ReviewItemWrapper
-                        key={review.id}
-                        review={review}
-                        userId={userId}
-                        isExpanded={!!expandedReviews[review.id]}
-                        onToggleReplies={handleToggleReplies}
-                        onReply={handleReply}
-                        reportType="comment"
+                    key={review.id}
+                    review={review}
+                    userId={userId}
+                    isExpanded={!!expandedReviews[review.id]}
+                    onToggleReplies={handleToggleReplies}
+                    onReply={handleReply}
+                    reportType="comment"
                     />
                 ))}
+                <ReviewForm
+                    ref={formRef}
+                    onSubmit={handleSubmit}
+                    isSubmitting={isAdding}
+                    parentId={replyingTo?.id}
+                    replyToName={replyingTo?.name}
+                    onCancelReply={() => setReplyingTo(null)}
+                />
             </div>
         </div>
     );

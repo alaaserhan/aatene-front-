@@ -1,7 +1,7 @@
 // src/features/(dashboard)/stories/components/AddStoryModal.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
     Dialog,
     DialogContent,
@@ -10,19 +10,28 @@ import {
     DialogFooter,
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
-import { Story } from "../api";
+import { Story, CreateStoryPayload } from "../api";
+import { MediaItem } from "@/src/features/(dashboard)/mediaCenter/api";
 import { Loader2, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/src/lib/utils";
+
+interface MediaPickerProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSelect: (items: MediaItem | MediaItem[]) => void;
+    allowedMediaTypes?: string[];
+    multiple?: boolean;
+}
 
 interface AddStoryModalProps {
     isOpen: boolean;
     onClose: () => void;
     mode?: "text" | "media";
     storyToEdit?: Story | null;
-    onSave: (payload: any, onSuccess?: () => void) => void;
+    onSave: (payload: CreateStoryPayload, onSuccess?: () => void) => void;
     isPending: boolean;
-    MediaPickerComponent: React.ComponentType<any>;
+    MediaPickerComponent: React.ComponentType<MediaPickerProps>;
 }
 
 const COLORS = [
@@ -56,14 +65,17 @@ export function AddStoryModal({
 
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
-    useEffect(() => {
+    const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+    const [prevStoryToEdit, setPrevStoryToEdit] = useState(storyToEdit);
+
+    if (isOpen !== prevIsOpen || storyToEdit !== prevStoryToEdit) {
+        setPrevIsOpen(isOpen);
+        setPrevStoryToEdit(storyToEdit);
+
         if (isOpen) {
             if (storyToEdit) {
-                // وضع التعديل
                 if (storyToEdit.image) {
                     setCurrentMode("media");
-                    // في حالة التعديل، نفترض أن لدينا الرابط، وسنستخدمه كاسم وكعرض مؤقتاً
-                    // إلا إذا كان هناك منطق آخر لاستخراج اسم الملف
                     setSelectedFile({ name: storyToEdit.image, url: storyToEdit.image });
                     setText("");
                 } else {
@@ -73,14 +85,13 @@ export function AddStoryModal({
                     setSelectedFile(null);
                 }
             } else {
-                // وضع الإضافة
                 setCurrentMode(initialMode);
                 setText("");
                 setSelectedColor(COLORS[0]);
                 setSelectedFile(null);
             }
         }
-    }, [isOpen, storyToEdit, initialMode]);
+    }
 
     const handleSubmit = () => {
         if (currentMode === "text" && !text.trim()) {
@@ -92,9 +103,9 @@ export function AddStoryModal({
             return;
         }
 
-        const payload: any = currentMode === "media"
-            ? { image: selectedFile?.name }
-            : { text, color: selectedColor };
+        const payload: CreateStoryPayload = currentMode === "media"
+            ? { image: selectedFile?.name || null, text: null, color: null }
+            : { text, color: selectedColor, image: null };
 
         onSave(payload, () => {
             onClose();
@@ -105,8 +116,8 @@ export function AddStoryModal({
         <Dialog open={isOpen} onOpenChange={onClose}>
             {/* ✅ تم رفع z-index ليكون أعلى من ShowStoryModal */}
             <DialogContent className="sm:max-w-[500px] bg-white p-0 gap-0 overflow-hidden rounded-lg z-[10000]" dir="rtl">
-                <DialogHeader className="p-4 border-b border-gray-100 flex flex-row items-center justify-between space-y-0">
-                    <DialogTitle className="text-lg font-bold  w-full text-right">
+                <DialogHeader className="p-4 border-b border-gray-100">
+                    <DialogTitle className="text-lg font-bold w-full text-right">
                         {storyToEdit ? "تعديل القصة" : (currentMode === "text" ? "انشاء قصة نصية" : "انشاء قصة مصورة")}
                     </DialogTitle>
                 </DialogHeader>
@@ -127,7 +138,7 @@ export function AddStoryModal({
                                     value={text}
                                     onChange={(e) => setText(e.target.value)}
                                     placeholder="أكتب ما تري"
-                                    className="w-full h-full bg-transparent text-white text-center text-2xl font-bold placeholder-white/70 border-none outline-none resize-none p-6 flex items-center justify-center pt-[50%]"
+                                    className="w-full h-full bg-transparent text-white text-center text-2xl font-bold placeholder-white/70 border-none outline-none resize-none p-6 flex flex-col items-center justify-center min-h-[400px]"
                                     dir="auto"
                                     maxLength={300}
                                 />
@@ -148,33 +159,35 @@ export function AddStoryModal({
                                 </div>
                             </>
                         ) : (
-                            <div className="w-full h-full relative group flex flex-col items-center justify-center">
+                            <div className="w-full h-full min-h-[400px] relative group flex flex-col items-center justify-center">
                                 {selectedFile ? (
                                     <>
                                         <img
                                             src={selectedFile.url}
                                             alt="Story Preview"
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full absolute inset-0 object-cover"
                                         />
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 cursor-pointer" onClick={() => setIsMediaModalOpen(true)}>
                                             <Button
                                                 variant="default"
-
-                                                onClick={() => setIsMediaModalOpen(true)}
+                                                className="pointer-events-none"
                                             >
-                                                <ImageIcon className="w-4 h-4" />
+                                                <ImageIcon className="w-4 h-4 ml-2" />
                                                 تغيير الصورة
                                             </Button>
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="flex flex-col items-center gap-4">
+                                    <div
+                                        className="flex flex-col items-center gap-4 cursor-pointer z-10 w-full h-full justify-center"
+                                        onClick={() => setIsMediaModalOpen(true)}
+                                    >
                                         <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">
-                                            <ImageIcon className="w-8 h-8 text-white/50 cursor-pointer" onClick={() => setIsMediaModalOpen(true)} />
+                                            <ImageIcon className="w-8 h-8 text-white/50" />
                                         </div>
                                         <Button
                                             variant="outline"
-                                            onClick={() => setIsMediaModalOpen(true)}
+                                            className="pointer-events-none text-gray-800"
                                         >
                                             اختر صورة
                                         </Button>
@@ -206,12 +219,14 @@ export function AddStoryModal({
             <MediaPickerComponent
                 open={isMediaModalOpen}
                 onOpenChange={setIsMediaModalOpen}
-                onSelect={(items: any) => {
+                onSelect={(items: MediaItem | MediaItem[]) => {
                     const item = Array.isArray(items) ? items[0] : items;
-                    setSelectedFile({
-                        name: item.file_name || item.name, // Handle different property names (Dashboard vs Web)
-                        url: item.src || item.url || URL.createObjectURL(item), // Handle different property names
-                    });
+                    if (item) {
+                        setSelectedFile({
+                            name: item.file_name,
+                            url: item.src || item.url,
+                        });
+                    }
                     setIsMediaModalOpen(false);
                 }}
                 allowedMediaTypes={["image"]}

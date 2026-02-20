@@ -39,7 +39,7 @@ export const useUserProfilePageData = (slugOrId: string | number) => {
 export const useUserFavProducts = (favById: number, page: number = 1) => {
     return useQuery({
         queryKey: USER_PROFILE_KEYS.favProducts(favById, page),
-        queryFn: () => getUserFavProducts({ fav_by_id: favById, page }),
+        queryFn: () => getUserFavProducts({ fav_by_id: favById, page, per_page: 5 }),
         enabled: !!favById,
     });
 };

@@ -28,6 +28,8 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
         const containerRef = useRef<HTMLDivElement>(null);
         const textareaRef = useRef<HTMLTextAreaElement>(null);
         const user = useAuthStore((state) => state.user);
+        console.log(user);
+
 
         useImperativeHandle(ref, () => ({
             scrollToForm: () => {
