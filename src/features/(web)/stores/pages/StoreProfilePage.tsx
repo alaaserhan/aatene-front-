@@ -4,6 +4,9 @@ import { useStoreProfile, useStorePageData } from "../hooks";
 import StoreHeader from "../components/StoreHeader";
 import StoreStoriesSection from "../components/StoreStoriesSection";
 import StoreTabs from "../components/StoreTabs";
+import StoreProductsSection from "../components/StoreProductsSection";
+import StoreFavoritesSection from "../components/StoreFavoritesSection";
+import { ProductInPageData } from "@/src/features/(web)/product/types";
 import { Loader2 } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 
@@ -52,6 +55,9 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
                     )}
 
                     <StoreTabs store={store} />
+
+                    <StoreFavoritesSection products={pageData?.highlights as unknown as ProductInPageData[]} />
+                    <StoreProductsSection storeId={store.id} sections={pageData?.sections || []} />
                 </div>
             </MaxWidthWrapper>
         </div>
