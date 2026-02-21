@@ -1,0 +1,400 @@
+"use client";
+
+import { useRef, useState } from "react";
+import Image from "next/image";
+import { StoreProfile } from "../api";
+import { cn } from "@/src/lib/utils";
+import {
+    Loader2,
+    Star,
+    Clock,
+    Heart,
+    ShoppingBag,
+    Calendar,
+    MessageSquare,
+    Flag,
+} from "lucide-react";
+import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../hooks";
+import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
+import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
+import { MediaViewer } from "@/src/components/ui/MediaViewer";
+import { ReviewStatisticsDisplay } from "@/src/features/(web)/product/components/ReviewStatisticsDisplay";
+import { ReviewStatistics } from "@/src/features/(web)/product/api";
+import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
+
+type TabKey = "overview" | "reviews" | "discounts" | "offers";
+
+interface StoreTabsProps {
+    store: StoreProfile;
+}
+
+export default function StoreTabs({ store }: StoreTabsProps) {
+    const [activeTab, setActiveTab] = useState<TabKey>("overview");
+
+    const tabs: { key: TabKey; label: string }[] = [
+        { key: "overview", label: "نظره عامة" },
+        { key: "reviews", label: "تقييمات المتجر" },
+        { key: "discounts", label: "تخفيضات" },
+        { key: "offers", label: "عروض" },
+    ];
+
+    return (
+        <div className="mt-6 overflow-hidden bg-white rounded-lg border border-gray-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]">
+            <div className="flex items-center border-b border-gray-200 overflow-x-auto scrollbar-hide">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.key}
+                        onClick={() => setActiveTab(tab.key)}
+                        className={`flex-1 py-4 cursor-pointer text-center font-medium text-sm transition-all duration-300 relative whitespace-nowrap px-4 ${activeTab === tab.key
+                            ? "text-blue-3 bg-[#F8F7FF]"
+                            : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                            }`}
+                    >
+                        {tab.label}
+                        {activeTab === tab.key && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-4" />
+                        )}
+                    </button>
+                ))}
+            </div>
+
+            <div className="p-4 md:p-6 min-h-[300px]">
+                {activeTab === "overview" && (
+                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                        <OverviewTab store={store} />
+                    </div>
+                )}
+                {activeTab === "reviews" && (
+                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                        <StoreReviewsSection
+                            slug={store.slug}
+                            summary={{ count: Number(store.review_count) || 0, rate: Number(store.review_rate) || 0 }}
+                        />
+                    </div>
+                )}
+                {activeTab === "discounts" && (
+                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                        <div className="text-center py-10 bg-gray-50 rounded-lg">
+                            <p className="text-gray-500">لا توجد تخفيضات حالياً</p>
+                        </div>
+                    </div>
+                )}
+                {activeTab === "offers" && (
+                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                        <div className="text-center py-10 bg-gray-50 rounded-lg">
+                            <p className="text-gray-500">لا توجد عروض حالياً</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function OverviewTab({ store }: { store: StoreProfile }) {
+    return (
+        <div className="flex flex-col lg:flex-row gap-6" dir="rtl">
+            {/* Right Side: Store Owner Card */}
+            <div className="w-full lg:w-[280px] shrink-0 order-1 lg:order-2">
+                {/* Store Shortcuts */}
+                <div className="mb-2 bg-white border border-[#e0dfdc] rounded-lg p-2">
+                    <h4 className="text-sm font-medium text-blue-4 mb-3">اختصارات المتجر:</h4>
+                    <div className="flex items-center gap-3">
+                        {store.tiktok && (
+                            <a href={store.tiktok} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                <Image src="/icons/tiktok.svg" alt="tiktok" width={16} height={16} />
+                            </a>
+                        )}
+                        {store.instagram && (
+                            <a href={store.instagram} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                <Image src="/icons/instagram.svg" alt="instagram" width={16} height={16} />
+                            </a>
+                        )}
+                        {store.facebook && (
+                            <a href={store.facebook} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                <Image src="/icons/facebook.svg" alt="facebook" width={16} height={16} />
+                            </a>
+                        )}
+                        {store.twitter && (
+                            <a href={store.twitter} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                <Image src="/icons/twitter.svg" alt="twitter" width={16} height={16} />
+                            </a>
+                        )}
+                    </div>
+                </div>
+                <StoreOwnerCard store={store} />
+
+            </div>
+
+            {/* Left Side: Description + Stats */}
+            <div className="flex-1 flex flex-col gap-6 order-2 lg:order-1">
+                {/* Description */}
+                <div
+                    className="prose prose-lg max-w-none text-gray-700 leading-relaxed font-sans text-sm"
+                    dangerouslySetInnerHTML={{ __html: store.description || "<p>لا يوجد وصف</p>" }}
+                />
+
+                {/* Stats Row */}
+                <div className="flex items-start gap-4 lg:gap-6 flex-wrap mt-4">
+                    <StoreStatItem
+                        icon={<Clock className="w-5 h-5 text-green-500" />}
+                        label="مواعيد العمل"
+                        value={store.open_status === "open" ? "مفتوح الآن" : "مغلق"}
+                        sub="1PM - 9PM"
+                        color={store.open_status === "open" ? "text-green-600" : "text-red-500"}
+                    />
+                    <StoreStatItem
+                        icon={<Heart className="w-5 h-5 text-red-400" />}
+                        label="مشاركه"
+                        value={String(store.followers_count || 0)}
+                    />
+                    <StoreStatItem
+                        icon={<ShoppingBag className="w-5 h-5 text-blue-4" />}
+                        label="الطلبات"
+                        value={String(store.products_count || store.services_count || 0)}
+                    />
+                    <StoreStatItem
+                        icon={<Calendar className="w-5 h-5 text-gray-500" />}
+                        label="عضو منذ"
+                        value="2017"
+                    />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function StoreOwnerCard({ store }: { store: StoreProfile }) {
+    const ownerName = typeof store.owner === "object" && store.owner !== null
+        ? ((store.owner as { first_name?: string; last_name?: string }).first_name || "") + " " + ((store.owner as { first_name?: string; last_name?: string }).last_name || "")
+        : store.name;
+    const ownerAvatar = typeof store.owner === "object" && store.owner !== null
+        ? (store.owner as { avatar_url?: string }).avatar_url || store.logo_url
+        : store.logo_url;
+
+    return (
+        <div className="bg-white border border-[#e0dfdc] rounded-lg p-4 flex flex-col items-center gap-4">
+            <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100">
+                <Image
+                    src={ownerAvatar || "/default-avatar.png"}
+                    alt={ownerName}
+                    fill
+                    className="object-cover"
+                />
+            </div>
+            <div className="flex flex-col items-center gap-1">
+                <h3 className="text-[17px] font-medium text-[#4d4d4d] capitalize">
+                    {ownerName}
+                </h3>
+                <div className="flex items-center gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                        <Star
+                            key={i}
+                            size={11}
+                            className={cn(
+                                i < Math.round(Number(store.review_rate || 0))
+                                    ? "fill-[#FB923C] text-[#FB923C]"
+                                    : "fill-gray-200 text-gray-200"
+                            )}
+                        />
+                    ))}
+                </div>
+            </div>
+            <p className="text-xs text-gray-2 leading-[17px] text-center">
+                {store.description?.slice(0, 150) || "لا يوجد وصف"}
+            </p>
+            <div className="flex items-center gap-2 w-full">
+                <button className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer">
+                    <MessageSquare size={13} />
+                    تواصل مع البائع
+                </button>
+                <ReportAbuse type="store" id={store.id}>
+                    <button className="flex cursor-pointer items-center justify-center gap-1 border border-[#b75959] text-[#b75959] rounded-full px-4 h-[25px] text-[11px] font-medium whitespace-nowrap">
+                        <Flag size={13} />
+                        ابلغ عن إساءة
+                    </button>
+                </ReportAbuse>
+            </div>
+        </div>
+    );
+}
+
+
+
+function StoreStatItem({ icon, label, value, sub, color }: {
+    icon: React.ReactNode;
+    label: string;
+    value: string;
+    sub?: string;
+    color?: string;
+}) {
+    return (
+        <div className="flex flex-col items-center text-center gap-2 min-w-[80px]">
+            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+                {icon}
+            </div>
+            <span className="text-xs text-gray-500">{label}</span>
+            <span className={cn("text-sm font-semibold", color || "text-gray-800")}>{value}</span>
+            {sub && <span className="text-[11px] text-gray-400">{sub}</span>}
+        </div>
+    );
+}
+
+function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count: number; rate: number } }) {
+    const formRef = useRef<ReviewFormRef>(null);
+    const [parentId, setParentId] = useState<number | null>(null);
+    const [replyToName, setReplyToName] = useState<string | null>(null);
+    const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
+    const [mediaViewerState, setMediaViewerState] = useState<{
+        isOpen: boolean;
+        media: string[];
+        index: number;
+    }>({ isOpen: false, media: [], index: 0 });
+
+    const { data, isLoading } = useGetStoreReviews(slug);
+    const { mutate: addReview, isPending } = useAddStoreReview();
+
+    const handleReply = (id: number, userName: string) => {
+        setParentId(id);
+        setReplyToName(userName);
+        formRef.current?.scrollToForm();
+        formRef.current?.focusTextarea();
+    };
+
+    const handleCancelReply = () => {
+        setParentId(null);
+        setReplyToName(null);
+    };
+
+    const handleSubmit = (formData: { content: string; rate: number; images: File[]; parent_id?: number | null }) => {
+        return new Promise<void>((resolve, reject) => {
+            addReview(
+                { slug, payload: { content: formData.content, rate: String(formData.rate), images: formData.images, parent_id: formData.parent_id } },
+                {
+                    onSuccess: () => {
+                        setParentId(null);
+                        setReplyToName(null);
+                        if (formData.parent_id) {
+                            setExpandedReplies((prev) => new Set(prev).add(formData.parent_id!));
+                        }
+                        resolve();
+                    },
+                    onError: () => reject(),
+                }
+            );
+        });
+    };
+
+    const handleToggleReplies = (reviewId: number) => {
+        setExpandedReplies((prev) => {
+            const next = new Set(prev);
+            if (next.has(reviewId)) {
+                next.delete(reviewId);
+            } else {
+                next.add(reviewId);
+            }
+            return next;
+        });
+    };
+
+    const openMedia = (media: string[], index: number = 0) => {
+        setMediaViewerState({ isOpen: true, media, index });
+    };
+
+    if (isLoading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin text-blue-3" /></div>;
+
+    const reviews = data?.reviews || [];
+    let statistics: ReviewStatistics | undefined;
+    if (data?.rate_stats) {
+        statistics = {
+            total_reviews: data.total || 0,
+            average_rate: Number(data.avg_rate) || 0,
+            stars: data.rate_stats
+        };
+    } else if (summary.count > 0) {
+        statistics = {
+            total_reviews: summary.count,
+            average_rate: summary.rate,
+            stars: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+        };
+    }
+
+    return (
+        <div className="space-y-6">
+            {statistics && (
+                <ReviewStatisticsDisplay stats={statistics} />
+            )}
+
+            {reviews.length > 0 ? (
+                <div className="space-y-4">
+                    {reviews.map((review) => (
+                        <StoreReviewWithReplies
+                            key={review.id}
+                            review={review as unknown as SharedReview}
+                            slug={slug}
+                            onOpenMedia={openMedia}
+                            onReply={handleReply}
+                            showReplies={expandedReplies.has(review.id)}
+                            onToggleReplies={handleToggleReplies}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center py-10 bg-gray-50 rounded-lg">
+                    <p className="text-gray-500">لا توجد مراجعات بعد</p>
+                </div>
+            )}
+
+            {mediaViewerState.isOpen && (
+                <MediaViewer
+                    isOpen={mediaViewerState.isOpen}
+                    onClose={() => setMediaViewerState((prev) => ({ ...prev, isOpen: false }))}
+                    media={mediaViewerState.media}
+                    initialIndex={mediaViewerState.index}
+                />
+            )}
+
+            <ReviewForm
+                ref={formRef}
+                onSubmit={handleSubmit}
+                isSubmitting={isPending}
+                parentId={parentId}
+                replyToName={replyToName}
+                onCancelReply={handleCancelReply}
+            />
+        </div>
+    );
+}
+
+function StoreReviewWithReplies({
+    review,
+    slug,
+    onOpenMedia,
+    onReply,
+    showReplies,
+    onToggleReplies,
+}: {
+    review: SharedReview;
+    slug: string;
+    onOpenMedia: (media: string[], index: number) => void;
+    onReply: (id: number, userName: string) => void;
+    showReplies: boolean;
+    onToggleReplies: (id: number) => void;
+}) {
+    const { data: repliesData, isLoading: loadingReplies } = useGetStoreReviewReplies(
+        showReplies ? slug : "",
+        showReplies ? review.id : 0
+    );
+
+    return (
+        <ReviewItem
+            review={review}
+            onOpenMedia={onOpenMedia}
+            onReply={onReply}
+            showReplies={showReplies}
+            onToggleReplies={onToggleReplies}
+            replies={repliesData?.reviews as unknown as SharedReview[]}
+            isLoadingReplies={loadingReplies}
+        />
+    );
+}

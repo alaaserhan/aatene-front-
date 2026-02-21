@@ -1,4 +1,66 @@
 import api from "@/src/lib/axios";
+import { ProductInPageData } from "../product/types"; // Import Product type
+
+export interface StoreProfile {
+    id: number;
+    slug: string;
+    name: string;
+    type: string;
+    logo: string;
+    logo_url: string;
+    cover: string[] | null;
+    cover_urls: string[] | null;
+    services_count: string | null;
+    products_count: string | null;
+    approved_services_count: string | null;
+    pending_services_count: string | null;
+    rejected_services_count: string | null;
+    views_count: string | null;
+    conversations_count: string | null;
+    status: string;
+    description: string;
+    address: string;
+    review_rate: string;
+    review_count: string;
+    followers_count: string | number;
+    am_i_following: boolean;
+    is_favorite: boolean;
+    lng: string | null;
+    lat: string | null;
+    email: string;
+    owner_id: string;
+    delivery_type: string;
+    owner: unknown;
+    currency_id: string;
+    currency: unknown;
+    city_id: string | null;
+    district_id: string | null;
+    phone: string;
+    hide_phone: string;
+    whats_app: string;
+    tiktok: string | null;
+    facebook: string | null;
+    instagram: string | null;
+    twitter: string | null;
+    youtube: string | null;
+    linkedin: string | null;
+    pinterest: string | null;
+    open_status: string;
+    workingtimes: unknown[];
+}
+
+export interface StorePageData {
+    stories: unknown[];
+    highlights: unknown[];
+    coupons: unknown[];
+    offers: unknown[];
+    sections: {
+        id: number;
+        name: string;
+        products_count: string;
+        store_id: string;
+    }[];
+}
 
 export interface StoreReviewUser {
     name: string;
@@ -86,5 +148,25 @@ export const getStoreReviews = async (slug: string, page: number = 1): Promise<G
 
 export const getStoreReviewReplies = async (slug: string, id: number): Promise<GetStoreReviewsResponse> => {
     const { data } = await api.get<GetStoreReviewsResponse>(`/reviews/store/${slug}/${id}`);
+    return data;
+};
+
+export const getStoreProfile = async (slug: string): Promise<{ status: boolean; message: string; store: StoreProfile }> => {
+    const { data } = await api.get(`/stores/${slug}`);
+    return data;
+};
+
+export const getStorePageData = async (slug: string): Promise<{ status: boolean; message: string; } & StorePageData> => {
+    const { data } = await api.get(`/stores/${slug}/pageData`);
+    return data;
+};
+
+export const getStoreProducts = async (params: { store_id: number; section_id?: number | null; page?: number; per_page?: number; name?: string }): Promise<{ status: boolean; message: string; total: number; products: ProductInPageData[] }> => {
+    const { data } = await api.get(`/products/search`, { params });
+    return data;
+};
+
+export const getStoreServices = async (params: { store_id: number; section_id?: number | null; page?: number; per_page?: number; name?: string }): Promise<{ status: boolean; message: string; total: number; services: unknown[] }> => {
+    const { data } = await api.get(`/services/search`, { params });
     return data;
 };

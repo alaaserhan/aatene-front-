@@ -5,6 +5,7 @@ import { Store } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
 import { ArrowRight, ShieldCheck, UserPlus } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 import { useFollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 
@@ -28,12 +29,24 @@ const StoreCard = memo(({
     const [followed, setFollowed] = useState(isFollowing || store.am_i_following);
     const { mutate: follow, isPending } = useFollowUserOrStore();
 
+    const router = useRouter();
+
+    const handleCardClick = () => {
+        if (onVisitClick) {
+            onVisitClick(store.slug);
+        } else {
+            router.push(`/store/${store.slug}`);
+        }
+    };
 
     return (
-        <div className={cn(
-            "bg-white  h-full rounded-lg border border-gray-100 overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300",
-            className
-        )}>
+        <div
+            onClick={handleCardClick}
+            className={cn(
+                "bg-white h-full rounded-lg border border-gray-100 overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300 cursor-pointer",
+                className
+            )}
+        >
             {/* Cover Image */}
             <div className="relative h-48 w-full bg-gray-200">
                 <Image
@@ -42,7 +55,7 @@ const StoreCard = memo(({
                     fill
                     className="object-cover"
                     onError={() => {
-                        setImgSrc("https://placehold.co/600x400/f3f4f6/9ca3af?text=Store");
+                        setImgSrc("/placeholder.png");
                     }}
                 />
             </div>
@@ -87,7 +100,11 @@ const StoreCard = memo(({
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onVisitClick?.(store.slug);
+                                if (onVisitClick) {
+                                    onVisitClick(store.slug);
+                                } else {
+                                    router.push(`/store/${store.slug}`);
+                                }
                             }}
                             className="w-full py-3 px-4 rounded-lg text-sm bg-gray-50 text-blue-4 font-medium flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors cursor-pointer"
                         >

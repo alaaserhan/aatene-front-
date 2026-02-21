@@ -9,6 +9,10 @@ import {
     getStoreReviews,
     getStoreReviewReplies,
     AddStoreReviewPayload,
+    getStoreProfile,
+    getStorePageData,
+    getStoreProducts,
+    getStoreServices,
 } from "./api";
 
 export const useAddStoreReview = () => {
@@ -40,5 +44,37 @@ export const useGetStoreReviewReplies = (slug: string, id: number) => {
         queryKey: ["storeReviewReplies", slug, id],
         queryFn: () => getStoreReviewReplies(slug, id),
         enabled: !!slug && !!id,
+    });
+};
+
+export const useStoreProfile = (slug: string) => {
+    return useApiQuery({
+        queryKey: ["storeProfile", slug],
+        queryFn: () => getStoreProfile(slug),
+        enabled: !!slug,
+    });
+};
+
+export const useStorePageData = (slug: string) => {
+    return useApiQuery({
+        queryKey: ["storePageData", slug],
+        queryFn: () => getStorePageData(slug),
+        enabled: !!slug,
+    });
+};
+
+export const useStoreProducts = (storeId: number, sectionId: number | null, page: number = 1, name?: string) => {
+    return useApiQuery({
+        queryKey: ["storeProducts", storeId, sectionId, page, name],
+        queryFn: () => getStoreProducts({ store_id: storeId, section_id: sectionId, page, name }),
+        enabled: !!storeId,
+    });
+};
+
+export const useStoreServices = (storeId: number, sectionId: number | null, page: number = 1, name?: string) => {
+    return useApiQuery({
+        queryKey: ["storeServices", storeId, sectionId, page, name],
+        queryFn: () => getStoreServices({ store_id: storeId, section_id: sectionId, page, name }),
+        enabled: !!storeId,
     });
 };
