@@ -175,7 +175,7 @@ export default function MobileNav() {
                           <span className="font-medium">المقارنات</span>
                         </div>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <ChevronLeft size={16} className="text-gray-2" />
+                           <img src="/icons/Compare.svg" alt="" className="h-7 w-7" />
                         </div>
                       </Link>
 

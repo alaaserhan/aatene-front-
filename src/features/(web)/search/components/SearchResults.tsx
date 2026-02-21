@@ -27,7 +27,7 @@ export default function SearchResults({
     currentPage,
     onPageChange,
     isLoading = false,
-    perPage = 12,
+    perPage = 5,
 }: SearchResultsProps) {
     const totalPages = Math.ceil(total / perPage);
     const startItem = (currentPage - 1) * perPage + 1;

@@ -32,7 +32,7 @@ interface FilterState {
     variation_options?: number[];
 }
 
-const PER_PAGE = 12;
+const PER_PAGE = 5;
 
 export default function SearchResultsPage() {
     const searchParams = useSearchParams();
