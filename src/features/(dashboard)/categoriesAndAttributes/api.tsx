@@ -328,31 +328,62 @@ export interface CategoryAttributesResponse extends BaseResponse {
   attributes: Attribute[];
 }
 
-// Get attributes linked to a category
+
 export const getCategoryAttributes = async (
   categoryId: string | number
 ): Promise<CategoryAttributesResponse> => {
-  const endpoint = getDynamicEndpoint(`/categories/${categoryId}/attributes`);
+  const params = new URLSearchParams({ category_id: String(categoryId), per_page: "1000" });
+  const response = await getAttributes(params);
+  
+  const attrs: Attribute[] = response.data ?? [];
+  return { ...response, attributes: attrs } as unknown as CategoryAttributesResponse;
+};
+
+
+export const addAttributeToCategory = async (
+  categoryId: string | number,
+  attributeId: number
+): Promise<BaseResponse> => {
+  const endpoint = getDynamicEndpoint(`/categories/${categoryId}/add-attribute`);
   const userType = Cookies.get("user_type");
   const storeId = Cookies.get("current_store_id");
 
   const headers = userType === "merchant" && storeId ? { storeId } : undefined;
 
-  const { data } = await api.get<CategoryAttributesResponse>(endpoint, { headers });
+  const { data } = await api.post<BaseResponse>(endpoint, { attribute_id: attributeId }, { headers });
   return data;
 };
 
-// Link/Update attributes to a category
-export const linkAttributesToCategory = async (
+
+export const removeAttributeFromCategory = async (
   categoryId: string | number,
-  payload: CategoryAttributeLinkPayload
+  attributeId: number
 ): Promise<BaseResponse> => {
-  const endpoint = getDynamicEndpoint(`/categories/${categoryId}/attributes`);
+  const endpoint = getDynamicEndpoint(`/categories/${categoryId}/remove-attribute`);
   const userType = Cookies.get("user_type");
   const storeId = Cookies.get("current_store_id");
 
   const headers = userType === "merchant" && storeId ? { storeId } : undefined;
 
-  const { data } = await api.post<BaseResponse>(endpoint, payload, { headers });
+  const { data } = await api.post<BaseResponse>(endpoint, { attribute_id: attributeId }, { headers });
   return data;
+};
+
+export const linkAttributesToCategory = async (
+  categoryId: string | number,
+  payload: CategoryAttributeLinkPayload,
+  previousAttributeIds: number[] = []
+): Promise<BaseResponse> => {
+  const newIds = new Set(payload.attribute_ids);
+  const oldIds = new Set(previousAttributeIds);
+
+  const toAdd = payload.attribute_ids.filter(id => !oldIds.has(id));
+  const toRemove = previousAttributeIds.filter(id => !newIds.has(id));
+
+  const addPromises = toAdd.map(id => addAttributeToCategory(categoryId, id));
+  const removePromises = toRemove.map(id => removeAttributeFromCategory(categoryId, id));
+
+  await Promise.all([...addPromises, ...removePromises]);
+
+  return { success: true, message: "تم تحديث السمات بنجاح" } as unknown as BaseResponse;
 };

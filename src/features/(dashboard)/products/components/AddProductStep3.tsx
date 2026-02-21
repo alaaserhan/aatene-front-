@@ -103,7 +103,13 @@ export function AddProductStep3({
 
     const { mutate: updateAttribute } = useUpdateAttribute();
 
-    const queryParams = useMemo(() => new URLSearchParams("per_page=100&is_active=1"), []);
+    const queryParams = useMemo(() => {
+        const p = new URLSearchParams("per_page=100&is_active=1");
+        if (previousData?.category_id) {
+            p.set("category_id", String(previousData.category_id));
+        }
+        return p;
+    }, [previousData?.category_id]);
     const { data: attributesData } = useGetAttributes(queryParams);
 
     const allAttributes = useMemo(() => attributesData?.data || [], [attributesData]);

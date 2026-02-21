@@ -11,7 +11,7 @@ import { LinkAttributesView } from "./LinkAttributesView";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
-import { Category, Attribute, linkAttributesToCategory } from "../api";
+import { Category, Attribute } from "../api";
 import {
   useGetParentCategories,
   useGetCategories,
@@ -98,9 +98,9 @@ export function CategoriesPage() {
 
   const activeType = pageMode;
   const isAttributeMode =
-    pageMode === "product" && productSubMode === "attributes";
+    isAdmin && pageMode === "product" && productSubMode === "attributes";
   const isLinkAttributesMode =
-    pageMode === "product" && productSubMode === "link-attributes";
+    isAdmin && pageMode === "product" && productSubMode === "link-attributes";
 
   const queryParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -116,7 +116,7 @@ export function CategoriesPage() {
     return params;
   }, [activeType, currentPage, searchQuery, isAttributeMode, isLinkAttributesMode]);
 
-  // For link-attributes mode, get all categories without pagination
+
   const allCategoriesParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("type", activeType);
@@ -130,11 +130,22 @@ export function CategoriesPage() {
       enabled: !isAttributeMode && !isLinkAttributesMode,
     });
   
-  // For link-attributes, use getCategories directly ( parent + sub)
+  
   const { data: allCategoriesData, isLoading: allCategoriesLoading } =
     useGetCategories(allCategoriesParams, {
       enabled: isLinkAttributesMode,
     });
+
+  
+  const allAttributesParams = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("per_page", "1000");
+    return params;
+  }, []);
+
+  const { data: allAttributesData } = useGetAttributes(allAttributesParams, {
+    enabled: isLinkAttributesMode,
+  });
     
   const { data: categoryOptionsData } = useGetCategoryOptions();
 
@@ -158,6 +169,7 @@ export function CategoriesPage() {
   const categories = categoriesData?.data || [];
   const allCategories = allCategoriesData?.data || [];
   const attributes = attributesData?.data || [];
+  const allAttributes = allAttributesData?.data || [];
   const totalCategoriesPages = Math.ceil(
     (categoriesData?.recordsFiltered || 0) / ITEMS_PER_PAGE
   );
@@ -171,8 +183,10 @@ export function CategoriesPage() {
 
   const filterOptions = [
     { name: "الفئات", value: "categories" },
-    { name: "إدارة الخصائص والسمات", value: "attributes" },
-    { name: "تعيين السمات للفئات", value: "link-attributes" },
+    ...(isAdmin ? [
+      { name: "إدارة الخصائص والسمات", value: "attributes" },
+      { name: "تعيين السمات للفئات", value: "link-attributes" },
+    ] : []),
   ];
 
   const handleAddCategory = () => {
@@ -337,10 +351,9 @@ export function CategoriesPage() {
     setImageViewerOpen(true);
   };
 
-  // handler للحفظ من LinkAttributesView
-  const handleSaveFromView = async (categoryId: number, attributeIds: number[]) => {
+  
+  const handleSaveFromView = async (categoryId: number, attributeIds: number[], previousAttributeIds: number[]) => {
     try {
-      await linkAttributesToCategory(categoryId, { attribute_ids: attributeIds });
       const category = allCategories.find(c => c.id === categoryId);
       setSuccessMessage(`تم ربط ${attributeIds.length} سمة بفئة "${category?.name}" بنجاح`);
       setSuccessModalOpen(true);
@@ -444,11 +457,11 @@ export function CategoriesPage() {
                 : "col-span-12"
             )}
           >
-            {/* ✅ جديد: عرض LinkAttributesView عند تحديد التبويب الثالث */}
+          
             {isLinkAttributesMode ? (
               <LinkAttributesView
                 categories={allCategories}
-                attributes={attributes}
+                attributes={allAttributes}
                 onSave={handleSaveFromView}
               />
             ) : (
