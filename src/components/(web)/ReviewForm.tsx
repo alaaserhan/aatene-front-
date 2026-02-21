@@ -28,7 +28,6 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
         const containerRef = useRef<HTMLDivElement>(null);
         const textareaRef = useRef<HTMLTextAreaElement>(null);
         const user = useAuthStore((state) => state.user);
-        console.log(user);
 
 
         useImperativeHandle(ref, () => ({
@@ -65,8 +64,8 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
         };
 
         return (
-            <div ref={containerRef} className="bg-[#AAAAAA1A] border border-gray-200 rounded-xl p-6 flex gap-5">
-                <div className="relative w-[52px] h-[52px] rounded-full overflow-hidden shrink-0">
+            <div ref={containerRef} className="bg-[#AAAAAA1A] border border-gray-200 rounded-xl p-4 sm:p-6 flex gap-3 sm:gap-5 w-full overflow-hidden">
+                <div className="relative w-10 h-10 sm:w-[52px] sm:h-[52px] rounded-full overflow-hidden shrink-0">
                     <Image
                         src={user?.avatar_url || "/assets/images/placeholder.jpg"}
                         alt="user"
@@ -74,9 +73,9 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
                         className="object-cover"
                     />
                 </div>
-                <div className="flex-1 flex flex-col gap-6">
+                <div className="flex-1 flex flex-col gap-4 sm:gap-6 min-w-0">
                     {parentId && replyToName && (
-                        <div className="flex items-center justify-between text-sm bg-blue-5 text-blue-4 px-3 py-2 rounded-lg border border-blue-100">
+                        <div className="flex items-center justify-between text-sm bg-blue-5 text-blue-4 px-3 py-2 rounded-lg border border-blue-100 flex-wrap gap-2">
                             <span className="font-medium">الرد على {replyToName}</span>
                             <button
                                 type="button"
@@ -136,17 +135,17 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
                         />
                     </div>
 
-                    <div className={`flex items-center ${parentId ? "justify-end" : "justify-between"} w-full`}>
+                    <div className={`flex flex-col sm:flex-row items-start sm:items-center gap-4 ${parentId ? "justify-end" : "justify-between"} w-full mt-2`}>
                         {!parentId && (
-                            <div className="flex items-center gap-4">
-                                <span className="text-sm">تقييماتك:</span>
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                                <span className="text-sm whitespace-nowrap">تقييماتك:</span>
                                 <InteractiveStarRating rating={rate} onRate={setRate} />
                             </div>
                         )}
                         <button
                             onClick={handleSafeSubmit}
                             disabled={isSubmitting}
-                            className="bg-blue-3 text-white rounded-full px-4 py-2 flex items-center gap-1 font-medium text-sm cursor-pointer capitalize disabled:opacity-50"
+                            className="bg-blue-3 text-white rounded-full px-6 py-2 flex items-center justify-center gap-1 font-medium text-sm cursor-pointer capitalize disabled:opacity-50 shrink-0 w-full sm:w-auto self-end sm:self-auto"
                         >
                             {parentId ? "إرسال الرد" : "ارسال"}    <ChevronLeft size={20} />
                         </button>

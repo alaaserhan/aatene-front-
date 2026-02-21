@@ -335,10 +335,10 @@ function FavoritesSection({ userId }: { userId: number }) {
 
     return (
         <div className="mb-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 border-b border-gray-100 pb-3" dir="rtl">
-                <h2 className="md:text-2xl text-xl font-medium  mb-3 sm:mb-0">المفضلة</h2>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-4 border-b border-gray-100 pb-3" dir="rtl">
+                <h2 className="text-2xl  font-medium mb-3 sm:mb-0 w-full sm:w-auto text-right">المفضلة</h2>
                 {totalPages > 1 && (
-                    <div dir="rtl">
+                    <div dir="rtl" className="hidden sm:block">
                         <Pagination
                             totalPages={totalPages}
                             currentPage={page}
@@ -375,6 +375,15 @@ function FavoritesSection({ userId }: { userId: number }) {
                             />
                         ))}
                     </div>
+                    {totalPages > 1 && (
+                        <div className="mt-6 flex justify-center sm:hidden" dir="rtl">
+                            <Pagination
+                                totalPages={totalPages}
+                                currentPage={page}
+                                onPageChange={setPage}
+                            />
+                        </div>
+                    )}
                 </>
             )}
         </div>
@@ -406,25 +415,26 @@ function ProductsSection({ userId, sections }: { userId: number; sections: { id:
     };
 
     return (
-        <div className="mb-8">
-            <h2 className="text-lg font-medium mb-4 text-center" dir="rtl">كل المنتجات</h2>
+        <div className="my-8 mt-16">
+            <h2 className=" text-2xl font-medium mb-4 " dir="rtl">كل المنتجات</h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6" dir="rtl">
                 <aside className="lg:col-span-1">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sticky top-4">
-                        <h3 className="font-medium mb-3 text-sm border-b border-gray-100 pb-2">المتجر</h3>
-                        <ul className="space-y-1">
+                    <div className="bg-white rounded-lg border border-gray-200 p-5 sticky top-4">
+                        <h3 className="font-medium mb-5 text-base border-none pb-0">أقسام المتجر</h3>
+                        <ul className="space-y-4">
                             <li>
                                 <button
                                     onClick={() => handleSectionChange(null)}
                                     className={cn(
-                                        "w-full flex items-center justify-between p-2 rounded-lg text-sm transition-colors cursor-pointer",
+                                        "w-full flex items-center justify-between transition-colors cursor-pointer",
                                         selectedSection === null
-                                            ? "bg-blue-50 text-blue-3 font-medium"
-                                            : "text-gray-600 hover:bg-gray-50"
+                                            ? "text-blue-3 font-medium border-r-2 border-blue-3 pr-2 bg-transparent"
+                                            : "text-gray-600 hover:text-gray-900 font-medium border-r-2 border-transparent pr-2 bg-transparent"
                                     )}
                                 >
-                                    <span>الكل</span>
+                                    <span className="text-[15px]">الكل</span>
+                                    <span className="text-[15px]" dir="ltr">({sections.reduce((acc, s) => acc + Number(s.products_count || 0), 0)})</span>
                                 </button>
                             </li>
                             {sections.map(section => (
@@ -432,14 +442,14 @@ function ProductsSection({ userId, sections }: { userId: number; sections: { id:
                                     <button
                                         onClick={() => handleSectionChange(section.id)}
                                         className={cn(
-                                            "w-full flex items-center justify-between p-2 rounded-lg text-sm transition-colors cursor-pointer",
+                                            "w-full flex items-center justify-between transition-colors cursor-pointer",
                                             selectedSection === section.id
-                                                ? "bg-blue-50 text-blue-3 font-medium"
-                                                : "text-gray-600 hover:bg-gray-50"
+                                                ? "text-blue-3 font-medium border-r-2 border-blue-3 pr-2 bg-transparent"
+                                                : "text-gray-600 hover:text-gray-900 font-medium border-r-2 border-transparent pr-2 bg-transparent"
                                         )}
                                     >
-                                        <span>{section.name}</span>
-                                        <span className="bg-gray-100 px-2 py-0.5 rounded-full text-xs">{section.products_count}</span>
+                                        <span className="text-[15px]">{section.name}</span>
+                                        <span className="text-[15px]" dir="ltr">({section.products_count})</span>
                                     </button>
                                 </li>
                             ))}
@@ -448,15 +458,18 @@ function ProductsSection({ userId, sections }: { userId: number; sections: { id:
                 </aside>
 
                 <div className="lg:col-span-4 flex flex-col gap-4">
-                    <div className="relative w-full max-w-sm">
+                    <div className="relative w-full bg-white rounded-full">
                         <input
                             type="text"
                             placeholder="ابحث عن منتج..."
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-3 focus:ring-1 focus:ring-blue-3 transition-colors"
+                            className="w-full pr-4 py-3 border border-blue-4 rounded-full text-sm focus:outline-none focus:border-blue-3 focus:ring-1 focus:ring-blue-3 transition-colors"
                         />
-                        <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <div className="w-8 h-8 bg-blue-4 rounded-full  absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none flex  items-center justify-center">
+
+                            <Search className="w-5 h-5 text-white" />
+                        </div>
                     </div>
 
                     {isLoading ? (
