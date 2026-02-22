@@ -192,6 +192,17 @@ export async function createNotification(payload: CreateNotificationPayload) {
   return data;
 }
 
+export async function updateNotification(
+  id: number | string,
+  payload: CreateNotificationPayload
+) {
+  const { data } = await api.put<CreateNotificationResponse>(
+    getDynamicEndpoint(`/notifications-management/${id}`),
+    payload
+  );
+  return data;
+}
+
 export async function deleteNotification(id: number) {
   const { data } = await api.delete<{ status: boolean; message: string }>(
     getDynamicEndpoint(`/notifications-management/${id}`)

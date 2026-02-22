@@ -4,6 +4,7 @@ import {
   getNotifications,
   getNotification,
   createNotification,
+  updateNotification,
   deleteNotification,
   cancelNotification,
   resendNotification,
@@ -16,6 +17,7 @@ import {
   NotificationTemplatesParams,
   UpdateNotificationTemplatePayload,
   SingleNotificationResponse,
+  CreateNotificationPayload,
 } from "./api";
 
 export function useNotifications(params: NotificationsParams) {
@@ -37,6 +39,16 @@ export function useCreateNotification() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createNotification,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}
+
+export function useUpdateNotification() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number | string; payload: CreateNotificationPayload }) => updateNotification(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },

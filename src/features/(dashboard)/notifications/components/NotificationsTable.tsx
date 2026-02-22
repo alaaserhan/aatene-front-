@@ -11,13 +11,15 @@ import { toast } from "sonner";
 import { cn } from "@/src/lib/utils";
 import { formatDate, toLocal } from "@/src/lib/date-helper";
 import { format } from "date-fns";
+import Image from "next/image";
 
 interface NotificationsTableProps {
     data: NotificationModel[];
     isLoading: boolean;
+    onEdit?: (notification: NotificationModel) => void;
 }
 
-export function NotificationsTable({ data, isLoading }: NotificationsTableProps) {
+export function NotificationsTable({ data, isLoading, onEdit }: NotificationsTableProps) {
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -143,12 +145,15 @@ export function NotificationsTable({ data, isLoading }: NotificationsTableProps)
                                                 className="p-2 cursor-pointer bg-red-2 text-red-500 rounded-md hover:bg-red-100 transition-colors"
                                                 disabled={isDeleting}
                                             >
-                                                <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
+                                                <Image src="/icons/dashboard/trash.svg" width={16} height={16} className="w-4 h-4" alt="" />
                                             </button>
 
                                             {row.status === "draft" && (
-                                                <button className="p-2 cursor-pointer bg-blue-50 text-blue-500 rounded-md hover:bg-blue-100 transition-colors">
-                                                    <img src="/icons/dashboard/edit.svg" className="w-4 h-4" alt="" />
+                                                <button
+                                                    onClick={() => onEdit?.(row)}
+                                                    className="p-2 cursor-pointer bg-blue-50 text-blue-500 rounded-md hover:bg-blue-100 transition-colors"
+                                                >
+                                                    <Image src="/icons/dashboard/edit.svg" width={16} height={16} className="w-4 h-4" alt="" />
                                                 </button>
                                             )}
 
@@ -230,7 +235,10 @@ export function NotificationsTable({ data, isLoading }: NotificationsTableProps)
                                     </button>
 
                                     {row.status === "draft" && (
-                                        <button className="p-2 cursor-pointer bg-blue-50 text-blue-500 rounded-md hover:bg-blue-100 transition-colors">
+                                        <button
+                                            onClick={() => onEdit?.(row)}
+                                            className="p-2 cursor-pointer bg-blue-50 text-blue-500 rounded-md hover:bg-blue-100 transition-colors"
+                                        >
                                             <Edit className="w-4 h-4" />
                                         </button>
                                     )}

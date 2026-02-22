@@ -18,8 +18,8 @@ import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { cn } from "@/src/lib/utils";
 import { useInfiniteGetStores } from "@/src/features/(dashboard)/stores/hooks";
 import { useInfiniteGetUsers } from "@/src/features/(dashboard)/users/hooks";
-import { useCreateNotification } from "@/src/features/(dashboard)/notifications/hooks";
-import { SendToOption, ExceptTypeOption, SendTypeOption, CreateNotificationPayload } from "../api";
+import { useCreateNotification, useUpdateNotification } from "@/src/features/(dashboard)/notifications/hooks";
+import { SendToOption, ExceptTypeOption, SendTypeOption, CreateNotificationPayload, NotificationModel } from "../api";
 import { toast } from "sonner";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 
@@ -29,6 +29,7 @@ interface CreateNotificationModalProps {
     isOpen: boolean;
     onClose: () => void;
     defaultSendType?: SendTypeOption;
+    initialData?: NotificationModel | null;
 }
 
 type StepId = 1 | 2 | 3;
@@ -218,19 +219,23 @@ function InfiniteMultiSelect({
 
 // --- Main Modal Component ---
 
+const DEFAULT_NOTIFICATION_CONTENT = `مرحبًا عميلنا العزيز {client} 🌟،
+لديك خصم بقيمة {percent}% بانتظارك! 🛍️  
+ويوجد {Cart_number} منتج في سلتك لم تكمل الطلب عليه بعد.   سارع بإتمام الطلب قبل انتهاء العرض!  
+📦 اطلب الآن عبر: {link}`;
+
 export function CreateNotificationModal({
     isOpen,
     onClose,
     defaultSendType = "apps",
+    initialData
 }: CreateNotificationModalProps) {
     const [currentStep, setCurrentStep] = useState<StepId>(1);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const { mutate: createNotification, isPending } = useCreateNotification();
+    const { mutate: createNotification, isPending: isCreating } = useCreateNotification();
+    const { mutate: updateNotification, isPending: isUpdating } = useUpdateNotification();
 
-    const DEFAULT_NOTIFICATION_CONTENT = `مرحبًا عميلنا العزيز {client} 🌟،
-لديك خصم بقيمة {percent}% بانتظارك! 🛍️  
-ويوجد {Cart_number} منتج في سلتك لم تكمل الطلب عليه بعد.   سارع بإتمام الطلب قبل انتهاء العرض!  
-📦 اطلب الآن عبر: {link}`;
+    const isPending = isCreating || isUpdating;
 
     const [formData, setFormData] = useState<NotificationFormData>({
         title: "",
@@ -252,12 +257,41 @@ export function CreateNotificationModal({
     useEffect(() => {
         if (isOpen) {
             setCurrentStep(1);
-            setFormData(prev => ({
-                ...prev,
-                sendTypes: [defaultSendType],
-            }));
+            if (initialData) {
+                setFormData({
+                    title: initialData.title || "",
+                    content: initialData.body || initialData.message || "",
+                    sendMethod: initialData.send_time === "later" ? "scheduled" : initialData.send_time === "now" ? "immediate" : "draft",
+                    scheduledDate: initialData.scheduled_at_formatted || "",
+                    sendTypes: initialData.send_types || [defaultSendType],
+                    sendTo: initialData.send_to || [],
+                    selectedStores: initialData.stores?.map(s => ({ id: s.id.toString(), name: s.name })) || [],
+                    includeSpecificPersons: !!(initialData.target_users && initialData.target_users.length > 0),
+                    selectedPersons: initialData.target_users?.map(u => ({ id: u.id.toString(), name: u.name })) || [],
+                    excludeOrderedBefore: initialData.except_types?.includes("contact_store_before") || false,
+                    excludeAddedToFav: initialData.except_types?.includes("add_products_to_fav") || false,
+                    excludeManual: initialData.except_types?.includes("manual") || false,
+                    excludedPersons: initialData.except_users?.map(u => ({ id: u.id.toString(), name: u.name })) || [],
+                });
+            } else {
+                setFormData({
+                    title: "",
+                    content: DEFAULT_NOTIFICATION_CONTENT,
+                    sendMethod: "immediate",
+                    scheduledDate: "",
+                    sendTypes: [defaultSendType],
+                    sendTo: [],
+                    selectedStores: [],
+                    includeSpecificPersons: false,
+                    selectedPersons: [],
+                    excludeOrderedBefore: false,
+                    excludeAddedToFav: false,
+                    excludeManual: false,
+                    excludedPersons: [],
+                });
+            }
         }
-    }, [isOpen, defaultSendType]);
+    }, [isOpen, defaultSendType, initialData]);
 
     const updateFormData = (updates: Partial<NotificationFormData>) => {
         setFormData((prev) => ({ ...prev, ...updates }));
@@ -356,15 +390,27 @@ export function CreateNotificationModal({
         if (exceptUserIds.length > 0) payload.except_user_ids = exceptUserIds;
 
         // Call API
-        createNotification(payload, {
-            onSuccess: () => {
-                setShowSuccessModal(true);
-            },
-            onError: (error) => {
-                console.error(error);
-                toast.error("حدث خطأ اثناء انشاء الاشعار");
-            }
-        });
+        if (initialData) {
+            updateNotification({ id: initialData.id, payload }, {
+                onSuccess: () => {
+                    setShowSuccessModal(true);
+                },
+                onError: (error) => {
+                    console.error(error);
+                    toast.error("حدث خطأ اثناء تحديث الاشعار");
+                }
+            });
+        } else {
+            createNotification(payload, {
+                onSuccess: () => {
+                    setShowSuccessModal(true);
+                },
+                onError: (error) => {
+                    console.error(error);
+                    toast.error("حدث خطأ اثناء انشاء الاشعار");
+                }
+            });
+        }
     };
 
     // --- Render Steps ---
@@ -768,7 +814,7 @@ export function CreateNotificationModal({
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="max-w-xl p-0 overflow-hidden text-right" dir="rtl">
                 <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-5">
-                    <DialogTitle className="text-lg font-semibold text-gray-900">اضافة اشعار</DialogTitle>
+                    <DialogTitle className="text-lg font-semibold text-gray-900">{initialData ? "تعديل اشعار" : "اضافة اشعار"}</DialogTitle>
                 </div>
 
                 <div className="p-6 py-0">
@@ -784,7 +830,7 @@ export function CreateNotificationModal({
                 <div className="p-4 bg-gray-50 flex items-center justify-end gap-3 border-t border-gray-100">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2 rounded-md bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors"
+                        className="px-6 py-2 rounded-md bg-gray-100 text-sm text-gray-700 font-medium hover:bg-gray-200 transition-colors"
                         disabled={isPending}
                     >
                         الغاء
@@ -792,7 +838,7 @@ export function CreateNotificationModal({
 
                     {currentStep < 3 ? (
                         <button
-                            className="px-6 py-2 rounded-md bg-blue-3 text-white font-medium hover:bg-blue-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-6 py-2 rounded-md bg-blue-3 text-sm text-white font-medium hover:bg-blue-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={handleNext}
                             disabled={!canProceed()}
                         >
@@ -800,7 +846,7 @@ export function CreateNotificationModal({
                         </button>
                     ) : (
                         <button
-                            className="px-6 py-2 rounded-md bg-blue-3 text-white font-medium hover:bg-blue-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-6 py-2 rounded-md bg-blue-3 text-sm text-white font-medium hover:bg-blue-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={handleSubmit}
                             disabled={!isStep3Valid() || isPending}
                         >
@@ -816,8 +862,8 @@ export function CreateNotificationModal({
                     setShowSuccessModal(false);
                     onClose();
                 }}
-                title="تم إنشاء الإشعار بنجاح"
-                message="تمت جدولة/إرسال الإشعار بنجاح إلى الفئات المحددة"
+                title={initialData ? "تم تعديل الإشعار بنجاح" : "تم إنشاء الإشعار بنجاح"}
+                message="تمت العملية بنجاح"
             />
         </Dialog>
     );

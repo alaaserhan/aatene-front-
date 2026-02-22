@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Filter, Bell } from "lucide-react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { NotificationsTable } from "./NotificationsTable";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { NotificationTemplatesTable } from "./NotificationTemplatesTable";
@@ -10,7 +11,7 @@ import { useNotifications, useNotificationTemplates } from "../hooks";
 import { SendTypeOption } from "../api";
 import { cn } from "@/src/lib/utils";
 import { CreateTemplateModal } from "./CreateTemplateModal";
-import { NotificationTemplate } from "../api";
+import { NotificationTemplate, NotificationModel } from "../api";
 
 const TABS = [
     { id: "apps", label: "الاشعارات" },
@@ -22,15 +23,24 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 export function NotificationsPage() {
-    // Default to 'apps' as per user request to start with valid tab if needed, or 'apps' is the first one.
-    // The previous code had "notifications" which might be invalid if not in TABS. 
-    // TABS have ids: "apps", "sms", "email", "templates". 
-    // So distinct state is better.
-    const [activeTab, setActiveTab] = useState<TabId>("apps");
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    const tabParam = searchParams.get("tab") as TabId;
+    const activeTab = TABS.some(t => t.id === tabParam) ? tabParam : "apps";
+
+    const setActiveTab = (id: TabId) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("tab", id);
+        router.push(`${pathname}?${params.toString()}`);
+    };
+
     const [filterStatus, setFilterStatus] = useState("");
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
     const [editingTemplate, setEditingTemplate] = useState<NotificationTemplate | null>(null);
+    const [editingNotification, setEditingNotification] = useState<NotificationModel | null>(null);
 
     const isTemplates = activeTab === "templates";
 
@@ -67,7 +77,7 @@ export function NotificationsPage() {
                                     <button
                                         onClick={() => setActiveTab(tab.id)}
                                         className={cn(
-                                            "text-sm font-semibold h-full flex items-center transition-colors cursor-pointer border-b-2  py-2 sm:py-0",
+                                            "text-sm font-semibold h-full flex items-center transition-colors cursor-pointer border-b-2  py-2 sm:py-1",
                                             activeTab === tab.id
                                                 ? "text-blue-3 border-blue-3"
                                                 : "text-gray-2 border-transparent hover:text-blue-3"
@@ -86,6 +96,7 @@ export function NotificationsPage() {
                                 setEditingTemplate(null);
                                 setIsTemplateModalOpen(true);
                             } else {
+                                setEditingNotification(null);
                                 setIsCreateModalOpen(true);
                             }
                         }}
@@ -113,6 +124,10 @@ export function NotificationsPage() {
                         <NotificationsTable
                             data={notificationsData?.data || []}
                             isLoading={isLoadingNotifications}
+                            onEdit={(notification) => {
+                                setEditingNotification(notification);
+                                setIsCreateModalOpen(true);
+                            }}
                         />
                     )}
                 </div>
@@ -120,8 +135,12 @@ export function NotificationsPage() {
                 {/* Create Modal */}
                 <CreateNotificationModal
                     isOpen={isCreateModalOpen}
-                    onClose={() => setIsCreateModalOpen(false)}
+                    onClose={() => {
+                        setIsCreateModalOpen(false);
+                        setEditingNotification(null);
+                    }}
                     defaultSendType={activeTab === 'templates' ? 'email' : activeTab as SendTypeOption}
+                    initialData={editingNotification}
                 />
 
                 <CreateTemplateModal
