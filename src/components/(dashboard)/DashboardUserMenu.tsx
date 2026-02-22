@@ -127,7 +127,7 @@ export function DashboardUserMenu() {
                         </AvatarFallback>
                     </Avatar>
                     <div className="hidden lg:flex flex-col items-start">
-                        <span className="text-sm font-semibold text-blue-3">
+                        <span className="text-sm font-semibold text-blue-3 truncate block max-w-[140px]">
                             {user?.fullname || "المستخدم"}
                         </span>
                         <span className="text-[10px] px-2 py-0.5 rounded-full mt-0.5 border border-blue-3 text-blue-3">

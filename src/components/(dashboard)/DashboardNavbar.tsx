@@ -317,8 +317,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 lg:gap-4">
-            <Button
+          <div className="flex items-center gap-2 lg:gap-3">
+            {/* <Button
               variant="ghost"
               size="icon"
               className="rounded-lg hover:bg-white/20"
@@ -326,7 +326,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               onClick={() => router.push(`${navPrefix}/search`)}
             >
               <img src="/icons/search.svg" className="w-5 h-5" alt="search" />
-            </Button>
+            </Button> */}
 
             <Button
               variant="ghost"
@@ -336,7 +336,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               asChild
             >
               <Link href={`/chat`}>
-                <img src="/icons/chat.svg" className="w-5 h-5" alt="chat" />
+                <img src="/icons/dashboard/chat3.svg" className="w-5 h-5" alt="chat" />
               </Link>
             </Button>
 
