@@ -76,6 +76,7 @@ export interface Product {
   cross_sells_name?: string | null;
   cross_sells_description?: string | null;
   cross_sells_image?: string | null;
+  cross_sells_image_url?: string | null;
   crossSells?: CrossSellProduct[];
   tags?: string[];
   variations?: Variation[];

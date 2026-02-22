@@ -137,7 +137,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             cross_sells_name: product.cross_sells_name || "",
             cross_sells_description: product.cross_sells_description || "",
             cross_sells_image: product.cross_sells_image || "",
-            cross_sells_image_preview: product.cross_sells_image || "",
+            cross_sells_image_preview: product.cross_sells_image_url || "",
             hasDiscount: Number(product.cross_sells_price) > 0,
           },
         };
