@@ -44,7 +44,7 @@ export interface Step3FormData {
 export interface RelatedProduct {
   id: number;
   name: string;
-  cover_url: string | null; 
+  cover_url: string | null;
   category_name: string;
   price: number;
 }
@@ -55,6 +55,10 @@ export interface Step4FormData {
   cross_sells_price: number;
   cross_sells_due_date: string;
   hasDiscount: boolean;
+  cross_sells_name?: string;
+  cross_sells_description?: string;
+  cross_sells_image?: string;
+  cross_sells_image_preview?: string;
 }
 
 export interface CompleteProductFormData {
@@ -70,5 +74,5 @@ export interface KnowledgeFile {
   id: string;
   name: string;
   status: KnowledgeFileStatus;
-  last_trained: string; 
+  last_trained: string;
 }

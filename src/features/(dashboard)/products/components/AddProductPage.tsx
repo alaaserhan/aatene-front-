@@ -83,15 +83,15 @@ export function AddProductPage() {
     }
   }, []);
 
-  const handleSaveDraft = (currentStepData?: any) => {
+  const handleSaveDraft = (currentStepData?: Step1FormData | Step2FormData | Step3FormData | Step4FormData | null) => {
     try {
       const dataToSave = { ...formData };
 
       if (currentStepData) {
-        if (currentStep === 1) dataToSave.step1 = currentStepData;
-        if (currentStep === 2) dataToSave.step2 = currentStepData;
-        if (currentStep === 3) dataToSave.step3 = currentStepData;
-        if (currentStep === 4) dataToSave.step4 = currentStepData;
+        if (currentStep === 1) dataToSave.step1 = currentStepData as Step1FormData;
+        if (currentStep === 2) dataToSave.step2 = currentStepData as Step2FormData;
+        if (currentStep === 3) dataToSave.step3 = currentStepData as Step3FormData;
+        if (currentStep === 4) dataToSave.step4 = currentStepData as Step4FormData;
         setFormData(dataToSave);
       }
 

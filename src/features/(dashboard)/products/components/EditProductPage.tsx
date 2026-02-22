@@ -45,12 +45,15 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<CompleteProductFormData | null>(null);
   const [mappingError, setMappingError] = useState(false);
+  const [prevProductData, setPrevProductData] = useState<unknown>(null);
   const generateAIMutation = useGenerateProductAI();
   const isGeneratingAI = generateAIMutation.isPending;
   const [lastGeneratedInput, setLastGeneratedInput] = useState<{ title: string; description: string; short_description: string } | null>(null);
   const [aiKeywords, setAiKeywords] = useState<string[]>([]);
 
-  useEffect(() => {
+  if (productData && productData !== prevProductData) {
+    setPrevProductData(productData);
+
     const responseData = productData as unknown as { record?: ApiProduct; data?: ApiProduct };
     const product = responseData?.record || responseData?.data;
 
@@ -131,6 +134,10 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             crossSellsData: crossSellsData,
             cross_sells_price: Number(product.cross_sells_price) || 0,
             cross_sells_due_date: product.cross_sells_due_date || "",
+            cross_sells_name: product.cross_sells_name || "",
+            cross_sells_description: product.cross_sells_description || "",
+            cross_sells_image: product.cross_sells_image || "",
+            cross_sells_image_preview: product.cross_sells_image || "",
             hasDiscount: Number(product.cross_sells_price) > 0,
           },
         };
@@ -139,10 +146,15 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       } catch (error) {
         console.error(error);
         setMappingError(true);
-        toast.error("حدث خطأ أثناء معالجة بيانات المنتج");
       }
     }
-  }, [productData]);
+  }
+
+  useEffect(() => {
+    if (mappingError) {
+      toast.error("حدث خطأ أثناء معالجة بيانات المنتج");
+    }
+  }, [mappingError]);
 
   const breadcrumbItems = useMemo(() => [
     { label: "المنتجات", href: "/admin/products" },
@@ -268,6 +280,9 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       crossSells: data.crossSells,
       cross_sells_price: data.cross_sells_price,
       cross_sells_due_date: data.cross_sells_due_date,
+      cross_sells_name: data.cross_sells_name,
+      cross_sells_description: data.cross_sells_description,
+      cross_sells_image: data.cross_sells_image,
     };
 
     if (updatedFormData.step3!.hasVariations && updatedFormData.step3!.variations.length > 0) {

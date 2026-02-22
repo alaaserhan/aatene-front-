@@ -73,6 +73,9 @@ export interface Product {
   view_count?: string | number | null;
   cross_sells_price?: string | number;
   cross_sells_due_date?: string | null;
+  cross_sells_name?: string | null;
+  cross_sells_description?: string | null;
+  cross_sells_image?: string | null;
   crossSells?: CrossSellProduct[];
   tags?: string[];
   variations?: Variation[];
@@ -109,6 +112,9 @@ export interface ProductCreatePayload {
   status: ProductStatus;
   cross_sells_price?: number;
   cross_sells_due_date?: string;
+  cross_sells_name?: string;
+  cross_sells_description?: string;
+  cross_sells_image?: string;
   crossSells?: number[];
   tags?: string[];
   variations?: {
