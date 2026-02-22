@@ -113,13 +113,19 @@ function AddCommentForm({ slug }: { slug: string | number }) {
             <div className="bg-blue-5 rounded-xl p-5 flex flex-col gap-3">
                 <div className="flex gap-3 items-start">
                     <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
-                        <Image
-                            src={user?.avatar_url || ""}
-                            alt="user"
-                            width={45}
-                            height={45}
-                            className="object-cover w-full h-full"
-                        />
+                        {user?.avatar_url ? (
+                            <Image
+                                src={user.avatar_url}
+                                alt="user"
+                                width={45}
+                                height={45}
+                                className="object-cover w-full h-full"
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
+                                <User className="w-6 h-6" />
+                            </div>
+                        )}
                     </div>
                     <div className="flex-1">
                         <textarea
