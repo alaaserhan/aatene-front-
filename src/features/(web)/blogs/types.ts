@@ -45,6 +45,7 @@ export interface Blog {
     store: BlogStore | null;
     user_id: string | number;
     user: BlogUser;
+    owner_type?: string;
     review_rate: string | null;
     review_count: string | null;
     favorites_count: string | number;

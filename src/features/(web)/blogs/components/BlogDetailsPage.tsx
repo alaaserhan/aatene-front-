@@ -50,20 +50,23 @@ function StarRating({
 
 
 function AuthorCard({ blog }: { blog: Blog }) {
-    const user = blog.user;
+    const isStore = blog.owner_type === "store";
+    const authorName = isStore ? blog.store?.name : `${blog.user?.first_name || ""} ${blog.user?.last_name || ""}`.trim();
+    const avatarUrl = isStore ? blog.store?.logo : blog.user?.avatar_url;
+
     return (
         <div className="bg-white border border-[#e0dfdc] rounded-xl p-6 flex flex-col items-center gap-4">
             <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100">
                 <Image
-                    src={user?.avatar_url || "/assets/images/placeholder.jpg"}
-                    alt={`${user?.first_name} ${user?.last_name}`}
+                    src={avatarUrl || "/assets/images/placeholder.jpg"}
+                    alt={authorName || "Author"}
                     fill
                     className="object-cover"
                 />
             </div>
             <div className="flex flex-col items-center gap-1">
                 <h3 className="text-[17px] font-medium text-[#4d4d4d] capitalize">
-                    {user?.first_name} {user?.last_name}
+                    {authorName || "مستخدم"}
                 </h3>
                 <StarRating rating={4} size={11} />
             </div>
