@@ -286,7 +286,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                         </button>
 
                         {/* Compare Link */}
-                        {!service.in_compare && (
+                        {!service.is_compare && (
                             <button
                                 onClick={() => addToCompare(service.id, {
                                     onSuccess: () => {
