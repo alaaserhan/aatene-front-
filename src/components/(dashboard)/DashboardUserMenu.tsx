@@ -44,7 +44,7 @@ export function DashboardUserMenu() {
     const pathname = usePathname();
     const lang = useLanguage();
 
-    // State for store search
+
     const [storeSearch, setStoreSearch] = useState("");
     const [currentStoreId, setCurrentStoreId] = useState<string | null>(() => {
         if (typeof window !== 'undefined') {
