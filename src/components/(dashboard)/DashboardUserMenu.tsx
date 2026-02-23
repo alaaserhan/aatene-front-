@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Cookies from "js-cookie";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLogout } from "@/src/features/(web)/auth/hooks";
@@ -40,6 +41,7 @@ import { cn } from "@/src/lib/utils";
 export function DashboardUserMenu() {
     const user = useAuthStore((state) => state.user);
     const { mutate: logout } = useLogout();
+    const pathname = usePathname();
     const lang = useLanguage();
 
     // State for store search
@@ -92,7 +94,13 @@ export function DashboardUserMenu() {
             Cookies.set("store_type", selectedStore.type, { expires: 365 });
         }
         setCurrentStoreId(String(storeId));
-        window.location.reload();
+
+        if (pathname?.includes("/admin/products/") && pathname?.endsWith("/edit")) {
+            const baseUrl = pathname.split("/admin/products/")[0];
+            window.location.assign(`${baseUrl}/admin/products`);
+        } else {
+            window.location.reload();
+        }
     };
 
     // --- Admin Menu Items ---

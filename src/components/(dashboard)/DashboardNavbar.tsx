@@ -495,7 +495,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                                   )}
                                 >
                                   {React.isValidElement(item.icon) ? (
-                                    React.cloneElement(item.icon as React.ReactElement<any>, {
+                                    React.cloneElement(item.icon as React.ReactElement<IconProps>, {
                                       className: "w-5 h-5"
                                     })
                                   ) : (
