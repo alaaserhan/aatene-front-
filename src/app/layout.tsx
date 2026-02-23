@@ -1,6 +1,6 @@
-// app/layout.tsx
 import { AuthHydrator } from "@/src/components/providers/AuthHydrator";
 import { QueryProvider } from "@/src/components/providers/QueryProvider";
+import { MetaPixel } from "@/src/components/providers/MetaPixel";
 import { Toaster } from "sonner";
 import React from "react";
 import localFont from "next/font/local";
@@ -70,11 +70,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
+        <MetaPixel />
         <QueryProvider>
           <AuthHydrator />
           {children}
-        </QueryProvider> 
-        <Toaster richColors dir="rtl"  position="top-right"  />
+        </QueryProvider>
+        <Toaster richColors dir="rtl" position="top-right" />
       </body>
     </html>
   );
