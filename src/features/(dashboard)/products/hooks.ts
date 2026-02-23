@@ -17,6 +17,7 @@ import {
   PaginatedProductsResponse,
   BaseResponse,
   ProductStatus,
+  ProductStatusPayload,
 } from "./api";
 
 const ProductsQK = {
@@ -227,7 +228,7 @@ export const useUpdateProductStatus = () => {
   return useMutation({
     mutationFn: (vars: {
       id: string | number;
-      payload: { status: ProductStatus };
+      payload: ProductStatusPayload;
     }) => api.updateProductStatus(vars.id, vars.payload),
 
     onMutate: async (vars) => {

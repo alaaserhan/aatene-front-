@@ -253,20 +253,20 @@ export function LinkAttributesView({
       {/* RIGHT Panel: Categories */}
       <div className="col-span-12 lg:col-span-4 bg-white rounded-lg border border-[#E5E7EB] flex flex-col overflow-hidden" style={{ minHeight: '580px' }}>
         <div className="px-4 py-3 border-b" style={{ borderColor: '#F3F4F6' }}>
-          <h3 className="text-[13px] font-bold" style={{ color: '#3D5E83' }}>الفئات الرئيسية والفرعية</h3>
-          <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>فئات المتصلة بالكامل الرئيسية أو الفرعية</p>
+          <h3 className="text-sm font-bold" style={{ color: '#3D5E83' }}>الفئات الرئيسية والفرعية</h3>
+          <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>فئات المتصلة بالكامل الرئيسية أو الفرعية</p>
         </div>
         <div className="px-3 py-2 relative">
           <Input type="text" value={categorySearch}
             onChange={(e) => { setCategorySearch(e.target.value); setCategoryPage(1); }}
             placeholder="ابحث باسم الفئة الرئيسية أو الفئة الفرعية"
-            className="w-full px-2.5 py-1.5 ps-8 text-xs rounded-lg"
-            style={{ fontSize: '12px', backgroundColor: '#F9FAFB', borderColor: '#E5E7EB' }} />
+            className="w-full px-2.5 py-1.5 ps-8 text-sm rounded-lg"
+            style={{ backgroundColor: '#F9FAFB', borderColor: '#E5E7EB' }} />
           <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: '#9CA3AF' }} />
         </div>
         <ScrollArea className="flex-1 px-2.5">
           {paginatedCategories.length === 0 ? (
-            <div className="text-center py-12 text-xs" style={{ color: '#9CA3AF' }}>لا توجد نتائج</div>
+            <div className="text-center py-12 text-sm" style={{ color: '#9CA3AF' }}>لا توجد نتائج</div>
           ) : (
             <div className="space-y-1 py-1">
               {paginatedCategories.map(category => {
@@ -286,7 +286,7 @@ export function LinkAttributesView({
                               ?  '#374151'
                               : '#6B7280',
                             fontWeight: idx === category.breadcrumb.length - 1 ? 600 : 400,
-                            fontSize: idx === category.breadcrumb.length - 1 ? '13px' : '11px'
+                            fontSize: '14px'
                           }}>
                             {part}
                           </span>
@@ -312,18 +312,18 @@ export function LinkAttributesView({
         <div className="px-4 py-3 border-b flex items-center justify-between gap-2" style={{ borderColor: '#F3F4F6' }}>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="text-[13px] font-bold" style={{ color: '#3D5E83' }}>السمات</h3>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: '#E6E6E6', color: '#697181' }}>
+              <h3 className="text-sm font-bold" style={{ color: '#3D5E83' }}>السمات</h3>
+              <span className="text-sm font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: '#E6E6E6', color: '#697181' }}>
                 {filteredAttributes.length}
               </span>
             </div>
-            <p className="text-[11px] mt-0.5 truncate" style={{ color: '#9CA3AF' }}>
+            <p className="text-sm mt-0.5 truncate" style={{ color: '#9CA3AF' }}>
               سمات فئة : {selectedCategory ? selectedCategory.name : '—'}
             </p>
           </div>
           <button
             onClick={() => setAddAttributeModalOpen(true)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded text-[11px] font-semibold flex-shrink-0 transition-opacity hover:opacity-80"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded text-sm font-semibold flex-shrink-0 transition-opacity hover:opacity-80"
             style={{ backgroundColor: '#3D5E83', color: '#FFFFFF' }}
           >
             <Plus className="w-3 h-3" />
@@ -334,15 +334,15 @@ export function LinkAttributesView({
           <Input type="text" value={attributeSearch}
             onChange={(e) => { setAttributeSearch(e.target.value); setAttributePage(1); }}
             placeholder="ابحث باسم السمة"
-            className="w-full px-2.5 py-1.5 ps-8 text-xs rounded-lg"
-            style={{ fontSize: '12px', backgroundColor: '#F9FAFB', borderColor: '#E5E7EB' }} />
+            className="w-full px-2.5 py-1.5 ps-8 text-sm rounded-lg"
+            style={{ backgroundColor: '#F9FAFB', borderColor: '#E5E7EB' }} />
           <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: '#9CA3AF' }} />
         </div>
         <ScrollArea className="flex-1 px-2.5">
           {loadingAttributes ? (
-            <div className="text-center py-12 text-xs" style={{ color: '#9CA3AF' }}>جاري التحميل...</div>
+            <div className="text-center py-12 text-sm" style={{ color: '#9CA3AF' }}>جاري التحميل...</div>
           ) : paginatedAttributes.length === 0 ? (
-            <div className="text-center py-12 text-xs" style={{ color: '#9CA3AF' }}>لا توجد سمات</div>
+            <div className="text-center py-12 text-sm" style={{ color: '#9CA3AF' }}>لا توجد سمات</div>
           ) : (
             <div className="space-y-1 py-1">
               {paginatedAttributes.map(attribute => {
@@ -392,9 +392,8 @@ export function LinkAttributesView({
                       }}
                     />
                     <span style={{
-                      fontSize: '13px',
+                      fontSize: '14px',
                       fontWeight: 500,
-                      
                       color: isSelected ? '#36383dff' : '#374151',
                     }}>
                       {attribute.title}
@@ -415,19 +414,19 @@ export function LinkAttributesView({
         <div className="px-4 py-3 border-b flex items-center justify-between gap-2" style={{ borderColor: '#F3F4F6' }}>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="text-[13px] font-bold" style={{ color: '#3D5E83' }}>القيم</h3>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: '#E6E6E6', color: '#6B7280' }}>
+              <h3 className="text-sm font-bold" style={{ color: '#3D5E83' }}>القيم</h3>
+              <span className="text-sm font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: '#E6E6E6', color: '#6B7280' }}>
                 {filteredValues.length}
               </span>
             </div>
-            <p className="text-[11px] mt-0.5 truncate" style={{ color: '#9CA3AF' }}>
+            <p className="text-sm mt-0.5 truncate" style={{ color: '#9CA3AF' }}>
               قيم سمة : {activeAttribute ? activeAttribute.title : '—'}
             </p>
           </div>
           <button
             onClick={() => { if (activeAttribute) setAddValueModalOpen(true); }}
             disabled={!activeAttribute}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded text-[11px] font-semibold flex-shrink-0 transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded text-sm font-semibold flex-shrink-0 transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ backgroundColor: '#3D5E83', color: '#FFFFFF' }}
           >
             <Plus className="w-3 h-3" />
@@ -438,13 +437,13 @@ export function LinkAttributesView({
           <Input type="text" value={valueSearch}
             onChange={(e) => { setValueSearch(e.target.value); setValuePage(1); }}
             placeholder="ابحث عن القيمة"
-            className="w-full px-2.5 py-1.5 ps-8 text-xs rounded-lg"
-            style={{ fontSize: '12px', backgroundColor: '#F9FAFB', borderColor: '#E5E7EB' }} />
+            className="w-full px-2.5 py-1.5 ps-8 text-sm rounded-lg"
+            style={{ backgroundColor: '#F9FAFB', borderColor: '#E5E7EB' }} />
           <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: '#9CA3AF' }} />
         </div>
         <ScrollArea className="flex-1 px-2.5">
           {paginatedValues.length === 0 ? (
-            <div className="text-center py-12 text-xs" style={{ color: '#9CA3AF' }}>لا توجد قيم</div>
+            <div className="text-center py-12 text-sm" style={{ color: '#9CA3AF' }}>لا توجد قيم</div>
           ) : (
             <div className="space-y-1 py-1">
               {paginatedValues.map(value => (
@@ -453,7 +452,7 @@ export function LinkAttributesView({
                     backgroundColor: '#FFFFFF',
                     borderColor: '#E5E7EB',
                     color: '#374151',
-                    fontSize: '13px',
+                    fontSize: '14px',
                     fontWeight: 500,
                     direction: 'rtl'
                   }}>

@@ -5,7 +5,8 @@ import Cookies from "js-cookie";
 
 export type ProductType = "simple" | "variation";
 export type ProductCondition = "new" | "used" | "refurbished";
-export type ProductStatus = "active" | "not-active";
+export type ProductStatus = "active" | "not-active" | "rejected";
+export type MerchantProductStatus = "active" | "not-active" | "rejected";
 
 export interface Category {
   id: number;
@@ -80,6 +81,8 @@ export interface Product {
   crossSells?: CrossSellProduct[];
   tags?: string[];
   variations?: Variation[];
+  reject_reason?: string | null;
+  rejected_at?: string | null;
 }
 
 export interface BaseResponse {
@@ -129,6 +132,7 @@ export type ProductUpdatePayload = ProductCreatePayload;
 
 export interface ProductStatusPayload {
   status: ProductStatus;
+  reject_reason?: string;
 }
 
 export interface ProductShownPayload {
