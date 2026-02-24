@@ -2,6 +2,7 @@ import { AuthHydrator } from "@/src/components/providers/AuthHydrator";
 import { QueryProvider } from "@/src/components/providers/QueryProvider";
 import { MetaPixel } from "@/src/components/providers/MetaPixel";
 import { Toaster } from "sonner";
+import { Suspense } from "react";
 import React from "react";
 import localFont from "next/font/local";
 import "@/src/app/globals.css";
@@ -70,7 +71,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <MetaPixel />
+        <Suspense fallback={null}>
+          <MetaPixel />
+        </Suspense>
         <QueryProvider>
           <AuthHydrator />
           {children}
