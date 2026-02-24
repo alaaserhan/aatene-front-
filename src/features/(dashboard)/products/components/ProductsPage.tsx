@@ -315,7 +315,7 @@ export function ProductsPage() {
         </div>
       </header>
 
-      <main className="flex-1 p-6 overflow-hidden">
+      <main className="flex-1 p-6">
         {isNoSectionsEmptyState ? (
           <ProductEmptyState type="no-sections" />
         ) : (
