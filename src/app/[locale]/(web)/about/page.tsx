@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useLanguage } from "@/src/hooks/use-language";
 import {
     Database,
     ShoppingCart,
@@ -118,7 +117,6 @@ const VISION_CARDS = [
 ];
 
 export default function AboutPage() {
-    const lang = useLanguage();
 
     return (
         <div className="min-h-screen bg-white-1">
@@ -261,7 +259,7 @@ export default function AboutPage() {
                             منصة مخصصة لأصحاب المشاريع الصغيرة، الحرفيين، وبائعي المنتجات والخدمات. نوصلك مباشرةً بعملاء منطقتك بطريقة سهلة وسريعة، مع دعم مستمر وأدوات تساعدك على عرض منتجاتك وزيادة مبيعاتك.
                         </p>
                         <Link
-                            href={`/${lang}/signup`}
+                            href={`/signup`}
                             className="bg-blue-4 text-white px-8 py-3 rounded-md text-sm font-medium hover:opacity-90 transition-opacity inline-block"
                         >
                             انضم اليوم، وخلّي الناس تشتري منك بسهولة
@@ -296,13 +294,13 @@ export default function AboutPage() {
                         </p>
                         <div className="flex gap-4 justify-end flex-wrap">
                             <Link
-                                href={`/${lang}/search`}
+                                href={`/search`}
                                 className="border border-blue-4 text-blue-4 px-6 py-3 rounded-md text-sm font-medium hover:bg-blue-5 transition-colors"
                             >
                                 ابحث عن خدمة أو منتج محدّد
                             </Link>
                             <Link
-                                href={`/${lang}/search?type=products`}
+                                href={`/search?type=products`}
                                 className="bg-blue-4 text-white px-6 py-3 rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
                             >
                                 تصفح العروض الآن
