@@ -50,6 +50,26 @@ export interface SafetyRulesResponse {
     safetyRules: SafetyRulesData;
 }
 
+export interface FaqQuestion {
+    question: string;
+    answer: string;
+    image: string | null;
+    video: string | null;
+    image_url: string | null;
+    video_url: string | null;
+}
+
+export interface FaqCategory {
+    title: string;
+    faqs: FaqQuestion[];
+}
+
+export interface FaqsResponse {
+    status: boolean;
+    message: string;
+    faqs: FaqCategory[];
+}
+
 export const getTermsAndConditions = async (): Promise<TermsAndConditionsResponse> => {
     const { data } = await api.get<TermsAndConditionsResponse>("/pages/terms-and-conditions");
     return data;
@@ -62,5 +82,10 @@ export const getPrivacyPolicy = async (): Promise<PrivacyPolicyResponse> => {
 
 export const getSafetyRules = async (): Promise<SafetyRulesResponse> => {
     const { data } = await api.get<SafetyRulesResponse>("/pages/safety-rules");
+    return data;
+};
+
+export const getFaqs = async (): Promise<FaqsResponse> => {
+    const { data } = await api.get<FaqsResponse>("/pages/faqs");
     return data;
 };

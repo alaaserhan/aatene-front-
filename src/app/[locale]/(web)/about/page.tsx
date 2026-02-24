@@ -126,29 +126,22 @@ export default function AboutPage() {
             <div className="bg-blue-3 py-12 md:py-16">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12">
-                        <div className="flex-1 text-right">
-                            <p className="text-base md:text-lg text-white/90 leading-relaxed">
-                                &quot;أعطيني&quot; هي منصة إلكترونية وسّيطة، تربط بين مزوّدي الخدمات وبائعي
-                                المنتجات المحليين مع الزبائن، عبر واجهة بسيطة وسريعة، نمنح كل شخص
-                                عنده خدمة أو منتج فرصة للظهور الرقمي، والوصول لجمهور مهتم بدون
-                                عمولات أو تعقيدات.
-                            </p>
-                        </div>
                         <div className="shrink-0 flex flex-col items-center gap-3">
                             <Image
-                                src="/LOGO-H-WHITE.svg"
+                                src="/LOGO-H-WHITE-2.svg"
                                 alt="Aatene Logo"
                                 width={150}
                                 height={150}
                                 className="w-28 md:w-36"
                             />
-                            <Image
-                                src="/TYPO-WHITE.png"
-                                alt="Aatene"
-                                width={216}
-                                height={93}
-                                className="w-36 md:w-48"
-                            />
+                        </div>
+                        <div className="flex-1 text-right">
+                            <p className="text-base md:text-lg font-medium text-white/90 leading-relaxed">
+                                &quot;أعطيني&quot; هي منصة إلكترونية وسّيطة، تربط بين مزوّدي الخدمات وبائعي
+                                المنتجات المحليين مع الزبائن، عبر واجهة بسيطة وسريعة، نمنح كل شخص
+                                عنده خدمة أو منتج فرصة للظهور الرقمي، والوصول لجمهور مهتم بدون
+                                عمولات أو تعقيدات.
+                            </p>
                         </div>
                     </div>
                 </div>
