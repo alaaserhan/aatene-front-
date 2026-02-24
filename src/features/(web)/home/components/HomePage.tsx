@@ -5,7 +5,6 @@ import { useHomePageData } from "../hooks";
 import HomeBanners from "./HomeBanners";
 import HomeStories from "./HomeStories";
 import HomeSpecialServices from "./HomeSpecialServices";
-import HomeTopJob from "./HomeTopJob";
 import HomeSpecialMerchants from "./HomeSpecialMerchants";
 import HomeNewProducts from "./HomeNewProducts";
 import HomeMostPopularServices from "./HomeMostPopularServices";
@@ -13,9 +12,10 @@ import HomeTodayOffers from "./HomeTodayOffers";
 import HomeRequestedServices from "./HomeRequestedServices";
 import HomeCustomizedProducts from "./HomeCustomizedProducts";
 import HomeProductsYouMayLike from "./HomeProductsYouMayLike";
-import HomeLatestBlogs from "./HomeLatestBlogs";
 import HomeCategoriesWithProducts from "./HomeCategoriesWithProducts";
 import HomeWeeklyOffers from "./HomeWeeklyOffers";
+import HomeLatestBlogs from "./HomeLatestBlogs";
+import HomeSingleBanner from "./HomeSingleBanner";
 
 export default function HomePage() {
     const { data, isLoading, isError } = useHomePageData();
@@ -39,7 +39,7 @@ export default function HomePage() {
     return (
         <div className="min-h-screen">
             {/* Banners Section */}
-            {data?.bannersSliders && <HomeBanners banners={data.bannersSliders} />}
+            {data?.firstBanner && <HomeBanners banners={data.firstBanner} />}
 
             {/* Stories Section */}
             {data?.stories && data.stories.length > 0 && <HomeStories stories={data.stories} />}
@@ -49,8 +49,9 @@ export default function HomePage() {
                 <HomeSpecialServices services={data.specialServices} />
             )}
 
-            {/* Top Job Section */}
-            {data?.bannerJobs && <HomeTopJob topJob={data.bannerJobs} />}
+            {data?.secBanner && data.secBanner.length > 0 && (
+                <HomeBanners banners={data.secBanner} />
+            )}
 
             {data?.specialMerchants && data.specialMerchants.length > 0 && (
                 <HomeSpecialMerchants merchants={data.specialMerchants} />
@@ -65,6 +66,8 @@ export default function HomePage() {
             {data?.newProducts && data.newProducts.length > 0 && (
                 <HomeNewProducts products={data.newProducts} />
             )}
+
+            {data?.thirdBanner && <HomeSingleBanner banner={data.thirdBanner} />}
 
             {/* Most Popular Services */}
             {data?.mostPopularServices && data.mostPopularServices.length > 0 && (
@@ -81,17 +84,22 @@ export default function HomePage() {
                 <HomeWeeklyOffers data={data.thisWeekBiggestOffers} />
             )}
 
+            {data?.forthBanner && <HomeSingleBanner banner={data.forthBanner} />}
+
             {/* Customized Products (from mostPopularProducts) */}
             {data?.mostPopularProducts && data.mostPopularProducts.length > 0 && (
                 <HomeCustomizedProducts products={data.mostPopularProducts} />
             )}
+
+            {data?.fifthBanner && <HomeSingleBanner banner={data.fifthBanner} />}
 
             {/* Products You May Like */}
             {data?.productsYouMayLike && data.productsYouMayLike.length > 0 && (
                 <HomeProductsYouMayLike products={data.productsYouMayLike} />
             )}
 
-            {/* Requested Services */}
+            {data?.sixthBanner && <HomeSingleBanner banner={data.sixthBanner} />}
+
             {data?.requestedServices && data.requestedServices.length > 0 && (
                 <HomeRequestedServices requests={data.requestedServices} />
             )}

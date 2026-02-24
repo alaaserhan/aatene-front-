@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, Plus, X } from "lucide-react";
+import { ChevronLeft, Plus, User, X } from "lucide-react";
 import Image from "next/image";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { InteractiveStarRating } from "@/src/components/ui/StarRating";
@@ -65,13 +65,22 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
 
         return (
             <div ref={containerRef} className="bg-[#AAAAAA1A] border border-gray-200 rounded-xl p-4 sm:p-6 flex gap-3 sm:gap-5 w-full overflow-hidden">
-                <div className="relative w-10 h-10 sm:w-[52px] sm:h-[52px] rounded-full overflow-hidden shrink-0">
-                    <Image
-                        src={user?.avatar_url || "/assets/images/placeholder.jpg"}
-                        alt="user"
-                        fill
-                        className="object-cover"
-                    />
+                <div className="relative flex items-center justify-center bg-gray-200 w-10 h-10 sm:w-[52px] sm:h-[52px] rounded-full overflow-hidden shrink-0">
+                   {
+                    user?.avatar_url ? (
+                        <Image
+                            src={user?.avatar_url}
+                            alt="user"
+                            fill
+                            className="object-cover"
+                        />
+                    ) : (
+                        <User
+                            size={24}
+                            className="text-gray-500"
+                        />
+                    )
+                   }
                 </div>
                 <div className="flex-1 flex flex-col gap-4 sm:gap-6 min-w-0">
                     {parentId && replyToName && (

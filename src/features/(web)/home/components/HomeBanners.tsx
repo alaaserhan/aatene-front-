@@ -54,7 +54,7 @@ export default function HomeBanners({ banners }: HomeBannersProps) {
                     className="absolute inset-0 w-full h-full"
                 >
                     <Link
-                        href={currentBanner.link || "#"}
+                        href={currentBanner.url || currentBanner.link || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block w-full h-full"

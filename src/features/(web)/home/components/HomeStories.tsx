@@ -15,6 +15,38 @@ export default function HomeStories({ stories }: HomeStoriesProps) {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
 
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+    const [hasDragged, setHasDragged] = useState(false);
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if (!scrollContainerRef.current) return;
+        setIsDragging(true);
+        setHasDragged(false);
+        setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+        setScrollLeft(scrollContainerRef.current.scrollLeft);
+    };
+
+    const handleMouseLeave = () => {
+        setIsDragging(false);
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!isDragging || !scrollContainerRef.current) return;
+        e.preventDefault();
+        const x = e.pageX - scrollContainerRef.current.offsetLeft;
+        const walk = (x - startX) * 2;
+        if (Math.abs(walk) > 10) {
+            setHasDragged(true);
+        }
+        scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+    };
+
     const scroll = (direction: "left" | "right") => {
         if (scrollContainerRef.current) {
             const scrollAmount = 300;
@@ -36,41 +68,41 @@ export default function HomeStories({ stories }: HomeStoriesProps) {
         <>
             <section className="py-8 bg-white" dir="rtl">
                 <MaxWidthWrapper className="relative w-full">
-                    <div className="flex gap-4">
+                    <div className="flex gap-2 sm:gap-4">
                         {/* Static Green Card (Right Side) */}
                         <div
-                            className="relative rounded-2xl overflow-hidden min-w-[160px] sm:min-w-[240px] p-6 shrink-0 h-[180px] sm:h-[220px] flex flex-col justify-between shadow-lg"
+                            className="relative rounded-2xl overflow-hidden w-[130px] min-w-[130px] sm:w-[240px] sm:min-w-[240px] p-4 sm:p-6 shrink-0 h-[170px] sm:h-[220px] flex flex-col justify-between shadow-lg"
                             style={{ background: 'linear-gradient(0deg, #144221 0%, #34A853 100%)' }}
                         >
                             <div className="absolute top-0 left-0 w-full h-full bg-[url('/bg-story-card.png')] opacity-20 bg-cover bg-no-repeat pointer-events-none" />
 
                             {/* Navigation Arrows */}
-                            <div className="flex  gap-2 relative z-10">
+                            <div className="flex gap-1 sm:gap-2 relative z-10">
                                 <button
                                     onClick={() => scroll("right")}
-                                    className="w-8 h-8 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center transition-colors backdrop-blur-sm cursor-pointer"
+                                    className="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center transition-colors backdrop-blur-sm cursor-pointer"
                                     aria-label="Scroll Right"
                                 >
-                                    <ChevronRight className="w-5 h-5 text-white" />
+                                    <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                                 </button>
                                 <button
                                     onClick={() => scroll("left")}
-                                    className="w-8 h-8 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center transition-colors backdrop-blur-sm cursor-pointer"
+                                    className="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center transition-colors backdrop-blur-sm cursor-pointer"
                                     aria-label="Scroll Left"
                                 >
-                                    <ChevronLeft className="w-5 h-5 text-white" />
+                                    <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                                 </button>
                             </div>
 
                             {/* Text Content */}
-                            <div className="flex flex-col gap-1 text-white relative z-10 mt-auto">
-                                <h2 className="text-xl sm:text-2xl font-bold leading-tight">تابع قصص</h2>
-                                <h3 className="text-xl sm:text-2xl font-bold leading-tight text-white/90">لأفضل</h3>
-                                <p className="text-sm opacity-90 font-normal">متاجر ومستخدمين</p>
+                            <div className="flex flex-col gap-0.5 sm:gap-1 text-white relative z-10 mt-auto">
+                                <h2 className="text-base sm:text-2xl font-bold leading-tight">تابع قصص</h2>
+                                <h3 className="text-base sm:text-2xl font-bold leading-tight text-white/90">لأفضل</h3>
+                                <p className="text-[11px] sm:text-sm opacity-90 font-normal mt-1">متاجر ومستخدمين</p>
                             </div>
 
                             {/* Logo (Optional/Placeholder based on provided image) */}
-                            <div className="absolute bottom-4 left-4 w-12 h-12 opacity-80">
+                            <div className="absolute bottom-4 left-4 w-12 h-12 opacity-80 pointer-events-none">
                                 {/* Use a placeholder or provided asset if available */}
                                 {/* <Image src="/logo-white.png" alt="Logo" width={48} height={48} className="object-contain" /> */}
                             </div>
@@ -79,16 +111,22 @@ export default function HomeStories({ stories }: HomeStoriesProps) {
                         {/* Stories Carousel (Left Side) */}
                         <div
                             ref={scrollContainerRef}
-                            className="flex overflow-x-auto gap-4 py-2 scroll-smooth scrollbar-hide flex-1 -mr-16"
+                            className="flex overflow-x-auto gap-3 sm:gap-4 py-2 scroll-smooth scrollbar-hide flex-1 -mr-8 sm:-mr-20"
                             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                            onMouseDown={handleMouseDown}
+                            onMouseLeave={handleMouseLeave}
+                            onMouseUp={handleMouseUp}
+                            onMouseMove={handleMouseMove}
                         >
                             {stories.map((story, index) => (
                                 <div
                                     key={story.id}
-                                    className="shrink-0 w-[100px] sm:w-[140px] h-[140px] sm:h-[180px] cursor-pointer"
-                                    onClick={() => setSelectedStoryIndex(index)}
+                                    className="shrink-0 w-[95px] sm:w-[140px] cursor-pointer h-fit bg-white rounded-xl shadow-sm z-[20] select-none"
+                                    onClick={() => {
+                                        if (!hasDragged) setSelectedStoryIndex(index);
+                                    }}
                                 >
-                                    <div className="relative w-full h-full rounded-2xl overflow-hidden  shadow-sm">
+                                    <div className="relative w-full h-[120px] sm:h-[170px] rounded-lg overflow-hidden pointer-events-none">
                                         {story.image ? (
                                             <Image
                                                 src={story.image}
@@ -118,6 +156,11 @@ export default function HomeStories({ stories }: HomeStoriesProps) {
 
                                         {/* Gradient at bottom */}
                                         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-black/50 to-transparent pointer-events-none" />
+                                    </div>
+                                    <div className="my-1 text-center w-full px-1">
+                                        <span className="text-[13px] font-medium text-[#3F3F46] truncate block">
+                                            {story.owner?.name || " "}
+                                        </span>
                                     </div>
                                 </div>
                             ))}

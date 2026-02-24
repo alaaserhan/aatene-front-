@@ -2,22 +2,56 @@
 import { ProductInPageData, StoreInPageData } from "../product/types";
 import { Blog } from "../blogs/types";
 
+export interface StoryOwner {
+    id: number;
+    slug: string;
+    name: string;
+    status?: string;
+    phone?: string | null;
+    whats_app?: string | null;
+    email?: string | null;
+    address?: string | null;
+    lat?: number | null;
+    lng?: number | null;
+    logo?: string | null;
+    cover?: string | null;
+    review_rate?: string;
+    review_count?: string;
+    open_status?: string;
+    am_i_following?: boolean;
+    is_favorite?: boolean;
+    view_count?: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
 export interface Story {
     id: number;
     image: string | null;
     text: string | null;
     color: string | null;
     created_at: string;
+    owner_type?: string;
+    owner?: StoryOwner;
 }
 
 export interface Banner {
     id: number;
     title: string | null;
     description: string | null;
+    city_id?: string;
+    place?: string;
+    url?: string | null;
+    start_date?: string;
+    end_date?: string;
+    is_active?: boolean;
+    priority?: string;
+    labtop_banner?: string;
+    mobile_banner?: string;
     labtop_banner_url: string;
     mobile_banner_url: string;
-    link: string | null;
-    button_text: string | null;
+    link?: string | null;
+    button_text?: string | null;
 }
 
 export interface Offer {
@@ -28,6 +62,7 @@ export interface Offer {
     start_date: string;
     end_date: string;
     store_id: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     categories: any[];
     products: ProductInPageData[];
 }
@@ -65,7 +100,7 @@ export interface Service {
     image: string | null;
     image_url: string | null;
     is_favorite: boolean;
-    in_compare: boolean;
+    is_compare: boolean;
     price: string;
     execute_type: string;
     execute_count: string;
@@ -73,6 +108,20 @@ export interface Service {
     review_count: string;
     status: string;
     store: ServiceStore;
+}
+
+export interface ServiceRequestUser {
+    id: number;
+    slug: string;
+    first_name: string;
+    last_name: string;
+    name: string;
+    avatar: string | null;
+    avatar_url: string | null;
+    bio: string | null;
+    review_rate: string;
+    review_count: string;
+    is_following: boolean;
 }
 
 export interface ServiceRequest {
@@ -83,8 +132,9 @@ export interface ServiceRequest {
     images_urls: string[];
     status: string;
     content: string;
-    services_follows_rules: number;
-    have_searched_for_services_before: number;
+    user?: ServiceRequestUser;
+    services_follows_rules: boolean | number | null;
+    have_searched_for_services_before: boolean | number | null;
     created_at: string;
     updated_at: string;
 }
@@ -124,24 +174,24 @@ export interface ThisWeekOffers {
 export interface HomePageResponse {
     status: boolean;
     message: string;
-    bannersSliders: Banner[];
+    firstBanner: Banner[];
     stories: Story[];
-    bannersOffers: Offer[];
+    secBanner: Banner[];
     specialServices: Service[];
-    bannerJobs: ServiceRequest | null;
+    thirdBanner: Banner | null;
     specialMerchants: StoreInPageData[];
     newProducts: ProductInPageData[];
     mostPopularServices: ServiceRequest[];
     toDayBiggestOffers: ProductInPageData[];
-    secBannerOffers: Offer[];
     toRatedCategories: HomeCategory[];
     productSelectedForYou: ProductInPageData[];
-    thirdBannerOffers: Offer[];
     productsYouMayLike: ProductInPageData[];
     thisWeekBiggestOffers: ThisWeekOffers;
     categoriesWithProducts: CategoryWithProducts[];
-    forthBannerOffers: Offer[] | null;
-    latestBlogs: Blog[];
+    forthBanner: Banner | null;
+    fifthBanner: Banner | null;
+    sixthBanner: Banner | null;
     mostPopularProducts: ProductInPageData[];
     requestedServices: ServiceRequest[];
+    latestBlogs?: Blog[];
 }

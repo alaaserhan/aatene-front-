@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronDown, ChevronUp, Flag } from "lucide-react";
+import { ChevronDown, ChevronUp, Flag, User } from "lucide-react";
 import { StarRating } from "@/src/components/ui/StarRating";
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
@@ -52,13 +52,22 @@ export function ReviewItem({
             <div className={`bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-4 ${isReply ? "mr-8 md:mr-16" : ""}`}>
                 <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-100">
-                            <Image
-                                src={review.user.avatar || "/assets/images/placeholder.jpg"}
-                                alt={review.user.name}
-                                fill
-                                className="object-cover"
-                            />
+                        <div className="relative flex items-center justify-center w-10 h-10 rounded-full overflow-hidden border border-gray-100">
+                            {
+                                review.user.avatar ? (
+                                    <Image
+                                        src={review.user.avatar}
+                                        alt={review.user.name}
+                                        fill
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <User
+                                        size={20}
+                                        className="text-gray-2"
+                                    />
+                                )
+                            }
                         </div>
                         <div className="flex flex-col ">
                             <h4 className="text-sm font-medium ">{review.user.name}</h4>
