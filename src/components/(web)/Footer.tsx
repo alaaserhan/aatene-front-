@@ -1,51 +1,45 @@
 "use client";
 
 import { Carrot } from "lucide-react";
-import { Earth } from "lucide-react";
 import Link from "next/link";
-import { useLanguage } from "@/src/hooks/use-language";
 
 const Footer = () => {
-  const lang = useLanguage();
 
-  const footerStyle = {
-    boxShadow: "0px 0px 75px 0px #0d0d0d1a",
-  };
 
   const navigationSections = [
     {
       title: "روابط مهمة",
       links: [
-        { label: "الرئيسية", href: `/${lang}/` },
-        { label: "منتجات", href: `/${lang}/search?type=products` },
-        { label: "متاجر", href: `/${lang}/search?type=stores` },
-        { label: "خدمات", href: `/${lang}/search?type=services` },
-        { label: "المدونات", href: `/${lang}/blogs` }
+        { label: "الرئيسية", href: `/` },
+        { label: "منتجات", href: `/search?type=products` },
+        { label: "متاجر", href: `/search?type=stores` },
+        { label: "خدمات", href: `/search?type=services` },
+        { label: "المدونات", href: `/blogs` }
       ]
     },
     {
       title: "عن المنصة",
       links: [
-        { label: "معلومات عنا", href: `/${lang}/about` },
-        { label: "المستخدمين", href: `/${lang}/users` },
-        { label: "قواعد السلامة", href: `/${lang}/safety-rules` },
-        { label: "كن تاجراً", href: `/${lang}/become-seller` },
+        { label: "معلومات عنا", href: `/about` },
+        { label: "المستخدمين", href: `/users` },
+        { label: "قواعد السلامة", href: `/safety-rules` },
+        { label: "كن تاجراً", href: `/become-seller` },
       ]
     },
     {
       title: "حسابي",
       links: [
-        { label: "تسجيل الدخول", href: `/${lang}/login` },
-        { label: "إنشاء حساب", href: `/${lang}/signup` },
-        { label: "إعدادات", href: `/${lang}/settings` }
+        { label: "تسجيل الدخول", href: `/login` },
+        { label: "إنشاء حساب", href: `/signup` },
+        { label: "إعدادات", href: `/settings` }
       ]
     },
     {
       title: "الدعم والمساعدة",
       links: [
-        { label: "الشكاوي والاقتراحات", href: `/${lang}/complaints` },
-        { label: "الأسئلة الشائعة", href: `/${lang}/faq` },
-        { label: "اتصل بنا", href: `/${lang}/contact` }
+        { label: "الشكاوي والاقتراحات", href: `/complaints` },
+        { label: "الأسئلة الشائعة", href: `/faq` },
+        { label: "اتصل بنا", href: `/contact` }
       ]
     },
   ];
@@ -69,7 +63,7 @@ const Footer = () => {
               {/* Company Info */}
               <div className="space-y-2">
                 <div className="flex justify-center sm:justify-start">
-                  <Link href={`/${lang}`}>
+                  <Link href={``}>
                     <img
                       src="/black.svg"
                       alt="A'atene"
@@ -187,10 +181,10 @@ const Footer = () => {
 
             <div className="flex items-center gap-4 mr-auto">
               <span className="whitespace-nowrap opacity-60">© 2025 Aatene, Inc.</span>
-              <Link href={`/${lang}/terms-of-use`} className="hover:text-blue-4 transition-colors whitespace-nowrap">
+              <Link href={`/terms-of-use`} className="hover:text-blue-4 transition-colors whitespace-nowrap">
                 شروط الاستخدام
               </Link>
-              <Link href={`/${lang}/privacy-policy`} className="hover:text-blue-4 transition-colors whitespace-nowrap">
+              <Link href={`/privacy-policy`} className="hover:text-blue-4 transition-colors whitespace-nowrap">
                 خصوصية
               </Link>
             </div>
