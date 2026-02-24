@@ -13,7 +13,7 @@ export default function HomeNewProducts({ products }: HomeNewProductsProps) {
     if (!products || products.length === 0) return null;
 
     return (
-        <section className="py-12 bg-linear-to-b from-gray-50 to-white" dir="rtl">
+        <section className="pb-12 pt-4 bg-linear-to-b from-gray-50 to-white" dir="rtl">
             <MaxWidthWrapper>
                 <div className="flex flex-col mb-10 text-right">
                     <h2 className="text-2xl md:text-3xl font-medium mb-2">

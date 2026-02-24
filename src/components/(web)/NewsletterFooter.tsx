@@ -42,8 +42,8 @@ const NewsletterFooter = () => {
     if (isAuthPage) return null;
 
     return (
-        <div className="px-2 my-8">
-            <MaxWidthWrapper className="bg-linear-to-l overflow-hidden relative from-[#0A5DC2] to-[#052C5C] text-white p-6 md:p-10 rounded-2xl max-w-6xl mx-auto text-center md:text-right ">
+        <div className="my-8 container">
+            <div className="bg-linear-to-l overflow-hidden relative from-[#0A5DC2] to-[#052C5C] text-white p-6 md:p-12 rounded-2xl  text-center md:text-right ">
                 <div className="lg:block hidden absolute w-96 right-0 bottom-0 lg:top-0 h-full">
                     <Image
                         src="/NewsletterFooterImage.png"
@@ -79,7 +79,7 @@ const NewsletterFooter = () => {
                         </div>
                     </div>
                 </div>
-            </MaxWidthWrapper>
+            </div>
         </div>
     );
 };

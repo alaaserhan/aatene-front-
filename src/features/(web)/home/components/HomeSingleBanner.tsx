@@ -25,8 +25,8 @@ export default function HomeSingleBanner({ banner }: HomeSingleBannerProps) {
     const linkHref = banner.url || banner.link || "#";
 
     return (
-        <section className="py-8 w-full">
-            <MaxWidthWrapper className="px-4 md:px-8">
+        <section className="py-8 container">
+            <div className="">
                 <Link
                     href={linkHref}
                     target="_blank"
@@ -55,7 +55,7 @@ export default function HomeSingleBanner({ banner }: HomeSingleBannerProps) {
                         />
                     </div>
                 </Link>
-            </MaxWidthWrapper>
+            </div>
         </section>
     );
 }

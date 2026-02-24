@@ -21,7 +21,7 @@ export default function HomeMostPopularServices({ services }: HomeMostPopularSer
                     <h2 className="text-2xl md:text-3xl font-medium">
                         الخدمات الأكثر شعبية
                     </h2>
-                    <Link href="/services" className="inline-flex items-center justify-center p-2 px-4 rounded-full bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2c4461] transition-colors">
+                    <Link href="/search?type=services" className="inline-flex items-center justify-center p-2 px-4 rounded-full bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2c4461] transition-colors">
                         عرض الكل
                         <ChevronsLeft className="w-4 h-4 mr-1" />
                     </Link>

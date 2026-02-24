@@ -21,7 +21,7 @@ export default function HomeProductsYouMayLike({ products }: HomeProductsYouMayL
                     <h2 className="text-xl md:text-2xl font-medium">
                         منتجات قد تعجبك
                     </h2>
-                    <Link href="/products" className="inline-flex items-center justify-center p-2 px-4 rounded-full bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2c4461] transition-colors">
+                    <Link href="/search?type=products" className="inline-flex items-center justify-center p-2 px-4 rounded-full bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2c4461] transition-colors">
                         عرض الكل
                         <ChevronsLeft className="w-4 h-4 mr-1" />
                     </Link>

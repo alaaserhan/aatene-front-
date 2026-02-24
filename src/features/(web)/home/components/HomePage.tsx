@@ -3,6 +3,7 @@
 import { useHomePageData } from "../hooks";
 
 import HomeBanners from "./HomeBanners";
+import HomeMultiBanners from "./HomeMultiBanners";
 import HomeStories from "./HomeStories";
 import HomeSpecialServices from "./HomeSpecialServices";
 import HomeSpecialMerchants from "./HomeSpecialMerchants";
@@ -50,7 +51,7 @@ export default function HomePage() {
             )}
 
             {data?.secBanner && data.secBanner.length > 0 && (
-                <HomeBanners banners={data.secBanner} />
+                <HomeMultiBanners banners={data.secBanner} />
             )}
 
             {data?.specialMerchants && data.specialMerchants.length > 0 && (
