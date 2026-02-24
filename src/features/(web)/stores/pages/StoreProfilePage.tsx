@@ -37,7 +37,7 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
-            <StoreHeader store={store} />
+            <StoreHeader store={store} followers={pageData?.followers} />
             <MaxWidthWrapper className="mt-8 flex flex-col gap-6 lg:max-w-[70%] lg:mr-auto">
                 {/* Stories & Highlights Map Box */}
                 <div className="flex flex-col gap-6 w-full">

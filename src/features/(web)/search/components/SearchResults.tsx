@@ -57,7 +57,7 @@ export default function SearchResults({
             </p>
 
             {/* Results Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-4 gap-2">
                 {type === "products" &&
                     (items as Product[]).map((product) => (
                         <ProductCard

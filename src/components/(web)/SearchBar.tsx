@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/src/lib/utils";
 import { Search } from "lucide-react";
@@ -21,7 +21,7 @@ const SEARCH_TYPES: { value: SearchType; label: string }[] = [
   { value: "users", label: "مستخدمين" },
 ];
 
-export function SearchBar({
+function SearchBarContent({
   currentLocale,
   defaultType = "products",
   variant = "navbar",
@@ -258,5 +258,13 @@ export function SearchBar({
       </button>
 
     </div>
+  );
+}
+
+export function SearchBar(props: SearchBarProps) {
+  return (
+    <Suspense fallback={<div className="h-10 w-full animate-pulse bg-gray-50 rounded-md"></div>}>
+      <SearchBarContent {...props} />
+    </Suspense>
   );
 }

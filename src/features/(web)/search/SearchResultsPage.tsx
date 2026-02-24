@@ -32,7 +32,7 @@ interface FilterState {
     variation_options?: number[];
 }
 
-const PER_PAGE = 5;
+const PER_PAGE = 16;
 
 export default function SearchResultsPage() {
     const searchParams = useSearchParams();
@@ -81,10 +81,10 @@ function SearchContent({ type }: { type: SearchType }) {
     const TAGS_LIMIT = 20;
 
     // Fetch filter options based on type
-    const { data: productsPageData } = useProductsSearchPage();
-    const { data: servicesPageData } = useServicesSearchPage();
-    const { data: storesPageData } = useStoresSearchPage();
-    const { data: usersPageData } = useUsersSearchPage();
+    const { data: productsPageData } = useProductsSearchPage(type === "products");
+    const { data: servicesPageData } = useServicesSearchPage(type === "services");
+    const { data: storesPageData } = useStoresSearchPage(type === "stores");
+    const { data: usersPageData } = useUsersSearchPage(type === "users");
 
     // Current filter data based on type
     const filterData = useMemo(() => {
@@ -181,10 +181,10 @@ function SearchContent({ type }: { type: SearchType }) {
     }, [query, filters, page]);
 
     // Fetch results based on type
-    const { data: productsData, isLoading: isLoadingProducts } = useSearchProducts(searchParamsObj);
-    const { data: servicesData, isLoading: isLoadingServices } = useSearchServices(searchParamsObj);
-    const { data: storesData, isLoading: isLoadingStores } = useSearchStores(searchParamsObj);
-    const { data: usersData, isLoading: isLoadingUsers } = useSearchUsers(searchParamsObj);
+    const { data: productsData, isLoading: isLoadingProducts } = useSearchProducts(searchParamsObj, type === "products");
+    const { data: servicesData, isLoading: isLoadingServices } = useSearchServices(searchParamsObj, type === "services");
+    const { data: storesData, isLoading: isLoadingStores } = useSearchStores(searchParamsObj, type === "stores");
+    const { data: usersData, isLoading: isLoadingUsers } = useSearchUsers(searchParamsObj, type === "users");
 
     // Current results based on type
     const { items, total, isLoading } = useMemo(() => {

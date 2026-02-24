@@ -23,9 +23,13 @@ import { useQueryClient } from "@tanstack/react-query";
 
 interface StoreHeaderProps {
     store: StoreProfile;
+    followers?: {
+        id?: number;
+        avatar_url?: string;
+    }[];
 }
 
-export default function StoreHeader({ store }: StoreHeaderProps) {
+export default function StoreHeader({ store, followers }: StoreHeaderProps) {
     const queryClient = useQueryClient();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
@@ -141,16 +145,15 @@ export default function StoreHeader({ store }: StoreHeaderProps) {
                                 {/* Followers */}
                                 <div className="flex items-center gap-3">
                                     <div className="hidden sm:flex -space-x-2 md:-space-x-3 space-x-reverse">
-                                        {/* Mock avatars mimicking UserHeader if followers are real */}
-                                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100">
-                                            <Image src="/default-avatar.png" fill className="object-cover" alt="follower" />
-                                        </div>
-                                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100">
-                                            <Image src="/default-avatar.png" fill className="object-cover" alt="follower" />
-                                        </div>
-                                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100">
-                                            <Image src="/default-avatar.png" fill className="object-cover" alt="follower" />
-                                        </div>
+                                        {followers && followers.length > 0 ? (
+                                            followers.slice(0, 3).map((follower, idx) => (
+                                                <div key={follower.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100">
+                                                    <Image src={follower.avatar_url || "/default-avatar.png"} fill className="object-cover" alt="follower" />
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100" />
+                                        )}
                                     </div>
                                     <span className="text-gray-500 text-xs md:text-sm font-medium">{followersCount} متابع</span>
                                 </div>
@@ -231,26 +234,30 @@ export default function StoreHeader({ store }: StoreHeaderProps) {
                     </div>
 
                     {/* Right features block (Left statically translated depending on dir=rtl) */}
-                    <div className="flex flex-row   justify-center gap-2 md:gap-2 mt-6 lg:mt-0  shrink-0 overflow-x-auto w-full lg:w-auto px-4 lg:px-0">
-                        <FeatureBox
-                            icon={<Truck className="w-6 h-6 text-blue-4" />}
-                            title="خدمة توصيل"
-                            desc="يتميز بسجل حافل بالشحن في الوقت المحدد مع خدمة التتبع."
-                        />
-                        <FeatureBox
-                            icon={<PackageCheck className="w-6 h-6 text-blue-4" />}
-                            title="شحن سلس"
-                            desc="يتميز بسجل دقيق في الوقت المحدد مع خدمة التتبع."
-                        />
-                        <FeatureBox
-                            icon={<MessageSquareText className="w-6 h-6 text-blue-4" />}
-                            title="ردود سريعة"
-                            desc="يتميز بسجل حافل بالرد السريع على الرسائل."
-                        />
-                    </div>
+                    {
+                        store.type === "products" && (
+                            <div className="flex flex-row   justify-center gap-2 md:gap-2 mt-6 lg:mt-0  shrink-0 overflow-x-auto w-full lg:w-auto px-4 lg:px-0">
+                                <FeatureBox
+                                    icon={<Truck className="w-6 h-6 text-blue-4" />}
+                                    title="خدمة توصيل"
+                                    desc="يتميز بسجل حافل بالشحن في الوقت المحدد مع خدمة التتبع."
+                                />
+                                <FeatureBox
+                                    icon={<PackageCheck className="w-6 h-6 text-blue-4" />}
+                                    title="شحن سلس"
+                                    desc="يتميز بسجل دقيق في الوقت المحدد مع خدمة التتبع."
+                                />
+                                <FeatureBox
+                                    icon={<MessageSquareText className="w-6 h-6 text-blue-4" />}
+                                    title="ردود سريعة"
+                                    desc="يتميز بسجل حافل بالرد السريع على الرسائل."
+                                />
+                            </div>
+                        )
+                    }
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 

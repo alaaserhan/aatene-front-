@@ -60,6 +60,10 @@ export interface StorePageData {
         products_count: string;
         store_id: string;
     }[];
+    followers?: {
+        id?: number;
+        avatar_url?: string;
+    }[];
 }
 
 export interface StoreReviewUser {

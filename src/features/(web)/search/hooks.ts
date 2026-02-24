@@ -37,69 +37,77 @@ const QK = {
 };
 
 // Product Hooks
-export const useSearchProducts = (params: ProductSearchParams) => {
+export const useSearchProducts = (params: ProductSearchParams, enabled: boolean = true) => {
     return useQuery({
         queryKey: QK.products.search(params),
         queryFn: () => searchProducts(params),
         placeholderData: (prev) => prev,
+        enabled,
     });
 };
 
-export const useProductsSearchPage = () => {
+export const useProductsSearchPage = (enabled: boolean = true) => {
     return useQuery({
         queryKey: QK.products.page,
         queryFn: getProductsSearchPageData,
         staleTime: 1000 * 60 * 10, // 10 minutes
+        enabled,
     });
 };
 
 // Service Hooks
-export const useSearchServices = (params: ServiceSearchParams) => {
+export const useSearchServices = (params: ServiceSearchParams, enabled: boolean = true) => {
     return useQuery({
         queryKey: QK.services.search(params),
         queryFn: () => searchServices(params),
         placeholderData: (prev) => prev,
+        enabled,
     });
 };
 
-export const useServicesSearchPage = () => {
+export const useServicesSearchPage = (enabled: boolean = true) => {
     return useQuery({
         queryKey: QK.services.page,
         queryFn: getServicesSearchPageData,
         staleTime: 1000 * 60 * 10,
+        enabled,
     });
 };
 
 // Store Hooks
-export const useSearchStores = (params: StoreSearchParams) => {
+export const useSearchStores = (params: StoreSearchParams, enabled: boolean = true) => {
     return useQuery({
         queryKey: QK.stores.search(params),
         queryFn: () => searchStores(params),
         placeholderData: (prev) => prev,
+        enabled,
     });
 };
 
-export const useStoresSearchPage = () => {
+export const useStoresSearchPage = (enabled: boolean = true) => {
     return useQuery({
         queryKey: QK.stores.page,
         queryFn: getStoresSearchPageData,
         staleTime: 1000 * 60 * 10,
+        enabled,
     });
 };
 
 // User Hooks
-export const useSearchUsers = (params: UserSearchParams) => {
+export const useSearchUsers = (params: UserSearchParams, enabled: boolean = true) => {
     return useQuery({
         queryKey: QK.users.search(params),
         queryFn: () => searchUsers(params),
         placeholderData: (prev) => prev,
+        enabled,
     });
 };
 
-export const useUsersSearchPage = () => {
+export const useUsersSearchPage = (enabled: boolean = true) => {
     return useQuery({
         queryKey: QK.users.page,
         queryFn: getUsersSearchPageData,
         staleTime: 1000 * 60 * 10,
+        enabled,
     });
 };
