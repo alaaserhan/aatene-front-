@@ -4,7 +4,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
-import { Plus, Loader2, Store, ChevronRight } from "lucide-react";
+import { Plus, Loader2, Store, ChevronRight, Search } from "lucide-react";
 import {
   useGetProducts,
   useUpdateProductStatus,
@@ -13,7 +13,7 @@ import {
 } from "../hooks";
 import { MerchantProductStatus } from "../api";
 import { useGetSections } from "../../sections/hooks";
-import { useGetStores } from "../../stores/hooks";
+import { useGetStores, useGetSingleStore } from "../../stores/hooks";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { Product } from "../api";
 import { ProductEmptyState } from "./ProductEmptyState";
@@ -25,6 +25,9 @@ import { StoreEmptyState } from "@/src/components/(dashboard)/StoreEmptyState";
 import { SectionModal, SectionFormData } from "../../sections/components/SectionModal";
 import { useCreateSection } from "../../sections/hooks";
 import { Button } from "@/src/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
+import { Input } from "@/src/components/ui/input";
+import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 
 
 
@@ -42,19 +45,27 @@ export function ProductsPage() {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [selectedAdminStoreId, setSelectedAdminStoreId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeStatus, setActiveStatus] = useState<MerchantProductStatus | "all">("all");
+  const [activeStatus, setActiveStatus] = useState<MerchantProductStatus | "all">(isAdmin ? "active" : "all");
   const [currentPage, setCurrentPage] = useState(1);
   const [productToDelete, setProductToDelete] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
 
+  // --- Status counts (cached, updated from main query response) ---
   const detailsRef = useRef<HTMLDivElement>(null);
 
   // --- Data Fetching ---
   const { data: storesData, isLoading: isLoadingStores } = useGetStores(
-    new URLSearchParams("per_page=100"),
+    new URLSearchParams("per_page=100&type=products"),
     { enabled: isAdmin  }
   );
+
+  
+  const { data: selectedStoreData } = useGetSingleStore(
+    selectedAdminStoreId ?? undefined,
+    { enabled: isAdmin && !!selectedAdminStoreId }
+  );
+  const selectedStore = selectedStoreData?.record;
 
   const sectionsQueryParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -113,24 +124,28 @@ export function ProductsPage() {
     return params;
   }, [effectiveStoreId, selectedSectionId, searchQuery]);
 
-  const { data: activeCountData } = useGetProducts(activeCountParams, { enabled: isProductsEnabled });
-  const { data: notActiveCountData } = useGetProducts(notActiveCountParams, { enabled: isProductsEnabled });
-  const { data: rejectedCountData } = useGetProducts(rejectedCountParams, { enabled: isProductsEnabled });
+  // staleTime: 5 min — won't re-fetch on every render, only when filters change
+  const countQueryOptions = { enabled: isProductsEnabled, staleTime: 5 * 60 * 1000 };
+  const { data: activeCountData } = useGetProducts(activeCountParams, countQueryOptions);
+  const { data: notActiveCountData } = useGetProducts(notActiveCountParams, countQueryOptions);
+  const { data: rejectedCountData } = useGetProducts(rejectedCountParams, countQueryOptions);
 
-  // Total count (for sidebar)
+  // Total count  " جميع المنتجات" في السايد بار 
   const totalCountParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("per_page", "1");
     if (effectiveStoreId) params.set("store_id", effectiveStoreId);
+    if (searchQuery) params.set("name", searchQuery);
     return params;
-  }, [effectiveStoreId]);
+  }, [effectiveStoreId, searchQuery]);
+
   const { data: totalCountData } = useGetProducts(totalCountParams, { enabled: isProductsEnabled });
 
   const getCountForStatus = (key: MerchantProductStatus) => {
     switch (key) {
-      case "active": return activeCountData?.recordsFiltered || 0;
-      case "not-active": return notActiveCountData?.recordsFiltered || 0;
-      case "rejected": return rejectedCountData?.recordsFiltered || 0;
+      case "active": return activeCountData?.recordsFiltered ?? 0;
+      case "not-active": return notActiveCountData?.recordsFiltered ?? 0;
+      case "rejected": return rejectedCountData?.recordsFiltered ?? 0;
       default: return 0;
     }
   };
@@ -181,6 +196,9 @@ export function ProductsPage() {
 
   const products = productsData?.data || [];
   const totalPages = Math.ceil((productsData?.recordsFiltered || 0) / 10);
+
+  
+  const totalProductsCount = totalCountData?.recordsFiltered ?? 0;
 
   // --- Mutations ---
   const { mutate: updateStatusMutation } = useUpdateProductStatus();
@@ -263,9 +281,15 @@ export function ProductsPage() {
     const showAddProduct = isAdmin || (isMerchant && hasSections && selectedSectionId);
 
     if (showAddProduct) {
-      const href = isAdmin
-        ? "/admin/products/add"
-        : `/admin/products/add?section_id=${selectedSectionId}`;
+      let href: string;
+      if (isAdmin) {
+        // Pass selected store_id so AddProductPage can pre-fill it
+        href = selectedAdminStoreId
+          ? `/admin/products/add?store_id=${selectedAdminStoreId}`
+          : "/admin/products/add";
+      } else {
+        href = `/admin/products/add?section_id=${selectedSectionId}`;
+      }
 
       return (
         <Link
@@ -296,26 +320,87 @@ export function ProductsPage() {
 
   const isNoSectionsEmptyState = isMerchant && !isLoadingSections && !hasSections;
   const isNoProductsEmptyState = isMerchant && !isLoadingProducts && products.length === 0;
-  const totalProductsCount = totalCountData?.recordsFiltered || 0;
 
   return (
     <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col">
       {/* Header */}
-      <header className="w-full bg-transparent p-6 pb-0">
-        <div className="flex flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl md:text-2xl sm:text-2xl font-bold text-brand-black-1">
-              إدارة المنتجات
-            </h1>
-            <p className="text-sm text-gray-2 mt-1">
-              عرض وإدارة جميع المنتجات المتاحة
-            </p>
+      {isAdmin && selectedAdminStoreId ? (
+      
+        <>
+          <Breadcrumb
+            items={[
+              { label: "إدارة المنتجات", href: "/admin/products" },
+              { label: selectedStore ? selectedStore.name : "..." },
+            ]}
+            className="bg-white px-6"
+          />
+          <header className="p-4 pb-0">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-4">
+              <div className="flex items-center gap-4">
+                <Avatar className="w-16 h-16 border border-gray-100 shadow-sm">
+                  <AvatarImage src={selectedStore?.owner?.avatar_url || ""} />
+                  <AvatarFallback>{selectedStore?.owner?.first_name?.[0]}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h1 className="text-xl text-blue-3 font-medium mb-1">
+                    {selectedStore
+                      ? `${selectedStore.owner?.first_name} ${selectedStore.owner?.last_name}`
+                      : "جاري التحميل..."}
+                  </h1>
+                  <p className="text-sm text-gray-2 font-medium">
+                    {totalProductsCount} منتج
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-row gap-2">
+                <Link href={`/admin/products/add?store_id=${selectedAdminStoreId}`}>
+                  <Button className="bg-blue-3 text-white px-6 gap-2">
+                    <Plus className="w-5 h-5" />
+                    أضف منتجاً جديداً
+                  </Button>
+                </Link>
+                <Link href={`/admin/reports/${selectedAdminStoreId}`}>
+                  <Button className="bg-red-2 text-red-1 px-6 gap-2">
+                    الإبلاغات
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </header>
+        </>
+      ) : (
+        /* ── Default header ── */
+        <header className="w-full bg-transparent p-6 pb-0">
+          <div className="flex flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-xl md:text-2xl sm:text-2xl font-bold text-brand-black-1">
+                إدارة المنتجات
+              </h1>
+              <p className="text-sm text-gray-2 mt-1">
+                عرض وإدارة جميع المنتجات المتاحة
+              </p>
+            </div>
+            {renderHeaderAction()}
           </div>
-          {renderHeaderAction()}
-        </div>
-      </header>
+        </header>
+      )}
 
       <main className="flex-1 p-6">
+        {/* Search bar — always visible */}
+        <div className="mb-4">
+          <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
+            <Input
+              placeholder="ابحث باسم المنتج أو الوصف..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="pe-10 h-12 border-none shadow-none focus-visible:ring-0"
+            />
+            <Search className="w-5 h-5 text-gray-2 absolute left-3 top-1/2 -translate-y-1/2" />
+          </div>
+        </div>
         {isNoSectionsEmptyState ? (
           <ProductEmptyState type="no-sections" />
         ) : (
@@ -339,7 +424,7 @@ export function ProductsPage() {
                     <span className="flex-1 text-right text-sm mx-2">
                       جميع المنتجات
                       <span className={cn(
-                        "mr-1 text-xs font-bold",
+                        "mr-1 text-sm font-bold",
                         (selectedSectionId === "all" || !selectedSectionId) ? "text-blue-3" : "text-gray-400"
                       )}>
                         ({totalProductsCount})
@@ -409,7 +494,7 @@ export function ProductsPage() {
                     <span className="flex-1 text-right text-sm mx-2">
                       جميع المنتجات
                       <span className={cn(
-                        "mr-1 text-xs font-bold",
+                        "mr-1 text-sm font-bold",
                         !selectedAdminStoreId ? "text-blue-3" : "text-gray-400"
                       )}>
                         ({totalProductsCount})
@@ -475,7 +560,7 @@ export function ProductsPage() {
                       }`}
                     >
                       <span className="font-bold text-sm">{tab.label}</span>
-                      <span className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-xs font-bold text-white ${
+                      <span className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-sm font-bold text-white ${
                         activeStatus === tab.key ? tab.badgeClass : "bg-gray-2"
                       }`}>
                         {getCountForStatus(tab.key)}

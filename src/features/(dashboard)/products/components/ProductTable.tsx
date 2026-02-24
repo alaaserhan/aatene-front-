@@ -72,25 +72,25 @@ export function ProductTable({
                 <table className="w-full">
                     <thead className="bg-[#EEF2F6] border-b border-gray-200">
                         <tr>
-                            <th className="px-6 py-4 text-xs font-medium text-center">كود المنتج</th>
-                            <th className="px-6 py-4 text-xs font-medium text-center">صورة المنتج</th>
-                            <th className="px-6 py-4 text-xs font-medium text-center">عنوان المنتج</th>
+                            <th className="px-6 py-4 text-sm font-medium text-center">كود المنتج</th>
+                            <th className="px-6 py-4 text-sm font-medium text-center">صورة المنتج</th>
+                            <th className="px-6 py-4 text-sm font-medium text-center">عنوان المنتج</th>
 
                             {activeStatus === "rejected" ? (
                                 <>
-                                    <th className="px-6 py-4 text-xs font-medium text-center">سبب الرفض</th>
-                                    <th className="px-6 py-4 text-xs font-medium text-center">تاريخ الرفض</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-center">سبب الرفض</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-center">تاريخ الرفض</th>
                                 </>
                             ) : (
                                 <>
-                                    <th className="px-6 py-4 text-xs font-medium text-center">تاريخ الانتهاء</th>
-                                    <th className="px-6 py-4 text-xs font-medium text-center">مشاهدات</th>
-                                    <th className="px-6 py-4 text-xs font-medium text-center">عدد التواصلات</th>
-                                    <th className="px-6 py-4 text-xs font-medium text-center">مرئي</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-center">تاريخ الانتهاء</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-center">مشاهدات</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-center">عدد التواصلات</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-center">مرئي</th>
                                 </>
                             )}
 
-                            <th className="px-6 py-4 text-xs font-medium text-center">عمليات</th>
+                            <th className="px-6 py-4 text-sm font-medium text-center">عمليات</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
@@ -193,7 +193,7 @@ export function ProductTable({
                                             <DropdownMenuContent align="end" className="w-40 border-gray-100 shadow-lg bg-white">
                                                 <DropdownMenuItem
                                                     className="cursor-pointer gap-2 text-blue-3 focus:text-blue-4 focus:bg-blue-50"
-                                                    onClick={(e) => { e.stopPropagation(); }}
+                                                    onClick={(e) => { e.stopPropagation(); onView(product); }}
                                                 >
                                                     <Eye className="w-4 h-4" />
                                                     <span>مشاهدة</span>
@@ -236,7 +236,7 @@ export function ProductTable({
                 <ShareModal
                     isOpen={shareModalOpen}
                     onClose={() => setShareModalOpen(false)}
-                    shareUrl={`${window.location.origin}/products/${selectedProductForShare.slug}`}
+                    shareUrl={`${window.location.origin}/product/${selectedProductForShare.slug}`}
                     title="شارك هذا المنتج"
                     description="إذا أعجبك هذا المنتج، شاركه مع أصدقائك."
                 />

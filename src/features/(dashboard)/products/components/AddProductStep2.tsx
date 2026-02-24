@@ -93,6 +93,7 @@ export function AddProductStep2({
   const storesQueryParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("per_page", "10");
+    params.set("type", "products");
     if (debouncedStoreSearch) {
       params.set("name", debouncedStoreSearch);
     }

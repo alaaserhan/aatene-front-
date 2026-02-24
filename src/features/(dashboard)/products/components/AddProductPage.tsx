@@ -25,7 +25,11 @@ export function AddProductPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sectionIdFromUrl = searchParams.get("section_id");
-  const storeId = Cookies.get("current_store_id");
+  
+  const storeIdFromUrl = searchParams.get("store_id");
+  const storeId = storeIdFromUrl || Cookies.get("current_store_id");
+  const userType = Cookies.get("user_type");
+  const isAdmin = userType === "admin";
   const toastShownRef = useRef(false);
 
   const createProductMutation = useCreateProduct();
@@ -33,10 +37,10 @@ export function AddProductPage() {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<CompleteProductFormData>({
-    step2: sectionIdFromUrl ? {
+    step2: (sectionIdFromUrl || storeIdFromUrl) ? {
       store_id: Number(storeId) || 0,
       tags: [],
-      section_id: Number(sectionIdFromUrl)
+      ...(sectionIdFromUrl ? { section_id: Number(sectionIdFromUrl) } : {}),
     } : undefined
   });
 
@@ -122,7 +126,7 @@ export function AddProductPage() {
   };
 
   const handleStep2Next = (data: Step2FormData) => {
-    setFormData({ ...formData, step2: data });
+    setFormData((prev) => ({ ...prev, step2: data }));
     setCurrentStep(3);
   };
 
@@ -131,7 +135,7 @@ export function AddProductPage() {
   };
 
   const handleStep3Next = (data: Step3FormData) => {
-    setFormData({ ...formData, step3: data });
+    setFormData((prev) => ({ ...prev, step3: data }));
     setCurrentStep(4);
   };
 
@@ -165,7 +169,8 @@ export function AddProductPage() {
       store_id: updatedFormData.step2!.store_id,
       section_id: updatedFormData.step2!.section_id || 0,
       price: updatedFormData.step1!.price,
-      status: "active",
+     
+      status: isAdmin ? "active" : "not-active",
       tags: updatedFormData.step2!.tags,
       crossSells: data.crossSells,
       cross_sells_price: data.cross_sells_price,
@@ -231,9 +236,8 @@ export function AddProductPage() {
         if (data.short_description) newStep1.short_description = data.short_description;
 
         const newStep2 = { ...prev.step2 } as Step2FormData;
-        // Ensure step2 exists
-        if (!newStep2.store_id) {
-          newStep2.store_id = Number(storeId) || 0;
+        
+        if (!newStep2.tags) {
           newStep2.tags = [];
         }
 
@@ -363,7 +367,11 @@ export function AddProductPage() {
           router.push("/admin/products");
         }}
         title="تم إضافة المنتج بنجاح"
-        message="تمت إضافة المنتج الجديد إلى القائمة بنجاح، يمكنك الآن إدارة المنتجات."
+        message={
+          isAdmin
+            ? "تمت إضافة المنتج الجديد إلى القائمة بنجاح، يمكنك الآن إدارة المنتجات."
+            : "تمت إضافة المنتج الجديد إلى القائمة بنجاح، وسوف يتم نشره بعد المراجعة من قبل الفريق."
+        }
         buttonText="العودة للقائمة"
       />
     </>
