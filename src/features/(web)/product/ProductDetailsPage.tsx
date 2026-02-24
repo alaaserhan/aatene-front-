@@ -46,12 +46,12 @@ export default function ProductDetailsPage() {
 
             {/* Component 2: Shipping & Policies */}
 
-            <ShippingPolicies
+            {/* <ShippingPolicies
                 product={product}
                 store={store}
                 shippingCompany={pageData?.shippingCompany}
                 shippingDetails={pageData?.shippingDetails}
-            />
+            /> */}
 
             {/* Component 3: Store Info Bar */}
             <StoreInfoBar store={store} />
