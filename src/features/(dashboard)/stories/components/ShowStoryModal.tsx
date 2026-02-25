@@ -51,7 +51,6 @@ export function ShowStoryModal({
     const [activeIndex, setActiveIndex] = useState(initialIndex);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    // حالة لفتح مودال التعديل
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false); // مؤشر تحميل للتنزيل
 
