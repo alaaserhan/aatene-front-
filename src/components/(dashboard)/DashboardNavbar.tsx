@@ -58,6 +58,7 @@ interface NavItem {
   icon: LucideIcon | React.ReactNode;
   href: string;
   show: boolean;
+  desc?: string;
 }
 
 interface IconProps {
@@ -151,23 +152,23 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: isAdmin },
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && storeType === "services" },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: isAdmin },
-    { label: "الفئات", icon: Boxes, href: "/categories", show: true },
-    { label: "الإعدادات", icon: Settings, href: "/settings", show: isAdmin },
-    { label: "مدن الشحن", icon: Map, href: "/cities", show: true },
-    { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: true },
-    { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin },
-    { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: isAdmin },
-    { label: "القصص", icon: ImageIcon, href: "/stories ", show: isMerchant },
-    { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services ", show: isAdmin },
-    { label: "المدونات", icon: Newspaper, href: "/blogs", show: true },
-    { label: "المتابعات", icon: Users, href: "/following", show: isMerchant },
-    { label: "المفضله", icon: Heart, href: "/favorites", show: isAdmin },
-    { label: "السجل المالى", icon: Coins, href: "/financial-record", show: isMerchant },
-    { label: "إدارة المحتوى", icon: FileText, href: "/content-management", show: isAdmin },
-    { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: isAdmin },
-    { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: isAdmin },
-    { label: "الإشعارات", icon: Bell, href: "/notifications", show: isAdmin },
-    { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant },
+    { label: "الفئات", icon: Boxes, href: "/categories", show: true, desc: "إدارة وعرض الفئات" },
+    { label: "الإعدادات", icon: Settings, href: "/settings", show: isAdmin, desc: "تخصيص الاشعارات والتنبيهات" },
+    { label: "مدن الشحن", icon: Map, href: "/cities", show: true, desc: "اختر وجهات الشحن المتاحة" },
+    { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: true, desc: "إدارة وتصنيف الاقسام" },
+    { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin, desc: "ادارة ومتابعة البنرات الإعلانية" },
+    { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: isAdmin, desc: "إدارة التشات بوت والإحصائيات" },
+    { label: "القصص", icon: ImageIcon, href: "/stories ", show: isMerchant, desc: "إضافة وإدارة القصص" },
+    { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services ", show: isAdmin, desc: "الطلبات الغير موجودة والمخصصة" },
+    { label: "المدونات", icon: Newspaper, href: "/blogs", show: true, desc: "إضافة وإدارة المدونات والمقالات" },
+    { label: "المتابعات", icon: Users, href: "/following", show: isMerchant, desc: "إدارة واحصائيات المتابعات" },
+    { label: "المفضله", icon: Heart, href: "/favorites", show: isAdmin, desc: "ادارة ومتابعة المفضلة" },
+    { label: "السجل المالى", icon: Coins, href: "/financial-record", show: isMerchant, desc: "متابعة السجل المالي والعمليات" },
+    { label: "إدارة المحتوى", icon: FileText, href: "/content-management", show: isAdmin, desc: "تحكم بالمحتوى الأساسي للموقع" },
+    { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: isAdmin, desc: "إدارة الكلمات والعبارات المسيئة" },
+    { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: isAdmin, desc: "متابعة الشكاوى والبلاغات" },
+    { label: "الإشعارات", icon: Bell, href: "/notifications", show: isAdmin, desc: "إدارة ومتابعة سجل الاشعارات" },
+    { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant, desc: "إدارة ومتابعة الخصومات" },
   ];
 
   const mainNavItems = allNavItems.slice(0, 7);
@@ -295,20 +296,34 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                     المزيد
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 border-gray-200">
+                <DropdownMenuContent align="end" className="w-[280px] p-2 border-none shadow-sm rounded-sm bg-white max-h-[85vh] overflow-y-auto custom-scrollbar">
                   {moreMenuItems
                     .filter((item) => item.show)
                     .map((item) => {
                       const active = isActive(item.href);
                       return (
-                        <DropdownMenuItem key={item.href} asChild>
+                        <DropdownMenuItem key={item.href} asChild className="p-0 outline-none hover:bg-transparent">
                           <Link
                             href={`${navPrefix}${item.href}`}
-                            className="flex items-center gap-2 cursor-pointer"
-                            style={active ? { color: 'var(--blue-3)', fontWeight: 'bold' } : {}}
+                            className="flex gap-2 w-full px-1 py-1.5 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer"
+                            style={active ? { backgroundColor: '#F9FAFB' } : {}}
                           >
-                            {renderIcon(item.icon, active, "w-4 h-4")}
-                            {item.label}
+                            <div className="w-10 h-10 rounded-md bg-blue-5 flex items-center justify-center group-hover:bg-[#DBEAFE] transition-colors shrink-0">
+                              {renderIcon(item.icon, false, "w-5 h-5 text-blue-4 group-hover:text-blue-600")}
+                            </div>
+                            <div className="flex flex-col flex-1 justify-center">
+                              <span className={cn(
+                                "text-sm font-bold group-hover:text-blue-700",
+                                active ? "text-blue-700" : "text-blue-4"
+                              )}>
+                                {item.label}
+                              </span>
+                              {item.desc && (
+                                <span className="text-[10px] text-gray-2 mt-0.5 whitespace-normal leading-tight">
+                                  {item.desc}
+                                </span>
+                              )}
+                            </div>
                           </Link>
                         </DropdownMenuItem>
                       );

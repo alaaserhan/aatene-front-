@@ -35,6 +35,7 @@ import {
     MessageSquareOff,
     Bot,
     Frown,
+    Home,
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
@@ -263,26 +264,30 @@ export function DashboardUserMenu() {
 
                 {/* ================= ADMIN MENU ================= */}
                 {isAdmin && (
-                    <div className="px-2 pb-2">
-                        {adminMenuItems.map((item, index) => (
-                            <Link
-                                key={index}
-                                href={`/${lang}${item.href}`}
-                                className="flex gap-2 w-full px-1 py-2 rounded-lg hover:bg-gray-50 transition-colors group"
-                            >
-                                <div className="w-10 h-10 rounded-sm bg-blue-5 flex items-center justify-center group-hover:bg-[#DBEAFE] transition-colors mt-1 shrink-0">
-                                    <item.icon className="w-5 h-5 text-blue-4" strokeWidth={1.5} />
-                                </div>
-                                <div className="flex flex-col flex-1">
-                                    <span className="text-sm font-bold text-blue-4 group-hover:text-blue-700">
-                                        {item.label}
-                                    </span>
-                                    <span className="text-[10px] text-gray-2 mt-0.5">
-                                        {item.desc}
-                                    </span>
-                                </div>
-                            </Link>
-                        ))}
+                    <div className="px-2 py-2">
+                        <Link
+                            href={`/${lang}/admin/settings`}
+                            className="flex items-center gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer text-gray-2"
+                        >
+                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                                <Settings className="w-5 h-5"/>
+                            </div>
+                            <span className="text-sm font-medium">
+                                الإعدادات
+                            </span>
+                        </Link>
+
+                        <Link
+                            href={`/${lang}`}
+                            className="flex items-center gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer text-gray-2"
+                        >
+                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                                <Home className="w-5 h-5"/>
+                            </div>
+                            <span className="text-sm font-medium">
+                                العودة للمنصة
+                            </span>
+                        </Link>
                         <DropdownMenuSeparator className="my-2" />
                         <button
                             onClick={() => logout()}
