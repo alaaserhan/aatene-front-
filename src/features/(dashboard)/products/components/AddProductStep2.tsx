@@ -133,14 +133,22 @@ export function AddProductStep2({
     { enabled: !!formData.store_id }
   );
 
+  const [sectionSearchQuery, setSectionSearchQuery] = useState("");
+
   const sectionOptions = useMemo(() => {
+    let filtered = sectionsData?.data || [];
+    if (sectionSearchQuery) {
+      filtered = filtered.filter((section) =>
+        section.name.toLowerCase().includes(sectionSearchQuery.toLowerCase())
+      );
+    }
     return (
-      sectionsData?.data?.map((section) => ({
+      filtered.map((section) => ({
         value: String(section.id),
         label: section.name,
-      })) || []
+      }))
     );
-  }, [sectionsData]);
+  }, [sectionsData, sectionSearchQuery]);
 
   const handleStoreChange = (value: string) => {
     setFormData({
@@ -359,6 +367,8 @@ export function AddProductStep2({
                       className="h-11"
                       onAddNew={() => setIsAddSectionOpen(true)}
                       addNewLabel="إضافة قسم جديد"
+                      onSearch={setSectionSearchQuery}
+                      searchPlaceholder="ابحث عن قسم..."
                     />
                     {!errors.section_id && (
                       <p className="text-xs text-gray-2">

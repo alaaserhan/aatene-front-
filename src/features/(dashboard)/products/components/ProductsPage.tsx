@@ -318,7 +318,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
         <div className="mb-4">
           <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
             <Input
-              placeholder="ابحث باسم المنتج أو الوصف..."
+              placeholder="ابحث باسم المنتج..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               className="pe-10 h-12 border-none shadow-none focus-visible:ring-0"

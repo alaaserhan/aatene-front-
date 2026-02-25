@@ -90,7 +90,7 @@ export function ServiceProvidersPage() {
             {/* 1. Header Section */}
             <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
                 <div className="flex items-center justify-between h-16 px-6">
-                    <h1 className="text-blue-4 font-semibold">
+                    <h1 className="text-blue-4 font-medium">
                         مقدمي الخدمات
                     </h1>
 

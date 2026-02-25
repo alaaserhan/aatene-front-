@@ -65,12 +65,20 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
     const storesList = storesData?.data || [];
     const selectedStore = storesList.find(s => s.id === Number(activeStoreId));
 
+    const [storeSearch, setStoreSearch] = useState("");
+
     const storeOptions = useMemo(() => {
-        return storesList.map((store) => ({
+        let filtered = storesList;
+        if (storeSearch) {
+            filtered = filtered.filter((s) =>
+                s.name.toLowerCase().includes(storeSearch.toLowerCase())
+            );
+        }
+        return filtered.map((store) => ({
             label: store.name,
             value: String(store.id),
         }));
-    }, [storesList]);
+    }, [storesList, storeSearch]);
 
     // --- Sections Logic ---
     const [searchQuery, setSearchQuery] = useState("");
@@ -244,6 +252,8 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
                                     onChange={(val) => setActiveStoreId(val)}
                                     placeholder={isLoadingStores ? "جاري تحميل المتاجر..." : "اختر المتجر"}
                                     className="h-11 rounded-xs"
+                                    onSearch={setStoreSearch}
+                                    searchPlaceholder="ابحث عن متجر..."
                                 />
                             </div>
                         )}

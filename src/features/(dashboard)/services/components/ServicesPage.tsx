@@ -1,8 +1,8 @@
 // src/features/(dashboard)/services/components/ServicesPage.tsx
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search } from "lucide-react";
 import {
@@ -25,15 +25,47 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 
 export function ServicesPage({ storeId }: { storeId: number }) {
     const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
-    const [selectedSectionId, setSelectedSectionId] = useState<string>("");
+    const [selectedSectionId, setSelectedSectionId] = useState<string>(searchParams.get("section_id") || "");
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [serviceToDelete, setServiceToDelete] = useState<number | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [activeStatus, setActiveStatus] = useState<ServiceStatus>("approved");
+    const [activeStatus, setActiveStatus] = useState<ServiceStatus>((searchParams.get("status") as ServiceStatus) || "approved");
     const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
     const createSection = useCreateSection();
+
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        let changed = false;
+
+        if (selectedSectionId && selectedSectionId !== "other") {
+            if (params.get("section_id") !== selectedSectionId) {
+                params.set("section_id", selectedSectionId);
+                changed = true;
+            }
+        } else if (params.has("section_id")) {
+            params.delete("section_id");
+            changed = true;
+        }
+
+        if (activeStatus) {
+            if (params.get("status") !== activeStatus) {
+                params.set("status", activeStatus);
+                changed = true;
+            }
+        } else if (params.has("status")) {
+            params.delete("status");
+            changed = true;
+        }
+
+        if (changed) {
+            router.push(`${pathname}?${params.toString()}`, { scroll: false });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedSectionId, activeStatus]);
 
     const { data: storeData } = useGetSingleStore(storeId, {
         enabled: !!storeId,
@@ -55,7 +87,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     const sections = useMemo(() => sectionsData?.data || [], [sectionsData?.data]);
 
     if (sections.length > 0 && !selectedSectionId) {
-        setSelectedSectionId(String(sections[0].id));
+        setSelectedSectionId("other");
     }
 
 
@@ -65,7 +97,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         params.set("status", "approved");
         params.set("per_page", "1");
         if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
-        if (searchQuery) params.set("search", searchQuery);
+        if (searchQuery) params.set("title", searchQuery);
         return params;
     }, [storeId, selectedSectionId, searchQuery]);
 
@@ -237,7 +269,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                 <div className="mb-4">
                     <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
                         <Input
-                            placeholder="ابحث باسم المنتج أو الوصف..."
+                            placeholder="ابحث باسم الخدمة..."
                             value={searchQuery}
                             onChange={(e) => {
                                 setSearchQuery(e.target.value);
