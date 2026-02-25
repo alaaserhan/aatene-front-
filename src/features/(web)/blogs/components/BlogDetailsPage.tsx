@@ -68,7 +68,7 @@ function AuthorCard({ blog }: { blog: Blog }) {
                 <h3 className="text-[17px] font-medium text-[#4d4d4d] capitalize">
                     {authorName || "مستخدم"}
                 </h3>
-                <StarRating rating={4} size={11} />
+                <StarRating rating={Number(blog.user?.review_rate)} size={11} />
             </div>
             <p className="text-xs text-gray-2 leading-[17px] text-center">
                 {blog.description?.slice(0, 150) || "لا يوجد وصف"}

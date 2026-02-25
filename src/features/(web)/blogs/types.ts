@@ -17,6 +17,8 @@ export interface BlogUser {
     verified_code: string | null;
     last_login_at: string;
     created_at: string;
+    review_rate: string | null;
+    review_count: string | null;
 }
 
 export interface BlogContent {

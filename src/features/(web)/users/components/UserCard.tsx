@@ -28,6 +28,19 @@ export default function UserCard({ user, className }: UserCardProps) {
     // Use slug if available, otherwise ID
     const profileLink = `/profile/${user.slug || user.id}`;
 
+    const getValidImageSrc = (src: string | undefined | null, fallback: string) => {
+        if (!src) return fallback;
+        if (src.startsWith('/') || src.startsWith('http://') || src.startsWith('https://')) return src;
+        try {
+            new URL(src);
+            return src;
+        } catch {
+            return fallback;
+        }
+    };
+
+    const validAvatar = getValidImageSrc(user.avatar_url, "/default-avatar.png");
+
     return (
         <Link
             href={profileLink}
@@ -56,8 +69,8 @@ export default function UserCard({ user, className }: UserCardProps) {
                 */}
                 <div className="absolute -top-[2.5rem] left-1/2 -translate-x-1/2 w-20 h-20 rounded-full border-[2px] border-white overflow-hidden shadow-sm bg-gray-50 z-10">
                     <Image
-                        src={user.avatar || "/default-avatar.png"}
-                        alt={user.name}
+                        src={validAvatar}
+                        alt={user.name || "User"}
                         fill
                         className="object-cover"
                         onError={(e) => {

@@ -22,6 +22,9 @@ export interface UserProfile {
     date_of_birth: string;
     user_type: string;
     am_i_following?: boolean;
+    city?: {
+        name: string;
+    };
 }
 
 export interface UserStory {

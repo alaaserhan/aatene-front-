@@ -117,7 +117,8 @@ function UserHeader({ user, isOwnProfile, followers }: {
                     {/* Column 2: User Personal Information & Action Buttons */}
                     <div className="flex flex-col py-2">
                         <h1 className="text-2xl md:text-3xl font-medium leading-tight mb-1 ">{user.fullname}</h1>
-                        <p className="text-gray-500 text-sm md:text-base font-medium mb-3 md:mb-5">{user.slug}</p>
+                        <p className="text-gray-500 text-sm md:text-base font-medium mb-1 ">{user.slug}</p>
+                        <p className="text-gray-500 text-sm  font-medium mb-3">{user.city?.name}</p>
 
                         {/* Dynamic Button Action Mapping */}
                         <div className="flex items-stretch md:items-center justify-center md:justify-start gap-3 flex-1">

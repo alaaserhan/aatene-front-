@@ -35,6 +35,7 @@ import {
   Bell,
 
   TicketPercent,
+  Trash2,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -167,6 +168,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: isAdmin },
     { label: "الإشعارات", icon: Bell, href: "/notifications", show: isAdmin },
     { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant },
+    { label: "المحذوفات", icon: Trash2, href: "/trash", show: isAdmin },
   ];
 
   const mainNavItems = allNavItems.slice(0, 6);
@@ -396,18 +398,6 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-lg hover:bg-white/20 relative"
-              aria-label="المحذوفات"
-              asChild
-            >
-              <Link href={`/${lang}${navPrefix}/trash`}>
-                <img src="/icons/dashboard/delete-02.png" className="w-5 h-5" alt="trash" />
-              </Link>
-            </Button>
             <div className="hidden lg:block">
               <DashboardUserMenu />
             </div>

@@ -216,6 +216,7 @@ export interface User {
     last_name: string;
     name: string;
     avatar: string | null;
+    avatar_url: string | null;
     bio: string | null;
     review_rate: string;
     review_count: string;
