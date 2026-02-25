@@ -313,8 +313,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                             </div>
                             <div className="flex flex-col flex-1 justify-center">
                               <span className={cn(
-                                "text-sm font-bold group-hover:text-blue-700",
-                                active ? "text-blue-700" : "text-blue-4"
+                                "text-sm font-medium group-hover:text-blue-700",
+                                active ? "text-blue-3" : "text-blue-4"
                               )}>
                                 {item.label}
                               </span>
