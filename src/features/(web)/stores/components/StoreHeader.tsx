@@ -17,7 +17,7 @@ import {
     UserPlus,
     Loader2
 } from "lucide-react";
-import { useFollowUserOrStore } from "@/src/features/(web)/settings/hooks";
+import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -33,6 +33,7 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
     const queryClient = useQueryClient();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
+    const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
     const { mutate: addFav, isPending: isAddingFav } = useAddToFavorites();
     const { mutate: removeFav, isPending: isRemovingFav } = useRemoveFromFavorites();
     const [isFav, setIsFav] = useState(store.is_favorite);
@@ -173,18 +174,34 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                             {/* Action Buttons Row */}
                             <div className="flex items-center justify-center lg:justify-start gap-2 mt-4 flex-wrap">
                                 <button
-                                    disabled={isFollowing}
+                                    disabled={isFollowing || isUnfollowing}
                                     onClick={() => {
-                                        follow(
-                                            { followed_type: "store", followed_id: store.id },
-                                            {
-                                                onSuccess: () => {
-                                                    queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
-                                                },
-                                            }
-                                        );
+                                        if (store.am_i_following) {
+                                            unfollow(
+                                                { followed_type: "store", followed_id: store.id },
+                                                {
+                                                    onSuccess: () => {
+                                                        queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
+                                                    },
+                                                }
+                                            );
+                                        } else {
+                                            follow(
+                                                { followed_type: "store", followed_id: store.id },
+                                                {
+                                                    onSuccess: () => {
+                                                        queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
+                                                    },
+                                                }
+                                            );
+                                        }
                                     }}
-                                    className="h-10 px-6 rounded-full text-sm bg-blue-4 text-white font-medium flex items-center justify-center gap-2 hover:bg-blue-3 transition-colors cursor-pointer disabled:opacity-50"
+                                    className={cn(
+                                        "h-10 px-6 rounded-full text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50",
+                                        store.am_i_following
+                                            ? "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                            : "bg-blue-4 text-white hover:bg-blue-3"
+                                    )}
                                 >
                                     <UserPlus className="w-4 h-4" />
                                     <span>{store.am_i_following ? "إلغاء المتابعة" : "تابع المتجر"}</span>

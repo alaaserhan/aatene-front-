@@ -91,11 +91,11 @@ export function AddServiceStep5({
                     <div className="col-span-12 lg:col-span-8">
                         <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-sm space-y-8">
 
-                            <h2 className="text-xl font-bold  text-right">نهائياً</h2>
+                            <h2 className="text-xl font-medium  text-right">نهائياً</h2>
 
                             {/* Copyright Notice */}
                             <div className="space-y-2">
-                                <h3 className="text-lg font-bold ">إشعار حقوق النشر</h3>
+                                <h3 className="text-lg font-medium ">إشعار حقوق النشر</h3>
                                 <p className="text-sm text-gray-2 leading-relaxed">
                                     بإرسال خدمتك، تُقر بملكيتك أو حقوقك في المواد المنشورة، وأن نشر هذه المواد لا ينتهك حقوق أي طرف ثالث. كما تُقر بفهمك أن مشروعك سيخضع للمراجعة والتقييم من قبل الإدارة لضمان استيفائه لمتطلباتها.
                                 </p>
@@ -105,7 +105,7 @@ export function AddServiceStep5({
 
                             {/* Terms of Service */}
                             <div className="space-y-4">
-                                <h3 className="text-lg font-bold ">شروط الخدمة</h3>
+                                <h3 className="text-lg font-medium ">شروط الخدمة</h3>
                                 <div className="flex items-center gap-3">
                                     <div className="relative flex items-center">
                                         <input
@@ -130,14 +130,14 @@ export function AddServiceStep5({
                                         </div>
                                     </div>
                                     <label htmlFor="terms" className="text-sm text-gray-2 cursor-pointer select-none">
-                                        أفهم وأوافق على شروط خدمة اعطيني، بما في ذلك <Link href="#" className="text-[#3A5779] underline hover:text-blue-4">اتفاقية المستخدم</Link> و<Link href="#" className="text-[#3A5779] underline hover:text-blue-4">سياسة الخصوصية</Link>.
+                                        أفهم وأوافق على شروط خدمة اعطيني، بما في ذلك <Link href="/terms-of-service" className="text-[#3A5779] underline hover:text-blue-4">اتفاقية المستخدم</Link> و<Link href="/privacy-policy" className="text-[#3A5779] underline hover:text-blue-4">سياسة الخصوصية</Link>.
                                     </label>
                                 </div>
                             </div>
 
                             {/* Privacy Notice */}
                             <div className="space-y-4">
-                                <h3 className="text-lg font-bold ">إشعار الخصوصية</h3>
+                                <h3 className="text-lg font-medium ">إشعار الخصوصية</h3>
                                 <div className="flex items-center gap-3">
                                     <div className="relative flex items-center">
                                         <input

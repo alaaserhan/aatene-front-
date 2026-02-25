@@ -17,7 +17,7 @@ export default function HomeMultiBanners({ banners }: HomeMultiBannersProps) {
     const displayBanners = banners.slice(0, 3);
 
     return (
-        <section className="py-8 w-full">
+        <section className="py-16 w-full">
             <MaxWidthWrapper className="px-4 md:px-8">
                 <div
                     className={cn(
