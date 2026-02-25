@@ -358,7 +358,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               </Link>
             </Button>
 
-            <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+            <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen} dir="rtl"> 
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
@@ -377,41 +377,38 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>
+              <DropdownMenuContent
+                align="end"
+                className="w-[280px] p-2 border-none shadow-sm rounded-sm bg-white max-h-[85vh] overflow-y-auto custom-scrollbar"
+                sideOffset={8}
+              >
+                <DropdownMenuLabel className="p-2">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-lg" style={{ color: "var(--blue-3)" }}>
-                      الإشعارات
-                    </h3>
+                    <h3 className="font-medium text-blue-4">الإشعارات</h3>
                     {unreadCount > 0 && (
-                      <Badge variant="secondary">{unreadCount} جديد</Badge>
+                      <Badge variant="secondary" className="bg-blue-5 text-blue-4">
+                        {unreadCount} جديد
+                      </Badge>
                     )}
                   </div>
                 </DropdownMenuLabel>
-                <Separator />
-                <div className="p-2 max-h-[400px] overflow-y-auto">
+                <Separator className="my-1 bg-gray-50" />
+                <div className="flex flex-col max-h-[300px] overflow-y-auto custom-scrollbar p-1">
                   {notifications.length === 0 ? (
-                    <p className="p-4 text-center text-sm text-brand-gray-1">
+                    <p className="text-sm text-gray-2 text-center py-4">
                       لا توجد إشعارات جديدة
                     </p>
                   ) : (
                     notifications.map((notification) => (
-                      <DropdownMenuItem key={notification.id} className="p-3 rounded-lg data-[highlighted]:bg-brand-blue-1">
+                      <DropdownMenuItem
+                        key={notification.id}
+                        className="p-3 rounded-lg hover:bg-gray-50 outline-none cursor-pointer transition-colors mb-1 shadow-none"
+                      >
                         {/* Notification content */}
                       </DropdownMenuItem>
                     ))
                   )}
                 </div>
-                <Separator />
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={`${navPrefix}/notifications`}
-                    className="w-full text-center justify-center text-sm py-2 cursor-pointer"
-                    style={{ color: "var(--blue-3)" }}
-                  >
-                    عرض جميع الإشعارات
-                  </Link>
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -580,20 +577,20 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                       {/* Action Links */}
                       <div className="space-y-2">
 
-                          <Link
-                            href={`/`}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                                <Store size={16} className="text-blue-4" />
-                              </div>
-                              <span className="font-medium">المنصه</span>
+                        <Link
+                          href={`/`}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                              <Store size={16} className="text-blue-4" />
                             </div>
-                            <ChevronLeft size={16} className="text-gray-400 " />
-                          </Link>
-                      
+                            <span className="font-medium">المنصه</span>
+                          </div>
+                          <ChevronLeft size={16} className="text-gray-400 " />
+                        </Link>
+
 
                         {/* Logout Button */}
                         <button
