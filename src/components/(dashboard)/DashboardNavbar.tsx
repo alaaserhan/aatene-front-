@@ -164,7 +164,6 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "المدونات", icon: Newspaper, href: "/blogs", show: true, desc: "إضافة وإدارة المدونات والمقالات" },
     { label: "المتابعات", icon: Users, href: "/following", show: isMerchant, desc: "إدارة واحصائيات المتابعات" },
     { label: "المفضله", icon: Heart, href: "/favorites", show: isAdmin, desc: "ادارة ومتابعة المفضلة" },
-    { label: "السجل المالى", icon: Coins, href: "/financial-record", show: isMerchant, desc: "متابعة السجل المالي والعمليات" },
     { label: "إدارة المحتوى", icon: FileText, href: "/content-management", show: isAdmin, desc: "تحكم بالمحتوى الأساسي للموقع" },
     { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: isAdmin, desc: "إدارة الكلمات والعبارات المسيئة" },
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: isAdmin, desc: "متابعة الشكاوى والبلاغات" },

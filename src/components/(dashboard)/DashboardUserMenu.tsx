@@ -37,6 +37,8 @@ import {
     Frown,
     Home,
     Store,
+    ArrowRight,
+    ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
@@ -188,7 +190,7 @@ export function DashboardUserMenu() {
                         <div className=" space-y-1 p-2">
                             {/* <MenuItem href={`/${lang}/admin/points`} icon={Coins} label="النقاط" /> */}
                             <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label=" السجل المالي" />
-                            <MenuItem href={`/${lang}/admin/stores`} icon={Settings} label="ادارة المتاجر" />
+                            {/* <MenuItem href={`/${lang}/admin/stores`} icon={Settings} label="ادارة المتاجر" /> */}
                             {/* <MenuItem href={`/${lang}/admin/roles`} icon={Users} label="الادوار الوظيفية" /> */}
                             <MenuItem href={`/${lang}`} icon={Store} label="العودة للمنصة" />
 
@@ -268,26 +270,32 @@ export function DashboardUserMenu() {
                     <div className="px-2 py-2">
                         <Link
                             href={`/${lang}/admin/settings`}
-                            className="flex items-center gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer text-gray-2"
+                            className="flex items-center justify-between gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer text-gray-2"
                         >
-                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                                <Settings className="w-5 h-5"/>
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                                <Settings className="w-4 h-4"/>
                             </div>
                             <span className="text-sm font-medium">
                                 الإعدادات
                             </span>
+                            </div>
+                            <ChevronLeft className="w-4 h-4"/>
                         </Link>
 
                         <Link
                             href={`/${lang}`}
-                            className="flex items-center gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer text-gray-2"
+                            className="flex items-center justify-between gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer text-gray-2"
                         >
-                            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                                <Home className="w-5 h-5"/>
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                                    <Home className="w-4 h-4"/>
+                                </div>
+                                <span className="text-sm font-medium">
+                                    العودة للمنصة
+                                </span>
                             </div>
-                            <span className="text-sm font-medium">
-                                العودة للمنصة
-                            </span>
+                            <ChevronLeft className="w-4 h-4"/>
                         </Link>
                         <DropdownMenuSeparator className="my-2" />
                         <button
