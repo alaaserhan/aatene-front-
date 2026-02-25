@@ -19,9 +19,27 @@ const statusFilterOptions = [
 ];
 
 export function StoresPage() {
-    const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
+    const [selectedStoreId, setSelectedStoreId] = useState<number | null>(() => {
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            const storeIdStr = params.get("storeId");
+            return storeIdStr ? Number(storeIdStr) : null;
+        }
+        return null;
+    });
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
+
+    const updateSelectedStore = (id: number | null) => {
+        setSelectedStoreId(id);
+        const url = new URL(window.location.href);
+        if (id) {
+            url.searchParams.set("storeId", id.toString());
+        } else {
+            url.searchParams.delete("storeId");
+        }
+        window.history.replaceState({}, '', url.toString());
+    };
 
     const detailsRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +74,7 @@ export function StoresPage() {
     const isTrueEmpty = !isLoading && !isError && allStores.length === 0 && !searchQuery && statusFilter === "all";
 
     const handleStoreClick = (store: Store) => {
-        setSelectedStoreId(store.id);
+        updateSelectedStore(store.id);
         if (window.innerWidth < 1024) {
             detailsRef.current?.scrollIntoView({
                 behavior: "smooth",
@@ -67,12 +85,12 @@ export function StoresPage() {
 
     const handleSearchChange = (query: string) => {
         setSearchQuery(query);
-        setSelectedStoreId(null);
+        updateSelectedStore(null);
     };
 
     const handleFilterChange = (value: string) => {
         setStatusFilter(value);
-        setSelectedStoreId(null);
+        updateSelectedStore(null);
     };
 
     const renderStoreItem = (store: Store) => {
@@ -174,7 +192,7 @@ export function StoresPage() {
                                     </div>
                                 </div>
                             ) : (
-                                <StoreDetailsPage storeId={selectedStoreId} />
+                                <StoreDetailsPage storeId={selectedStoreId} onDeleteSuccess={() => updateSelectedStore(null)} />
                             )}
                         </div>
                     </div>

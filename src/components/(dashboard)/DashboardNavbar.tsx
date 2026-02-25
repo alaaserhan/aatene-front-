@@ -154,7 +154,6 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && storeType === "services" },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: isAdmin },
     { label: "الفئات", icon: Boxes, href: "/categories", show: true, desc: "إدارة وعرض الفئات" },
-    { label: "الإعدادات", icon: Settings, href: "/settings", show: isAdmin, desc: "تخصيص الاشعارات والتنبيهات" },
     { label: "مدن الشحن", icon: Map, href: "/cities", show: true, desc: "اختر وجهات الشحن المتاحة" },
     { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: true, desc: "إدارة وتصنيف الاقسام" },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin, desc: "ادارة ومتابعة البنرات الإعلانية" },

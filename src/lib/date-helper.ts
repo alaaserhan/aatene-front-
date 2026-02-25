@@ -64,7 +64,7 @@ export function getRelativeTimeArabic(dateString: string | Date | null | undefin
         return "منذ يومين";
     }
     if (diffInDays < 30) {
-        return `منذ ${diffInDays} يوم`;
+        return `منذ ${diffInDays} ايام`;
     }
 
     const diffInMonths = Math.floor(diffInDays / 30);

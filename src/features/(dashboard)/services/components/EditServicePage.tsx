@@ -1,9 +1,9 @@
 // src/features/(dashboard)/services/components/EditServicePage.tsx
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { AddServiceStep1 } from "./AddServiceStep1";
@@ -14,14 +14,13 @@ import { AddServiceStep5 } from "./AddServiceStep5";
 import { useUpdateService, useGetService } from "../hooks";
 import { ServicePayload } from "../api";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
-import { Button } from "@/src/components/ui/button";
+
 import {
   CompleteServiceFormData,
   Step1ServiceData,
   Step2ServiceData,
   Step3ServiceData,
-  Step4ServiceData,
-  Step5ServiceData
+  Step4ServiceData
 } from "../types";
 
 interface EditServicePageProps {
@@ -38,60 +37,56 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<CompleteServiceFormData | null>(null);
 
-  useEffect(() => {
-    const service = serviceResponse?.data;
+  const service = serviceResponse?.data;
 
-    if (service && !formData) {
-      try {
-        let imagesPreviews: string[] = [];
-        if (Array.isArray(service.images_urls)) {
-          imagesPreviews = service.images_urls;
-        } else if (typeof service.images_urls === "string") {
-          imagesPreviews = [service.images_urls];
-        } else {
-          imagesPreviews = service.images || [];
-        }
-
-        const initialFormData: CompleteServiceFormData = {
-          step1: {
-            title: service.title,
-            category_id: service.category_id,
-            section_id: service.section_id,
-            specialties: service.specialties || [],
-          },
-          step2: {
-            price: Number(service.price) || 0,
-            execute_count: Number(service.execute_count) || 1,
-            execute_type: service.execute_type,
-            extras: service.extras || [],
-          },
-          step3: {
-            images: service.images || [],
-            images_previews: imagesPreviews,
-          },
-          step4: {
-            description: service.description,
-            questions: service.questions || [],
-            tags: service.tags || [],
-          },
-        };
-
-        setFormData(initialFormData);
-      } catch (error) {
-        console.error("Mapping Error", error);
-        toast.error("حدث خطأ أثناء معالجة بيانات الخدمة");
+  if (service && !formData) {
+    try {
+      let imagesPreviews: string[] = [];
+      if (Array.isArray(service.images_urls)) {
+        imagesPreviews = service.images_urls;
+      } else if (typeof service.images_urls === "string") {
+        imagesPreviews = [service.images_urls];
+      } else {
+        imagesPreviews = service.images || [];
       }
+
+      const initialFormData: CompleteServiceFormData = {
+        step1: {
+          title: service.title,
+          category_id: service.category_id,
+          section_id: service.section_id,
+          specialties: service.specialties || [],
+        },
+        step2: {
+          price: Number(service.price) || 0,
+          execute_count: Number(service.execute_count) || 1,
+          execute_type: service.execute_type,
+          extras: service.extras || [],
+        },
+        step3: {
+          images: service.images || [],
+          images_previews: imagesPreviews,
+        },
+        step4: {
+          description: service.description,
+          questions: service.questions || [],
+          tags: (service.tags || []).map((t: { title?: string } | string) => typeof t === "string" ? t : t?.title).filter(Boolean) as string[],
+        },
+      };
+
+      setFormData(initialFormData);
+    } catch (error) {
+      console.error("Mapping Error", error);
+      // toast.error("حدث خطأ أثناء معالجة بيانات الخدمة");
     }
-  }, [serviceResponse, formData]);
+  }
 
   const breadcrumbItems = useMemo(() => [
     { label: "الخدمات", href: "/admin/serviceProviders" },
     { label: "تعديل الخدمة" },
   ], []);
 
-  const handleStepClick = (step: number) => {
-    setCurrentStep(step);
-  };
+
 
   const handleStep1Next = (data: Step1ServiceData) => {
     if (!formData) return;
@@ -122,7 +117,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
   const handleStep4Back = () => setCurrentStep(3);
 
   // ✅ تم التعديل هنا: استخدام mutate مع onSuccess callback
-  const handleStep5Submit = (data: Step5ServiceData) => {
+  const handleStep5Submit = () => {
     if (updateServiceMutation.isPending) return;
 
     if (!formData) return;

@@ -1,6 +1,6 @@
 // src/features/(dashboard)/stores/components/EditStorePage.tsx
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AddStoreStep2 } from "./AddStoreStep2";
 import { AddStoreStep3 } from "./AddStoreStep3";
@@ -22,6 +22,7 @@ import {
 import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { Loader2 } from "lucide-react";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 
 interface EditStorePageProps {
   storeId: number;
@@ -34,91 +35,90 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
   const { user } = useAuthStore();
 
   const [currentStep, setCurrentStep] = useState(2);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState<CompleteStoreFormData | null>(null);
 
   const store = storeData?.record;
 
-  useEffect(() => {
-    if (store && !formData) {
-      const managersPayload: StoreManagerPayload[] = (store.managers || []).map(
-        (m) => ({
-          email: m.user_email,
-          title: m.title,
-          status: m.status,
-        })
-      );
+  if (store && !formData) {
+    const managersPayload = (store.managers || []).map(
+      (m) => ({
+        email: m.user_email,
+        title: m.title as unknown as StoreManagerPayload["title"],
+        status: m.status as unknown as StoreManagerPayload["status"],
+      })
+    ) as StoreManagerPayload[];
 
-      const locationCities = ((store.locationCities as unknown as any[]) || [])
-        .map((c) => (typeof c === 'object' ? c.id : c))
-        .filter((id): id is number => typeof id === 'number');
+    const locationCities = ((store.locationCities as unknown[]) || [])
+      .map((c: unknown) => (typeof c === 'object' && c !== null && 'id' in c ? (c as { id: number }).id : c))
+      .filter((id): id is number => typeof id === 'number');
 
-      const serviceCities = (store.serviceCities || [])
-        .map((c) => c.id)
-        .filter((id): id is number => id !== undefined);
+    const serviceCities = (store.serviceCities || [])
+      .map((c: { id?: number }) => c.id)
+      .filter((id): id is number => id !== undefined);
 
-      const initialFormData: CompleteStoreFormData = {
-        type: store.type as StoreType,
-        step2: {
-          name: store.name,
-          logo: store.logo,
-          logo_preview: store.logo_url,
-          cover: store.cover,
-          cover_previews: store.cover_urls.filter(
-            (url): url is string => url !== null
-          ),
-          description: store.description || "",
-          email: store.email || "",
-          locationCities: locationCities,
-          serviceCities: serviceCities,
-          address: store.address || "",
-          owner_id: Number(store.owner_id),
-          currency_id: Number(store.currency_id),
-        },
-        step3: {
-          phone: store.phone || "",
-          hide_phone: store.hide_phone,
-          whats_app: store.whats_app || "",
-          tiktok: store.tiktok || "",
-          facebook: store.facebook || "",
-          instagram: store.instagram || "",
-          twitter: store.twitter || "",
-          youtube: store.youtube || "",
-          linkedin: store.linkedin || "",
-          pinterest: store.pinterest || "",
-        },
-        step4: {
-          managers: managersPayload,
-        },
-        step5: {
-          open_status: store.open_status,
-          workingtimes: (store.workingtimes || []).map((wt) => ({
-            day: wt.day,
-            from: wt.from,
-            to: wt.to,
-            open_always: wt.open_always,
-            closed_always: wt.closed_always,
+    const initialFormData: CompleteStoreFormData = {
+      type: store.type as StoreType,
+      step2: {
+        name: store.name,
+        logo: store.logo,
+        logo_preview: store.logo_url,
+        cover: store.cover,
+        cover_previews: store.cover_urls.filter(
+          (url: string | null): url is string => url !== null
+        ),
+        description: store.description || "",
+        email: store.email || "",
+        locationCities: locationCities,
+        serviceCities: serviceCities,
+        address: store.address || "",
+        owner_id: Number(store.owner_id),
+        currency_id: Number(store.currency_id),
+      },
+      step3: {
+        phone: store.phone || "",
+        hide_phone: store.hide_phone,
+        whats_app: store.whats_app || "",
+        tiktok: store.tiktok || "",
+        facebook: store.facebook || "",
+        instagram: store.instagram || "",
+        twitter: store.twitter || "",
+        youtube: store.youtube || "",
+        linkedin: store.linkedin || "",
+        pinterest: store.pinterest || "",
+      },
+      step4: {
+        managers: managersPayload,
+      },
+      step5: {
+        open_status: store.open_status,
+        workingtimes: (store.workingtimes || []).map((wt) => ({
+          day: wt.day,
+          from: wt.from,
+          to: wt.to,
+          open_always: wt.open_always,
+          closed_always: wt.closed_always,
+        })),
+      },
+      step6: {
+        delivery_type: store.delivery_type || "shipping",
+        shippingCompanies: (store.shippingCompanies || []).map((sc) => ({
+          name: sc.name,
+          phone: String(sc.phone),
+          prices: sc.prices.map((p) => ({
+            city_id: p.city_id,
+            days: p.days,
+            price: p.price,
           })),
-        },
-        step6: {
-          delivery_type: store.delivery_type || "shipping",
-          shippingCompanies: (store.shippingCompanies || []).map((sc) => ({
-            name: sc.name,
-            phone: sc.phone,
-            prices: sc.prices.map((p) => ({
-              city_id: p.city_id,
-              days: p.days,
-              price: p.price,
-            })),
-          })),
-        },
-        step7: {
-          tags: store.tags || [],
-        },
-      };
+        })),
+      },
+      step7: {
+        tags: store.tags || [],
+      },
+    };
 
-      setFormData(initialFormData);
-    }
-  }, [store, formData]);
+    setFormData(initialFormData);
+  }
 
   const handleStep2Next = (data: Step2FormData) => {
     if (!formData) return;
@@ -238,7 +238,7 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
         id: storeId,
         payload,
       });
-      router.push("/admin/stores");
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Error updating store:", error);
     }
@@ -399,5 +399,19 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
     }
   };
 
-  return <>{renderStep()}</>;
+  return (
+    <>
+      {renderStep()}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push("/admin/stores");
+        }}
+        title="تم تحديث المتجر بنجاح"
+        message="تم حفظ التعديلات التي أجريتها على المتجر بنجاح."
+        buttonText="العودة للقائمة"
+      />
+    </>
+  );
 }

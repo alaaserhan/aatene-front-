@@ -71,7 +71,7 @@ export function useCreateStore() {
   return useMutation({
     mutationFn: (payload: StoreCreatePayload) => api.createStore(payload),
     onSuccess: (data) => {
-      toast.success(data.message || "تم إنشاء المتجر بنجاح");
+      // toast.success(data.message || "تم إنشاء المتجر بنجاح");
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: StoresQK.listAny });
@@ -146,7 +146,7 @@ export function useUpdateStore() {
     },
 
     onSuccess: (data) => {
-      toast.success(data.message || "تم تحديث المتجر بنجاح");
+      // toast.success(data.message || "تم تحديث المتجر بنجاح");
     },
 
     onError: (_err, vars, ctx) => {

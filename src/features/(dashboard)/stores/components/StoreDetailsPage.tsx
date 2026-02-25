@@ -14,6 +14,7 @@ import { formatDateArabic } from "@/src/lib/date-helper";
 
 interface StoreDetailsPageProps {
   storeId: number;
+  onDeleteSuccess?: () => void;
 }
 
 const statusOptions = [
@@ -21,7 +22,7 @@ const statusOptions = [
   { label: "غير مفعل", value: "not-active" },
 ];
 
-export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
+export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageProps) {
   const router = useRouter();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
@@ -49,7 +50,11 @@ export function StoreDetailsPage({ storeId }: StoreDetailsPageProps) {
 
     deleteStoreMutation(storeId, {
       onSuccess: () => {
-        router.push("/admin/stores");
+        if (onDeleteSuccess) {
+          onDeleteSuccess();
+        } else {
+          router.push("/admin/stores");
+        }
       },
       onError: () => {
         // إعادة التفعيل في حال فشل الحذف فقط

@@ -22,6 +22,7 @@ import {
 } from "../types";
 import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 
 interface AddStorePageProps {
   storeType: StoreType;
@@ -33,6 +34,7 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
   const { user } = useAuthStore();
 
   const [currentStep, setCurrentStep] = useState(2);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState<CompleteStoreFormData>({
     type: storeType,
   });
@@ -148,7 +150,7 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
 
     try {
       await createStoreMutation.mutateAsync(payload);
-      router.push("/admin/stores");
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Error creating store:", error);
     }
@@ -288,5 +290,19 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
     }
   };
 
-  return <>{renderStep()}</>;
+  return (
+    <>
+      {renderStep()}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push("/admin/stores");
+        }}
+        title="تم إضافة المتجر بنجاح"
+        message="تم إنشاء المتجر بنجاح ويمكنك الآن بدء إضافة منتجاتك."
+        buttonText="العودة للقائمة"
+      />
+    </>
+  );
 }
