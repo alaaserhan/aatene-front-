@@ -19,7 +19,8 @@ export interface DropdownRef {
 interface ReusableDropdownProps {
   options: DropdownOption[];
   value?: string | string[] | null;
-  onChange: ((value: string) => void) | ((value: string[]) => void);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onChange: (value: any) => void;
   multiple?: boolean;
   placeholder?: string;
   triggerIcon?: React.ReactNode;
@@ -174,12 +175,12 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
                         if (multiple) {
                           const currentVals = Array.isArray(value) ? [...value] : [];
                           if (isSelected) {
-                            (onChange as (v: string[]) => void)(currentVals.filter((v: string) => v !== option.value));
+                            onChange(currentVals.filter((v: string) => v !== option.value));
                           } else {
-                            (onChange as (v: string[]) => void)([...currentVals, option.value]);
+                            onChange([...currentVals, option.value]);
                           }
                         } else {
-                          (onChange as (v: string) => void)(option.value);
+                          onChange(option.value);
                           setIsOpen(false);
                         }
                       }}
