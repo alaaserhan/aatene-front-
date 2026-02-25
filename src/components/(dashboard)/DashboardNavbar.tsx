@@ -527,9 +527,9 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                       {/* User Profile Card */}
                       <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-4 mb-4">
                         <div className="flex items-center gap-4 mb-4">
-                          {user?.avatar ? (
+                          {user?.avatar_url ? (
                             <img
-                              src={user.avatar}
+                              src={user.avatar_url}
                               alt={user.fullname}
                               className="w-14 h-14 rounded-full object-cover ring-3 ring-white shadow-lg"
                             />
@@ -579,37 +579,21 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
 
                       {/* Action Links */}
                       <div className="space-y-2">
-                        {isAdmin && (
-                          <Link
-                            href={`/${lang}/admin`}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
-                                <Crown size={16} className="text-yellow-600" />
-                              </div>
-                              <span className="font-medium">لوحة التحكم</span>
-                            </div>
-                            <ChevronLeft size={16} className="text-gray-400 group-hover:text-yellow-600" />
-                          </Link>
-                        )}
 
-                        {isMerchant && (
                           <Link
-                            href={`/${lang}`}
+                            href={`/`}
                             onClick={() => setMobileMenuOpen(false)}
                             className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                                <Store size={16} className="text-blue-600" />
+                              <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                                <Store size={16} className="text-blue-4" />
                               </div>
                               <span className="font-medium">المنصه</span>
                             </div>
-                            <ChevronLeft size={16} className="text-gray-400 group-hover:text-blue-600" />
+                            <ChevronLeft size={16} className="text-gray-400 " />
                           </Link>
-                        )}
+                      
 
                         {/* Logout Button */}
                         <button

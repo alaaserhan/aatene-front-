@@ -92,7 +92,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
       case "admin":
         return <Crown size={14} className="text-yellow-600" />;
       case "merchant":
-        return <Store size={14} className="text-blue-600" />;
+        return <Store size={14} className="text-blue-4" />;
       default:
         return <Shield size={14} className="text-green-600" />;
     }
@@ -101,7 +101,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
   const getUserTypeBadge = (userType: string) => {
     const badgeClasses = {
       admin: "bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 border border-yellow-200",
-      merchant: "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border border-blue-200",
+      merchant: "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-4 border border-blue-200",
       client: "bg-gradient-to-r from-green-50 to-green-100 text-green-700 border border-green-200"
     };
 
@@ -207,11 +207,11 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                  <Store size={16} className="text-blue-3" />
+                  <Store size={16} className="text-blue-4" />
                 </div>
                 <span className="font-medium">لوحة التحكم</span>
               </div>
-              <ChevronLeft size={16} className="text-gray-2 group-hover:text-blue-600" />
+              <ChevronLeft size={16} className="text-gray-2 " />
             </Link>
           )}
 
@@ -346,8 +346,8 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
                 onClick={handleLinkClick}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                    <Store size={16} className="text-blue-600" />
+                  <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                    <Store size={16} className="text-blue-4" />
                   </div>
                   <span className="font-medium">لوحة التحكم</span>
                 </div>

@@ -27,7 +27,7 @@ export default async function DashboardLayout({
   return <>
     <DashboardNavbar navPrefix="/admin" />
     <StoreGuard>
-      <div>
+      <div className="max-w-[2500px] mx-auto">
         {children}
       </div>
     </StoreGuard>

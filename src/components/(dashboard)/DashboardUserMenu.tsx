@@ -36,6 +36,7 @@ import {
     Bot,
     Frown,
     Home,
+    Store,
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
@@ -189,7 +190,7 @@ export function DashboardUserMenu() {
                             <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label=" السجل المالي" />
                             <MenuItem href={`/${lang}/admin/stores`} icon={Settings} label="ادارة المتاجر" />
                             {/* <MenuItem href={`/${lang}/admin/roles`} icon={Users} label="الادوار الوظيفية" /> */}
-                            <MenuItem href={`/${lang}`} icon={Compass} label="العودة للموقع" />
+                            <MenuItem href={`/${lang}`} icon={Store} label="العودة للمنصة" />
 
                             <button
                                 onClick={() => logout()}
@@ -249,9 +250,9 @@ export function DashboardUserMenu() {
                                                     {store.name}
                                                 </span>
                                                 {store.type === "services" ? (
-                                                    <img src="/icons/dashboard/nav_services.svg" alt="service" className="w-4 h-4" style={{ filter: "brightness(0)" }} />
+                                                    <img src="/icons/dashboard/nav_services.svg" alt="service" className="w-4 h-4" style={{ filter: "brightness(1)" }} />
                                                 ) : (
-                                                    <img src="/icons/dashboard/nav_products.svg" alt="product" className="w-4 h-4" style={{ filter: "brightness(0)" }} />
+                                                    <img src="/icons/dashboard/nav_products.svg" alt="product" className="w-4 h-4" style={{ filter: "brightness(1)" }} />
                                                 )}
                                             </div>
                                         );
