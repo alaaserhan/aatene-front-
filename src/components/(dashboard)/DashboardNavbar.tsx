@@ -35,6 +35,7 @@ import {
   Bell,
 
   TicketPercent,
+  Trash2,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -169,10 +170,11 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: isAdmin, desc: "متابعة الشكاوى والبلاغات" },
     { label: "الإشعارات", icon: Bell, href: "/notifications", show: isAdmin, desc: "إدارة ومتابعة سجل الاشعارات" },
     { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant, desc: "إدارة ومتابعة الخصومات" },
+    { label: "المحذوفات", icon: Trash2, href: "/trash", show: isAdmin },
   ];
 
-  const mainNavItems = allNavItems.slice(0, 7);
-  const moreMenuItems = allNavItems.slice(7);
+  const mainNavItems = allNavItems.slice(0, 6);
+  const moreMenuItems = allNavItems.slice(6);
 
   const notifications: Notification[] = [];
   const unreadCount = 0;
@@ -412,20 +414,6 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {navPrefix === "/admin" && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-lg hover:bg-white/20 relative"
-                aria-label="المحذوفات"
-                asChild
-              >
-                <Link href={`/${lang}${navPrefix}/trash`}>
-                  <img src="/icons/dashboard/delete-02.png" className="w-5 h-5" alt="trash" />
-                </Link>
-              </Button>
-            )}
 
             <div className="hidden lg:block">
               <DashboardUserMenu />
