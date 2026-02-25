@@ -1,6 +1,7 @@
 import { AuthHydrator } from "@/src/components/providers/AuthHydrator";
 import { QueryProvider } from "@/src/components/providers/QueryProvider";
 import { MetaPixel } from "@/src/components/providers/MetaPixel";
+import { GoogleAnalytics } from "@/src/components/providers/GoogleAnalytics";
 import { Toaster } from "sonner";
 import { Suspense } from "react";
 import React from "react";
@@ -73,6 +74,7 @@ export default function RootLayout({
       <body>
         <Suspense fallback={null}>
           <MetaPixel />
+          <GoogleAnalytics />
         </Suspense>
         <QueryProvider>
           <AuthHydrator />

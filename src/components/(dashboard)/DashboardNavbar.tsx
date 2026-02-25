@@ -152,7 +152,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: isMerchant && storeType === "products" },
     { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: isAdmin },
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && storeType === "services" },
-    { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: isAdmin },
+    { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: isAdmin, desc: "إدارة ومتابعة مقدمي الخدمات" },
     { label: "الفئات", icon: Boxes, href: "/categories", show: true, desc: "إدارة وعرض الفئات" },
     { label: "مدن الشحن", icon: Map, href: "/cities", show: true, desc: "اختر وجهات الشحن المتاحة" },
     { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: true, desc: "إدارة وتصنيف الاقسام" },
@@ -168,7 +168,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: isAdmin, desc: "متابعة الشكاوى والبلاغات" },
     { label: "الإشعارات", icon: Bell, href: "/notifications", show: isAdmin, desc: "إدارة ومتابعة سجل الاشعارات" },
     { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant, desc: "إدارة ومتابعة الخصومات" },
-    { label: "المحذوفات", icon: Trash2, href: "/trash", show: isAdmin },
+    { label: "المحذوفات", icon: Trash2, href: "/trash", show: isAdmin, desc: "إدارة ومتابعة المحذوفات" },
   ];
 
   const mainNavItems = allNavItems.slice(0, 7);

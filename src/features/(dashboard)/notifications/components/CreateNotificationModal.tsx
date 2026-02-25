@@ -812,12 +812,12 @@ export function CreateNotificationModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-xl p-0 overflow-hidden text-right" dir="rtl">
+            <DialogContent className="max-w-xl p-0 overflow-hidden flex flex-col max-h-[90vh] text-right" dir="rtl">
                 <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-5">
                     <DialogTitle className="text-lg font-semibold text-gray-900">{initialData ? "تعديل اشعار" : "اضافة اشعار"}</DialogTitle>
                 </div>
 
-                <div className="p-6 py-0">
+                <div className="p-6 py-0 overflow-y-auto flex-1">
                     <ModalSteps currentStep={currentStep} />
 
                     <div className="mt-4 min-h-[400px]">
