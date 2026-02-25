@@ -174,6 +174,7 @@ export interface Store {
   approved_products_count?: number;
   approved_services_count?: number;
   rejected_services_count?: number;
+  rejected_products_count?: number;
 }
 
 // ============== Paginated Response ==============

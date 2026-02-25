@@ -171,8 +171,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "المحذوفات", icon: Trash2, href: "/trash", show: isAdmin },
   ];
 
-  const mainNavItems = allNavItems.slice(0, 6);
-  const moreMenuItems = allNavItems.slice(6);
+  const mainNavItems = allNavItems.slice(0, 7);
+  const moreMenuItems = allNavItems.slice(7);
 
   const notifications: Notification[] = [];
   const unreadCount = 0;

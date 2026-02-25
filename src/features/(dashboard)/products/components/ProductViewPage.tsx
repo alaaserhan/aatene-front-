@@ -107,13 +107,17 @@ export default function ProductViewPage() {
     const raw = dashboardData.data;
     const currentStatus = raw.status;
 
+    // gallery_url قد يأتي كـ object من الباك اند — نحوّله لـ array بأمان
+    const galleryUrls: string[] = raw.gallery_url
+        ? (Array.isArray(raw.gallery_url)
+            ? raw.gallery_url
+            : Object.values(raw.gallery_url as Record<string, string>)
+          ).filter((u): u is string => !!u && typeof u === "string")
+        : [];
+
     const imagesList: string[] = [
         ...(raw.cover_url ? [raw.cover_url] : raw.cover ? [raw.cover] : []),
-        ...(Array.isArray(raw.gallery_url) && raw.gallery_url.length > 0
-            ? raw.gallery_url
-            : Array.isArray(raw.gallery) && raw.gallery.length > 0
-                ? raw.gallery
-                : []),
+        ...galleryUrls,
     ].filter(Boolean) as string[];
 
     const displayImage = activeImage || imagesList[0] || "/placeholder.png";
@@ -137,6 +141,8 @@ export default function ProductViewPage() {
                 <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
 
                 {/* ── Status Alert (للتاجر فقط وليس الأدمن) ── */}
+
+                {/* ✅ تم قبول المنتج */}
                 {!isAdmin && !alertDismissed && currentStatus === "active" && (
                     <div className="container mx-auto mt-4 px-4 md:px-0">
                         <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#66FF99]/60 bg-[#E6FFF1] relative" dir="rtl">
@@ -154,14 +160,15 @@ export default function ProductViewPage() {
                     </div>
                 )}
 
+                {/* ❌ تم رفض المنتج */}
                 {!isAdmin && !alertDismissed && currentStatus === "rejected" && (
                     <div className="container mx-auto mt-4 px-4 md:px-0">
-                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#D00739]/30 bg-[#FFF0F3] relative" dir="rtl">
+                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#FF9999]/60 bg-[#FFF0F0] relative" dir="rtl">
                             <XCircle className="w-5 h-5 text-[#D00739] mt-0.5 shrink-0" />
                             <div className="flex-1">
-                                <p className="font-bold text-[#D00739] text-sm">نعتذر، لم يتم قبول عرض منتجك</p>
+                                <p className="font-bold text-[#D00739] text-sm">تم رفض منتجك</p>
                                 <p className="text-[#A00028] text-sm mt-1 leading-relaxed">
-                                    في الوقت الحالي، وذلك لعدم استيفائه متطلبات النشر على المنصة. يرجى مراجعة الإرشادات وإجراء التعديلات اللازمة، ثم إعادة الإرسال.
+                                    نعتذر، لم يتم قبول عرض منتجك في الوقت الحالي، وذلك لعدم استيفائه متطلبات النشر على المنصة. يرجى مراجعة الإرشادات وإجراء التعديلات اللازمة، ثم إعادة الإرسال.
                                 </p>
                             </div>
                             <button onClick={dismissAlert} className="text-[#D00739] hover:text-[#A00028] transition-colors shrink-0 mt-0.5">
@@ -171,18 +178,36 @@ export default function ProductViewPage() {
                     </div>
                 )}
 
-                {/* ── Alert تعليق مؤقت (للتاجر فقط، عند shown=false بعد إيقاف التفعيل يدوياً) ── */}
+                {/* 🕐 المنتج قيد المراجعة */}
+                {!isAdmin && !alertDismissed && currentStatus === "not-active" && (
+                    <div className="container mx-auto mt-4 px-4 md:px-0">
+                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#FFD87D]/60 bg-[#FFFBF0] relative" dir="rtl">
+                            <PauseCircle className="w-5 h-5 text-[#C48A00] mt-0.5 shrink-0" />
+                            <div className="flex-1">
+                                <p className="font-bold text-[#8A6000] text-sm">منتجك قيد المراجعة من قبل فريق أعطيني</p>
+                                <p className="text-[#6B4A00] text-sm mt-1 leading-relaxed">
+                                    سيتم نشر المنتج بعد الانتهاء من مراجعته واعتماده من قبل الإدارة.
+                                </p>
+                            </div>
+                            <button onClick={dismissAlert} className="text-[#C48A00] hover:text-[#8A6000] transition-colors shrink-0 mt-0.5">
+                                <XCircle className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* ⏸ إلغاء تفعيل مؤقت من التاجر */}
                 {!isAdmin && !raw.shown && !shownAlertDismissed && currentStatus === "active" && (
                     <div className="container mx-auto mt-4 px-4 md:px-0">
-                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#F19D27]/40 bg-[#FFF8EC] relative" dir="rtl">
-                            <PauseCircle className="w-5 h-5 text-[#F19D27] mt-0.5 shrink-0" />
+                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#6D6D6D]/30 bg-[#F5F5F5] relative" dir="rtl">
+                            <PauseCircle className="w-5 h-5 text-[#6D6D6D] mt-0.5 shrink-0" />
                             <div className="flex-1">
-                                <p className="font-bold text-[#B56A00] text-sm">لقد قمت بتعليق المنتج مؤقتاً</p>
-                                <p className="text-[#8A5200] text-sm mt-1 leading-relaxed">
+                                <p className="font-bold text-[#3D3D3D] text-sm">لقد قمت بإلغاء تفعيل المنتج مؤقتاً</p>
+                                <p className="text-[#555555] text-sm mt-1 leading-relaxed">
                                     تم تعليق منتجك بشكل مؤقت من قبلك، وهو حالياً غير متاح للطلب حتى يتم تفعيله مجددًا. يمكنك إعادة تفعيل المنتج في أي وقت من خلال لوحة التحكم.
                                 </p>
                             </div>
-                            <button onClick={() => setShownAlertDismissed(true)} className="text-[#F19D27] hover:text-[#B56A00] transition-colors shrink-0 mt-0.5">
+                            <button onClick={() => setShownAlertDismissed(true)} className="text-[#6D6D6D] hover:text-[#3D3D3D] transition-colors shrink-0 mt-0.5">
                                 <XCircle className="w-5 h-5" />
                             </button>
                         </div>
@@ -357,7 +382,8 @@ export default function ProductViewPage() {
                     <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-1 lg:order-2">
                         <div className="bg-white rounded-2xl border border-gray-100 h-fit overflow-hidden">
 
-                            {/* Activate Toggle Row */}
+                            {/* Activate Toggle Row — يظهر فقط للتاجر وفقط إذا كان المنتج مقبولاً */}
+                            {!isAdmin && currentStatus === "active" && (
                             <div className="flex items-center justify-between px-5 py-3 rounded-md mx-4 mt-4 bg-[#C8D7E8]">
                                 <span className="font-bold text-sm text-[#1e3a52]">تفعيل المنتج</span>
                                 <button
@@ -405,6 +431,7 @@ export default function ProductViewPage() {
                                     />
                                 </button>
                             </div>
+                            )}
 
                             <div className="p-6">
                             {/* Category */}

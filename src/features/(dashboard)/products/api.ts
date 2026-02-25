@@ -83,6 +83,7 @@ export interface Product {
   variations?: Variation[];
   reject_reason?: string | null;
   rejected_at?: string | null;
+  created_at?: string | null;
 }
 
 export interface BaseResponse {

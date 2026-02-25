@@ -75,7 +75,7 @@ export function ProductProvidersTable({
                     <tbody className="divide-y divide-gray-100">
                         {stores.map((store) => {
                             const productsCount = store.products_count ?? store.services_count ?? 0;
-                            const pendingCount = store.pending_services_count || "0";
+                            const pendingCount = store.pending_products_count ?? 0;
                             const lastActive = store.owner?.last_login_at
                                 ? getRelativeTimeArabic(store.owner.last_login_at)
                                 : "-";

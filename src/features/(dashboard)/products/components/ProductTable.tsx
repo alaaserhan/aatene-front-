@@ -83,7 +83,9 @@ export function ProductTable({
                                 </>
                             ) : (
                                 <>
-                                    <th className="px-6 py-4 text-sm font-medium text-center">تاريخ الانتهاء</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-center">
+                                        {activeStatus === "not-active" ? "تم التسليم" : "تاريخ الانتهاء"}
+                                    </th>
                                     <th className="px-6 py-4 text-sm font-medium text-center">مشاهدات</th>
                                     <th className="px-6 py-4 text-sm font-medium text-center">عدد التواصلات</th>
                                     <th className="px-6 py-4 text-sm font-medium text-center">مرئي</th>
@@ -105,7 +107,7 @@ export function ProductTable({
                                 {/* Image */}
                                 <td className="px-6 py-4">
                                     <div className="flex justify-center">
-                                        <div className="w-16 h-12 rounded bg-gray-100 overflow-hidden">
+                                        <div className="relative w-16 h-12 rounded bg-gray-100 overflow-hidden">
                                             {product.cover_url ? (
                                                 <img
                                                     src={product.cover_url}
@@ -115,6 +117,12 @@ export function ProductTable({
                                             ) : (
                                                 <div className="flex items-center justify-center h-full text-gray-300">
                                                     <span className="text-[10px]">No Img</span>
+                                                </div>
+                                            )}
+                                            {/* عداد الصور الإضافية */}
+                                            {product.gallery_url && product.gallery_url.length > 0 && (
+                                                <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[9px] text-center font-medium py-0.5">
+                                                    +{product.gallery_url.length}
                                                 </div>
                                             )}
                                         </div>
@@ -143,9 +151,13 @@ export function ProductTable({
                                     </>
                                 ) : (
                                     <>
-                                        {/* Expiry */}
+                                        {/* Submission / Expiry date */}
                                         <td className="px-6 py-4 text-center">
-                                            <span className="text-sm">{formatDate(product.end_date) || "-"}</span>
+                                            <span className="text-sm">
+                                                {activeStatus === "not-active"
+                                                    ? (formatDate(product.created_at) || "-")
+                                                    : (formatDate(product.end_date) || "-")}
+                                            </span>
                                         </td>
 
                                         {/* Views */}
