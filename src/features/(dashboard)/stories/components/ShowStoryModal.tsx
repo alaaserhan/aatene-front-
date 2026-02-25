@@ -55,6 +55,35 @@ export function ShowStoryModal({
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false); // مؤشر تحميل للتنزيل
 
+    const [dimensions, setDimensions] = useState({ width: 400, inactiveWidth: 320 });
+
+    useEffect(() => {
+        const updateDimensions = () => {
+            const vh = window.innerHeight;
+            const vw = window.innerWidth;
+
+            // Limit max height to 85vh or 850px
+            const targetHeight = Math.min(vh * 0.85, 850);
+            let activeW = targetHeight * (9 / 16);
+
+            // Limit max width to 85% of viewport width
+            if (activeW > vw * 0.85) {
+                activeW = vw * 0.85;
+            }
+
+            setDimensions({
+                width: activeW,
+                inactiveWidth: activeW * 0.8
+            });
+        };
+
+        if (typeof window !== "undefined") {
+            updateDimensions();
+            window.addEventListener('resize', updateDimensions);
+            return () => window.removeEventListener('resize', updateDimensions);
+        }
+    }, []);
+
     useEffect(() => {
         if (isOpen) setActiveIndex(initialIndex);
     }, [isOpen, initialIndex]);
@@ -150,8 +179,8 @@ export function ShowStoryModal({
         return `منذ ${diffInHours} ساعة`;
     };
 
-    const ACTIVE_WIDTH = 400;
-    const INACTIVE_WIDTH = 320;
+    const ACTIVE_WIDTH = dimensions.width;
+    const INACTIVE_WIDTH = dimensions.inactiveWidth;
     const GAP = 32;
 
     return (
@@ -207,9 +236,10 @@ export function ShowStoryModal({
                                         className={cn(
                                             "relative aspect-[9/16] rounded-[24px] overflow-hidden transition-all duration-500 ease-in-out shrink-0 border border-gray-800",
                                             isActive
-                                                ? `w-[400px] opacity-100 scale-100 z-20 shadow-2xl`
-                                                : `w-[320px] opacity-40 scale-90 blur-[1px] cursor-pointer hover:opacity-60`
+                                                ? `opacity-100 scale-100 z-20 shadow-2xl`
+                                                : `opacity-40 scale-90 blur-[1px] cursor-pointer hover:opacity-60`
                                         )}
+                                        style={{ width: `${isActive ? ACTIVE_WIDTH : INACTIVE_WIDTH}px` }}
                                     >
                                         <div className="w-full h-full flex items-center justify-center ">
                                             {story.image ? (
