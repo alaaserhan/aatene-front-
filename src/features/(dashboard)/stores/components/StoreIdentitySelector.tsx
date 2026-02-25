@@ -10,7 +10,7 @@ import { MediaItem } from "../../mediaCenter/api";
 interface StoreIdentitySelectorProps {
   label?: string;
   value?: string | null;
-  previewUrl?: string | null ;
+  previewUrl?: string | null;
   onChange: (fileName: string | null, src: string | null) => void;
   error?: string;
 }
@@ -40,7 +40,6 @@ export function StoreIdentitySelector({
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-1">
           <label className="text-sm font-medium ">{label}</label>
-          <span className="text-red-500">*</span>
         </div>
         <p className="text-xs text-gray-2">
           ستظهر هوية متجرك في صفحة المتجر
@@ -113,7 +112,7 @@ export function StoreIdentitySelector({
         onOpenChange={setIsModalOpen}
         onSelect={handleSelect}
         multiple={false}
-        allowedMediaTypes={["image", "avatar","gallery"]}
+        allowedMediaTypes={["image", "avatar", "gallery"]}
         accept="image/png,image/jpeg,image/jpg,image/svg+xml"
       />
     </div>

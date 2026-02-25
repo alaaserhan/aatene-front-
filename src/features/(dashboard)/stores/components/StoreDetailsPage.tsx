@@ -10,6 +10,7 @@ import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { cn } from "@/src/lib/utils";
 import { StoreStatus, WorkingTime, StoreManager } from "../api";
 import { formatDateArabic } from "@/src/lib/date-helper";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 
 interface StoreDetailsPageProps {
@@ -28,6 +29,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
   const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
   const [managersExpanded, setManagersExpanded] = useState(true);
   const [showAllDays, setShowAllDays] = useState(false);
+  const user = useAuthStore((state) => state.user);
 
   const { mutate: deleteStoreMutation, isPending: isDeleting } = useDeleteStore();
   const { data: storeData, isLoading } = useGetSingleStore(storeId, {
@@ -97,16 +99,20 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
   return (
     <div className="max-h-[calc(100vh-193px)] h-full bg-white rounded-lg border border-gray-200 overflow-auto ">
       <div className="p-6 space-y-6">
-        <div className="grid grid-cols-3 gap-3">
-          <div className="w-full">
-            <ReusableDropdown
-              options={statusOptions}
-              value={store.status}
-              onChange={handleStatusChange}
-              placeholder="حالة المتجر"
-              className="w-full rounded-xs bg-gray-100"
-            />
-          </div>
+        <div className={cn("grid gap-3", user?.user_type === "admin" ? "grid-cols-3" : "grid-cols-2")}>
+          {
+            user?.user_type === "admin" && (
+              <div className="w-full">
+                <ReusableDropdown
+                  options={statusOptions}
+                  value={store.status}
+                  onChange={handleStatusChange}
+                  placeholder="حالة المتجر"
+                  className="w-full rounded-xs bg-gray-100"
+                />
+              </div>
+            )
+          }
 
           <Button
             onClick={handleEdit}

@@ -149,9 +149,7 @@ export function AddStoreStep2({
       newErrors.name = "اسم المتجر مطلوب";
     }
 
-    if (!formData.logo) {
-      newErrors.logo = "شعار المتجر مطلوب";
-    }
+
 
     if (formData.email.trim() === "") {
       newErrors.email = "البريد الإلكتروني مطلوب";

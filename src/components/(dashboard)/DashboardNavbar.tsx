@@ -253,7 +253,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
 
             {/* Logo */}
             <Link href={`/${lang}`} className="flex items-center gap-2">
-              <Image src="/black.svg" width={80} height={32} alt="logo" className="h-8 lg:h-8 w-auto" />
+              <Image src="/black.svg" width={80} height={32} alt="logo" className="h-8 lg:h-9 w-auto" />
             </Link>
 
             {/* Desktop Menu Items */}
@@ -333,7 +333,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 lg:gap-3">
+          <div className="flex items-center gap-2">
             {/* <Button
               variant="ghost"
               size="icon"

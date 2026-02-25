@@ -9,7 +9,6 @@ import { ServicePreviewSidebar } from "./ServicePreviewSidebar";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Step1ServiceData, Step2ServiceData, Step3ServiceData } from "../types";
 import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
-import { toast } from "sonner";
 import Cookies from "js-cookie";
 
 interface AddServiceStep3Props {
@@ -52,23 +51,11 @@ export function AddServiceStep3({
         if (files.length > 0) setError("");
     };
 
-    const validate = () => {
-        if (images.length === 0) {
-            setError("يجب إضافة صورة واحدة على الأقل للخدمة");
-            return false;
-        }
-        return true;
-    };
-
     const handleNext = () => {
-        if (validate()) {
-            onNext({
-                images,
-                images_previews: imagesPreviews,
-            });
-        } else {
-            toast.error("يرجى رفع صور للخدمة");
-        }
+        onNext({
+            images,
+            images_previews: imagesPreviews,
+        });
     };
 
     const defaultBreadcrumbItems = [
@@ -98,7 +85,7 @@ export function AddServiceStep3({
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
 
                             <div className="mb-8">
-                                <h2 className="text-xl font-bold  mb-1">صور الخدمة</h2>
+                                <h2 className="text-xl font-medium  mb-1">صور الخدمة</h2>
                             </div>
 
                             <div >

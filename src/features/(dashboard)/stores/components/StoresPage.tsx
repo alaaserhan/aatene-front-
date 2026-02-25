@@ -108,14 +108,24 @@ export function StoresPage() {
             >
                 <div className="flex items-center gap-3">
                     <div className="shrink-0 w-12 h-12 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
-                        <Image
-                            src={store.logo_url || "/default-store.png"}
-                            alt={store.name}
-                            width={48}
-                            height={48}
-                            className="w-full h-full object-cover"
-                            unoptimized
-                        />
+                        {
+                            store.logo_url ? (
+                                <Image
+                                    src={store.logo_url}
+                                    alt={store.name}
+                                    width={48}
+                                    height={48}
+                                    className="w-full h-full object-cover"
+                                    unoptimized
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <span className="text-sm text-gray-2">
+                                        {store.name.charAt(0).toUpperCase()}
+                                    </span>
+                                </div>
+                            )
+                        }
                     </div>
                     <div className="flex flex-col min-w-0">
                         <span className="text-sm font-semibold truncate max-w-[120px] sm:max-w-[150px]">

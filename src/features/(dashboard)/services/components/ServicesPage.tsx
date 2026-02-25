@@ -141,11 +141,11 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     ];
 
     const sectionOptions = [
+        { name: "الكل", value: "other" },
         ...sections.map((s) => ({
             name: s.name,
             value: String(s.id),
         })),
-        { name: "الكل", value: "other" }
     ];
 
     const handleSaveSection = (data: SectionFormData) => {
