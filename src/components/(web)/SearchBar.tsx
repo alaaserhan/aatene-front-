@@ -30,20 +30,27 @@ function SearchBarContent({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const initialSearch = searchParams.get("q") || "";
-  const initialType = (searchParams.get("type") as SearchType) || defaultType;
+  const urlQ = searchParams.get("q") || "";
+  const urlType = (searchParams.get("type") as SearchType);
 
-  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const initialType = (urlType && SEARCH_TYPES.some((t) => t.value === urlType))
+    ? urlType
+    : defaultType;
+
+  const [searchQuery, setSearchQuery] = useState(urlQ);
   const [selectedType, setSelectedType] = useState<SearchType>(initialType);
 
-  // Sync with URL if it changes
-  useEffect(() => {
-    setSearchQuery(searchParams.get("q") || "");
-    const urlType = searchParams.get("type") as SearchType;
+  const [prevQ, setPrevQ] = useState(urlQ);
+  const [prevType, setPrevType] = useState(urlType);
+
+  if (urlQ !== prevQ || urlType !== prevType) {
+    setPrevQ(urlQ);
+    setPrevType(urlType);
+    setSearchQuery(urlQ);
     if (urlType && SEARCH_TYPES.some((t) => t.value === urlType)) {
       setSelectedType(urlType);
     }
-  }, [searchParams]);
+  }
 
   const handleSearch = () => {
     const params = new URLSearchParams();
