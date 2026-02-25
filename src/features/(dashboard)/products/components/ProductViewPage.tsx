@@ -28,7 +28,7 @@ export default function ProductViewPage() {
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [successModalTitle, setSuccessModalTitle] = useState("");
-    const [activeImage, setActiveImage] = useState<string>("");
+    const [activeImage, setActiveImage] = useState<string | null>(null);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<"description" | "reviews">("description");
 
@@ -192,7 +192,7 @@ export default function ProductViewPage() {
                 {/* ── Action Bar (Admin Only) ── */}
                 {isAdmin && (currentStatus === "not-active" || currentStatus === "rejected" || currentStatus === "active") && (
                     <div className="container mx-auto mt-4 px-4 md:px-0">
-                        <div className="px-6 py-4 flex items-center justify-between border border-gray-100 bg-white rounded-lg">
+                        <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-gray-100 bg-white rounded-lg">
                             <h2 className="text-lg font-bold">اختر الإجراء المناسب للمنتج</h2>
                             <div className="flex gap-3">
                                 {currentStatus !== "active" && (

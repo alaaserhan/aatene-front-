@@ -13,7 +13,7 @@ export function ProductEmptyState({ type }: ProductEmptyStateProps) {
     const isNoSections = type === "no-sections";
 
     return (
-        <div className="flex flex-col items-center justify-center h-full bg-white rounded-lg p-8 text-center border border-gray-200 min-h-[400px]">
+        <div className="flex flex-col items-center justify-center h-full bg-white p-8 text-center min-h-[300px]">
             <div className="mb-6 relative">
                 <div className="h-40 w-40  flex items-center justify-center mx-auto mb-2">
                     <img

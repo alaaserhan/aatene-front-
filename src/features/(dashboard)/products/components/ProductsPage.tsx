@@ -1,10 +1,10 @@
 // src/features/(dashboard)/products/components/ProductsPage.tsx
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
-import { Plus, Loader2, Store, ChevronRight, Search } from "lucide-react";
+import { Plus, Loader2, ChevronRight, Search } from "lucide-react";
 import {
   useGetProducts,
   useUpdateProductStatus,
@@ -13,8 +13,7 @@ import {
 } from "../hooks";
 import { MerchantProductStatus } from "../api";
 import { useGetSections } from "../../sections/hooks";
-import { useGetStores, useGetSingleStore } from "../../stores/hooks";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useGetSingleStore } from "../../stores/hooks";
 import { Product } from "../api";
 import { ProductEmptyState } from "./ProductEmptyState";
 import { ProductTable } from "./ProductTable";
@@ -29,77 +28,73 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 import { Input } from "@/src/components/ui/input";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 
+interface ProductsPageProps {
+  /** When provided (admin viewing a specific store), acts like ServicesPage */
+  storeId?: number;
+}
 
-
-export function ProductsPage() {
+export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
   const router = useRouter();
-  const user = useAuthStore((state) => state.user);
 
-  // Read user_type and storeId directly from cookies (available on first render)
   const userTypeCookie = Cookies.get("user_type");
   const isAdmin = userTypeCookie === "admin";
   const isMerchant = userTypeCookie === "merchant";
-  const storeId = isMerchant ? (Cookies.get("current_store_id") ?? null) : null;
+
+  // If propStoreId is provided → admin is viewing a specific store (ServicesPage-style)
+  const isAdminViewingStore = isAdmin && !!propStoreId;
+
+  // Merchant's own store from cookie
+  const merchantStoreId = isMerchant ? (Cookies.get("current_store_id") ?? null) : null;
+
+  // The effective store ID for queries
+  const effectiveStoreId = propStoreId
+    ? String(propStoreId)
+    : merchantStoreId;
 
   // --- States ---
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
-  const [selectedAdminStoreId, setSelectedAdminStoreId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeStatus, setActiveStatus] = useState<MerchantProductStatus | "all">(isAdmin ? "active" : "all");
+  const [activeStatus, setActiveStatus] = useState<MerchantProductStatus | "all">("active");
   const [currentPage, setCurrentPage] = useState(1);
   const [productToDelete, setProductToDelete] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
 
-  // --- Status counts (cached, updated from main query response) ---
   const detailsRef = useRef<HTMLDivElement>(null);
 
-  // --- Data Fetching ---
-  const { data: storesData, isLoading: isLoadingStores } = useGetStores(
-    new URLSearchParams("per_page=100&type=products"),
-    { enabled: isAdmin  }
+  // --- Store info (for admin viewing a specific store) ---
+  const { data: storeData } = useGetSingleStore(
+    propStoreId ? String(propStoreId) : undefined,
+    { enabled: isAdminViewingStore }
   );
+  const store = storeData?.record;
 
-  
-  const { data: selectedStoreData } = useGetSingleStore(
-    selectedAdminStoreId ?? undefined,
-    { enabled: isAdmin && !!selectedAdminStoreId }
-  );
-  const selectedStore = selectedStoreData?.record;
-
+  // --- Sections ---
   const sectionsQueryParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("per_page", "100");
+    if (effectiveStoreId) params.set("store_id", effectiveStoreId);
     return params;
-  }, []);
+  }, [effectiveStoreId]);
 
   const { data: sectionsData, isLoading: isLoadingSections } = useGetSections(
     sectionsQueryParams,
-    storeId || undefined,
-    { enabled: !!storeId && isMerchant  }
+    effectiveStoreId || undefined,
+    { enabled: !!effectiveStoreId }
   );
 
   const sections = useMemo(() => sectionsData?.data || [], [sectionsData?.data]);
   const hasSections = (sectionsData?.recordsTotal || 0) > 0;
 
-  useEffect(() => {
-    if (isMerchant && sectionsData && !selectedSectionId) {
-      setSelectedSectionId("all");
-    }
-  }, [isMerchant, sectionsData, selectedSectionId]);
-
-  // --- Status count queries (admin + merchant) ---
-  const isProductsEnabled = isAdmin || (isMerchant && !!storeId);
-
-  // For admin: use selectedAdminStoreId; for merchant: use storeId
-  const effectiveStoreId = isAdmin ? selectedAdminStoreId : storeId;
+  // --- Status count queries ---
+  const isProductsEnabled = !!effectiveStoreId;
 
   const activeCountParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("status", "active");
     params.set("per_page", "1");
     if (effectiveStoreId) params.set("store_id", effectiveStoreId);
-    if (selectedSectionId && selectedSectionId !== "all" && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
+    if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
     if (searchQuery) params.set("name", searchQuery);
     return params;
   }, [effectiveStoreId, selectedSectionId, searchQuery]);
@@ -109,7 +104,7 @@ export function ProductsPage() {
     params.set("status", "not-active");
     params.set("per_page", "1");
     if (effectiveStoreId) params.set("store_id", effectiveStoreId);
-    if (selectedSectionId && selectedSectionId !== "all" && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
+    if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
     if (searchQuery) params.set("name", searchQuery);
     return params;
   }, [effectiveStoreId, selectedSectionId, searchQuery]);
@@ -119,18 +114,16 @@ export function ProductsPage() {
     params.set("status", "rejected");
     params.set("per_page", "1");
     if (effectiveStoreId) params.set("store_id", effectiveStoreId);
-    if (selectedSectionId && selectedSectionId !== "all" && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
+    if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
     if (searchQuery) params.set("name", searchQuery);
     return params;
   }, [effectiveStoreId, selectedSectionId, searchQuery]);
 
-  // staleTime: 5 min — won't re-fetch on every render, only when filters change
   const countQueryOptions = { enabled: isProductsEnabled, staleTime: 5 * 60 * 1000 };
   const { data: activeCountData } = useGetProducts(activeCountParams, countQueryOptions);
   const { data: notActiveCountData } = useGetProducts(notActiveCountParams, countQueryOptions);
   const { data: rejectedCountData } = useGetProducts(rejectedCountParams, countQueryOptions);
 
-  // Total count  " جميع المنتجات" في السايد بار 
   const totalCountParams = useMemo(() => {
     const params = new URLSearchParams();
     params.set("per_page", "1");
@@ -140,6 +133,7 @@ export function ProductsPage() {
   }, [effectiveStoreId, searchQuery]);
 
   const { data: totalCountData } = useGetProducts(totalCountParams, { enabled: isProductsEnabled });
+  const totalProductsCount = totalCountData?.recordsFiltered ?? 0;
 
   const getCountForStatus = (key: MerchantProductStatus) => {
     switch (key) {
@@ -151,27 +145,9 @@ export function ProductsPage() {
   };
 
   const statusTabs: { key: MerchantProductStatus; label: string; activeClass: string; activeTextClass: string; badgeClass: string }[] = [
-    {
-      key: "active",
-      label: "تمت الموافقة عليه",
-      activeClass: "border-emerald-500 text-emerald-500",
-      activeTextClass: "text-emerald-500",
-      badgeClass: "bg-emerald-500",
-    },
-    {
-      key: "not-active",
-      label: "قيد المراجعة",
-      activeClass: "border-amber-400 text-amber-400",
-      activeTextClass: "text-amber-400",
-      badgeClass: "bg-amber-400",
-    },
-    {
-      key: "rejected",
-      label: "مرفوض",
-      activeClass: "border-red-500 text-red-500",
-      activeTextClass: "text-red-500",
-      badgeClass: "bg-red-500",
-    },
+    { key: "active", label: "تمت الموافقة عليه", activeClass: "border-emerald-500 text-emerald-500", activeTextClass: "text-emerald-500", badgeClass: "bg-emerald-500" },
+    { key: "not-active", label: "قيد المراجعة", activeClass: "border-amber-400 text-amber-400", activeTextClass: "text-amber-400", badgeClass: "bg-amber-400" },
+    { key: "rejected", label: "مرفوض", activeClass: "border-red-500 text-red-500", activeTextClass: "text-red-500", badgeClass: "bg-red-500" },
   ];
 
   const productsQueryParams = useMemo(() => {
@@ -179,26 +155,18 @@ export function ProductsPage() {
     params.set("page", String(currentPage));
     params.set("per_page", "10");
     if (activeStatus !== "all") params.set("status", activeStatus);
-
     if (effectiveStoreId) params.set("store_id", effectiveStoreId);
-    if (selectedSectionId && selectedSectionId !== "all" && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
+    if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
     if (searchQuery) params.set("name", searchQuery);
-
     return params;
   }, [effectiveStoreId, selectedSectionId, activeStatus, searchQuery, currentPage]);
 
-  const {
-    data: productsData,
-    isLoading: isLoadingProducts,
-  } = useGetProducts(productsQueryParams, {
-    enabled: isProductsEnabled ,
+  const { data: productsData, isLoading: isLoadingProducts } = useGetProducts(productsQueryParams, {
+    enabled: isProductsEnabled,
   });
 
   const products = productsData?.data || [];
   const totalPages = Math.ceil((productsData?.recordsFiltered || 0) / 10);
-
-  
-  const totalProductsCount = totalCountData?.recordsFiltered ?? 0;
 
   // --- Mutations ---
   const { mutate: updateStatusMutation } = useUpdateProductStatus();
@@ -208,23 +176,11 @@ export function ProductsPage() {
 
   const handleToggleStatus = (product: Product) => {
     const newStatus = product.status === "active" ? "not-active" : "active";
-    updateStatusMutation({
-      id: product.id,
-      payload: { status: newStatus }
-    });
-  };
-
-  const handleMerchantSectionChange = (value: string) => {
-    setSelectedSectionId(value);
-    setCurrentPage(1);
-    if (window.innerWidth < 1024) {
-      detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    updateStatusMutation({ id: product.id, payload: { status: newStatus } });
   };
 
   const handleToggleShown = (product: Product) => {
-    const newShown = !product.shown;
-    updateShown({ id: product.id, payload: { shown: newShown } });
+    updateShown({ id: product.id, payload: { shown: !product.shown } });
   };
 
   const handleDeleteClick = (product: Product) => {
@@ -249,64 +205,21 @@ export function ProductsPage() {
   };
 
   const handleSaveSection = (data: SectionFormData) => {
-    if (!storeId) return;
+    if (!effectiveStoreId) return;
     createSection.mutate({
       payload: {
         name: data.name,
         status: data.isActive ? "active" : "not-active",
-        store_id: Number(storeId)
+        store_id: Number(effectiveStoreId),
       },
-      storeId: Number(storeId)
+      storeId: Number(effectiveStoreId),
     }, {
-      onSuccess: () => {
-        setIsSectionModalOpen(false);
-      }
+      onSuccess: () => setIsSectionModalOpen(false),
     });
   };
 
-  const renderHeaderAction = () => {
-    if (isMerchant && !isLoadingSections && !hasSections) {
-      return (
-        <Link
-          href="/admin/sections"
-          className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-xs font-medium transition-colors"
-          style={{ backgroundColor: "var(--blue-3)" }}
-        >
-          <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
-          إضافة قسم
-        </Link>
-      );
-    }
-
-    const showAddProduct = isAdmin || (isMerchant && hasSections && selectedSectionId);
-
-    if (showAddProduct) {
-      let href: string;
-      if (isAdmin) {
-        // Pass selected store_id so AddProductPage can pre-fill it
-        href = selectedAdminStoreId
-          ? `/admin/products/add?store_id=${selectedAdminStoreId}`
-          : "/admin/products/add";
-      } else {
-        href = `/admin/products/add?section_id=${selectedSectionId}`;
-      }
-
-      return (
-        <Link
-          href={href}
-          className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-xs font-medium transition-colors"
-          style={{ backgroundColor: "var(--blue-3)" }}
-        >
-          <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
-          منتج جديد
-        </Link>
-      );
-    }
-
-    return null;
-  };
-
-  if (!storeId && isMerchant) {
+  // Merchant with no store
+  if (!effectiveStoreId && isMerchant) {
     return (
       <div className="p-6 h-screen flex items-center justify-center">
         <StoreEmptyState
@@ -317,147 +230,146 @@ export function ProductsPage() {
     );
   }
 
+  const sectionOptions = [
+    ...sections.map((s) => ({ name: s.name, value: String(s.id) })),
+    { name: "الكل", value: "other" },
+  ];
 
-  const isNoSectionsEmptyState = isMerchant && !isLoadingSections && !hasSections;
-  const isNoProductsEmptyState = isMerchant && !isLoadingProducts && products.length === 0;
+  // ── Breadcrumb for admin viewing a store ──
+  const breadcrumbItems = [
+    { label: "مقدمي المنتجات", href: "/admin/productProviders" },
+    { label: store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "..." },
+  ];
+
+  // ── Merchant: add product button ──
+  const merchantAddHref = merchantStoreId
+    ? `/admin/products/add?section_id=${selectedSectionId}`
+    : "/admin/products/add";
 
   return (
-    <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col">
-      {/* Header */}
-      {isAdmin && selectedAdminStoreId ? (
-      
+    <div className="flex flex-col min-h-[calc(100vh-80px)]">
+
+      {/* ── Header ── */}
+      {isAdminViewingStore ? (
         <>
-          <Breadcrumb
-            items={[
-              { label: "إدارة المنتجات", href: "/admin/products" },
-              { label: selectedStore ? selectedStore.name : "..." },
-            ]}
-            className="bg-white px-6"
-          />
+          <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
           <header className="p-4 pb-0">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-4">
               <div className="flex items-center gap-4">
                 <Avatar className="w-16 h-16 border border-gray-100 shadow-sm">
-                  <AvatarImage src={selectedStore?.owner?.avatar_url || ""} />
-                  <AvatarFallback>{selectedStore?.owner?.first_name?.[0]}</AvatarFallback>
+                  <AvatarImage src={store?.owner?.avatar_url || undefined} />
+                  <AvatarFallback>{store?.owner?.first_name?.[0]}</AvatarFallback>
                 </Avatar>
                 <div>
                   <h1 className="text-xl text-blue-3 font-medium mb-1">
-                    {selectedStore
-                      ? `${selectedStore.owner?.first_name} ${selectedStore.owner?.last_name}`
-                      : "جاري التحميل..."}
+                    {store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "جاري التحميل..."}
                   </h1>
-                  <p className="text-sm text-gray-2 font-medium">
-                    {totalProductsCount} منتج
-                  </p>
+                  <p className="text-sm text-gray-2 font-medium">{totalProductsCount} منتج</p>
                 </div>
               </div>
               <div className="flex flex-row gap-2">
-                <Link href={`/admin/products/add?store_id=${selectedAdminStoreId}`}>
+                <Link href={`/admin/products/add?store_id=${propStoreId}`}>
                   <Button className="bg-blue-3 text-white px-6 gap-2">
                     <Plus className="w-5 h-5" />
                     أضف منتجاً جديداً
                   </Button>
                 </Link>
-                <Link href={`/admin/reports/${selectedAdminStoreId}`}>
-                  <Button className="bg-red-2 text-red-1 px-6 gap-2">
-                    الإبلاغات
-                  </Button>
+                <Link href={`/admin/reports/${propStoreId}`}>
+                  <Button className="bg-red-2 text-red-1 px-6 gap-2">الإبلاغات</Button>
                 </Link>
               </div>
             </div>
           </header>
         </>
-      ) : (
-        /* ── Default header ── */
+      ) : isMerchant ? (
         <header className="w-full bg-transparent p-6 pb-0">
-          <div className="flex flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl md:text-2xl sm:text-2xl font-bold text-brand-black-1">
-                إدارة المنتجات
-              </h1>
-              <p className="text-sm text-gray-2 mt-1">
-                عرض وإدارة جميع المنتجات المتاحة
-              </p>
+              <h1 className="text-xl md:text-2xl font-bold text-brand-black-1">إدارة المنتجات</h1>
+              <p className="text-sm text-gray-2 mt-1">عرض وإدارة جميع منتجاتك</p>
             </div>
-            {renderHeaderAction()}
+            {hasSections && selectedSectionId && (
+              <Link
+                href={merchantAddHref}
+                className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-xs font-medium transition-colors"
+                style={{ backgroundColor: "var(--blue-3)" }}
+              >
+                <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
+                منتج جديد
+              </Link>
+            )}
+            {!isLoadingSections && !hasSections && (
+              <Link
+                href="/admin/sections"
+                className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-xs font-medium transition-colors"
+                style={{ backgroundColor: "var(--blue-3)" }}
+              >
+                <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
+                إضافة قسم
+              </Link>
+            )}
           </div>
         </header>
-      )}
+      ) : null}
 
-      <main className="flex-1 p-6">
-        {/* Search bar — always visible */}
+      {/* ── Main ── */}
+      <main className="flex-1 p-4">
+        {/* Search */}
         <div className="mb-4">
           <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
             <Input
               placeholder="ابحث باسم المنتج أو الوصف..."
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               className="pe-10 h-12 border-none shadow-none focus-visible:ring-0"
             />
             <Search className="w-5 h-5 text-gray-2 absolute left-3 top-1/2 -translate-y-1/2" />
           </div>
         </div>
-        {isNoSectionsEmptyState ? (
+
+        {isMerchant && !isLoadingSections && !hasSections ? (
           <ProductEmptyState type="no-sections" />
         ) : (
           <div className="grid grid-cols-12 gap-6 items-start">
 
-            {/* ── Sidebar (RIGHT in RTL = first col) ── */}
+            {/* Sections sidebar (merchant or admin-viewing-store) */}
             {!isLoadingSections && sections.length > 0 && (
-              <div className="col-span-12 lg:col-span-3 flex flex-col">
+              <div className="col-span-12 lg:col-span-3 h-full flex flex-col">
                 <div className="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
-
-                  {/* "جميع المنتجات" row */}
+                  {/* All products row */}
                   <button
-                    onClick={() => { setSelectedSectionId("all"); setCurrentPage(1); }}
+                    onClick={() => { setSelectedSectionId(null); setCurrentPage(1); }}
                     className={cn(
                       "w-full flex items-center justify-between px-4 py-3 transition-colors cursor-pointer",
-                      selectedSectionId === "all" || !selectedSectionId
-                        ? "bg-blue-5 text-blue-3 font-semibold"
-                        : "text-gray-600 hover:bg-gray-50"
+                      !selectedSectionId ? "bg-blue-5 text-blue-3 font-semibold" : "text-gray-600 hover:bg-gray-50"
                     )}
                   >
                     <span className="flex-1 text-right text-sm mx-2">
                       جميع المنتجات
-                      <span className={cn(
-                        "mr-1 text-sm font-bold",
-                        (selectedSectionId === "all" || !selectedSectionId) ? "text-blue-3" : "text-gray-400"
-                      )}>
+                      <span className={cn("mr-1 text-sm font-bold", !selectedSectionId ? "text-blue-3" : "text-gray-400")}>
                         ({totalProductsCount})
                       </span>
                     </span>
-                    <ChevronRight className={cn(
-                      "w-4 h-4 flex-shrink-0 transition-transform rotate-180",
-                      (selectedSectionId === "all" || !selectedSectionId) ? "text-blue-3" : "text-gray-400"
-                    )} />
+                    <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", !selectedSectionId ? "text-blue-3" : "text-gray-400")} />
                   </button>
 
-                  {/* Section rows */}
                   {sections.map((section) => {
                     const isActive = selectedSectionId === String(section.id);
                     return (
                       <button
                         key={section.id}
-                        onClick={() => { handleMerchantSectionChange(String(section.id)); }}
+                        onClick={() => { setSelectedSectionId(String(section.id)); setCurrentPage(1); if (window.innerWidth < 1024) detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
                         className={cn(
                           "w-full flex items-center justify-between px-4 py-3 border-t border-gray-100 transition-colors cursor-pointer",
                           isActive ? "bg-blue-5 text-blue-3 font-semibold" : "text-gray-600 hover:bg-gray-50"
                         )}
                       >
-                        <span className="flex-1 text-right text-sm mx-2 ">{section.name}</span>
-                        <ChevronRight className={cn(
-                          "w-4 h-4 flex-shrink-0 rotate-180",
-                          isActive ? "text-blue-3" : "text-gray-400"
-                        )} />
+                        <span className="flex-1 text-right text-sm mx-2">{section.name}</span>
+                        <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", isActive ? "text-blue-3" : "text-gray-400")} />
                       </button>
                     );
                   })}
 
-                  {/* Add section */}
                   <div className="p-3 border-t border-gray-100">
                     <Button
                       onClick={() => setIsSectionModalOpen(true)}
@@ -472,105 +384,31 @@ export function ProductsPage() {
               </div>
             )}
 
-            {/* ── Admin sidebar ── */}
-            {isAdmin && (
-              <div className="col-span-12 lg:col-span-3 flex flex-col">
-                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
-
-                  {/* "جميع المنتجات" row */}
-                  <button
-                    onClick={() => {
-                      setSelectedAdminStoreId(null);
-                      setActiveStatus("all");
-                      setCurrentPage(1);
-                    }}
-                    className={cn(
-                      "w-full flex items-center justify-between px-4 py-3 transition-colors cursor-pointer",
-                      !selectedAdminStoreId
-                        ? "bg-blue-5 text-blue-3 font-semibold"
-                        : "text-gray-600 hover:bg-gray-50"
-                    )}
-                  >
-                    <span className="flex-1 text-right text-sm mx-2">
-                      جميع المنتجات
-                      <span className={cn(
-                        "mr-1 text-sm font-bold",
-                        !selectedAdminStoreId ? "text-blue-3" : "text-gray-400"
-                      )}>
-                        ({totalProductsCount})
-                      </span>
-                    </span>
-                    <ChevronRight className={cn(
-                      "w-4 h-4 flex-shrink-0 rotate-180",
-                      !selectedAdminStoreId ? "text-blue-3" : "text-gray-400"
-                    )} />
-                  </button>
-
-                  {/* Store rows */}
-                  {isLoadingStores ? (
-                    <div className="flex justify-center py-4 border-t border-gray-100">
-                      <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
-                    </div>
-                  ) : (
-                    (storesData?.data || []).map((store) => {
-                      const storeIdStr = String(store.id);
-                      const isActive = selectedAdminStoreId === storeIdStr;
-                      return (
-                        <button
-                          key={store.id}
-                          onClick={() => {
-                            setSelectedAdminStoreId(storeIdStr);
-                            setActiveStatus("active");
-                            setCurrentPage(1);
-                          }}
-                          className={cn(
-                            "w-full flex items-center justify-between px-4 py-3 border-t border-gray-100 transition-colors cursor-pointer",
-                            isActive ? "bg-blue-5 text-blue-3 font-semibold" : "text-gray-600 hover:bg-gray-50"
-                          )}
-                        >
-                          <span className="flex-1 text-right text-sm mx-2">{store.name}</span>
-                          <ChevronRight className={cn(
-                            "w-4 h-4 flex-shrink-0 rotate-180",
-                            isActive ? "text-blue-3" : "text-gray-400"
-                          )} />
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* ── Main content ── */}
+            {/* Main content */}
             <div
-              className={`col-span-12 ${(!isLoadingSections && sections.length > 0) || isAdmin ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col`}
               ref={detailsRef}
+              className={`col-span-12 ${sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col`}
             >
-              {/* Status Tabs — merchant and admin */}
-              {(isMerchant || isAdmin) && (
-                <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
-                  {statusTabs.map((tab) => (
-                    <button
-                      key={tab.key}
-                      onClick={() => { setActiveStatus(tab.key); setCurrentPage(1); }}
-                      className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${
-                        activeStatus === tab.key
-                          ? tab.activeClass
-                          : "border-transparent text-gray-2 hover:text-gray-2"
-                      }`}
-                    >
-                      <span className="font-bold text-sm">{tab.label}</span>
-                      <span className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-sm font-bold text-white ${
-                        activeStatus === tab.key ? tab.badgeClass : "bg-gray-2"
-                      }`}>
-                        {getCountForStatus(tab.key)}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
+              {/* Status tabs */}
+              <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
+                {statusTabs.map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => { setActiveStatus(tab.key); setCurrentPage(1); }}
+                    className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${
+                      activeStatus === tab.key ? tab.activeClass : "border-transparent text-gray-2 hover:text-gray-2"
+                    }`}
+                  >
+                    <span className="font-bold text-sm">{tab.label}</span>
+                    <span className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-sm font-bold text-white ${
+                      activeStatus === tab.key ? tab.badgeClass : "bg-gray-2"
+                    }`}>
+                      {getCountForStatus(tab.key)}
+                    </span>
+                  </button>
+                ))}
+              </div>
 
-              {/* Table or empty */}
               {!isLoadingProducts && products.length === 0 ? (
                 <ProductEmptyState type="no-products" />
               ) : (

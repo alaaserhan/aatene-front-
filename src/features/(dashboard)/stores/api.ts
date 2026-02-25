@@ -169,6 +169,11 @@ export interface Store {
   tags?: string[];
   delivery_type?: DeliveryType;
   services_count?: number;
+  products_count?: number;
+  pending_products_count?: number;
+  approved_products_count?: number;
+  approved_services_count?: number;
+  rejected_services_count?: number;
 }
 
 // ============== Paginated Response ==============

@@ -35,7 +35,6 @@ import {
   Bell,
 
   TicketPercent,
-  Trash2,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -148,7 +147,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الرئيسة", icon: <img src={"/icons/dashboard/nav_home.svg"} alt="" />, href: "/home", show: true },
     { label: "المستخدمين", icon: <img src={"/icons/dashboard/nav_users.svg"} alt="" />, href: "/users", show: isAdmin },
     { label: "المتاجر", icon: <img src={"/icons/dashboard/nav_stores.svg"} alt="" />, href: "/stores", show: true },
-    { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: !isMerchant || (isMerchant && storeType === "products") },
+    { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: isMerchant && storeType === "products" },
+    { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: isAdmin },
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && storeType === "services" },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: isAdmin },
     { label: "الفئات", icon: Boxes, href: "/categories", show: true },
@@ -168,11 +168,10 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: isAdmin },
     { label: "الإشعارات", icon: Bell, href: "/notifications", show: isAdmin },
     { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant },
-    { label: "المحذوفات", icon: Trash2, href: "/trash", show: isAdmin },
   ];
 
-  const mainNavItems = allNavItems.slice(0, 6);
-  const moreMenuItems = allNavItems.slice(6);
+  const mainNavItems = allNavItems.slice(0, 7);
+  const moreMenuItems = allNavItems.slice(7);
 
   const notifications: Notification[] = [];
   const unreadCount = 0;
@@ -398,6 +397,21 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {navPrefix === "/admin" && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-lg hover:bg-white/20 relative"
+                aria-label="المحذوفات"
+                asChild
+              >
+                <Link href={`/${lang}${navPrefix}/trash`}>
+                  <img src="/icons/dashboard/delete-02.png" className="w-5 h-5" alt="trash" />
+                </Link>
+              </Button>
+            )}
+
             <div className="hidden lg:block">
               <DashboardUserMenu />
             </div>
