@@ -2,6 +2,7 @@
 
 import { Carrot } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const Footer = () => {
 
@@ -21,9 +22,9 @@ const Footer = () => {
       title: "عن المنصة",
       links: [
         { label: "معلومات عنا", href: `/about` },
-        { label: "المستخدمين", href: `/users` },
         { label: "قواعد السلامة", href: `/safety-rules` },
-        { label: "كن تاجراً", href: `/become-seller` },
+        { label: "شروط الاستخدام", href: `/terms-of-use` },
+        { label: "سياسة الخصوصية", href: `/privacy-policy` },
       ]
     },
     {
@@ -37,9 +38,8 @@ const Footer = () => {
     {
       title: "الدعم والمساعدة",
       links: [
-        { label: "الشكاوي والاقتراحات", href: `/complaints` },
         { label: "الأسئلة الشائعة", href: `/faq` },
-        { label: "اتصل بنا", href: `/contact` }
+        { label: "اتصل بنا", href: `/contact-us` }
       ]
     },
   ];
@@ -63,10 +63,12 @@ const Footer = () => {
               {/* Company Info */}
               <div className="space-y-2">
                 <div className="flex justify-center sm:justify-start">
-                  <Link href={``}>
-                    <img
+                  <Link href={`/`}>
+                    <Image
                       src="/black.svg"
                       alt="A'atene"
+                      width={120}
+                      height={40}
                       className="h-10 w-auto object-contain"
                     />
                   </Link>
@@ -102,19 +104,21 @@ const Footer = () => {
             <div className="flex flex-row gap-3 max-w-xs mx-auto sm:max-w-none sm:mx-0">
               <a href="#" className="block group">
                 <div className="relative h-12 sm:h-14 w-full sm:w-32 overflow-hidden rounded-lg transition-transform group-hover:scale-105">
-                  <img
+                  <Image
                     src="/Group.svg"
                     alt="Google Play Store"
-                    className="w-full h-full object-contain"
+                    fill
+                    className="object-contain"
                   />
                 </div>
               </a>
               <a href="#" className="block group">
                 <div className="relative h-12 sm:h-14 w-full sm:w-32 overflow-hidden rounded-lg transition-transform group-hover:scale-105">
-                  <img
+                  <Image
                     src="/apple.svg"
                     alt="Apple App Store"
-                    className="w-full h-full object-contain"
+                    fill
+                    className="object-contain"
                   />
                 </div>
               </a>
@@ -152,19 +156,21 @@ const Footer = () => {
             <div className="flex justify-start flex-col gap-3">
               <a href="#" className="block group">
                 <div className="relative h-12 w-full overflow-hidden rounded-lg transition-transform group-hover:scale-105">
-                  <img
+                  <Image
                     src="/Group.svg"
                     alt="Google Play Store"
-                    className="h-full"
+                    fill
+                    className="object-contain object-right"
                   />
                 </div>
               </a>
               <a href="#" className="block group">
                 <div className="relative h-12 w-full overflow-hidden rounded-lg transition-transform group-hover:scale-105">
-                  <img
+                  <Image
                     src="/apple.svg"
                     alt="Apple App Store"
-                    className="h-full"
+                    fill
+                    className="object-contain object-right"
                   />
                 </div>
               </a>
@@ -181,12 +187,6 @@ const Footer = () => {
 
             <div className="flex items-center gap-4 mr-auto">
               <span className="whitespace-nowrap opacity-60">© 2025 Aatene, Inc.</span>
-              <Link href={`/terms-of-use`} className="hover:text-blue-4 transition-colors whitespace-nowrap">
-                شروط الاستخدام
-              </Link>
-              <Link href={`/privacy-policy`} className="hover:text-blue-4 transition-colors whitespace-nowrap">
-                خصوصية
-              </Link>
             </div>
           </div>
         </div>
