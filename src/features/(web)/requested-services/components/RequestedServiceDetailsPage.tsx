@@ -236,7 +236,7 @@ export default function RequestedServiceDetailsPage() {
                     {/* Service Content Card */}
                     <div className="bg-[#EBEFF24D]  rounded-xl p-4 ">
                         {/* Author Header */}
-                        <div className="flex items-center gap-4 mb-8 pb-6 ">
+                        <div className="flex items-center gap-4 pb-6 ">
                             <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
                                 {service.user?.avatar_url ? (
                                     <Image
@@ -258,11 +258,9 @@ export default function RequestedServiceDetailsPage() {
                                         ? `${service.user?.first_name || ""} ${service.user?.last_name || ""}`
                                         : "مستخدم"}
                                 </p>
-                                {service.user?.is_active && (
-                                    <span className="bg-blue-50 text-[#3d5e83] text-[10px] px-2 py-0.5 rounded-full font-medium">
+                                    <span className="text-gray-2 text-xs font-medium">
                                         بائع مميز
                                     </span>
-                                )}
                             </div>
                         </div>
 
@@ -291,11 +289,6 @@ export default function RequestedServiceDetailsPage() {
                                                 fill
                                                 className="object-cover transition-transform duration-500 group-hover:scale-110"
                                             />
-                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                                                <div className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
-                                                    <Play className="w-5 h-5 fill-[#3D5E83] text-[#3D5E83] ml-1" />
-                                                </div>
-                                            </div>
                                         </div>
                                     ))}
                                 </div>

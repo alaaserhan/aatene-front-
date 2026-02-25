@@ -9,9 +9,9 @@ import { DualRangeSlider } from "@/src/components/ui/DualRangeSlider";
 
 export type SearchType = "products" | "services" | "stores" | "users";
 
-interface FilterState {
+export interface FilterState {
     category_id?: number;
-    city_id?: number;
+    city_id?: number[];
     tags?: number[];
     min_price?: number;
     max_price?: number;
@@ -103,10 +103,7 @@ export default function SearchFilters({
         });
     };
 
-    const cityOptions = [
-        { value: "", label: "الكل" },
-        ...cities.map((c) => ({ value: c.id.toString(), label: c.name })),
-    ];
+    const cityOptions = cities.map((c) => ({ value: c.id.toString(), label: c.name }));
 
     const { parentCategories, childrenMap } = buildCategoryTree(categories);
 
@@ -194,16 +191,16 @@ export default function SearchFilters({
                 </div>
             )}
 
-            {/* City Card */}
             <div className="bg-white rounded-xl border border-gray-200 p-5">
                 <FilterSection title="المدينة">
                     <ReusableDropdown
+                        multiple={true}
                         options={cityOptions}
-                        value={filters.city_id?.toString() || ""}
-                        onChange={(val) =>
+                        value={filters.city_id?.map(String) || []}
+                        onChange={(vals: string[]) =>
                             onFilterChange({
                                 ...filters,
-                                city_id: val ? parseInt(val) : undefined,
+                                city_id: vals.length > 0 ? vals.map(Number) : undefined,
                             })
                         }
                         placeholder="الكل"
@@ -227,7 +224,7 @@ export default function SearchFilters({
                                 <ReusableDropdown
                                     options={options}
                                     value={selectedOptionId?.toString() || ""}
-                                    onChange={(val) => handleAttributeChange(attr.id, val)}
+                                    onChange={(val: string) => handleAttributeChange(attr.id, val)}
                                     placeholder={`اختر ${attr.title}`}
                                 />
                             </FilterSection>

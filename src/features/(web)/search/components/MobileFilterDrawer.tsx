@@ -1,17 +1,8 @@
 "use client";
 
 import { X } from "lucide-react";
-import SearchFilters, { SearchType } from "./SearchFilters";
+import SearchFilters, { SearchType, FilterState } from "./SearchFilters";
 import { Category, City, Tag } from "@/src/features/(web)/searchAndFilter/api";
-
-interface FilterState {
-    category_id?: number;
-    city_id?: number;
-    tags?: number[];
-    min_price?: number;
-    max_price?: number;
-    review_rate?: number;
-}
 
 interface MobileFilterDrawerProps {
     isOpen: boolean;

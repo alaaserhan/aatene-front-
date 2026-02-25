@@ -19,6 +19,7 @@ export interface BlogUser {
     created_at: string;
     review_rate: string | null;
     review_count: string | null;
+    bio: string | null;
 }
 
 export interface BlogContent {

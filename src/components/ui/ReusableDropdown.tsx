@@ -18,8 +18,9 @@ export interface DropdownRef {
 
 interface ReusableDropdownProps {
   options: DropdownOption[];
-  value?: string | null;
-  onChange: (value: string) => void;
+  value?: string | string[] | null;
+  onChange: ((value: string) => void) | ((value: string[]) => void);
+  multiple?: boolean;
   placeholder?: string;
   triggerIcon?: React.ReactNode;
   className?: string;
@@ -40,6 +41,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
   options,
   value,
   onChange,
+  multiple = false,
   placeholder = "اختر...",
   triggerIcon,
   className,
@@ -63,9 +65,13 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
     toggle: () => setIsOpen((prev) => !prev),
   }));
 
-  const selectedOption = value && value !== ""
+  const selectedOption = !multiple && value && typeof value === 'string'
     ? options.find((opt) => opt.value === value)
     : null;
+
+  const selectedOptions = multiple && Array.isArray(value)
+    ? options.filter((opt) => value.includes(opt.value))
+    : [];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -108,10 +114,12 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
           <span
             className={cn(
               "text-sm whitespace-nowrap truncate",
-              selectedOption ? "font-medium " : "text-gray-2"
+              (multiple && selectedOptions.length > 0) || (!multiple && selectedOption) ? "font-medium " : "text-gray-2"
             )}
           >
-            {selectedOption ? selectedOption.label : placeholder}
+            {multiple
+              ? (selectedOptions.length > 0 ? selectedOptions.map(o => o.label).join(", ") : placeholder)
+              : (selectedOption ? selectedOption.label : placeholder)}
           </span>
         </div>
         <ChevronDown
@@ -148,37 +156,54 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
           )}
 
           <div
-            className="overflow-y-auto p-1 flex-1"
+            className="overflow-y-auto p-1 flex-1 flex flex-col gap-1"
             onScroll={handleScroll}
             ref={listRef}
           >
             {options.length > 0 ? (
               <>
                 {options.map((option) => {
-                  const isSelected = option.value === value;
+                  const isSelected = multiple
+                    ? Array.isArray(value) && value.includes(option.value)
+                    : option.value === value;
                   return (
                     <button
                       key={option.value}
                       type="button"
                       onClick={() => {
-                        onChange(option.value);
-                        setIsOpen(false);
+                        if (multiple) {
+                          const currentVals = Array.isArray(value) ? [...value] : [];
+                          if (isSelected) {
+                            (onChange as (v: string[]) => void)(currentVals.filter((v: string) => v !== option.value));
+                          } else {
+                            (onChange as (v: string[]) => void)([...currentVals, option.value]);
+                          }
+                        } else {
+                          (onChange as (v: string) => void)(option.value);
+                          setIsOpen(false);
+                        }
                       }}
                       className={cn(
-                        "w-full flex items-center gap-3 px-3 py-2.5 text-start rounded-md hover:bg-gray-50 transition-colors cursor-pointer",
+                        "w-full flex items-center gap-3 px-3 py-2 text-start rounded-md hover:bg-gray-50 transition-colors cursor-pointer",
                         isSelected && "bg-blue-50"
                       )}
                     >
                       <div
                         className={cn(
-                          "w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors",
+                          "w-4 h-4 border flex items-center justify-center shrink-0 transition-colors",
+                          multiple ? "rounded-sm" : "rounded-full",
                           isSelected
                             ? "border-blue-3 bg-blue-3"
                             : "border-gray-300 bg-white"
                         )}
                       >
-                        {isSelected && (
+                        {isSelected && !multiple && (
                           <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                        )}
+                        {isSelected && multiple && (
+                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
                         )}
                       </div>
                       <span

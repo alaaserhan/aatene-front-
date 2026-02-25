@@ -100,7 +100,7 @@ export interface ProductSearchParams {
     max_price?: number;
     condition?: string;
     review_rate?: number;
-    city_id?: number;
+    city_id?: number[];
     page?: number;
     per_page?: number;
 }
@@ -180,7 +180,7 @@ export interface ServicesSearchResponse extends GenericPaginationResponse {
 export interface ServiceSearchParams {
     per_page?: number;
     category_id?: number;
-    city_id?: number;
+    city_id?: number[];
     min_price?: number;
     max_price?: number;
     review_rate_min?: number;
@@ -230,7 +230,7 @@ export interface UsersSearchResponse extends GenericPaginationResponse {
 }
 
 export interface UserSearchParams {
-    city_id?: number;
+    city_id?: number[];
     tags?: number[];
     review_rate?: number;
     order_by?: string;
@@ -290,7 +290,7 @@ export interface StoresSearchResponse extends GenericPaginationResponse {
 }
 
 export interface StoreSearchParams {
-    city_id?: number;
+    city_id?: number[];
     category_id?: number;
     tags?: number[];
     review_rate_min?: number;

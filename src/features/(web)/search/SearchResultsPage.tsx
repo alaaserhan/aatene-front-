@@ -24,7 +24,7 @@ export type SearchType = "products" | "services" | "stores" | "users";
 
 interface FilterState {
     category_id?: number;
-    city_id?: number;
+    city_id?: number[];
     tags?: number[];
     min_price?: number;
     max_price?: number;
@@ -56,10 +56,11 @@ function SearchContent({ type }: { type: SearchType }) {
     const initialFilters: FilterState = useMemo(() => {
         const tags = searchParams.getAll("tags").map(t => parseInt(t)).filter(n => !isNaN(n));
         const variations = searchParams.getAll("variation_options").map(v => parseInt(v)).filter(n => !isNaN(n));
+        const cities = searchParams.getAll("city_id").map(c => parseInt(c)).filter(n => !isNaN(n));
 
         return {
             category_id: searchParams.get("category_id") ? parseInt(searchParams.get("category_id")!) : undefined,
-            city_id: searchParams.get("city_id") ? parseInt(searchParams.get("city_id")!) : undefined,
+            city_id: cities.length > 0 ? cities : undefined,
             tags: tags.length > 0 ? tags : undefined,
             variation_options: variations.length > 0 ? variations : undefined,
             min_price: searchParams.get("min_price") ? parseInt(searchParams.get("min_price")!) : undefined,
@@ -126,14 +127,15 @@ function SearchContent({ type }: { type: SearchType }) {
     const updateUrl = (newFilters: FilterState) => {
         const params = new URLSearchParams(searchParams.toString());
 
-        // Update params based on newFilters
         if (newFilters.category_id) params.set("category_id", newFilters.category_id.toString());
         else params.delete("category_id");
 
-        if (newFilters.city_id) params.set("city_id", newFilters.city_id.toString());
-        else params.delete("city_id");
-
         // Handle array params
+        params.delete("city_id");
+        if (newFilters.city_id && newFilters.city_id.length > 0) {
+            newFilters.city_id.forEach(id => params.append("city_id", id.toString()));
+        }
+
         params.delete("tags");
         if (newFilters.tags && newFilters.tags.length > 0) {
             newFilters.tags.forEach(tag => params.append("tags", tag.toString()));
