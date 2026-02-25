@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { UserProfile, UserStory, UserFollower } from "../types";
 import Image from "next/image";
-import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, Type, Image as ImageIcon } from "lucide-react";
+import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, Type, Image as ImageIcon, UserMinus } from "lucide-react";
 import { useUserProfile, useUserProfilePageData, useUserFavProducts, useUserProducts } from "../hooks";
 import { useParams, useRouter } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
@@ -39,7 +39,7 @@ function UserHeader({ user, isOwnProfile, followers }: {
             queryClient.invalidateQueries({ queryKey: ["userProfile"] });
         };
 
-        if (user.am_i_following) {
+        if (user.is_following) {
             unfollow({ followed_type: "user", followed_id: user.id }, { onSuccess });
         } else {
             follow({ followed_type: "user", followed_id: user.id }, { onSuccess });
@@ -137,17 +137,17 @@ function UserHeader({ user, isOwnProfile, followers }: {
                                         disabled={isFollowing || isUnfollowing}
                                         className={cn(
                                             "flex items-center min-w-[100px] justify-center gap-2 px-4 md:px-8 py-2 rounded-full transition-colors cursor-pointer text-sm font-medium flex-1 md:flex-none",
-                                            user.am_i_following
+                                            user.is_following
                                                 ? "border border-gray-300 text-gray-700 hover:bg-gray-50"
                                                 : "bg-[#456A8E] text-white hover:bg-[#355A7E]"
                                         )}
                                     >
                                         {(isFollowing || isUnfollowing) ? (
                                             <Loader2 className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                            <UserPlus className="w-4 h-4" />
-                                        )}
-                                        {user.am_i_following ? "إلغاء المتابعة" : "تابع المستخدم"}
+                                        ) : 
+                                            user.is_following ? <UserMinus className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />
+                                        }
+                                        {user.is_following ? "إلغاء المتابعة" : "تابع المستخدم"}
                                     </button>
 
                                     <button className="flex items-center min-w-[100px] justify-center cursor-pointer gap-2 border border-[#456A8E] text-[#456A8E] bg-white px-4 md:px-8 py-2 rounded-full font-medium hover:bg-blue-50 transition-colors text-sm flex-1 md:flex-none">

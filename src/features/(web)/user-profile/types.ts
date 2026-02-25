@@ -21,7 +21,7 @@ export interface UserProfile {
     bio: string;
     date_of_birth: string;
     user_type: string;
-    am_i_following?: boolean;
+    is_following?: boolean;
     city?: {
         name: string;
     };
@@ -35,7 +35,7 @@ export interface UserStory {
     created_at: string;
 }
 
-export type UserFollower = Omit<UserProfile, "am_i_following">;
+export type UserFollower = Omit<UserProfile, "is_following">;
 
 export interface UserProfilePageData {
     stories: UserStory[];
