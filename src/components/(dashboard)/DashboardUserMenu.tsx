@@ -129,7 +129,8 @@ export function DashboardUserMenu() {
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"
-                    className="flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-transparent h-auto outline-none ring-0 focus-visible:ring-0 group"
+                    size={null}
+                    className="flex items-center gap-3 px-0 md:px-1 py-1 rounded-lg hover:bg-transparent h-auto outline-none ring-0 focus-visible:ring-0 group"
                 >
                     <Avatar className="w-10 h-10 border border-white group-hover:border-blue-100 transition-colors">
                         {/* هنا في الزر الخارجي، نعرض صورة المستخدم كما هي */}
@@ -274,13 +275,13 @@ export function DashboardUserMenu() {
                         >
                             <div className="flex items-center gap-2">
                                 <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                                <Settings className="w-4 h-4"/>
+                                    <Settings className="w-4 h-4" />
+                                </div>
+                                <span className="text-sm font-medium">
+                                    الإعدادات
+                                </span>
                             </div>
-                            <span className="text-sm font-medium">
-                                الإعدادات
-                            </span>
-                            </div>
-                            <ChevronLeft className="w-4 h-4"/>
+                            <ChevronLeft className="w-4 h-4" />
                         </Link>
 
                         <Link
@@ -289,13 +290,13 @@ export function DashboardUserMenu() {
                         >
                             <div className="flex items-center gap-2">
                                 <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                                    <Home className="w-4 h-4"/>
+                                    <Home className="w-4 h-4" />
                                 </div>
                                 <span className="text-sm font-medium">
                                     العودة للمنصة
                                 </span>
                             </div>
-                            <ChevronLeft className="w-4 h-4"/>
+                            <ChevronLeft className="w-4 h-4" />
                         </Link>
                         <DropdownMenuSeparator className="my-2" />
                         <button

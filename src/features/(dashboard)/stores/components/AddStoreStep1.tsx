@@ -53,7 +53,7 @@ export function AddStoreStep1() {
                             className={cn(
                                 "relative p-8 rounded-xl border cursor-pointer ",
                                 "flex flex-col items-center justify-center min-h-[240px]",
-                                selectedType === "products"
+                                selectedType !== "products"
                                     ? "bg-white border-blue-1"
                                     : "bg-blue-5 border-none"
                             )}
@@ -96,7 +96,7 @@ export function AddStoreStep1() {
                             className={cn(
                                 "relative p-8 rounded-xl border cursor-pointer",
                                 "flex flex-col items-center justify-center min-h-[240px]",
-                                selectedType === "services"
+                                selectedType !== "services"
                                     ? "bg-white border-blue-1"
                                     : "bg-blue-5 border-none"
                             )}

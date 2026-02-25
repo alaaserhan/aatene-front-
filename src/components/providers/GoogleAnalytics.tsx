@@ -16,6 +16,9 @@ export const GoogleAnalytics = () => {
             (window as WindowWithGtag).gtag?.('config', 'G-38DS6YHG9H', {
                 page_path: url,
             });
+            (window as WindowWithGtag).gtag?.('config', 'AW-10825269964', {
+                page_path: url,
+            });
         }
     }, [pathname, searchParams]);
 
@@ -36,6 +39,7 @@ export const GoogleAnalytics = () => {
                         gtag('js', new Date());
 
                         gtag('config', 'G-38DS6YHG9H');
+                        gtag('config', 'AW-10825269964');
                     `,
                 }}
             />

@@ -24,7 +24,6 @@ import {
   Boxes,
   Newspaper,
   Heart,
-  Coins,
   FileText,
   TriangleAlert,
   ChevronLeft,
@@ -113,7 +112,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   };
 
   const isActive = (path: string) => {
-    const fullPath = `${navPrefix}${path}`;
+    const basePath = path.split("?")[0];
+    const fullPath = `${navPrefix}${basePath}`;
     if (fullPath === navPrefix && pathname === fullPath) return true;
     if (fullPath !== navPrefix && pathname?.startsWith(fullPath)) return true;
     return false;
@@ -153,9 +153,9 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: isAdmin },
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && storeType === "services" },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: isAdmin, desc: "إدارة ومتابعة مقدمي الخدمات" },
-    { label: "الفئات", icon: Boxes, href: "/categories", show: true, desc: "إدارة وعرض الفئات" },
-    { label: "مدن الشحن", icon: Map, href: "/cities", show: true, desc: "اختر وجهات الشحن المتاحة" },
     { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: true, desc: "إدارة وتصنيف الاقسام" },
+    { label: "مدن الشحن", icon: Map, href: "/cities", show: true, desc: "اختر وجهات الشحن المتاحة" },
+    { label: "الفئات", icon: Boxes, href: "/categories", show: true, desc: "إدارة وعرض الفئات" },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin, desc: "ادارة ومتابعة البنرات الإعلانية" },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: isAdmin, desc: "إدارة التشات بوت والإحصائيات" },
     { label: "القصص", icon: ImageIcon, href: "/stories ", show: isMerchant, desc: "إضافة وإدارة القصص" },
@@ -171,8 +171,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "المحذوفات", icon: Trash2, href: "/trash", show: isAdmin, desc: "إدارة ومتابعة المحذوفات" },
   ];
 
-  const mainNavItems = allNavItems.slice(0, 7);
-  const moreMenuItems = allNavItems.slice(7);
+  const mainNavItems = isMerchant ? allNavItems.slice(0, 8) : allNavItems.slice(0, 7);
+  const moreMenuItems = isMerchant ? allNavItems.slice(8) : allNavItems.slice(7);
 
   const notifications: Notification[] = [];
   const unreadCount = 0;
@@ -356,7 +356,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               </Link>
             </Button>
 
-            <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen} dir="rtl"> 
+            <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen} dir="rtl">
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
@@ -410,7 +410,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <div className="hidden lg:block">
+            <div className="">
               <DashboardUserMenu />
             </div>
           </div>
