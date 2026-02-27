@@ -192,6 +192,7 @@ export interface ServiceSearchParams {
     tags?: number[];
     store_id?: number;
     search?: string;
+    section_id?: number;
 }
 
 export const searchServices = async (params: ServiceSearchParams): Promise<ServicesSearchResponse> => {

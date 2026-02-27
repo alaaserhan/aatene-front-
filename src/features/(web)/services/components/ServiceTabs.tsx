@@ -265,12 +265,6 @@ function ServiceFAQ({ service }: { service: Service }) {
 
     const displayQuestions = questions.length > 0 ? questions : demoQuestions;
 
-    const [openId, setOpenId] = useState<number | null>(null);
-
-    const toggle = (id: number) => {
-        setOpenId(openId === id ? null : id);
-    };
-
     return (
         <div className="space-y-6">
             <div className="mb-6">
@@ -282,18 +276,10 @@ function ServiceFAQ({ service }: { service: Service }) {
                 {displayQuestions.map((q) => (
                     <div key={q.id} className="py-4">
                         <button
-                            onClick={() => toggle(q.id)}
                             className="flex items-center justify-between w-full text-right group"
                         >
-                            <span className={`font-medium  transition-colors `}>
+                            <span className={`font-medium text-sm transition-colors `}>
                                 {q.id}. {q.question}
-                            </span>
-                            <span className="shrink-0 mr-4">
-                                {openId === q.id ? (
-                                    <Minus className="w-4 h-4 text-blue-3" />
-                                ) : (
-                                    <Plus className="w-4 h-4 text-gray-400 group-hover:text-blue-3" />
-                                )}
                             </span>
                         </button>
                         <div

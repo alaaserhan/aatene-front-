@@ -38,7 +38,7 @@ export default function StoreProductsSection({ storeId, storeType, sections }: S
     const { data: servicesData, isLoading: isLoadingServices } = useSearchServices({
         store_id: storeId,
         search: debouncedSearch,
-        category_id: selectedSection || undefined,
+        section_id: selectedSection || undefined,
         page,
         per_page: 12
     }, isService);
@@ -56,7 +56,7 @@ export default function StoreProductsSection({ storeId, storeType, sections }: S
     if (!sections || sections.length === 0) return null;
 
     return (
-        <div className="my-8 mt-16">
+        <div className="my-8">
             <h2 className=" text-2xl font-medium mb-4 " dir="rtl">{isService ? "كل الخدمات" : "كل المنتجات"}</h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6" dir="rtl">
@@ -71,11 +71,11 @@ export default function StoreProductsSection({ storeId, storeType, sections }: S
                                         "w-full flex items-center justify-between transition-colors cursor-pointer",
                                         selectedSection === null
                                             ? "text-blue-3 font-medium border-r-2 border-blue-3 pr-2 bg-transparent"
-                                            : "text-gray-600 hover:text-gray-900 font-medium border-r-2 border-transparent pr-2 bg-transparent"
+                                            : "text-gray-2 font-medium border-r-2 border-transparent pr-2 bg-transparent"
                                     )}
                                 >
-                                    <span className="text-[15px]">الكل</span>
-                                    <span className="text-[15px]" dir="ltr">({sections.reduce((acc, s) => acc + Number(s.products_count || 0), 0)})</span>
+                                    <span className="text-sm">الكل</span>
+                                    <span className="text-sm" dir="ltr">({sections.reduce((acc, s) => acc + Number(s.products_count || 0), 0)})</span>
                                 </button>
                             </li>
                             {sections.map(section => (
@@ -86,11 +86,11 @@ export default function StoreProductsSection({ storeId, storeType, sections }: S
                                             "w-full flex items-center justify-between transition-colors cursor-pointer",
                                             selectedSection === section.id
                                                 ? "text-blue-3 font-medium border-r-2 border-blue-3 pr-2 bg-transparent"
-                                                : "text-gray-600 hover:text-gray-900 font-medium border-r-2 border-transparent pr-2 bg-transparent"
+                                                : "text-gray-2 font-medium border-r-2 border-transparent pr-2 bg-transparent"
                                         )}
                                     >
-                                        <span className="text-[15px]">{section.name}</span>
-                                        <span className="text-[15px]" dir="ltr">({section.products_count})</span>
+                                        <span className="text-sm">{section.name}</span>
+                                        <span className="text-sm" dir="ltr">({!isService ? section.products_count : section.services_count})</span>
                                     </button>
                                 </li>
                             ))}

@@ -7,17 +7,16 @@ import { cn } from "@/src/lib/utils";
 import {
     Loader2,
     Star,
-    Clock,
-    Heart,
-    ShoppingBag,
-    Calendar,
     MessageSquare,
     Flag,
     Facebook,
     Instagram,
     Youtube,
     Link as LinkIcon,
-    QrCode,
+    Clock,
+    Heart,
+    Package,
+    Award,
 } from "lucide-react";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../hooks";
 import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
@@ -212,92 +211,188 @@ function OfferCard({ product }: { product: ProductInPageData }) {
     );
 }
 
+function ShortcutButton({
+    icon: Icon,
+    href,
+    onClick,
+    title,
+    className
+}: {
+    icon: React.ElementType;
+    href?: string;
+    onClick?: () => void;
+    title?: string;
+    className?: string;
+}) {
+    const commonClasses = cn(
+        "w-7 h-7 rounded-sm border border-blue-4 text-blue-4 flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0",
+        className
+    );
+
+    if (onClick) {
+        return (
+            <button onClick={onClick} className={commonClasses} title={title}>
+                <Icon className="w-4.5 h-4.5" />
+            </button>
+        );
+    }
+
+    return (
+        <a href={href} target="_blank" rel="noopener noreferrer" className={commonClasses} title={title}>
+            <Icon className="w-4.5 h-4.5" />
+        </a>
+    );
+}
+
+function StoreShortcuts({ store }: { store: StoreProfile }) {
+    const copyToClipboard = () => {
+        if (typeof window !== "undefined") {
+            navigator.clipboard.writeText(window.location.href);
+        }
+    };
+
+    const shortcuts: {
+        icon: React.ElementType;
+        href?: string;
+        onClick?: () => void;
+        title: string;
+        show: boolean;
+    }[] = [
+            // {
+            //     icon: LinkIcon,
+            //     onClick: copyToClipboard,
+            //     title: "نسخ الرابط",
+            //     show: true
+            // },
+            {
+                icon: Facebook,
+                href: store.facebook || undefined,
+                title: "فيسبوك",
+                show: !!store.facebook
+            },
+            {
+                icon: Instagram,
+                href: store.instagram || undefined,
+                title: "انستجرام",
+                show: !!store.instagram
+            },
+            {
+                icon: TiktokIcon,
+                href: store.tiktok || undefined,
+                title: "تيك توك",
+                show: !!store.tiktok
+            },
+            {
+                icon: Youtube,
+                href: store.youtube || undefined,
+                title: "يوتيوب",
+                show: !!store.youtube
+            },
+            {
+                icon: WhatsAppIcon,
+                href: store.whats_app ? `https://wa.me/${store.whats_app}` : undefined,
+                title: "واتساب",
+                show: !!store.whats_app
+            }
+        ];
+
+    return (
+        <div className="mb-2 bg-white border border-[#e0dfdc] rounded-[10px] p-[10px_14px] flex flex-col gap-1.5 justify-between" dir="rtl">
+            <h4 className="text-sm font-medium text-center text-blue-4">اختصارات المتجر:</h4>
+            <div className="flex items-center justify-center gap-1 flex-wrap flex-1 ">
+                {shortcuts.filter(s => s.show).map((s, idx) => (
+                    <ShortcutButton
+                        key={idx}
+                        icon={s.icon}
+                        href={s.href}
+                        onClick={s.onClick}
+                        title={s.title}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
 function OverviewTab({ store }: { store: StoreProfile }) {
+    // Calculate current day working hours
+    const today = new Date().getDay();
+    const dayValue = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][today];
+    const workingTime = store.workingtimes?.find((wt) => wt.day === dayValue);
+
+    const formatTime = (time: string) => {
+        if (!time) return "";
+        const [hoursStr, minutesStr] = time.split(":");
+        let hours = parseInt(hoursStr, 10);
+        const minutes = parseInt(minutesStr, 10);
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours || 12;
+        const minutesDisplay = minutes > 0 ? `:${minutes.toString().padStart(2, '0')}` : '';
+        return `${hours}${minutesDisplay}${ampm}`;
+    };
+
+    let workingHours = "غير متوفر";
+    if (workingTime) {
+        if (workingTime.open_always) {
+            workingHours = "مفتوح 24 ساعة";
+        } else if (workingTime.closed_always) {
+            workingHours = "";
+        } else {
+            workingHours = `${formatTime(workingTime.from)} - ${formatTime(workingTime.to)}`;
+        }
+    }
+
+    // Member since
+    const memberSince = store.owner?.created_at
+        ? new Date(store.owner.created_at).getFullYear()
+        : "غير متوفر";
+
     return (
         <div className="flex flex-col lg:flex-row gap-6" dir="rtl">
             {/* Right Side: Store Owner Card */}
             <div className="w-full lg:w-[280px] shrink-0 order-1 lg:order-2">
-                {/* Store Shortcuts */}
-                <div className="mb-2 bg-white border border-[#e0dfdc] rounded-[10px] p-[10px_14px] flex flex-col gap-1.5 justify-between" dir="rtl">
-                    <h4 className="text-sm font-medium text-blue-4">اختصارات المتجر:</h4>
-                    <div className="flex items-center gap-1 flex-wrap flex-1 ">
-                        <button onClick={() => navigator?.clipboard?.writeText(window.location.href)} className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0" title="نسخ الرابط">
-                            <LinkIcon className="w-[18px] h-[18px]" />
-                        </button>
-                        {/* <button className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0" title="كود QR">
-                            <QrCode className="w-[18px] h-[18px]" />
-                        </button> */}
-                        {store.facebook && (
-                            <a href={store.facebook} target="_blank" rel="noopener noreferrer" className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0">
-                                <Facebook className="w-[18px] h-[18px]" />
-                            </a>
-                        )}
-                        {store.instagram && (
-                            <a href={store.instagram} target="_blank" rel="noopener noreferrer" className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0">
-                                <Instagram className="w-[18px] h-[18px]" />
-                            </a>
-                        )}
-                        {store.tiktok && (
-                            <a href={store.tiktok} target="_blank" rel="noopener noreferrer" className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0">
-                                <TiktokIcon className="w-[18px] h-[18px]" />
-                            </a>
-                        )}
-                        {store.youtube && (
-                            <a href={store.youtube} target="_blank" rel="noopener noreferrer" className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0">
-                                <Youtube className="w-[18px] h-[18px]" />
-                            </a>
-                        )}
-                        {store.whats_app && (
-                            <a href={`https://wa.me/${store.whats_app}`} target="_blank" rel="noopener noreferrer" className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0">
-                                <WhatsAppIcon className="w-[18px] h-[18px]" />
-                            </a>
-                        )}
-                    </div>
-                </div>
+                <StoreShortcuts store={store} />
                 <StoreOwnerCard store={store} />
-
             </div>
 
             {/* Left Side: Description + Stats */}
-            <div className="flex-1 flex flex-col gap-6 order-2 lg:order-1">
-                {/* Description */}
-                <div
-                    className="prose prose-lg max-w-none text-gray-700 leading-relaxed font-sans text-sm"
-                    dangerouslySetInnerHTML={{ __html: store.description || "<p>لا يوجد وصف</p>" }}
-                />
-
+            <div className="grid grid-cols-12 md:grid-cols-8 gap-6 w-full">
                 {/* Stats Row */}
-                <div className="flex items-start gap-4 lg:gap-6 flex-wrap mt-4">
+                <div className="flex flex-row md:justify-start justify-center md:flex-col gap-6 col-span-12 md:col-span-1">
                     <StoreStatItem
-                        icon={<Clock className="w-5 h-5 text-green-500" />}
+                        icon={<img src="/icons/clock.svg" alt="" className="w-6 h-6" />}
                         label="مواعيد العمل"
                         value={store.open_status === "open" ? "مفتوح الآن" : "مغلق"}
-                        sub="1PM - 9PM"
+                        sub={workingHours}
                         color={store.open_status === "open" ? "text-green-600" : "text-red-500"}
                     />
                     <StoreStatItem
-                        icon={<Heart className="w-5 h-5 text-red-400" />}
+                        icon={<img src="/icons/heart2.svg" alt="" className="w-6 h-6" />}
                         label="مشاركه"
                         value={String(store.followers_count || 0)}
                     />
                     <StoreStatItem
-                        icon={<Calendar className="w-5 h-5 text-gray-500" />}
+                        icon={<img src="/icons/member.svg" alt="" className="w-6 h-6" />}
                         label="عضو منذ"
-                        value="2017"
+                        value={String(memberSince)}
                     />
                 </div>
+                {/* Description */}
+                <div
+                    className="prose prose-lg max-w-none leading-relaxed font-sans text-sm col-span-12 md:col-span-7"
+                    dangerouslySetInnerHTML={{ __html: store.description || "<p>لا يوجد وصف</p>" }}
+                />
             </div>
         </div>
     );
 }
 
 function StoreOwnerCard({ store }: { store: StoreProfile }) {
-    const ownerName = typeof store.owner === "object" && store.owner !== null
-        ? ((store.owner as { first_name?: string; last_name?: string }).first_name || "") + " " + ((store.owner as { first_name?: string; last_name?: string }).last_name || "")
+    const ownerName = store.owner
+        ? (store.owner.first_name || "") + " " + (store.owner.last_name || "")
         : store.name;
-    const ownerAvatar = typeof store.owner === "object" && store.owner !== null
-        ? (store.owner as { avatar_url?: string }).avatar_url || store.logo_url
-        : store.logo_url;
+    const ownerAvatar = store.owner?.avatar_url || store.logo_url;
 
     return (
         <div className="bg-white border border-[#e0dfdc] rounded-lg p-4 flex flex-col items-center gap-4">
@@ -356,12 +451,12 @@ function StoreStatItem({ icon, label, value, sub, color }: {
     color?: string;
 }) {
     return (
-        <div className="flex flex-col items-center text-center gap-2 min-w-[80px]">
-            <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center text-center gap-1 min-w-[80px]">
+            <div className="w-10 h-10  flex items-center justify-center">
                 {icon}
             </div>
             <span className="text-xs text-gray-500">{label}</span>
-            <span className={cn("text-sm font-semimedium", color || "text-gray-800")}>{value}</span>
+            <span className={cn("text-sm font-medium", color || "text-gray-2")}>{value}</span>
             {sub && <span className="text-[11px] text-gray-400">{sub}</span>}
         </div>
     );

@@ -1,6 +1,26 @@
 import api from "@/src/lib/axios";
 import { ProductInPageData } from "../product/types"; // Import Product type
 
+export interface WorkingTime {
+    id?: number;
+    day: string;
+    from: string;
+    to: string;
+    open_always: boolean;
+    closed_always: boolean;
+}
+
+export interface Owner {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    avatar: string | null;
+    avatar_url: string | null;
+    created_at: string;
+}
+
 export interface StoreProfile {
     id: number;
     slug: string;
@@ -30,7 +50,7 @@ export interface StoreProfile {
     email: string;
     owner_id: string;
     delivery_type: string;
-    owner: unknown;
+    owner: Owner | null;
     currency_id: string;
     currency: unknown;
     city_id: string | null;
@@ -46,7 +66,7 @@ export interface StoreProfile {
     linkedin: string | null;
     pinterest: string | null;
     open_status: string;
-    workingtimes: unknown[];
+    workingtimes: WorkingTime[];
 }
 
 export interface StorePageData {
