@@ -24,6 +24,7 @@ import {
 import { toast } from "sonner";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { AddStoryModal } from "./AddStoryModal";
+import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 
 interface ShowStoryModalProps {
     isOpen: boolean;
@@ -169,14 +170,6 @@ export function ShowStoryModal({
         }
     };
 
-    const getTimeAgo = (dateString: string) => {
-        if (!dateString) return "";
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-        if (diffInHours < 1) return "منذ لحظات";
-        return `منذ ${diffInHours} ساعة`;
-    };
 
     const ACTIVE_WIDTH = dimensions.width;
     const INACTIVE_WIDTH = dimensions.inactiveWidth;
@@ -267,7 +260,7 @@ export function ShowStoryModal({
 
                                                     <div className="flex items-center gap-3">
                                                         <div className="flex flex-col text-right text-white">
-                                                            <span className="text-xs opacity-80">{getTimeAgo(story.created_at)}</span>
+                                                            <span className="text-xs opacity-80">{getRelativeTimeArabic(story.created_at)}</span>
                                                         </div>
                                                     </div>
 
