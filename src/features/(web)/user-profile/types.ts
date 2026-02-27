@@ -35,7 +35,11 @@ export interface UserStory {
     created_at: string;
 }
 
-export type UserFollower = Omit<UserProfile, "is_following">;
+export interface UserFollower {
+    id: number;
+    follower_type: string;
+    follower: Omit<UserProfile, "is_following">;
+}
 
 export interface UserProfilePageData {
     stories: UserStory[];

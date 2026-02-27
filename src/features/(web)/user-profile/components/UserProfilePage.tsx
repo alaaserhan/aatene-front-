@@ -100,9 +100,9 @@ function UserHeader({ user, isOwnProfile, followers }: {
                             <div className="flex items-center gap-3">
                                 <div className="hidden sm:flex -space-x-2 md:-space-x-3 space-x-reverse">
                                     {followers && followers.length > 0 ? (
-                                        followers.slice(0, 3).map((follower, idx) => (
-                                            <div key={follower.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100">
-                                                <Image src={follower.avatar_url || "/default-avatar.png"} fill className="object-cover" alt="follower" />
+                                        followers.slice(0, 3).map((fItem, idx) => (
+                                            <div key={fItem.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100">
+                                                <Image src={fItem.follower?.avatar_url || "/default-avatar.png"} fill className="object-cover" alt="follower" />
                                             </div>
                                         ))
                                     ) : (
@@ -144,7 +144,7 @@ function UserHeader({ user, isOwnProfile, followers }: {
                                     >
                                         {(isFollowing || isUnfollowing) ? (
                                             <Loader2 className="w-4 h-4 animate-spin" />
-                                        ) : 
+                                        ) :
                                             user.is_following ? <UserMinus className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />
                                         }
                                         {user.is_following ? "إلغاء المتابعة" : "تابع المستخدم"}
