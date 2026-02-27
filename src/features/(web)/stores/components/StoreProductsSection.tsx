@@ -12,7 +12,7 @@ import { useSearchServices } from "@/src/features/(web)/searchAndFilter/hooks";
 interface StoreProductsSectionProps {
     storeId: number;
     storeType?: string;
-    sections: { id: number; name: string; products_count: string }[];
+    sections: { id: number; name: string; products_count: string; services_count?: string }[];
 }
 
 export default function StoreProductsSection({ storeId, storeType, sections }: StoreProductsSectionProps) {
@@ -75,7 +75,7 @@ export default function StoreProductsSection({ storeId, storeType, sections }: S
                                     )}
                                 >
                                     <span className="text-sm">الكل</span>
-                                    <span className="text-sm" dir="ltr">({sections.reduce((acc, s) => acc + Number(s.products_count || 0), 0)})</span>
+                                    <span className="text-sm" dir="ltr">({sections.reduce((acc, s) => acc + Number((!isService ? s.products_count : s.services_count) || 0), 0)})</span>
                                 </button>
                             </li>
                             {sections.map(section => (

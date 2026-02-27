@@ -89,6 +89,7 @@ export interface StorePageData {
         id: number;
         name: string;
         products_count: string;
+        services_count?: string;
         store_id: string;
     }[];
     followers?: {
