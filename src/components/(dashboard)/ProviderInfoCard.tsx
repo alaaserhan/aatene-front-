@@ -58,7 +58,7 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div className="flex items-center gap-4  w-full md:w-auto ">
                     <Avatar className="w-14 h-14 border-2 border-white shadow-sm">
-                        <AvatarImage src={data.avatar} />
+                        <AvatarImage src={data.avatar} className="object-cover"/>
                         <AvatarFallback>{data.name?.[0]}</AvatarFallback>
                     </Avatar>
                     <div className="">

@@ -18,10 +18,13 @@ interface ProductHeroProps {
 
 export default function ProductHero({ product, store, attributes }: ProductHeroProps) {
     const allMedia = useMemo(() => {
+        const isVideoFile = (url: string) => {
+            return /\.(mp4|webm|avi|mkv|mov|wmv|x-ms-wmv|3gp|3gpp|3gpp2|ogg|quicktime|mp2t)(\?.*)?$/i.test(url || "");
+        };
         const items: { type: "image" | "video"; url: string }[] = [];
-        if (product.cover) items.push({ type: "image", url: product.cover });
+        if (product.cover) items.push({ type: isVideoFile(product.cover) ? "video" : "image", url: product.cover });
         if (product.gallery) {
-            product.gallery.forEach((img) => items.push({ type: "image", url: img }));
+            product.gallery.forEach((url) => items.push({ type: isVideoFile(url) ? "video" : "image", url: url }));
         }
         if (product.video) items.push({ type: "video", url: product.video });
         return items;
@@ -79,14 +82,16 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                 >
                                     {item.type === "video" ? (
                                         <div className="relative w-full h-full">
-                                            <img
-                                                src={product.cover || "/placeholder.png"}
-                                                alt="Video"
-                                                className="w-full h-full object-cover"
+                                            <video
+                                                src={item.url}
+                                                className="w-full h-full object-cover pointer-events-none"
+                                                muted
+                                                playsInline
+                                                preload="metadata"
                                             />
-                                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                                                <div className="w-[50px] h-[50px] bg-white rounded-full flex items-center justify-center">
-                                                    <Play className="w-6 h-6 text-gray-700 fill-gray-700" />
+                                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none">
+                                                <div className="w-[40px] h-[40px] bg-white/90 rounded-full flex items-center justify-center">
+                                                    <Play className="w-5 h-5 text-gray-700 fill-gray-700" />
                                                 </div>
                                             </div>
                                         </div>

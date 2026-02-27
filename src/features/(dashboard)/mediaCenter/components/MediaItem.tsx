@@ -57,7 +57,7 @@ export function MediaItem({
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors duration-300 group-hover:bg-black/20">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm">
-                  <Play className="h-5 w-5 translate-x-0.5 text-gray-800" />
+                  <Play className="h-5 w-5 text-gray-800" />
                 </div>
               </div>
             </div>

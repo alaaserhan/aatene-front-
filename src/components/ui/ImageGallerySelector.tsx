@@ -211,7 +211,7 @@ export function ImageGallerySelector({
                                     />
                                     <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
                                         <div className="w-8 h-8 rounded-full bg-white/80 shadow-sm backdrop-blur-sm flex items-center justify-center">
-                                            <Play className="w-4 h-4 text-gray-800 translate-x-0.5" />
+                                            <Play className="w-4 h-4 text-gray-800" />
                                         </div>
                                     </div>
                                 </div>

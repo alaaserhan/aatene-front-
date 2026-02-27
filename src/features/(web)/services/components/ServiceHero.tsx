@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Star, Share2, Flag, ChevronLeft, ChevronRight, Phone, MoreVertical, Send, Check, Clock4 } from "lucide-react";
+import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Check, Clock4 } from "lucide-react";
 import { Service } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddServiceToCompare } from "@/src/features/(web)/compares/hooks";
@@ -16,11 +16,14 @@ interface ServiceHeroProps {
 
 export default function ServiceHero({ service }: ServiceHeroProps) {
     const allMedia = useMemo(() => {
+        const isVideoFile = (url: string) => {
+            return /\.(mp4|webm|avi|mkv|mov|wmv|x-ms-wmv|3gp|3gpp|3gpp2|ogg|quicktime|mp2t)(\?.*)?$/i.test(url || "");
+        };
         const items: { type: "image" | "video"; url: string }[] = [];
         if (service.images_urls && service.images_urls.length > 0) {
-            service.images_urls.forEach((img) => items.push({ type: "image", url: img }));
+            service.images_urls.forEach((img) => items.push({ type: isVideoFile(img) ? "video" : "image", url: img }));
         } else if (service.image_url) {
-            items.push({ type: "image", url: service.image_url });
+            items.push({ type: isVideoFile(service.image_url) ? "video" : "image", url: service.image_url });
         }
         return items;
     }, [service]);
@@ -88,14 +91,31 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                                             : "border-transparent hover:border-gray-300"
                                     )}
                                 >
-                                    <img
-                                        src={item.url}
-                                        alt={`${service.title} - ${index + 1} `}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            e.currentTarget.src = "/placeholder.png";
-                                        }}
-                                    />
+                                    {item.type === "video" ? (
+                                        <div className="relative w-full h-full">
+                                            <video
+                                                src={item.url}
+                                                className="w-full h-full object-cover pointer-events-none"
+                                                muted
+                                                playsInline
+                                                preload="metadata"
+                                            />
+                                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none">
+                                                <div className="w-[40px] h-[40px] bg-white/90 rounded-full flex items-center justify-center">
+                                                    <Play className="w-5 h-5 text-gray-700 fill-gray-700" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <img
+                                            src={item.url}
+                                            alt={`${service.title} - ${index + 1} `}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.src = "/placeholder.png";
+                                            }}
+                                        />
+                                    )}
                                 </button>
                             ))}
                         </div>
@@ -103,14 +123,22 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
 
                     {/* Main Image */}
                     <div className="flex-1 relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
-                        <img
-                            src={currentMedia?.url || "/placeholder.png"}
-                            alt={service.title}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                                e.currentTarget.src = "/placeholder.png";
-                            }}
-                        />
+                        {currentMedia?.type === "video" ? (
+                            <video
+                                src={currentMedia.url}
+                                controls
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <img
+                                src={currentMedia?.url || "/placeholder.png"}
+                                alt={service.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    e.currentTarget.src = "/placeholder.png";
+                                }}
+                            />
+                        )}
 
                         {/* Navigation Arrows */}
                         {allMedia.length > 1 && (
