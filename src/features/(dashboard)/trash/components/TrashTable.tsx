@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, RotateCcw, Trash2, ChevronDown } from "lucide-react";
+import { Loader2, RotateCcw, Trash2 } from "lucide-react";
 import { TrashedItem } from "../types";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { Button } from "@/src/components/ui/button";
@@ -18,6 +18,7 @@ interface TrashTableProps {
   onForceDelete: (id: number) => void;
   restoringId?: number | null;
   deletingId?: number | null;
+  activeSlug?: string;
 }
 
 export function TrashTable({
@@ -32,6 +33,7 @@ export function TrashTable({
   onForceDelete,
   restoringId,
   deletingId,
+  activeSlug = "item",
 }: TrashTableProps) {
   // عرض التحميل
   if (isLoading) {
@@ -59,7 +61,7 @@ export function TrashTable({
           const isSelected = selectedIds.includes(item.id);
           return (
             <div
-              key={item.id}
+              key={`${activeSlug}-${item.id}`}
               className="flex items-center gap-1 p-2 border border-input rounded hover:bg-gray-50 transition-colors"
             >
               <button
@@ -91,8 +93,7 @@ export function TrashTable({
                 )}
               </button>
 
-              <div className="flex items-center gap-0 flex-1 me-4">
-                <ChevronDown className="w-4 h-4 text-gray-400 me-1" />
+              <div className="flex items-center flex-1 me-4">
                 <span className="text-sm font-medium">{item.name}</span>
               </div>
 
