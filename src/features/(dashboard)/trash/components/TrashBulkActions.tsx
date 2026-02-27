@@ -27,7 +27,7 @@ export function TrashBulkActions({
       style={{ backgroundColor: "#4068961A" }}
     >
       <span className="text-sm text-gray-700 font-medium">
-        تم تحديد {selectedCount} منتج
+        تم تحديد {selectedCount} عنصر
       </span>
 
       <div className="flex items-center gap-2">

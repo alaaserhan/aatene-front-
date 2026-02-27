@@ -59,6 +59,8 @@ export function TrashPage() {
     const params = new URLSearchParams();
     params.set("page", String(currentPage));
     params.set("per_page", "15");
+    params.set("order_by", "deleted_at");
+    params.set("order_dir", "desc");
     if (searchQuery) {
       params.set("search", searchQuery);
     }
@@ -109,6 +111,7 @@ export function TrashPage() {
 
   // تنفيذ الاسترجاع بعد التأكيد
   const handleConfirmRestore = async () => {
+    setConfirmRestoreOpen(false);
     if (confirmAction === "restore" && targetId !== null) {
       setRestoringId(targetId);
       restoreMutation.mutate(
@@ -142,6 +145,7 @@ export function TrashPage() {
 
   // تنفيذ الحذف النهائي بعد التأكيد
   const handleConfirmDelete = async () => {
+    setConfirmDeleteOpen(false);
     if (confirmAction === "delete" && targetId !== null) {
       setDeletingId(targetId);
       forceDeleteMutation.mutate(
@@ -235,6 +239,7 @@ export function TrashPage() {
               onForceDelete={handleForceDelete}
               restoringId={restoringId}
               deletingId={deletingId}
+              activeSlug={activeSlug}
             />
           </div>
         </div>
