@@ -25,7 +25,7 @@ export function AddProductPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sectionIdFromUrl = searchParams.get("section_id");
-  
+
   const storeIdFromUrl = searchParams.get("store_id");
   const storeId = storeIdFromUrl || Cookies.get("current_store_id");
   const userType = Cookies.get("user_type");
@@ -162,14 +162,14 @@ export function AddProductPage() {
       short_description: updatedFormData.step1!.short_description,
       description: updatedFormData.step1!.description,
       cover: updatedFormData.step1!.cover,
-      gallary: updatedFormData.step1!.gallery,
+      gallary: [updatedFormData.step1!.cover, ...updatedFormData.step1!.gallery],
       type: updatedFormData.step3!.hasVariations ? "variation" : "simple",
       condition: updatedFormData.step1!.condition,
       category_id: updatedFormData.step1!.category_id,
       store_id: updatedFormData.step2!.store_id,
       section_id: updatedFormData.step2!.section_id || 0,
       price: updatedFormData.step1!.price,
-     
+
       status: isAdmin ? "active" : "not-active",
       tags: updatedFormData.step2!.tags,
       crossSells: data.crossSells,
@@ -236,7 +236,7 @@ export function AddProductPage() {
         if (data.short_description) newStep1.short_description = data.short_description;
 
         const newStep2 = { ...prev.step2 } as Step2FormData;
-        
+
         if (!newStep2.tags) {
           newStep2.tags = [];
         }

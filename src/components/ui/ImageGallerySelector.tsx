@@ -3,7 +3,8 @@
 
 import { useState, useRef } from "react";
 import { cn } from "@/src/lib/utils";
-import { Plus, GripHorizontal } from "lucide-react";
+import { Plus, GripHorizontal, Play } from "lucide-react";
+import { toast } from "sonner";
 import { MediaCenterModal } from "@/src/features/(dashboard)/mediaCenter/components/MediaCenterModal";
 import { MediaItem } from "@/src/features/(dashboard)/mediaCenter/api";
 
@@ -59,6 +60,10 @@ export function ImageGallerySelector({
         url: previews[index] || "",
     }));
 
+    const isVideoFile = (fileName: string) => {
+        return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
+    };
+
     const handleAdd = (newFiles: MediaItem | MediaItem[]) => {
         const filesArray = Array.isArray(newFiles) ? newFiles : [newFiles];
 
@@ -67,9 +72,15 @@ export function ImageGallerySelector({
         const filesToAdd = filesArray.slice(0, remainingSlots);
 
         const newFileNames = filesToAdd.map((f) => f.file_name);
-        const newFileUrls = filesToAdd.map((f) => f.src);
+        const newFileUrls = filesToAdd.map((f) => f.url);
 
-        onChange([...value, ...newFileNames], [...previews, ...newFileUrls]);
+        const projectedFiles = [...value, ...newFileNames];
+        if (projectedFiles.length > 0 && isVideoFile(projectedFiles[0])) {
+            toast.error("لا يمكن تعيين الفيديو كصورة رئيسية (الصورة الأولى). الرجاء اختيار صورة أولاً.");
+            return;
+        }
+
+        onChange(projectedFiles, [...previews, ...newFileUrls]);
         setIsModalOpen(false);
     };
 
@@ -81,6 +92,11 @@ export function ImageGallerySelector({
 
     const handleSetMain = (index: number) => {
         if (index === 0) return;
+
+        if (isVideoFile(items[index].url) || isVideoFile(items[index].file)) {
+            toast.error("لا يمكن تعيين الفيديو كصورة رئيسية");
+            return;
+        }
 
         const newFiles = [...value];
         const newUrls = [...previews];
@@ -117,6 +133,13 @@ export function ImageGallerySelector({
         const end = dragOverIndex;
 
         if (start !== null && end !== null && start !== end) {
+            if (end === 0 && (isVideoFile(items[start].url) || isVideoFile(items[start].file))) {
+                toast.error("لا يمكن تعيين الفيديو كصورة رئيسية");
+                dragItem.current = null;
+                setDragOverIndex(null);
+                return;
+            }
+
             const newFiles = [...value];
             const newUrls = [...previews];
 
@@ -134,10 +157,6 @@ export function ImageGallerySelector({
     };
 
     const cardHeight = itemHeight + 35;
-
-    const isVideoUrl = (url: string) => {
-        return /\.(mp4|webm|ogg|mov)$/i.test(url);
-    };
 
     return (
         <div className={cn("space-y-3", className)}>
@@ -180,13 +199,22 @@ export function ImageGallerySelector({
                             className="w-full bg-gray-100 relative group"
                             style={{ height: `${itemHeight}px` }}
                         >
-                            {isVideoUrl(item.url) ? (
-                                <video
-                                    src={item.url}
-                                    className="w-full h-full object-cover"
-                                    controls={false}
-                                    muted
-                                />
+                            {isVideoFile(item.url) ? (
+                                <div className="relative w-full h-full">
+                                    <video
+                                        src={item.url}
+                                        className="w-full h-full object-cover"
+                                        controls={false}
+                                        muted
+                                        playsInline
+                                        preload="metadata"
+                                    />
+                                    <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
+                                        <div className="w-8 h-8 rounded-full bg-white/80 shadow-sm backdrop-blur-sm flex items-center justify-center">
+                                            <Play className="w-4 h-4 text-gray-800 translate-x-0.5" />
+                                        </div>
+                                    </div>
+                                </div>
                             ) : (
                                 <img
                                     src={item.url}

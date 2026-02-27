@@ -103,8 +103,11 @@ export function EditProductPage({ productId }: EditProductPageProps) {
           price: Number(cs.price) || 0,
         }));
 
-        const validGallery = (product.gallery || []).filter(img => img && img.trim() !== "");
-        const validGalleryUrls = (product.gallery_url || []).filter(url => url && url.trim() !== "");
+        // Workaround for API typo where key is sometimes "gallery    "
+        const galleryKey = Object.keys(product).find(k => k.trim() === 'gallery') || 'gallery';
+        const rawGallery = (product as unknown as Record<string, string[]>)[galleryKey];
+        const validGallery = (rawGallery || []).filter((img: string) => img && typeof img === 'string' && img.trim() !== "" && img !== product.cover);
+        const validGalleryUrls = (product.gallery_url || []).filter((url: string) => url && typeof url === 'string' && url.trim() !== "" && url !== product.cover_url);
 
         const initialFormData: CompleteProductFormData = {
           step1: {
@@ -268,7 +271,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       short_description: updatedFormData.step1!.short_description,
       description: updatedFormData.step1!.description,
       cover: updatedFormData.step1!.cover,
-      gallary: updatedFormData.step1!.gallery,
+      gallary: [updatedFormData.step1!.cover, ...updatedFormData.step1!.gallery],
       type: updatedFormData.step3!.hasVariations ? "variation" : "simple",
       condition: updatedFormData.step1!.condition,
       category_id: updatedFormData.step1!.category_id,
