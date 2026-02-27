@@ -134,3 +134,74 @@ export const getServiceReviewReplies = async (slug: string, id: number): Promise
     const { data } = await api.get<GetServiceReviewsResponse>(`/reviews/service/${slug}/${id}`);
     return data;
 };
+
+// --- Question and Answer Board ---
+
+export interface ServiceBoardUser {
+    id: number;
+    slug: string;
+    first_name: string;
+    last_name: string;
+    name: string;
+    avatar: string;
+    avatar_url: string;
+    bio: string;
+    review_rate: string;
+    review_count: string;
+    is_following: boolean;
+}
+
+export interface ServiceBoardAnswer {
+    id: number;
+    content: string;
+    user: ServiceBoardUser;
+    created_at: string;
+}
+
+export interface ServiceBoardQuestion {
+    id: number;
+    content: string;
+    service_id: string;
+    user: ServiceBoardUser;
+    answers_count: string;
+    last_answered_at: string | null;
+    created_at: string;
+    answers: ServiceBoardAnswer[];
+}
+
+export interface GetServiceBoardQuestionsResponse {
+    status: boolean;
+    message: string;
+    total: number;
+    questions: ServiceBoardQuestion[];
+}
+
+export interface GetServiceBoardAnswersResponse {
+    status: boolean;
+    message: string;
+    total: number;
+    answers: ServiceBoardAnswer[];
+}
+
+export const postServiceBoardQuestion = async (serviceId: number | string, content: string): Promise<{ status: boolean; message: string }> => {
+    const { data } = await api.post(`/services/${serviceId}/board/questions`, { content });
+    return data;
+};
+
+export const getServiceBoardQuestions = async (serviceId: number | string, orderType?: "most_recent" | "oldest" | "recently_answered"): Promise<GetServiceBoardQuestionsResponse> => {
+    const { data } = await api.get<GetServiceBoardQuestionsResponse>(`/services/${serviceId}/board`, {
+        params: orderType ? { order_type: orderType } : undefined,
+    });
+    return data;
+};
+
+export const postServiceBoardAnswer = async (questionId: number | string, content: string): Promise<{ status: boolean; message: string }> => {
+    const { data } = await api.post(`/services/board/questions/${questionId}/answers`, { content });
+    return data;
+};
+
+export const getServiceBoardAnswers = async (questionId: number | string): Promise<GetServiceBoardAnswersResponse> => {
+    const { data } = await api.get<GetServiceBoardAnswersResponse>(`/services/board/questions/${questionId}/answers`);
+    return data;
+};
+
