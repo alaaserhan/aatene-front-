@@ -61,8 +61,12 @@ export interface StorePageData {
         store_id: string;
     }[];
     followers?: {
-        id?: number;
-        avatar_url?: string;
+        id: number;
+        follower_type: string;
+        follower: {
+            id: number;
+            avatar_url: string | null;
+        };
     }[];
 }
 

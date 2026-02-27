@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { StoreProfile } from "../api";
 import { cn } from "@/src/lib/utils";
-import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import {
     Heart,
     MessageCircle,
@@ -24,8 +23,12 @@ import { useQueryClient } from "@tanstack/react-query";
 interface StoreHeaderProps {
     store: StoreProfile;
     followers?: {
-        id?: number;
-        avatar_url?: string;
+        id: number;
+        follower_type: string;
+        follower: {
+            id: number;
+            avatar_url: string | null;
+        };
     }[];
 }
 
@@ -147,9 +150,9 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                                 <div className="flex items-center gap-3">
                                     <div className="hidden sm:flex -space-x-2 md:-space-x-3 space-x-reverse">
                                         {(followers && followers.length > 0) ? (
-                                            followers.slice(0, 3).map((follower, idx) => (
-                                                <div key={follower.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100">
-                                                    <Image src={follower.avatar_url || "/default-avatar.png"} fill className="object-cover" alt="follower" />
+                                            followers.slice(0, 3).map((fItem, idx) => (
+                                                <div key={fItem.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100">
+                                                    <Image src={fItem.follower?.avatar_url || "/default-avatar.png"} fill className="object-cover" alt="follower" />
                                                 </div>
                                             ))
                                         ) : (
