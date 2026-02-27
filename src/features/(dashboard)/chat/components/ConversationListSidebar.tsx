@@ -4,6 +4,9 @@ import { useState, useMemo } from "react";
 import { Conversation } from "../api";
 import { cn } from "@/src/lib/utils";
 import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarList";
+import { useAuthStore } from "@/src/stores/auth-store";
+import Cookies from "js-cookie";
+import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 
 interface ConversationListSidebarProps {
     conversations: Conversation[];
@@ -28,20 +31,41 @@ export function ConversationListSidebar({
     className,
     totalUnreadCount = 0,
 }: ConversationListSidebarProps) {
+    const authUser = useAuthStore(state => state.user);
+
+    const getOtherParticipant = (conversation: Conversation) => {
+        const currentStoreId = Cookies.get("current_store_id");
+        const currentId = currentStoreId ? String(currentStoreId) : String(authUser?.id);
+        const currentType = currentStoreId ? "store" : "user";
+
+        const other = conversation.participants.find(
+            p => String(p.participant_data.id) !== currentId || p.participant_data.type !== currentType
+        );
+
+        return other || conversation.participants[0];
+    };
 
     const getDisplayName = (conversation: Conversation) => {
         if (conversation.name && conversation.name.trim()) {
             return conversation.name.trim();
         }
-        const otherParticipant = conversation.participants.find(
-            p => p.participant_data.type === "user" || p.participant_data.type === "store"
-        );
-        return otherParticipant?.participant_data?.name || "محادثة";
+        const otherParticipant = getOtherParticipant(conversation);
+        return otherParticipant?.participant_data?.name || "مستخدم";
     };
 
     const getAvatar = (conversation: Conversation) => {
-        const participant = conversation.participants[0];
-        return participant?.participant_data?.avatar || "/default-avatar.png";
+        const otherParticipant = getOtherParticipant(conversation);
+        return otherParticipant?.participant_data?.avatar || null;
+    };
+
+    const getInitials = (name: string) => {
+        if (!name) return "U";
+        return name
+            .split(" ")
+            .map((n) => n[0])
+            .join("")
+            .slice(0, 1)
+            .toUpperCase();
     };
 
     const formatTime = (dateString: string) => {
@@ -153,7 +177,7 @@ export function ConversationListSidebar({
             renderItem={(conversation) => {
                 const isSelected = selectedConversationId === conversation.id;
                 const displayName = getDisplayName(conversation);
-                const avatar = getAvatar(conversation);
+                const avatarUrl = getAvatar(conversation);
                 const lastMessage = conversation.last_message;
                 const time = formatTime(lastMessage?.updated_at || conversation.updated_at || conversation.created_at);
 
@@ -166,12 +190,15 @@ export function ConversationListSidebar({
                             isSelected ? "bg-blue-5" : "hover:bg-gray-50"
                         )}
                     >
-                        <div className="shrink-0">
-                            <img
-                                src={avatar}
-                                alt={displayName}
-                                className="w-14 h-14 rounded-full object-cover border border-gray-100"
-                            />
+                        <div className="shrink-0 relative">
+                            <Avatar className="w-14 h-14 border border-gray-100">
+                                {avatarUrl ? (
+                                    <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
+                                ) : null}
+                                <AvatarFallback className="bg-blue-5 text-blue-3 font-medium text-lg">
+                                    {getInitials(displayName)}
+                                </AvatarFallback>
+                            </Avatar>
                         </div>
 
                         <div className="flex-1 min-w-0">
@@ -179,13 +206,15 @@ export function ConversationListSidebar({
                                 <p className="text-sm font-semibold truncate">{displayName}</p>
                                 <span className="text-xs text-gray-400 whitespace-nowrap">{time}</span>
                             </div>
-                            <div className="flex items-center justify-between gap-2">
-                                <p className="text-xs text-gray-2 truncate">
+                            <div className="flex items-center justify-between gap-2 mt-1.5">
+                                <p className="text-xs text-gray-2 truncate flex-1 leading-relaxed">
                                     {lastMessage?.body || "لا توجد رسائل"}
                                 </p>
-                                {/* <span className="bg-green-100 text-green-600 text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0">
-                                    طلب
-                                </span> */}
+                                {conversation.unread_messages_count > 0 && (
+                                    <span className="bg-[#DE1D1D] text-white text-[10px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full font-medium shrink-0 px-1">
+                                        {conversation.unread_messages_count}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>

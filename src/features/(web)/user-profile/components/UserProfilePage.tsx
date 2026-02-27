@@ -148,7 +148,10 @@ function UserHeader({ user, isOwnProfile, followers }: {
                                         {user.is_following ? "إلغاء المتابعة" : "تابع المستخدم"}
                                     </button>
 
-                                    <button className="flex items-center min-w-[100px] justify-center cursor-pointer gap-2 border border-[#456A8E] text-[#456A8E] bg-white px-4 md:px-8 py-2 rounded-full font-medium hover:bg-blue-50 transition-colors text-sm flex-1 md:flex-none">
+                                    <button
+                                        onClick={() => router.push(`/chat?type=user&id=${user.id}`)}
+                                        className="flex items-center min-w-[100px] justify-center cursor-pointer gap-2 border border-[#456A8E] text-[#456A8E] bg-white px-4 md:px-8 py-2 rounded-full font-medium hover:bg-blue-50 transition-colors text-sm flex-1 md:flex-none"
+                                    >
                                         <MessageSquare className="w-4 h-4" />
                                         الدردشة
                                     </button>

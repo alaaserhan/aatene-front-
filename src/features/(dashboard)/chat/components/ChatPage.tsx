@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useConversations, useTotalUnreadCount } from "../hooks";
+import { useConversations, useTotalUnreadCount, useCreateConversation } from "../hooks";
 import { Conversation } from "../api";
 import { ConversationListSidebar } from "./ConversationListSidebar";
 import { ChatWindow } from "./ChatWindow";
@@ -24,9 +24,12 @@ export function ChatPage() {
 
     const { data, isLoading, isError, refetch } = useConversations();
     const { data: unreadData } = useTotalUnreadCount();
+    const { mutate: createConversation } = useCreateConversation();
+
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("all");
     const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
+    const [isCreatingFromUrl, setIsCreatingFromUrl] = useState(false);
 
     const allConversations = useMemo(() => data?.conversations || [], [data]);
 
@@ -38,17 +41,49 @@ export function ChatPage() {
 
     const handleSelectConversation = useCallback((conversation: Conversation) => {
         const params = new URLSearchParams(searchParams.toString());
+        params.delete("type");
+        params.delete("id");
         params.set("chat", String(conversation.id));
         router.push(`${pathname}?${params.toString()}`);
     }, [searchParams, pathname, router]);
 
     const handleCloseChat = useCallback(() => {
         const params = new URLSearchParams(searchParams.toString());
+        params.delete("type");
+        params.delete("id");
         if (params.get("chat")) {
             params.delete("chat");
-            router.push(`${pathname}?${params.toString()}`);
         }
+        router.push(`${pathname}?${params.toString()}`);
     }, [searchParams, pathname, router]);
+
+    useEffect(() => {
+        const typeParam = searchParams.get("type");
+        const idParam = searchParams.get("id");
+
+        if (typeParam && idParam && !isCreatingFromUrl && !selectedConversation) {
+            setIsCreatingFromUrl(true);
+            createConversation(
+                {
+                    type: "direct",
+                    participants: [{ type: typeParam as "user" | "store", id: idParam }]
+                },
+                {
+                    onSuccess: (res) => {
+                        if (res.status && res.conversation) {
+                            handleSelectConversation(res.conversation);
+                        } else {
+                            toast.error(res.message || "حدث خطأ أثناء إنشاء المحادثة");
+                        }
+                    },
+                    onError: () => {
+                        toast.error("حدث خطأ أثناء إنشاء المحادثة");
+                        setIsCreatingFromUrl(false);
+                    }
+                }
+            );
+        }
+    }, [searchParams, createConversation, isCreatingFromUrl, handleSelectConversation, selectedConversation]);
 
     useEffect(() => {
         if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {

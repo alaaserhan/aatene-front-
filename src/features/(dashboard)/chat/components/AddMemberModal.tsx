@@ -98,7 +98,7 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
                             اختر العضو
                             <span className="text-red-500">*</span>
                         </label>
-                        <ScrollArea className="h-[300px] border border-gray-200 rounded-lg">
+                        <ScrollArea className="h-[300px] border border-gray-200 rounded-lg" dir="rtl">
                             {isLoading ? (
                                 <div className="p-4 text-center text-gray-500">جاري التحميل...</div>
                             ) : uniqueParticipants.length === 0 ? (
@@ -114,14 +114,20 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
                                                 className="flex items-center  p-3 hover:bg-gray-50 cursor-pointer"
                                                 onClick={() => handleSelectParticipant(participant)}
                                             >
-                                                <div className="flex items-center justify-between flex-1 me-2 gap-3">
-                                                    <div className="">
-                                                        <p className="font-medium text-sm ">
-                                                            {participant.name}
-                                                        </p>
+                                                <div className="flex items-center gap-2">
+                                                    {/* Custom Radio/Checkbox */}
+                                                    <div
+                                                        className={cn(
+                                                            "w-4 h-4 rounded-full border transition-colors flex items-center justify-center shrink-0",
+                                                            isSelected
+                                                                ? "border-blue-3"
+                                                                : "border-gray-300 group-hover:border-gray-400"
+                                                        )}
+                                                    >
+                                                        {isSelected && (
+                                                            <div className="w-2 h-2 rounded-full bg-blue-3" />
+                                                        )}
                                                     </div>
-                                                </div>
-                                                <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
                                                         {participant.avatar ? (
                                                             <img
@@ -136,19 +142,11 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
                                                         )}
                                                     </div>
 
-                                                    {/* Custom Radio/Checkbox */}
-                                                    <div
-                                                        className={cn(
-                                                            "w-4 h-4 rounded-full border transition-colors flex items-center justify-center shrink-0",
-                                                            isSelected
-                                                                ? "border-blue-3"
-                                                                : "border-gray-300 group-hover:border-gray-400"
-                                                        )}
-                                                    >
-                                                        {isSelected && (
-                                                            <div className="w-2 h-2 rounded-full bg-blue-3" />
-                                                        )}
-                                                    </div>
+                                                </div>
+                                                <div className="flex items-center  flex-1 ms-3 gap-3">
+                                                        <p className="font-medium text-sm ">
+                                                            {participant.name}
+                                                        </p>
                                                 </div>
                                             </div>
                                         );

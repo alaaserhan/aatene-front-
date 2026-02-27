@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { StoreProfile } from "../api";
 import { cn } from "@/src/lib/utils";
 import {
@@ -34,6 +35,7 @@ interface StoreHeaderProps {
 }
 
 export default function StoreHeader({ store, followers }: StoreHeaderProps) {
+    const router = useRouter();
     const queryClient = useQueryClient();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
@@ -216,7 +218,10 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                                     <span>{store.am_i_following ? "إلغاء المتابعة" : "تابع المتجر"}</span>
                                 </button>
 
-                                <button className="h-10 px-6 rounded-full text-sm border border-blue-4 text-blue-4 font-medium flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors cursor-pointer">
+                                <button
+                                    onClick={() => router.push(`/chat?type=store&id=${store.id}`)}
+                                    className="h-10 px-6 rounded-full text-sm border border-blue-4 text-blue-4 font-medium flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors cursor-pointer"
+                                >
                                     <MessageCircle className="w-4 h-4" />
                                     <span>الدردشة</span>
                                 </button>

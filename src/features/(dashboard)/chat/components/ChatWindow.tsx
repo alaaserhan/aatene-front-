@@ -3,9 +3,8 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useConversationMessages, useSendMessage, useMarkMessageAsSeen, useBlockUser, useDeleteConversation } from "../hooks";
 import { Conversation } from "../api";
-import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon, Mic } from "lucide-react";
+import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import {
     DropdownMenu,
@@ -21,7 +20,6 @@ import { ar } from "date-fns/locale";
 import { toast } from "sonner";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { BlockUserModal } from "./BlockUserModal";
-
 import { AddMemberModal } from "./AddMemberModal";
 
 interface ChatWindowProps {
@@ -31,7 +29,6 @@ interface ChatWindowProps {
 
 export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
     const user = useAuthStore((state) => state.user);
-    console.log(user);
     const { data: messagesData, isLoading } = useConversationMessages(conversation.id);
     const { mutate: sendMessage } = useSendMessage();
     const { mutate: markSeen } = useMarkMessageAsSeen();
@@ -49,23 +46,27 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showBlockModal, setShowBlockModal] = useState(false);
     const [showAddMemberModal, setShowAddMemberModal] = useState(false);
-    const scrollRef = useRef<HTMLDivElement>(null);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messageIdCounter = useRef(0);
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
 
     const serverMessages = useMemo(() => (messagesData?.messages || []).slice().reverse(), [messagesData]);
 
     const isMerchant = user?.user_type === "merchant";
     const currentParticipantType = isMerchant ? "store" : "user";
     const currentParticipantId = isMerchant ? Cookies.get("current_store_id") : (user?.id ? String(user.id) : undefined);
-    console.log(currentParticipantId);
+
     const otherParticipant = conversation.participants.find(
         p => !(p.participant_data.type === currentParticipantType && String(p.participant_data.id) === String(currentParticipantId))
     );
 
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollIntoView({ behavior: "smooth" });
+        if (scrollAreaRef.current) {
+            const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+            if (scrollContainer) {
+                scrollContainer.scrollTop = scrollContainer.scrollHeight;
+            }
         }
     }, [serverMessages.length, pendingMessages.length, conversation.id]);
 
@@ -174,11 +175,11 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                     </button>
-                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2 border-gray-100">
+                    <div className="w-12 h-12 rounded-full bg-blue-5 text-blue-3 font-medium text-lg flex items-center justify-center overflow-hidden border border-gray-100">
                         {otherParticipant?.participant_data.avatar ? (
                             <img src={otherParticipant.participant_data.avatar} alt="" className="w-full h-full object-cover" />
                         ) : (
-                            <span className="text-gray-2 font-bold text-lg">{otherParticipant?.participant_data.name?.[0] || "U"}</span>
+                            <span>{otherParticipant?.participant_data.name?.[0].toUpperCase() || "U"}</span>
                         )}
                     </div>
                     <div>
@@ -255,7 +256,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
             </div>
 
             {/* Messages Area */}
-            <ScrollArea className="flex-1 p-4 bg-[#FAFAFA]">
+            <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 bg-[#FAFAFA]">
                 <div className="space-y-4 pb-4">
                     {serverMessages.map((msg, index) => {
                         const isMe = msg.sender_data.participant_type === currentParticipantType &&
@@ -265,7 +266,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                             <div key={msg.id || index} className={cn("flex flex-col w-full", isMe ? "items-start" : "items-end")}>
                                 <div className={cn(
                                     "max-w-[75%] rounded-xl p-3 px-4 text-sm",
-                                    isMe ? "bg-blue-5 text-gray-800" : "bg-white text-gray-800 border border-gray-100 shadow-sm"
+                                    isMe ? "bg-blue-5 " : "bg-white  border border-gray-100 shadow-sm"
                                 )}>
                                     {msg.body && <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>}
 
@@ -299,7 +300,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                     {pendingMessages.map((msg) => (
                         <div key={msg.id} className="flex flex-col w-full items-start">
                             <div className={cn(
-                                "max-w-[75%] rounded-xl p-3 px-4 text-sm bg-blue-5 text-gray-800 relative",
+                                "max-w-[75%] rounded-xl p-3 px-4 text-sm bg-blue-5  relative",
                                 msg.status === "failed" && "bg-red-50 border border-red-200"
                             )}>
                                 <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>
@@ -323,7 +324,6 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                             </div>
                         </div>
                     ))}
-                    <div ref={scrollRef} />
                 </div>
             </ScrollArea>
 
@@ -363,17 +363,14 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                     >
                         <ImageIcon className="w-5 h-5 text-gray-500" />
                     </Button>
-                    {/* <Button variant="ghost" size="icon" className="rounded-full hover:bg-gray-100 shrink-0">
-                        <Mic className="w-5 h-5 text-gray-500" />
-                    </Button> */}
 
                     <div className="flex-1 flex items-center bg-gray-50 rounded-full border border-gray-200 px-4">
-                        <Input
+                        <input
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                             onKeyDown={handleKeyDown}
                             placeholder="نص الرسالة ..."
-                            className="border-none bg-transparent shadow-none focus-visible:ring-0 flex-1 text-gray-700 placeholder:text-gray-400"
+                            className="border-none bg-transparent px-1 py-2 text-[15px] outline-none font-normal shadow-none focus-visible:ring-0 flex-1 text-gray-2 placeholder:text-gray-400"
                         />
                     </div>
 
