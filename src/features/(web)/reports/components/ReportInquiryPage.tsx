@@ -95,10 +95,10 @@ export default function ReportInquiryPage() {
             <div className="bg-white rounded-lg border border-gray-200 p-6 md:p-8 flex flex-col gap-8">
                 {/* Header */}
                 <div className="space-y-2">
-                    <h1 className="text-2xl md:text-3xl font-medium">
+                    <h1 className="text-xl md:text-2xl font-medium">
                         إستعلام عن الشكاوي
                     </h1>
-                    <p className="text-gray-2 text-sm md:text-base">
+                    <p className="text-gray-2 text-sm ">
                         سيتم متابعة شكوتك عن طريق البريد الإلكتروني الخاص بك.
                     </p>
                 </div>
@@ -131,7 +131,7 @@ export default function ReportInquiryPage() {
                                 onChange={(e) => setSearchValue(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                                 placeholder="اكتب هنا"
-                                className="w-full h-full px-4 ps-10 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-[#3d5e83] transition-colors placeholder:text-[#bdc4cd]"
+                                className="w-full h-full px-4 ps-10 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-[#3d5e83] transition-colors placeholder:text-[#bdc4cd]"
                             />
                         </div>
                     </div>
@@ -144,7 +144,7 @@ export default function ReportInquiryPage() {
                                 value={filters.type || ""}
                                 onChange={handleCategoryChange}
                                 placeholder="الكل"
-                                className="h-full border-gray-300 rounded-md"
+                                className="h-full border-gray-200 rounded-md"
                                 dropdownPosition="bottom"
                             />
                         </div>
@@ -159,7 +159,7 @@ export default function ReportInquiryPage() {
                                 value={filters.status || ""}
                                 onChange={handleStatusChange}
                                 placeholder="الكل"
-                                className="h-full border-gray-300 rounded-md"
+                                className="h-full border-gray-200 rounded-md"
                                 dropdownPosition="bottom"
                             />
                         </div>
@@ -190,7 +190,7 @@ export default function ReportInquiryPage() {
                                     <div className="flex-1 flex flex-col justify-center gap-3">
                                         {/* Row 1: Title + Status Badge */}
                                         <div className="flex items-center gap-3 text-right">
-                                            <h3 className=" font-medium text-base md:text-lg">
+                                            <h3 className=" font-medium text-base ">
                                                 {report.report_type?.name || report.content?.slice(0, 30) || "شكوى"}
                                             </h3>
                                             <span

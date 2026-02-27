@@ -21,6 +21,8 @@ export interface CreateReportPayload {
     comment_id?: number | null;
     requested_service_id?: number | null;
     service_id?: number | null;
+    service_board_question_id?: number | null;
+    service_board_answer_id?: number | null;
     content: string;
 }
 
@@ -39,6 +41,14 @@ export interface ReportUser {
     bio: string | null;
     date_of_birth: string | null;
     user_type: string;
+    avatar_url?: string | null;
+    cover?: string | null;
+    cover_url?: string | null;
+    is_banned?: boolean;
+    favs_count?: number;
+    review_rate?: string | null;
+    review_count?: string | null;
+    is_following?: boolean;
 }
 
 export interface ReportProduct { // Simplified based on example, can be expanded if shared type exists
@@ -58,6 +68,53 @@ export interface ReportProduct { // Simplified based on example, can be expanded
     review_count: string | null;
 }
 
+export interface ReportStore {
+    id: number;
+    slug: string;
+    name: string;
+    status: string;
+    phone: string | null;
+    whats_app: string | null;
+    email: string | null;
+    address: string | null;
+    lat: string | null;
+    lng: string | null;
+    type: string;
+    logo: string | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cover: any[];
+    review_rate: string;
+    review_count: string;
+    open_status: string;
+    am_i_following: boolean;
+    is_favorite: boolean;
+    view_count: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ReportService {
+    id: number;
+    title: string;
+    slug: string;
+}
+
+export interface ReportComment {
+    id: number;
+    content: string;
+    rate?: string;
+}
+
+export interface ReportBoardQuestion {
+    id: number;
+    content: string;
+}
+
+export interface ReportBoardAnswer {
+    id: number;
+    content: string;
+}
+
 export interface ReportRecord {
     id: number;
     uuid: string;
@@ -65,13 +122,16 @@ export interface ReportRecord {
         id: number;
         name: string;
     };
-    status: "pending" | "processing" | "finished" | "cancelled";
-    store: any | null; // Placeholder as example is null
+    status: "pending" | "processing" | "finished" | "cancelled" | string;
+    store: ReportStore | null;
     product: ReportProduct | null;
-    requested_service: any | null;
-    service: any | null;
+    requested_service: Record<string, unknown> | null;
+    service: ReportService | null;
+    comment: ReportComment | null;
+    board_question: ReportBoardQuestion | null;
+    board_answer: ReportBoardAnswer | null;
     user: ReportUser;
-    media: any[];
+    media: string[];
     content: string;
     response_text: string | null;
     responded_at: string | null;

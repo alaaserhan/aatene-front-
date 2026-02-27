@@ -19,6 +19,7 @@ import {
 import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
 import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
+import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 
 interface ServiceTabsProps {
     service: Service;
@@ -433,6 +434,7 @@ function ServiceQASection({ service }: { service: Service }) {
 function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
     const [showReplyForm, setShowReplyForm] = useState(false);
     const [isAnswersModalOpen, setIsAnswersModalOpen] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     // We only use answersCount here to show the button if there are answers. 
     // Actual answers fetch happens inside the modal.
@@ -461,7 +463,10 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
 
             <div className="flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-gray-100" dir="rtl">
                 <div className="flex items-center gap-4 text-xs">
-                    <button className="flex items-center gap-1.5 text-red-500 font-medium hover:text-red-600 transition-colors cursor-pointer">
+                    <button
+                        onClick={() => setIsReportModalOpen(true)}
+                        className="flex items-center gap-1.5 text-red-500 font-medium hover:text-red-600 transition-colors cursor-pointer"
+                    >
                         <Flag className="w-3.5 h-3.5 text-red-500" />
                         بلغ عن إساءة
                     </button>
@@ -499,6 +504,15 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
                     isOpen={isAnswersModalOpen}
                     onClose={() => setIsAnswersModalOpen(false)}
                     question={question}
+                />
+            )}
+
+            {isReportModalOpen && (
+                <ReportAbuseModal
+                    isOpen={isReportModalOpen}
+                    onClose={() => setIsReportModalOpen(false)}
+                    type="service_board_question"
+                    id={question.id}
                 />
             )}
         </div>
@@ -555,6 +569,10 @@ function ServiceQAAnswerForm({ questionId, onClose }: { questionId: number, onCl
 
 function ServiceQAAnswersModal({ isOpen, onClose, question }: { isOpen: boolean, onClose: () => void, question: ServiceBoardQuestion }) {
     const { data: answersData, isLoading } = useGetServiceBoardAnswers(question.id, isOpen);
+    const [reportState, setReportState] = useState<{ isOpen: boolean, answerId: number | null }>({
+        isOpen: false,
+        answerId: null
+    });
     const answers = answersData?.answers || question.answers || [];
 
     return (
@@ -614,7 +632,10 @@ function ServiceQAAnswersModal({ isOpen, onClose, question }: { isOpen: boolean,
                                     </p>
                                     <div className="flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-gray-100">
                                         <div className="flex items-center gap-4 text-xs">
-                                            <button className="flex items-center gap-1.5 text-red-500 font-medium hover:text-red-600 transition-colors cursor-pointer">
+                                            <button
+                                                onClick={() => setReportState({ isOpen: true, answerId: ans.id })}
+                                                className="flex items-center gap-1.5 text-red-500 font-medium hover:text-red-600 transition-colors cursor-pointer"
+                                            >
                                                 <Flag className="w-3.5 h-3.5" />
                                                 بلغ عن إساءة
                                             </button>
@@ -637,6 +658,14 @@ function ServiceQAAnswersModal({ isOpen, onClose, question }: { isOpen: boolean,
                     )}
                 </div>
             </DialogContent>
+            {reportState.isOpen && reportState.answerId && (
+                <ReportAbuseModal
+                    isOpen={reportState.isOpen}
+                    onClose={() => setReportState({ isOpen: false, answerId: null })}
+                    type="service_board_answer"
+                    id={reportState.answerId}
+                />
+            )}
         </Dialog>
     );
 }

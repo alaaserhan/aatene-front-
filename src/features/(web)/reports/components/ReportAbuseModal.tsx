@@ -9,7 +9,7 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 interface ReportAbuseModalProps {
     isOpen: boolean;
     onClose: () => void;
-    type: "store" | "product" | "service" | "requested_service" | "comment";
+    type: "store" | "product" | "service" | "requested_service" | "comment" | "service_board_question" | "service_board_answer";
     id: number; // Using number as ID directly
 }
 
@@ -65,6 +65,12 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                 break;
             case "comment":
                 payload.comment_id = id;
+                break;
+            case "service_board_question":
+                payload.service_board_question_id = id;
+                break;
+            case "service_board_answer":
+                payload.service_board_answer_id = id;
                 break;
         }
 
