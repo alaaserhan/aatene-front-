@@ -275,7 +275,7 @@ function ServiceFAQ({ service }: { service: Service }) {
         <div className="space-y-6">
             <div className="mb-6">
                 <h3 className="text-lg font-medium  mb-2">الأسئلة الشائعة</h3>
-                <p className="text-gray-500 text-sm">اكتب إجابات للأسئلة الشائعة التي يطرحها عميلك. أضف حتى خمسة أسئلة.</p>
+                <p className="text-gray-500 text-sm">شاهد إجابات الأسئلة الشائعة</p>
             </div>
 
             <div className="divide-y divide-gray-100">
@@ -285,22 +285,22 @@ function ServiceFAQ({ service }: { service: Service }) {
                             onClick={() => toggle(q.id)}
                             className="flex items-center justify-between w-full text-right group"
                         >
-                            <span className={`font-medium text-lg transition-colors ${openId === q.id ? "text-blue-3" : " group-hover:text-blue-3"}`}>
+                            <span className={`font-medium  transition-colors `}>
                                 {q.id}. {q.question}
                             </span>
                             <span className="shrink-0 mr-4">
                                 {openId === q.id ? (
-                                    <Minus className="w-5 h-5 text-blue-3" />
+                                    <Minus className="w-4 h-4 text-blue-3" />
                                 ) : (
-                                    <Plus className="w-5 h-5 text-gray-400 group-hover:text-blue-3" />
+                                    <Plus className="w-4 h-4 text-gray-400 group-hover:text-blue-3" />
                                 )}
                             </span>
                         </button>
                         <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${openId === q.id ? "max-h-[200px] opacity-100 mt-3" : "max-h-0 opacity-0"
-                                }`}
+                            className={`overflow-hidden transition-all duration-300 ease-in-out  mt-2
+                                `}
                         >
-                            <p className="text-gray-600 leading-relaxed pr-4 border-r-2 border-blue-100 mr-1">
+                            <p className="text-gray-600 leading-relaxed pr-4 border-r-2 border-blue-100 mr-1 text-sm">
                                 {q.answer}
                             </p>
                         </div>

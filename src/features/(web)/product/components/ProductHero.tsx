@@ -9,6 +9,7 @@ import { cn } from "@/src/lib/utils";
 
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
+import Link from "next/link";
 
 interface ProductHeroProps {
     product: Product;
@@ -57,7 +58,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
         <div className="flex flex-col gap-5">
             {/* Breadcrumb */}
             <nav className="flex items-center gap-1 text-sm">
-                <span className="text-gray-500">قائمة المنتجات</span>
+                <Link href="/search?type=products" className="text-gray-500">قائمة المنتجات</Link>
                 <ChevronLeft className="w-4 h-4 text-gray-400" />
                 <span className="text-gray-700">{product.name}</span>
             </nav>

@@ -64,7 +64,7 @@ export default function StoreInfoBar({ store }: StoreInfoBarProps) {
     };
 
     return (
-        <div className="mt-10 border-y border-gray-200 py-6">
+        <div className="mt-10 border border-gray-200 rounded-lg p-4">
             <ProviderInfoCard
                 provider={providerData}
                 onReport={() => setIsReportModalOpen(true)}

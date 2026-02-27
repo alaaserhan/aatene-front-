@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useMemo } from "react";
 import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Check, Clock4 } from "lucide-react";
 import { Service } from "../api";
@@ -68,8 +69,8 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
     return (
         <div className="flex flex-col gap-5">
             {/* Breadcrumb */}
-            <nav className="flex items-center gap-1 text-sm">
-                <span className="text-gray-500">قائمة الخدمات</span>
+            <nav className="flex items-center gap-1 text-sm text-gray-500">
+                <Link href="/search?type=services" className="hover:text-blue-3 transition-colors">قائمة الخدمات</Link>
                 <ChevronLeft className="w-4 h-4 text-gray-400" />
                 <span className="text-gray-700">{service.title}</span>
             </nav>
