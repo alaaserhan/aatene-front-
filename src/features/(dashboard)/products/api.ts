@@ -107,7 +107,7 @@ export interface ProductCreatePayload {
   short_description?: string;
   description?: string;
   cover: string;
-  gallary?: string[];
+  gallery?: string[];
   type: ProductType;
   condition: ProductCondition;
   category_id: number;

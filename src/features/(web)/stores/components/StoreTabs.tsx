@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { StoreProfile } from "../api";
+import { StoreProfile, StorePageData } from "../api";
 import { cn } from "@/src/lib/utils";
 import {
     Loader2,
@@ -19,16 +19,20 @@ import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
 import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ReviewStatisticsDisplay } from "@/src/features/(web)/product/components/ReviewStatisticsDisplay";
-import { ReviewStatistics } from "@/src/features/(web)/product/api";
+import { ReviewStatistics, ProductInPageData } from "@/src/features/(web)/product/types";
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
+import { Pagination } from "@/src/components/ui/Pagination";
+import Link from "next/link";
+import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 
 type TabKey = "overview" | "reviews" | "discounts" | "offers";
 
 interface StoreTabsProps {
     store: StoreProfile;
+    pageData?: StorePageData;
 }
 
-export default function StoreTabs({ store }: StoreTabsProps) {
+export default function StoreTabs({ store, pageData }: StoreTabsProps) {
     const [activeTab, setActiveTab] = useState<TabKey>("overview");
 
     const tabs: { key: TabKey; label: string }[] = [
@@ -37,6 +41,9 @@ export default function StoreTabs({ store }: StoreTabsProps) {
         { key: "discounts", label: "تخفيضات" },
         { key: "offers", label: "عروض" },
     ];
+
+    const offersProducts = pageData?.offers || [];
+    const couponsProducts = pageData?.coupons?.flatMap(c => c.products) || [];
 
     return (
         <div className="mt-6 overflow-hidden bg-white rounded-lg border border-gray-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]">
@@ -73,19 +80,114 @@ export default function StoreTabs({ store }: StoreTabsProps) {
                     </div>
                 )}
                 {activeTab === "discounts" && (
-                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-                        <div className="text-center py-10 bg-gray-50 rounded-lg">
-                            <p className="text-gray-500">لا توجد تخفيضات حالياً</p>
-                        </div>
+                    <div className="animate-in fade-in slide-in-from-top-4 duration-300" dir="rtl">
+                        <OffersGrid products={offersProducts} emptyMessage="لا توجد تخفيضات حالياً" />
                     </div>
                 )}
                 {activeTab === "offers" && (
-                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-                        <div className="text-center py-10 bg-gray-50 rounded-lg">
-                            <p className="text-gray-500">لا توجد عروض حالياً</p>
-                        </div>
+                    <div className="animate-in fade-in slide-in-from-top-4 duration-300" dir="rtl">
+                        <OffersGrid products={couponsProducts} emptyMessage="لا توجد عروض حالياً" useProductCard />
                     </div>
                 )}
+            </div>
+        </div>
+    );
+}
+
+function OffersGrid({ products, emptyMessage, useProductCard }: { products: ProductInPageData[], emptyMessage: string, useProductCard?: boolean }) {
+    const [page, setPage] = useState(1);
+    const PER_PAGE = 8;
+    const totalPages = Math.ceil(products.length / PER_PAGE);
+    const displayedProducts = products.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+    if (products.length === 0) {
+        return (
+            <div className="text-center py-10 bg-gray-50 rounded-lg">
+                <p className="text-gray-500">{emptyMessage}</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                {displayedProducts.map(p => (
+                    useProductCard ? (
+                        <ProductCard
+                            key={p.id}
+                            id={p.id}
+                            name={p.name}
+                            slug={p.slug}
+                            cover={p.cover || ""}
+                            price={p.price}
+                            priceAfterDiscount={p.price_after_discount}
+                            discountPercent={p.discount_present}
+                            reviewRate={p.review_rate}
+                            reviewCount={p.review_count}
+                            isFavorite={p.is_favorite}
+                            type="product"
+                        />
+                    ) : (
+                        <OfferCard key={p.id} product={p} />
+                    )
+                ))}
+            </div>
+            {totalPages > 1 && (
+                <div className="mt-8 flex justify-center">
+                    <Pagination
+                        currentPage={page}
+                        totalPages={totalPages}
+                        onPageChange={setPage}
+                    />
+                </div>
+            )}
+        </div>
+    );
+}
+
+function OfferCard({ product }: { product: ProductInPageData }) {
+    const imageUrl = product.cross_sells_image_url || product.cover || "/placeholder.png";
+    const name = product.cross_sells_name || product.name || "اسم العرض";
+    const desc = product.cross_sells_description || product.short_description || product.name || "";
+
+    const fallbackMainPrice = product.price_after_discount || product.price;
+    const fallbackOldPrice = product.price_after_discount && parseFloat(product.price) > parseFloat(product.price_after_discount)
+        ? product.price
+        : (product.discount_present > 0 ? product.price : null);
+
+    const mainPrice = product.cross_sells_original_price || fallbackMainPrice;
+    const oldPrice = product.cross_sells_price || fallbackOldPrice;
+
+    return (
+        <div className="flex flex-col cursor-pointer group relative bg-white overflow-hidden text-right rounded-lg">
+            <Link href={`/product/${product.slug}`} className="relative w-full aspect-square rounded-xl overflow-hidden bg-gray-100 block mb-3">
+                <Image
+                    src={imageUrl}
+                    alt={name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+            </Link>
+            <div className="pt-2 flex flex-col items-center text-center">
+                <Link href={`/product/${product.slug}`} className="block w-full">
+                    <h3 className="font-bold text-lg mb-1 line-clamp-1 group-hover:text-blue-3 transition-colors text-center w-full">
+                        {name}
+                    </h3>
+                </Link>
+                <div
+                    className="text-gray-500 text-xs sm:text-sm mb-2 line-clamp-2 leading-relaxed h-[42px] overflow-hidden"
+                    dangerouslySetInnerHTML={{ __html: desc }}
+                />
+                <div className="flex items-baseline gap-1.5 justify-center">
+                    <span className="text-green-600 font-bold text-base sm:text-lg flex items-center gap-1">
+                        {parseFloat(mainPrice).toFixed(2)} <span className="font-medium text-base sm:text-lg">₪</span>
+                    </span>
+                    {oldPrice && parseFloat(mainPrice) !== parseFloat(oldPrice) && (
+                        <span className="text-gray-400 text-xs sm:text-sm flex items-center gap-1">
+                            بدلاً من <span className="text-red-400 line-through mr-1">{parseFloat(oldPrice).toFixed(2)} <span className="text-base">₪</span></span>
+                        </span>
+                    )}
+                </div>
             </div>
         </div>
     );

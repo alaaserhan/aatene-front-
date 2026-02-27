@@ -48,7 +48,7 @@ function UserHeader({ user, isOwnProfile, followers }: {
 
     return (
         <div className="relative mb-8 bg-white shadow-sm border-b border-gray-100 pb-2 md:pb-6">
-            <div className="relative h-32 md:h-[200px] lg:h-[250px] overflow-hidden w-full">
+            <div className="relative h-44 md:h-[200px] lg:h-[250px] overflow-hidden w-full">
                 <Image
                     src={user.cover_url || "/background.svg"}
                     alt="cover"
@@ -61,7 +61,7 @@ function UserHeader({ user, isOwnProfile, followers }: {
                 <div className="flex flex-col md:grid md:grid-cols-[max-content_1fr] gap-4 md:gap-8 items-center md:items-start text-center md:text-start">
 
                     {/* Column 1: Avatar & Meta Stats */}
-                    <div className="flex flex-col items-center relative -mt-16 md:-mt-[100px] z-10 w-full md:w-auto">
+                    <div className="flex flex-col items-center relative -mt-20 z-10 w-full md:w-auto">
                         <div className="relative group">
                             <div className="w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white shadow-sm shrink-0 bg-gray-100 overflow-hidden relative">
                                 <Image
@@ -74,7 +74,7 @@ function UserHeader({ user, isOwnProfile, followers }: {
 
                         </div>
 
-                        <div className="flex flex-row md:flex-col items-center justify-center gap-6 md:gap-4 mt-1 md:mt-2 px-2">
+                        <div className="flex flex-row md:flex-col items-center justify-center gap-6 md:gap-4 mt-4 md:mt-2 px-2">
                             {/* Stars */}
                             <div className="flex flex-col items-center">
                                 <div className="flex items-center gap-1 mb-1">
@@ -99,17 +99,15 @@ function UserHeader({ user, isOwnProfile, followers }: {
                             {/* Followers */}
                             <div className="flex items-center gap-3">
                                 <div className="hidden sm:flex -space-x-2 md:-space-x-3 space-x-reverse">
-                                    {followers && followers.length > 0 ? (
+                                    {followers && followers.length > 0 && (
                                         followers.slice(0, 3).map((fItem, idx) => (
                                             <div key={fItem.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100">
                                                 <Image src={fItem.follower?.avatar_url || "/default-avatar.png"} fill className="object-cover" alt="follower" />
                                             </div>
                                         ))
-                                    ) : (
-                                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100" />
                                     )}
                                 </div>
-                                <span className="text-gray-500 text-xs md:text-sm font-medium">{user.followers_count || 0} متابع</span>
+                                <span className="text-gray-500 text-xs md:text-sm font-medium">{user.followers_count || 0} متابعين</span>
                             </div>
                         </div>
                     </div>

@@ -54,7 +54,7 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
                         />
                     )}
 
-                    <StoreTabs store={store} />
+                    {pageData && <StoreTabs store={store} pageData={pageData} />}
 
                     <StoreFavoritesSection products={pageData?.highlights as unknown as ProductInPageData[]} />
                     <StoreProductsSection storeId={store.id} sections={pageData?.sections || []} />

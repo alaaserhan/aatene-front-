@@ -52,8 +52,19 @@ export interface StoreProfile {
 export interface StorePageData {
     stories: unknown[];
     highlights: unknown[];
-    coupons: unknown[];
-    offers: unknown[];
+    coupons: {
+        id: number;
+        code: string;
+        type: string;
+        value: string;
+        status: string;
+        start_date: string;
+        end_date: string;
+        store_id: string;
+        categories: unknown[];
+        products: ProductInPageData[];
+    }[];
+    offers: ProductInPageData[];
     sections: {
         id: number;
         name: string;

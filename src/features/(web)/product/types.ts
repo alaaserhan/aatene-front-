@@ -91,6 +91,11 @@ export interface ProductInPageData {
   end_date: string | null;
   review_rate: string;
   review_count: string;
+  cross_sells_price?: string | null;
+  cross_sells_name?: string | null;
+  cross_sells_description?: string | null;
+  cross_sells_image_url?: string | null;
+  cross_sells_original_price?: string | null;
 }
 
 export interface StoreInPageData {

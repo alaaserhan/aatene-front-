@@ -114,7 +114,7 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                         <div className="flex flex-col gap-3 items-center relative w-full lg:w-auto shrink-0">
                             {/* Avatar */}
                             <div className="relative group">
-                                <div className="w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full border-2 -mt-10 border-white shadow-sm shrink-0 bg-gray-100 overflow-hidden relative">
+                                <div className="w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full border-2 -mt-5 border-white shadow-sm shrink-0 bg-gray-100 overflow-hidden relative">
                                     <Image
                                         src={store.logo_url || "/default-avatar.png"}
                                         alt={store.name}
