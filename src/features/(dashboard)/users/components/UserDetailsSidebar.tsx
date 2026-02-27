@@ -100,7 +100,7 @@ export function UserDetailsSidebar({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
-  const [countryCode, setCountryCode] = useState("+20");
+  const [countryCode, setCountryCode] = useState("+972");
 
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [showMediaCenter, setShowMediaCenter] = useState(false);

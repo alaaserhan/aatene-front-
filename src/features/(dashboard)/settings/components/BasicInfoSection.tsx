@@ -45,8 +45,8 @@ export function BasicInfoSection({
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   // إضافة حالة لإدارة كود الدولة للهاتف والواتساب بشكل منفصل
-  const [phoneCountryCode, setPhoneCountryCode] = useState("+20");
-  const [whatsappCountryCode, setWhatsappCountryCode] = useState("+20");
+  const [phoneCountryCode, setPhoneCountryCode] = useState("+972");
+  const [whatsappCountryCode, setWhatsappCountryCode] = useState("+972");
 
   const handleLanguagesUpdate = (newLanguages: string[]) => {
     if (newLanguages.length === 0) {

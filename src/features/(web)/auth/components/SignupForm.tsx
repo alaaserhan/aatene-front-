@@ -47,7 +47,7 @@ const signupSchema = z
 type SignupFormData = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
-  const [countryCode, setCountryCode] = useState("+20");
+  const [countryCode, setCountryCode] = useState("+972");
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -259,11 +259,7 @@ export function SignupForm() {
                     <div className="space-y-1 leading-none">
                       <FormLabel className="text-xs text-gray-2 cursor-pointer mx-2">
                         لقد قرأت و وافقت على
-                        <Link href="/terms" className="underline hover:text-primary">
-                          شروط الخدمة
-                        </Link>
-                        و
-                        <Link href="/privacy" className="underline hover:text-primary">
+                        <Link href="/privacy-policy" className="underline hover:text-primary">
                           سياسة الخصوصية
                         </Link>
                       </FormLabel>

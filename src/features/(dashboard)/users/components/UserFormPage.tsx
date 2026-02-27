@@ -38,7 +38,7 @@ type UserFormData = z.infer<typeof userFormSchema>;
 
 export function UserFormPage() {
   const router = useRouter();
-  const [countryCode, setCountryCode] = useState("+20");
+  const [countryCode, setCountryCode] = useState("+972");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const { data: rolesData } = useGetRoles(new URLSearchParams());

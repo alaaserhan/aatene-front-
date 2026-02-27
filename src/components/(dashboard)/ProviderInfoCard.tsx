@@ -130,22 +130,22 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
                     <span>عضو منذ {data.memberSince}</span>
                 </div>
 
-                {data.isVerified !== false && (
+                {/* {data.isVerified !== false && (
                     <div className="flex items-center gap-2">
                         <ShieldCheck className="w-4 h-4 text-black" />
                         <span>بائع معتمد</span>
                     </div>
-                )}
+                )} */}
 
                 <div className="flex items-center gap-2">
                     <Star className="w-4 h-4 text-black" />
                     <span>تقييم البائع {data.rating}</span>
                 </div>
 
-                <div className="flex items-center gap-2">
+                {/* <div className="flex items-center gap-2">
                     <ShoppingCart className="w-4 h-4 text-black" />
                     <span>عدد مرات التواصل للطلب {data.ordersCount}</span>
-                </div>
+                </div> */}
 
             </div>
         </div>

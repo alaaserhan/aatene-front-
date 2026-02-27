@@ -47,8 +47,8 @@ export function AddStoreStep3({
   barSteps,
 }: AddStoreStep3Props) {
   const router = useRouter();
-  const [phoneCountryCode, setPhoneCountryCode] = useState("+20");
-  const [whatsappCountryCode, setWhatsappCountryCode] = useState("+20");
+  const [phoneCountryCode, setPhoneCountryCode] = useState("+972");
+  const [whatsappCountryCode, setWhatsappCountryCode] = useState("+972");
 
   const [formData, setFormData] = useState<LocalStep3Data>({
     phone: initialData?.phone || "",

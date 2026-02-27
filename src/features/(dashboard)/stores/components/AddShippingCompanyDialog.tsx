@@ -35,7 +35,7 @@ export function AddShippingCompanyDialog({
   editingCompany,
 }: AddShippingCompanyDialogProps) {
   const [step, setStep] = useState(1);
-  const [phoneCountryCode, setPhoneCountryCode] = useState("+970");
+  const [phoneCountryCode, setPhoneCountryCode] = useState("+972");
   const [selectedCityIds, setSelectedCityIds] = useState<number[]>([]);
   const [shippingPrices, setShippingPrices] = useState<Record<number, PriceData>>({});
   const [storeName, setStoreName] = useState("");

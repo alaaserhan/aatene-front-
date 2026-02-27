@@ -27,7 +27,7 @@ export function BuyPointsPageContent() {
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
     // Form State (Visual Only as per requirements)
-    const [countryCode, setCountryCode] = useState("+970");
+    const [countryCode, setCountryCode] = useState("+972");
     const [phoneNumber, setPhoneNumber] = useState("");
 
     const packages = packagesData?.packages || [];

@@ -190,15 +190,15 @@ export function MediaCenterModal({
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-2" />
                   <Input
-                    placeholder="البحث في الملفات..."
+                    placeholder="البحث في الملفات"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pr-10 pl-4 h-10 bg-white border-gray-300 rounded-md focus:ring-2 focus:ring-blue-3 focus:border-transparent text-sm"
+                    className="pr-10 pl-4 h-10 text-right bg-white border-gray-300 rounded-md focus:ring-2 focus:ring-blue-3 focus:border-transparent text-sm"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery("")}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-100 rounded flex items-center justify-center"
+                      className="absolute left-2 cursor-pointer top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-100 rounded flex items-center justify-center"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -217,15 +217,15 @@ export function MediaCenterModal({
               <div className="relative">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-2" />
                 <Input
-                  placeholder="البحث في الملفات..."
+                  placeholder="البحث في الملفات"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pr-10 pl-4 h-10 bg-white border-gray-300 rounded-md focus:ring-2 focus:ring-blue-3 focus:border-transparent text-sm"
+                  className="pr-10 pl-4 h-10 text-right bg-white border-gray-300 rounded-md focus:ring-2 focus:ring-blue-3 focus:border-transparent text-sm"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-100 rounded flex items-center justify-center"
+                    className="absolute left-2 cursor-pointer top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-100 rounded flex items-center justify-center"
                   >
                     <X className="h-3 w-3" />
                   </button>

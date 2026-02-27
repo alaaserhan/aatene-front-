@@ -19,8 +19,8 @@ interface PhoneNumberInputProps extends React.InputHTMLAttributes<HTMLInputEleme
 }
 
 const COUNTRY_RULES: Record<string, { min: number; max: number; name: string }> = {
-    "+20": { min: 10, max: 12, name: "مصر" },
-    "+966": { min: 9, max: 12, name: "السعودية" },
+    // "+20": { min: 10, max: 12, name: "مصر" },
+    // "+966": { min: 9, max: 12, name: "السعودية" },
     "+972": { min: 9, max: 12, name: "فلسطين" },
 };
 
