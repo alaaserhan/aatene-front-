@@ -13,6 +13,11 @@ import {
     Calendar,
     MessageSquare,
     Flag,
+    Facebook,
+    Instagram,
+    Youtube,
+    Link as LinkIcon,
+    QrCode,
 } from "lucide-react";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../hooks";
 import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
@@ -24,6 +29,18 @@ import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse
 import { Pagination } from "@/src/components/ui/Pagination";
 import Link from "next/link";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
+
+const TiktokIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+    </svg>
+);
+
+const WhatsAppIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    </svg>
+);
 
 type TabKey = "overview" | "reviews" | "discounts" | "offers";
 
@@ -176,7 +193,7 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                 </Link>
                 <div
                     className="text-gray-2 text-sm mb-2 line-clamp-2 leading-relaxed h-[40px] sm:h-[43px] "
-                    
+
                 >
                     {desc}
                 </div>
@@ -201,27 +218,38 @@ function OverviewTab({ store }: { store: StoreProfile }) {
             {/* Right Side: Store Owner Card */}
             <div className="w-full lg:w-[280px] shrink-0 order-1 lg:order-2">
                 {/* Store Shortcuts */}
-                <div className="mb-2 bg-white border border-[#e0dfdc] rounded-lg p-2">
-                    <h4 className="text-sm font-medium text-blue-4 mb-3">اختصارات المتجر:</h4>
-                    <div className="flex items-center gap-3">
-                        {store.tiktok && (
-                            <a href={store.tiktok} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-                                <Image src="/icons/tiktok.svg" alt="tiktok" width={16} height={16} />
+                <div className="mb-2 bg-white border border-[#e0dfdc] rounded-[10px] p-[10px_14px] flex flex-col gap-1.5 justify-between" dir="rtl">
+                    <h4 className="text-sm font-medium text-blue-4">اختصارات المتجر:</h4>
+                    <div className="flex items-center gap-1 flex-wrap flex-1 ">
+                        <button onClick={() => navigator?.clipboard?.writeText(window.location.href)} className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0" title="نسخ الرابط">
+                            <LinkIcon className="w-[18px] h-[18px]" />
+                        </button>
+                        {/* <button className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0" title="كود QR">
+                            <QrCode className="w-[18px] h-[18px]" />
+                        </button> */}
+                        {store.facebook && (
+                            <a href={store.facebook} target="_blank" rel="noopener noreferrer" className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0">
+                                <Facebook className="w-[18px] h-[18px]" />
                             </a>
                         )}
                         {store.instagram && (
-                            <a href={store.instagram} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-                                <Image src="/icons/instagram.svg" alt="instagram" width={16} height={16} />
+                            <a href={store.instagram} target="_blank" rel="noopener noreferrer" className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0">
+                                <Instagram className="w-[18px] h-[18px]" />
                             </a>
                         )}
-                        {store.facebook && (
-                            <a href={store.facebook} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-                                <Image src="/icons/facebook.svg" alt="facebook" width={16} height={16} />
+                        {store.tiktok && (
+                            <a href={store.tiktok} target="_blank" rel="noopener noreferrer" className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0">
+                                <TiktokIcon className="w-[18px] h-[18px]" />
                             </a>
                         )}
-                        {store.twitter && (
-                            <a href={store.twitter} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
-                                <Image src="/icons/twitter.svg" alt="twitter" width={16} height={16} />
+                        {store.youtube && (
+                            <a href={store.youtube} target="_blank" rel="noopener noreferrer" className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0">
+                                <Youtube className="w-[18px] h-[18px]" />
+                            </a>
+                        )}
+                        {store.whats_app && (
+                            <a href={`https://wa.me/${store.whats_app}`} target="_blank" rel="noopener noreferrer" className="w-[36px] h-[36px] rounded-[6px] border border-[#3A5C7F] text-[#3A5C7F] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0">
+                                <WhatsAppIcon className="w-[18px] h-[18px]" />
                             </a>
                         )}
                     </div>
@@ -251,11 +279,6 @@ function OverviewTab({ store }: { store: StoreProfile }) {
                         icon={<Heart className="w-5 h-5 text-red-400" />}
                         label="مشاركه"
                         value={String(store.followers_count || 0)}
-                    />
-                    <StoreStatItem
-                        icon={<ShoppingBag className="w-5 h-5 text-blue-4" />}
-                        label="الطلبات"
-                        value={String(store.products_count || store.services_count || 0)}
                     />
                     <StoreStatItem
                         icon={<Calendar className="w-5 h-5 text-gray-500" />}

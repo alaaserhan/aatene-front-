@@ -172,7 +172,7 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
 
                         {/* Title & Description Column */}
                         <div className="flex flex-col items-center lg:items-start gap-1 pb-2 lg:mt-20">
-                            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">{store.name}</h1>
+                            <h1 className="text-xl lg:text-2xl font-medium ">{store.name}</h1>
                             {store.description && (
                                 <p className="text-gray-500 text-sm max-w-lg leading-relaxed">{store.description}</p>
                             )}

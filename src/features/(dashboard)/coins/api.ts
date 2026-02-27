@@ -57,6 +57,7 @@ export interface CoinsPackagesResponse extends BaseResponse {
 
 export interface PurchasePackageRequest {
     package_id: number | string;
+    callback_url?: string;
 }
 
 // --- Helpers ---

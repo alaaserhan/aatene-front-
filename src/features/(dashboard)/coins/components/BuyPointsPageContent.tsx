@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useGetCoinsPackages, usePurchaseCoinsPackage, useGetStoreBalance } from "../hooks";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
@@ -9,8 +9,6 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
-import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
-import { FormInput } from "@/src/components/ui/FormInput";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { cn } from "@/src/lib/utils";
 import { toast } from "sonner";
@@ -18,6 +16,7 @@ import Image from "next/image";
 
 export function BuyPointsPageContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { data: packagesData, isLoading: isLoadingPackages } = useGetCoinsPackages();
     const { data: balanceData, isLoading: isLoadingBalance } = useGetStoreBalance();
     const { mutate: purchasePackage, isPending: isPurchasing } = usePurchaseCoinsPackage();
@@ -26,10 +25,6 @@ export function BuyPointsPageContent() {
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-    // Form State (Visual Only as per requirements)
-    const [countryCode, setCountryCode] = useState("+972");
-    const [phoneNumber, setPhoneNumber] = useState("");
-
     const packages = packagesData?.packages || [];
 
     // Derive the active package
@@ -37,23 +32,44 @@ export function BuyPointsPageContent() {
         (packages.length > 0 ? packages.find(p => p.coins_count === "100") : null) ||
         packages[0] || null;
 
+    useEffect(() => {
+        const status = searchParams.get("status");
+        const success = searchParams.get("success");
+        if (status === "completed" && success === "true") {
+            setTimeout(() => {
+                setIsSuccessModalOpen(true);
+            }, 0);
+        }
+    }, [searchParams]);
+
     const handleBuy = () => {
         if (!activePackage) {
             toast.error("الرجاء اختيار باقة");
             return;
         }
 
+        const callbackUrl = window.location.href.split('?')[0];
+
         purchasePackage(
-            { package_id: activePackage.id },
+            { package_id: activePackage.id, callback_url: callbackUrl },
             {
-                onSuccess: () => {
-                    setIsSuccessModalOpen(true);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                onSuccess: (res: any) => {
+                    if (res?.transaction?.payment_url) {
+                        window.location.href = res.transaction.payment_url;
+                    } else if (res?.status === true) {
+                        setIsSuccessModalOpen(true);
+                    } else {
+                        toast.error(res?.message || "حدث خطأ غير متوقع");
+                    }
+                },
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                onError: (err: any) => {
+                    toast.error(err?.response?.data?.message || err?.message || "حدث خطأ، حاول مرة أخرى");
                 }
             }
         );
     };
-
-
 
     if (isLoadingPackages) {
         return (
@@ -84,7 +100,7 @@ export function BuyPointsPageContent() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
                 {/* PART 1: Packages & Form (Main Content) */}
-                <div className="lg:col-span-8 space-y-8 bg-white rounded-lg p-4">
+                <div className="lg:col-span-8 space-y-8 bg-white h-fit rounded-lg p-4">
 
                     {/* 1. Select Package Section */}
                     <div className="space-y-4">
@@ -136,78 +152,6 @@ export function BuyPointsPageContent() {
                             className="bg-white border-gray-200 h-11"
                         />
                     </div>
-
-                    {/* 3. Payment Details Form */}
-                    <div className="space-y-6 border-t border-gray-200 pt-4">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-xl font-medium">أدخل بيانات الدفع</h2>
-                        </div>
-
-                        <div className="space-y-5">
-                            {/* Row 1: Card Number + Exp + CVV */}
-                            <div className="grid grid-cols-12 gap-5">
-                                <div className="col-span-12 md:col-span-6">
-                                    <Label className="mb-2 block  text-gray-700">رقم البطاقة الائتمانية</Label>
-                                    <div className="relative">
-                                        <Input
-                                            placeholder="0000 0000 0000 0000"
-                                            className=" h-10 rounded-lg border-gray-200 focus-visible:ring-blue-3"
-                                            readOnly
-                                        />
-                                        {/* <div className="absolute left-3 top-1/2 -translate-y-1/2 flex gap-2 opacity-80">
-                                            <div className="h-6 w-10 bg-gray-100 border border-gray-200 rounded flex items-center justify-center text-[8px] font-medium text-blue-900">VISA</div>
-                                            <div className="h-6 w-10 bg-gray-100 border border-gray-200 rounded flex items-center justify-center text-[8px] font-medium text-red-600">Master</div>
-                                        </div> */}
-                                    </div>
-                                </div>
-                                <div className="col-span-6 md:col-span-3">
-                                    <Label className="mb-2 block  text-gray-700">Exp</Label>
-                                    <Input placeholder="00/00" className="text-center h-10 rounded-lg border-gray-200 focus-visible:ring-blue-3" readOnly />
-                                </div>
-                                <div className="col-span-6 md:col-span-3">
-                                    <Label className="mb-2 block  text-gray-700">CVV</Label>
-                                    <Input placeholder="000" className="text-center h-10 rounded-lg border-gray-200 focus-visible:ring-blue-3" readOnly />
-                                </div>
-                            </div>
-
-                            {/* Row 2: First Name + Last Name */}
-                            <div className="grid grid-cols-2 gap-5">
-                                <div>
-                                    <Label className="mb-2 block  text-gray-700">الاسم الأول</Label>
-                                    <Input placeholder="اسم صاحب البطاقة" className=" h-10 rounded-lg border-gray-200 focus-visible:ring-blue-3" readOnly />
-                                </div>
-                                <div>
-                                    <Label className="mb-2 block  text-gray-700">اسم العائلة</Label>
-                                    <Input placeholder="اسم صاحب البطاقة" className=" h-10 rounded-lg border-gray-200 focus-visible:ring-blue-3" readOnly />
-                                </div>
-                            </div>
-
-                            {/* Row 3: Phone Number */}
-                            <div>
-                                <PhoneNumberInput
-                                    label="رقم الهاتف"
-                                    countryCode={countryCode}
-                                    onCountryCodeChange={setCountryCode}
-                                    value={phoneNumber}
-                                    onChange={(e) => setPhoneNumber(e.target.value)}
-                                    placeholder="00000000"
-                                    containerClassName="w-full"
-                                    readOnly // Make visual only as per original request, though component might be interactive
-                                />
-                            </div>
-
-                            {/* Row 4: Address */}
-                            <div>
-                                <FormInput
-                                    label="العنوان"
-                                    placeholder="العنوان"
-                                    className="h-10 rounded-lg border-gray-200 focus:ring-blue-3"
-                                    readOnly
-                                />
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
                 {/* PART 2: Balance & Payment (Sidebar) */}
