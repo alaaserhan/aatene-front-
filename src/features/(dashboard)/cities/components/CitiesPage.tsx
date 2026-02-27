@@ -15,6 +15,7 @@ import {
 } from "../hooks";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -28,6 +29,7 @@ export function CitiesPage() {
   const [selectedCity, setSelectedCity] = useState<CityFormData | null>(null);
   const [cityToDelete, setCityToDelete] = useState<number | null>(null);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
+  const user = useAuthStore((state) => state.user);
 
   const queryParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -133,7 +135,9 @@ export function CitiesPage() {
             <p className="text-sm text-gray-2 mt-1">اختر وجهات الشحن</p>
           </div>
 
-          <button
+         {
+          user?.user_type  === "admin" && (
+            <button
             onClick={handleAddCity}
             className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2  text-white rounded-xs font-medium  transition-colors"
             style={{ backgroundColor: "var(--blue-3)" }}
@@ -141,6 +145,8 @@ export function CitiesPage() {
             <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
             أضف مدينة جديدة
           </button>
+          )
+         }
         </div>
 
         <div className="bg-white rounded overflow-hidden border border-gray-200">

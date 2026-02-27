@@ -192,6 +192,10 @@ export function AddServiceStep4({
             setQuestions(updatedQuestions);
             toast.success("تم تعديل السؤال بنجاح");
         } else {
+            if (questions.length >= 5) {
+                toast.error("لا يمكن إضافة أكثر من 5 أسئلة");
+                return;
+            }
             setQuestions([...questions, { question: newQuestion, answer: newAnswer }]);
         }
 
@@ -441,20 +445,22 @@ export function AddServiceStep4({
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="flex mt-4">
-                                            <button
-                                                onClick={() => {
-                                                    setEditingIndex(null);
-                                                    setNewQuestion("");
-                                                    setNewAnswer("");
-                                                    setShowAddQuestion(true);
-                                                }}
-                                                className="flex items-center gap-2 text-blue-3 font-bold text-sm hover:underline cursor-pointer"
-                                            >
-                                                <Plus className="w-5 h-5" />
-                                                أضف سؤال
-                                            </button>
-                                        </div>
+                                        questions.length < 5 && (
+                                            <div className="flex mt-4">
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingIndex(null);
+                                                        setNewQuestion("");
+                                                        setNewAnswer("");
+                                                        setShowAddQuestion(true);
+                                                    }}
+                                                    className="flex items-center gap-2 text-blue-3 font-bold text-sm hover:underline cursor-pointer"
+                                                >
+                                                    <Plus className="w-5 h-5" />
+                                                    أضف سؤال
+                                                </button>
+                                            </div>
+                                        )
                                     )}
                                 </div>
                             </div>
