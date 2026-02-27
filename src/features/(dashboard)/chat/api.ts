@@ -26,6 +26,39 @@ export interface SenderData {
     participant_id: string;
 }
 
+export interface MessageService {
+    id: number;
+    slug: string;
+    title: string;
+    description: string;
+    images: string[];
+    images_urls: string[];
+    image: string;
+    image_url: string;
+    is_favorite: boolean;
+    is_compare: boolean;
+    price: string;
+    execute_type: string;
+    execute_count: string;
+    review_rate: string;
+    review_count: string;
+    status: string;
+}
+
+export interface MessageProduct {
+    id: number;
+    slug: string;
+    name: string;
+    cover: string;
+    price: string;
+    price_after_discount: string | null;
+    review_rate: string;
+    review_count: string | number;
+    is_favorite: boolean;
+    in_compare: boolean;
+    description?: string;
+}
+
 export interface Message {
     id: number;
     conversation_id: string;
@@ -37,9 +70,9 @@ export interface Message {
     variation_id: string | null;
     service_id: string | null;
     sender_data: SenderData;
-    product: unknown | null;
+    product: MessageProduct | null;
     variation: unknown | null;
-    service: unknown | null;
+    service: MessageService | null;
     created_at: string;
     updated_at: string;
 }
@@ -141,9 +174,9 @@ export interface GetMessagesResponse {
     status: boolean;
     message: string;
     messages: Message[];
-    product: unknown | null;
+    product: MessageProduct | null;
     variation: unknown | null;
-    service: unknown | null;
+    service: MessageService | null;
 }
 
 export const getConversationMessages = async (conversationId: number | string): Promise<GetMessagesResponse> => {

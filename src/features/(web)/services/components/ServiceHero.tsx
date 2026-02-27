@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
 import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Check, Clock4 } from "lucide-react";
 import { Service } from "../api";
@@ -35,6 +36,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
     const [selectedSpecialty, setSelectedSpecialty] = useState<string>("");
     const [isReportOpen, setIsReportOpen] = useState(false);
 
+    const router = useRouter();
     const qc = useQueryClient();
     const { mutate: addToCompare } = useAddServiceToCompare();
 
@@ -309,7 +311,10 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                             </a>
                         )}
 
-                        <button className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-11 cursor-pointer rounded-full font-medium  hover:bg-gray-50 transition-colors">
+                        <button
+                            onClick={() => router.push(`/chat?type=store&id=${service.store?.id}&serviceId=${service.id}`)}
+                            className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-11 cursor-pointer rounded-full font-medium  hover:bg-gray-50 transition-colors"
+                        >
                             دردش
                             <Send className="w-5 h-5" />
                         </button>

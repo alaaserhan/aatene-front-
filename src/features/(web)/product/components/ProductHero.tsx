@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send } from "lucide-react";
 import { Product, Store, Attribute, AttributeOption } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
@@ -36,6 +37,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
     const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
 
     const { mutate: addToCompare } = useAddProductToCompare();
+    const router = useRouter();
 
     const currentMedia = allMedia[selectedIndex] || allMedia[0];
     const rating = parseFloat(product.review_rate || "0");
@@ -291,7 +293,10 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                         )}
 
                         {/* Chat Button */}
-                        <button className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-11 cursor-pointer rounded-full font-medium  hover:bg-gray-50 transition-colors">
+                        <button
+                            onClick={() => router.push(`/chat?type=store&id=${store.id}&productId=${product.id}`)}
+                            className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-11 cursor-pointer rounded-full font-medium  hover:bg-gray-50 transition-colors"
+                        >
                             دردش
                             <Send className="w-5 h-5" />
                         </button>

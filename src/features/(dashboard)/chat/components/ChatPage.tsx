@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useConversations, useTotalUnreadCount, useCreateConversation } from "../hooks";
+import { useConversations, useTotalUnreadCount, useCreateConversation, useSendMessage } from "../hooks";
 import { Conversation } from "../api";
 import { ConversationListSidebar } from "./ConversationListSidebar";
 import { ChatWindow } from "./ChatWindow";
@@ -12,6 +12,8 @@ import { messaging } from "@/src/lib/firebase";
 import { onMessage, MessagePayload } from "firebase/messaging";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useAuthStore } from "@/src/stores/auth-store";
+
 
 import { toast } from "sonner";
 import { getFCMToken } from "@/src/lib/firebase";
@@ -21,10 +23,12 @@ export function ChatPage() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const authUser = useAuthStore(state => state.user);
 
     const { data, isLoading, isError, refetch } = useConversations();
     const { data: unreadData } = useTotalUnreadCount();
     const { mutate: createConversation } = useCreateConversation();
+    const { mutate: sendMessage } = useSendMessage();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("all");
@@ -43,6 +47,8 @@ export function ChatPage() {
         const params = new URLSearchParams(searchParams.toString());
         params.delete("type");
         params.delete("id");
+        params.delete("serviceId");
+        params.delete("productId");
         params.set("chat", String(conversation.id));
         router.push(`${pathname}?${params.toString()}`);
     }, [searchParams, pathname, router]);
@@ -51,6 +57,8 @@ export function ChatPage() {
         const params = new URLSearchParams(searchParams.toString());
         params.delete("type");
         params.delete("id");
+        params.delete("serviceId");
+        params.delete("productId");
         if (params.get("chat")) {
             params.delete("chat");
         }
@@ -60,30 +68,89 @@ export function ChatPage() {
     useEffect(() => {
         const typeParam = searchParams.get("type");
         const idParam = searchParams.get("id");
+        const serviceIdParam = searchParams.get("serviceId");
+        const productIdParam = searchParams.get("productId");
 
         if (typeParam && idParam && !isCreatingFromUrl && !selectedConversation) {
             setIsCreatingFromUrl(true);
-            createConversation(
-                {
-                    type: "direct",
-                    participants: [{ type: typeParam as "user" | "store", id: idParam }]
-                },
-                {
-                    onSuccess: (res) => {
-                        if (res.status && res.conversation) {
-                            handleSelectConversation(res.conversation);
-                        } else {
-                            toast.error(res.message || "حدث خطأ أثناء إنشاء المحادثة");
-                        }
+
+            if (serviceIdParam) {
+                sendMessage(
+                    {
+                        participant_type: typeParam,
+                        participant_id: idParam,
+                        service_id: serviceIdParam,
                     },
-                    onError: () => {
-                        toast.error("حدث خطأ أثناء إنشاء المحادثة");
-                        setIsCreatingFromUrl(false);
+                    {
+                        onSuccess: (res) => {
+                            if (res.status && res.message) {
+                                queryClient.invalidateQueries({ queryKey: ["conversations"] });
+                                refetch().then((result) => {
+                                    const conv = result.data?.conversations?.find(
+                                        c => String(c.id) === String(res.message.conversation_id)
+                                    );
+                                    if (conv) {
+                                        handleSelectConversation(conv);
+                                    }
+                                });
+                            }
+                        },
+                        onError: () => {
+                            toast.error("حدث خطأ أثناء إرسال الرسالة");
+                            setIsCreatingFromUrl(false);
+                        }
                     }
-                }
-            );
+                );
+            } else if (productIdParam) {
+                sendMessage(
+                    {
+                        participant_type: typeParam,
+                        participant_id: idParam,
+                        product_id: productIdParam,
+                    },
+                    {
+                        onSuccess: (res) => {
+                            if (res.status && res.message) {
+                                queryClient.invalidateQueries({ queryKey: ["conversations"] });
+                                refetch().then((result) => {
+                                    const conv = result.data?.conversations?.find(
+                                        c => String(c.id) === String(res.message.conversation_id)
+                                    );
+                                    if (conv) {
+                                        handleSelectConversation(conv);
+                                    }
+                                });
+                            }
+                        },
+                        onError: () => {
+                            toast.error("حدث خطأ أثناء إرسال الرسالة");
+                            setIsCreatingFromUrl(false);
+                        }
+                    }
+                );
+            } else {
+                createConversation(
+                    {
+                        type: "direct",
+                        participants: [{ type: typeParam as "user" | "store", id: idParam }]
+                    },
+                    {
+                        onSuccess: (res) => {
+                            if (res.status && res.conversation) {
+                                handleSelectConversation(res.conversation);
+                            } else {
+                                toast.error(res.message || "حدث خطأ أثناء إنشاء المحادثة");
+                            }
+                        },
+                        onError: () => {
+                            toast.error("حدث خطأ أثناء إنشاء المحادثة");
+                            setIsCreatingFromUrl(false);
+                        }
+                    }
+                );
+            }
         }
-    }, [searchParams, createConversation, isCreatingFromUrl, handleSelectConversation, selectedConversation]);
+    }, [searchParams, createConversation, sendMessage, isCreatingFromUrl, handleSelectConversation, selectedConversation, authUser, queryClient, refetch]);
 
     useEffect(() => {
         if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {

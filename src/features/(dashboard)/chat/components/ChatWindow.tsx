@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useConversationMessages, useSendMessage, useMarkMessageAsSeen, useBlockUser, useDeleteConversation } from "../hooks";
 import { Conversation } from "../api";
-import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon } from "lucide-react";
+import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon, Star } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import {
@@ -125,12 +125,10 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
     }
 
     useEffect(() => {
-        // When serverMessages changes, we can remove pending messages that were successfully sent
         const latestServerMessages = messagesData?.messages || [];
         if (latestServerMessages.length > 0) {
             setPendingMessages(prev => prev.filter(p => p.status !== "sent"));
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [messagesData?.messages]);
 
     const handleRetry = (tempId: string, body: string) => {
@@ -268,6 +266,61 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                 </DropdownMenu>
             </div>
 
+            {(() => {
+                const linkedService = messagesData?.service;
+                const linkedProduct = messagesData?.product;
+
+                if (linkedService) {
+                    return (
+                        <div className="px-4 py-3 bg-white border-b border-gray-100 shadow-sm">
+                            <div className="flex gap-4 items-center">
+                                <img
+                                    src={linkedService.image_url}
+                                    alt={linkedService.title}
+                                    className="w-14 h-14 rounded-xl object-cover shrink-0 shadow-sm border border-gray-100"
+                                    onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+                                />
+                                <div className="min-w-0 flex-1 flex items-center justify-between gap-3">
+                                    <div className="flex flex-col gap-1 min-w-0">
+                                        <p className="text-[15px] font-medium truncate">{linkedService.title}</p>
+                                        <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedService.description}</p>
+                                    </div>
+                                    <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
+                                        <p className="text-sm text-white font-medium whitespace-nowrap">{parseFloat(linkedService.price).toFixed(2)} <span className="text-lg">₪</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                if (linkedProduct) {
+                    return (
+                        <div className="px-4 py-3 bg-white border-b border-gray-100 shadow-sm">
+                            <div className="flex gap-4 items-center">
+                                <img
+                                    src={linkedProduct.cover}
+                                    alt={linkedProduct.name}
+                                    className="w-14 h-14 rounded-xl object-cover shrink-0 shadow-sm border border-gray-100"
+                                    onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+                                />
+                                <div className="min-w-0 flex-1 flex items-center justify-between gap-3">
+                                    <div className="flex flex-col gap-1 min-w-0">
+                                        <p className="text-[15px] font-medium truncate">{linkedProduct.name}</p>
+                                        <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedProduct.description}</p>
+                                    </div>
+                                    <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
+                                        <p className="text-sm text-white font-medium whitespace-nowrap">{parseFloat(linkedProduct.price).toFixed(2)} <span className="text-lg">₪</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                return null;
+            })()}
+
             {/* Messages Area */}
             <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 bg-[#FAFAFA]">
                 <div className="space-y-4 pb-4">
@@ -282,6 +335,52 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                                     isMe ? "bg-blue-5 " : "bg-white  border border-gray-100 shadow-sm"
                                 )}>
                                     {msg.body && <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>}
+
+                                    {msg.service && (
+                                        <div className="flex gap-2 mt-2 bg-white rounded-lg border border-gray-100 p-2">
+                                            <img
+                                                src={msg.service.image_url}
+                                                alt={msg.service.title}
+                                                className="w-16 h-16 rounded-lg object-cover shrink-0"
+                                                onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+                                            />
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs font-medium truncate">{msg.service.title}</p>
+                                                <p className="text-xs text-gray-400 truncate">{msg.service.description}</p>
+                                                <p className="text-xs text-blue-3 font-medium mt-1">{parseFloat(msg.service.price).toFixed(2)} ₪</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {msg.product && (
+                                        <div className="flex gap-2 mt-2 bg-white rounded-lg border border-gray-100 p-2">
+                                            <img
+                                                src={msg.product.cover}
+                                                alt={msg.product.name}
+                                                className="w-16 h-16 rounded-lg object-cover shrink-0"
+                                                onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+                                            />
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs font-medium truncate">{msg.product.name}</p>
+                                                <p className="text-[10px] text-gray-400 truncate">{msg.product.description}</p>
+                                                <p className="text-xs text-blue-3 font-medium mt-1">{parseFloat(msg.product.price).toFixed(2)} ₪</p>
+                                                <div className="flex items-center gap-0.5 mt-1">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            className={cn(
+                                                                "w-3 h-3",
+                                                                i < Math.round(parseFloat(msg.product!.review_rate || "0"))
+                                                                    ? "fill-[#FB923C] text-[#FB923C]"
+                                                                    : "fill-gray-200 text-gray-200"
+                                                            )}
+                                                        />
+                                                    ))}
+                                                    <span className="text-[10px] text-gray-400 mr-1">({msg.product.review_count})</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {msg.files_url && msg.files_url.length > 0 && (
                                         <div className={cn(

@@ -182,8 +182,7 @@ export function ConversationListSidebar({
                 const time = formatTime(lastMessage?.updated_at || conversation.updated_at || conversation.created_at);
 
                 return (
-                    <div
-                        key={conversation.id}
+                    <div key={conversation.id}
                         onClick={() => onSelectConversation(conversation)}
                         className={cn(
                             "flex gap-3 p-4 cursor-pointer transition-colors",
@@ -206,6 +205,7 @@ export function ConversationListSidebar({
                                 <p className="text-sm font-semibold truncate">{displayName}</p>
                                 <span className="text-xs text-gray-400 whitespace-nowrap">{time}</span>
                             </div>
+
                             <div className="flex items-center justify-between gap-2 mt-1.5">
                                 <p className="text-xs text-gray-2 truncate flex-1 leading-relaxed">
                                     {lastMessage?.body || "لا توجد رسائل"}

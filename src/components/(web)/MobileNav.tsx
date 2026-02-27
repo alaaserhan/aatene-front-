@@ -170,7 +170,7 @@ export default function MobileNav() {
                       >
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <img src="/icons/compare.svg" alt="Compare" className="h-7 w-7" />
+                            <img src="/icons/Compare.svg" alt="Compare" className="h-7 w-7" />
                           </div>
                           <span className="font-medium">المقارنات</span>
                         </div>
