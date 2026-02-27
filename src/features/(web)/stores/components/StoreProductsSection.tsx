@@ -4,10 +4,18 @@ import { useState, useEffect } from "react";
 import { Loader2, Search } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
+import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { useStoreProducts } from "../hooks";
+import { useSearchServices } from "@/src/features/(web)/searchAndFilter/hooks";
 
-export default function StoreProductsSection({ storeId, sections }: { storeId: number; sections: { id: number; name: string; products_count: string }[] }) {
+interface StoreProductsSectionProps {
+    storeId: number;
+    storeType?: string;
+    sections: { id: number; name: string; products_count: string }[];
+}
+
+export default function StoreProductsSection({ storeId, storeType, sections }: StoreProductsSectionProps) {
     const [selectedSection, setSelectedSection] = useState<number | null>(null);
     const [page, setPage] = useState(1);
     const [searchInput, setSearchInput] = useState("");
@@ -21,10 +29,24 @@ export default function StoreProductsSection({ storeId, sections }: { storeId: n
         return () => clearTimeout(timer);
     }, [searchInput]);
 
-    const { data, isLoading } = useStoreProducts(storeId, selectedSection, page, debouncedSearch);
+    const isService = storeType === "services" || storeType === "service";
 
-    const products = data?.products || [];
-    const totalPages = data ? Math.ceil(data.total / 12) : 1;
+    // Products query
+    const { data: productsData, isLoading: isLoadingProducts } = useStoreProducts(storeId, selectedSection, page, debouncedSearch, !isService);
+
+    // Services query
+    const { data: servicesData, isLoading: isLoadingServices } = useSearchServices({
+        store_id: storeId,
+        search: debouncedSearch,
+        category_id: selectedSection || undefined,
+        page,
+        per_page: 12
+    }, isService);
+
+    const items = isService ? (servicesData?.services || []) : (productsData?.products || []);
+    const totalItems = isService ? (servicesData?.total || 0) : (productsData?.total || 0);
+    const totalPages = Math.ceil(totalItems / 12) || 1;
+    const isLoading = isService ? isLoadingServices : isLoadingProducts;
 
     const handleSectionChange = (sectionId: number | null) => {
         setSelectedSection(sectionId);
@@ -35,7 +57,7 @@ export default function StoreProductsSection({ storeId, sections }: { storeId: n
 
     return (
         <div className="my-8 mt-16">
-            <h2 className=" text-2xl font-medium mb-4 " dir="rtl">كل المنتجات</h2>
+            <h2 className=" text-2xl font-medium mb-4 " dir="rtl">{isService ? "كل الخدمات" : "كل المنتجات"}</h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6" dir="rtl">
                 <aside className="lg:col-span-1">
@@ -80,7 +102,7 @@ export default function StoreProductsSection({ storeId, sections }: { storeId: n
                     <div className="relative w-full bg-white rounded-full">
                         <input
                             type="text"
-                            placeholder="ابحث عن منتج..."
+                            placeholder={isService ? "ابحث عن خدمة..." : "ابحث عن منتج..."}
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
                             className="w-full pr-4 py-3 border border-blue-4 rounded-full text-sm focus:outline-none focus:border-blue-3 focus:ring-1 focus:ring-blue-3 transition-colors"
@@ -94,27 +116,35 @@ export default function StoreProductsSection({ storeId, sections }: { storeId: n
                         <div className="flex justify-center p-10">
                             <Loader2 className="animate-spin text-blue-3" />
                         </div>
-                    ) : products.length === 0 ? (
+                    ) : items.length === 0 ? (
                         <div className="text-center py-10 bg-gray-50 rounded-lg">
-                            <p className="text-gray-500">لا توجد منتجات</p>
+                            <p className="text-gray-500">{isService ? "لا توجد خدمات" : "لا توجد منتجات"}</p>
                         </div>
                     ) : (
                         <>
                             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
-                                {products.map((product) => (
-                                    <ProductCard
-                                        key={product.id}
-                                        id={product.id}
-                                        name={product.name}
-                                        slug={product.slug}
-                                        cover={product.cover || "/placeholder.png"}
-                                        price={product.price}
-                                        priceAfterDiscount={product.price_after_discount}
-                                        discountPercent={product.discount_present}
-                                        reviewRate={product.review_rate}
-                                        reviewCount={product.review_count}
-                                        isFavorite={product.is_favorite}
-                                    />
+                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                {items.map((item: any) => (
+                                    isService ? (
+                                        <ServiceCard
+                                            key={item.id}
+                                            service={item}
+                                        />
+                                    ) : (
+                                        <ProductCard
+                                            key={item.id}
+                                            id={item.id}
+                                            name={item.name}
+                                            slug={item.slug}
+                                            cover={item.cover || "/placeholder.png"}
+                                            price={item.price}
+                                            priceAfterDiscount={item.price_after_discount}
+                                            discountPercent={item.discount_present}
+                                            reviewRate={item.review_rate}
+                                            reviewCount={item.review_count}
+                                            isFavorite={item.is_favorite}
+                                        />
+                                    )
                                 ))}
                             </div>
                             {totalPages > 1 && (

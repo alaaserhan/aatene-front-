@@ -56,8 +56,8 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
 
                     {pageData && <StoreTabs store={store} pageData={pageData} />}
 
-                    <StoreFavoritesSection storeId={store.id} />
-                    <StoreProductsSection storeId={store.id} sections={pageData?.sections || []} />
+                    <StoreFavoritesSection storeId={store.id} storeType={store.type} />
+                    <StoreProductsSection storeId={store.id} storeType={store.type} sections={pageData?.sections || []} />
                 </div>
             </MaxWidthWrapper>
         </div>

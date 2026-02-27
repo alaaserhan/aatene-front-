@@ -63,11 +63,11 @@ export const useStorePageData = (slug: string) => {
     });
 };
 
-export const useStoreProducts = (storeId: number, sectionId: number | null, page: number = 1, name?: string) => {
+export const useStoreProducts = (storeId: number, sectionId: number | null, page: number = 1, name?: string, enabled: boolean = true) => {
     return useApiQuery({
         queryKey: ["storeProducts", storeId, sectionId, page, name],
         queryFn: () => getStoreProducts({ store_id: storeId, section_id: sectionId, page, name }),
-        enabled: !!storeId,
+        enabled: !!storeId && enabled,
     });
 };
 

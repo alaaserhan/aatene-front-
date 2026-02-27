@@ -190,6 +190,8 @@ export interface ServiceSearchParams {
     order_by?: string;
     page?: number;
     tags?: number[];
+    store_id?: number;
+    search?: string;
 }
 
 export const searchServices = async (params: ServiceSearchParams): Promise<ServicesSearchResponse> => {

@@ -24,11 +24,12 @@ export const useGetProductsSearchPageData = () => {
     });
 };
 
-export const useSearchProducts = (params: ProductSearchParams) => {
+export const useSearchProducts = (params: ProductSearchParams, enabled: boolean = true) => {
     return useQuery({
         queryKey: ["products-search", params],
         queryFn: () => searchProducts(params),
         placeholderData: (previousData) => previousData, // Keep previous data while fetching new page
+        enabled,
     });
 };
 
@@ -41,11 +42,12 @@ export const useGetServicesSearchPageData = () => {
     });
 };
 
-export const useSearchServices = (params: ServiceSearchParams) => {
+export const useSearchServices = (params: ServiceSearchParams, enabled: boolean = true) => {
     return useQuery({
         queryKey: ["services-search", params],
         queryFn: () => searchServices(params),
         placeholderData: (previousData) => previousData,
+        enabled,
     });
 };
 
