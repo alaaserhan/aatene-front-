@@ -18,9 +18,11 @@ import { cn } from "@/src/lib/utils";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { toast } from "sonner";
+import Link from "next/link";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { BlockUserModal } from "./BlockUserModal";
 import { AddMemberModal } from "./AddMemberModal";
+import { MediaViewer } from "@/src/components/ui/MediaViewer";
 
 interface ChatWindowProps {
     conversation: Conversation;
@@ -46,6 +48,11 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showBlockModal, setShowBlockModal] = useState(false);
     const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+    const [mediaViewerState, setMediaViewerState] = useState<{ isOpen: boolean; media: string[]; initialIndex: number }>({
+        isOpen: false,
+        media: [],
+        initialIndex: 0,
+    });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messageIdCounter = useRef(0);
@@ -106,8 +113,6 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
 
         sendMessage({
             conversation_id: conversation.id,
-            participant_type: currentParticipantType,
-            participant_id: currentParticipantId,
             body: messageBody || undefined,
             files: selectedFiles.length > 0 ? selectedFiles : undefined
         }, {
@@ -138,8 +143,6 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
 
         sendMessage({
             conversation_id: conversation.id,
-            participant_type: currentParticipantType,
-            participant_id: currentParticipantId!,
             body: body,
         }, {
             onSuccess: () => {
@@ -194,7 +197,15 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                         )}
                     </div>
                     <div>
-                        <h3 className="font-medium  text-base">{otherParticipant?.participant_data.name || conversation.name || "مستخدم"}</h3>
+                        {otherParticipant ? (
+                            <Link href={otherParticipant.participant_data.type === "store"
+                                ? `/store/${otherParticipant.participant_data.slug || otherParticipant.participant_data.id}`
+                                : `/profile/${otherParticipant.participant_data.slug || otherParticipant.participant_data.id}`}>
+                                <h3 className="font-medium text-base  hover:underline transition-colors cursor-pointer">{otherParticipant.participant_data.name || conversation.name || "مستخدم"}</h3>
+                            </Link>
+                        ) : (
+                            <h3 className="font-medium text-base">{conversation.name || "مستخدم"}</h3>
+                        )}
                         <p className="text-xs text-gray-2">
                             {format(new Date(conversation.updated_at), "hh:mm a", { locale: ar })}
                         </p>
@@ -282,7 +293,9 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                                 />
                                 <div className="min-w-0 flex-1 flex items-center justify-between gap-3">
                                     <div className="flex flex-col gap-1 min-w-0">
-                                        <p className="text-[15px] font-medium truncate">{linkedService.title}</p>
+                                        <Link href={`/services/${linkedService.slug || linkedService.id}`}>
+                                            <p className="text-[15px] font-medium truncate  hover:underline transition-colors cursor-pointer">{linkedService.title}</p>
+                                        </Link>
                                         <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedService.description}</p>
                                     </div>
                                     <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
@@ -306,7 +319,9 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                                 />
                                 <div className="min-w-0 flex-1 flex items-center justify-between gap-3">
                                     <div className="flex flex-col gap-1 min-w-0">
-                                        <p className="text-[15px] font-medium truncate">{linkedProduct.name}</p>
+                                        <Link href={`/product/${linkedProduct.slug || linkedProduct.id}`}>
+                                            <p className="text-[15px] font-medium truncate  hover:underline transition-colors cursor-pointer">{linkedProduct.name}</p>
+                                        </Link>
                                         <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedProduct.description}</p>
                                     </div>
                                     <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
@@ -345,7 +360,9 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                                                 onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
                                             />
                                             <div className="min-w-0 flex-1">
-                                                <p className="text-xs font-medium truncate">{msg.service.title}</p>
+                                                <Link href={`/services/${msg.service.slug || msg.service.id}`}>
+                                                    <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.service.title}</p>
+                                                </Link>
                                                 <p className="text-xs text-gray-400 truncate">{msg.service.description}</p>
                                                 <p className="text-xs text-blue-3 font-medium mt-1">{parseFloat(msg.service.price).toFixed(2)} ₪</p>
                                             </div>
@@ -361,7 +378,9 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                                                 onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
                                             />
                                             <div className="min-w-0 flex-1">
-                                                <p className="text-xs font-medium truncate">{msg.product.name}</p>
+                                                <Link href={`/product/${msg.product.slug || msg.product.id}`}>
+                                                    <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.product.name}</p>
+                                                </Link>
                                                 <p className="text-[10px] text-gray-400 truncate">{msg.product.description}</p>
                                                 <p className="text-xs text-blue-3 font-medium mt-1">{parseFloat(msg.product.price).toFixed(2)} ₪</p>
                                                 <div className="flex items-center gap-0.5 mt-1">
@@ -384,7 +403,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
 
                                     {msg.files_url && msg.files_url.length > 0 && (
                                         <div className={cn(
-                                            "grid gap-2 mt-2",
+                                            "grid gap-2 ",
                                             msg.files_url.length === 1 ? "grid-cols-1" :
                                                 msg.files_url.length === 2 ? "grid-cols-2" :
                                                     "grid-cols-3"
@@ -394,6 +413,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                                                     key={i}
                                                     src={url}
                                                     alt=""
+                                                    onClick={() => setMediaViewerState({ isOpen: true, media: msg.files_url!, initialIndex: i })}
                                                     className="rounded-lg w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
                                                 />
                                             ))}
@@ -542,6 +562,12 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                         });
                     }
                 }}
+            />
+            <MediaViewer
+                isOpen={mediaViewerState.isOpen}
+                onClose={() => setMediaViewerState(prev => ({ ...prev, isOpen: false }))}
+                media={mediaViewerState.media}
+                initialIndex={mediaViewerState.initialIndex}
             />
         </div>
     );

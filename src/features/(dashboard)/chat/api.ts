@@ -99,8 +99,8 @@ export interface GetConversationsResponse {
 
 export interface SendMessagePayload {
     conversation_id?: number | string;
-    participant_type: string;
-    participant_id: string;
+    participant_type?: string;
+    participant_id?: string;
     body?: string;
     files?: File[];
     product_id?: string;
@@ -147,8 +147,8 @@ export const sendMessage = async (payload: SendMessagePayload): Promise<SendMess
     const formData = new FormData();
 
     if (payload.conversation_id) formData.append("conversation_id", String(payload.conversation_id));
-    formData.append("participant_type", payload.participant_type);
-    formData.append("participant_id", payload.participant_id);
+    if (payload.participant_type) formData.append("participant_type", payload.participant_type);
+    if (payload.participant_id) formData.append("participant_id", payload.participant_id);
 
     if (payload.body) formData.append("body", payload.body);
     if (payload.product_id) formData.append("product_id", payload.product_id);
