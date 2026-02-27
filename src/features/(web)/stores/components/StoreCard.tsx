@@ -82,10 +82,12 @@ const StoreCard = memo(({
                     </div>
 
                     {/* Fast Delivery */}
-                    <div className="flex items-center gap-1">
-                        <Image src="/icons/car2.svg" alt="car" width={18} height={18} />
-                        <span className="font-medium">توصيل سريع</span>
-                    </div>
+                    {store.type === "products" && (
+                        <div className="flex items-center gap-1">
+                            <Image src="/icons/car2.svg" alt="car" width={18} height={18} />
+                            <span className="font-medium">توصيل سريع</span>
+                        </div>
+                    )}
 
                     {/* Guarantee */}
                     <div className="flex items-center gap-1">

@@ -188,9 +188,9 @@ export const postServiceBoardQuestion = async (serviceId: number | string, conte
     return data;
 };
 
-export const getServiceBoardQuestions = async (serviceId: number | string, orderType?: "most_recent" | "oldest" | "recently_answered"): Promise<GetServiceBoardQuestionsResponse> => {
+export const getServiceBoardQuestions = async (serviceId: number | string, params?: { order_type?: string; content?: string }): Promise<GetServiceBoardQuestionsResponse> => {
     const { data } = await api.get<GetServiceBoardQuestionsResponse>(`/services/${serviceId}/board`, {
-        params: orderType ? { order_type: orderType } : undefined,
+        params,
     });
     return data;
 };

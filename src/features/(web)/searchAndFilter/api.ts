@@ -264,6 +264,7 @@ export interface Store {
     id: number;
     slug: string;
     name: string;
+    type: string;
     status: string;
     phone: string | null;
     whats_app: string | null;

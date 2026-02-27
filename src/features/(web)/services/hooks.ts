@@ -63,10 +63,10 @@ export const useGetServiceReviewReplies = (slug: string, id: number) => {
 
 // --- Question and Answer Board ---
 
-export const useGetServiceBoardQuestions = (serviceId: number | string, orderType?: "most_recent" | "oldest" | "recently_answered") => {
+export const useGetServiceBoardQuestions = (serviceId: number | string, params?: { order_type?: string; content?: string }) => {
     return useQuery<GetServiceBoardQuestionsResponse, Error>({
-        queryKey: ["service-board-questions", serviceId, orderType],
-        queryFn: () => getServiceBoardQuestions(serviceId, orderType),
+        queryKey: ["service-board-questions", serviceId, params],
+        queryFn: () => getServiceBoardQuestions(serviceId, params),
         enabled: !!serviceId,
     });
 };

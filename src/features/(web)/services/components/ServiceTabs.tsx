@@ -274,7 +274,7 @@ function ServiceFAQ({ service }: { service: Service }) {
     return (
         <div className="space-y-6">
             <div className="mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">الأسئلة الشائعة</h3>
+                <h3 className="text-lg font-medium  mb-2">الأسئلة الشائعة</h3>
                 <p className="text-gray-500 text-sm">اكتب إجابات للأسئلة الشائعة التي يطرحها عميلك. أضف حتى خمسة أسئلة.</p>
             </div>
 
@@ -318,7 +318,10 @@ function ServiceQASection({ service }: { service: Service }) {
     const [isAddQuestionModalOpen, setIsAddQuestionModalOpen] = useState(false);
 
     // We optionally use 'search' in API if backend supports it, for now we will just use useGetServiceBoardQuestions
-    const { data, isLoading } = useGetServiceBoardQuestions(service.id, orderType);
+    const { data, isLoading } = useGetServiceBoardQuestions(service.id, {
+        order_type: orderType,
+        content: search
+    });
     const { mutate: postQuestion, isPending: isPosting } = usePostServiceBoardQuestion();
     const authUser = useAuthStore(state => state.user);
 
@@ -342,24 +345,23 @@ function ServiceQASection({ service }: { service: Service }) {
     return (
         <div className="space-y-6">
             <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">أسئلة وأجوبة</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">
+                <h3 className="text-xl font-medium  mb-2">أسئلة وأجوبة</h3>
+                <p className="text-gray-2 text-sm leading-relaxed">
                     جميع الإجابات المنشورة تمثل آراء وتجارب أصحابها فقط، ولا تعتبر بالضرورة عن وجهة نظر منصة أعطني. لا تقوم المنصة بمراجعة أو التحقق من صحة هذه الإجابات، ولا تُعد مؤيدة لها بأي شكل من الأشكال.
                 </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between pb-4">
                 <div className="flex items-center w-full sm:w-auto gap-4 flex-1">
-                    <div className="relative w-full sm:max-w-xs border border-gray-300 rounded-full bg-white overflow-hidden flex items-center shrink-0 h-11">
+                    <div className="relative w-full sm:max-w-xs border border-gray-300 rounded-full bg-white overflow-hidden flex items-center gap-2 h-11">
                         <input
                             type="text"
                             placeholder="بحث"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full bg-transparent px-4 py-2 text-sm focus:outline-none focus:ring-0 outline-none"
-                            dir="rtl"
                         />
-                        <div className="w-9 h-9 bg-[#456A8E] rounded-full flex items-center justify-center ml-1 my-1">
+                        <div className="w-11 h-9 bg-blue-3 rounded-full flex items-center justify-center  ml-1">
                             <Search className="w-4 h-4 text-white" />
                         </div>
                     </div>
@@ -399,7 +401,7 @@ function ServiceQASection({ service }: { service: Service }) {
             <Dialog open={isAddQuestionModalOpen} onOpenChange={setIsAddQuestionModalOpen}>
                 <DialogContent className="max-w-xl p-0 overflow-hidden bg-white gap-0 border-0" dir="rtl">
                     <DialogHeader className="p-6 pb-4 border-b border-gray-100 relative text-center flex flex-col items-center">
-                        <DialogTitle className="text-xl font-bold text-gray-900 w-full">إضافة سؤال</DialogTitle>
+                        <DialogTitle className="text-xl font-medium  w-full">إضافة سؤال</DialogTitle>
                     </DialogHeader>
                     <div className="p-6">
                         <div className="border border-gray-200 rounded-lg p-4 relative bg-white">
@@ -435,51 +437,65 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
     const [showReplyForm, setShowReplyForm] = useState(false);
     const [isAnswersModalOpen, setIsAnswersModalOpen] = useState(false);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [isAnswerReportOpen, setIsAnswerReportOpen] = useState(false);
+    const [reportAnswerId, setReportAnswerId] = useState<number | null>(null);
 
-    // We only use answersCount here to show the button if there are answers. 
-    // Actual answers fetch happens inside the modal.
     const displayAnswers = question.answers || [];
     const answersCount = Number(question.answers_count) || displayAnswers.length;
+    const firstAnswer = displayAnswers.length > 0 ? displayAnswers[0] : null;
 
     return (
-        <div className="bg-white border border-gray-200 p-5 rounded-xl shadow-sm relative">
-            <div className="flex justify-between items-start gap-4 mb-3" dir="rtl">
-                <h4 className="font-bold text-gray-900 text-base md:text-lg flex-1">
-                    {/* Assuming the question text may lack a title, we present a static one or the first slice of it. Since API only has `content`, we will use `content` later, but for matching the design exact: */}
-                    هل المحامي يرد على الاستشارة فورًا؟
+        <div className="bg-white border border-gray-200 p-5 rounded-xl shadow-sm relative" dir="rtl">
+            <div className="flex justify-between items-start gap-4 mb-3">
+                <h4 className="font-medium text-base md:text-lg flex-1">
+                    {question.content}
                 </h4>
-                <button
-                    onClick={() => setShowReplyForm(!showReplyForm)}
-                    className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 border border-[#456A8E] rounded-md text-xs text-[#456A8E] font-medium hover:bg-gray-50 transition-colors cursor-pointer"
-                >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    الاجابة
-                </button>
-            </div>
-
-            <p className="text-gray-500 text-sm leading-relaxed mb-6" dir="rtl">
-                {question.content}
-            </p>
-
-            <div className="flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-gray-100" dir="rtl">
-                <div className="flex items-center gap-4 text-xs">
+                <div className="flex items-center gap-2 shrink-0">
                     <button
                         onClick={() => setIsReportModalOpen(true)}
-                        className="flex items-center gap-1.5 text-red-500 font-medium hover:text-red-600 transition-colors cursor-pointer"
+                        className="flex items-center gap-1.5 text-red-500 font-medium hover:text-red-600 transition-colors cursor-pointer text-xs"
                     >
-                        <Flag className="w-3.5 h-3.5 text-red-500" />
+                        <Flag className="w-3.5 h-3.5" />
                         بلغ عن إساءة
                     </button>
-                    <span className="text-gray-400" dir="ltr">{question.created_at}</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-800">{question.user?.name}</span>
-                    <div className="w-7 h-7 rounded-full border border-gray-100 overflow-hidden shrink-0">
-                        <Image src={question.user?.avatar_url || "/default-avatar.png"} alt={question.user?.name || ""} width={28} height={28} className="w-full h-full object-cover" />
-                    </div>
+                    <button
+                        onClick={() => setShowReplyForm(!showReplyForm)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 border border-[#456A8E] rounded-md text-xs text-[#456A8E] font-medium hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        الاجابة
+                    </button>
                 </div>
             </div>
+
+            {firstAnswer && (
+                <div className="pt-4 border-t border-gray-100 mt-4">
+                    <p className="text-gray-2 text-sm leading-relaxed mb-4">
+                        {firstAnswer.content}
+                    </p>
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full border border-gray-100 overflow-hidden shrink-0">
+                                <Image src={firstAnswer.user?.avatar_url || "/default-avatar.png"} alt={firstAnswer.user?.name || ""} width={28} height={28} className="w-full h-full object-cover" />
+                            </div>
+                            <span className="text-sm font-medium text-gray-800">{firstAnswer.user?.name}</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs">
+                            <span className="text-gray-400">{firstAnswer.created_at}</span>
+                            <button
+                                onClick={() => {
+                                    setReportAnswerId(firstAnswer.id);
+                                    setIsAnswerReportOpen(true);
+                                }}
+                                className="flex items-center gap-1.5 text-red-500 font-medium hover:text-red-600 transition-colors cursor-pointer"
+                            >
+                                <Flag className="w-3.5 h-3.5" />
+                                بلغ عن إساءة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {showReplyForm && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
@@ -488,7 +504,7 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
             )}
 
             {answersCount > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end" dir="rtl">
+                <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
                     <button
                         onClick={() => setIsAnswersModalOpen(true)}
                         className="flex items-center gap-1.5 text-sm font-medium text-[#456A8E] hover:text-[#355A7E] transition-colors cursor-pointer"
@@ -513,6 +529,15 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
                     onClose={() => setIsReportModalOpen(false)}
                     type="service_board_question"
                     id={question.id}
+                />
+            )}
+
+            {isAnswerReportOpen && reportAnswerId && (
+                <ReportAbuseModal
+                    isOpen={isAnswerReportOpen}
+                    onClose={() => { setIsAnswerReportOpen(false); setReportAnswerId(null); }}
+                    type="service_board_answer"
+                    id={reportAnswerId}
                 />
             )}
         </div>
@@ -579,14 +604,14 @@ function ServiceQAAnswersModal({ isOpen, onClose, question }: { isOpen: boolean,
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="max-w-2xl p-0 overflow-hidden bg-white border-0" dir="rtl">
                 <DialogHeader className="p-6 pb-4 bg-white border-b border-gray-100 relative text-center flex flex-col items-center shrink-0">
-                    <DialogTitle className="text-xl font-bold text-gray-900 w-full">إجابات الأسئلة</DialogTitle>
+                    <DialogTitle className="text-xl font-medium  w-full">إجابات الأسئلة</DialogTitle>
                 </DialogHeader>
                 <div className="p-4 md:p-6 overflow-y-auto max-h-[75vh] space-y-4 bg-gray-50">
 
                     {/* Parent Question context matching design */}
                     <div className="bg-white border border-[#456A8E] p-4 lg:p-6 rounded-xl shadow-[0_0_0_1px_rgba(69,106,142,0.1)] relative opacity-80">
                         <div className="flex justify-between items-start gap-4 mb-3">
-                            <h4 className="font-bold text-gray-900 text-base md:text-lg flex-1">
+                            <h4 className="font-medium  text-base md:text-lg flex-1">
                                 هل المحامي يرد على الاستشارة فورًا؟
                             </h4>
                             <button
