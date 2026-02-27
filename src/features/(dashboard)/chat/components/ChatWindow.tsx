@@ -112,7 +112,9 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
             files: selectedFiles.length > 0 ? selectedFiles : undefined
         }, {
             onSuccess: () => {
-                setPendingMessages(prev => prev.filter(m => m.id !== tempId));
+                setPendingMessages(prev => prev.map(m =>
+                    m.id === tempId ? { ...m, status: "sent" as const } : m
+                ));
             },
             onError: () => {
                 setPendingMessages(prev => prev.map(m =>
@@ -121,6 +123,15 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
             }
         });
     }
+
+    useEffect(() => {
+        // When serverMessages changes, we can remove pending messages that were successfully sent
+        const latestServerMessages = messagesData?.messages || [];
+        if (latestServerMessages.length > 0) {
+            setPendingMessages(prev => prev.filter(p => p.status !== "sent"));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [messagesData?.messages]);
 
     const handleRetry = (tempId: string, body: string) => {
         setPendingMessages(prev => prev.map(m =>
@@ -134,7 +145,9 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
             body: body,
         }, {
             onSuccess: () => {
-                setPendingMessages(prev => prev.filter(m => m.id !== tempId));
+                setPendingMessages(prev => prev.map(m =>
+                    m.id === tempId ? { ...m, status: "sent" as const } : m
+                ));
             },
             onError: () => {
                 setPendingMessages(prev => prev.map(m =>

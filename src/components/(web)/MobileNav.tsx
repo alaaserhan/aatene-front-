@@ -194,24 +194,6 @@ export default function MobileNav() {
                           <ChevronLeft size={16} className="text-gray-2" />
                         </div>
                       </Link>
-
-                      {userType === "admin" && (
-                        <Link
-                          href={`/${lang}/admin/stores`}
-                          className="group flex items-center justify-between gap-4 p-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all duration-200"
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                              <img src="/icons/shop.svg" alt="Stores" />
-                            </div>
-                            <span className="font-medium">المتاجر</span>
-                          </div>
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <ChevronLeft size={16} className="text-gray-2" />
-                          </div>
-                        </Link>
-                      )}
                     </motion.div>
 
                     {/* User Menu Section */}

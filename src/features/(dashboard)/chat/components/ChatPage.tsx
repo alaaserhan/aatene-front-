@@ -106,7 +106,7 @@ export function ChatPage() {
     useEffect(() => {
         if (typeof window !== "undefined" && messaging) {
             const unsubscribe = onMessage(messaging, (payload: MessagePayload) => {
-                toast.info(`New message: ${payload.notification?.title || "No Title"}`);
+                toast.info(`${payload.notification?.title || "No Title"}`);
                 refetch();
                 queryClient.invalidateQueries({ queryKey: ["conversations"] });
                 queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });
@@ -120,7 +120,7 @@ export function ChatPage() {
         if (typeof window !== "undefined" && "serviceWorker" in navigator) {
             const handler = (event: MessageEvent) => {
                 if (event.data && event.data.type === 'FCM_MESSAGE_RECEIVED') {
-                    toast.info(`New message: ${event.data.payload.notification?.title || "No Title"}`);
+                    toast.info(`${event.data.payload.notification?.title || "No Title"}`);
                     refetch();
                     queryClient.invalidateQueries({ queryKey: ["conversations"] });
                     queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });
