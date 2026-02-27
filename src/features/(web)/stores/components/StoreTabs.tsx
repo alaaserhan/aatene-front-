@@ -170,20 +170,22 @@ function OfferCard({ product }: { product: ProductInPageData }) {
             </Link>
             <div className="pt-2 flex flex-col items-center text-center">
                 <Link href={`/product/${product.slug}`} className="block w-full">
-                    <h3 className="font-bold text-lg mb-1 line-clamp-1 group-hover:text-blue-3 transition-colors text-center w-full">
+                    <h3 className="font-medium text-lg mb-1 line-clamp-1 group-hover:text-blue-3 transition-colors text-center w-full">
                         {name}
                     </h3>
                 </Link>
                 <div
-                    className="text-gray-500 text-xs sm:text-sm mb-2 line-clamp-2 leading-relaxed h-[42px] overflow-hidden"
-                    dangerouslySetInnerHTML={{ __html: desc }}
-                />
+                    className="text-gray-2 text-sm mb-2 line-clamp-2 leading-relaxed h-[40px] sm:h-[43px] "
+                    
+                >
+                    {desc}
+                </div>
                 <div className="flex items-baseline gap-1.5 justify-center">
-                    <span className="text-green-600 font-bold text-base sm:text-lg flex items-center gap-1">
+                    <span className="text-green-600 font-medium text-base sm:text-lg flex items-center gap-1">
                         {parseFloat(mainPrice).toFixed(2)} <span className="font-medium text-base sm:text-lg">₪</span>
                     </span>
                     {oldPrice && parseFloat(mainPrice) !== parseFloat(oldPrice) && (
-                        <span className="text-gray-400 text-xs sm:text-sm flex items-center gap-1">
+                        <span className="text-gray-400 text-sm flex items-center gap-1">
                             بدلاً من <span className="text-red-400 line-through mr-1">{parseFloat(oldPrice).toFixed(2)} <span className="text-base">₪</span></span>
                         </span>
                     )}
@@ -336,7 +338,7 @@ function StoreStatItem({ icon, label, value, sub, color }: {
                 {icon}
             </div>
             <span className="text-xs text-gray-500">{label}</span>
-            <span className={cn("text-sm font-semibold", color || "text-gray-800")}>{value}</span>
+            <span className={cn("text-sm font-semimedium", color || "text-gray-800")}>{value}</span>
             {sub && <span className="text-[11px] text-gray-400">{sub}</span>}
         </div>
     );

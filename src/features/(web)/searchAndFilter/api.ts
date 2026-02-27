@@ -101,6 +101,9 @@ export interface ProductSearchParams {
     condition?: string;
     review_rate?: number;
     city_id?: number[];
+    store_id?: number;
+    order_by?: string;
+    order_dir?: string;
     page?: number;
     per_page?: number;
 }
