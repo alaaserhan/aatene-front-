@@ -204,7 +204,7 @@ export function CategoryModal({
                   setPreviewUrls(cleanSrcs);
                 }}
                 maxFiles={4}
-                allowedMediaTypes={["gallery", "image"]}
+                allowedMediaTypes={["gallery"]}
                 infoText={["يمكنك سحب و إفلات الصورة لإعادة ترتيب الصور"]}
               />
             </div>

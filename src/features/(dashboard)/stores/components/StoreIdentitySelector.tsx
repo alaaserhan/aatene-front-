@@ -112,7 +112,7 @@ export function StoreIdentitySelector({
         onOpenChange={setIsModalOpen}
         onSelect={handleSelect}
         multiple={false}
-        allowedMediaTypes={["image", "avatar", "gallery"]}
+        allowedMediaTypes={["gallery", "image"]}
         accept="image/png,image/jpeg,image/jpg,image/svg+xml"
       />
     </div>

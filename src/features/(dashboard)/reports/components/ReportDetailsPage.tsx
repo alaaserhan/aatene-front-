@@ -416,7 +416,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
             onOpenChange={() => setShowMediaModal(false)}
             onSelect={handleAddAttachment}
             multiple={true} // Allow multiple selection
-            allowedMediaTypes={["image", "gallery"]} // Adjust based on your MediaCenter config
+            allowedMediaTypes={[ "gallery"]} // Adjust based on your MediaCenter config
             selectionLimit={5}
           />
         )

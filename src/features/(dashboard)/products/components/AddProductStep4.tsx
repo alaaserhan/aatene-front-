@@ -609,7 +609,7 @@ function DiscountModal({
                     open={isMediaModalOpen}
                     onOpenChange={setIsMediaModalOpen}
                     multiple={false}
-                    allowedMediaTypes={["image"]}
+                    allowedMediaTypes={["gallery"]}
                     onSelect={(file: MediaItem | MediaItem[]) => {
                         const selectedImage = Array.isArray(file) ? file[0] : file;
                         if (selectedImage?.file_name) {

@@ -557,7 +557,7 @@ export function UserDetailsSidebar({
           onOpenChange={() => setShowMediaCenter(false)}
           onSelect={handleMediaSelect}
           multiple={false}
-          allowedMediaTypes={["avatar", "image"]}
+          allowedMediaTypes={["avatar"]}
           selectionLimit={1}
         />
       )}

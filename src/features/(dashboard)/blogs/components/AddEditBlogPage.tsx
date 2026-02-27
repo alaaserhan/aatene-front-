@@ -228,7 +228,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
                 showMainSelector={true}
                 mainImageLabel="الصورة الرئيسية"
                 showDragHint={true}
-                allowedMediaTypes={["image"]}
+                allowedMediaTypes={["gallery"]}
               />
 
 

@@ -430,7 +430,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               error={errors.labtop_banner}
               accept="image/png,image/jpeg,image/jpg"
               primaryText="اضف ملف"
-              allowedMediaTypes={["gallery", "image"]}
+              allowedMediaTypes={["gallery"]}
               required
             />
 
@@ -459,7 +459,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               error={errors.mobile_banner}
               accept="image/png,image/jpeg,image/jpg"
               primaryText="أضف صورة للموبايل"
-              allowedMediaTypes={["gallery", "image"]}
+              allowedMediaTypes={["gallery"]}
               required
             />
 

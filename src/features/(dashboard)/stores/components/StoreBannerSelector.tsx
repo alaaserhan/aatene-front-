@@ -199,7 +199,7 @@ export function StoreBannerSelector({
                 onOpenChange={setIsModalOpen}
                 onSelect={handleAdd}
                 multiple={true}
-                allowedMediaTypes={["image", "gallery"]}
+                allowedMediaTypes={["gallery"]}
                 selectionLimit={maxFiles - items.length}
             />
         </div>

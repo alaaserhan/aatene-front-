@@ -229,7 +229,7 @@ export function AddStoryModal({
                     }
                     setIsMediaModalOpen(false);
                 }}
-                allowedMediaTypes={["image"]}
+                allowedMediaTypes={["gallery"]}
                 multiple={false}
             />
         </Dialog>

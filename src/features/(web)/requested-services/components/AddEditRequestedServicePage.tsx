@@ -206,7 +206,7 @@ export default function AddEditRequestedServicePage({
                             error={errors.images}
                             showDragHint={true}
                             dragHintText="يمكنك سحب و افلات الصور لإعادة ترتيب الصور"
-                            allowedMediaTypes={["image", "video"]}
+                            allowedMediaTypes={["gallery"]}
                             className="w-full"
                         />
                     </div>

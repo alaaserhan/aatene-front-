@@ -47,7 +47,7 @@ export function ImageGallerySelector({
     itemWidth = 240,
     itemHeight = 120,
     // containerMinHeight = 190, // تم إزالته
-    allowedMediaTypes = ["image", "gallery"],
+    allowedMediaTypes = ["gallery"],
     className,
     required,
 }: ImageGallerySelectorProps) {

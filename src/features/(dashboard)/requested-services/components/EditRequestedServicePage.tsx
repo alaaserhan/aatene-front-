@@ -157,7 +157,7 @@ export function EditRequestedServicePage({ id }: EditRequestedServicePageProps) 
             showMainSelector={true}
             mainImageLabel="الصورة الاساسية"
             showDragHint={true}
-            allowedMediaTypes={["image", "gallery"]}
+            allowedMediaTypes={[ "gallery"]}
           />
         </div>
 

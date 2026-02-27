@@ -274,7 +274,7 @@ export function TermsSection({
             accept="image/png,image/jpeg,image/jpg"
             primaryText="أضف صورة للشرط"
             infoText={[]}
-            allowedMediaTypes={["gallery", "image"]}
+            allowedMediaTypes={["gallery"]}
           />
         </div>
 

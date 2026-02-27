@@ -283,7 +283,7 @@ export function ProductImageSelector({
         onOpenChange={setIsModalOpen}
         onSelect={handleAdd}
         multiple={true}
-        allowedMediaTypes={["image", "gallery"]}
+        allowedMediaTypes={["gallery", "image"]}
         selectionLimit={maxFiles - items.length}
       />
     </div>

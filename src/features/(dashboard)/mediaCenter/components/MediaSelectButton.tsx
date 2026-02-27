@@ -37,7 +37,7 @@ export function MediaSelectButton({
   error,
   primaryText = "أضف أو اسحب صورة أو فيديو",
   secondaryText = "PNG, JPG, JPEG",
-  allowedMediaTypes = ["gallery", "image"],
+  allowedMediaTypes = ["gallery"],
   infoText = [
 
   ],

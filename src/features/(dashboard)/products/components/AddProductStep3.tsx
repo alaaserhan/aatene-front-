@@ -582,7 +582,7 @@ export function AddProductStep3({
                 onOpenChange={setIsMediaModalOpen}
                 onSelect={handleImageSelect}
                 multiple={true}
-                allowedMediaTypes={["image", "gallery", "avatar"]}
+                allowedMediaTypes={["gallery"]}
             />
 
             <AttributeModal

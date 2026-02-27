@@ -24,7 +24,7 @@ export function MediaMultiSelect({
   previewUrls = [],
   onChange,
   maxFiles = 4,
-  allowedMediaTypes = ["gallery", "image"],
+  allowedMediaTypes = ["gallery"],
   className,
   infoText,
 }: MediaMultiSelectProps) {

@@ -274,7 +274,7 @@ export function PrivacyPolicySection({
             accept="image/png,image/jpeg,image/jpg"
             primaryText="أضف صورة للسياسة"
             infoText={[]}
-            allowedMediaTypes={["gallery", "image"]}
+            allowedMediaTypes={["gallery"]}
           />
         </div>
 
