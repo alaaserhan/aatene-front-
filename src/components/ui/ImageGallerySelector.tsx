@@ -26,6 +26,7 @@ interface ImageGallerySelectorProps {
     itemHeight?: number;
     // containerMinHeight?: number; // لم نعد بحاجة لهذا الـ Prop بالشكل القديم
     allowedMediaTypes?: ("image" | "gallery" | "avatar" | "video")[];
+    mainImageAllowedMediaTypes?: ("image" | "gallery" | "avatar" | "video")[];
     className?: string;
     required?: boolean;
 }
@@ -48,12 +49,14 @@ export function ImageGallerySelector({
     itemHeight = 120,
     // containerMinHeight = 190, // تم إزالته
     allowedMediaTypes = ["gallery"],
+    mainImageAllowedMediaTypes,
     className,
     required,
 }: ImageGallerySelectorProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
     const dragItem = useRef<number | null>(null);
+    const itemMediaTypesRef = useRef<Record<string, string>>({});
 
     const items = value.map((file, index) => ({
         file,
@@ -64,8 +67,37 @@ export function ImageGallerySelector({
         return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
     };
 
+    const isAllowedAsMain = (file: string, url: string) => {
+        if (isVideoFile(file) || isVideoFile(url)) {
+            return "لا يمكن تعيين الفيديو كصورة رئيسية";
+        }
+
+        if (mainImageAllowedMediaTypes && mainImageAllowedMediaTypes.length > 0) {
+            const fileType = itemMediaTypesRef.current[file] || itemMediaTypesRef.current[url];
+
+            // If the exact type is known from MediaCenter:
+            if (fileType && !mainImageAllowedMediaTypes.includes(fileType as "image" | "gallery" | "avatar" | "video")) {
+                return "لا يمكن تعيين هذا النوع من الملفات كصورة رئيسية";
+            }
+
+            // Fallback (check url path patterns)
+            if (!fileType && !mainImageAllowedMediaTypes.includes("gallery")) {
+                if ((file && file.includes("gallery")) || (url && url.includes("gallery"))) {
+                    return "لا يمكن تعيين صور المعرض كصورة رئيسية";
+                }
+            }
+        }
+
+        return null;
+    };
+
     const handleAdd = (newFiles: MediaItem | MediaItem[]) => {
         const filesArray = Array.isArray(newFiles) ? newFiles : [newFiles];
+
+        filesArray.forEach(f => {
+            itemMediaTypesRef.current[f.file_name] = f.file_type;
+            itemMediaTypesRef.current[f.url] = f.file_type;
+        });
 
         const currentCount = items.length;
         const remainingSlots = maxFiles - currentCount;
@@ -75,12 +107,16 @@ export function ImageGallerySelector({
         const newFileUrls = filesToAdd.map((f) => f.url);
 
         const projectedFiles = [...value, ...newFileNames];
-        if (projectedFiles.length > 0 && isVideoFile(projectedFiles[0])) {
-            toast.error("لا يمكن تعيين الفيديو كصورة رئيسية (الصورة الأولى). الرجاء اختيار صورة أولاً.");
-            return;
+        const projectedUrls = [...previews, ...newFileUrls];
+        if (projectedFiles.length > 0) {
+            const errorMessage = isAllowedAsMain(projectedFiles[0], projectedUrls[0]);
+            if (errorMessage) {
+                toast.error(errorMessage);
+                return;
+            }
         }
 
-        onChange(projectedFiles, [...previews, ...newFileUrls]);
+        onChange(projectedFiles, projectedUrls);
         setIsModalOpen(false);
     };
 
@@ -93,8 +129,9 @@ export function ImageGallerySelector({
     const handleSetMain = (index: number) => {
         if (index === 0) return;
 
-        if (isVideoFile(items[index].url) || isVideoFile(items[index].file)) {
-            toast.error("لا يمكن تعيين الفيديو كصورة رئيسية");
+        const errorMessage = isAllowedAsMain(items[index].file, items[index].url);
+        if (errorMessage) {
+            toast.error(errorMessage);
             return;
         }
 
@@ -133,11 +170,14 @@ export function ImageGallerySelector({
         const end = dragOverIndex;
 
         if (start !== null && end !== null && start !== end) {
-            if (end === 0 && (isVideoFile(items[start].url) || isVideoFile(items[start].file))) {
-                toast.error("لا يمكن تعيين الفيديو كصورة رئيسية");
-                dragItem.current = null;
-                setDragOverIndex(null);
-                return;
+            if (end === 0) {
+                const errorMessage = isAllowedAsMain(items[start].file, items[start].url);
+                if (errorMessage) {
+                    toast.error(errorMessage);
+                    dragItem.current = null;
+                    setDragOverIndex(null);
+                    return;
+                }
             }
 
             const newFiles = [...value];
@@ -297,9 +337,9 @@ export function ImageGallerySelector({
                 open={isModalOpen}
                 onOpenChange={setIsModalOpen}
                 onSelect={handleAdd}
-                multiple={maxFiles > 1}
-                allowedMediaTypes={allowedMediaTypes}
-                selectionLimit={maxFiles - items.length}
+                multiple={items.length === 0 && mainImageAllowedMediaTypes ? false : maxFiles > 1}
+                allowedMediaTypes={items.length === 0 && mainImageAllowedMediaTypes ? mainImageAllowedMediaTypes : allowedMediaTypes}
+                selectionLimit={items.length === 0 && mainImageAllowedMediaTypes ? 1 : maxFiles - items.length}
             />
         </div>
     );

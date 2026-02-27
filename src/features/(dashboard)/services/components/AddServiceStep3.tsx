@@ -100,6 +100,7 @@ export function AddServiceStep3({
                                     showMainSelector={true} // لتحديد الصورة الرئيسية
                                     mainImageLabel="الصورة الاساسية"
                                     showDragHint={true}
+                                    mainImageAllowedMediaTypes={["image"]}
                                     allowedMediaTypes={["gallery", "image"]}
                                 />
                             </div>

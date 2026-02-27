@@ -11,6 +11,5 @@ export { ProductTable } from "./ProductTable";
 export { ProductEmptyState } from "./ProductEmptyState";
 export { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 export { ProductFormActions } from "./ProductFormActions";
-export { ProductImageSelector } from "./ProductImageSelector";
 export { SelectProductsModal } from "./SelectProductsModal";
 export { default as ProductViewPage } from "./ProductViewPage";
