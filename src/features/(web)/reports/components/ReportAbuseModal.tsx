@@ -83,7 +83,7 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-[500px] p-6 rounded-2xl" dir="rtl">
+            <DialogContent className="max-w-[500px] w-[95vw] h-auto max-h-[90vh] overflow-y-auto p-6 rounded-2xl" dir="rtl">
                 {/* Step 1: Select Report Type */}
                 {step === 1 && (
                     <div className="flex flex-col items-center gap-6">

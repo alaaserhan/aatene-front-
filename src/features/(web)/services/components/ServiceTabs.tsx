@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { Service, ServiceBoardQuestion } from "../api";
-import { Loader2, Plus, Minus, MessageSquare, Search, Flag, ChevronLeft } from "lucide-react";
+import { Loader2, Plus, Minus, Search, Flag, ChevronLeft, ChevronDown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/dialog";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { useAuthStore } from "@/src/stores/auth-store";
@@ -38,7 +38,7 @@ export default function ServiceTabs({ service }: ServiceTabsProps) {
     ];
 
     return (
-        <div className="mt-12 overflow-hidden">
+        <div className="my-12 overflow-hidden">
             <div className="flex items-center border-b border-gray-200 overflow-x-auto">
                 {tabs.map((tab) => (
                     <button
@@ -285,7 +285,7 @@ function ServiceFAQ({ service }: { service: Service }) {
                             onClick={() => toggle(q.id)}
                             className="flex items-center justify-between w-full text-right group"
                         >
-                            <span className={`font-medium text-lg transition-colors ${openId === q.id ? "text-blue-3" : "text-gray-800 group-hover:text-blue-3"}`}>
+                            <span className={`font-medium text-lg transition-colors ${openId === q.id ? "text-blue-3" : " group-hover:text-blue-3"}`}>
                                 {q.id}. {q.question}
                             </span>
                             <span className="shrink-0 mr-4">
@@ -317,6 +317,8 @@ function ServiceQASection({ service }: { service: Service }) {
     const [content, setContent] = useState("");
     const [isAddQuestionModalOpen, setIsAddQuestionModalOpen] = useState(false);
 
+    const [visibleCount, setVisibleCount] = useState(4);
+
     // We optionally use 'search' in API if backend supports it, for now we will just use useGetServiceBoardQuestions
     const { data, isLoading } = useGetServiceBoardQuestions(service.id, {
         order_type: orderType,
@@ -341,6 +343,9 @@ function ServiceQASection({ service }: { service: Service }) {
         { value: "oldest", label: "الأقدم" },
         { value: "recently_answered", label: "تمت الإجابة حديثاً" },
     ];
+
+    const questions = data?.questions || [];
+    const visibleQuestions = questions.slice(0, visibleCount);
 
     return (
         <div className="space-y-6">
@@ -389,8 +394,22 @@ function ServiceQASection({ service }: { service: Service }) {
             <div className="space-y-4 mt-6">
                 {isLoading ? (
                     <div className="flex justify-center py-10"><Loader2 className="animate-spin text-blue-3 w-8 h-8" /></div>
-                ) : data?.questions && data.questions.length > 0 ? (
-                    data.questions.map(q => <ServiceQAItem key={q.id} question={q} />)
+                ) : questions.length > 0 ? (
+                    <>
+                        {visibleQuestions.map(q => <ServiceQAItem key={q.id} question={q} />)}
+
+                        {visibleCount < questions.length && (
+                            <div className="flex justify-center pt-4">
+                                <button
+                                    onClick={() => setVisibleCount(prev => prev + 4)}
+                                    className="flex items-center gap-2 text-blue-4 font-medium hover:text-blue-3 transition-colors cursor-pointer text-sm"
+                                >
+                                    <span>عرض المزيد من الأسئلة</span>
+                                    <ChevronDown className="w-4 h-4" />
+                                </button>
+                            </div>
+                        )}
+                    </>
                 ) : (
                     <div className="text-center py-10 bg-gray-50 rounded-lg">
                         <p className="text-gray-500">لا توجد أسئلة بعد، كن أول من يسأل!</p>
@@ -400,29 +419,29 @@ function ServiceQASection({ service }: { service: Service }) {
 
             <Dialog open={isAddQuestionModalOpen} onOpenChange={setIsAddQuestionModalOpen}>
                 <DialogContent className="max-w-xl p-0 overflow-hidden bg-white gap-0 border-0" dir="rtl">
-                    <DialogHeader className="p-6 pb-4 border-b border-gray-100 relative text-center flex flex-col items-center">
-                        <DialogTitle className="text-xl font-medium  w-full">إضافة سؤال</DialogTitle>
+                    <DialogHeader className="p-6 pb-1 relative flex flex-col items-center">
+                        <DialogTitle className="text-xl md:text-2xl font-medium  w-full">إضافة سؤال</DialogTitle>
                     </DialogHeader>
                     <div className="p-6">
-                        <div className="border border-gray-200 rounded-lg p-4 relative bg-white">
+                        <div className=" relative bg-white overflow-hidden p-[1px]">
                             <div className="absolute top-4 right-4 w-10 h-10 rounded-full border border-gray-100 overflow-hidden shadow-sm bg-gray-100 shrink-0 z-10">
                                 <Image src={authUser?.avatar_url || "/default-avatar.png"} alt="user" fill className="object-cover" />
                             </div>
                             <textarea
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
-                                placeholder="الاستشارات تتم من قبل محامين مرخصين، لكن تظل استشارة أولية ولا تُغني عن التمثيل القانوني الرسمي..."
-                                className="w-full h-32 resize-none focus:outline-none bg-transparent placeholder-gray-400 text-sm leading-relaxed pr-14 pt-1"
+                                placeholder="اكتب سؤالك هنا"
+                                className="w-full h-32 resize-none border border-gray-200 rounded-xl focus:outline-none bg-transparent text-sm leading-relaxed p-4 pr-16 pt-5 "
                                 maxLength={300}
                             />
-                            <div className="text-left mt-2 text-xs text-gray-400" dir="ltr">
+                            <div className="text-left mb-2 ml-4 text-xs text-gray-2" dir="ltr">
                                 {content.length} / 300
                             </div>
                         </div>
                         <button
                             onClick={() => handleSubmit()}
                             disabled={isPosting || !content.trim()}
-                            className="w-full mt-6 py-3.5 bg-[#456A8E] hover:bg-[#355A7E] text-white rounded-[10px] transition-colors font-medium text-sm flex items-center justify-center disabled:opacity-50 cursor-pointer"
+                            className="w-full cursor-pointer mt-6 py-3.5 bg-blue-4 text-white rounded-full transition-colors font-medium text-sm flex items-center justify-center disabled:opacity-50 "
                         >
                             {isPosting ? <Loader2 className="w-5 h-5 animate-spin" /> : "إضافة السؤال"}
                         </button>
@@ -445,15 +464,15 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
     const firstAnswer = displayAnswers.length > 0 ? displayAnswers[0] : null;
 
     return (
-        <div className="bg-white border border-gray-200 p-5 rounded-xl shadow-sm relative" dir="rtl">
-            <div className="flex justify-between items-start gap-4 mb-3">
+        <div className="bg-white border border-gray-200 p-5 rounded-lg relative" dir="rtl">
+            <div className="flex justify-between items-start gap-4">
                 <h4 className="font-medium text-base md:text-lg flex-1">
                     {question.content}
                 </h4>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-4 shrink-0">
                     <button
                         onClick={() => setIsReportModalOpen(true)}
-                        className="flex items-center gap-1.5 text-red-500 font-medium hover:text-red-600 transition-colors cursor-pointer text-xs"
+                        className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer text-xs"
                     >
                         <Flag className="w-3.5 h-3.5" />
                         بلغ عن إساءة
@@ -462,14 +481,14 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
                         onClick={() => setShowReplyForm(!showReplyForm)}
                         className="flex items-center gap-1.5 px-3 py-1.5 border border-[#456A8E] rounded-md text-xs text-[#456A8E] font-medium hover:bg-gray-50 transition-colors cursor-pointer"
                     >
-                        <MessageSquare className="w-3.5 h-3.5" />
+                        <Image src="/icons/dashboard/chat3.svg" alt="message" width={14} height={14} className="w-3.5 h-3.5" />
                         الاجابة
                     </button>
                 </div>
             </div>
 
             {firstAnswer && (
-                <div className="pt-4 border-t border-gray-100 mt-4">
+                <div className="p-4 bg-gray-50 mt-4 rounded-lg">
                     <p className="text-gray-2 text-sm leading-relaxed mb-4">
                         {firstAnswer.content}
                     </p>
@@ -478,7 +497,7 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
                             <div className="w-7 h-7 rounded-full border border-gray-100 overflow-hidden shrink-0">
                                 <Image src={firstAnswer.user?.avatar_url || "/default-avatar.png"} alt={firstAnswer.user?.name || ""} width={28} height={28} className="w-full h-full object-cover" />
                             </div>
-                            <span className="text-sm font-medium text-gray-800">{firstAnswer.user?.name}</span>
+                            <span className="text-sm font-medium ">{firstAnswer.user?.name}</span>
                         </div>
                         <div className="flex items-center gap-4 text-xs">
                             <span className="text-gray-400">{firstAnswer.created_at}</span>
@@ -487,7 +506,7 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
                                     setReportAnswerId(firstAnswer.id);
                                     setIsAnswerReportOpen(true);
                                 }}
-                                className="flex items-center gap-1.5 text-red-500 font-medium hover:text-red-600 transition-colors cursor-pointer"
+                                className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer"
                             >
                                 <Flag className="w-3.5 h-3.5" />
                                 بلغ عن إساءة
@@ -504,13 +523,13 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
             )}
 
             {answersCount > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+                <div className="mt-4">
                     <button
                         onClick={() => setIsAnswersModalOpen(true)}
-                        className="flex items-center gap-1.5 text-sm font-medium text-[#456A8E] hover:text-[#355A7E] transition-colors cursor-pointer"
+                        className="flex items-center gap-1 text-sm font-medium text-[#456A8E] hover:text-[#355A7E] transition-colors cursor-pointer"
                     >
-                        <ChevronLeft className="w-4 h-4" />
                         عرض المزيد من الإجابات ({answersCount})
+                        <ChevronLeft className="w-4 h-4" />
                     </button>
                 </div>
             )}
@@ -603,74 +622,35 @@ function ServiceQAAnswersModal({ isOpen, onClose, question }: { isOpen: boolean,
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="max-w-2xl p-0 overflow-hidden bg-white border-0" dir="rtl">
-                <DialogHeader className="p-6 pb-4 bg-white border-b border-gray-100 relative text-center flex flex-col items-center shrink-0">
-                    <DialogTitle className="text-xl font-medium  w-full">إجابات الأسئلة</DialogTitle>
+                <DialogHeader className="p-6 pb-0 relative flex flex-col items-center shrink-0">
+                    <DialogTitle className="text-xl font-medium  w-full">المزيد من الإجابات </DialogTitle>
                 </DialogHeader>
-                <div className="p-4 md:p-6 overflow-y-auto max-h-[75vh] space-y-4 bg-gray-50">
-
-                    {/* Parent Question context matching design */}
-                    <div className="bg-white border border-[#456A8E] p-4 lg:p-6 rounded-xl shadow-[0_0_0_1px_rgba(69,106,142,0.1)] relative opacity-80">
-                        <div className="flex justify-between items-start gap-4 mb-3">
-                            <h4 className="font-medium  text-base md:text-lg flex-1">
-                                هل المحامي يرد على الاستشارة فورًا؟
-                            </h4>
-                            <button
-                                disabled
-                                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 border border-[#456A8E] rounded-md text-xs text-[#456A8E] font-medium opacity-50 cursor-not-allowed"
-                            >
-                                <MessageSquare className="w-3.5 h-3.5" />
-                                الاجابة
-                            </button>
-                        </div>
-                        <p className="text-gray-500 text-sm leading-relaxed mb-6">
-                            {question.content}
-                        </p>
-                        <div className="flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-gray-100">
-                            <div className="flex items-center gap-4 text-xs">
-                                <button className="flex items-center gap-1.5 text-red-500 font-medium opacity-50 cursor-not-allowed">
-                                    <Flag className="w-3.5 h-3.5 text-red-500" />
-                                    بلغ عن إساءة
-                                </button>
-                                <span className="text-gray-400" dir="ltr">{question.created_at}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-800">{question.user?.name}</span>
-                                <div className="w-7 h-7 rounded-full border border-gray-100 overflow-hidden shrink-0">
-                                    <Image src={question.user?.avatar_url || "/default-avatar.png"} alt={question.user?.name || ""} width={28} height={28} className="w-full h-full object-cover" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-1 text-sm font-medium text-[#456A8E] px-1 py-2" dir="rtl">
-                        عرض المزيد من الإجابات ({answers.length}) <ChevronLeft className="w-4 h-4 ml-1" />
-                    </div>
-
+                <div className="p-4 md:p-6 overflow-y-auto max-h-[75vh] space-y-4">
                     {isLoading ? (
                         <div className="flex justify-center py-10"><Loader2 className="animate-spin text-blue-3 w-8 h-8" /></div>
                     ) : answers.length > 0 ? (
                         <div className="space-y-4">
                             {answers.map(ans => (
-                                <div key={ans.id} className="bg-white border border-gray-200 p-4 lg:p-6 rounded-xl shadow-sm">
+                                <div key={ans.id} className="bg-white border border-gray-200 p-4 rounded-lg">
                                     <p className="text-gray-500 text-sm leading-relaxed mb-6">
                                         {ans.content}
                                     </p>
-                                    <div className="flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-gray-100">
+                                    <div className="flex items-center justify-between flex-wrap gap-4">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-7 h-7 rounded-full border border-gray-100 overflow-hidden shrink-0">
+                                                <Image src={ans.user?.avatar_url || "/default-avatar.png"} alt={ans.user?.name || ""} width={28} height={28} className="w-full h-full object-cover" />
+                                            </div>
+                                            <span className="text-sm font-medium ">{ans.user?.name}</span>
+                                        </div>
                                         <div className="flex items-center gap-4 text-xs">
+                                            <span className="text-gray-400" dir="ltr">{ans.created_at}</span>
                                             <button
                                                 onClick={() => setReportState({ isOpen: true, answerId: ans.id })}
-                                                className="flex items-center gap-1.5 text-red-500 font-medium hover:text-red-600 transition-colors cursor-pointer"
+                                                className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer"
                                             >
                                                 <Flag className="w-3.5 h-3.5" />
                                                 بلغ عن إساءة
                                             </button>
-                                            <span className="text-gray-400" dir="ltr">{ans.created_at}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm font-medium text-gray-800">{ans.user?.name}</span>
-                                            <div className="w-7 h-7 rounded-full border border-gray-100 overflow-hidden shrink-0">
-                                                <Image src={ans.user?.avatar_url || "/default-avatar.png"} alt={ans.user?.name || ""} width={28} height={28} className="w-full h-full object-cover" />
-                                            </div>
                                         </div>
                                     </div>
                                 </div>

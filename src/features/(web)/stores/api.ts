@@ -66,6 +66,7 @@ export interface StorePageData {
         follower: {
             id: number;
             avatar_url: string | null;
+            logo?: string | null;
         };
     }[];
 }
