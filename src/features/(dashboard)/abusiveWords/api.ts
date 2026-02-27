@@ -62,7 +62,7 @@ export interface CommentUser {
     last_name: string;
     email: string;
     phone: string | null;
-    is_active: string;
+    is_active: boolean | null;
     city_id: number | null;
     district_id: number | null;
     date_of_birth: string | null;
@@ -71,6 +71,7 @@ export interface CommentUser {
     verified_code: string | null;
     last_login_at: string | null;
     created_at: string | null;
+    is_banned?: boolean | null;
 }
 
 export interface AbusiveWordReference {
@@ -89,6 +90,7 @@ export interface AbusiveComment {
     comment_for_id: string;
     parent_id: number | null;
     user: CommentUser;
+    is_alert_sent?: boolean;
     created_at: string;
     updated_at: string;
 }

@@ -321,20 +321,24 @@ export function AbusiveWordsPage() {
                                                                 >
                                                                     <Eye className="w-4 h-4 text-[#1298B2]" />
                                                                 </button>
-                                                                <button
-                                                                    onClick={() => handleBlockUser(comment.id)}
-                                                                    className="p-2 bg-red-2 rounded-xs cursor-pointer transition-colors"
-                                                                    title="حظر المستخدم"
-                                                                >
-                                                                    <Ban className="w-4 h-4 text-red-1" />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleSendAlert(comment.id)}
-                                                                    className="p-2 bg-[#FFB90047] rounded-xs cursor-pointer transition-colors"
-                                                                    title="إرسال تنبيه"
-                                                                >
-                                                                    <AlertTriangle className="w-4 h-4 text-yellow-600" />
-                                                                </button>
+                                                                {comment.user.is_banned !== true && (
+                                                                    <button
+                                                                        onClick={() => handleBlockUser(comment.id)}
+                                                                        className="p-2 bg-red-2 rounded-xs cursor-pointer transition-colors"
+                                                                        title="حظر المستخدم"
+                                                                    >
+                                                                        <Ban className="w-4 h-4 text-red-1" />
+                                                                    </button>
+                                                                )}
+                                                                {comment.is_alert_sent !== true && (
+                                                                    <button
+                                                                        onClick={() => handleSendAlert(comment.id)}
+                                                                        className="p-2 bg-[#FFB90047] rounded-xs cursor-pointer transition-colors"
+                                                                        title="إرسال تنبيه"
+                                                                    >
+                                                                        <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                                                                    </button>
+                                                                )}
                                                                 <button
                                                                     onClick={() => handleDeleteComment(comment.id)}
                                                                     className="p-2 bg-[#E6E6E6] rounded-xs cursor-pointer transition-colors"
