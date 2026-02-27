@@ -150,17 +150,19 @@ function InfiniteMultiSelect({
         isFetchingNextPage,
     } = useInfiniteHook(searchParams);
 
-    // Flatten options
+    // Flatten options and filter out already selected options
     const options = useMemo(() => {
         if (!data) return [];
-        return data.pages.flatMap((page) =>
+        const allOptions = data.pages.flatMap((page) =>
             page.categories?.map((item) => ({
                 value: String(item.id),
                 label: item.name,
             })) || []
         );
-
-    }, [data]);
+        return allOptions.filter(
+            (option) => !selectedItems.some((selected) => selected.id === option.value)
+        );
+    }, [data, selectedItems]);
 
     const handleSelect = (id: string) => {
         const option = options.find((o) => o.value === id);
@@ -520,19 +522,19 @@ export function CreateCouponModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-xl p-0 overflow-hidden text-right bg-white" dir="rtl">
-                <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-100/50">
+            <DialogContent className="max-w-xl p-0 flex flex-col gap-0 max-h-[calc(100svh-4rem)] text-right bg-white overflow-visible" dir="rtl">
+                <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-100/50 shrink-0 rounded-t-lg">
                     <DialogTitle className="text-lg font-medium">
                         {isEditMode ? "تعديل كوبون" : "اضافة كوبون جديد"}
                     </DialogTitle>
                 </div>
 
-                <div className="p-6 py-4">
+                <div className="p-6 py-4 flex-1 overflow-y-auto overflow-x-hidden min-h-[450px]">
                     <ModalSteps currentStep={currentStep} />
 
-                    <div className="mt-4 min-h-[350px]">
+                    <div className="mt-4">
                         {isLoadingDetails ? (
-                            <div className="flex flex-col items-center justify-center h-[300px] gap-3">
+                            <div className="flex flex-col items-center justify-center p-8 gap-3">
                                 <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
                                 <span className="text-gray-500 text-sm">جاري تحميل بيانات الكوبون...</span>
                             </div>
@@ -546,7 +548,7 @@ export function CreateCouponModal({
 
                 </div>
 
-                <div className="p-4 bg-gray-50 flex items-center justify-end gap-3 border-t border-gray-100">
+                <div className="p-4 bg-gray-50 flex items-center justify-end gap-3 border-t border-gray-100 shrink-0 rounded-b-lg">
                     <button
                         onClick={onClose}
                         className="px-6 py-2 rounded-md cursor-pointer bg-gray-100 font-medium hover:bg-gray-200 transition-colors"

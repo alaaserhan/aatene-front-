@@ -91,12 +91,12 @@ export function CouponsPage() {
                     </div>
 
                     <div className="flex gap-3">
-                        <button
+                        {/* <button
                             className="flex text-sm items-center gap-2 cursor-pointer px-4 py-2 border border-gray-200 bg-white text-gray-700 rounded-sm font-medium hover:bg-gray-50 transition-colors"
                         >
                             <FileDown className="w-4 h-4" />
                             تصدير
-                        </button>
+                        </button> */}
 
                         <button
                             onClick={handleCreateClick}
