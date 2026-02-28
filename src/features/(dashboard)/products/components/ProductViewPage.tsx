@@ -272,7 +272,10 @@ export default function ProductViewPage() {
                                         <span className="text-sm font-medium">مشاركة المنتج</span>
                                     </button>
                                     <button
-                                        onClick={() => router.push(`/admin/products/${id}/edit`)}
+                                        onClick={() => {
+                                          const currentViewUrl = `/admin/products/${id}/view${fromUrl ? `?from=${encodeURIComponent(decodeURIComponent(fromUrl))}` : ""}`;
+                                          router.push(`/admin/products/${id}/edit?from=${encodeURIComponent(currentViewUrl)}`);
+                                        }}
                                         className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer hover:text-blue-600"
                                     >
                                         <Pen className="w-4 h-4" />

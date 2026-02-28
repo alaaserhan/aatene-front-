@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
@@ -38,6 +38,8 @@ interface AttributeOption {
 
 export function EditProductPage({ productId }: EditProductPageProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromUrl = searchParams.get("from");
   const updateProductMutation = useUpdateProduct();
   const { data: productData, isLoading, isError } = useGetSingleProduct(productId);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -159,10 +161,17 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     }
   }, [mappingError]);
 
-  const breadcrumbItems = useMemo(() => [
-    { label: "المنتجات", href: "/admin/products" },
-    { label: "تعديل منتج" },
-  ], []);
+  const breadcrumbItems = useMemo(() => {
+    const backHref = fromUrl
+      ? decodeURIComponent(fromUrl)
+      : formData?.step2?.store_id
+      ? `/admin/productProviders/${formData.step2.store_id}`
+      : "/admin/products";
+    return [
+      { label: "المنتجات", href: backHref },
+      { label: "تعديل منتج" },
+    ];
+  }, [fromUrl, formData?.step2?.store_id]);
 
   const handleStepClick = (step: number) => {
     setCurrentStep(step);
@@ -230,7 +239,12 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   };
 
   const handleStep1Cancel = () => {
-    router.push("/admin/products");
+    const backUrl = fromUrl
+      ? decodeURIComponent(fromUrl)
+      : formData?.step2?.store_id
+      ? `/admin/productProviders/${formData.step2.store_id}`
+      : "/admin/products";
+    router.push(backUrl);
   };
 
   const handleStep2Next = (data: Step2FormData) => {
@@ -345,7 +359,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
               ? "حدث خطأ أثناء معالجة بيانات المنتج."
               : "لم يتم العثور على المنتج أو حدث خطأ في الاتصال."}
           </p>
-          <Button onClick={() => router.push("/admin/products")} variant="outline">
+          <Button onClick={() => router.push(fromUrl ? decodeURIComponent(fromUrl) : "/admin/products")} variant="outline">
             العودة للقائمة
           </Button>
         </div>
@@ -459,7 +473,12 @@ export function EditProductPage({ productId }: EditProductPageProps) {
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
-          router.push("/admin/products");
+          const backUrl = fromUrl
+            ? decodeURIComponent(fromUrl)
+            : formData?.step2?.store_id
+            ? `/admin/productProviders/${formData.step2.store_id}`
+            : "/admin/products";
+          router.push(backUrl);
         }}
         title="تم تحديث المنتج بنجاح"
         message="تم حفظ التعديلات التي أجريتها على المنتج بنجاح."
