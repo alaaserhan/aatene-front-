@@ -3,7 +3,8 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Plus } from "lucide-react";
+import Link from "next/link";
 import { useGetStores, useDeleteStore } from "../../stores/hooks";
 import { Store } from "../../stores/api";
 import { ProductProvidersTable } from "./ProductProvidersTable";
@@ -71,6 +72,12 @@ export function ProductProvidersPage() {
             <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
                 <div className="flex items-center justify-between h-16 px-6">
                     <h1 className="text-blue-4 font-semibold">مقدمي المنتجات</h1>
+                    <Link href="/admin/users/add">
+                        <button className="flex items-center gap-2 bg-blue-3 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-4 transition-colors">
+                            <Plus className="w-4 h-4" />
+                            إضافة مقدم منتج جديد
+                        </button>
+                    </Link>
                 </div>
             </div>
 
