@@ -139,7 +139,7 @@ export default function HomeStories({ stories }: HomeStoriesProps) {
                                                 className="w-full h-full flex items-center justify-center p-4 text-center"
                                                 style={{ backgroundColor: story.color || '#e5e7eb' }}
                                             >
-                                                <span className="text-sm font-medium text-white line-clamp-4">
+                                                <span className="text-sm  font-medium text-white line-clamp-4">
                                                     {story.text}
                                                 </span>
                                             </div>
@@ -158,7 +158,7 @@ export default function HomeStories({ stories }: HomeStoriesProps) {
                                         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-black/50 to-transparent pointer-events-none" />
                                     </div>
                                     <div className="my-1 text-center w-full px-1">
-                                        <span className="text-[13px] font-medium text-[#3F3F46] truncate block px-1">
+                                        <span className="text-[13px]  font-medium text-[#3F3F46] truncate block px-1">
                                             {story.owner?.name || " "}
                                         </span>
                                     </div>

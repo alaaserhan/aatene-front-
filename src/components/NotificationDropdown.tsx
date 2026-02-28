@@ -49,7 +49,7 @@ export function NotificationDropdown({ variant = "web" }: NotificationDropdownPr
                         <img src="/icons/ring.svg" className="w-5 h-5" alt="notifications" />
                         {unreadCount > 0 && (
                             <Badge
-                                className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 justify-center p-0 text-[10px]"
+                                className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 pt-[3px] text-[10px]"
                                 variant="destructive"
                             >
                                 {unreadCount}
@@ -61,7 +61,7 @@ export function NotificationDropdown({ variant = "web" }: NotificationDropdownPr
                         <img src="/icons/Notification.svg" alt="notifications" className="h-6 w-6" />
                         {unreadCount > 0 && (
                             <Badge
-                                className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 justify-center p-0 text-[10px]"
+                                className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 pt-[3px] text-[10px]"
                                 variant="destructive"
                             >
                                 {unreadCount}

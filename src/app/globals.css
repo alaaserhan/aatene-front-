@@ -51,8 +51,8 @@
   --black-1: #393939;
   --red-1: #D00416;
   --red-2: #FB37481A;
-  --gold-1:#D3871A;
-  --gary-4:rgba(170, 170, 170, 0.08);
+  --gold-1: #D3871A;
+  --gary-4: rgba(170, 170, 170, 0.08);
 }
 
 .bg-blue-3 {
@@ -94,6 +94,7 @@
 .bg-gray-4 {
   background-color: var(--gray-3);
 }
+
 .bg-black-1 {
   background-color: var(--black-1);
 }
@@ -110,11 +111,11 @@
   background-color: var(--gray-3);
 }
 
-.bg-gray-4{
+.bg-gray-4 {
   background-color: var(--gray-4);
 }
 
-.bg-gold-1{
+.bg-gold-1 {
   background-color: var(--gold-1);
 }
 
@@ -449,4 +450,7 @@ html body[data-scroll-locked] {
     scrollbar-color: var(--blue-4) transparent;
   }
 
+}
+.font-baseline-fix {
+  padding-top: 3px !important;
 }

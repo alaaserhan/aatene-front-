@@ -194,7 +194,7 @@ export default function MobileNav() {
                             <img src="/icons/Notification.svg" alt="Notifications" className="h-7 w-7" />
                             {unreadCount > 0 && (
                               <Badge
-                                className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                                className="absolute bg-red-600 font-baseline-fix -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
                                 variant="destructive"
                               >
                                 {unreadCount}
