@@ -120,7 +120,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                         </div>
                     </div>
                     {typeFilter === "product" ? (
-                        <Link href={`/admin/stores/${storeId}/products`}>
+                        <Link href={`/admin/productProviders/${storeId}`}>
                             <Button className="bg-blue-3 text-white px-6 gap-2">
                                 عرض منتجات المتجر
                             </Button>
