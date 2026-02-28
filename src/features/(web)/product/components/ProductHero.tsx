@@ -236,7 +236,15 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                             <Share2 className="w-4 h-4" />
                                             مشاركة المنتج
                                         </button>
-                                        {!isProductOwner && (
+                                        {isProductOwner ? (
+                                            <button
+                                                disabled
+                                                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
+                                            >
+                                                <Flag className="w-4 h-4" />
+                                                ابلاغ عن المنتج
+                                            </button>
+                                        ) : (
                                             <ReportAbuse type="product" id={product.id}>
                                                 <button
                                                     onClick={() => setShowMenu(false)}

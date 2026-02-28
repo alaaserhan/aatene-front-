@@ -311,7 +311,10 @@ export default function ProductViewPage() {
                             {/* Provider Info Card */}
                             {store && (
                                 <div className="mb-6">
-                                    <ProviderInfoCard store={store} />
+                                    <ProviderInfoCard
+                                        store={store}
+                                        isOwner={!isAdmin && !!storeId && String(storeId) === Cookies.get("current_store_id")}
+                                    />
                                 </div>
                             )}
 

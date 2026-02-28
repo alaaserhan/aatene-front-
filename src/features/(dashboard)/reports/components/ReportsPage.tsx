@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
     Search,
@@ -29,6 +30,9 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
 
+    const searchParams = useSearchParams();
+    const typeFilter = searchParams.get("type") as "store" | "product" | "service" | null;
+
     const { data: storeData } = useGetSingleStore(storeId!, {
         enabled: !!storeId,
     });
@@ -39,6 +43,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
         per_page: 10,
         store_id: storeId,
         status: statusFilter as ReportStatus,
+        ...(typeFilter ? { type: typeFilter } : {}),
     });
 
     const reports = data?.data || [];

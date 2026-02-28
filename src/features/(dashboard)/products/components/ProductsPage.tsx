@@ -279,7 +279,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                     أضف منتجاً جديداً
                   </Button>
                 </Link>
-                <Link href={`/admin/reports/${propStoreId}`}>
+                <Link href={`/admin/reports/${propStoreId}?type=product`}>
                   <Button className="bg-red-2 text-red-1 px-6 gap-2">الإبلاغات</Button>
                 </Link>
               </div>

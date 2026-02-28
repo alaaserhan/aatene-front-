@@ -27,11 +27,12 @@ interface ProviderInfoCardProps {
     onReport?: () => void;
     onFollow?: () => void;
     isFollowing?: boolean;
+    isOwner?: boolean;
 }
 
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
 
-export function ProviderInfoCard({ store, provider, className, onReport, onFollow, isFollowing }: ProviderInfoCardProps) {
+export function ProviderInfoCard({ store, provider, className, onReport, onFollow, isFollowing, isOwner }: ProviderInfoCardProps) {
     // If store is provided, map it to ProviderData
     const data: ProviderData | null = store ? {
         id: store.id,
@@ -95,7 +96,7 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
                         )}
                     </Button>
 
-                    {data.id ? (
+                    {data.id && !isOwner ? (
                         <ReportAbuse type="store" id={data.id}>
                             <Button
                                 variant="destructive"
@@ -108,8 +109,14 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
                     ) : (
                         <Button
                             variant="destructive"
-                            onClick={onReport}
-                            className="bg-[#D00416] hover:bg-[#d93838] cursor-pointer text-white font-medium h-8 px-8 gap-2 rounded-full flex-1 md:flex-none"
+                            onClick={!isOwner ? onReport : undefined}
+                            disabled={isOwner}
+                            className={cn(
+                                "font-medium h-8 px-8 gap-2 rounded-full flex-1 md:flex-none",
+                                isOwner
+                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    : "bg-[#D00416] hover:bg-[#d93838] cursor-pointer text-white"
+                            )}
                         >
                             <Flag className="w-4 h-4" />
                             <span>بلغ عن إساءة</span>
