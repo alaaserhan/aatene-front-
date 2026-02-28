@@ -15,7 +15,7 @@ interface ViewedItem {
     cover_url?: string;
     images?: string;
     views_count?: string | number;
-    slug?: string;
+    slug: string;
 }
 
 interface RawItem {
@@ -26,6 +26,7 @@ interface RawItem {
     cover_url?: string | null;
     views_count?: string | number;
     view_count?: number;
+    slug: string;
 }
 
 export function MerchantMostViewed() {
