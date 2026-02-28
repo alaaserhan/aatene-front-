@@ -1,15 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Loader2 } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useGetBlockedUsers, useUnblockUser } from "../../hooks";
 import { cn } from "@/src/lib/utils";
 import { Avatar, AvatarImage, AvatarFallback } from "@/src/components/ui/avatar";
 import { Button } from "@/src/components/ui/button";
 
 export default function BlockedTab() {
-    const [type, setType] = useState<"store" | "user">("store");
-    const [searchQuery, setSearchQuery] = useState("");
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const urlType = searchParams.get("type") || searchParams.get("blocked_type");
+    const urlUser = searchParams.get("user");
+
+    const [type, setType] = useState<"store" | "user">((urlType as "store" | "user") || "store");
+    const [searchQuery, setSearchQuery] = useState(urlUser || "");
+
+    useEffect(() => {
+        if (urlType === "store" || urlType === "user") {
+            setType(urlType);
+        }
+        if (urlUser) {
+            setSearchQuery(urlUser);
+        }
+    }, [urlType, urlUser]);
+
+    const handleTypeChange = (newType: "store" | "user") => {
+        setType(newType);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("type", newType);
+        router.replace(`?${params.toString()}`, { scroll: false });
+    };
 
     const { data: blockedData, isLoading } = useGetBlockedUsers(type);
     const { mutate: unblock, isPending: isUnblocking } = useUnblockUser();
@@ -43,7 +65,7 @@ export default function BlockedTab() {
             {/* Toggle Switcher */}
             <div className="flex gap-4 mb-8">
                 <button
-                    onClick={() => setType("store")}
+                    onClick={() => handleTypeChange("store")}
                     className={cn(
                         "flex-1 py-2 text-sm rounded-full font-medium transition-all cursor-pointer",
                         type === "store"
@@ -54,7 +76,7 @@ export default function BlockedTab() {
                     متاجر
                 </button>
                 <button
-                    onClick={() => setType("user")}
+                    onClick={() => handleTypeChange("user")}
                     className={cn(
                         "flex-1 py-2 text-sm rounded-full font-medium transition-all cursor-pointer",
                         type === "user"

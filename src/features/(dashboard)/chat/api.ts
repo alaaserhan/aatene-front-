@@ -89,6 +89,7 @@ export interface Conversation {
     unread_messages_count: number;
     created_at: string;
     updated_at: string;
+    can_chat: boolean;
 }
 
 export interface GetConversationsResponse {
@@ -187,8 +188,9 @@ export const getConversationMessages = async (conversationId: number | string, i
     return data;
 };
 
-export const markMessageAsSeen = async (id: number | string): Promise<{ status: boolean; message: string }> => {
-    const { data } = await api.post<{ status: boolean; message: string }>(`/messages/${id}/seen`);
+export const markMessageAsSeen = async (id: number | string, ignoreCookie: boolean = false): Promise<{ status: boolean; message: string }> => {
+    const headers = getHeaders(undefined, ignoreCookie);
+    const { data } = await api.post<{ status: boolean; message: string }>(`/messages/${id}/seen`, {}, { headers });
     return data;
 };
 

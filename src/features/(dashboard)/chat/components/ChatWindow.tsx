@@ -19,6 +19,7 @@ import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { BlockUserModal } from "./BlockUserModal";
 import { AddMemberModal } from "./AddMemberModal";
@@ -31,6 +32,7 @@ interface ChatWindowProps {
 }
 
 export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindowProps) {
+    const router = useRouter();
     const user = useAuthStore((state) => state.user);
     const isDashboard = context === "dashboard";
     const ignoreCookie = !isDashboard;
@@ -87,7 +89,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                 String(lastMessage.sender_data.participant_id) === String(currentParticipantId);
 
             if (!isMyMessage) {
-                markSeen(lastMessage.id);
+                markSeen({ id: lastMessage.id, ignoreCookie });
             }
         }
     }, [serverMessages, currentParticipantType, currentParticipantId, markSeen]);
@@ -255,18 +257,20 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             <span className="font-medium text-gray-700">اضافة عضو جديد</span>
                         </DropdownMenuItem>
 
-                        <DropdownMenuItem
-                            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
-                            onSelect={(e) => {
-                                e.preventDefault();
-                                setShowBlockModal(true);
-                            }}
-                        >
-                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
-                                <Ban className="w-4 h-4 text-gray-600" />
-                            </div>
-                            <span className="font-medium text-gray-700">حظر المستخدم</span>
-                        </DropdownMenuItem>
+                        {conversation.can_chat !== false && (
+                            <DropdownMenuItem
+                                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
+                                onSelect={(e) => {
+                                    e.preventDefault();
+                                    setShowBlockModal(true);
+                                }}
+                            >
+                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+                                    <Ban className="w-4 h-4 text-gray-600" />
+                                </div>
+                                <span className="font-medium text-gray-700">حظر المستخدم</span>
+                            </DropdownMenuItem>
+                        )}
 
                         <div className="h-px bg-gray-100 my-1" />
 
@@ -485,49 +489,82 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                 </div>
             )}
 
-            {/* Input Area */}
-            <div className="p-4 bg-white border-t border-gray-100">
-                <div className="flex items-center gap-2">
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileSelect}
-                        className="hidden"
-                        multiple
-                        accept="image/*"
-                    />
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="rounded-full hover:bg-gray-100 shrink-0"
-                        onClick={() => fileInputRef.current?.click()}
-                    >
-                        <ImageIcon className="w-5 h-5 text-gray-500" />
-                    </Button>
-
-                    <div className="flex-1 flex items-center bg-gray-50 rounded-full border border-gray-200 px-4">
+            {/* Input Area or Blocked Message */}
+            {conversation.can_chat !== false ? (
+                <div className="p-4 bg-white border-t border-gray-100">
+                    <div className="flex items-center gap-2">
                         <input
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            placeholder="نص الرسالة ..."
-                            className="border-none bg-transparent px-1 py-2 text-[15px] outline-none font-normal shadow-none focus-visible:ring-0 flex-1 text-gray-2 placeholder:text-gray-400"
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileSelect}
+                            className="hidden"
+                            multiple
+                            accept="image/*"
                         />
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-full hover:bg-gray-100 shrink-0"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <ImageIcon className="w-5 h-5 text-gray-500" />
+                        </Button>
+
+                        <div className="flex-1 flex items-center bg-gray-50 rounded-full border border-gray-200 px-4">
+                            <input
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder="نص الرسالة ..."
+                                className="border-none bg-transparent px-1 py-2 text-[15px] outline-none font-normal shadow-none focus-visible:ring-0 flex-1 text-gray-2 placeholder:text-gray-400"
+                            />
+                        </div>
+
+                        <Button
+                            onClick={handleSend}
+                            disabled={!newMessage.trim() && selectedFiles.length === 0}
+                            size="icon"
+                            className={cn(
+                                "rounded-full w-10 h-10 shrink-0 transition-all",
+                                (newMessage.trim() || selectedFiles.length > 0) ? "bg-blue-3 hover:bg-blue-4" : "bg-gray-200 text-gray-400 hover:bg-gray-300"
+                            )}
+                        >
+                            <Send className="w-5 h-5 rtl:-rotate-90" />
+                        </Button>
+                    </div>
+                </div>
+            ) : (
+                <div className="p-10 bg-white border-t border-gray-100 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className="relative mb-6">
+                        <div className="w-20 h-20 rounded-2xl bg-red-50 flex items-center justify-center rotate-3 transition-transform hover:rotate-0 duration-500">
+                            <Ban className="w-10 h-10 text-red-500" />
+                        </div>
+                        <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-lg bg-white shadow-xl flex items-center justify-center border border-gray-50">
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                        </div>
                     </div>
 
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 font-outfit">
+                        {otherParticipant?.participant_data.type === 'store'
+                            ? 'تم حظر هذا المتجر'
+                            : 'تم حظر هذا المستخدم'}
+                    </h3>
+
+                    <p className="text-gray-500 text-[15px] mb-8 max-w-[320px] leading-relaxed">
+                        لقد قمت بحظر هذا الحساب بشكل كامل. يمكنك إدارة قائمة الحظر وفك الحظر من خلال إعدادات حسابك في أي وقت.
+                    </p>
+
                     <Button
-                        onClick={handleSend}
-                        disabled={!newMessage.trim() && selectedFiles.length === 0}
-                        size="icon"
-                        className={cn(
-                            "rounded-full w-10 h-10 shrink-0 transition-all",
-                            (newMessage.trim() || selectedFiles.length > 0) ? "bg-blue-3 hover:bg-blue-4" : "bg-gray-200 text-gray-400 hover:bg-gray-300"
-                        )}
+                        onClick={() => {
+                            const type = otherParticipant?.participant_data.type || 'user';
+                            router.push(`/settings?tab=blocked&type=${type}`);
+                        }}
+                        className="rounded-full bg-blue-3 hover:bg-blue-4 text-white px-10 h-12 font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/20"
                     >
-                        <Send className="w-5 h-5 rtl:-rotate-90" />
+                        انتقل إلى قائمة الحظر
                     </Button>
                 </div>
-            </div>
+            )}
 
             {/* Add Member Modal */}
             <AddMemberModal

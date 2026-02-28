@@ -57,7 +57,8 @@ export const useMarkMessageAsSeen = () => {
 
     return useMutation({
         mutationKey: ["mark-message-seen"],
-        mutationFn: api.markMessageAsSeen,
+        mutationFn: ({ id, ignoreCookie }: { id: number | string; ignoreCookie?: boolean }) =>
+            api.markMessageAsSeen(id, ignoreCookie),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QK.conversations });
             queryClient.invalidateQueries({ queryKey: ["conversation-unread"] });
@@ -67,10 +68,16 @@ export const useMarkMessageAsSeen = () => {
 };
 
 export const useBlockUser = () => {
+    const queryClient = useQueryClient();
+
     return useMutation({
         mutationKey: ["block-user"],
         mutationFn: ({ payload, ignoreCookie }: { payload: api.BlockUserPayload; ignoreCookie?: boolean }) =>
             api.blockUser(payload, ignoreCookie),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QK.conversations });
+            // Invalidate other related queries if any
+        },
     });
 };
 
