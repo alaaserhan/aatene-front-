@@ -320,7 +320,7 @@ function MenuItem({ href, icon: Icon, label }: { href: string; icon: React.Eleme
             className="flex items-center gap-2 w-full px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors group"
         >
             <Icon className="w-5 h-5 text-gray-2 group-hover:text-blue-4" strokeWidth={1.5} />
-            <span className="text-sm  ">
+            <span className="text-sm  text-gray-3">
                 {label}
             </span>
         </Link>

@@ -57,6 +57,7 @@ const pingAr = localFont({
     },
   ],
   variable: "--font-ping-ar",
+  fallback: ["sans-serif"],
 });
 
 export default function RootLayout({
@@ -71,7 +72,7 @@ export default function RootLayout({
       className={pingAr.variable}
       suppressHydrationWarning
     >
-      <body>
+      <body className="font-sans antialiased">
         <Suspense fallback={null}>
           <MetaPixel />
           <GoogleAnalytics />

@@ -203,7 +203,7 @@
 @theme inline {
   --color-background: var(--white-1);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-noto-sans-arabic);
+  --font-sans: var(--font-ping-ar);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
