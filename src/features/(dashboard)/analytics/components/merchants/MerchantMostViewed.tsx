@@ -15,6 +15,7 @@ interface ViewedItem {
     cover_url?: string;
     images?: string;
     views_count?: string | number;
+    slug?: string;
 }
 
 interface RawItem {
@@ -31,7 +32,7 @@ export function MerchantMostViewed() {
     const { data, isLoading } = useGetMerchantAnalyticsMostViewed();
     const storeType = Cookies.get("store_type");
     const isServiceStore = storeType === "services";
-    const basePath = isServiceStore ? "/services" : "/products";
+    const basePath = isServiceStore ? "/services" : "/product";
 
     // Select data based on store type
     const products = data?.mostViewedProducts || [];
@@ -46,7 +47,8 @@ export function MerchantMostViewed() {
             id: typedItem.id,
             name: isServiceStore ? typedItem.title : typedItem.name,
             cover_url: isServiceStore ? (typedItem.images_urls?.[0]) : (typedItem.cover_url || undefined),
-            views_count: typedItem.views_count || typedItem.view_count || 0
+            views_count: typedItem.views_count || typedItem.view_count || 0,
+            slug: typedItem.slug
         };
     }).slice(0, 10);
 
@@ -84,7 +86,7 @@ export function MerchantMostViewed() {
                             items.map((item, index) => (
                                 <Link
                                     key={`${item.id}-${index}`}
-                                    href={`${basePath}/${item.id}`}
+                                    href={`${basePath}/${item.slug}`}
                                     className="flex items-center justify-between group cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors -mx-2"
                                 >
 

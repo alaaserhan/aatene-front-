@@ -22,11 +22,13 @@ import { Input } from "@/src/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Button } from "@/src/components/ui/button";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 export function ServicesPage({ storeId }: { storeId: number }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const userType = useAuthStore((state) => state.user?.user_type);
 
     const [selectedSectionId, setSelectedSectionId] = useState<string>(searchParams.get("section_id") || "");
     const [searchQuery, setSearchQuery] = useState("");
@@ -256,11 +258,15 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 انشئ خدمة جديدة
                             </Button>
                         </Link>
-                        <Link href={`/admin/reports/${storeId}`}>
-                            <Button className="bg-red-2 text-red-1 px-6 gap-2">
-                                الإبلاغات
-                            </Button>
-                        </Link>
+                        {
+                            userType === "admin" && (
+                                <Link href={`/admin/reports/${storeId}`}>
+                                    <Button className="bg-red-2 text-red-1 px-6 gap-2">
+                                        الإبلاغات
+                                    </Button>
+                                </Link>
+                            )
+                        }
                     </div>
                 </div>
             </header>
