@@ -7,6 +7,7 @@ import { Product, Store, Attribute, AttributeOption } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddProductToCompare } from "@/src/features/(web)/compares/hooks";
 import { cn } from "@/src/lib/utils";
+import Cookies from "js-cookie";
 
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
@@ -38,6 +39,9 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
 
     const { mutate: addToCompare } = useAddProductToCompare();
     const router = useRouter();
+
+    const currentStoreId = Cookies.get("current_store_id");
+    const isProductOwner = !!currentStoreId && !!product.store_id && Number(currentStoreId) === product.store_id;
 
     const currentMedia = allMedia[selectedIndex] || allMedia[0];
     const rating = parseFloat(product.review_rate || "0");
@@ -232,15 +236,17 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                             <Share2 className="w-4 h-4" />
                                             مشاركة المنتج
                                         </button>
-                                        <ReportAbuse type="product" id={product.id}>
-                                            <button
-                                                onClick={() => setShowMenu(false)}
-                                                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                            >
-                                                <Flag className="w-4 h-4" />
-                                                ابلاغ عن المنتج
-                                            </button>
-                                        </ReportAbuse>
+                                        {!isProductOwner && (
+                                            <ReportAbuse type="product" id={product.id}>
+                                                <button
+                                                    onClick={() => setShowMenu(false)}
+                                                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <Flag className="w-4 h-4" />
+                                                    ابلاغ عن المنتج
+                                                </button>
+                                            </ReportAbuse>
+                                        )}
                                     </div>
                                 )}
                             </div>

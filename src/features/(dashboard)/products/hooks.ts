@@ -59,12 +59,14 @@ export const useInfiniteGetProducts = (params: URLSearchParams) => {
 
 export const useGetSingleProduct = (
   id: string | number | undefined,
-  options?: { enabled?: boolean }
+  options?: { enabled?: boolean; staleTime?: number; refetchOnWindowFocus?: boolean }
 ) => {
   return useQuery({
     queryKey: ProductsQK.single(id ?? ""),
     queryFn: () => api.getSingleProduct(id!),
     enabled: !!id && (options?.enabled ?? true),
+    staleTime: options?.staleTime,
+    refetchOnWindowFocus: options?.refetchOnWindowFocus,
   });
 };
 
