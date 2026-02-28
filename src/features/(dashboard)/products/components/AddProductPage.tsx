@@ -50,9 +50,12 @@ export function AddProductPage() {
   const [aiKeywords, setAiKeywords] = useState<string[]>([]);
 
   const breadcrumbItems = useMemo(() => [
-    { label: "المنتجات", href: "/admin/products" },
+    {
+      label: "المنتجات",
+      href: storeIdFromUrl ? `/admin/productProviders/${storeIdFromUrl}` : "/admin/products",
+    },
     { label: "انشاء منتج جديد" },
-  ], []);
+  ], [storeIdFromUrl]);
 
   useEffect(() => {
     if (toastShownRef.current) return;
