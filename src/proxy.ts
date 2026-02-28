@@ -87,10 +87,7 @@ export default function proxy(request: NextRequest) {
         if (!hasId) isForbidden = true;
       }
 
-      // Admin trying to access Merchant-only pages
-      if (role === 'admin' && MERCHANT_ONLY_SEGMENTS.has(segment)) {
-        isForbidden = true;
-      }
+      // Admin has full access to everything, so no restriction here.
 
       if (isForbidden) {
         const url = request.nextUrl.clone();

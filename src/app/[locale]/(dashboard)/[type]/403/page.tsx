@@ -44,7 +44,7 @@ export default function Forbidden403() {
                         </h1>
 
                         <div className="space-y-2">
-                            <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+                            <h2 className="text-xl md:text-2xl font-bold">
                                 وصول غير مصرح به!
                             </h2>
                             <p className="text-gray-2 text-sm max-w-sm mx-auto leading-relaxed font-medium">
