@@ -32,18 +32,11 @@ export default function ProductViewPage() {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<"description" | "reviews">("description");
 
-    // Alert: يُخزَّن في localStorage لكل منتج على حدة — يظهر مرة واحدة فقط
-    const alertKey = `product-alert-dismissed-${id}`;
-    const [alertDismissed, setAlertDismissed] = useState(() => {
-        if (typeof window !== "undefined") {
-            return localStorage.getItem(alertKey) === "1";
-        }
-        return false;
-    });
+    // Alert: يظهر دائماً بناءً على الـ status الحالي — لا يُخزَّن في localStorage
+    const [alertDismissed, setAlertDismissed] = useState(false);
 
     const dismissAlert = () => {
         setAlertDismissed(true);
-        if (typeof window !== "undefined") localStorage.setItem(alertKey, "1");
     };
 
     // Alert تعليق مؤقت: يظهر عند إيقاف التفعيل (shown=false) ويُغلق يدوياً
@@ -51,7 +44,18 @@ export default function ProductViewPage() {
 
     const { data: dashboardData, isLoading, isError, refetch } = useGetSingleProduct(id, {
         enabled: !!id,
+        staleTime: 0,
+        refetchOnWindowFocus: true,
     });
+
+    // عند تغيّر الـ status (مثلاً أُعيد قبوله بعد رفضه) → أعِد إظهار الـ alert
+    useEffect(() => {
+        const status = dashboardData?.data?.status;
+        if (status) {
+            setAlertDismissed(false);
+            setShownAlertDismissed(false);
+        }
+    }, [dashboardData?.data?.status]);
 
     const storeId = dashboardData?.data?.store_id;
     const { data: storeData } = useGetSingleStore(storeId, { enabled: !!storeId });
@@ -407,7 +411,7 @@ export default function ProductViewPage() {
                                         width: 44,
                                         height: 24,
                                         borderRadius: 9999,
-                                        backgroundColor: raw.shown ? "#34D399" : "#D1D5DB",
+                                        backgroundColor: raw.shown ? "#34D399" : "#6B7280",
                                         position: "relative",
                                         border: "none",
                                         cursor: "pointer",

@@ -177,6 +177,7 @@ export interface Product {
   view_count: number;
   is_favorite: boolean;
   in_compare: boolean;
+  store_id: number | null;
   category: Category | null;
   variations: unknown[];
   crossSells: Product[];
