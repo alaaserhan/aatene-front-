@@ -27,9 +27,10 @@ import { MediaViewer } from "@/src/components/ui/MediaViewer";
 interface ChatWindowProps {
     conversation: Conversation;
     onClose?: () => void;
+    context?: "web" | "dashboard";
 }
 
-export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
+export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindowProps) {
     const user = useAuthStore((state) => state.user);
     const { data: messagesData, isLoading } = useConversationMessages(conversation.id);
     const { mutate: sendMessage } = useSendMessage();
@@ -60,7 +61,8 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
 
     const serverMessages = useMemo(() => (messagesData?.messages || []).slice().reverse(), [messagesData]);
 
-    const isMerchant = user?.user_type === "merchant";
+    const isDashboard = context === "dashboard";
+    const isMerchant = isDashboard && user?.user_type === "merchant";
     const currentParticipantType = isMerchant ? "store" : "user";
     const currentParticipantId = isMerchant ? Cookies.get("current_store_id") : (user?.id ? String(user.id) : undefined);
 

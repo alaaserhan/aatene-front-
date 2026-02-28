@@ -18,6 +18,7 @@ interface ConversationListSidebarProps {
     onSearchChange: (query: string) => void;
     className?: string;
     totalUnreadCount?: number;
+    context?: "web" | "dashboard";
 }
 
 export function ConversationListSidebar({
@@ -30,11 +31,13 @@ export function ConversationListSidebar({
     onSearchChange,
     className,
     totalUnreadCount = 0,
+    context = "web",
 }: ConversationListSidebarProps) {
     const authUser = useAuthStore(state => state.user);
 
     const getOtherParticipant = (conversation: Conversation) => {
-        const currentStoreId = Cookies.get("current_store_id");
+        const isDashboard = context === "dashboard";
+        const currentStoreId = isDashboard ? Cookies.get("current_store_id") : undefined;
         const currentId = currentStoreId ? String(currentStoreId) : String(authUser?.id);
         const currentType = currentStoreId ? "store" : "user";
 

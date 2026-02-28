@@ -13,20 +13,26 @@ import { onMessage, MessagePayload } from "firebase/messaging";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
-
-
+import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { getFCMToken } from "@/src/lib/firebase";
 
-export function ChatPage() {
+interface ChatPageProps {
+    context?: "web" | "dashboard";
+}
+
+export function ChatPage({ context = "web" }: ChatPageProps) {
     const queryClient = useQueryClient();
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const authUser = useAuthStore(state => state.user);
 
-    const { data, isLoading, isError, refetch } = useConversations();
-    const { data: unreadData } = useTotalUnreadCount();
+    const isDashboard = context === "dashboard";
+    const storeId = isDashboard ? Cookies.get("current_store_id") : undefined;
+
+    const { data, isLoading, isError, refetch } = useConversations(storeId);
+    const { data: unreadData } = useTotalUnreadCount(storeId);
     const { mutate: createConversation } = useCreateConversation();
     const { mutate: sendMessage } = useSendMessage();
 
@@ -285,6 +291,7 @@ export function ChatPage() {
                         onSearchChange={setSearchQuery}
                         className="max-h-[calc(100vh-100px)] md:max-h-[calc(100vh-128px)] lg:rounded-t-lg"
                         totalUnreadCount={unreadData?.unread_conversations_count || 0}
+                        context={context}
                     />
                 </div>
 
@@ -297,6 +304,7 @@ export function ChatPage() {
                         <ChatWindow
                             conversation={selectedConversation}
                             onClose={handleCloseChat}
+                            context={context}
                         />
                     ) : (
                         <ChatEmptyState

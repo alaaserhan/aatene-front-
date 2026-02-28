@@ -43,7 +43,7 @@ export function NotificationDropdown({ variant = "web" }: NotificationDropdownPr
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="rounded-lg hover:bg-white/20 relative cursor-pointer"
+                        className="rounded-lg outline-none hover:bg-white/20 relative cursor-pointer"
                         aria-label="الإشعارات"
                     >
                         <img src="/icons/ring.svg" className="w-5 h-5" alt="notifications" />
