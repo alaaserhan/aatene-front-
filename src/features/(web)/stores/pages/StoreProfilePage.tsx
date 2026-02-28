@@ -1,5 +1,6 @@
 "use client";
 
+import { notFound } from "next/navigation";
 import { useStoreProfile, useStorePageData } from "../hooks";
 import StoreHeader from "../components/StoreHeader";
 import StoreStoriesSection from "../components/StoreStoriesSection";
@@ -23,12 +24,7 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
     }
 
     if (profileError || !profileData?.store) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center text-gray-400 gap-4">
-                <h1 className="text-2xl font-bold">المتجر غير موجود</h1>
-                <p>عفواً، لا يمكننا العثور على الصفحة التي تبحث عنها.</p>
-            </div>
-        );
+        notFound();
     }
 
     const store = profileData.store;

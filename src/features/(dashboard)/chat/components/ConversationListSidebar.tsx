@@ -214,7 +214,7 @@ export function ConversationListSidebar({
                                     {lastMessage?.body || "لا توجد رسائل"}
                                 </p>
                                 {conversation.unread_messages_count > 0 && (
-                                    <span className="bg-[#DE1D1D] text-white text-[10px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full font-medium shrink-0 px-1">
+                                    <span className="bg-red-600 font-baseline-fix text-white text-[10px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full font-medium shrink-0 px-1">
                                         {conversation.unread_messages_count}
                                     </span>
                                 )}

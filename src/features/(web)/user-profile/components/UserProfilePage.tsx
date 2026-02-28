@@ -5,7 +5,7 @@ import { UserProfile, UserStory, UserFollower } from "../types";
 import Image from "next/image";
 import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, Type, Image as ImageIcon, UserMinus } from "lucide-react";
 import { useUserProfile, useUserProfilePageData, useUserFavProducts, useUserProducts } from "../hooks";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, notFound } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
 import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
@@ -552,7 +552,7 @@ export default function UserProfilePage() {
     }
 
     if (!profileData?.user) {
-        return <div className="py-20 text-center text-gray-500">المستخدم غير موجود</div>;
+        notFound();
     }
 
     const user = profileData.user;

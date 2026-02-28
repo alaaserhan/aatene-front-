@@ -114,21 +114,16 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     return false;
   };
 
-  const [activeStoreId, setActiveStoreId] = useState<string | number | null>(() => {
-    if (typeof window !== "undefined") {
-      return Cookies.get("current_store_id") || null;
-    }
-    return null;
-  });
-
-  const [storeType, setStoreType] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return Cookies.get("store_type") || null;
-    }
-    return null;
-  });
+  const [activeStoreId, setActiveStoreId] = useState<string | number | null>(null);
+  const [storeType, setStoreType] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   React.useEffect(() => {
+    // Client-side initialization to avoid hydration mismatch
+    setMounted(true);
+    setActiveStoreId(Cookies.get("current_store_id") || null);
+    setStoreType(Cookies.get("store_type") || null);
+
     const handleStoreUpdate = () => {
       const newStoreId = Cookies.get("current_store_id") || null;
       const newStoreType = Cookies.get("store_type") || null;
@@ -166,8 +161,9 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "المحذوفات", icon: Trash2, href: "/trash", show: isAdmin, desc: "إدارة ومتابعة المحذوفات" },
   ];
 
-  const mainNavItems = isMerchant ? allNavItems.slice(0, 8) : allNavItems.slice(0, 7);
-  const moreMenuItems = isMerchant ? allNavItems.slice(8) : allNavItems.slice(7);
+  const visibleNavItems = allNavItems.filter((item) => item.show);
+  const mainNavItems = visibleNavItems.slice(0, 5);
+  const moreMenuItems = visibleNavItems.slice(5);
 
   const renderIcon = (
     icon: LucideIcon | React.ReactNode,
@@ -254,7 +250,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
 
             {/* Desktop Menu Items */}
             <div className="hidden lg:flex items-center gap-1">
-              {mainNavItems
+              {mounted && mainNavItems
                 .filter((item) => item.show)
                 .map((item) => {
                   const href = `${navPrefix}${item.href}`;
@@ -293,7 +289,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[280px] p-2 border-none shadow-sm rounded-sm bg-white max-h-[85vh] overflow-y-auto custom-scrollbar">
-                  {moreMenuItems
+                  {mounted && moreMenuItems
                     .filter((item) => item.show)
                     .map((item) => {
                       const active = isActive(item.href);

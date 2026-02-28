@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
 import { useGetProductBySlug, useGetProductPageDataBySlug } from "./hooks";
 import { Loader2 } from "lucide-react";
 import ProductHero from "./components/ProductHero";
@@ -26,11 +26,7 @@ export default function ProductDetailsPage() {
     }
 
     if (isError || !data?.product) {
-        return (
-            <div className="text-center py-40" dir="rtl">
-                <p className="text-gray-500 text-lg">عذراً، لم يتم العثور على المنتج</p>
-            </div>
-        );
+        notFound();
     }
 
     const { product, store, attributes } = data;
