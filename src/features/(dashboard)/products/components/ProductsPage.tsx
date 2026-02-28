@@ -41,7 +41,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
   const isMerchant = userTypeCookie === "merchant";
 
   // Base navigation prefix based on user type
-  const navPrefix = isAdmin ? "/admin" : "/dashboard";
+  const navPrefix = "/admin" ;
 
   // If propStoreId is provided → admin is viewing a specific store (ServicesPage-style)
   const isAdminViewingStore = isAdmin && !!propStoreId;
