@@ -1,5 +1,7 @@
 // src/features/(dashboard)/users/api.ts
 import api from "@/src/lib/axios";
+import Cookies from "js-cookie";
+
 
 export interface Role {
   id: number;
@@ -125,5 +127,29 @@ export const deleteUser = async (
   id: string | number
 ): Promise<BaseResponse> => {
   const { data } = await api.delete<BaseResponse>(`/admin/users/${id}`);
+  return data;
+};
+
+export interface UserCheckEmailPayload {
+  email: string;
+}
+
+export const checkEmail = async (
+  payload: UserCheckEmailPayload
+): Promise<BaseResponse> => {
+  const storeId = Cookies.get("current_store_id");
+  const formData = new FormData();
+  formData.append("email", payload.email);
+
+  const { data } = await api.post<BaseResponse>(
+    "/merchants/users/check-email",
+    formData,
+    {
+      headers: {
+        ...(storeId ? { storeId } : {}),
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
   return data;
 };

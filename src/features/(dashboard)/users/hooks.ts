@@ -11,7 +11,9 @@ import {
   PaginatedUsersResponse,
   User,
   BaseResponse,
+  UserCheckEmailPayload,
 } from "./api";
+
 import { Role } from "./api";
 
 interface RolesCacheData {
@@ -206,3 +208,10 @@ export const useDeleteUser = () => {
     },
   });
 };
+
+export const useCheckEmail = () => {
+  return useMutation({
+    mutationFn: (payload: UserCheckEmailPayload) => api.checkEmail(payload),
+  });
+};
+
