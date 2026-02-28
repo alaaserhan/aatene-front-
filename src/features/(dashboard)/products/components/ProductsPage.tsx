@@ -40,6 +40,9 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
   const isAdmin = userTypeCookie === "admin";
   const isMerchant = userTypeCookie === "merchant";
 
+  // Base navigation prefix based on user type
+  const navPrefix = isAdmin ? "/admin" : "/dashboard";
+
   // If propStoreId is provided → admin is viewing a specific store (ServicesPage-style)
   const isAdminViewingStore = isAdmin && !!propStoreId;
 
@@ -119,7 +122,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
     return params;
   }, [effectiveStoreId, selectedSectionId, searchQuery]);
 
-  const countQueryOptions = { enabled: isProductsEnabled, staleTime: 5 * 60 * 1000 };
+  const countQueryOptions = { enabled: isProductsEnabled, staleTime: 0 };
   const { data: activeCountData } = useGetProducts(activeCountParams, countQueryOptions);
   const { data: notActiveCountData } = useGetProducts(notActiveCountParams, countQueryOptions);
   const { data: rejectedCountData } = useGetProducts(rejectedCountParams, countQueryOptions);
@@ -163,6 +166,8 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
 
   const { data: productsData, isLoading: isLoadingProducts } = useGetProducts(productsQueryParams, {
     enabled: isProductsEnabled,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   const products = productsData?.data || [];
@@ -197,11 +202,11 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
   };
 
   const handleEditClick = (product: Product) => {
-    router.push(`/admin/products/${product.id}/edit`);
+    router.push(`${navPrefix}/products/${product.id}/edit`);
   };
 
   const handleViewClick = (product: Product) => {
-    router.push(`/admin/products/${product.id}/view`);
+    router.push(`${navPrefix}/products/${product.id}/view`);
   };
 
   const handleSaveSection = (data: SectionFormData) => {
@@ -243,8 +248,8 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
 
   // ── Merchant: add product button ──
   const merchantAddHref = merchantStoreId
-    ? `/admin/products/add?section_id=${selectedSectionId}`
-    : "/admin/products/add";
+    ? `${navPrefix}/products/add?section_id=${selectedSectionId}`
+    : `${navPrefix}/products/add`;
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-80px)]">
@@ -300,7 +305,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
             )}
             {!isLoadingSections && !hasSections && (
               <Link
-                href="/admin/sections"
+                href={`${navPrefix}/sections`}
                 className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-xs font-medium transition-colors"
                 style={{ backgroundColor: "var(--blue-3)" }}
               >
@@ -344,9 +349,9 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                       !selectedSectionId ? "bg-blue-5 text-blue-3 font-semibold" : "text-gray-600 hover:bg-gray-50"
                     )}
                   >
-                    <span className="flex-1 text-right text-sm mx-2">
+                    <span className="flex-1 text-right text-base mx-2">
                       جميع المنتجات
-                      <span className={cn("mr-1 text-sm font-bold", !selectedSectionId ? "text-blue-3" : "text-gray-400")}>
+                      <span className={cn("mr-1 text-base font-bold", !selectedSectionId ? "text-blue-3" : "text-gray-400")}>
                         ({totalProductsCount})
                       </span>
                     </span>
@@ -364,7 +369,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                           isActive ? "bg-blue-5 text-blue-3 font-semibold" : "text-gray-600 hover:bg-gray-50"
                         )}
                       >
-                        <span className="flex-1 text-right text-sm mx-2">{section.name}</span>
+                        <span className="flex-1 text-right text-base mx-2">{section.name}</span>
                         <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", isActive ? "text-blue-3" : "text-gray-400")} />
                       </button>
                     );
@@ -373,7 +378,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                   <div className="p-3 border-t border-gray-100">
                     <Button
                       onClick={() => setIsSectionModalOpen(true)}
-                      className="w-full gap-2 text-blue-3 border-blue-3 rounded-xs border text-sm"
+                      className="w-full gap-2 text-blue-3 border-blue-3 rounded-xs border text-base"
                       style={{ backgroundColor: "var(--blue-5)" }}
                     >
                       <Plus className="w-4 h-4" />
