@@ -14,6 +14,7 @@ import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
 
 interface BasicInfoData {
   siteName: string;
+  about_website: string;
   logo: string | null;
   logo_url: string | null;
   email: string;
@@ -101,6 +102,20 @@ export function BasicInfoSection({
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="about_website" className="text-start">
+                عن الموقع <span className="text-red-500">*</span>
+              </Label>
+              <textarea
+                id="about_website"
+                value={data.about_website}
+                onChange={(e) => onChange({ about_website: e.target.value })}
+                required
+                className="flex min-h-[100px] w-full rounded-sm border border-gray-200 bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder="اكتب نبذة عن الموقع..."
+              />
+            </div>
+
+            <div className="space-y-2">
               <MediaSelectButton
                 label="شعار الموقع"
                 width={300}
@@ -110,13 +125,14 @@ export function BasicInfoSection({
                 onChange={(fileName, src) =>
                   onChange({ logo: fileName, logo_url: src })
                 }
-                accept="image/png,image/jpeg,image/jpg,image/svg+xml"
-                primaryText="SVG, PNG, JPG (MAX. 800x400px)"
+                accept="image/svg+xml"
+                primaryText="SVG"
+                secondaryText=""
                 infoText={[
                   "الأفضل أن تكون الصورة بعرض 300 بكسل وطول 150 بكسل.",
                   "الحجم يجب أن لا يتعدى 2 ميغابايت.",
                 ]}
-                allowedMediaTypes={["gallery"]}
+                allowedMediaTypes={["image"]}
               />
             </div>
 

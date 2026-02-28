@@ -14,6 +14,7 @@ export interface PolicyItem {
 
 export interface Settings {
   name: string;
+  about_website: string;
   logo: string;
   logo_url: string;
   main_color: string;
@@ -46,6 +47,7 @@ export interface PolicyItemPayload {
 
 export interface UpdateSettingsPayload {
   name: string;
+  about_website: string;
   logo: string | null;
   main_color: string;
   email: string;

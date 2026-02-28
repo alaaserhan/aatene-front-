@@ -7,6 +7,40 @@ export interface BaseResponse {
     message: string;
 }
 
+// 0. Global Settings
+export interface PolicyTerm {
+    logo: string | null;
+    title: Record<string, string>;
+    content: Record<string, string>;
+    logo_url: string | null;
+}
+
+export interface GlobalSettingsData {
+    name: string;
+    about_website: string;
+    logo: string | null;
+    logo_url: string | null;
+    main_color: string | null;
+    email: string | null;
+    address: string | null;
+    languages: string[];
+    whatsapp: string | null;
+    phone: string | null;
+    facebook: string | null;
+    instagram: string | null;
+    snapchat: string | null;
+    tiktok: string | null;
+    x: string | null;
+    youtube: string | null;
+    policies?: PolicyTerm[];
+    terms?: PolicyTerm[];
+}
+
+export interface GetGlobalSettingsResponse extends BaseResponse {
+    settings: GlobalSettingsData;
+}
+
+
 // 1. Cities
 export interface City {
     id: number;
@@ -241,6 +275,12 @@ export interface FollowingsResponse extends BaseResponse {
 }
 
 // --- API Functions ---
+
+// 0. Global Settings
+export const getGlobalSettings = async (): Promise<GetGlobalSettingsResponse> => {
+    const { data } = await api.get<GetGlobalSettingsResponse>("/settings");
+    return data;
+};
 
 // 1. Cities
 export const getCities = async (): Promise<GetCitiesResponse> => {

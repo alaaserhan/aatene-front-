@@ -51,6 +51,7 @@ import { DashboardUserMenu } from "./DashboardUserMenu";
 import { cn } from "@/src/lib/utils";
 import Cookies from "js-cookie";
 import useFCMToken from "@/src/hooks/use-fcm-token";
+import { useSettingsStore } from "@/src/stores/settings-store";
 
 interface NavItem {
   label: string;
@@ -94,6 +95,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const { mutate: logout } = useLogout();
 
   useFCMToken();
+  const { settings } = useSettingsStore();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -243,7 +245,11 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
 
             {/* Logo */}
             <Link href={`/${lang}`} className="flex items-center gap-2">
-              <Image src="/black.svg" width={80} height={32} alt="logo" className="h-8 lg:h-9 w-auto" />
+              {settings?.logo_url ? (
+                <img src={settings.logo_url} className="h-8 lg:h-9 w-auto object-contain" alt={settings?.name || "logo"} />
+              ) : (
+                <Image src="/black.svg" width={80} height={32} alt="logo" className="h-8 lg:h-9 w-auto" />
+              )}
             </Link>
 
             {/* Desktop Menu Items */}

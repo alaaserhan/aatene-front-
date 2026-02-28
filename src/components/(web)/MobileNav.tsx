@@ -12,6 +12,7 @@ import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
 import { useMyNotificationStats } from "@/src/features/(web)/notifications/hooks";
 import { Badge } from "@/src/components/ui/badge";
+import { useSettingsStore } from "@/src/stores/settings-store";
 
 const menuVariants: Variants = {
   closed: {
@@ -51,6 +52,7 @@ export default function MobileNav() {
 
   const { data: statsData } = useMyNotificationStats();
   const unreadCount = statsData?.unseen || 0;
+  const { settings } = useSettingsStore();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -74,7 +76,11 @@ export default function MobileNav() {
         </button>
 
         <Link href={`/${lang}`}>
-          <img src="/black.svg" className="h-8" alt="logo" />
+          {settings?.logo_url ? (
+            <img src={settings.logo_url} className="h-8 w-auto object-contain" alt={settings?.name || "logo"} />
+          ) : (
+            <img src="/black.svg" className="h-8" alt="logo" />
+          )}
         </Link>
 
         <button

@@ -9,10 +9,12 @@ import { useLanguage } from "@/src/hooks/use-language";
 import { SearchBar } from "./SearchBar";
 import { NotificationDropdown } from "@/src/components/NotificationDropdown";
 import useFCMToken from "@/src/hooks/use-fcm-token";
+import { useSettingsStore } from "@/src/stores/settings-store";
 
 const Navbar = () => {
   const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
   const lang = useLanguage();
+  const { settings } = useSettingsStore();
 
   return (
     <div className="w-full shadow-xs bg-white min-h-[72px] flex items-center border-b border-gray-200">
@@ -23,7 +25,11 @@ const Navbar = () => {
       <div className="hidden min-[1100px]:block container my-2">
         <div className="flex items-center justify-between gap-6">
           <Link href={`/${lang}`} className="flex items-center gap-4">
-            <img src="/black.svg" className="h-10" alt="logo" />
+            {settings?.logo_url ? (
+              <img src={settings.logo_url} className="h-10 w-auto object-contain" alt={settings?.name || "logo"} />
+            ) : (
+              <img src="/black.svg" className="h-10" alt="logo" />
+            )}
           </Link>
 
           <div className="flex-1 max-w-2xl">

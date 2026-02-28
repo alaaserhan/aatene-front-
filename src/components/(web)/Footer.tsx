@@ -1,8 +1,9 @@
 "use client";
 
-import { Carrot } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, Ghost, Music2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSettingsStore } from "@/src/stores/settings-store";
 
 const Footer = () => {
 
@@ -44,13 +45,15 @@ const Footer = () => {
     },
   ];
 
-  const socialIcons = [
-    { Icon: Carrot, href: "#", label: "Facebook" },
-    { Icon: Carrot, href: "#", label: "Twitter" },
-    { Icon: Carrot, href: "#", label: "LinkedIn" },
-    { Icon: Carrot, href: "#", label: "Instagram" },
-    { Icon: Carrot, href: "#", label: "YouTube" }
-  ];
+  const { settings } = useSettingsStore();
+
+  const socialIcons = [];
+  if (settings?.facebook) socialIcons.push({ Icon: Facebook, href: settings.facebook, label: "Facebook" });
+  if (settings?.x) socialIcons.push({ Icon: Twitter, href: settings.x, label: "X" });
+  if (settings?.instagram) socialIcons.push({ Icon: Instagram, href: settings.instagram, label: "Instagram" });
+  if (settings?.youtube) socialIcons.push({ Icon: Youtube, href: settings.youtube, label: "YouTube" });
+  if (settings?.snapchat) socialIcons.push({ Icon: Ghost, href: settings.snapchat, label: "Snapchat" });
+  if (settings?.tiktok) socialIcons.push({ Icon: Music2, href: settings.tiktok, label: "TikTok" });
 
   return (
     <footer dir="rtl" className="bg-white shadow-xs text-gray-700 border-t border-gray-200 ">
@@ -64,17 +67,25 @@ const Footer = () => {
               <div className="space-y-2">
                 <div className="flex justify-center sm:justify-start">
                   <Link href={`/`}>
-                    <Image
-                      src="/black.svg"
-                      alt="A'atene"
-                      width={120}
-                      height={40}
-                      className="h-10 w-auto object-contain"
-                    />
+                    {settings?.logo_url ? (
+                      <img
+                        src={settings.logo_url}
+                        alt={settings?.name || "A'atene"}
+                        className="h-10 w-auto object-contain"
+                      />
+                    ) : (
+                      <Image
+                        src="/black.svg"
+                        alt="A'atene"
+                        width={120}
+                        height={40}
+                        className="h-10 w-auto object-contain"
+                      />
+                    )}
                   </Link>
                 </div>
-                <p className="text-[#8B96A5] text-xs sm:text-sm leading-relaxed text-center sm:text-right lg:text-right max-w-xs mx-auto sm:mx-0 lg:ml-auto lg:mr-0">
-                  أفضل معلومات حول الشركة gies هنا ولكن الآن lorem ipsum
+                <p className="text-[#8B96A5] text-xs sm:text-sm leading-relaxed text-center sm:text-right lg:text-right max-w-xs mx-auto sm:mx-0 lg:ml-auto lg:mr-0 line-clamp-4">
+                  {settings?.about_website || "أفضل معلومات حول الشركة هنا"}
                 </p>
               </div>
 
@@ -186,7 +197,7 @@ const Footer = () => {
 
 
             <div className="flex items-center gap-4 mr-auto">
-              <span className="whitespace-nowrap opacity-60">© 2025 Aatene, Inc.</span>
+              <span className="whitespace-nowrap opacity-60">© {new Date().getFullYear()} Aatene, Inc.</span>
             </div>
           </div>
         </div>

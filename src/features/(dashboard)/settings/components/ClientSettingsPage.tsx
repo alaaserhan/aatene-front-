@@ -21,6 +21,7 @@ import type { PolicyItemPayload, TranslatableString } from "../api";
 
 interface BasicInfoData {
   siteName: string;
+  about_website: string;
   logo: string | null;
   logo_url: string | null;
   email: string;
@@ -107,6 +108,7 @@ export function ClientSettingsPage() {
   const [formData, setFormData] = useState<SettingsFormData>({
     basicInfo: {
       siteName: "",
+      about_website: "",
       logo: null,
       logo_url: null,
       email: "",
@@ -135,6 +137,7 @@ export function ClientSettingsPage() {
       setFormData({
         basicInfo: {
           siteName: settings.name || "",
+          about_website: settings.about_website || "",
           logo: settings.logo || null,
           logo_url: settings.logo_url || null,
           email: settings.email || "",
@@ -244,6 +247,7 @@ export function ClientSettingsPage() {
 
       await updateSettingsMutation.mutateAsync({
         name: formData.basicInfo.siteName,
+        about_website: formData.basicInfo.about_website,
         logo: formData.basicInfo.logo,
         main_color: formData.basicInfo.mainColor,
         email: formData.basicInfo.email,

@@ -1,4 +1,5 @@
 import { AuthHydrator } from "@/src/components/providers/AuthHydrator";
+import { SettingsHydrator } from "@/src/components/providers/SettingsHydrator";
 import { QueryProvider } from "@/src/components/providers/QueryProvider";
 import { MetaPixel } from "@/src/components/providers/MetaPixel";
 import { GoogleAnalytics } from "@/src/components/providers/GoogleAnalytics";
@@ -79,6 +80,7 @@ export default function RootLayout({
         </Suspense>
         <QueryProvider>
           <AuthHydrator />
+          <SettingsHydrator />
           {children}
         </QueryProvider>
         <Toaster richColors dir="rtl" position="top-right" />
