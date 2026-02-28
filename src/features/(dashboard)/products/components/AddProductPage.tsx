@@ -122,7 +122,7 @@ export function AddProductPage() {
   };
 
   const handleStep1Cancel = () => {
-    router.push("/admin/products");
+    router.push(storeIdFromUrl ? `/admin/productProviders/${storeIdFromUrl}` : "/admin/products");
   };
 
   const handleStep2Next = (data: Step2FormData) => {
@@ -364,7 +364,7 @@ export function AddProductPage() {
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
-          router.push("/admin/products");
+          router.push(storeIdFromUrl ? `/admin/productProviders/${storeIdFromUrl}` : "/admin/products");
         }}
         title="تم إضافة المنتج بنجاح"
         message={

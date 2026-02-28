@@ -66,6 +66,10 @@ export function ProductProvidersPage() {
         router.push(`/admin/productProviders/${store.id}`);
     };
 
+    const handleEditClick = (store: Store) => {
+        router.push(`/admin/users?userId=${store.owner?.id}`);
+    };
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -120,6 +124,7 @@ export function ProductProvidersPage() {
                         totalPages={totalPages}
                         onPageChange={setCurrentPage}
                         onDelete={handleDeleteClick}
+                        onEdit={handleEditClick}
                         onShow={handleShowClick}
                     />
                 </div>

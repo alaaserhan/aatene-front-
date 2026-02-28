@@ -83,10 +83,10 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                 <Breadcrumb items={breadcrumbItems} className="" />
 
                 {typeFilter === "product" ? (
-                    <Link href={`/admin/products/add?store_id=${storeId}`}>
+                    <Link href="/admin/users/add">
                         <Button className="bg-blue-3 text-white px-6 gap-2">
                             <Plus className="w-5 h-5" />
-                            أضف منتجاً جديداً
+                            إضافة مقدم منتج جديد
                         </Button>
                     </Link>
                 ) : (

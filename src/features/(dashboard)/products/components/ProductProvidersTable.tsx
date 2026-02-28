@@ -1,7 +1,7 @@
 // src/features/(dashboard)/products/components/ProductProvidersTable.tsx
 "use client";
 
-import { Eye, Trash2, Loader2 } from "lucide-react";
+import { Eye, Trash2, Loader2, Pencil } from "lucide-react";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Store } from "../../stores/api";
@@ -14,6 +14,7 @@ interface ProductProvidersTableProps {
     totalPages: number;
     onPageChange: (page: number) => void;
     onDelete: (store: Store) => void;
+    onEdit: (store: Store) => void;
     onShow: (store: Store) => void;
 }
 
@@ -24,6 +25,7 @@ export function ProductProvidersTable({
     totalPages,
     onPageChange,
     onDelete,
+    onEdit,
     onShow,
 }: ProductProvidersTableProps) {
 
@@ -143,6 +145,13 @@ export function ProductProvidersTable({
                                                 title="حذف"
                                             >
                                                 <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="delete" />
+                                            </button>
+                                            <button
+                                                onClick={() => onEdit(store)}
+                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#FFF7E5] text-[#F5A623] hover:bg-[#fff0cc] transition-colors"
+                                                title="تعديل"
+                                            >
+                                                <Pencil className="w-4 h-4" />
                                             </button>
                                             <button
                                                 onClick={() => onShow(store)}
