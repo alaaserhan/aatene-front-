@@ -1,11 +1,14 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import UserMenu from "./UserMenu";
 import MobileNav from "./MobileNav";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { SearchBar } from "./SearchBar";
+import { NotificationDropdown } from "@/src/components/NotificationDropdown";
+import useFCMToken from "@/src/hooks/use-fcm-token";
 
 const Navbar = () => {
   const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
@@ -38,17 +41,14 @@ const Navbar = () => {
 };
 
 const NavIcons = () => {
-  const user = useAuthStore((state) => state.user);
   const lang = useLanguage();
-  const userType = user?.user_type;
+
+  useFCMToken();
 
   return (
     <div className="flex items-center gap-4 text-gray-2">
-      <Link href={`/${lang}/notifications`} className="flex items-center">
-        <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="الإشعارات">
-          <img src="/icons/Notification.svg" alt="" className="h-6 w-6" />
-        </button>
-      </Link>
+      <NotificationDropdown variant="web" />
+
       <Link href={`/${lang}/compare`} className="flex items-center">
         <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="المقارنات">
           <img src="/icons/Compare.svg" alt="" className="h-6 w-6" />

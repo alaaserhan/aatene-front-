@@ -10,6 +10,8 @@ import UserMenu from "./UserMenu";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
+import { useMyNotificationStats } from "@/src/features/(web)/notifications/hooks";
+import { Badge } from "@/src/components/ui/badge";
 
 const menuVariants: Variants = {
   closed: {
@@ -46,6 +48,9 @@ export default function MobileNav() {
   const lang = useLanguage();
   const user = useAuthStore((state) => state.user);
   const userType = user?.user_type;
+
+  const { data: statsData } = useMyNotificationStats();
+  const unreadCount = statsData?.unseen || 0;
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -175,7 +180,7 @@ export default function MobileNav() {
                           <span className="font-medium">المقارنات</span>
                         </div>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                           <img src="/icons/Compare.svg" alt="" className="h-7 w-7" />
+                          <img src="/icons/Compare.svg" alt="" className="h-7 w-7" />
                         </div>
                       </Link>
 
@@ -185,8 +190,16 @@ export default function MobileNav() {
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                          <div className="relative w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
                             <img src="/icons/Notification.svg" alt="Notifications" className="h-7 w-7" />
+                            {unreadCount > 0 && (
+                              <Badge
+                                className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                                variant="destructive"
+                              >
+                                {unreadCount}
+                              </Badge>
+                            )}
                           </div>
                           <span className="font-medium">الاشعارات</span>
                         </div>

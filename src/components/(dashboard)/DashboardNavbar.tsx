@@ -3,7 +3,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
@@ -39,19 +39,18 @@ import {
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useLogout } from "@/src/features/(web)/auth/hooks";
+import { NotificationDropdown } from "@/src/components/NotificationDropdown";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuLabel,
 } from "@/src/components/ui/dropdown-menu";
-import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import { Separator } from "@/src/components/ui/separator";
 import { DashboardUserMenu } from "./DashboardUserMenu";
 import { cn } from "@/src/lib/utils";
 import Cookies from "js-cookie";
+import useFCMToken from "@/src/hooks/use-fcm-token";
 
 interface NavItem {
   label: string;
@@ -66,13 +65,7 @@ interface IconProps {
   [key: string]: unknown;
 }
 
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  time: string;
-  unread: boolean;
-}
+
 
 interface DashboardNavbarProps {
   navPrefix: "/admin" | "/dashboard";
@@ -98,10 +91,10 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const user = useAuthStore((state) => state.user);
   const lang = useLanguage();
   const pathname = usePathname();
-  const router = useRouter();
   const { mutate: logout } = useLogout();
 
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  useFCMToken();
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isAdmin = user?.user_type === "admin";
@@ -154,7 +147,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && storeType === "services" },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: isAdmin, desc: "إدارة ومتابعة مقدمي الخدمات" },
     { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: true, desc: "إدارة وتصنيف الاقسام" },
-    { label: "مدن الشحن", icon: Map, href: "/cities", show: true, desc: "اختر وجهات الشحن المتاحة" },
+    { label: "مدن الشحن", icon: Map, href: "/cities", show: isAdmin, desc: "اختر وجهات الشحن المتاحة" },
     { label: "الفئات", icon: Boxes, href: "/categories", show: true, desc: "إدارة وعرض الفئات" },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin, desc: "ادارة ومتابعة البنرات الإعلانية" },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: isAdmin, desc: "إدارة التشات بوت والإحصائيات" },
@@ -173,9 +166,6 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
 
   const mainNavItems = isMerchant ? allNavItems.slice(0, 8) : allNavItems.slice(0, 7);
   const moreMenuItems = isMerchant ? allNavItems.slice(8) : allNavItems.slice(7);
-
-  const notifications: Notification[] = [];
-  const unreadCount = 0;
 
   const renderIcon = (
     icon: LucideIcon | React.ReactNode,
@@ -356,59 +346,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               </Link>
             </Button>
 
-            <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen} dir="rtl">
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-lg hover:bg-white/20 relative"
-                  aria-label="الإشعارات"
-                >
-                  <img src="/icons/ring.svg" className="w-5 h-5" alt="notifications" />
-                  {unreadCount > 0 && (
-                    <Badge
-                      className="absolute -top-1 -right-1 h-4 w-4 justify-center p-0 text-[10px]"
-                      variant="destructive"
-                    >
-                      {unreadCount}
-                    </Badge>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-[280px] p-2 border-none shadow-sm rounded-sm bg-white max-h-[85vh] overflow-y-auto custom-scrollbar"
-                sideOffset={8}
-              >
-                <DropdownMenuLabel className="p-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-blue-4">الإشعارات</h3>
-                    {unreadCount > 0 && (
-                      <Badge variant="secondary" className="bg-blue-5 text-blue-4">
-                        {unreadCount} جديد
-                      </Badge>
-                    )}
-                  </div>
-                </DropdownMenuLabel>
-                <Separator className="my-1 bg-gray-50" />
-                <div className="flex flex-col max-h-[300px] overflow-y-auto custom-scrollbar p-1">
-                  {notifications.length === 0 ? (
-                    <p className="text-sm text-gray-2 text-center py-4">
-                      لا توجد إشعارات جديدة
-                    </p>
-                  ) : (
-                    notifications.map((notification) => (
-                      <DropdownMenuItem
-                        key={notification.id}
-                        className="p-3 rounded-lg hover:bg-gray-50 outline-none cursor-pointer transition-colors mb-1 shadow-none"
-                      >
-                        {/* Notification content */}
-                      </DropdownMenuItem>
-                    ))
-                  )}
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <NotificationDropdown variant="dashboard" />
 
             <div className="">
               <DashboardUserMenu />
