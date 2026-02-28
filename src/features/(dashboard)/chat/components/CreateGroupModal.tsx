@@ -12,9 +12,7 @@ import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { usePreviousParticipants, useCreateConversation } from "../hooks";
 import { ParticipantData } from "../api";
 import { toast } from "sonner";
-import { format } from "date-fns";
 import Image from "next/image";
-import { ar } from "date-fns/locale";
 import { cn } from "@/src/lib/utils";
 
 interface CreateGroupModalProps {
@@ -71,9 +69,11 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
 
         createConversation(
             {
-                type: "group",
-                name: groupName.trim(),
-                participants,
+                payload: {
+                    type: "group",
+                    name: groupName.trim(),
+                    participants,
+                }
             },
             {
                 onSuccess: (data) => {

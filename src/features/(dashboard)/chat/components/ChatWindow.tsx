@@ -138,9 +138,14 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     }
 
     useEffect(() => {
-        const latestServerMessages = messagesData?.messages || [];
-        if (latestServerMessages.length > 0) {
-            setPendingMessages(prev => prev.filter(p => p.status !== "sent"));
+        if (messagesData?.messages && messagesData.messages.length > 0) {
+            const timer = setTimeout(() => {
+                setPendingMessages(prev => {
+                    const filtered = prev.filter(p => p.status !== "sent");
+                    return filtered.length !== prev.length ? filtered : prev;
+                });
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [messagesData?.messages]);
 
@@ -566,7 +571,6 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                 </div>
             )}
 
-            {/* Add Member Modal */}
             <AddMemberModal
                 isOpen={showAddMemberModal}
                 onClose={() => setShowAddMemberModal(false)}

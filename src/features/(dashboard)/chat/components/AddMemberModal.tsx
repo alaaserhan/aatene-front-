@@ -11,8 +11,6 @@ import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { usePreviousParticipants, useAddParticipant } from "../hooks";
 import { ParticipantData } from "../api";
 import { toast } from "sonner";
-import { format } from "date-fns";
-import { ar } from "date-fns/locale";
 import { cn } from "@/src/lib/utils";
 
 interface AddMemberModalProps {
@@ -66,13 +64,12 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
                         setSelectedParticipant(null);
                         onClose();
                     } else {
-                        // Prioritize 'message' as requested, fallback to 'errors'
                         toast.error(data.message || data.errors || "حدث خطأ أثناء إضافة العضو");
                     }
                 },
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                onError: (error: any) => {
-                    toast.error(error?.response?.data?.message || "حدث خطأ أثناء إضافة العضو");
+                onError: (error) => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    toast.error((error as any)?.response?.data?.message || "حدث خطأ أثناء إضافة العضو");
                 }
             }
         );
@@ -115,7 +112,6 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
                                                 onClick={() => handleSelectParticipant(participant)}
                                             >
                                                 <div className="flex items-center gap-2">
-                                                    {/* Custom Radio/Checkbox */}
                                                     <div
                                                         className={cn(
                                                             "w-4 h-4 rounded-full border transition-colors flex items-center justify-center shrink-0",
@@ -134,6 +130,7 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
                                                                 src={participant.avatar}
                                                                 alt={participant.name || ""}
                                                                 className="w-full h-full object-cover"
+                                                                onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
                                                             />
                                                         ) : (
                                                             <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold">
@@ -144,9 +141,9 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
 
                                                 </div>
                                                 <div className="flex items-center  flex-1 ms-3 gap-3">
-                                                        <p className="font-medium text-sm ">
-                                                            {participant.name}
-                                                        </p>
+                                                    <p className="font-medium text-sm ">
+                                                        {participant.name}
+                                                    </p>
                                                 </div>
                                             </div>
                                         );
