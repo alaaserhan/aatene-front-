@@ -206,7 +206,10 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
   };
 
   const handleViewClick = (product: Product) => {
-    router.push(`${navPrefix}/products/${product.id}/view`);
+    const currentPage = propStoreId
+      ? `${navPrefix}/productProviders/${propStoreId}`
+      : `${navPrefix}/products`;
+    router.push(`${navPrefix}/products/${product.id}/view?from=${encodeURIComponent(currentPage)}`);
   };
 
   const handleSaveSection = (data: SectionFormData) => {

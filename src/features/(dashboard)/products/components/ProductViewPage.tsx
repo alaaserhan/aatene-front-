@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Pen, Phone, Send, Share2, CheckCircle2, XCircle, PauseCircle } from "lucide-react";
 import Cookies from "js-cookie";
 import { useGetSingleProduct, useUpdateProductStatus, useUpdateProductShown } from "../hooks";
@@ -22,8 +22,10 @@ import { cn } from "@/src/lib/utils";
 export default function ProductViewPage() {
     const params = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const id = params?.id as string;
     const isAdmin = Cookies.get("user_type") === "admin";
+    const fromUrl = searchParams.get("from");
 
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
@@ -133,7 +135,7 @@ export default function ProductViewPage() {
     };
 
     const breadcrumbItems = [
-        { label: "المنتجات", href: "/admin/products" },
+        { label: "المنتجات", href: fromUrl ? decodeURIComponent(fromUrl) : (isAdmin ? "/admin/products" : "/dashboard/products") },
         { label: raw.name },
     ];
 
