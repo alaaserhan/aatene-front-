@@ -50,10 +50,15 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
     const totalRecords = data?.recordsFiltered || 0;
     const totalPages = Math.ceil(totalRecords / 10);
 
-    const breadcrumbItems = [
-        { label: "مقدمي الخدمات", href: "/admin/serviceProviders" },
-        { label: store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "..." },
-    ];
+    const breadcrumbItems = typeFilter === "product"
+        ? [
+            { label: "المنتجات", href: `/admin/stores/${storeId}/products` },
+            { label: store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "..." },
+          ]
+        : [
+            { label: "مقدمي الخدمات", href: "/admin/serviceProviders" },
+            { label: store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "..." },
+          ];
 
     const filterOptions = [
         { label: "الكل", value: "" },
@@ -77,12 +82,21 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
             <div className=" px-6 py-1 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                 <Breadcrumb items={breadcrumbItems} className="" />
 
-                <Link href="/admin/users/add">
-                    <Button className="bg-blue-3 text-white px-6 gap-2 ">
-                        <Plus className="w-5 h-5" />
-                        اضافة مقدم خدمة جديد
-                    </Button>
-                </Link>
+                {typeFilter === "product" ? (
+                    <Link href={`/admin/products/add?store_id=${storeId}`}>
+                        <Button className="bg-blue-3 text-white px-6 gap-2">
+                            <Plus className="w-5 h-5" />
+                            أضف منتجاً جديداً
+                        </Button>
+                    </Link>
+                ) : (
+                    <Link href="/admin/users/add">
+                        <Button className="bg-blue-3 text-white px-6 gap-2 ">
+                            <Plus className="w-5 h-5" />
+                            اضافة مقدم خدمة جديد
+                        </Button>
+                    </Link>
+                )}
             </div>
 
             <div className="px-6 pb-8 space-y-6">
@@ -98,17 +112,27 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                                 {store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "جاري التحميل..."}
                             </h1>
                             <p className="text-sm text-gray-2 font-medium">
-                                {store?.services_count || 0} خدمات
+                                {typeFilter === "product"
+                                    ? `${store?.products_count || 0} منتج`
+                                    : `${store?.services_count || 0} خدمات`
+                                }
                             </p>
                         </div>
                     </div>
-                    <Link href={`/admin/serviceProviders/services/add/${storeId}`}>
-                        <Button className="bg-blue-3  text-white px-6 gap-2">
-                            <Plus className="w-5 h-5" />
-                            انشئ خدمة جديدة
-                        </Button>
-                    </Link>
-
+                    {typeFilter === "product" ? (
+                        <Link href={`/admin/stores/${storeId}/products`}>
+                            <Button className="bg-blue-3 text-white px-6 gap-2">
+                                عرض منتجات المتجر
+                            </Button>
+                        </Link>
+                    ) : (
+                        <Link href={`/admin/serviceProviders/services/add/${storeId}`}>
+                            <Button className="bg-blue-3  text-white px-6 gap-2">
+                                <Plus className="w-5 h-5" />
+                                انشئ خدمة جديدة
+                            </Button>
+                        </Link>
+                    )}
                 </div>
                 <div className="relative w-full">
                     <Input
@@ -132,7 +156,10 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                         <div className="flex flex-col ">
                             <h2 className="text-lg font-bold ">بلاغات الزبائن ( {totalRecords} )</h2>
                             <span className="text-xs text-gray-2 flex items-center gap-1 mt-1">
-                                بلاغات مقدمة من الزبائن ضد التاجر
+                                {typeFilter === "product"
+                                    ? "بلاغات مقدمة من الزبائن ضد المنتجات"
+                                    : "بلاغات مقدمة من الزبائن ضد التاجر"
+                                }
                                 <Smile className="w-4 h-4 text-gray-2" />
                             </span>
                         </div>
