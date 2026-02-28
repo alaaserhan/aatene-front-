@@ -11,9 +11,10 @@ import { StoreType, StoreManagerPayload, StoreStatus, ManagerTitle } from "../ap
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
-
 import { Step2FormData, Step4FormData } from "../types";
-import { useGetUsers } from "../../users/hooks";
+import { useGetUsers, useCheckEmail } from "../../users/hooks";
+
+
 import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { Input } from "@/src/components/ui/input";
@@ -36,8 +37,7 @@ interface NewManagerForm {
 const JOB_TITLE_OPTIONS = [
   { value: "general", label: "مدير عام" },
   { value: "sales", label: "مدير مبيعات" },
-  { value: "products", label: "مسؤول طلبات" },
-  { value: "services", label: "مدير خدمات" },
+  { value: "social", label: "مدير سوشيال" },
 ];
 
 const STATUS_OPTIONS = [
@@ -71,10 +71,13 @@ export function AddStoreStep4({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const { mutateAsync: checkEmail, isPending: isCheckingEmail } = useCheckEmail();
+
   const { data: usersData, isLoading: isUsersLoading } = useGetUsers(
     new URLSearchParams("per_page=1000"),
     { enabled: isAdmin }
   );
+
 
   const userOptions = usersData?.data
     ? usersData.data.map((user) => ({
@@ -116,8 +119,21 @@ export function AddStoreStep4({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveManager = () => {
+  const handleSaveManager = async () => {
     if (validateManager()) {
+      if (!isAdmin) {
+        try {
+          const res = await checkEmail({ email: newManager.email });
+          if (!res.status) {
+            setErrors({ email: "هذا البريد الإلكتروني غير موجود في النظام" });
+            return;
+          }
+        } catch {
+          return;
+        }
+
+      }
+
       const managerData: StoreManagerPayload = {
         email: newManager.email,
         title: newManager.title as ManagerTitle,
@@ -142,6 +158,7 @@ export function AddStoreStep4({
       setErrors({});
     }
   };
+
 
   const handleRemoveManager = (index: number) => {
     setManagers(managers.filter((_, i) => i !== index));
@@ -329,11 +346,13 @@ export function AddStoreStep4({
                     </Button>
                     <Button
                       onClick={handleSaveManager}
-                      className="px-6 py-2 cursor-pointer rounded-sm text-white h-10"
+                      disabled={isCheckingEmail}
+                      className="px-6 py-2 cursor-pointer rounded-sm text-white h-10 min-w-[120px]"
                       style={{ backgroundColor: "#3A5779" }}
                     >
-                      {editingIndex >= 0 ? "حفظ التعديلات" : "ارسال دعوة"}
+                      {isCheckingEmail ? "جاري التحقق..." : (editingIndex >= 0 ? "حفظ التعديلات" : "ارسال دعوة")}
                     </Button>
+
                   </div>
                 </div>
               ) : (

@@ -106,7 +106,21 @@ export function AddStoreStep3({
       }
     });
 
+    const validatePhone = (phone: string, field: string) => {
+      if (!phone) return true;
+      if (phone.length < 9 || phone.length > 12) {
+        newErrors[field] = "يجب أن يكون رقم الهاتف بين 9 و 12 رقم";
+        return false;
+      }
+      return true;
+    };
+
+    if (!validatePhone(formData.phone, "phone")) isValid = false;
+    if (!validatePhone(formData.whats_app, "whats_app")) isValid = false;
+
     setErrors(newErrors);
+
+
     return isValid;
   };
 
@@ -148,10 +162,14 @@ export function AddStoreStep3({
                       countryCode={phoneCountryCode}
                       onCountryCodeChange={setPhoneCountryCode}
                       value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        setFormData({ ...formData, phone: val });
+                        if (errors.phone) setErrors((prev) => ({ ...prev, phone: "" }));
+                      }}
+                      error={errors.phone}
                     />
+
                     <div className="flex items-center gap-2 pt-2">
                       <button
                         type="button"
@@ -197,10 +215,14 @@ export function AddStoreStep3({
                     countryCode={whatsappCountryCode}
                     onCountryCodeChange={setWhatsappCountryCode}
                     value={formData.whats_app}
-                    onChange={(e) =>
-                      setFormData({ ...formData, whats_app: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      setFormData({ ...formData, whats_app: val });
+                      if (errors.whats_app) setErrors((prev) => ({ ...prev, whats_app: "" }));
+                    }}
+                    error={errors.whats_app}
                   />
+
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

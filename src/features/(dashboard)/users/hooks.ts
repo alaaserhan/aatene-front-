@@ -10,9 +10,9 @@ import {
   SingleUserResponse,
   PaginatedUsersResponse,
   User,
-  BaseResponse,
   UserCheckEmailPayload,
 } from "./api";
+
 
 import { Role } from "./api";
 
@@ -157,7 +157,8 @@ export const useUpdateUser = () => {
       return { prevLists, prevSingle };
     },
 
-    onError: (_err, vars, ctx) => {
+    onError: () => {
+
       qc.invalidateQueries({ queryKey: QK.listAny });
     },
 
@@ -199,7 +200,8 @@ export const useDeleteUser = () => {
       // qc.removeQueries({ queryKey: QK.single(id) });
     },
 
-    onError: (_err, id, ctx) => {
+    onError: () => {
+
       qc.invalidateQueries({ queryKey: QK.listAny });
     },
 
