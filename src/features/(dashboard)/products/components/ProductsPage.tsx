@@ -248,7 +248,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
 
   // ── Merchant: add product button ──
   const merchantAddHref = merchantStoreId
-    ? `${navPrefix}/products/add?section_id=${selectedSectionId}`
+    ? `${navPrefix}/products/add${selectedSectionId && selectedSectionId !== "other" ? `?section_id=${selectedSectionId}` : ""}`
     : `${navPrefix}/products/add`;
 
   return (
@@ -293,7 +293,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
               <h1 className="text-xl md:text-2xl font-bold text-brand-black-1">إدارة المنتجات</h1>
               <p className="text-sm text-gray-2 mt-1">عرض وإدارة جميع منتجاتك</p>
             </div>
-            {hasSections && selectedSectionId && (
+            {!isLoadingSections && hasSections ? (
               <Link
                 href={merchantAddHref}
                 className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-xs font-medium transition-colors"
@@ -302,8 +302,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                 <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
                 منتج جديد
               </Link>
-            )}
-            {!isLoadingSections && !hasSections && (
+            ) : !isLoadingSections && !hasSections ? (
               <Link
                 href={`${navPrefix}/sections`}
                 className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-xs font-medium transition-colors"
@@ -312,7 +311,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                 <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
                 إضافة قسم
               </Link>
-            )}
+            ) : null}
           </div>
         </header>
       ) : null}
