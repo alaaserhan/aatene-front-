@@ -32,7 +32,9 @@ interface ChatWindowProps {
 
 export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindowProps) {
     const user = useAuthStore((state) => state.user);
-    const { data: messagesData, isLoading } = useConversationMessages(conversation.id);
+    const isDashboard = context === "dashboard";
+    const ignoreCookie = !isDashboard;
+    const { data: messagesData, isLoading } = useConversationMessages(conversation.id, ignoreCookie);
     const { mutate: sendMessage } = useSendMessage();
     const { mutate: markSeen } = useMarkMessageAsSeen();
     const { mutate: blockUser } = useBlockUser();
@@ -61,7 +63,6 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
 
     const serverMessages = useMemo(() => (messagesData?.messages || []).slice().reverse(), [messagesData]);
 
-    const isDashboard = context === "dashboard";
     const isMerchant = isDashboard && user?.user_type === "merchant";
     const currentParticipantType = isMerchant ? "store" : "user";
     const currentParticipantId = isMerchant ? Cookies.get("current_store_id") : (user?.id ? String(user.id) : undefined);
@@ -114,9 +115,12 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         setSelectedFiles([]);
 
         sendMessage({
-            conversation_id: conversation.id,
-            body: messageBody || undefined,
-            files: selectedFiles.length > 0 ? selectedFiles : undefined
+            payload: {
+                conversation_id: conversation.id,
+                body: messageBody || undefined,
+                files: selectedFiles.length > 0 ? selectedFiles : undefined
+            },
+            ignoreCookie
         }, {
             onSuccess: () => {
                 setPendingMessages(prev => prev.map(m =>
@@ -144,8 +148,11 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         ));
 
         sendMessage({
-            conversation_id: conversation.id,
-            body: body,
+            payload: {
+                conversation_id: conversation.id,
+                body: body,
+            },
+            ignoreCookie
         }, {
             onSuccess: () => {
                 setPendingMessages(prev => prev.map(m =>
@@ -534,7 +541,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                 isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}
                 onConfirm={() => {
-                    deleteConversation(conversation.id, {
+                    deleteConversation({ id: conversation.id, ignoreCookie }, {
                         onSuccess: () => {
                             toast.success("تم حذف المحادثة بنجاح");
                             setShowDeleteModal(false);
@@ -553,9 +560,12 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                 onConfirm={(reason) => {
                     if (otherParticipant) {
                         blockUser({
-                            blocked_type: otherParticipant.participant_data.type,
-                            blocked_id: otherParticipant.participant_data.id,
-                            reason: reason,
+                            payload: {
+                                blocked_type: otherParticipant.participant_data.type,
+                                blocked_id: otherParticipant.participant_data.id,
+                                reason: reason,
+                            },
+                            ignoreCookie
                         }, {
                             onSuccess: () => {
                                 toast.success("تم حظر المستخدم بنجاح");

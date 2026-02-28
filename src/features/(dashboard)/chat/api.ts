@@ -114,15 +114,15 @@ export interface SendMessageResponse {
 }
 
 // --- Helpers ---
-const getHeaders = (storeId?: number | string) => {
-    const currentStoreId = storeId || Cookies.get("current_store_id");
+const getHeaders = (storeId?: number | string, ignoreCookie: boolean = false) => {
+    const currentStoreId = storeId || (!ignoreCookie ? Cookies.get("current_store_id") : undefined);
     return currentStoreId ? { storeId: String(currentStoreId) } : undefined;
 };
 
 // --- API Functions ---
 
-export const getConversations = async (storeId?: number | string): Promise<GetConversationsResponse> => {
-    const headers = getHeaders(storeId);
+export const getConversations = async (storeId?: number | string, ignoreCookie: boolean = false): Promise<GetConversationsResponse> => {
+    const headers = getHeaders(storeId, ignoreCookie);
     const { data } = await api.get<GetConversationsResponse>("/conversations", {
         headers,
     });
@@ -134,16 +134,16 @@ export const getConversationUnreadCount = async (id: number | string): Promise<{
     return data;
 };
 
-export const getTotalUnreadCount = async (storeId?: number | string): Promise<{ status: boolean; message: string; unread_conversations_count: number }> => {
-    const headers = getHeaders(storeId);
+export const getTotalUnreadCount = async (storeId?: number | string, ignoreCookie: boolean = false): Promise<{ status: boolean; message: string; unread_conversations_count: number }> => {
+    const headers = getHeaders(storeId, ignoreCookie);
     const { data } = await api.get<{ status: boolean; message: string; unread_conversations_count: number }>("/conversations/unread-count", {
         headers,
     });
     return data;
 };
 
-export const sendMessage = async (payload: SendMessagePayload): Promise<SendMessageResponse> => {
-    const headers = getHeaders();
+export const sendMessage = async (payload: SendMessagePayload, ignoreCookie: boolean = false): Promise<SendMessageResponse> => {
+    const headers = getHeaders(undefined, ignoreCookie);
     const formData = new FormData();
 
     if (payload.conversation_id) formData.append("conversation_id", String(payload.conversation_id));
@@ -179,8 +179,8 @@ export interface GetMessagesResponse {
     service: MessageService | null;
 }
 
-export const getConversationMessages = async (conversationId: number | string): Promise<GetMessagesResponse> => {
-    const headers = getHeaders();
+export const getConversationMessages = async (conversationId: number | string, ignoreCookie: boolean = false): Promise<GetMessagesResponse> => {
+    const headers = getHeaders(undefined, ignoreCookie);
     const { data } = await api.get<GetMessagesResponse>(`/conversations/${conversationId}/messages`, {
         headers,
     });
@@ -214,8 +214,8 @@ export interface BlockUserResponse {
     };
 }
 
-export const blockUser = async (payload: BlockUserPayload): Promise<BlockUserResponse> => {
-    const headers = getHeaders();
+export const blockUser = async (payload: BlockUserPayload, ignoreCookie: boolean = false): Promise<BlockUserResponse> => {
+    const headers = getHeaders(undefined, ignoreCookie);
     const formData = new FormData();
     formData.append("blocked_type", payload.blocked_type);
     formData.append("blocked_id", String(payload.blocked_id));
@@ -230,8 +230,8 @@ export const blockUser = async (payload: BlockUserPayload): Promise<BlockUserRes
     return data;
 };
 
-export const deleteConversation = async (id: number | string): Promise<{ status: boolean; message: string }> => {
-    const headers = getHeaders();
+export const deleteConversation = async (id: number | string, ignoreCookie: boolean = false): Promise<{ status: boolean; message: string }> => {
+    const headers = getHeaders(undefined, ignoreCookie);
     const { data } = await api.delete<{ status: boolean; message: string }>(`/conversations/${id}`, {
         headers,
     });
@@ -250,8 +250,8 @@ export interface AddParticipantResponse {
     conversation: Conversation;
 }
 
-export const addParticipant = async (conversationId: number | string, payload: AddParticipantPayload): Promise<AddParticipantResponse> => {
-    const headers = getHeaders();
+export const addParticipant = async (conversationId: number | string, payload: AddParticipantPayload, ignoreCookie: boolean = false): Promise<AddParticipantResponse> => {
+    const headers = getHeaders(undefined, ignoreCookie);
     const { data } = await api.post<AddParticipantResponse>(
         `/conversations/${conversationId}/participants`,
         payload,
@@ -267,8 +267,8 @@ export interface GetPreviousParticipantsResponse {
     participants: ParticipantData[];
 }
 
-export const getPreviousParticipants = async (): Promise<GetPreviousParticipantsResponse> => {
-    const headers = getHeaders();
+export const getPreviousParticipants = async (ignoreCookie: boolean = false): Promise<GetPreviousParticipantsResponse> => {
+    const headers = getHeaders(undefined, ignoreCookie);
     const { data } = await api.get<GetPreviousParticipantsResponse>("/conversations/prev_participants", {
         headers,
     });
@@ -287,8 +287,8 @@ export interface CreateConversationResponse {
     conversation: Conversation;
 }
 
-export const createConversation = async (payload: CreateConversationPayload): Promise<CreateConversationResponse> => {
-    const headers = getHeaders();
+export const createConversation = async (payload: CreateConversationPayload, ignoreCookie: boolean = false): Promise<CreateConversationResponse> => {
+    const headers = getHeaders(undefined, ignoreCookie);
     const { data } = await api.post<CreateConversationResponse>("/conversations", payload, {
         headers,
     });

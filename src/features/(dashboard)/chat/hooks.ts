@@ -7,10 +7,10 @@ const QK = {
     conversations: ["conversations"] as const,
 };
 
-export const useConversations = (storeId?: number | string) => {
+export const useConversations = (storeId?: number | string, ignoreCookie: boolean = false) => {
     return useQuery({
-        queryKey: QK.conversations,
-        queryFn: () => api.getConversations(storeId),
+        queryKey: [...QK.conversations, storeId, ignoreCookie],
+        queryFn: () => api.getConversations(storeId, ignoreCookie),
     });
 };
 
@@ -22,10 +22,10 @@ export const useConversationUnreadCount = (id: number | string) => {
     });
 };
 
-export const useTotalUnreadCount = (storeId?: number | string) => {
+export const useTotalUnreadCount = (storeId?: number | string, ignoreCookie: boolean = false) => {
     return useQuery({
-        queryKey: ["total-unread", storeId],
-        queryFn: () => api.getTotalUnreadCount(storeId),
+        queryKey: ["total-unread", storeId, ignoreCookie],
+        queryFn: () => api.getTotalUnreadCount(storeId, ignoreCookie),
     });
 };
 
@@ -34,7 +34,8 @@ export const useSendMessage = () => {
 
     return useMutation({
         mutationKey: ["send-message"],
-        mutationFn: api.sendMessage,
+        mutationFn: ({ payload, ignoreCookie }: { payload: api.SendMessagePayload; ignoreCookie?: boolean }) =>
+            api.sendMessage(payload, ignoreCookie),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QK.conversations });
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
@@ -43,10 +44,10 @@ export const useSendMessage = () => {
     });
 };
 
-export const useConversationMessages = (conversationId: number | string) => {
+export const useConversationMessages = (conversationId: number | string, ignoreCookie: boolean = false) => {
     return useQuery({
-        queryKey: ["conversation-messages", conversationId],
-        queryFn: () => api.getConversationMessages(conversationId),
+        queryKey: ["conversation-messages", conversationId, ignoreCookie],
+        queryFn: () => api.getConversationMessages(conversationId, ignoreCookie),
         enabled: !!conversationId,
     });
 };
@@ -68,7 +69,8 @@ export const useMarkMessageAsSeen = () => {
 export const useBlockUser = () => {
     return useMutation({
         mutationKey: ["block-user"],
-        mutationFn: api.blockUser,
+        mutationFn: ({ payload, ignoreCookie }: { payload: api.BlockUserPayload; ignoreCookie?: boolean }) =>
+            api.blockUser(payload, ignoreCookie),
     });
 };
 
@@ -77,7 +79,8 @@ export const useDeleteConversation = () => {
 
     return useMutation({
         mutationKey: ["delete-conversation"],
-        mutationFn: api.deleteConversation,
+        mutationFn: ({ id, ignoreCookie }: { id: number | string; ignoreCookie?: boolean }) =>
+            api.deleteConversation(id, ignoreCookie),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QK.conversations });
         },
@@ -89,18 +92,18 @@ export const useAddParticipant = () => {
 
     return useMutation({
         mutationKey: ["add-participant"],
-        mutationFn: ({ conversationId, payload }: { conversationId: number | string; payload: api.AddParticipantPayload }) =>
-            api.addParticipant(conversationId, payload),
+        mutationFn: ({ conversationId, payload, ignoreCookie }: { conversationId: number | string; payload: api.AddParticipantPayload; ignoreCookie?: boolean }) =>
+            api.addParticipant(conversationId, payload, ignoreCookie),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QK.conversations });
         },
     });
 };
 
-export const usePreviousParticipants = () => {
+export const usePreviousParticipants = (ignoreCookie: boolean = false) => {
     return useQuery({
-        queryKey: ["previous-participants"],
-        queryFn: api.getPreviousParticipants,
+        queryKey: ["previous-participants", ignoreCookie],
+        queryFn: () => api.getPreviousParticipants(ignoreCookie),
     });
 };
 
@@ -109,7 +112,8 @@ export const useCreateConversation = () => {
 
     return useMutation({
         mutationKey: ["create-conversation"],
-        mutationFn: api.createConversation,
+        mutationFn: ({ payload, ignoreCookie }: { payload: api.CreateConversationPayload; ignoreCookie?: boolean }) =>
+            api.createConversation(payload, ignoreCookie),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QK.conversations });
         },

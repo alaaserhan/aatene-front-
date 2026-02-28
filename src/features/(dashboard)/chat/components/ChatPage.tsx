@@ -29,10 +29,11 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const authUser = useAuthStore(state => state.user);
 
     const isDashboard = context === "dashboard";
+    const ignoreCookie = !isDashboard;
     const storeId = isDashboard ? Cookies.get("current_store_id") : undefined;
 
-    const { data, isLoading, isError, refetch } = useConversations(storeId);
-    const { data: unreadData } = useTotalUnreadCount(storeId);
+    const { data, isLoading, isError, refetch } = useConversations(storeId, ignoreCookie);
+    const { data: unreadData } = useTotalUnreadCount(storeId, ignoreCookie);
     const { mutate: createConversation } = useCreateConversation();
     const { mutate: sendMessage } = useSendMessage();
 
@@ -83,9 +84,12 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             if (serviceIdParam) {
                 sendMessage(
                     {
-                        participant_type: typeParam,
-                        participant_id: idParam,
-                        service_id: serviceIdParam,
+                        payload: {
+                            participant_type: typeParam,
+                            participant_id: idParam,
+                            service_id: serviceIdParam,
+                        },
+                        ignoreCookie
                     },
                     {
                         onSuccess: (res) => {
@@ -110,9 +114,12 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             } else if (productIdParam) {
                 sendMessage(
                     {
-                        participant_type: typeParam,
-                        participant_id: idParam,
-                        product_id: productIdParam,
+                        payload: {
+                            participant_type: typeParam,
+                            participant_id: idParam,
+                            product_id: productIdParam,
+                        },
+                        ignoreCookie
                     },
                     {
                         onSuccess: (res) => {
@@ -137,8 +144,11 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             } else {
                 createConversation(
                     {
-                        type: "direct",
-                        participants: [{ type: typeParam as "user" | "store", id: idParam }]
+                        payload: {
+                            type: "direct",
+                            participants: [{ type: typeParam as "user" | "store", id: idParam }]
+                        },
+                        ignoreCookie
                     },
                     {
                         onSuccess: (res) => {
