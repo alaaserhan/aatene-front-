@@ -206,14 +206,18 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                         </svg>
                     </button>
                     <div className="w-12 h-12 rounded-full bg-blue-5 text-blue-3 font-medium text-lg flex items-center justify-center overflow-hidden border border-gray-100">
-                        {otherParticipant?.participant_data.avatar ? (
+                        {conversation.type === "group" ? (
+                            <span>{conversation.name?.[0].toUpperCase() || "G"}</span>
+                        ) : otherParticipant?.participant_data.avatar ? (
                             <img src={otherParticipant.participant_data.avatar} alt="" className="w-full h-full object-cover" />
                         ) : (
                             <span>{otherParticipant?.participant_data.name?.[0].toUpperCase() || "U"}</span>
                         )}
                     </div>
                     <div>
-                        {otherParticipant ? (
+                        {conversation.type === "group" ? (
+                            <h3 className="font-medium text-base">{conversation.name || "مجموعة"}</h3>
+                        ) : otherParticipant ? (
                             <Link href={otherParticipant.participant_data.type === "store"
                                 ? `/store/${otherParticipant.participant_data.slug || otherParticipant.participant_data.id}`
                                 : `/profile/${otherParticipant.participant_data.slug || otherParticipant.participant_data.id}`}>
@@ -549,13 +553,13 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                         </div>
                     </div>
 
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 font-outfit">
+                    <h3 className="text-xl font-bold mb-2 font-outfit">
                         {otherParticipant?.participant_data.type === 'store'
                             ? 'تم حظر هذا المتجر'
                             : 'تم حظر هذا المستخدم'}
                     </h3>
 
-                    <p className="text-gray-500 text-[15px] mb-8 max-w-[320px] leading-relaxed">
+                    <p className="text-gray-2 text-[15px] mb-8 max-w-[320px] leading-relaxed">
                         لقد قمت بحظر هذا الحساب بشكل كامل. يمكنك إدارة قائمة الحظر وفك الحظر من خلال إعدادات حسابك في أي وقت.
                     </p>
 
