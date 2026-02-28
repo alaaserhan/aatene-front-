@@ -1,7 +1,7 @@
 // src/features/(dashboard)/products/components/ProductProvidersTable.tsx
 "use client";
 
-import { Eye, Trash2, Loader2, Pencil } from "lucide-react";
+import { Eye, Loader2 } from "lucide-react";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Store } from "../../stores/api";
@@ -140,18 +140,18 @@ export function ProductProvidersTable({
                                     <td className="px-6 py-4">
                                         <div className="flex items-center justify-center gap-2">
                                             <button
+                                                onClick={() => onEdit(store)}
+                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-blue-5 text-[#3A5779] hover:bg-[#e0eaff] transition-colors"
+                                                title="تعديل"
+                                            >
+                                                <img src="/icons/dashboard/edit3.svg" className="w-4 h-4" alt="edit" />
+                                            </button>
+                                            <button
                                                 onClick={() => onDelete(store)}
                                                 className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#FFE5E7] text-[#FF4D4F] hover:bg-[#ffe0e2] transition-colors"
                                                 title="حذف"
                                             >
                                                 <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="delete" />
-                                            </button>
-                                            <button
-                                                onClick={() => onEdit(store)}
-                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#FFF7E5] text-[#F5A623] hover:bg-[#fff0cc] transition-colors"
-                                                title="تعديل"
-                                            >
-                                                <Pencil className="w-4 h-4" />
                                             </button>
                                             <button
                                                 onClick={() => onShow(store)}

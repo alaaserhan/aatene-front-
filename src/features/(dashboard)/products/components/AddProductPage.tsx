@@ -162,7 +162,7 @@ export function AddProductPage() {
       short_description: updatedFormData.step1!.short_description,
       description: updatedFormData.step1!.description,
       cover: updatedFormData.step1!.cover,
-      gallery: [updatedFormData.step1!.cover, ...updatedFormData.step1!.gallery],
+      gallery: updatedFormData.step1!.gallery,
       type: updatedFormData.step3!.hasVariations ? "variation" : "simple",
       condition: updatedFormData.step1!.condition,
       category_id: updatedFormData.step1!.category_id,
