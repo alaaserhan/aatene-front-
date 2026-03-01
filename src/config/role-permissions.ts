@@ -34,7 +34,7 @@ const ADMIN_ALWAYS_ALLOWED = new Set(["home", "403", "chat"]);
 
 const ADMIN_PERMISSION_TO_SEGMENTS: Record<string, string[]> = {
     "users": ["users"],
-    "stores-and-services-providers": ["productProviders", "serviceProviders", "stores", "sections"],
+    "stores-and-services-providers": ["productProviders", "serviceProviders", "stores", "sections", "products", "coupons"],
     "cities": ["cities"],
     "categories": ["categories"],
     "banners": ["banners"],
