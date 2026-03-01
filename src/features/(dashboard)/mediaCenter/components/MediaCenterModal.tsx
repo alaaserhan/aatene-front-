@@ -77,15 +77,18 @@ export function MediaCenterModal({
     return ALL_MEDIA_TYPES;
   }, [allowedMediaTypes]);
 
-  const [activeType, setActiveType] = useState(
+  // Initialize state properly or use a key
+  const [activeType, setActiveType] = useState(() =>
     mediaTypes[0]?.value || "gallery"
   );
 
   useEffect(() => {
+    // Reset only if open changes to true to avoid unnecessary renders
     if (open) {
-      setActiveType(mediaTypes[0]?.value || "gallery");
+      const initialType = mediaTypes[0]?.value || "gallery";
+      setActiveType(initialType);
     }
-  }, [open, mediaTypes]);
+  }, [open]); // Reduced dependencies to avoid cascading loops
 
   const params = useMemo(() => {
     const p = new URLSearchParams();
@@ -165,7 +168,7 @@ export function MediaCenterModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose} >
-      <DialogContent className="max-w-[95vw] lg:max-w-[65vw] p-0 gap-0 overflow-hidden border-0 [&>button]:hidden ">
+      <DialogContent className="max-w-[95vw] lg:max-w-[65vw] p-0 gap-0 overflow-hidden border-0 [&>button]:hidden z-[11000]">
         <VisuallyHidden>
           <DialogTitle>مركز الوسائط</DialogTitle>
           <DialogDescription>

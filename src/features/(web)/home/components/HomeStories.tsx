@@ -6,12 +6,18 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import { Story } from "../types";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 interface HomeStoriesProps {
     stories: Story[];
 }
 
 export default function HomeStories({ stories }: HomeStoriesProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
 
@@ -19,6 +25,32 @@ export default function HomeStories({ stories }: HomeStoriesProps) {
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
     const [hasDragged, setHasDragged] = useState(false);
+
+    useEffect(() => {
+        const storyIdParam = searchParams.get('storyId');
+        if (storyIdParam) {
+            const index = stories.findIndex(s => s.id.toString() === storyIdParam);
+            if (index !== -1) {
+                // eslint-disable-next-line
+                setSelectedStoryIndex(index);
+            }
+        } else {
+            setSelectedStoryIndex(null);
+        }
+    }, [searchParams, stories]);
+
+    const handleSelectStory = (index: number) => {
+        const selectedStoryId = stories[index].id;
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('storyId', selectedStoryId.toString());
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    };
+
+    const handleCloseModal = () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('storyId');
+        router.push(`${pathname}${params.size > 0 ? '?' + params.toString() : ''}`, { scroll: false });
+    };
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (!scrollContainerRef.current) return;
@@ -123,7 +155,7 @@ export default function HomeStories({ stories }: HomeStoriesProps) {
                                     key={story.id}
                                     className="shrink-0 w-[95px] sm:w-[140px] cursor-pointer h-fit bg-white rounded-xl shadow-sm z-[20] select-none"
                                     onClick={() => {
-                                        if (!hasDragged) setSelectedStoryIndex(index);
+                                        if (!hasDragged) handleSelectStory(index);
                                     }}
                                 >
                                     <div className="relative w-full h-[120px] sm:h-[170px] rounded-lg overflow-hidden pointer-events-none">
@@ -173,7 +205,7 @@ export default function HomeStories({ stories }: HomeStoriesProps) {
             {selectedStoryIndex !== null && (
                 <ShowStoryModal
                     isOpen={selectedStoryIndex !== null}
-                    onClose={() => setSelectedStoryIndex(null)}
+                    onClose={handleCloseModal}
                     stories={stories}
                     initialIndex={selectedStoryIndex}
                     showActions={false} // Disable dropdown menu actions

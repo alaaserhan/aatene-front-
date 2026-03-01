@@ -105,7 +105,7 @@ export function ShowStoryModal({
     };
 
     const handleCopyLink = () => {
-        const link = `${window.location.origin}/stories/${activeStory.id}`;
+        const link = `${window.location.origin}?storyId=${activeStory.id}`;
         navigator.clipboard.writeText(link);
         toast.success("تم نسخ رابط القصة");
         setIsMenuOpen(false);
@@ -282,7 +282,7 @@ export function ShowStoryModal({
                                                                         <span className="font-bold text-sm">تعديل القصة</span>
                                                                     </button>
 
-                                                                    {story.image && (
+                                                                    {/* {story.image && (
                                                                         <button
                                                                             onClick={handleDownload}
                                                                             disabled={isDownloading}
@@ -293,22 +293,21 @@ export function ShowStoryModal({
                                                                             ) : (
                                                                                 <Download className="w-4 h-4 text-green-600" />
                                                                             )}
-                                                                            <span className="font-bold text-sm">
+                                                                            <span className="font-semibold text-sm">
                                                                                 {isDownloading ? "جاري التنزيل..." : "تنزيل القصة"}
                                                                             </span>
                                                                         </button>
-                                                                    )}
+                                                                    )} */}
 
                                                                     <button onClick={handleCopyLink} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-orange-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl">
                                                                         <LinkIcon className="w-4 h-4 text-orange-500" />
-                                                                        <span className="font-bold text-sm">نسخ الرابط</span>
+                                                                        <span className="font-semibold text-sm">نسخ الرابط</span>
                                                                     </button>
 
-                                                                    <div className="h-px bg-gray-100 my-1 mx-2" />
 
                                                                     <button onClick={handleDelete} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-red-50 text-red-600 rounded-lg transition-colors w-full text-right" dir="rtl">
                                                                         <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
-                                                                        <span className="font-bold text-sm">حذف القصة</span>
+                                                                        <span className="font-semibold text-sm">حذف القصة</span>
                                                                     </button>
                                                                 </div>
                                                             </PopoverContent>

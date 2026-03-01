@@ -1,7 +1,7 @@
 // src/features/(dashboard)/stories/components/AddStoryModal.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Dialog,
     DialogContent,
@@ -65,13 +65,7 @@ export function AddStoryModal({
 
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
-    const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
-    const [prevStoryToEdit, setPrevStoryToEdit] = useState(storyToEdit);
-
-    if (isOpen !== prevIsOpen || storyToEdit !== prevStoryToEdit) {
-        setPrevIsOpen(isOpen);
-        setPrevStoryToEdit(storyToEdit);
-
+    useEffect(() => {
         if (isOpen) {
             if (storyToEdit) {
                 if (storyToEdit.image) {
@@ -91,7 +85,8 @@ export function AddStoryModal({
                 setSelectedFile(null);
             }
         }
-    }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, storyToEdit]);
 
     const handleSubmit = () => {
         if (currentMode === "text" && !text.trim()) {
