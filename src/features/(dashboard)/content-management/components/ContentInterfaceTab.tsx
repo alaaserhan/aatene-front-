@@ -60,11 +60,14 @@ const ImageField = ({
     setValue,
     watch
 }: {
-    control: Control<ContentInterfaceData>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    control: Control<any>;
     name: string;
     label?: string;
-    setValue: UseFormSetValue<ContentInterfaceData>;
-    watch: UseFormWatch<ContentInterfaceData>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setValue: UseFormSetValue<any>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    watch: UseFormWatch<any>;
 }) => {
     const imageUrl = watch(`${name}.image_url` as any);
 
@@ -94,144 +97,143 @@ const ImageField = ({
 
 
 // 3. Dynamic Section Item Form (Item in a list)
-const SectionItemForm = ({
-    index,
-    control,
-    register,
+const ItemCard = ({
+    item,
+    onEdit,
     onRemove,
-    titlePrefix,
-    itemValues,
-    defaultOpen = false,
-    setValue,
-    watch,
-    errors,
-    onConsumeAutoOpen,
-    trigger
 }: {
-    index: number;
-    control: Control<ContentInterfaceData>;
-    register: UseFormRegister<ContentInterfaceData>;
+    item: SectionItem;
+    onEdit: () => void;
     onRemove: () => void;
-    titlePrefix: string;
-    itemValues: SectionItem;
-    defaultOpen?: boolean;
-    setValue: UseFormSetValue<ContentInterfaceData>;
-    watch: UseFormWatch<ContentInterfaceData>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    errors: any;
-    onConsumeAutoOpen?: () => void;
-    trigger: UseFormTrigger<ContentInterfaceData>;
 }) => {
-    const [isEditOpen, setIsEditOpen] = useState(defaultOpen);
-
-    // Reset the auto-open trigger in parent once consumed
-    useEffect(() => {
-        if (defaultOpen && onConsumeAutoOpen) {
-            onConsumeAutoOpen();
-        }
-    }, [defaultOpen, onConsumeAutoOpen]);
-
-    const handleSave = async () => {
-        // Validate specifically the fields in this item
-        const isValid = await trigger([
-            `${titlePrefix}[${index}].title` as any,
-            `${titlePrefix}[${index}].content` as any
-        ]);
-
-        if (isValid) {
-            setIsEditOpen(false);
-        }
-    };
-
-    // Access errors for this specific item
-    // Assuming structure: errors[titlePrefix][index].title
-    const itemErrors = errors?.[titlePrefix]?.[index];
-
     return (
-        <>
-            {/* List View Card */}
-            <div className="bg-white rounded-lg p-4 border border-gray-100 flex items-center justify-between group  transition-all">
-                <div className="flex items-center gap-4">
-                    {/* Icon/Image Preview */}
-                    <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 text-gray-2 relative">
-                        {itemValues?.image_url ? (
-                            <Image src={itemValues.image_url} alt="" fill className="object-cover" />
-                        ) : (
-                            <GripHorizontal className="w-5 h-5" />
-                        )}
-                    </div>
-                    <div>
-                        <h4 className="font-bold  text-sm mb-1">{itemValues?.title || "بدون عنوان"}</h4>
-                        <p className="text-xs text-gray-2 max-w-[300px] truncate">{itemValues?.content || "لا يوجد وصف"}</p>
-                    </div>
+        <div className="bg-white rounded-lg p-4 border border-gray-100 flex items-center justify-between group  transition-all">
+            <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200 text-gray-2 relative">
+                    {item?.image_url ? (
+                        <Image src={item.image_url} alt="" fill className="object-cover" />
+                    ) : (
+                        <GripHorizontal className="w-5 h-5" />
+                    )}
                 </div>
-
-                <div className="flex items-center gap-2">
-                    <button
-                        type="button"
-                        onClick={() => setIsEditOpen(true)}
-                        className="px-3 py-1.5 bg-(--blue-4)/10 text-(--blue-4) rounded-md text-xs font-medium hover:bg-(--blue-4)/20 transition-colors flex items-center gap-1 cursor-pointer"
-                    >
-                        <span>تعديل</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onRemove}
-                        className="px-3 py-1.5  rounded-sm text-xs font-medium bg-red-2 text-red-1 transition-colors cursor-pointer"
-                    >
-                        حذف
-                    </button>
+                <div>
+                    <h4 className="font-bold  text-sm mb-1">{item?.title || "بدون عنوان"}</h4>
+                    <p className="text-xs text-gray-2 max-w-[300px] truncate">{item?.content || "لا يوجد وصف"}</p>
                 </div>
             </div>
 
-            {/* Edit Modal */}
-            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent className="sm:max-w-[600px] w-full max-h-[90vh] overflow-y-auto" dir="rtl">
-                    <DialogHeader>
-                        <DialogTitle>تعديل القسم</DialogTitle>
-                    </DialogHeader>
+            <div className="flex items-center gap-2">
+                <button
+                    type="button"
+                    onClick={onEdit}
+                    className="px-3 py-1.5 bg-(--blue-4)/10 text-(--blue-4) rounded-md text-xs font-medium hover:bg-(--blue-4)/20 transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                    <span>تعديل</span>
+                </button>
+                <button
+                    type="button"
+                    onClick={onRemove}
+                    className="px-3 py-1.5  rounded-sm text-xs font-medium bg-red-2 text-red-1 transition-colors cursor-pointer"
+                >
+                    حذف
+                </button>
+            </div>
+        </div>
+    );
+};
 
-                    <div className="pt-4  space-y-4">
-                        <div className="space-y-4">
-                            <FormInput
-                                label="عنوان القسم"
-                                {...register(`${titlePrefix}[${index}].title` as any, { required: "عنوان القسم مطلوب" })}
-                                placeholder="أكتب عنوان القسم..."
-                                required
-                                error={itemErrors?.title?.message}
-                            />
-                            <FormInput
-                                label="وصف القسم"
-                                {...register(`${titlePrefix}[${index}].content` as any, { required: "وصف القسم مطلوب" })}
-                                placeholder="أكتب وصف القسم..."
-                                required
-                                error={itemErrors?.content?.message}
-                            />
-                        </div>
+const ItemDialog = ({
+    open,
+    onCheckChange,
+    onSave,
+    defaultValues
+}: {
+    open: boolean;
+    onCheckChange: (open: boolean) => void;
+    onSave: (data: SectionItem) => void;
+    defaultValues?: SectionItem;
+}) => {
+    const { register, handleSubmit, setValue, watch, reset, control, formState: { errors } } = useForm<SectionItem>({
+        defaultValues: {
+            title: "",
+            content: "",
+            image: null,
+            image_url: null
+        }
+    });
 
-                        <div className="w-full">
-                            <ImageField
-                                control={control}
-                                name={`${titlePrefix}[${index}]`}
-                                label="أرفق صورة"
-                                setValue={setValue}
-                                watch={watch}
-                            />
-                        </div>
+    useEffect(() => {
+        if (open) {
+            if (defaultValues) {
+                reset(defaultValues);
+            } else {
+                reset({
+                    title: "",
+                    content: "",
+                    image: null,
+                    image_url: null
+                });
+            }
+        }
+    }, [open, defaultValues, reset]);
 
-                        <div className="pt-4 flex ">
-                            <button
-                                type="button"
-                                onClick={handleSave}
-                                className="px-6 py-2 bg-(--blue-4) text-white rounded-lg text-sm font-medium hover:bg-(--blue-4)/90 cursor-pointer w-full"
-                            >
-                                حفظ
-                            </button>
-                        </div>
+    const onSubmit = (data: SectionItem, e?: React.BaseSyntheticEvent) => {
+        e?.stopPropagation();
+        onSave(data);
+        onCheckChange(false);
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={onCheckChange}>
+            <DialogContent className="sm:max-w-[600px] w-full max-h-[90vh] overflow-y-auto" dir="rtl">
+                <DialogHeader>
+                    <DialogTitle>{defaultValues ? "تعديل القسم" : "إضافة قسم جديد"}</DialogTitle>
+                </DialogHeader>
+
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSubmit(onSubmit)(e);
+                    }}
+                    className="pt-4 space-y-4"
+                >
+                    <div className="space-y-4">
+                        <FormInput
+                            label="عنوان القسم"
+                            {...register("title")}
+                            placeholder="أكتب عنوان القسم..."
+                            error={errors?.title?.message}
+                        />
+                        <FormInput
+                            label="وصف القسم"
+                            {...register("content")}
+                            placeholder="أكتب وصف القسم..."
+                            error={errors?.content?.message}
+                        />
                     </div>
-                </DialogContent>
-            </Dialog>
-        </>
+
+                    <div className="w-full">
+                        <ImageField
+                            control={control}
+                            name=""
+                            label="أرفق صورة"
+                            setValue={setValue}
+                            watch={watch}
+                        />
+                    </div>
+
+                    <div className="pt-4 flex">
+                        <button
+                            type="submit"
+                            className="px-6 py-2 bg-(--blue-4) text-white rounded-lg text-sm font-medium hover:bg-(--blue-4)/90 cursor-pointer w-full"
+                        >
+                            حفظ
+                        </button>
+                    </div>
+                </form>
+            </DialogContent>
+        </Dialog>
     );
 };
 
@@ -239,13 +241,9 @@ const SectionItemForm = ({
 // 4. Dynamic List Manager
 const DynamicListSection = ({
     control,
-    register,
     name,
     label,
     watch,
-    setValue,
-    errors,
-    trigger
 }: {
     control: Control<ContentInterfaceData>;
     register: UseFormRegister<ContentInterfaceData>;
@@ -257,19 +255,33 @@ const DynamicListSection = ({
     errors: any;
     trigger: UseFormTrigger<ContentInterfaceData>;
 }) => {
-    const { fields, append, remove } = useFieldArray({
+    const { fields, append, remove, update } = useFieldArray({
         control,
         name: name
     });
 
-    const [newlyAddedIndex, setNewlyAddedIndex] = useState<number | null>(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
     // Watch values to update list preview
     const watchedValues = watch(name);
 
+    const handleSaveItem = (data: SectionItem) => {
+        if (editingIndex !== null) {
+            update(editingIndex, data);
+        } else {
+            append(data);
+        }
+    };
+
+    const handleEdit = (index: number) => {
+        setEditingIndex(index);
+        setIsDialogOpen(true);
+    };
+
     const handleAdd = () => {
-        setNewlyAddedIndex(fields.length);
-        append({ title: "", content: "", image: null, image_url: null } as any);
+        setEditingIndex(null);
+        setIsDialogOpen(true);
     };
 
     return (
@@ -278,20 +290,11 @@ const DynamicListSection = ({
 
             <div className="space-y-3">
                 {fields.map((field, index) => (
-                    <SectionItemForm
+                    <ItemCard
                         key={field.id}
-                        index={index}
-                        control={control}
-                        register={register}
-                        titlePrefix={name}
+                        item={watchedValues?.[index] || (field as unknown as SectionItem)}
+                        onEdit={() => handleEdit(index)}
                         onRemove={() => remove(index)}
-                        itemValues={watchedValues?.[index] || {}}
-                        defaultOpen={index === newlyAddedIndex}
-                        setValue={setValue}
-                        watch={watch}
-                        errors={errors}
-                        onConsumeAutoOpen={() => setNewlyAddedIndex(null)}
-                        trigger={trigger}
                     />
                 ))}
             </div>
@@ -310,6 +313,13 @@ const DynamicListSection = ({
                 <Plus className="w-4 h-4" />
                 <span>أضف قسم جديد</span>
             </button>
+
+            <ItemDialog
+                open={isDialogOpen}
+                onCheckChange={setIsDialogOpen}
+                onSave={handleSaveItem}
+                defaultValues={editingIndex !== null ? (fields[editingIndex] as unknown as SectionItem) : undefined}
+            />
         </div>
     );
 }

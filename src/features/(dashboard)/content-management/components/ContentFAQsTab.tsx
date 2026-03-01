@@ -65,14 +65,14 @@ const QuestionCard = ({
                             <button
                                 type="button"
                                 onClick={onEdit}
-                                className="px-3 py-1 bg-[#1FC16B] text-white rounded text-xs font-medium cursor-pointer"
+                                className="px-3 py-1.5 bg-(--blue-4)/10 text-(--blue-4) rounded-md text-xs font-medium hover:bg-(--blue-4)/20 transition-colors flex items-center gap-1 cursor-pointer"
                             >
                                 تعديل
                             </button>
                             <button
                                 type="button"
                                 onClick={onDelete}
-                                className="px-3 py-1 text-red-1 bg-red-2 rounded text-xs font-medium cursor-pointer"
+                                className="px-3 py-1.5  rounded-sm text-xs font-medium bg-red-2 text-red-1 transition-colors cursor-pointer"
                             >
                                 حذف
                             </button>
