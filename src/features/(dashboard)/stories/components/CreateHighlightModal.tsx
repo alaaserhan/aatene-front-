@@ -31,9 +31,12 @@ export function CreateHighlightModal({
 }: CreateHighlightModalProps) {
   const [name, setName] = useState("");
   const [selectedStories, setSelectedStories] = useState<number[]>([]);
+  const [showErrors, setShowErrors] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line
+      setShowErrors(false);
       if (highlightToEdit) {
         setName(highlightToEdit.name);
         const storyIds = highlightToEdit.stories.map(s => s.id);
@@ -53,6 +56,7 @@ export function CreateHighlightModal({
 
   const handleSubmit = () => {
     if (!name.trim()) {
+      setShowErrors(true);
       return;
     }
     if (selectedStories.length === 0) {
@@ -68,7 +72,7 @@ export function CreateHighlightModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl p-6 rounded-2xl bg-white" dir="rtl">
+      <DialogContent className="max-w-2xl p-6 rounded-2xl bg-white z-[10010]" overlayClassName="z-[10005]" dir="rtl">
         <VisuallyHidden><DialogTitle>{highlightToEdit ? "تعديل المجموعة" : "انشاء مجموعة جديدة"}</DialogTitle></VisuallyHidden>
         <div className="space-y-6">
           <h3 className="text-lg font-bold  text-right">
@@ -82,7 +86,7 @@ export function CreateHighlightModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="h-12 text-right border-gray-200"
-            error={!name.trim() && isPending ? "يرجى كتابة اسم المجموعة" : undefined}
+            error={!name.trim() && (showErrors || isPending) ? "يرجى كتابة اسم المجموعة" : undefined}
           />
 
           <div className="space-y-2">
@@ -94,7 +98,7 @@ export function CreateHighlightModal({
                   onClick={() => toggleStory(story.id)}
                   className={cn(
                     "aspect-[9/16] rounded-xl relative cursor-pointer overflow-hidden border-2 transition-all",
-                    selectedStories.includes(story.id) ? "border-blue-500 ring-2 ring-blue-100" : "border-transparent"
+                    selectedStories.includes(story.id) ? "border-blue-4 ring-2 ring-blue-100" : "border-transparent"
                   )}
                 >
                   {story.image ? (
@@ -110,7 +114,7 @@ export function CreateHighlightModal({
 
                   <div className={cn(
                     "absolute top-2 left-2 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center transition-colors",
-                    selectedStories.includes(story.id) ? "bg-blue-500" : "bg-black/30"
+                    selectedStories.includes(story.id) ? "bg-blue-4" : "bg-black/30"
                   )}>
                     {selectedStories.includes(story.id) && <CheckCircle2 className="w-4 h-4 text-white" />}
                   </div>

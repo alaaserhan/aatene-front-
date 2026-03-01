@@ -28,10 +28,12 @@ export function HighlightsSection({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const [isShowModalOpen, setIsShowModalOpen] = useState(false);
-  const [selectedHighlight, setSelectedHighlight] = useState<Highlight | null>(null);
+  const [selectedHighlightId, setSelectedHighlightId] = useState<number | null>(null);
+
+  const selectedHighlight = highlights.find(h => h.id === selectedHighlightId) || null;
 
   const handleHighlightClick = (highlight: Highlight) => {
-    setSelectedHighlight(highlight);
+    setSelectedHighlightId(highlight.id);
     setIsShowModalOpen(true);
   };
 

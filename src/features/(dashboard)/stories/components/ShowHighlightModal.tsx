@@ -20,6 +20,7 @@ import {
 } from "@/src/components/ui/popover";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { CreateHighlightModal } from "./CreateHighlightModal";
+import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 
 interface ShowHighlightModalProps {
     isOpen: boolean;
@@ -76,15 +77,6 @@ export function ShowHighlightModal({
         setIsMenuOpen(false);
     };
 
-    const getTimeAgo = (dateString: string) => {
-        if (!dateString) return "";
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-        if (diffInHours < 1) return "منذ لحظات";
-        return `منذ ${diffInHours} ساعة`;
-    };
-
     const ACTIVE_WIDTH = 400;
     const INACTIVE_WIDTH = 320;
     const GAP = 32;
@@ -93,7 +85,7 @@ export function ShowHighlightModal({
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
                 <DialogContent
-                    className="max-w-none w-screen h-screen p-0 bg-black/55 border-none flex items-center justify-center overflow-hidden z-[9990]"
+                    className="max-w-none w-screen h-screen p-0 bg-black/55 border-none flex items-center justify-center overflow-hidden z-[9990] rounded-none sm:rounded-none"
                 >
                     <VisuallyHidden><DialogTitle>عرض الهايلايت</DialogTitle></VisuallyHidden>
 
@@ -170,7 +162,7 @@ export function ShowHighlightModal({
                                                     <div className="flex items-center gap-3">
                                                         <div className="flex flex-col text-right text-white">
                                                             <span className="text-xs font-bold">{highlight.name}</span>
-                                                            <span className="text-xs opacity-80">{getTimeAgo(story.created_at)}</span>
+                                                            <span className="text-xs opacity-80">{getRelativeTimeArabic(story.created_at)}</span>
                                                         </div>
                                                     </div>
 
