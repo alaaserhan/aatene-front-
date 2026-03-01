@@ -205,7 +205,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
         isOpen={showSuccessModal}
         onClose={() => router.push(`/admin/serviceProviders/${storeId}`)}
         title="تم تعديل الخدمة بنجاح"
-        message="تم تعديل الخدمة بنجاح، وهي الآن قيد المراجعة من قبل الفريق المختص. سنوافيكم بالرد خلال 24 إلى 48 ساعة."
+        message="تم تعديل الخدمة بنجاح، وهي الآن قيد المراجعة من قبل الفريق المختص. سنوافيكم بالرد قريباً."
         buttonText="قائمة الخدمات"
       />
     </>
