@@ -347,13 +347,13 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                   <button
                     onClick={() => { setSelectedSectionId(null); setCurrentPage(1); }}
                     className={cn(
-                      "w-full flex items-center justify-between px-4 py-3 transition-colors cursor-pointer",
-                      !selectedSectionId ? "bg-blue-5 text-blue-3 font-semibold" : "text-gray-600 hover:bg-gray-50"
+                      "w-full flex items-center justify-between px-3 py-3 transition-colors cursor-pointer",
+                      !selectedSectionId ? "bg-blue-5 text-blue-3 font-medium" : "text-gray-600 hover:bg-gray-50"
                     )}
                   >
-                    <span className="flex-1 text-right text-base mx-2">
+                    <span className="flex-1 text-right text-sm mx-2">
                       جميع المنتجات
-                      <span className={cn("mr-1 text-base font-bold", !selectedSectionId ? "text-blue-3" : "text-gray-400")}>
+                      <span className={cn("mr-1 text-sm font-medium", !selectedSectionId ? "text-blue-3" : "text-gray-400")}>
                         ({totalProductsCount})
                       </span>
                     </span>
@@ -367,11 +367,11 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                         key={section.id}
                         onClick={() => { setSelectedSectionId(String(section.id)); setCurrentPage(1); if (window.innerWidth < 1024) detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
                         className={cn(
-                          "w-full flex items-center justify-between px-4 py-3 border-t border-gray-100 transition-colors cursor-pointer",
-                          isActive ? "bg-blue-5 text-blue-3 font-semibold" : "text-gray-600 hover:bg-gray-50"
+                          "w-full flex items-center justify-between px-3 py-3 border-t border-gray-100 transition-colors cursor-pointer",
+                          isActive ? "bg-blue-5 text-blue-3 font-medium" : "text-gray-600 hover:bg-gray-50"
                         )}
                       >
-                        <span className="flex-1 text-right text-base mx-2">{section.name}</span>
+                        <span className="flex-1 text-right text-sm mx-2">{section.name}</span>
                         <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", isActive ? "text-blue-3" : "text-gray-400")} />
                       </button>
                     );

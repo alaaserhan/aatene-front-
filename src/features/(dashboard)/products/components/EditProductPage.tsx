@@ -22,6 +22,7 @@ import {
   VariationRow,
   RelatedProduct,
 } from "../types";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface EditProductPageProps {
   productId: number;
@@ -43,6 +44,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   const updateProductMutation = useUpdateProduct();
   const { data: productData, isLoading, isError } = useGetSingleProduct(productId);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const user = useAuthStore((state) => state.user);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<CompleteProductFormData | null>(null);
@@ -475,8 +477,8 @@ export function EditProductPage({ productId }: EditProductPageProps) {
           setShowSuccessModal(false);
           const backUrl = fromUrl
             ? decodeURIComponent(fromUrl)
-            : formData?.step2?.store_id
-            ? `/admin/productProviders/${formData.step2.store_id}`
+            : user?.user_type === "admin"
+            ? `/admin/productProviders/${formData?.step2?.store_id}`
             : "/admin/products";
           router.push(backUrl);
         }}
