@@ -81,7 +81,6 @@ export default function UserCard({ user, className }: UserCardProps) {
 
                 {/* Name & Crown */}
                 <div className="flex items-center justify-center gap-2 mb-2 w-full px-4" dir="rtl">
-                    <Crown className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
                     <h3 className="font-medium truncate">{user.name}</h3>
                 </div>
 

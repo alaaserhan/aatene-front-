@@ -48,12 +48,12 @@ const Footer = () => {
   const { settings } = useSettingsStore();
 
   const socialIcons = [];
-  if (settings?.facebook) socialIcons.push({ Icon: Facebook, href: settings.facebook, label: "Facebook" });
-  if (settings?.x) socialIcons.push({ Icon: Twitter, href: settings.x, label: "X" });
-  if (settings?.instagram) socialIcons.push({ Icon: Instagram, href: settings.instagram, label: "Instagram" });
-  if (settings?.youtube) socialIcons.push({ Icon: Youtube, href: settings.youtube, label: "YouTube" });
-  if (settings?.snapchat) socialIcons.push({ Icon: Ghost, href: settings.snapchat, label: "Snapchat" });
-  if (settings?.tiktok) socialIcons.push({ Icon: Music2, href: settings.tiktok, label: "TikTok" });
+  if (settings?.facebook && settings.facebook !== "") socialIcons.push({ Icon: Facebook, href: settings.facebook, label: "Facebook" });
+  if (settings?.x && settings.x !== "") socialIcons.push({ Icon: Twitter, href: settings.x, label: "X" });
+  if (settings?.instagram && settings.instagram !== "") socialIcons.push({ Icon: Instagram, href: settings.instagram, label: "Instagram" });
+  if (settings?.youtube && settings.youtube !== "") socialIcons.push({ Icon: Youtube, href: settings.youtube, label: "YouTube" });
+  if (settings?.snapchat && settings.snapchat !== "") socialIcons.push({ Icon: Ghost, href: settings.snapchat, label: "Snapchat" });
+  if (settings?.tiktok && settings.tiktok !== "") socialIcons.push({ Icon: Music2, href: settings.tiktok, label: "TikTok" });
 
   return (
     <footer dir="rtl" className="bg-white shadow-xs text-gray-700 border-t border-gray-200 ">

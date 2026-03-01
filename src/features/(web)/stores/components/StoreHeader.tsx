@@ -266,7 +266,7 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                     </div>
 
                     {/* Right features block (Left statically translated depending on dir=rtl) */}
-                    {
+                    {/* {
                         store.type === "products" && (
                             <div className="flex flex-row   justify-center gap-2 md:gap-2 mt-6 lg:mt-0  shrink-0 overflow-x-auto w-full lg:w-auto px-4 lg:px-0">
                                 <FeatureBox
@@ -286,7 +286,7 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                                 />
                             </div>
                         )
-                    }
+                    } */}
                 </div>
             </div>
         </div >
