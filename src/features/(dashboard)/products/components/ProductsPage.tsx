@@ -4,7 +4,7 @@
 import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
-import { Plus, Loader2, ChevronRight, Search } from "lucide-react";
+import { Plus, Loader2, ChevronRight, Search, HelpCircle, X } from "lucide-react";
 import {
   useGetProducts,
   useUpdateProductStatus,
@@ -27,6 +27,11 @@ import { Button } from "@/src/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Input } from "@/src/components/ui/input";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import StepOne from "./guide/StepOne";
+import StepTwo from "./guide/StepTwo";
+import StepThree from "./guide/StepThree";
+import StepFour from "./guide/StepFour";
+import StepFive from "./guide/StepFive";
 
 interface ProductsPageProps {
   /** When provided (admin viewing a specific store), acts like ServicesPage */
@@ -62,6 +67,8 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
   const [productToDelete, setProductToDelete] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+  const [guideStep, setGuideStep] = useState(1);
 
   const detailsRef = useRef<HTMLDivElement>(null);
 
@@ -292,34 +299,156 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
       ) : isMerchant ? (
         <header className="w-full bg-transparent p-6 pb-0">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold text-brand-black-1">إدارة المنتجات</h1>
-              <p className="text-sm text-gray-2 mt-1">عرض وإدارة جميع منتجاتك</p>
+            {!showGuide ? (
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-brand-black-1">إدارة المنتجات</h1>
+                <p className="text-sm text-gray-2 mt-1">عرض وإدارة جميع منتجاتك</p>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 md:gap-3">
+                <img src="/hugeicons_shirt-01.png" alt="" className="w-5 h-5 md:w-6 md:h-6" />
+                <h1 className="text-xl md:text-2xl font-bold text-[#2D496A]">
+                  دليل شامل مع أمثلة مصورة لإضافة منتجات جديدة بسهولة
+                </h1>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              {!isLoadingSections && hasSections ? (
+                <Link
+                  href={merchantAddHref}
+                  className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-lg font-medium transition-colors"
+                  style={{ backgroundColor: "var(--blue-3)" }}
+                >
+                  <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
+                  منتج جديد
+                </Link>
+              ) : !isLoadingSections && !hasSections ? (
+                <Link
+                  href={`${navPrefix}/sections`}
+                  className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-lg font-medium transition-colors"
+                  style={{ backgroundColor: "var(--blue-3)" }}
+                >
+                  <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
+                  إضافة قسم
+                </Link>
+              ) : null}
+              <button
+                onClick={() => { setShowGuide((v) => !v); setGuideStep(1); }}
+                className="flex items-center gap-2 bg-[#C8D7E8] text-[#2D496A] border border-[#5B87B9] text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#b8cbdc] transition-colors"
+              >
+                <HelpCircle className="w-4 h-4" />
+                مساعدة
+              </button>
             </div>
-            {!isLoadingSections && hasSections ? (
-              <Link
-                href={merchantAddHref}
-                className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-xs font-medium transition-colors"
-                style={{ backgroundColor: "var(--blue-3)" }}
-              >
-                <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
-                منتج جديد
-              </Link>
-            ) : !isLoadingSections && !hasSections ? (
-              <Link
-                href={`${navPrefix}/sections`}
-                className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-xs font-medium transition-colors"
-                style={{ backgroundColor: "var(--blue-3)" }}
-              >
-                <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
-                إضافة قسم
-              </Link>
-            ) : null}
           </div>
         </header>
       ) : null}
 
-      {/* ── Main ── */}
+      {/* ── دليل المساعدة (للتاجر فقط) ── */}
+      {isMerchant && showGuide && (
+        <div className="flex-1 px-4 pt-4 pb-6 overflow-y-auto" dir="rtl">
+          <div className="bg-white rounded-xl border border-[#E5EBF0] shadow-sm overflow-hidden">
+
+            {/* Welcome Banner */}
+            <div className="px-4 md:px-8 pt-4 md:pt-6">
+              <div className="bg-[#DDE9F5] border-r-4 border-r-[#5B87B9] rounded-xl p-4 md:p-6 mb-4 md:mb-8 shadow-sm">
+                <div className="flex items-start gap-3 md:gap-4">
+                  <img src="/idea-01.png" alt="" className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h3 className="text-[#2D496A] font-bold text-base md:text-lg mb-2 md:mb-3">مرحباً بك في دليل إضافة المنتجات.</h3>
+                    <p className="text-[#5B7C93] text-sm md:text-base leading-relaxed mb-2 md:mb-3">
+                      هذا الدليل التفصيلي سيساعدك على إضافة منتجات جديدة إلى موقعك خطوة بخطوة.
+                    </p>
+                    <p className="text-[#5B7C93] text-sm md:text-base leading-relaxed mb-2 md:mb-3">
+                      كل خطوة تتضمن صوراً توضيحية من لوحة التحكم والموقع الرئيسي لتوضيح كيفية ظهور المنتجات.
+                    </p>
+                    <p className="text-[#5B7C93] text-sm md:text-base leading-relaxed">
+                      اتبع الخطوات بالترتيب للتمكن من إضافة منتجك الأول في دقائق معدودة.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Step Content */}
+            <div className="px-4 md:px-8 pb-4 md:pb-8">
+              <div className="border border-[#E5EBF0] rounded-xl p-4 md:p-6 lg:p-8 mb-4 md:mb-8">
+                {guideStep === 1 && <StepOne />}
+                {guideStep === 2 && <StepTwo />}
+                {guideStep === 3 && <StepThree />}
+                {guideStep === 4 && <StepFour />}
+                {guideStep === 5 && <StepFive />}
+              </div>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between gap-3">
+                {/* زر إغلاق - يسار */}
+                <button
+                  onClick={() => setShowGuide(false)}
+                  className="flex items-center justify-center gap-2 bg-[#2D496A] hover:bg-[#223952] text-white px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
+                >
+                  <span>إغلاق</span>
+                  <X className="w-4 h-4" />
+                </button>
+
+                {/* Dots - منتصف */}
+                <div className="flex items-center gap-2">
+                  {[1,2,3,4,5].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setGuideStep(s)}
+                      className={cn(
+                        "h-2 rounded-full transition-all duration-200",
+                        guideStep === s ? "bg-[#2D496A] w-6" : "w-2 bg-[#C8D7E8] hover:bg-[#5B87B9]"
+                      )}
+                    />
+                  ))}
+                </div>
+
+                {/* أزرار التنقل - يمين */}
+                <div className="flex items-center gap-2">
+                  {guideStep > 1 && guideStep < 5 && (
+                    <button
+                      onClick={() => setGuideStep((s) => Math.max(1, s - 1))}
+                      className="flex items-center justify-center gap-2 border border-[#E8EDF2] bg-white hover:bg-[#F8FAFB] text-[#2D496A] px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="w-4 h-4">
+                        <path d="M12 15L7 10L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      رجوع
+                    </button>
+                  )}
+                  {guideStep < 5 ? (
+                    <button
+                      onClick={() => setGuideStep((s) => Math.min(5, s + 1))}
+                      className="flex items-center justify-center gap-2 bg-[#2D496A] hover:bg-[#223952] text-white px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
+                    >
+                      التالي
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="w-4 h-4">
+                        <path d="M8 15L13 10L8 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setGuideStep((s) => Math.max(1, s - 1))}
+                      className="flex items-center justify-center gap-2 border border-[#E8EDF2] bg-white hover:bg-[#F8FAFB] text-[#2D496A] px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="w-4 h-4">
+                        <path d="M12 15L7 10L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      رجوع
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Main (مخفي عند عرض الدليل) ── */}
+      {!showGuide && (
+      <>
       <main className="flex-1 p-4">
         {/* Search */}
         <div className="mb-4">
@@ -453,6 +582,8 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
         onSave={handleSaveSection}
         mode="add"
       />
+      </>
+      )}
     </div>
   );
 }
