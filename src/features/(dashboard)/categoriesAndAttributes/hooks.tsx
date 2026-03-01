@@ -90,14 +90,6 @@ export function useInfiniteCategoryOptions(params: URLSearchParams) {
       return api.getCategoryOptions(newParams);
     },
     getNextPageParam: (lastPage, allPages) => {
-      // Assuming the backend returns pagination info, but if not, we can rely on data length
-      // Since SelectOptionsResponse doesn't have standard pagination fields like recordsTotal
-      // we might need to adjust based on expected API behavior or assume simple array check
-      // However, for infinite scrolling to work, we need a way to know if there's more.
-      // If the API returns a flat list (SelectOptionsResponse), this infinite query might handle it differently.
-      // Assuming pagination is added to getCategoryOptions API side or we are reusing structure.
-      // Given current SelectOptionsResponse is just { categories: CategorySelectOption[] }
-      // We might simply check if we got a full page of results.
       const returnedCount = lastPage.categories?.length || 0;
       const perPage = Number(params.get("per_page") || 10);
 

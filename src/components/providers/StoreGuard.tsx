@@ -44,7 +44,7 @@ export function StoreGuard({ children }: { children: ReactNode }) {
                 const isOnProductsPage = currentPath.includes("/products") && !currentPath.includes("/stores");
                 const isOnServicesPage = (currentPath.includes("/serviceProviders") || currentPath.includes("/services")) && !currentPath.includes("/stores");
 
-                if (storeType === "services" && isOnProductsPage) {
+                if ((storeType === "services") && isOnProductsPage) {
                     router.push(`/${locale}/${type}/serviceProviders/${storeId}`);
                     return;
                 }

@@ -11,6 +11,7 @@ import {
 import { InfiniteData } from "@tanstack/react-query";
 import { SelectOptionsResponse } from "@/src/features/(dashboard)/categoriesAndAttributes/api";
 import { OptionTag } from "@/src/components/ui/OptionTag";
+import Cookies from "js-cookie";
 
 import {
     Dialog,
@@ -107,6 +108,7 @@ function InfiniteMultiSelect({
     selectedItems,
     onChange,
     useInfiniteHook,
+    extraParams,
     required,
 }: {
     label?: string;
@@ -120,9 +122,7 @@ function InfiniteMultiSelect({
         hasNextPage: boolean;
         isFetchingNextPage: boolean;
     };
-
-
-
+    extraParams?: Record<string, string>;
     required?: boolean;
 }) {
     const [search, setSearch] = useState("");
@@ -139,8 +139,13 @@ function InfiniteMultiSelect({
     const searchParams = useMemo(() => {
         const params = new URLSearchParams();
         if (debouncedSearch) params.set("search", debouncedSearch);
+        if (extraParams) {
+            Object.entries(extraParams).forEach(([key, val]) => {
+                if (val) params.set(key, val);
+            });
+        }
         return params;
-    }, [debouncedSearch]);
+    }, [debouncedSearch, extraParams]);
 
     // Call Hook
     const {
@@ -467,58 +472,61 @@ export function CreateCouponModal({
         </div>
     );
 
-    const renderIncludedStep = () => (
-        <div className="space-y-6">
-            <InfiniteMultiSelect
-                label="تصنيفات مشمولة"
-                placeholder="اختر..."
-                searchPlaceholder="ابحث عن تصنيف..."
-                selectedItems={formData.categories}
-                onChange={(items) => updateFormData({ categories: items })}
-                useInfiniteHook={useInfiniteCategoryOptions}
-                required
-            />
+    const renderIncludedStep = () => {
+        return (
+            <div className="space-y-6">
+                <InfiniteMultiSelect
+                    label="تصنيفات مشمولة"
+                    placeholder="اختر..."
+                    searchPlaceholder="ابحث عن تصنيف..."
+                    selectedItems={formData.categories}
+                    onChange={(items) => updateFormData({ categories: items })}
+                    useInfiniteHook={useInfiniteCategoryOptions}
+                    extraParams={{ type: "product" }}
+                    required
+                />
 
-            <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                    منتجات مشمولة <span className="text-red-500">*</span>
-                </label>
+                <div className="space-y-2">
+                    <label className="block text-sm font-medium">
+                        منتجات مشمولة <span className="text-red-500">*</span>
+                    </label>
 
-                {formData.products.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-2">
-                        {formData.products.map(p => (
-                            <OptionTag
-                                key={p.id}
-                                label={p.name}
-                                onRemove={() => removeProduct(p.id)}
+                    {formData.products.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {formData.products.map(p => (
+                                <OptionTag
+                                    key={p.id}
+                                    label={p.name}
+                                    onRemove={() => removeProduct(p.id)}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="space-y-1">
+                        <p className="text-xs text-gray-500">يمكنك البحث في المنتجات الجاهزة التي لا تحتوي على خيارات</p>
+                        <div onClick={() => setIsProductModalOpen(true)}>
+                            <FormInput
+                                value=""
+                                onChange={() => { }}
+                                placeholder="ابحث عن منتج....."
+                                disabled={false}
+                                readOnly
+                                className="cursor-pointer bg-white"
                             />
-                        ))}
-                    </div>
-                )}
-
-                <div className="space-y-1">
-                    <p className="text-xs text-gray-500">يمكنك البحث في المنتجات الجاهزة التي لا تحتوي على خيارات</p>
-                    <div onClick={() => setIsProductModalOpen(true)}>
-                        <FormInput
-                            value=""
-                            onChange={() => { }}
-                            placeholder="ابحث عن منتج....."
-                            disabled={false}
-                            readOnly
-                            className="cursor-pointer bg-white"
-                        />
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <ProductsSelectionModal
-                isOpen={isProductModalOpen}
-                onClose={() => setIsProductModalOpen(false)}
-                onSave={handleProductsSave}
-                initialSelectedIds={formData.products.map(p => p.id)}
-            />
-        </div>
-    );
+                <ProductsSelectionModal
+                    isOpen={isProductModalOpen}
+                    onClose={() => setIsProductModalOpen(false)}
+                    onSave={handleProductsSave}
+                    initialSelectedIds={formData.products.map(p => p.id)}
+                />
+            </div>
+        );
+    };
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

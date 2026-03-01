@@ -61,6 +61,11 @@ export default function proxy(request: NextRequest) {
         isForbidden = true;
       }
 
+      const storeType = request.cookies.get('store_type')?.value;
+      if (role === 'merchant' && segment === 'coupons' && storeType === 'services') {
+        isForbidden = true;
+      }
+
       if (role === 'merchant' && segment === 'serviceProviders') {
         const hasId = segments.length > (adminIndex + 2);
         if (!hasId) isForbidden = true;

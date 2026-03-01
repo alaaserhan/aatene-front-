@@ -169,9 +169,9 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الرئيسة", icon: <img src={"/icons/dashboard/nav_home.svg"} alt="" />, href: "/home", show: true },
     { label: "المستخدمين", icon: <img src={"/icons/dashboard/nav_users.svg"} alt="" />, href: "/users", show: hasAdminPerm("/users") },
     { label: "المتاجر", icon: <img src={"/icons/dashboard/nav_stores.svg"} alt="" />, href: "/stores", show: hasAdminPerm("/stores") || isMerchant },
-    { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: isMerchant && storeType === "products" && isAllowedByRole("/products") },
+    { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: isMerchant && (storeType === "products") && isAllowedByRole("/products") },
     { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: hasAdminPerm("/productProviders") },
-    { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && storeType === "services" && isAllowedByRole(`/serviceProviders/${activeStoreId}`) },
+    { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && (storeType === "services") && isAllowedByRole(`/serviceProviders/${activeStoreId}`) },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: hasAdminPerm("/serviceProviders"), desc: "إدارة ومتابعة مقدمي الخدمات" },
     { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: hasAdminPerm("/sections") || (isMerchant && isAllowedByRole("/sections")), desc: "إدارة وتصنيف الاقسام" },
     { label: "مدن الشحن", icon: Map, href: "/cities", show: hasAdminPerm("/cities"), desc: "اختر وجهات الشحن المتاحة" },
@@ -187,7 +187,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: hasAdminPerm("/abusive-words"), desc: "إدارة الكلمات والعبارات المسيئة" },
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: hasAdminPerm("/all-reports"), desc: "متابعة الشكاوى والبلاغات" },
     { label: "الإشعارات", icon: Bell, href: "/notifications", show: hasAdminPerm("/notifications"), desc: "إدارة ومتابعة سجل الاشعارات" },
-    { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant && isAllowedByRole("/coupons"), desc: "إدارة ومتابعة الخصومات" },
+    { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant && (storeType === "products") && isAllowedByRole("/coupons"), desc: "إدارة ومتابعة الخصومات" },
 
     { label: "المحذوفات", icon: Trash2, href: "/trash", show: hasAdminPerm("/trash"), desc: "إدارة ومتابعة المحذوفات" },
   ];
