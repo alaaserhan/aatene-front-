@@ -3,6 +3,7 @@ import { SettingsHydrator } from "@/src/components/providers/SettingsHydrator";
 import { QueryProvider } from "@/src/components/providers/QueryProvider";
 import { MetaPixel } from "@/src/components/providers/MetaPixel";
 import { GoogleAnalytics } from "@/src/components/providers/GoogleAnalytics";
+import { TikTokPixel } from "@/src/components/providers/TikTokPixel";
 import { Toaster } from "sonner";
 import { Suspense } from "react";
 import React from "react";
@@ -77,6 +78,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <MetaPixel />
           <GoogleAnalytics />
+          <TikTokPixel />
         </Suspense>
         <QueryProvider>
           <AuthHydrator />
