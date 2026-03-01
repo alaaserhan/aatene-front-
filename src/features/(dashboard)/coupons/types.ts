@@ -57,5 +57,5 @@ export interface SingleCouponResponse {
 export interface CreateCouponResponse {
     status: boolean;
     message: string;
-    data: Coupon;
+    record: Coupon;
 }

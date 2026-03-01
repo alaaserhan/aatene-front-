@@ -51,7 +51,7 @@ export const useUpdateCoupon = () => {
         onSuccess: (data) => {
             toast.success(data.message || "تم تحديث الكوبون بنجاح");
             queryClient.invalidateQueries({ queryKey: ["coupons"] });
-            queryClient.invalidateQueries({ queryKey: ["coupon", data.data.id] });
+            queryClient.invalidateQueries({ queryKey: ["coupon", data.record.id] });
         },
         onError: (error: AxiosError<{ message?: string }>) => {
             toast.error(error.response?.data?.message || "حدث خطأ أثناء تحديث الكوبون");
