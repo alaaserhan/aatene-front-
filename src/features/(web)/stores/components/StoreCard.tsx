@@ -3,7 +3,7 @@
 import { memo, useState } from "react";
 import { Store } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
-import { ArrowRight, ShieldCheck, UserPlus } from "lucide-react";
+import { ArrowRight, UserPlus } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
