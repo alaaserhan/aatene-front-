@@ -22,6 +22,7 @@ const MERCHANT_BLOCKED_SEGMENTS = new Set([
   'all-reports',
   'notifications',
   'trash',
+  'categories',
   'permissions',
   'settings',
 ]);
