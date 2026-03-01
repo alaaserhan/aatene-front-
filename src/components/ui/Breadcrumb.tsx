@@ -31,7 +31,7 @@ export function Breadcrumb({ items, className = "" }: BreadcrumbProps) {
               </Link>
             ) : (
               <span
-                className={isLast ? "text-gray-2 font-medium" : "text-[#8E8E8E]"}
+                className={isLast ? "text-gray-2 text-sm font-medium" : "text-[#8E8E8E] text-sm"}
               >
                 {item.label}
               </span>

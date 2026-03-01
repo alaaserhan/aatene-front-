@@ -123,7 +123,8 @@ const QuestionDialog = ({
     defaultValues?: FAQItem;
 }) => {
     // Local form for the dialog to handle edits before saving to main form
-    const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<QuestionFormValues>({
+    const { register, handleSubmit, setValue, watch, reset, formState: { errors, isValid, isDirty } } = useForm<QuestionFormValues>({
+        mode: "onChange",
         defaultValues: {
             question: "",
             answer: "",
@@ -149,7 +150,8 @@ const QuestionDialog = ({
 
     const imageUrl = watch("image_url");
 
-    const onSubmit = (data: QuestionFormValues) => {
+    const onSubmit = (data: QuestionFormValues, e?: React.BaseSyntheticEvent) => {
+        e?.stopPropagation(); // Prevent triggering parent form
         onSave(data as FAQItem); // Cast to match FAQItem interface
         onCheckChange(false);
     };
@@ -161,7 +163,14 @@ const QuestionDialog = ({
                     <DialogTitle>{defaultValues ? "تعديل السؤال" : "أضف سؤال جديد"}</DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSubmit(onSubmit)(e);
+                    }}
+                    className="space-y-6 py-4"
+                >
                     {/* Title */}
                     <FormInput
                         label="اضف عنوان السؤال"
@@ -191,6 +200,7 @@ const QuestionDialog = ({
                                     previews={imageUrl ? [imageUrl] : []}
                                     maxFiles={1}
                                     showMainSelector={false}
+                                    allowedMediaTypes={["gallery"]}
                                     onChange={(files, urls) => {
                                         setValue("image", files[0] || null);
                                         setValue("image_url", urls[0] || null);
@@ -207,8 +217,9 @@ const QuestionDialog = ({
                                 value={watch("video") ? [watch("video") as string] : []}
                                 previews={watch("video") ? [watch("video") as string] : []}
                                 maxFiles={1}
+                                accept="video/mp4,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/3gpp,video/3gpp2,video/mp2t,video/ogg,video/quicktime,video/webm"
                                 showMainSelector={false}
-                                allowedMediaTypes={['video']}
+                                allowedMediaTypes={["video"]}
                                 emptyStateText="إضافة فيديو جديد"
                                 emptyStateSubText="mp4, mov"
                                 onChange={(files, urls) => {
@@ -221,7 +232,8 @@ const QuestionDialog = ({
                     <div className="">
                         <button
                             type="submit"
-                            className="w-full py-3 bg-(--blue-4) text-white rounded-sm text-sm font-medium hover:bg-(--blue-4)/90 transition-colors"
+                            disabled={!isValid || !isDirty}
+                            className="w-full py-3 bg-(--blue-4) text-white rounded-sm text-sm font-medium hover:bg-(--blue-4)/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                             حفظ السؤال
                         </button>
@@ -348,7 +360,7 @@ export function ContentFAQsTab() {
     const { control, handleSubmit, reset, setValue } = form;
 
     // Manage Sections
-    const { fields: sectionFields, append: appendSection } = useFieldArray({
+    const { fields: sectionFields, append: appendSection, remove: removeSection } = useFieldArray({
         control,
         name: "faq_sections"
     });
@@ -356,6 +368,7 @@ export function ContentFAQsTab() {
     const [activeSection, setActiveSection] = useState(0);
     const [isAddSectionOpen, setIsAddSectionOpen] = useState(false);
     const [newSectionName, setNewSectionName] = useState("");
+    const [editingSectionIndex, setEditingSectionIndex] = useState<number | null>(null);
 
     // Sync data
     useEffect(() => {
@@ -370,11 +383,39 @@ export function ContentFAQsTab() {
 
     const handleAddSection = () => {
         if (!newSectionName.trim()) return;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        appendSection({ title: newSectionName, faqs: [] } as any);
+
+        if (editingSectionIndex !== null) {
+            // Update existing section title
+            const updatedSections = [...sectionFields];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (updatedSections[editingSectionIndex] as any).title = newSectionName;
+            setValue("faq_sections", updatedSections as any);
+        } else {
+            // Add new section
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            appendSection({ title: newSectionName, faqs: [] } as any);
+            setActiveSection(sectionFields.length); // Switch to new section
+        }
+
         setNewSectionName("");
         setIsAddSectionOpen(false);
-        setActiveSection(sectionFields.length); // Switch to new section
+        setEditingSectionIndex(null);
+    };
+
+    const handleEditSectionClick = (index: number) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setNewSectionName((sectionFields[index] as any).title);
+        setEditingSectionIndex(index);
+        setIsAddSectionOpen(true);
+    };
+
+    const handleDeleteSection = (index: number) => {
+        removeSection(index);
+        if (activeSection === index) {
+            setActiveSection(0);
+        } else if (activeSection > index) {
+            setActiveSection(activeSection - 1);
+        }
     };
 
     if (isLoading) {
@@ -419,16 +460,37 @@ export function ContentFAQsTab() {
             {sectionFields.length > 0 && activeSection < sectionFields.length && (
                 <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                        <div className="mb-6 pb-6 border-b border-gray-100">
-                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                            <h2 className="text-2xl font-medium">
+                        <div className="mb-6 pb-6 border-b border-gray-100 flex items-start justify-between">
+                            <div>
                                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                {(sectionFields[activeSection] as any).title}
-                            </h2>
-                            <p className="text-gray-2 text-sm mt-1">
-                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                إدارة الأسئلة الشائعة في قسم {(sectionFields[activeSection] as any).title}
-                            </p>
+                                <h2 className="text-2xl font-medium">
+                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                    {(sectionFields[activeSection] as any).title}
+                                </h2>
+                                <p className="text-gray-2 text-sm mt-1">
+                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                                    إدارة الأسئلة الشائعة في قسم {(sectionFields[activeSection] as any).title}
+                                </p>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => handleEditSectionClick(activeSection)}
+                                    className="p-2 bg-blue-50 text-blue-600 rounded-sm cursor-pointer"
+                                    title="تعديل اسم القسم"
+                                >
+                                    <img src="/icons/dashboard/edit.svg" alt="edit section" className="w-4.5 h-4.5" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleDeleteSection(activeSection)}
+                                    className="p-2 bg-red-2  rounded-sm cursor-pointer"
+                                    title="حذف القسم بالكامل"
+                                >
+                                    <img src="/icons/dashboard/trash.svg" alt="delete section" className="w-4.5 h-4.5" />
+                                </button>
+                            </div>
                         </div>
 
                         <FAQSectionManager
@@ -469,19 +531,28 @@ export function ContentFAQsTab() {
                 </div>
             </div>
 
-            {/* Add Section Dialog */}
-            <Dialog open={isAddSectionOpen} onOpenChange={setIsAddSectionOpen}>
+            {/* Add/Edit Section Dialog */}
+            <Dialog
+                open={isAddSectionOpen}
+                onOpenChange={(open) => {
+                    setIsAddSectionOpen(open);
+                    if (!open) {
+                        setNewSectionName("");
+                        setEditingSectionIndex(null);
+                    }
+                }}
+            >
                 <DialogContent className="sm:max-w-md" dir="rtl">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
-                            <span>أقسام الأسئلة</span>
+                            <span>{editingSectionIndex !== null ? "تعديل اسم القسم" : "أقسام الأسئلة"}</span>
                         </DialogTitle>
                     </DialogHeader>
 
                     <div className="space-y-6 pt-4">
                         <div className="space-y-3">
                             <FormInput
-                                label="أضف القسم الذي ترغب بإضافة أسئلة عليه"
+                                label={editingSectionIndex !== null ? "تعديل اسم القسم" : "أضف القسم الذي ترغب بإضافة أسئلة عليه"}
                                 value={newSectionName}
                                 onChange={(e) => setNewSectionName(e.target.value)}
                                 placeholder="قسم المنتجات المستعملة"
@@ -496,7 +567,7 @@ export function ContentFAQsTab() {
                             disabled={!newSectionName.trim()}
                             className="w-full py-3 bg-(--blue-4) text-white rounded-sm text-sm font-medium hover:bg-(--blue-4)/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                         >
-                            إضافة القسم
+                            {editingSectionIndex !== null ? "تعديل القسم" : "إضافة القسم"}
                         </button>
                     </div>
                 </DialogContent>

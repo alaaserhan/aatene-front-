@@ -39,6 +39,7 @@ const ALL_MEDIA_TYPES = [
   { value: "avatar", label: "افاتار", icon: User },
   { value: "gallery", label: "المعرض", icon: Grid3X3 },
   { value: "image", label: "الصور", icon: ImageIcon },
+  { value: "video", label: "الفيديو", icon: FileText },
 ];
 
 interface MediaCenterModalProps {
@@ -58,9 +59,9 @@ export function MediaCenterModal({
   onOpenChange,
   onSelect,
   multiple = false,
-  accept = "image/png,image/jpeg,image/jpg,image/webp,image/gif,image/avif,video/mp4,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/3gpp,video/3gpp2,video/mp2t,video/ogg,video/quicktime,video/webm",
+  accept = "image/png,image/jpeg,image/jpg,image/webp,image/gif,image/avif,image/svg+xml,video/mp4,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/3gpp,video/3gpp2,video/mp2t,video/ogg,video/quicktime,video/webm",
   uploadPrimaryText = "أضف أو اسحب صورة أو فيديو",
-  uploadSecondaryText = "PNG, JPG, JPEG , WP4",
+  uploadSecondaryText = "",
   allowedMediaTypes,
   selectionLimit,
 }: MediaCenterModalProps) {

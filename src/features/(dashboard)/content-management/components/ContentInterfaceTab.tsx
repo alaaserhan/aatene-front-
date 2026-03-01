@@ -372,7 +372,7 @@ export function ContentInterfaceTab() {
                 <FormInput
                     label="أضف نص يصف تعريف بسيط عنا"
                     {...register("section_intro_content", { required: "النص التعريفي للقسم مطلوب" })}
-                    placeholder="الوريم ابسوم دولار سيت اميت..."
+                    placeholder="أكتب نص التعريفي للقسم..."
                     required
                     containerClassName="w-full"
                     error={errors.section_intro_content?.message}
@@ -386,7 +386,7 @@ export function ContentInterfaceTab() {
                         <FormInput
                             label="أضف النص الخاص بالقسم هنا"
                             {...register("section_about_us.content", { required: "النص التعريفي للقسم مطلوب" })}
-                            placeholder="الوريم ابسوم..."
+                            placeholder="أكتب النص الخاص بالقسم هنا..."
                             required
                             containerClassName="w-full"
                             error={errors.section_about_us?.content?.message}
@@ -407,12 +407,12 @@ export function ContentInterfaceTab() {
                         <FormInput
                             label="الرؤية"
                             {...register("section_vision.vision")}
-                            placeholder="النهضة بقطاع..."
+                            placeholder="أكتب رؤية القسم هنا..."
                         />
                         <FormInput
                             label="الرسالة"
                             {...register("section_vision.message")}
-                            placeholder="المساهمة في إنشاء..."
+                            placeholder="أكتب رسالة القسم هنا..."
                         />
                         <FormInput
                             label="الاهداف"
@@ -433,7 +433,7 @@ export function ContentInterfaceTab() {
                 <FormInput
                     label="أضف اقسام التي ترغب بالتحدث عنها"
                     {...register("section_why_us")}
-                    placeholder=""
+                    placeholder="أكتب اقسام التي ترغب بالتحدث عنها هنا..."
                     containerClassName="hidden"
                 />
                 <DynamicListSection
@@ -456,14 +456,14 @@ export function ContentInterfaceTab() {
                         <FormInput
                             label="عنوان القسم"
                             {...register("section_merchants.title", { required: "عنوان القسم مطلوب" })}
-                            placeholder="عندك خدمة أو منتج؟ خلي الناس القريبين يشتروا منك بسهولة"
+                            placeholder="أكتب عنوان القسم هنا..."
                             required
                             error={errors?.section_merchants?.title?.message}
                         />
                         <FormInput
                             label="النص التعريفي للقسم"
                             {...register("section_merchants.content", { required: "النص التعريفي للقسم مطلوب" })}
-                            placeholder="منصة مخصصة لأصحاب المشاريع الصغيرة، الحرفيين، وبائعي المنتجات والخدمات. نوصلك مباشرةً بعملاء منطقتك بطريقة سهلة وسريعة، مع دعم مستمر وأدوات تساعدك على عرض منتجاتك وزيادة مبيعاتك."
+                            placeholder="أكتب النص التعريفي للقسم هنا..."
                             required
                             error={errors?.section_merchants?.content?.message}
                         />
@@ -493,14 +493,14 @@ export function ContentInterfaceTab() {
                         <FormInput
                             label="عنوان القسم"
                             {...register("section_customers.title", { required: "عنوان القسم مطلوب" })}
-                            placeholder="بدك تشتري من أهل بلدك؟"
+                            placeholder="أكتب عنوان القسم هنا..."
                             required
                             error={errors?.section_customers?.title?.message}
                         />
                         <FormInput
                             label="النص التعريفي للقسم"
                             {...register("section_customers.content", { required: "النص التعريفي للقسم مطلوب" })}
-                            placeholder="في أعطيني تلاقي كل احتياجاتك في مكان واحد، من منتجات وخدمات محلية موثوقة. تقدر تتواصل مباشرة مع البائع، تطلب بسهولة، وتستلم بسرعة وبأسعار تناسب ميزانيتك."
+                            placeholder="أكتب النص التعريفي للقسم هنا..."
                             required
                             error={errors?.section_customers?.content?.message}
                         />

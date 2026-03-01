@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useMemo } from "react";
 import { ContentInterfaceTab } from "@/src/features/(dashboard)/content-management/components/ContentInterfaceTab";
 import { cn } from "@/src/lib/utils";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -8,9 +9,20 @@ import { ContentFAQsTab } from "@/src/features/(dashboard)/content-management/co
 import { ContentSafetyRulesTab } from "@/src/features/(dashboard)/content-management/components/ContentSafetyRulesTab";
 
 export default function ContentManagementPage() {
-    const [activeTab, setActiveTab] = useState("content-interface");
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
-    const tabs = [
+    // Get tab from URL or default to "content-interface"
+    const activeTabId = searchParams.get("tab") || "content-interface";
+
+    const handleTabChange = (tabId: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("tab", tabId);
+        router.push(`${pathname}?${params.toString()}`);
+    };
+
+    const tabs = useMemo(() => [
         {
             id: "content-interface",
             label: "الواجهة التعريفية",
@@ -26,9 +38,9 @@ export default function ContentManagementPage() {
             label: "قواعد السلامة",
             component: <ContentSafetyRulesTab />,
         },
-    ];
+    ], []);
 
-    const currentTabLabel = tabs.find(t => t.id === activeTab)?.label || "";
+    const currentTabLabel = useMemo(() => tabs.find(t => t.id === activeTabId)?.label || "", [activeTabId, tabs]);
 
     const breadcrumbItems = [
         { label: "إدارة المحتوى" },
@@ -47,10 +59,10 @@ export default function ContentManagementPage() {
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
+                        onClick={() => handleTabChange(tab.id)}
                         className={cn(
                             "py-4 px-6 rounded-sm text-base font-medium transition-all border text-center cursor-pointer",
-                            activeTab === tab.id
+                            activeTabId === tab.id
                                 ? "bg-(--blue-4) text-white border-(--blue-4)"
                                 : "bg-white text-gray-700 border-gray-100"
                         )}
@@ -62,7 +74,7 @@ export default function ContentManagementPage() {
 
             {/* Tabs Content */}
             <div className="min-h-[500px] mt-8">
-                {tabs.find((t) => t.id === activeTab)?.component}
+                {tabs.find((t) => t.id === activeTabId)?.component}
             </div>
         </div>
     );

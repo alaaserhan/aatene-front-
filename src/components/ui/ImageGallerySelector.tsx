@@ -9,6 +9,7 @@ import { MediaCenterModal } from "@/src/features/(dashboard)/mediaCenter/compone
 import { MediaItem } from "@/src/features/(dashboard)/mediaCenter/api";
 
 interface ImageGallerySelectorProps {
+    accept?: string;
     value: string[];
     previews: string[];
     onChange: (files: string[], urls: string[]) => void;
@@ -32,6 +33,7 @@ interface ImageGallerySelectorProps {
 }
 
 export function ImageGallerySelector({
+    accept,
     value,
     previews,
     onChange,
@@ -337,6 +339,7 @@ export function ImageGallerySelector({
                 open={isModalOpen}
                 onOpenChange={setIsModalOpen}
                 onSelect={handleAdd}
+                accept={accept}
                 multiple={items.length === 0 && mainImageAllowedMediaTypes ? false : maxFiles > 1}
                 allowedMediaTypes={items.length === 0 && mainImageAllowedMediaTypes ? mainImageAllowedMediaTypes : allowedMediaTypes}
                 selectionLimit={items.length === 0 && mainImageAllowedMediaTypes ? 1 : maxFiles - items.length}
