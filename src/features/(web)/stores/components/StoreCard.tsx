@@ -24,7 +24,7 @@ const StoreCard = memo(({
     onVisitClick,
     className
 }: StoreCardProps) => {
-    const [imgSrc, setImgSrc] = useState(store.logo || "/placeholder.png");
+    const [imgSrc, setImgSrc] = useState(store.logo_url || "/placeholder.png");
     const rating = parseFloat(store.review_rate || "0");
     const [followed, setFollowed] = useState(isFollowing || store.am_i_following);
     const { mutate: follow, isPending } = useFollowUserOrStore();

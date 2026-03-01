@@ -30,6 +30,7 @@ interface StoreHeaderProps {
             id: number;
             avatar_url: string | null;
             logo?: string | null;
+            logo_url?: string | null;
         };
     }[];
 }
@@ -156,7 +157,7 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                                             followers.slice(0, 3).map((fItem, idx) => (
                                                 <div key={fItem.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100">
                                                     <Image
-                                                        src={(fItem.follower_type === "store" ? fItem.follower.logo : fItem.follower.avatar_url) || "/default-avatar.png"}
+                                                        src={(fItem.follower_type === "store" ? fItem.follower.logo_url : fItem.follower.avatar_url) || "/default-avatar.png"}
                                                         fill
                                                         className="object-cover"
                                                         alt="follower"

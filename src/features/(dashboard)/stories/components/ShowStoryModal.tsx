@@ -179,7 +179,7 @@ export function ShowStoryModal({
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
                 <DialogContent
-                    className="max-w-none w-screen h-screen p-0 bg-black/55 border-none flex items-center justify-center overflow-hidden z-[9990] rounded-none" // تقليل الـ z-index قليلاً للسماح للمودال الثاني بالظهور فوقه
+                    className="max-w-none w-screen h-screen p-0 bg-black/55 border-none flex items-center justify-center overflow-hidden z-[9990] rounded-none sm:rounded-none" // تقليل الـ z-index قليلاً للسماح للمودال الثاني بالظهور فوقه
                 >
                     <VisuallyHidden><DialogTitle>عرض القصة</DialogTitle></VisuallyHidden>
 
@@ -193,17 +193,17 @@ export function ShowStoryModal({
                     {activeIndex > 0 && (
                         <button
                             onClick={handlePrev}
-                            className="absolute right-4 md:right-16 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-all backdrop-blur-sm"
+                            className="absolute left-4 md:left-16 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-all backdrop-blur-sm"
                         >
-                            <ChevronRight className="w-8 h-8" />
+                            <ChevronLeft className="w-8 h-8" />
                         </button>
                     )}
                     {activeIndex < stories.length - 1 && (
                         <button
                             onClick={handleNext}
-                            className="absolute left-4 md:left-16 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-all backdrop-blur-sm"
+                            className="absolute right-4 md:right-16 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-all backdrop-blur-sm"
                         >
-                            <ChevronLeft className="w-8 h-8" />
+                            <ChevronRight className="w-8 h-8" />
                         </button>
                     )}
 

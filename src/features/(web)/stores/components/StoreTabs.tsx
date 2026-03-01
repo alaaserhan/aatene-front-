@@ -414,7 +414,7 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                             key={i}
                             size={11}
                             className={cn(
-                                i < Math.round(Number(store.review_rate || 0))
+                                i < Math.round(Number(store.owner?.review_rate || 0))
                                     ? "fill-[#FB923C] text-[#FB923C]"
                                     : "fill-gray-200 text-gray-200"
                             )}
