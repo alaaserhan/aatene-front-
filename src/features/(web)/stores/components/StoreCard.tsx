@@ -64,8 +64,8 @@ const StoreCard = memo(({
             <div className="p-4 flex flex-col flex-1">
                 {/* Store Name & Crown */}
                 <div className="flex items-center gap-2 mb-3">
-                    <Image src="/icons/crown.svg" alt="crown" width={16} height={16} />
-                    <h3 className=" font-medium text-black ">{store.name}</h3>
+                    {/* <Image src="/icons/crown.svg" alt="crown" width={16} height={16} /> */}
+                    <h3 className=" font-medium ">{store.name}</h3>
                 </div>
 
                 {/* Description */}
@@ -82,18 +82,18 @@ const StoreCard = memo(({
                     </div>
 
                     {/* Fast Delivery */}
-                    {store.type === "products" && (
+                    {/* {store.type === "products" && (
                         <div className="flex items-center gap-1">
                             <Image src="/icons/car2.svg" alt="car" width={18} height={18} />
                             <span className="font-medium">توصيل سريع</span>
                         </div>
-                    )}
+                    )} */}
 
                     {/* Guarantee */}
-                    <div className="flex items-center gap-1">
+                    {/* <div className="flex items-center gap-1">
                         <ShieldCheck className="w-4 h-4 text-blue-4" />
                         <span className="font-medium">ضمان</span>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Action Buttons */}
