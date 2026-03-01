@@ -18,9 +18,11 @@ export interface User {
   followings_count: number | string;
   bio: string | null;
   date_of_birth: string | null; // Assuming ISO date string or similar
-  user_type: string; // e.g., "client"
+  user_type: string;
+  permissions?: string[];
   created_at: string;
 }
+
 
 // Response for successful Login or Register
 export interface AuthResponse {

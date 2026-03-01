@@ -16,7 +16,6 @@ const ROLE_ALLOWED_SEGMENTS: Record<MerchantRole, Set<string> | "all"> = {
     ]),
 };
 
-
 export function isSegmentAllowedForRole(
     role: MerchantRole | undefined,
     segment: string | undefined
@@ -29,4 +28,48 @@ export function isSegmentAllowedForRole(
     if (allowed === "all") return true;
 
     return allowed.has(segment);
+}
+
+const ADMIN_ALWAYS_ALLOWED = new Set(["home", "403", "chat"]);
+
+const ADMIN_PERMISSION_TO_SEGMENTS: Record<string, string[]> = {
+    "users": ["users"],
+    "stores-and-services-providers": ["productProviders", "serviceProviders", "stores", "sections"],
+    "cities": ["cities"],
+    "categories": ["categories"],
+    "banners": ["banners"],
+    "mosaedy": ["mosa3edy"],
+    "requested-serviceses": ["requested-services"],
+    "blogs": ["blogs"],
+    "favs": ["favorites"],
+    "content": ["content-management"],
+    "abusive-words": ["abusive-words"],
+    "notifications": ["notifications"],
+    "trash": ["trash"],
+    "reports": ["all-reports"],
+    "settings": ["settings"],
+    "permissions": ["permissions"],
+};
+
+export function isSegmentAllowedForAdmin(
+    permissions: string[] | undefined,
+    segment: string | undefined
+): boolean {
+    if (!segment) return true;
+    if (ADMIN_ALWAYS_ALLOWED.has(segment)) return true;
+    if (!permissions || permissions.length === 0) return true;
+
+    for (const perm of permissions) {
+        const segments = ADMIN_PERMISSION_TO_SEGMENTS[perm];
+        if (segments && segments.includes(segment)) return true;
+    }
+
+    return false;
+}
+
+export function getAdminPermissionForSegment(segment: string): string | undefined {
+    for (const [perm, segments] of Object.entries(ADMIN_PERMISSION_TO_SEGMENTS)) {
+        if (segments.includes(segment)) return perm;
+    }
+    return undefined;
 }

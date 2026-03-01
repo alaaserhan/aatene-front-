@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createI18nMiddleware } from "next-international/middleware";
-import { isSegmentAllowedForRole, MerchantRole } from "@/src/config/role-permissions";
+import { isSegmentAllowedForRole, isSegmentAllowedForAdmin, MerchantRole } from "@/src/config/role-permissions";
 
 const I18nMiddleware = createI18nMiddleware({
   locales: ["en", "ar", "he"],
@@ -9,7 +9,7 @@ const I18nMiddleware = createI18nMiddleware({
   resolveLocaleFromRequest: () => "ar",
 });
 
-const ADMIN_ONLY_SEGMENTS = new Set([
+const MERCHANT_BLOCKED_SEGMENTS = new Set([
   'users',
   'productProviders',
   'cities',
@@ -23,16 +23,7 @@ const ADMIN_ONLY_SEGMENTS = new Set([
   'notifications',
   'trash',
   'permissions',
-  'categories',
-]);
-
-const MERCHANT_ONLY_SEGMENTS = new Set([
-  'products',
-  'stories',
-  'following',
-  'coupons',
-  'financial-record',
-  'coins',
+  'settings',
 ]);
 
 export default function proxy(request: NextRequest) {
@@ -66,7 +57,7 @@ export default function proxy(request: NextRequest) {
     if (segment) {
       let isForbidden = false;
 
-      if (role === 'merchant' && ADMIN_ONLY_SEGMENTS.has(segment)) {
+      if (role === 'merchant' && MERCHANT_BLOCKED_SEGMENTS.has(segment)) {
         isForbidden = true;
       }
 
@@ -79,6 +70,20 @@ export default function proxy(request: NextRequest) {
         const storeRole = request.cookies.get('store_role')?.value as MerchantRole | undefined;
         if (storeRole && !isSegmentAllowedForRole(storeRole, segment)) {
           isForbidden = true;
+        }
+      }
+
+      if (role === 'admin' && !isForbidden) {
+        const permsCookie = request.cookies.get('admin_permissions')?.value;
+        if (permsCookie) {
+          try {
+            const permissions = JSON.parse(permsCookie) as string[];
+            if (!isSegmentAllowedForAdmin(permissions, segment)) {
+              isForbidden = true;
+            }
+          } catch {
+            // invalid cookie, allow access
+          }
         }
       }
 

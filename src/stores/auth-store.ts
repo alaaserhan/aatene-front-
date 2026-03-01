@@ -29,7 +29,11 @@ export const useAuthStore = create<AuthState>()(
           sameSite: "lax",
         });
         Cookies.set("user_type", userData.user_type);
+        if (userData.user_type === "admin" && userData.permissions) {
+          Cookies.set("admin_permissions", JSON.stringify(userData.permissions), { expires: 365 });
+        }
         set({ isLoggedIn: true, user: userData });
+
       },
 
       logout: () => {
@@ -38,7 +42,9 @@ export const useAuthStore = create<AuthState>()(
         Cookies.remove("current_store_id");
         Cookies.remove("store_type");
         Cookies.remove("store_role");
+        Cookies.remove("admin_permissions");
         set({ isLoggedIn: false, user: null });
+
 
       },
 

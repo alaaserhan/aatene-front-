@@ -127,7 +127,7 @@ export function UserDetailsSidebar({
 
     const fetchedRoles = rolesData.data.map((role) => ({
       value: String(role.id),
-      label: role.name,
+      label: role.title ?? role.name,
     }));
 
     return [...baseOptions, ...fetchedRoles];

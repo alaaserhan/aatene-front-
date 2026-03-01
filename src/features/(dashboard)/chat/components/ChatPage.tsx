@@ -72,6 +72,11 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         router.push(`${pathname}?${params.toString()}`);
     }, [searchParams, pathname, router]);
 
+    const handleFilterChange = useCallback((filter: string) => {
+        setActiveFilter(filter);
+        handleCloseChat();
+    }, [handleCloseChat]);
+
     useEffect(() => {
         const typeParam = searchParams.get("type");
         const idParam = searchParams.get("id");
@@ -251,7 +256,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                         <SidebarFilterPanel
                             options={sidebarOptions}
                             activeValue={activeFilter}
-                            onValueChange={setActiveFilter}
+                            onValueChange={handleFilterChange}
                         />
                     </div>
                 </div>
@@ -264,7 +269,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     {/* Mobile Filter Buttons - Only visible on small screens */}
                     <div className="lg:hidden flex gap-2 p-2 bg-white rounded-t-lg border border-b-0 border-gray-200 overflow-x-auto">
                         <button
-                            onClick={() => setActiveFilter("all")}
+                            onClick={() => handleFilterChange("all")}
                             className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "all"
                                 ? "bg-blue-4 text-white"
                                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -273,7 +278,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                             الكل ({allCount})
                         </button>
                         <button
-                            onClick={() => setActiveFilter("direct")}
+                            onClick={() => handleFilterChange("direct")}
                             className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "direct"
                                 ? "bg-blue-4 text-white"
                                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -282,7 +287,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                             مباشرة ({directCount})
                         </button>
                         <button
-                            onClick={() => setActiveFilter("group")}
+                            onClick={() => handleFilterChange("group")}
                             className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "group"
                                 ? "bg-blue-4 text-white"
                                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"

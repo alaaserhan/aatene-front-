@@ -52,7 +52,8 @@ import { cn } from "@/src/lib/utils";
 import Cookies from "js-cookie";
 import useFCMToken from "@/src/hooks/use-fcm-token";
 import { useSettingsStore } from "@/src/stores/settings-store";
-import { isSegmentAllowedForRole, MerchantRole } from "@/src/config/role-permissions";
+import { isSegmentAllowedForRole, isSegmentAllowedForAdmin, MerchantRole } from "@/src/config/role-permissions";
+
 
 
 interface NavItem {
@@ -154,32 +155,41 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     return isSegmentAllowedForRole(storeRole, segment);
   };
 
+  const adminPermissions = isAdmin ? (user?.permissions || []) : [];
+
+  const hasAdminPerm = (href: string): boolean => {
+    if (!isAdmin) return false;
+    const segment = getSegmentFromHref(href);
+    return isSegmentAllowedForAdmin(adminPermissions, segment);
+  };
+
+
   const allNavItems: NavItem[] = [
 
     { label: "الرئيسة", icon: <img src={"/icons/dashboard/nav_home.svg"} alt="" />, href: "/home", show: true },
-    { label: "المستخدمين", icon: <img src={"/icons/dashboard/nav_users.svg"} alt="" />, href: "/users", show: isAdmin },
-    { label: "المتاجر", icon: <img src={"/icons/dashboard/nav_stores.svg"} alt="" />, href: "/stores", show: true },
+    { label: "المستخدمين", icon: <img src={"/icons/dashboard/nav_users.svg"} alt="" />, href: "/users", show: hasAdminPerm("/users") },
+    { label: "المتاجر", icon: <img src={"/icons/dashboard/nav_stores.svg"} alt="" />, href: "/stores", show: hasAdminPerm("/stores") || isMerchant },
     { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: isMerchant && storeType === "products" && isAllowedByRole("/products") },
-    { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: isAdmin },
+    { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: hasAdminPerm("/productProviders") },
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && storeType === "services" && isAllowedByRole(`/serviceProviders/${activeStoreId}`) },
-    { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: isAdmin, desc: "إدارة ومتابعة مقدمي الخدمات" },
-    { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: (isAdmin || (isMerchant && isAllowedByRole("/sections"))), desc: "إدارة وتصنيف الاقسام" },
-    { label: "مدن الشحن", icon: Map, href: "/cities", show: isAdmin, desc: "اختر وجهات الشحن المتاحة" },
-    { label: "الفئات", icon: Boxes, href: "/categories", show: isAdmin, desc: "إدارة وعرض الفئات" },
-    { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: isAdmin, desc: "ادارة ومتابعة البنرات الإعلانية" },
-    { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: isAdmin, desc: "إدارة التشات بوت والإحصائيات" },
+    { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: hasAdminPerm("/serviceProviders"), desc: "إدارة ومتابعة مقدمي الخدمات" },
+    { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: hasAdminPerm("/sections") || (isMerchant && isAllowedByRole("/sections")), desc: "إدارة وتصنيف الاقسام" },
+    { label: "مدن الشحن", icon: Map, href: "/cities", show: hasAdminPerm("/cities"), desc: "اختر وجهات الشحن المتاحة" },
+    { label: "الفئات", icon: Boxes, href: "/categories", show: hasAdminPerm("/categories") || (isMerchant && isAllowedByRole("/categories")), desc: "إدارة وعرض الفئات" },
+    { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: hasAdminPerm("/banners"), desc: "ادارة ومتابعة البنرات الإعلانية" },
+    { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: hasAdminPerm("/mosa3edy"), desc: "إدارة التشات بوت والإحصائيات" },
     { label: "القصص", icon: ImageIcon, href: "/stories ", show: isMerchant && isAllowedByRole("/stories"), desc: "إضافة وإدارة القصص" },
-    { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services ", show: isAdmin, desc: "الطلبات الغير موجودة والمخصصة" },
-    { label: "المدونات", icon: Newspaper, href: "/blogs", show: (isAdmin || (isMerchant && isAllowedByRole("/blogs"))), desc: "إضافة وإدارة المدونات والمقالات" },
+    { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services ", show: hasAdminPerm("/requested-services"), desc: "الطلبات الغير موجودة والمخصصة" },
+    { label: "المدونات", icon: Newspaper, href: "/blogs", show: hasAdminPerm("/blogs") || (isMerchant && isAllowedByRole("/blogs")), desc: "إضافة وإدارة المدونات والمقالات" },
     { label: "المتابعات", icon: Users, href: "/following", show: isMerchant && isAllowedByRole("/following"), desc: "إدارة واحصائيات المتابعات" },
-    { label: "المفضله", icon: Heart, href: "/favorites", show: isAdmin, desc: "ادارة ومتابعة المفضلة" },
-    { label: "إدارة المحتوى", icon: FileText, href: "/content-management", show: isAdmin, desc: "تحكم بالمحتوى الأساسي للموقع" },
-    { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: isAdmin, desc: "إدارة الكلمات والعبارات المسيئة" },
-    { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: isAdmin, desc: "متابعة الشكاوى والبلاغات" },
-    { label: "الإشعارات", icon: Bell, href: "/notifications", show: isAdmin, desc: "إدارة ومتابعة سجل الاشعارات" },
+    { label: "المفضله", icon: Heart, href: "/favorites", show: hasAdminPerm("/favorites"), desc: "ادارة ومتابعة المفضلة" },
+    { label: "إدارة المحتوى", icon: FileText, href: "/content-management", show: hasAdminPerm("/content-management"), desc: "تحكم بالمحتوى الأساسي للموقع" },
+    { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: hasAdminPerm("/abusive-words"), desc: "إدارة الكلمات والعبارات المسيئة" },
+    { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: hasAdminPerm("/all-reports"), desc: "متابعة الشكاوى والبلاغات" },
+    { label: "الإشعارات", icon: Bell, href: "/notifications", show: hasAdminPerm("/notifications"), desc: "إدارة ومتابعة سجل الاشعارات" },
     { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant && isAllowedByRole("/coupons"), desc: "إدارة ومتابعة الخصومات" },
 
-    { label: "المحذوفات", icon: Trash2, href: "/trash", show: isAdmin, desc: "إدارة ومتابعة المحذوفات" },
+    { label: "المحذوفات", icon: Trash2, href: "/trash", show: hasAdminPerm("/trash"), desc: "إدارة ومتابعة المحذوفات" },
   ];
 
   const visibleNavItems = allNavItems.filter((item) => item.show);

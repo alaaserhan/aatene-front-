@@ -1,20 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMyNotifications, markNotificationsAsSeen, deleteNotification, getMyNotificationStats } from "./api";
 import { toast } from "sonner";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 export const useMyNotifications = (page = 1, perPage = 20, enabled = true) => {
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
     return useQuery({
         queryKey: ["myNotifications", page, perPage],
         queryFn: () => getMyNotifications(page, perPage),
-        enabled,
+        enabled: enabled && isLoggedIn,
     });
 };
 
 export const useMyNotificationStats = (enabled = true) => {
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
     return useQuery({
         queryKey: ["myNotificationStats"],
         queryFn: () => getMyNotificationStats(),
-        enabled,
+        enabled: enabled && isLoggedIn,
     });
 };
 
