@@ -19,6 +19,8 @@ export interface Owner {
     avatar: string | null;
     avatar_url: string | null;
     created_at: string;
+    review_rate: string;
+    review_count: string;
 }
 
 export interface StoreProfile {
