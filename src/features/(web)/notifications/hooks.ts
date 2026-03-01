@@ -2,17 +2,19 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMyNotifications, markNotificationsAsSeen, deleteNotification, getMyNotificationStats } from "./api";
 import { toast } from "sonner";
 
-export const useMyNotifications = (page = 1, perPage = 20) => {
+export const useMyNotifications = (page = 1, perPage = 20, enabled = true) => {
     return useQuery({
         queryKey: ["myNotifications", page, perPage],
         queryFn: () => getMyNotifications(page, perPage),
+        enabled,
     });
 };
 
-export const useMyNotificationStats = () => {
+export const useMyNotificationStats = (enabled = true) => {
     return useQuery({
         queryKey: ["myNotificationStats"],
         queryFn: () => getMyNotificationStats(),
+        enabled,
     });
 };
 

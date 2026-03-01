@@ -32,14 +32,14 @@ export default function HomeBlogCard({ blog }: HomeBlogCardProps) {
                 <div className="flex items-center gap-2">
                     <div className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200">
                         <Image
-                            src={blog.user?.avatar_url || "/placeholder-user.jpg"}
+                            src={blog.user?.avatar_url || blog.store?.logo_url || "/placeholder-user.jpg"}
                             alt={blog.user?.first_name || "User"}
                             fill
                             className="object-cover"
                         />
                     </div>
                     <span className="font-medium">
-                        {blog.user ? `${blog.user.first_name} ${blog.user.last_name}` : "مستخدم"}
+                        {blog.user ? `${blog.user.first_name} ${blog.user.last_name}` : blog.store?.name || "مستخدم"}
                     </span>
                 </div>
                 <span className="text-gray-400">•</span>

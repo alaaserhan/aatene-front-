@@ -29,6 +29,24 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
         }
     };
 
+    const isValidUrl = (url: string | null | undefined) => {
+        if (!url) return false;
+        try {
+            new URL(url);
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
+    const serviceImage = isValidUrl(service.image_url)
+        ? service.image_url!
+        : (isValidUrl(service.images_urls?.[0]) ? service.images_urls![0] : "/placeholder.png");
+
+    const storeLogo = isValidUrl(service.store?.logo)
+        ? service.store!.logo!
+        : "/default-avatar.png";
+
     return (
         <div
             className={cn(
@@ -43,7 +61,7 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
             {/* Service Image */}
             <div className="relative aspect-[4/3] w-full bg-gray-50 overflow-hidden">
                 <Image
-                    src={service.image_url || service.images_urls?.[0] || "/placeholder.png"}
+                    src={serviceImage}
                     alt={service.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -87,7 +105,7 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                     {/* Avatar */}
                     <div className="relative w-10 h-10 shrink-0 rounded-full overflow-hidden shadow-sm ring-1 ring-gray-100">
                         <Image
-                            src={service.store?.logo || "/default-avatar.png"}
+                            src={storeLogo}
                             alt={providerName}
                             fill
                             className="object-cover"
@@ -96,6 +114,7 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                             }}
                         />
                     </div>
+
 
                     {/* Info Stack */}
                     <div className="flex flex-col min-w-0 flex-1">

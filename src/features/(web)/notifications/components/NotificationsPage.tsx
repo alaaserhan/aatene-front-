@@ -9,12 +9,12 @@ import { Loader2, Trash2 } from "lucide-react";
 
 export default function NotificationsPage() {
     const [page, setPage] = useState(1);
-    const { data, isLoading } = useMyNotifications(page, 20);
+    const { data, isLoading } = useMyNotifications(page, 10);
     const { mutate: markAsSeen } = useMarkNotificationsAsSeen();
     const { mutate: deleteNotification } = useDeleteNotification();
 
     const notifications = data?.notifications || [];
-    const totalPages = data ? Math.ceil(data.recordsTotal / 20) : 1;
+    const totalPages = data ? Math.ceil(data.recordsTotal / 10) : 1;
 
     useEffect(() => {
         const unseenIds = notifications.filter(n => !n.seen).map(n => n.id);

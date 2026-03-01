@@ -1,9 +1,7 @@
-// src/features/(dashboard)/stores/api.ts
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import { User } from "../../(web)/auth/types";
-
-// ============== Enums / Union Types ==============
+import { MerchantRole } from "@/src/config/role-permissions";
 
 export type StoreStatus = "active" | "not-active";
 export type StoreType = "products" | "services";
@@ -14,6 +12,7 @@ export type OpenStatus =
   | "closed";
 export type ManagerTitle = "general" | "sales" | "products" | "services";
 export type DeliveryType = "hand_delivery" | "shipping" | "free";
+
 
 // ============== Base / Shared ==============
 
@@ -175,7 +174,9 @@ export interface Store {
   approved_services_count?: number;
   rejected_services_count?: number;
   rejected_products_count?: number;
+  role_in_store?: MerchantRole;
 }
+
 
 // ============== Paginated Response ==============
 

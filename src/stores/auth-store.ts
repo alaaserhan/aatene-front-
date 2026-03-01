@@ -37,7 +37,9 @@ export const useAuthStore = create<AuthState>()(
         Cookies.remove("user_type");
         Cookies.remove("current_store_id");
         Cookies.remove("store_type");
+        Cookies.remove("store_role");
         set({ isLoggedIn: false, user: null });
+
       },
 
       updateUser: (userData) => {

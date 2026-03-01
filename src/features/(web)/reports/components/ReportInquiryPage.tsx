@@ -191,7 +191,7 @@ export default function ReportInquiryPage() {
                                         {/* Row 1: Title + Status Badge */}
                                         <div className="flex items-center gap-3 text-right">
                                             <h3 className=" font-medium text-base ">
-                                                {report.report_type?.name || report.content?.slice(0, 30) || "شكوى"}
+                                                { report.content?.slice(0, 30) || "شكوى"}
                                             </h3>
                                             <span
                                                 className="inline-flex items-center justify-center px-4 py-1 rounded-sm text-xs font-medium border"

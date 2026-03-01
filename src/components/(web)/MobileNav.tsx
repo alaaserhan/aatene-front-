@@ -50,7 +50,7 @@ export default function MobileNav() {
   const user = useAuthStore((state) => state.user);
   const userType = user?.user_type;
 
-  const { data: statsData } = useMyNotificationStats();
+  const { data: statsData } = useMyNotificationStats(!!user);
   const unreadCount = statsData?.unseen || 0;
   const { settings } = useSettingsStore();
 
@@ -142,77 +142,81 @@ export default function MobileNav() {
                         <h3 className="font-medium text-gray-2 uppercase tracking-wider mb-3">التصفح</h3>
                       </div>
 
-                      <Link
-                        href={`/${lang}/chat`}
-                        className="group flex items-center justify-between gap-4 p-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all duration-200"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <img src="/icons/chat.svg" alt="Messages" className="h-7 w-7" />
-                          </div>
-                          <span className="font-medium">الرسائل</span>
-                        </div>
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <ChevronLeft size={16} className="text-gray-2" />
-                        </div>
-                      </Link>
+                      {!!user && (
+                        <>
+                          <Link
+                            href={`/${lang}/chat`}
+                            className="group flex items-center justify-between gap-4 p-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all duration-200"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                                <img src="/icons/chat.svg" alt="Messages" className="h-7 w-7" />
+                              </div>
+                              <span className="font-medium">الرسائل</span>
+                            </div>
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <ChevronLeft size={16} className="text-gray-2" />
+                            </div>
+                          </Link>
 
-                      <Link
-                        href={`/${lang}/favourites`}
-                        className="group flex items-center justify-between gap-4 p-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all duration-200"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <img src="/icons/heart.svg" alt="Favorites" className="h-7 w-7" />
-                          </div>
-                          <span className="font-medium">المفضلة</span>
-                        </div>
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <ChevronLeft size={16} className="text-gray-2" />
-                        </div>
-                      </Link>
+                          <Link
+                            href={`/${lang}/favourites`}
+                            className="group flex items-center justify-between gap-4 p-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all duration-200"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                                <img src="/icons/heart.svg" alt="Favorites" className="h-7 w-7" />
+                              </div>
+                              <span className="font-medium">المفضلة</span>
+                            </div>
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <ChevronLeft size={16} className="text-gray-2" />
+                            </div>
+                          </Link>
 
-                      <Link
-                        href={`/${lang}/compare`}
-                        className="group flex items-center justify-between gap-4 p-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all duration-200"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <img src="/icons/Compare.svg" alt="Compare" className="h-7 w-7" />
-                          </div>
-                          <span className="font-medium">المقارنات</span>
-                        </div>
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <img src="/icons/Compare.svg" alt="" className="h-7 w-7" />
-                        </div>
-                      </Link>
+                          <Link
+                            href={`/${lang}/compare`}
+                            className="group flex items-center justify-between gap-4 p-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all duration-200"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                                <img src="/icons/Compare.svg" alt="Compare" className="h-7 w-7" />
+                              </div>
+                              <span className="font-medium">المقارنات</span>
+                            </div>
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <img src="/icons/Compare.svg" alt="" className="h-7 w-7" />
+                            </div>
+                          </Link>
 
-                      <Link
-                        href={`/${lang}/notifications`}
-                        className="group flex items-center justify-between gap-4 p-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all duration-200"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="relative w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
-                            <img src="/icons/Notification.svg" alt="Notifications" className="h-7 w-7" />
-                            {unreadCount > 0 && (
-                              <Badge
-                                className="absolute bg-red-600 font-baseline-fix -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
-                                variant="destructive"
-                              >
-                                {unreadCount}
-                              </Badge>
-                            )}
-                          </div>
-                          <span className="font-medium">الاشعارات</span>
-                        </div>
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <ChevronLeft size={16} className="text-gray-2" />
-                        </div>
-                      </Link>
+                          <Link
+                            href={`/${lang}/notifications`}
+                            className="group flex items-center justify-between gap-4 p-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all duration-200"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="relative w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                                <img src="/icons/Notification.svg" alt="Notifications" className="h-7 w-7" />
+                                {unreadCount > 0 && (
+                                  <Badge
+                                    className="absolute bg-red-600 font-baseline-fix -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                                    variant="destructive"
+                                  >
+                                    {unreadCount}
+                                  </Badge>
+                                )}
+                              </div>
+                              <span className="font-medium">الاشعارات</span>
+                            </div>
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                              <ChevronLeft size={16} className="text-gray-2" />
+                            </div>
+                          </Link>
+                        </>
+                      )}
                     </motion.div>
 
                     {/* User Menu Section */}

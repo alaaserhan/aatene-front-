@@ -61,13 +61,18 @@ export function StoreGuard({ children }: { children: ReactNode }) {
             try {
                 const response = await getStores(new URLSearchParams());
                 if (response.data && response.data.length > 0) {
-                    Cookies.set("current_store_id", response.data[0].id.toString(), {
+                    const store = response.data[0];
+                    Cookies.set("current_store_id", store.id.toString(), {
                         expires: 365,
                     });
-                    Cookies.set("store_type", response.data[0].type, { expires: 365 });
+                    Cookies.set("store_type", store.type, { expires: 365 });
+                    if (store.role_in_store) {
+                        Cookies.set("store_role", store.role_in_store, { expires: 365 });
+                    }
                     window.dispatchEvent(new Event("store-info-updated"));
                     setIsReady(true);
                 } else {
+
                     const isStoresPage = pathname?.includes("/stores");
 
                     if (!isStoresPage) {
