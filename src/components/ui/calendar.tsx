@@ -4,12 +4,17 @@ import * as React from "react";
 import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
+import { Locale } from "date-fns";
+
 interface CalendarProps {
   selected?: Date;
   onSelect?: (date: Date | undefined) => void;
   className?: string;
   fromYear?: number;
   toYear?: number;
+  mode?: "single" | "multiple" | "range";
+  initialFocus?: boolean;
+  locale?: Locale;
 }
 
 const WEEKDAYS = ["أح", "إث", "ث", "أر", "خ", "ج", "س"];
