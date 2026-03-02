@@ -6,6 +6,36 @@ import { getFCMToken, messaging } from "@/src/lib/firebase";
 import { onMessage, MessagePayload } from "firebase/messaging";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+
+let notificationAudio: HTMLAudioElement | null = null;
+let audioUnlocked = false;
+
+if (typeof window !== "undefined") {
+    notificationAudio = new Audio('/sounds/notification.mp3');
+    notificationAudio.preload = "auto";
+
+    const unlockAudio = () => {
+        if (audioUnlocked || !notificationAudio) return;
+        notificationAudio.volume = 0;
+        notificationAudio.play().then(() => {
+            notificationAudio!.pause();
+            notificationAudio!.currentTime = 0;
+            notificationAudio!.volume = 1;
+            audioUnlocked = true;
+        }).catch(() => { });
+    };
+
+    document.addEventListener("click", unlockAudio, { once: true });
+    document.addEventListener("keydown", unlockAudio, { once: true });
+}
+
+const playNotificationSound = () => {
+    if (!notificationAudio) return;
+    notificationAudio.currentTime = 0;
+    notificationAudio.volume = 1;
+    notificationAudio.play().catch(() => { });
+};
 
 const useFCMToken = () => {
     const [fcmToken, setFcmToken] = useState<string | null>(null);
@@ -38,20 +68,31 @@ const useFCMToken = () => {
     }, []);
 
     const queryClient = useQueryClient();
+    const router = useRouter();
 
     useEffect(() => {
         if (typeof window !== "undefined" && "serviceWorker" in navigator && messaging) {
             const unsubscribe = onMessage(messaging, (payload: MessagePayload) => {
                 console.log("Foreground message received:", payload);
+                playNotificationSound();
+
+                const conversationId = payload.data?.conversation_id;
+
                 toast.info(payload.notification?.title || "New Notification", {
                     description: payload.notification?.body,
+                    action: conversationId ? {
+                        label: 'عرض المحادثة',
+                        onClick: () => {
+                            router.push(`/chat?chat=${conversationId}`);
+                        }
+                    } : undefined,
                 });
                 queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
                 queryClient.invalidateQueries({ queryKey: ["myNotificationStats"] });
             });
             return () => unsubscribe();
         }
-    }, [queryClient]);
+    }, [queryClient, router]);
 
     useEffect(() => {
         if (typeof window !== "undefined" && "serviceWorker" in navigator) {

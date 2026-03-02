@@ -36,7 +36,8 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     const user = useAuthStore((state) => state.user);
     const isDashboard = context === "dashboard";
     const ignoreCookie = !isDashboard;
-    const { data: messagesData, isLoading } = useConversationMessages(conversation.id, ignoreCookie);
+    const [isDeleted, setIsDeleted] = useState(false);
+    const { data: messagesData, isLoading } = useConversationMessages(conversation.id, ignoreCookie, !isDeleted);
     const { mutate: sendMessage } = useSendMessage();
     const { mutate: markSeen } = useMarkMessageAsSeen();
     const { mutate: blockUser } = useBlockUser();
@@ -266,7 +267,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             <span className="font-medium text-gray-700">اضافة عضو جديد</span>
                         </DropdownMenuItem>
 
-                        {conversation.can_chat !== false && (
+                        {conversation.can_chat !== false && conversation.type !== "group" && (
                             <DropdownMenuItem
                                 className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
                                 onSelect={(e) => {
@@ -281,20 +282,26 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             </DropdownMenuItem>
                         )}
 
-                        <div className="h-px bg-gray-100 my-1" />
 
-                        <DropdownMenuItem
-                            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer group data-[highlighted]:bg-red-50 focus:bg-red-50 outline-none transition-colors"
-                            onSelect={(e) => {
-                                e.preventDefault();
-                                setShowDeleteModal(true);
-                            }}
-                        >
-                            <div className="w-8 h-8 rounded-lg bg-red-50 group-hover:bg-red-100 flex items-center justify-center shrink-0 transition-colors">
-                                <Trash2 className="w-4 h-4 text-red-600" />
-                            </div>
-                            <span className="font-medium text-red-600">حذف المحادثة</span>
-                        </DropdownMenuItem>
+                        {String(conversation.owner_id) === String(user?.id) && (
+                            <>
+                                <div className="h-px bg-gray-100 my-1" />
+                                <DropdownMenuItem
+                                    className="flex items-center gap-3 p-3 rounded-lg cursor-pointer group data-[highlighted]:bg-red-50 focus:bg-red-50 outline-none transition-colors"
+                                    onSelect={(e) => {
+                                        e.preventDefault();
+                                        setShowDeleteModal(true);
+                                    }}
+                                >
+                                    <div className="w-8 h-8 rounded-lg bg-red-50 group-hover:bg-red-100 flex items-center justify-center shrink-0 transition-colors">
+                                        <Trash2 className="w-4 h-4 text-red-600" />
+                                    </div>
+                                    <span className="font-medium text-red-600">حذف المحادثة</span>
+                                </DropdownMenuItem>
+                            </>
+                        )}
+
+
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
@@ -586,11 +593,15 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                 isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}
                 onConfirm={() => {
+                    setIsDeleted(true);
                     deleteConversation({ id: conversation.id, ignoreCookie }, {
                         onSuccess: () => {
                             toast.success("تم حذف المحادثة بنجاح");
                             setShowDeleteModal(false);
                             onClose?.();
+                        },
+                        onError: () => {
+                            setIsDeleted(false);
                         }
                     });
                 }}

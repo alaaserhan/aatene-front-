@@ -44,11 +44,11 @@ export const useSendMessage = () => {
     });
 };
 
-export const useConversationMessages = (conversationId: number | string, ignoreCookie: boolean = false) => {
+export const useConversationMessages = (conversationId: number | string, ignoreCookie: boolean = false, enabled: boolean = true) => {
     return useQuery({
         queryKey: ["conversation-messages", conversationId, ignoreCookie],
         queryFn: () => api.getConversationMessages(conversationId, ignoreCookie),
-        enabled: !!conversationId,
+        enabled: !!conversationId && enabled,
     });
 };
 

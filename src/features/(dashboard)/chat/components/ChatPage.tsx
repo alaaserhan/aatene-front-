@@ -17,6 +17,35 @@ import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { getFCMToken } from "@/src/lib/firebase";
 
+let notificationAudio: HTMLAudioElement | null = null;
+let audioUnlocked = false;
+
+if (typeof window !== "undefined") {
+    notificationAudio = new Audio('/sounds/notification.mp3');
+    notificationAudio.preload = "auto";
+
+    const unlockAudio = () => {
+        if (audioUnlocked || !notificationAudio) return;
+        notificationAudio.volume = 0;
+        notificationAudio.play().then(() => {
+            notificationAudio!.pause();
+            notificationAudio!.currentTime = 0;
+            notificationAudio!.volume = 1;
+            audioUnlocked = true;
+        }).catch(() => { });
+    };
+
+    document.addEventListener("click", unlockAudio, { once: true });
+    document.addEventListener("keydown", unlockAudio, { once: true });
+}
+
+const playNotificationSound = () => {
+    if (!notificationAudio) return;
+    notificationAudio.currentTime = 0;
+    notificationAudio.volume = 1;
+    notificationAudio.play().catch(() => { });
+};
+
 interface ChatPageProps {
     context?: "web" | "dashboard";
 }
@@ -194,7 +223,20 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     useEffect(() => {
         if (typeof window !== "undefined" && messaging) {
             const unsubscribe = onMessage(messaging, (payload: MessagePayload) => {
-                toast.info(`${payload.notification?.title || "No Title"}`);
+                playNotificationSound();
+
+                const conversationId = payload.data?.conversation_id;
+
+                toast.info(payload.notification?.title || "New Notification", {
+                    description: payload.notification?.body,
+                    action: conversationId ? {
+                        label: 'عرض المحادثة',
+                        onClick: () => {
+                            router.push(`/chat?chat=${conversationId}`);
+                        }
+                    } : undefined,
+                });
+
                 refetch();
                 queryClient.invalidateQueries({ queryKey: ["conversations"] });
                 queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });
@@ -202,13 +244,26 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             });
             return () => unsubscribe();
         }
-    }, [refetch, queryClient]);
+    }, [refetch, queryClient, router]);
 
     useEffect(() => {
         if (typeof window !== "undefined" && "serviceWorker" in navigator) {
             const handler = (event: MessageEvent) => {
                 if (event.data && event.data.type === 'FCM_MESSAGE_RECEIVED') {
-                    toast.info(`${event.data.payload.notification?.title || "No Title"}`);
+                    // We don't need to play sound here if it's considered background by the service worker,
+                    // but we can query invalidate. 
+                    const conversationId = event.data.payload?.data?.conversation_id;
+
+                    toast.info(event.data.payload?.notification?.title || "New Notification", {
+                        description: event.data.payload?.notification?.body,
+                        action: conversationId ? {
+                            label: 'عرض المحادثة',
+                            onClick: () => {
+                                router.push(`/chat?chat=${conversationId}`);
+                            }
+                        } : undefined,
+                    });
+
                     refetch();
                     queryClient.invalidateQueries({ queryKey: ["conversations"] });
                     queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });
@@ -218,7 +273,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             navigator.serviceWorker.addEventListener('message', handler);
             return () => navigator.serviceWorker.removeEventListener('message', handler);
         }
-    }, [refetch, queryClient]);
+    }, [refetch, queryClient, router]);
 
     const groupsCount = allConversations.filter(c => c.type === "group").length;
     const directCount = allConversations.filter(c => c.type === "direct").length;

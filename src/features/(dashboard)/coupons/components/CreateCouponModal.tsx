@@ -499,7 +499,7 @@ export function CreateCouponModal({
 
                 <div className="space-y-2">
                     <label className="block text-sm font-medium">
-                        منتجات  <span className="text-red-500">*</span>
+                        منتجات <span className="text-red-500">*</span>
                     </label>
 
                     {formData.products.length > 0 && (
