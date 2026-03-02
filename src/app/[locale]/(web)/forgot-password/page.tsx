@@ -1,10 +1,8 @@
 import { Metadata } from "next";
 import { ForgotPasswordForm } from "@/src/features/(web)/auth/components/ForgotPasswordForm";
+import { generatePageMetadata } from "@/src/lib/seo.config";
 
-export const metadata: Metadata = {
-    title: "نسيت كلمة المرور",
-    description: "استعادة كلمة المرور الخاصة بك",
-};
+export const metadata: Metadata = generatePageMetadata("forgotPassword");
 
 export default function ForgotPasswordPage() {
     return (

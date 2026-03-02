@@ -74,6 +74,15 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         p => !(p.participant_data.type === currentParticipantType && String(p.participant_data.id) === String(currentParticipantId))
     );
 
+    const [currentConvId, setCurrentConvId] = useState(conversation.id);
+
+    if (conversation.id !== currentConvId) {
+        setPendingMessages([]);
+        setNewMessage("");
+        setSelectedFiles([]);
+        setCurrentConvId(conversation.id);
+    }
+
     useEffect(() => {
         if (scrollAreaRef.current) {
             const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
@@ -507,47 +516,45 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
 
             {/* Input Area or Blocked Message */}
             {conversation.can_chat !== false ? (
-                <div className="p-4 bg-white border-t border-gray-100">
-                    <div className="flex items-center gap-2">
+                <div className="p-4 bg-white border-t border-gray-100 flex items-center gap-2">
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileSelect}
+                        className="hidden"
+                        multiple
+                        accept="image/*"
+                    />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full hover:bg-gray-100 shrink-0"
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        <ImageIcon className="w-5 h-5 text-gray-500" />
+                    </Button>
+
+                    <div className="flex-1 flex items-center bg-gray-50 rounded-full border border-gray-200 px-4">
                         <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileSelect}
-                            className="hidden"
-                            multiple
-                            accept="image/*"
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder="نص الرسالة ..."
+                            className="border-none bg-transparent px-1 py-2 text-[15px] outline-none font-normal shadow-none focus-visible:ring-0 flex-1 text-gray-2 placeholder:text-gray-400"
                         />
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-full hover:bg-gray-100 shrink-0"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <ImageIcon className="w-5 h-5 text-gray-500" />
-                        </Button>
-
-                        <div className="flex-1 flex items-center bg-gray-50 rounded-full border border-gray-200 px-4">
-                            <input
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                placeholder="نص الرسالة ..."
-                                className="border-none bg-transparent px-1 py-2 text-[15px] outline-none font-normal shadow-none focus-visible:ring-0 flex-1 text-gray-2 placeholder:text-gray-400"
-                            />
-                        </div>
-
-                        <Button
-                            onClick={handleSend}
-                            disabled={!newMessage.trim() && selectedFiles.length === 0}
-                            size="icon"
-                            className={cn(
-                                "rounded-full w-10 h-10 shrink-0 transition-all",
-                                (newMessage.trim() || selectedFiles.length > 0) ? "bg-blue-3 hover:bg-blue-4" : "bg-gray-200 text-gray-400 hover:bg-gray-300"
-                            )}
-                        >
-                            <Send className="w-5 h-5 rtl:-rotate-90" />
-                        </Button>
                     </div>
+
+                    <Button
+                        onClick={handleSend}
+                        disabled={!newMessage.trim() && selectedFiles.length === 0}
+                        size="icon"
+                        className={cn(
+                            "rounded-full w-10 h-10 shrink-0 transition-all text-white",
+                            (newMessage.trim() || selectedFiles.length > 0) ? "bg-blue-3 hover:bg-blue-4" : "bg-gray-200 text-gray-400 hover:bg-gray-300"
+                        )}
+                    >
+                        <Send className="w-5 h-5 rtl:-rotate-90" />
+                    </Button>
                 </div>
             ) : (
                 <div className="p-10 bg-white border-t border-gray-100 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-bottom-4 duration-700">

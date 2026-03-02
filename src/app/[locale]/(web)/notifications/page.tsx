@@ -1,10 +1,8 @@
-import NotificationsPage from "@/src/features/(web)/notifications/components/NotificationsPage";
 import { Metadata } from "next";
+import NotificationsPage from "@/src/features/(web)/notifications/components/NotificationsPage";
+import { generatePageMetadata } from "@/src/lib/seo.config";
 
-export const metadata: Metadata = {
-    title: 'تنبيهاتي | أعطني',
-    description: 'عرض جميع تنبيهاتك في موقع أعطني',
-}
+export const metadata: Metadata = generatePageMetadata("notifications");
 
 export default function Page() {
     return <NotificationsPage />;

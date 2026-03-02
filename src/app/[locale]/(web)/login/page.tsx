@@ -1,15 +1,13 @@
-// src/app/[locale]/(web)/login/page.tsx
-import { Metadata } from 'next';
-import React from 'react';
-import { LoginForm } from '@/src/features/(web)/auth/components/LoginForm';
-import { setStaticParamsLocale } from 'next-international/server';
+import { Metadata } from "next";
+import React from "react";
+import { LoginForm } from "@/src/features/(web)/auth/components/LoginForm";
+import { setStaticParamsLocale } from "next-international/server";
+import { generatePageMetadata } from "@/src/lib/seo.config";
 
-export const metadata: Metadata = {
-  title: 'تسجيل الدخول',
-};
+export const metadata: Metadata = generatePageMetadata("login");
 
 export default async function LoginPage({
-  params
+  params,
 }: {
   params: Promise<{ locale: string }>;
 }) {

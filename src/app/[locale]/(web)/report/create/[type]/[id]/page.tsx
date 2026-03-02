@@ -1,4 +1,8 @@
+import { Metadata } from "next";
 import CreateReportPage from "@/src/features/(web)/reports/components/CreateReportPage";
+import { generatePageMetadata } from "@/src/lib/seo.config";
+
+export const metadata: Metadata = generatePageMetadata("reportCreate");
 
 interface PageProps {
     params: Promise<{

@@ -1,10 +1,8 @@
-import { FinancialRecordPage } from "@/src/features/(dashboard)/financial/components/FinancialRecordPage";
 import { Metadata } from "next";
+import { FinancialRecordPage } from "@/src/features/(dashboard)/financial/components/FinancialRecordPage";
+import { generatePageMetadata } from "@/src/lib/seo.config";
 
-export const metadata: Metadata = {
-    title: "فواتير والسجل المالي",
-    description: "سجل المعاملات المالية وتحليل المصروفات",
-};
+export const metadata: Metadata = generatePageMetadata("dashboardFinancial");
 
 export default function Page() {
     return <FinancialRecordPage />;

@@ -7,7 +7,7 @@ import MobileNav from "./MobileNav";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { SearchBar } from "./SearchBar";
-import { NotificationDropdown } from "@/src/components/NotificationDropdown";
+import { NotificationDropdown } from "@/src/components/shared/NotificationDropdown";
 import useFCMToken from "@/src/hooks/use-fcm-token";
 import { useSettingsStore } from "@/src/stores/settings-store";
 

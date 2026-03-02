@@ -39,7 +39,7 @@ import {
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useLogout } from "@/src/features/(web)/auth/hooks";
-import { NotificationDropdown } from "@/src/components/NotificationDropdown";
+import { NotificationDropdown } from "@/src/components/shared/NotificationDropdown";
 import {
   DropdownMenu,
   DropdownMenuContent,

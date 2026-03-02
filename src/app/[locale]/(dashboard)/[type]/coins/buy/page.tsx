@@ -1,10 +1,8 @@
-import { BuyPointsPageContent } from "@/src/features/(dashboard)/coins/components/BuyPointsPageContent";
 import { Metadata } from "next";
+import { BuyPointsPageContent } from "@/src/features/(dashboard)/coins/components/BuyPointsPageContent";
+import { generatePageMetadata } from "@/src/lib/seo.config";
 
-export const metadata: Metadata = {
-    title: "شراء عملات ذهبية",
-    description: "اشحن رصيدك من العملات الذهبية",
-};
+export const metadata: Metadata = generatePageMetadata("dashboardCoins");
 
 export default function Page() {
     return <BuyPointsPageContent />;
