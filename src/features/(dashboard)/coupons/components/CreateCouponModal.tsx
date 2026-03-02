@@ -326,11 +326,21 @@ export function CreateCouponModal({
     };
 
     // --- Validation Logic ---
+    const dateError = useMemo(() => {
+        if (formData.start_date && formData.end_date) {
+            if (new Date(formData.start_date) >= new Date(formData.end_date)) {
+                return "تاريخ الانتهاء يجب أن يكون بعد تاريخ البداية";
+            }
+        }
+        return "";
+    }, [formData.start_date, formData.end_date]);
+
     const isStep1Valid = () => {
         if (!formData.code.trim()) return false;
         if (!formData.value.trim()) return false;
         if (!formData.start_date) return false;
         if (!formData.end_date) return false;
+        if (dateError) return false;
         return true;
     };
 
@@ -430,7 +440,7 @@ export function CreateCouponModal({
                                 : "text-gray-600 hover:bg-gray-50 bg-white"
                         )}
                     >
-                        <DollarSign className="w-4 h-4" />
+                        <span className="">₪</span>
                         قيمة
                     </button>
                 </div>
@@ -453,19 +463,20 @@ export function CreateCouponModal({
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                     <DatePicker
-                        label="تاريخ بداية الكوبون"
+                        label="تاريخ بداية "
                         required
                         value={formData.start_date}
                         onChange={(e) => updateFormData({ start_date: e.target.value })}
+                        error={dateError ? " " : undefined}
                     />
                 </div>
                 <div className="space-y-1">
-
                     <DatePicker
-                        label="تاريخ انتهاء الكوبون"
+                        label="تاريخ انتهاء "
                         required
                         value={formData.end_date}
                         onChange={(e) => updateFormData({ end_date: e.target.value })}
+                        error={dateError}
                     />
                 </div>
             </div>
@@ -476,7 +487,7 @@ export function CreateCouponModal({
         return (
             <div className="space-y-6">
                 <InfiniteMultiSelect
-                    label="تصنيفات مشمولة"
+                    label="تصنيفات "
                     placeholder="اختر..."
                     searchPlaceholder="ابحث عن تصنيف..."
                     selectedItems={formData.categories}
@@ -488,7 +499,7 @@ export function CreateCouponModal({
 
                 <div className="space-y-2">
                     <label className="block text-sm font-medium">
-                        منتجات مشمولة <span className="text-red-500">*</span>
+                        منتجات  <span className="text-red-500">*</span>
                     </label>
 
                     {formData.products.length > 0 && (

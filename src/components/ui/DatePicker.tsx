@@ -1,84 +1,123 @@
-// src/components/ui/DatePicker.tsx
 "use client";
 
-import { forwardRef, InputHTMLAttributes } from "react";
-import { Calendar } from "lucide-react";
+import * as React from "react";
+import { CalendarDays } from "lucide-react";
 import { cn } from "@/src/lib/utils";
+import { Button } from "@/src/components/ui/button";
+import { Calendar } from "@/src/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/src/components/ui/popover";
 
-interface DatePickerProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'className' | 'type'> {
+interface DatePickerProps {
   label?: string;
+  value?: string;
+  onChange: (e: { target: { value: string } }) => void;
+  required?: boolean;
   error?: string;
   hint?: string;
-  required?: boolean;
+  placeholder?: string;
   className?: string;
   containerClassName?: string;
 }
 
-export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
-  ({
-    label,
-    error,
-    hint,
-    required,
-    className = "",
-    containerClassName = "",
-    ...props
-  }, ref) => {
-    return (
-      <div className={cn("space-y-2", containerClassName)}>
-        {/* Label */}
-        {label && (
-          <label className="block text-sm font-medium text-brand-black-1 ">
-            {label}
-            {required && <span className="text-red-500 mr-1">*</span>}
-          </label>
-        )}
+const MONTHS_DISPLAY = [
+  "يناير", "فبراير", "مارس", "إبريل", "مايو", "يونيو",
+  "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
+];
 
-        {/* Date Input Wrapper */}
-        <div className="relative">
-          <input
-            ref={ref}
-            type="date"
+function formatDateDisplay(value: string): string {
+  if (!value) return "";
+  const [y, m, d] = value.split("-");
+  const monthIdx = Number(m) - 1;
+  return `${Number(d)} ${MONTHS_DISPLAY[monthIdx]} ${y}`;
+}
+
+function parseDate(value: string): Date | undefined {
+  if (!value) return undefined;
+  const parts = value.split("-");
+  if (parts.length !== 3) return undefined;
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  return isNaN(d.getTime()) ? undefined : d;
+}
+
+function toYMD(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+export const DatePicker = ({
+  label,
+  value,
+  onChange,
+  required,
+  error,
+  hint,
+  placeholder = "اختر التاريخ",
+  className,
+  containerClassName,
+}: DatePickerProps) => {
+  const [open, setOpen] = React.useState(false);
+  const date = parseDate(value ?? "");
+
+  return (
+    <div className={cn("space-y-2", containerClassName)}>
+      {label && (
+        <label className="block text-sm font-medium text-black-1">
+          {label}
+          {required && <span className="text-red-1 mr-1">*</span>}
+        </label>
+      )}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
             className={cn(
-              "w-full px-4 py-3 pr-12 border rounded-lg text-sm ",
-              "focus:outline-none focus:ring-2 focus:ring-blue-3 focus:border-transparent",
-              "transition-all duration-200",
-              "cursor-pointer",
+              "w-full justify-between text-right font-normal h-[50px] px-4 rounded-lg  border border-gray-200 outline-none transition-all duration-200 shadow-none",
+              !date && "text-gray-1",
               error
-                ? "border-red-500 focus:ring-red-500"
-                : "border-gray-300 focus:ring-blue-3",
-              "disabled:bg-gray-100 disabled:cursor-not-allowed",
-              // RTL date input styles
-              "[&::-webkit-calendar-picker-indicator]:opacity-0",
-              "[&::-webkit-calendar-picker-indicator]:absolute",
-              "[&::-webkit-calendar-picker-indicator]:w-full",
-              "[&::-webkit-calendar-picker-indicator]:h-full",
-              "[&::-webkit-calendar-picker-indicator]:cursor-pointer",
+                ? "border-red-100 bg-red-2 text-red-1"
+                : "ring-0 bg-white",
+              open && !error && "border-gray-300",
               className
             )}
-            {...props}
-          />
-
-          {/* Calendar Icon */}
+            dir="rtl"
+          >
+            <CalendarDays className={cn("h-5 w-5 shrink-0 transition-colors", date ? "text-blue-3" : "text-gray-1")} />
+            <span className="flex-1 text-right text-[15px] font-medium leading-none font-baseline-fix">
+              {value ? formatDateDisplay(value) : placeholder}
+            </span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-auto p-0 z-99999 shadow-2xl border-0 rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+          align="start"
+          sideOffset={8}
+        >
           <Calendar
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-2 pointer-events-none"
+            selected={date}
+            onSelect={(newDate) => {
+              if (newDate) {
+                onChange({ target: { value: toYMD(newDate) } });
+                setOpen(false);
+              }
+            }}
           />
-        </div>
+        </PopoverContent>
+      </Popover>
 
-        {/* Hint or Error */}
-        {(error || hint) && (
-          <div className="text-right min-h-[20px]">
-            {error && (
-              <p className="text-xs text-red-500">{error}</p>
-            )}
-            {!error && hint && (
-              <p className="text-xs text-gray-2">{hint}</p>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
-);
+      {(error || hint) && (
+        <div className="min-h-[20px] px-1">
+          {error && <p className="text-[13px] font-medium text-red-1 animate-in slide-in-from-top-1">{error}</p>}
+          {!error && hint && <p className="text-[13px] text-gray-2">{hint}</p>}
+        </div>
+      )}
+    </div>
+  );
+};
 
 DatePicker.displayName = "DatePicker";
