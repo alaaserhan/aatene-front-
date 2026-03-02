@@ -5,7 +5,9 @@ import { useMyNotifications, useMarkNotificationsAsSeen, useDeleteNotification }
 import { Pagination } from "@/src/components/ui/Pagination";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
-import { Loader2, Trash2 } from "lucide-react";
+import Image from "next/image";
+import { Loader2, Info } from "lucide-react";
+import { Tooltip } from "@/src/components/ui/Tooltip";
 
 export default function NotificationsPage() {
     const [page, setPage] = useState(1);
@@ -45,27 +47,63 @@ export default function NotificationsPage() {
                     notifications.map((notification) => (
                         <div
                             key={notification.id}
-                            className={`bg-white border border-gray-200 rounded-xl p-3 md:p-4 flex flex-col gap-4 relative group transition-colors ${!notification.seen ? 'border-blue-100 bg-[#f4f7fa]' : 'border-gray-200 hover:border-[#456A8E]/30'}`}
+                            className={`bg-white border rounded-xl p-3 md:p-4 flex flex-col gap-4 relative group transition-all duration-300 ${!notification.seen ? 'border-(--blue-4)/30 bg-(--blue-1)/40 shadow-sm' : 'border-gray-100 hover:border-gray-200 shadow-xs'}`}
                         >
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    deleteNotification(notification.id);
-                                }}
-                                className="absolute top-4 left-4 p-2 bg-red-2 rounded-md cursor-pointer"
-                                title="حذف التنبيه"
-                            >
-                                <img src="/icons/dashboard/trash.svg" alt="" className="w-4 h-4" />
-                            </button>
+                            <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        deleteNotification(notification.id);
+                                    }}
+                                    className="p-2 bg-red-50  text-red-500 rounded-lg cursor-pointer transition-all shrink-0"
+                                    title="حذف التنبيه"
+                                >
+                                    <Image src="/icons/dashboard/trash.svg" alt="" width={16} height={16} className="w-4 h-4" />
+                                </button>
+
+                                {/* Unread Indicator */}
+                                {!notification.seen && (
+                                    <div className="flex items-center gap-2 shrink-0">
+                                        <span className="relative flex h-3 w-3">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-(--blue-4) opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-(--blue-4)"></span>
+                                        </span>
+                                        <span className="text-[10px] font-bold text-(--blue-4) bg-(--blue-2) px-1.5 py-0.5 rounded-full uppercase tracking-wider">جديد</span>
+                                    </div>
+                                )}
+
+                                {/* Seen Time with Tooltip */}
+                                {/* {notification.seen && notification.seen_at && (
+                                    <div className="shrink-0 flex justify-center items-center">
+                                        <Tooltip
+                                            trigger={
+                                                <div className="p-1.5 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
+                                                    <Info className="w-4 h-4 text-gray-400" />
+                                                </div>
+                                            }
+                                            content={
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="font-medium  border-b border-gray-100 pb-1 mb-1">تاريخ المشاهدة</span>
+                                                    <span>{formatDistanceToNow(new Date(notification.seen_at), { addSuffix: true, locale: ar })}</span>
+                                                    <span className="text-[10px] text-gray-400">
+                                                        {new Date(notification.seen_at).toLocaleString('ar-EG')}
+                                                    </span>
+                                                </div>
+                                            }
+                                        />
+                                    </div>
+                                )} */}
+                            </div>
 
                             <div className="flex flex-col gap-2">
-                                <p className="text-sm font-medium text-gray-2">
+                                <p className="text-xs font-medium text-gray-400 flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
                                     {notification.created_at ? formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: ar }) : 'الآن'}
                                 </p>
 
                                 <div>
-                                    {notification.title && <h3 className="font-semimedium  text-base mb-1">{notification.title}</h3>}
-                                    <p className="text-sm whitespace-pre-wrap leading-relaxed font-medium">
+                                    {notification.title && <h3 className={`font-medium text-base mb-1 ${!notification.seen ? 'text-blue-4' : ''}`}>{notification.title}</h3>}
+                                    <p className="text-sm whitespace-pre-wrap leading-relaxed text-gray-2">
                                         {notification.body}
                                     </p>
                                 </div>

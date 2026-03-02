@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
 const SITE_NAME = "أعطيني | Aatene";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://aatene.com";
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.aatene.com";
+const DEFAULT_OG_IMAGE = `${SITE_URL}/LOGO-H-WHITE.svg`;
 
 interface PageSEO {
     title: string;
