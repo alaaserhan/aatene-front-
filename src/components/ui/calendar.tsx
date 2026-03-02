@@ -15,6 +15,7 @@ interface CalendarProps {
   mode?: "single" | "multiple" | "range";
   initialFocus?: boolean;
   locale?: Locale;
+  disabled?: (date: Date) => boolean;
 }
 
 const WEEKDAYS = ["أح", "إث", "ث", "أر", "خ", "ج", "س"];
@@ -37,6 +38,7 @@ export function Calendar({
   className,
   fromYear = 1940,
   toYear = new Date().getFullYear() + 1,
+  disabled,
 }: CalendarProps) {
   const today = new Date();
   const [viewYear, setViewYear] = React.useState(selected?.getFullYear() ?? today.getFullYear());
@@ -161,18 +163,21 @@ export function Calendar({
               const date = new Date(viewYear, viewMonth, day);
               const isSelected = selected ? isSameDay(date, selected) : false;
               const isTodayDate = isSameDay(date, today);
+              const isDayDisabled = disabled ? disabled(date) : false;
 
               return (
                 <button
                   key={idx}
-                  onClick={() => onSelect?.(date)}
+                  onClick={() => !isDayDisabled && onSelect?.(date)}
+                  disabled={isDayDisabled}
                   className={cn(
                     "h-7 pt-1 w-full rounded-lg text-sm font-medium transition-all relative flex items-center justify-center",
                     isSelected
                       ? "bg-blue-3 text-white shadow-sm z-1"
                       : isTodayDate
                         ? "bg-blue-5 text-blue-3 ring-1 ring-blue-3/20"
-                        : "hover:bg-gray-50 text-gray-600"
+                        : "hover:bg-gray-50 text-gray-600",
+                    isDayDisabled && "opacity-30 cursor-not-allowed hover:bg-transparent"
                   )}
                 >
                   {day}
