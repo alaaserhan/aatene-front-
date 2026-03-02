@@ -2,7 +2,7 @@ import { Metadata } from "next";
 
 const SITE_NAME = "أعطيني | Aatene";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.aatene.com";
-const DEFAULT_OG_IMAGE = `${SITE_URL}/LOGO-H-WHITE.svg`;
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-logo.png`;
 
 interface PageSEO {
     title: string;
