@@ -3,8 +3,8 @@
 export default function StepOne() {
     return (
         <div className="w-full">
-            <h2 className="text-base md:text-lg font-semibold text-[#2D496A] mb-2">في حالة لا توجد أي أقسام مفتوحة</h2>
-            <p className="text-xs md:text-sm text-[#6B7C93] mb-6 md:mb-8">من لوحة التحكم يمكنك الضغط علي إضافة أقسام جديدة لمتجرك</p>
+            <h2 className="text-base md:text-lg lg:text-xl font-bold text-[#2D496A] mb-2">في حالة لا توجد أي أقسام مفتوحة</h2>
+            <p className="text-xs md:text-sm lg:text-base text-[#2D496A] mb-6 md:mb-8">من لوحة التحكم يمكنك الضغط علي إضافة أقسام جديدة لمتجرك</p>
             
             <div className="hidden lg:block relative w-full max-w-[1336px] min-h-[400px] mx-auto ">
                 <img
@@ -28,11 +28,11 @@ export default function StepOne() {
                     className="absolute w-[20.1%] h-auto top-[37%] left-[40%]"
                 />
 
-                <p className="absolute text-[#5B7C93] text-sm font-medium text-center top-[89.2%] left-[65%] w-[20.9%]">
+                <p className="absolute text-[#2D496A] text-sm font-medium text-center top-[89.2%] left-[65%] w-[20.9%]">
                     الضغط علي إضافة قسم جديد لمتجرك
                 </p>
 
-                <p className="absolute text-[#5B7C93] text-sm font-medium text-center top-[89.2%] left-[9%] w-[32.6%]">
+                <p className="absolute text-[#2D496A] text-sm font-medium text-center top-[89.2%] left-[9%] w-[32.6%]">
                     هنا في صفحة المتجر سوف تجد الأقسام الخاصة بك كما هو موضح <br/> بالشكل مع عدد المنتجات داخل كل قسم
                 </p>
 
@@ -48,7 +48,7 @@ export default function StepOne() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center">الضغط علي إضافة قسم جديد لمتجرك</p>
+                        <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center">الضغط علي إضافة قسم جديد لمتجرك</p>
                     </div>
 
                     <div className="flex flex-col gap-3 order-2">
@@ -58,7 +58,7 @@ export default function StepOne() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center"> هنا في صفحة المتجر سوف تجد الأقسام الخاصة بك كما هو موضح بالشكل مع عدد المنتجات داخل كل قسم </p>
+                        <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center"> هنا في صفحة المتجر سوف تجد الأقسام الخاصة بك كما هو موضح بالشكل مع عدد المنتجات داخل كل قسم </p>
                     </div>
                 </div>
             </div>

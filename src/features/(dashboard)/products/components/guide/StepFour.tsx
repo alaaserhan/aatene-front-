@@ -4,12 +4,12 @@ export default function StepFour() {
     return (
         <div className="w-full">
             <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
-                <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#2D496A] text-white font-bold text-base md:text-lg lg:text-xl">
+                <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#2D496A] text-white font-bold text-base md:text-lg lg:text-xl leading-[1] pt-0.5">
                     3
                 </div>
                 <div>
                     <h2 className="text-[#2D496A] font-bold text-base md:text-lg lg:text-xl">الأختيارات و الكميات</h2>
-                    <p className="text-[#5B7C93] text-xs md:text-sm lg:text-base mt-1">إضافة البيانات المطلوبة والتأكد من صحتها</p>
+                    <p className="text-[#2D496A] text-xs md:text-sm lg:text-base mt-1">إضافة البيانات المطلوبة والتأكد من صحتها</p>
                 </div>
             </div>
 
@@ -58,11 +58,11 @@ export default function StepFour() {
                     className="absolute w-[3.5%] h-auto top-[17.3%] left-[89%]"
                 />
 
-                <p className="absolute text-[#2D496A] text-sm font-medium top-[16.5%] left-[93%] max-w-[5.5%]">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium top-[16.5%] left-[93%] max-w-[5.5%]">
                     يتم تحديد اذا كان هناك إختلاف ام لا
                 </p>
                 
-                <p className="absolute text-[#2D496A] text-sm font-medium top-[79%] left-[45%] whitespace-nowrap">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium top-[79%] left-[45%] whitespace-nowrap">
                     إضافة قيمة جديدة
                 </p>
 
@@ -73,7 +73,7 @@ export default function StepFour() {
                     className="absolute w-[17.9%] h-auto top-[80%] left-[53.5%]"
                 />
 
-                <p className="absolute text-[#2D496A] text-sm font-medium top-[83.2%] left-[43%] whitespace-nowrap">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium top-[83.2%] left-[43%] whitespace-nowrap">
                     زر تفعيل المنتج أو ايقافها مؤقتا
                 </p>
 
@@ -84,7 +84,7 @@ export default function StepFour() {
                     className="absolute w-[16.7%] h-auto top-[84.4%] left-[57%]"
                 />
 
-                <p className="absolute text-[#2D496A] text-sm font-medium top-[86.5%] left-[44%] whitespace-nowrap">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium top-[86.5%] left-[44%] whitespace-nowrap">
                     زر ازالة القيمة المضافة
                 </p>
 
@@ -102,7 +102,7 @@ export default function StepFour() {
                     className="absolute w-[7%] h-auto top-[88.5%] left-[88.5%]"
                 />
 
-                <p className="absolute text-[#2D496A] text-sm font-medium top-[92%] left-[92%] max-w-[250px] ">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium top-[92%] left-[92%] max-w-[250px] ">
                     كما يمكنك أيضا إضافة خيار في <br/>حالة عدم وجود الاختيار الذي تريده
                 </p>
 
@@ -112,7 +112,7 @@ export default function StepFour() {
                     alt="arrow"
                     className="absolute w-[10%] h-auto top-[74.5%] left-[1.5%]"
                 />
-                <p className="absolute text-[#2D496A] text-sm font-medium top-[97%] left-[8%] max-w-[380px]">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium top-[97%] left-[8%] max-w-[380px]">
                 هنا يوجد اختر المقاس واختر اللون بالقيم المضافة مثال (M ,XL )
 وهذه هي الاختلافات من المنتج ونقصد بها السمات     
                 </p>
@@ -123,7 +123,7 @@ export default function StepFour() {
                     alt="arrow"
                     className="absolute w-[60%] h-auto top-[34%] left-[23.5%]"
                 />
-                <p className="absolute text-[#2D496A] text-sm font-medium top-[52.5%] left-[51%] whitespace-nowrap">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium top-[52.5%] left-[51%] whitespace-nowrap">
                 بعد اختيار السمات التي تريدها والضغط علي تأكيد سوف تنتقل هنا 
                 </p>
 
@@ -138,7 +138,7 @@ export default function StepFour() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                    <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center"> يتم تحديد اذا كان هناك إختلاف ام لا </p>
+                    <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center"> يتم تحديد اذا كان هناك إختلاف ام لا </p>
  
                     </div>
 
@@ -149,7 +149,7 @@ export default function StepFour() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center"> بعد اختيار السمات التي تريدها والضغط علي تأكيد سوف تنتقل هنا </p>
+                        <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center"> بعد اختيار السمات التي تريدها والضغط علي تأكيد سوف تنتقل هنا </p>
                     </div>
 
                     <div className="flex flex-col gap-3 order-3 md:col-span-2">
@@ -159,7 +159,7 @@ export default function StepFour() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center">  يمكنك هنا إضافة قيمة جديدة <br/> أسفلها تجد زر تفعيل المنتج أو إيقافه مؤقتاً <br/> بجوار زر التفعيل تجد زر ازالة القيمة المضافة<br/>كما يمكنك أيضا على اليمين إضافة خيار في حالة عدم وجود الاختيار الذي تريده</p>
+                        <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center">  يمكنك هنا إضافة قيمة جديدة <br/> أسفلها تجد زر تفعيل المنتج أو إيقافه مؤقتاً <br/> بجوار زر التفعيل تجد زر ازالة القيمة المضافة<br/>كما يمكنك أيضا على اليمين إضافة خيار في حالة عدم وجود الاختيار الذي تريده</p>
                     </div>
 
                     <div className="flex flex-col gap-3 order-3 md:col-span-2">
@@ -169,7 +169,7 @@ export default function StepFour() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center"> هنا يوجد اختر المقاس واختر اللون بالقيم المضافة مثال (M ,XL )
+                        <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center"> هنا يوجد اختر المقاس واختر اللون بالقيم المضافة مثال (M ,XL )
 وهذه هي الاختلافات من المنتج ونقصد بها السمات  </p>
                     </div>
                 </div>

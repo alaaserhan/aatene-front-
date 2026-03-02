@@ -4,12 +4,12 @@ export default function StepFive() {
     return (
         <div className="w-full">
             <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
-                <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#2D496A] text-white font-bold text-base md:text-lg lg:text-xl">
+                <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#2D496A] text-white font-bold text-base md:text-lg lg:text-xl leading-[1] pt-0.5">
                     4
                 </div>
                 <div>
                     <h2 className="text-[#2D496A] font-bold text-base md:text-lg lg:text-xl">منتجات مرتبطة</h2>
-                    <p className="text-[#5B7C93] text-xs md:text-sm lg:text-base mt-1">إضافة البيانات المطلوبة والتأكد من صحتها</p>
+                    <p className="text-[#2D496A] text-xs md:text-sm lg:text-base mt-1">إضافة البيانات المطلوبة والتأكد من صحتها</p>
                 </div>
             </div>
 
@@ -55,11 +55,11 @@ export default function StepFive() {
                     loading="lazy"
                 />
 
-                <p className="absolute text-[#2D496A] text-sm font-medium top-[8.5%] left-[93.6%] max-w-[5.3%] leading-tight">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium top-[8.5%] left-[93.6%] max-w-[5.3%] leading-tight">
                  المنتجات المرتبطة هي منتجات لها علاقة ببعضها البعض ويمكنك إضافة العروض عليهم
                 </p>
 
-                <p className="absolute text-[#2D496A] text-sm font-medium top-[47.5%] left-[10%] max-w-[45.3%] leading-tight">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium top-[47.5%] left-[10%] max-w-[45.3%] leading-tight">
                  بعد اختيار المنتجات يمكنك الضغط علي تأكيد للانتقال للخطوة التالية 
                 </p>
 
@@ -77,12 +77,12 @@ export default function StepFive() {
                     loading="lazy"
                 />
 
-                <p className="absolute text-[#2D496A] text-sm font-medium top-[89%] left-[93.6%] max-w-[5.3%] leading-tight">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium top-[89%] left-[93.6%] max-w-[5.3%] leading-tight">
                     إضافة المنتج للمراجعة
                 </p>
 
 
-                <p className="absolute text-[#2D496A] text-sm font-medium top-[98%] left-[10.6%] max-w-[55.3%] ">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium top-[98%] left-[10.6%] max-w-[55.3%] ">
                    هذا هو المقصود بالمنتجات المرتبطة انها منتجات نضع عليها<br/> تخفيض مع بعضها البعض لأنهم لهم علاقة ببعضهم البعض
                 </p>
                 
@@ -97,7 +97,7 @@ export default function StepFive() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center"> المنتجات المرتبطة هي منتجات لها علاقة ببعضها البعض ويمكنك إضافة العروض عليهم </p>
+                        <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center"> المنتجات المرتبطة هي منتجات لها علاقة ببعضها البعض ويمكنك إضافة العروض عليهم </p>
                     </div>
 
                     <div className="flex flex-col gap-3 order-2">
@@ -107,7 +107,7 @@ export default function StepFive() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center"> بعد اختيار المنتجات يمكنك الضغط علي تأكيد للانتقال للخطوة التالية </p>
+                        <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center"> بعد اختيار المنتجات يمكنك الضغط علي تأكيد للانتقال للخطوة التالية </p>
                     </div>
 
                     <div className="flex flex-col gap-3 order-3">
@@ -117,7 +117,7 @@ export default function StepFive() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                    <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center"> إضافة المنتج للمراجعة </p>
+                    <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center"> إضافة المنتج للمراجعة </p>
  
                     </div>
 
@@ -129,7 +129,7 @@ export default function StepFive() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                    <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center"> هذا هو المقصود بالمنتجات المرتبطة انها منتجات نضع عليها تخفيض مع بعضها البعض لأنهم لهم علاقة ببعضهم البعض </p>
+                    <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center"> هذا هو المقصود بالمنتجات المرتبطة انها منتجات نضع عليها تخفيض مع بعضها البعض لأنهم لهم علاقة ببعضهم البعض </p>
  
                     </div>
                 </div>

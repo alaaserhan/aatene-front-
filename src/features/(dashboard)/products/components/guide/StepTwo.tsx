@@ -4,12 +4,12 @@ export default function StepTwo() {
     return (
         <div className="w-full">
             <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
-                <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#2D496A] text-white font-bold text-base md:text-lg lg:text-xl">
+                <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#2D496A] text-white font-bold text-base md:text-lg lg:text-xl leading-[1] pt-0.5">
                     1
                 </div>
                 <div>
                     <h2 className="text-[#2D496A] font-bold text-base md:text-lg lg:text-xl">المعلومات الأساسية</h2>
-                    <p className="text-[#5B7C93] text-xs md:text-sm lg:text-base mt-1">إضافة البيانات المطلوبة والتأكد من صحتها</p>
+                    <p className="text-[#2D496A] text-xs md:text-sm lg:text-base mt-1">إضافة البيانات المطلوبة والتأكد من صحتها</p>
                 </div>
             </div>
 
@@ -72,7 +72,7 @@ export default function StepTwo() {
                     alt="arrow"
                     className="absolute w-[4.3%] h-auto top-[58.8%] left-[88.9%]"
                 />
-                <p className="absolute text-[#5B7C93] text-xs leading-relaxed whitespace-nowrap top-[57.5%] left-[94%]">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium leading-relaxed whitespace-nowrap top-[57.5%] left-[94%]">
                     تصنيف 
                     للمنتج 
                 </p>
@@ -83,7 +83,7 @@ export default function StepTwo() {
                     alt="arrow"
                     className="absolute w-[5.8%] h-auto top-[93.5%] left-[89.8%]"
                 />
-                <p className="absolute text-[#5B7C93] text-xs leading-relaxed whitespace-nowrap top-[92%] left-[96.2%]">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium leading-relaxed whitespace-nowrap top-[93%] left-[93.2%]">
                     الإنتقال<br />
                     للخطوة التالية
                 </p>
@@ -97,7 +97,7 @@ export default function StepTwo() {
                     alt="arrow"
                     className="absolute w-[15%] h-auto top-[61%] left-[57.3%] "
                 />
-                <p className="absolute text-[#5B7C93] text-xs leading-relaxed text-right whitespace-nowrap top-[60.5%] left-[45%]">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium leading-relaxed text-right whitespace-nowrap top-[60%] left-[43%]">
                     إختيار حالة المنتج إذا كان جديد أو<br />
                     مستعمل
                 </p>
@@ -136,7 +136,7 @@ export default function StepTwo() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <div className="text-[#5B7C93] text-xs text-center space-y-2">
+                        <div className="text-[#2D496A] text-xs text-center space-y-2">
                             <p>تصنيف للمنتج </p>
                             <p>ثم إختيار حالة المنتج إذا كان جديد أو مستعمل</p>
                             <p>ثم انتقل للخطوة التالية</p>

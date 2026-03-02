@@ -357,7 +357,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                   <div className="flex-1">
                     <h3 className="text-[#2D496A] font-bold text-base md:text-lg mb-2 md:mb-3">مرحباً بك في دليل إضافة المنتجات.</h3>
                     <p className="text-[#5B7C93] text-sm md:text-base leading-relaxed mb-2 md:mb-3">
-                      هذا الدليل التفصيلي سيساعدك على إضافة منتجات جديدة إلى موقعك خطوة بخطوة.
+                      هذا الدليل التفصيلي سيساعدك على إضافة منتجات جديدة إلى متجرك خطوة بخطوة.
                     </p>
                     <p className="text-[#5B7C93] text-sm md:text-base leading-relaxed mb-2 md:mb-3">
                       كل خطوة تتضمن صوراً توضيحية من لوحة التحكم والموقع الرئيسي لتوضيح كيفية ظهور المنتجات.
@@ -413,7 +413,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                       className="flex items-center justify-center gap-2 border border-[#E8EDF2] bg-white hover:bg-[#F8FAFB] text-[#2D496A] px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
                     >
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-                        <path d="M12 15L7 10L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M8 15L13 10L8 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                       رجوع
                     </button>
@@ -425,7 +425,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                     >
                       التالي
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-                        <path d="M8 15L13 10L8 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M12 15L7 10L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </button>
                   ) : (
@@ -434,7 +434,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                       className="flex items-center justify-center gap-2 border border-[#E8EDF2] bg-white hover:bg-[#F8FAFB] text-[#2D496A] px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
                     >
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-                        <path d="M12 15L7 10L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M8 15L13 10L8 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                       رجوع
                     </button>
@@ -480,9 +480,9 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                       !selectedSectionId ? "bg-blue-5 text-blue-3 font-medium" : "text-gray-600 hover:bg-gray-50"
                     )}
                   >
-                    <span className="flex-1 text-right text-sm mx-2">
+                    <span className="flex-1 text-right text-base mx-2">
                       جميع المنتجات
-                      <span className={cn("mr-1 text-sm font-medium", !selectedSectionId ? "text-blue-3" : "text-gray-400")}>
+                      <span className={cn("mr-1 text-base font-medium", !selectedSectionId ? "text-blue-3" : "text-gray-400")}>
                         ({totalProductsCount})
                       </span>
                     </span>
@@ -500,7 +500,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                           isActive ? "bg-blue-5 text-blue-3 font-medium" : "text-gray-600 hover:bg-gray-50"
                         )}
                       >
-                        <span className="flex-1 text-right text-sm mx-2">{section.name}</span>
+                        <span className="flex-1 text-right text-base mx-2">{section.name}</span>
                         <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", isActive ? "text-blue-3" : "text-gray-400")} />
                       </button>
                     );
@@ -509,7 +509,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                   <div className="p-3 border-t border-gray-100">
                     <Button
                       onClick={() => setIsSectionModalOpen(true)}
-                      className="w-full gap-2 text-blue-3 border-blue-3 rounded-xs border text-base"
+                      className="w-full gap-2 text-blue-3 border-blue-3 rounded-xs border text-sm"
                       style={{ backgroundColor: "var(--blue-5)" }}
                     >
                       <Plus className="w-4 h-4" />

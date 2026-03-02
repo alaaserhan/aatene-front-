@@ -114,7 +114,7 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
                             className={cn(
                                 "font-medium h-8 px-8 gap-2 rounded-full flex-1 md:flex-none",
                                 isOwner
-                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    ? "bg-[#D00416] hover:bg-[#D00416] text-white cursor-not-allowed opacity-60"
                                     : "bg-[#D00416] hover:bg-[#d93838] cursor-pointer text-white"
                             )}
                         >

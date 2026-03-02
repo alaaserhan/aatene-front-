@@ -415,7 +415,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                             className="flex items-center gap-2 border border-[#E8EDF2] bg-white hover:bg-[#F8FAFB] text-[#2D496A] px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
                                         >
                                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-                                                <path d="M12 15L7 10L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                <path d="M8 15L13 10L8 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                             </svg>
                                             رجوع
                                         </button>
@@ -427,7 +427,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                         >
                                             التالي
                                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-                                                <path d="M8 15L13 10L8 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                <path d="M12 15L7 10L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                             </svg>
                                         </button>
                                     ) : (
@@ -436,7 +436,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                             className="flex items-center gap-2 border border-[#E8EDF2] bg-white hover:bg-[#F8FAFB] text-[#2D496A] px-4 md:px-6 py-2.5 rounded-lg text-sm md:text-base font-medium transition-colors"
                                         >
                                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-                                                <path d="M12 15L7 10L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                <path d="M8 15L13 10L8 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                             </svg>
                                             رجوع
                                         </button>

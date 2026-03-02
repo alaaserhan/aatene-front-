@@ -4,12 +4,12 @@ export default function StepTwo() {
     return (
         <div className="w-full">
             <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
-                <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#2D496A] text-white font-bold text-base md:text-lg lg:text-xl">
+                <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#2D496A] text-white font-bold text-base md:text-lg lg:text-xl leading-[1] pt-0.5">
                     1
                 </div>
                 <div>
                     <h2 className="text-[#2D496A] font-bold text-base md:text-lg lg:text-xl">المعلومات الاساسية</h2>
-                    <p className="text-[#5B7C93] text-xs md:text-sm lg:text-base mt-1">إضافة البيانات المطلوبة والتأكد من صحتها</p>
+                    <p className="text-[#2D496A] text-xs md:text-sm lg:text-base mt-1">إضافة البيانات المطلوبة والتأكد من صحتها</p>
                 </div>
             </div>
 
@@ -87,20 +87,20 @@ export default function StepTwo() {
                     className="absolute w-[50.7%] h-auto top-[85.5%] left-[21.5%]"
                 />
 
-                <p className="absolute text-[#5B7C93] text-xs leading-relaxed text-right top-[20.5%] left-[92.9%] whitespace-nowrap">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium leading-relaxed text-right top-[20.5%] left-[92.9%] whitespace-nowrap">
                     التصنيف الرئيسي
                 </p>
 
-                <p className="absolute text-[#5B7C93] text-xs leading-relaxed text-right top-[30%] left-[92.9%] max-w-[5.5%]">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium leading-relaxed text-right top-[30%] left-[92.9%] max-w-[5.5%]">
                     تصنيف رئيسي للخدمة مثل (خدمات مالية  -خدمات صحية -....) وهكذا 
                 </p>
 
-                <p className="absolute text-[#5B7C93] text-xs leading-relaxed text-right top-[37%] left-[46.7%] max-w-[6.7%]">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium leading-relaxed text-right top-[37%] left-[46.7%] max-w-[6.7%]">
                        القسم الذي تنتمي له الخدمة كما يمكنك أيضا إضافة قسم من هنا 
                 </p>
 
                 
-                <p className="absolute text-[#5B7C93] text-xs leading-relaxed  top-[74.8%] left-[93%] max-w-[100px]">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium leading-relaxed  top-[74.8%] left-[93%] max-w-[100px]">
                     تخصصات العمل التي يمكن لصاحب الخدمة القيام بها  
                 </p>
 
@@ -115,7 +115,7 @@ export default function StepTwo() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center"> التصنيف الرئيسي اسفله تجد تصنيف رئيسي للخدمة مثل (خدمات مالية  -خدمات صحية -....) وهكذا - اسفله تجد القسم الذي تنتمي له الخدمة كما يمكنك أيضا إضافة قسم من هنا     </p>
+                        <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center"> التصنيف الرئيسي اسفله تجد تصنيف رئيسي للخدمة مثل (خدمات مالية  -خدمات صحية -....) وهكذا - اسفله تجد القسم الذي تنتمي له الخدمة كما يمكنك أيضا إضافة قسم من هنا     </p>
 
                     </div>
 
@@ -135,7 +135,7 @@ export default function StepTwo() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center"> تخصصات العمل التي يمكن صاحب الخدمة القيام بها </p>
+                        <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center"> تخصصات العمل التي يمكن صاحب الخدمة القيام بها </p>
 
                     </div>
 
