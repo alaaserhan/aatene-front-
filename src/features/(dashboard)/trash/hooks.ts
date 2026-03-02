@@ -49,7 +49,12 @@ export const useRestoreItem = () => {
   return useMutation<TrashActionResponse, Error, { slug: string; id: number }>({
     mutationFn: ({ slug, id }) => api.restoreItem(slug, id),
     onSuccess: (data) => {
-      toast.success(data.message || "تم الاسترجاع بنجاح");
+      const msg = data.message || "";
+      const arabicMsg =
+        msg.toLowerCase().includes("restored")
+          ? "تم استرجاع السجل بنجاح"
+          : msg || "تم الاسترجاع بنجاح";
+      toast.success(arabicMsg);
       qc.invalidateQueries({ queryKey: TrashQK.all });
     },
     onError: () => {
@@ -64,7 +69,12 @@ export const useForceDeleteItem = () => {
   return useMutation<TrashActionResponse, Error, { slug: string; id: number }>({
     mutationFn: ({ slug, id }) => api.forceDeleteItem(slug, id),
     onSuccess: (data) => {
-      toast.success(data.message || "تم الحذف نهائياً");
+      const msg = data.message || "";
+      const arabicMsg =
+        msg.toLowerCase().includes("permanently deleted")
+          ? "تم حذف السجل نهائياً"
+          : msg || "تم الحذف نهائياً";
+      toast.success(arabicMsg);
       qc.invalidateQueries({ queryKey: TrashQK.all });
     },
     onError: () => {

@@ -239,7 +239,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                         {isProductOwner ? (
                                             <button
                                                 disabled
-                                                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
+                                                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-500 cursor-not-allowed opacity-60"
                                             >
                                                 <Flag className="w-4 h-4" />
                                                 ابلاغ عن المنتج

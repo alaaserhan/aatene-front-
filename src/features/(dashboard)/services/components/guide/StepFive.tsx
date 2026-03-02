@@ -4,12 +4,12 @@ export default function StepFive() {
     return (
         <div className="w-full">
             <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8">
-                <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#2D496A] text-white font-bold text-base md:text-lg lg:text-xl">
+                <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#2D496A] text-white font-bold text-base md:text-lg lg:text-xl leading-[1] pt-0.5">
                     4
                 </div>
                 <div>
                     <h2 className="text-[#2D496A] font-bold text-base md:text-lg lg:text-xl">وصف الخدمة</h2>
-                    <p className="text-[#5B7C93] text-xs md:text-sm lg:text-base mt-1">إضافة البيانات المطلوبة والتأكد من صحتها</p>
+                    <p className="text-[#2D496A] text-xs md:text-sm lg:text-base mt-1">إضافة البيانات المطلوبة والتأكد من صحتها</p>
                 </div>
             </div>
 
@@ -106,20 +106,20 @@ export default function StepFive() {
                     className="absolute w-[49%] scale-y-106 top-[40.5%] left-[35.5%] "
                 />
 
-                <p className="absolute text-[#5B7C93] text-xs leading-relaxed text-right top-[6.5%] left-[93.5%] max-w-[5.5%]">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium leading-relaxed text-right top-[6.5%] left-[93.5%]">
                     وصف كامل للخدمة يمكنك إضافة المميزات أيضا
                 </p>
 
-                <p className="absolute text-[#5B7C93] text-xs leading-relaxed text-right top-[19%] left-[91.7%] max-w-[10%]">
-                    يمكن استخدام ميزة الذكاء الاصطناعي لتوليد الكلمات المفتاحية من خلال الوصف ( وهي الكلمات التي تساعدك في الظهور للمستخدمين عند البحث عن الخدمة)
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium leading-relaxed text-right top-[20%] left-[91.7%] max-w-[10%]">
+                    يمكن استخدام ميزة الذكاء الاصطناعي لتوليد الكلمات المفتاحية من خلال الوصف <br/>( وهي الكلمات التي تساعدك في الظهور للمستخدمين عند البحث عن الخدمة)
                 </p>
 
-                 <p className="absolute text-[#5B7C93] text-xs leading-relaxed text-right top-[56.5%] left-[91.5%] max-w-[8.5%]">
+                 <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium leading-relaxed text-right top-[56.5%] left-[92.5%] max-w-[8.5%]">
                     الكلمات المفتاحية تساعدك في ظهور منتجك عند البحث بإستخدام هذه الكلمة
                 </p>
 
 
-                <p className="absolute text-[#5B7C93] text-xs leading-relaxed text-right top-[74.5%] left-[92.7%] max-w-[10%]">
+                <p className="absolute text-[#2D496A] text-xs md:text-sm font-medium leading-relaxed text-right top-[74.5%] left-[92.7%] max-w-[10%]">
                    الأسئلة الشائعة التي تستطيع فيها كتابة الأسئلة المتكررة حول الخدمة مع كتابة إجاباتها   
                 </p>
             </div>
@@ -133,7 +133,7 @@ export default function StepFive() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center">  هنا يمكنك إضافه وصف كامل للخدمة يمكنك إضافة المميزات أيضا كما يمكن استخدام ميزة الذكاء الاصطناعي لتوليد الكلمات المفتاحية من خلال الوصف ( وهي الكلمات التي تساعدك في الظهور للمستخدمين عند البحث عن الخدمة) </p>
+                        <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center">  هنا يمكنك إضافه وصف كامل للخدمة يمكنك إضافة المميزات أيضا كما يمكن استخدام ميزة الذكاء الاصطناعي لتوليد الكلمات المفتاحية من خلال الوصف ( وهي الكلمات التي تساعدك في الظهور للمستخدمين عند البحث عن الخدمة) </p>
 
                     </div>
 
@@ -153,7 +153,7 @@ export default function StepFive() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center"> الكلمات المفتاحية تساعدك في ظهور منتجك عند البحث بإستخدام هذه الكلمة </p>
+                        <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center"> الكلمات المفتاحية تساعدك في ظهور منتجك عند البحث بإستخدام هذه الكلمة </p>
 
                     </div>
 
@@ -174,7 +174,7 @@ export default function StepFive() {
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
                         />
-                        <p className="text-xs md:text-sm text-[#5B7C93] font-medium text-center"> الأسئلة الشائعة
+                        <p className="text-xs md:text-sm text-[#2D496A] font-medium text-center"> الأسئلة الشائعة
 التي تستطيع فيها كتابة الأسئلة المتكررة حول الخدمة مع كتابة إجاباتها  </p>
                     </div>
 

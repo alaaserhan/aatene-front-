@@ -8,6 +8,7 @@ import { Input } from "@/src/components/ui/input";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { AttributeModal } from "./AttributeModal";
 import { useCreateAttribute, useUpdateAttribute } from "../hooks";
+import { Pagination } from "@/src/components/ui/Pagination";
 
 interface LinkAttributesViewProps {
   categories: Category[];
@@ -204,44 +205,13 @@ export function LinkAttributesView({
     currentPage: number; totalPages: number; onPageChange: (page: number) => void;
   }) => {
     if (totalPages <= 1) return null;
-    const showPages = 3;
-    let startPage = Math.max(1, currentPage - 1);
-    let endPage = Math.min(totalPages, startPage + showPages - 1);
-    if (endPage - startPage < showPages - 1) {
-      startPage = Math.max(1, endPage - showPages + 1);
-    }
-    const pages = [];
-    for (let i = startPage; i <= endPage; i++) pages.push(i);
-
     return (
-      <div className="flex items-center justify-center gap-1 py-2">
-        <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage >= totalPages}
-          className="w-7 h-7 flex items-center justify-center rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100"
-          style={{ color: '#6B7280' }}>
-          <ChevronRight className="w-3 h-3" />
-        </button>
-        {pages.map(page => (
-          <button key={page} onClick={() => onPageChange(page)}
-            className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-semibold transition-all"
-            style={{ backgroundColor: page === currentPage ? '#1E293B' : 'transparent', color: page === currentPage ? '#FFFFFF' : '#6B7280' }}>
-            {page}
-          </button>
-        ))}
-        {endPage < totalPages && (
-          <>
-            <span className="text-xs text-gray-400 px-1">...</span>
-            <button onClick={() => onPageChange(totalPages)}
-              className="w-7 h-7 flex items-center justify-center rounded-full text-xs font-semibold transition-all hover:bg-gray-100"
-              style={{ color: '#6B7280' }}>
-              {totalPages}
-            </button>
-          </>
-        )}
-        <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage <= 1}
-          className="w-7 h-7 flex items-center justify-center rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100"
-          style={{ color: '#6B7280' }}>
-          <ChevronLeft className="w-3 h-3" />
-        </button>
+      <div className="py-2 [&_button]:w-7 [&_button]:h-7 [&_button]:text-xs [&_span]:w-7 [&_span]:h-7">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
       </div>
     );
   };
