@@ -306,7 +306,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
               </div>
             ) : (
               <div className="flex items-center gap-2 md:gap-3">
-                <img src="/hugeicons_shirt-01.png" alt="" className="w-5 h-5 md:w-6 md:h-6" />
+                <img src="/guide-images/hugeicons_shirt-01.png" alt="" className="w-5 h-5 md:w-6 md:h-6" />
                 <h1 className="text-xl md:text-2xl font-bold text-[#2D496A]">
                   دليل شامل مع أمثلة مصورة لإضافة منتجات جديدة بسهولة
                 </h1>
@@ -353,7 +353,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
             <div className="px-4 md:px-8 pt-4 md:pt-6">
               <div className="bg-[#DDE9F5] border-r-4 border-r-[#5B87B9] rounded-xl p-4 md:p-6 mb-4 md:mb-8 shadow-sm">
                 <div className="flex items-start gap-3 md:gap-4">
-                  <img src="/idea-01.png" alt="" className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0" />
+                  <img src="/guide-images/idea-01.png" alt="" className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0" />
                   <div className="flex-1">
                     <h3 className="text-[#2D496A] font-bold text-base md:text-lg mb-2 md:mb-3">مرحباً بك في دليل إضافة المنتجات.</h3>
                     <p className="text-[#5B7C93] text-sm md:text-base leading-relaxed mb-2 md:mb-3">

@@ -16,14 +16,14 @@ export default function StepSix() {
             <div className="hidden lg:block relative w-full max-w-[1336px] min-h-[500px] mx-auto ">
 
                 <img
-                    src="/images/Frame1step66.webp"
+                    src="/guide-images/Frame1step66.webp"
                     alt=" مراجعة - يمين أعلى"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[31.4%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/Arrow1step66.svg"
+                    src="/guide-images/Arrow1step66.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[4%] h-auto top-[45.5%] left-[63%]"
@@ -42,7 +42,7 @@ export default function StepSix() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div className="flex flex-col gap-3 order-1">
                         <img
-                            src="/images/Frame1step66.webp"
+                            src="/guide-images/Frame1step66.webp"
                             alt=" مراجعة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"

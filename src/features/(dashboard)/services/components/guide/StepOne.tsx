@@ -8,21 +8,21 @@ export default function StepOne() {
             
             <div className="hidden lg:block relative w-full max-w-[1336px] min-h-[400px] mx-auto ">
                 <img
-                    src="/images/Frame1step11.webp"
+                    src="/guide-images/Frame1step11.webp"
                     alt="صفحة المتجر"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[57.3%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame2step11.webp"
+                    src="/guide-images/Frame2step11.webp"
                     alt="لوحة التحكم"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/Arrow1.png"
+                    src="/guide-images/Arrow1.png"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[20.1%] h-auto top-[33%] left-[40%]"
@@ -42,7 +42,7 @@ export default function StepOne() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div className="flex flex-col gap-3 order-1">
                         <img
-                            src="/images/Frame1step11.webp"
+                            src="/guide-images/Frame1step11.webp"
                             alt="صفحة المتجر"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -54,7 +54,7 @@ export default function StepOne() {
 
                     <div className="flex flex-col gap-3 order-3 md:col-span-2">
                         <img
-                            src="/images/Frame2step11.webp"
+                            src="/guide-images/Frame2step11.webp"
                             alt="الإختيارات والكميات"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"

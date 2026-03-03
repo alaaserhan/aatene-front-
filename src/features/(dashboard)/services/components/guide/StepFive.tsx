@@ -16,91 +16,91 @@ export default function StepFive() {
             <div className="hidden lg:block relative w-full max-w-[1336px] min-h-[1100px] mx-auto ">
 
                 <img
-                    src="/images/Frame1step55.webp"
+                    src="/guide-images/Frame1step55.webp"
                     alt="وصف الخدمة - يمين أعلى"
                     className="absolute w-[36.4%] h-auto top-[3%] left-[56.4%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame2step55.webp"
+                    src="/guide-images/Frame2step55.webp"
                     alt="وصف الخدمة - يسار أعلى"
                     className="absolute w-[36.4%] h-auto top-[3%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame3step55.webp"
+                    src="/guide-images/Frame3step55.webp"
                     alt="وصف الخدمة - يسار أعلى"
                     className="absolute w-[36.4%] h-auto top-[38%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
                 />
                 
                 <img
-                    src="/images/Frame1step55.webp"
+                    src="/guide-images/Frame1step55.webp"
                     alt="وصف الخدمة - يسار أعلى"
                     className="absolute w-[36.4%] h-auto top-[38%] left-[56.4%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame5step55.webp"
+                    src="/guide-images/Frame5step55.webp"
                     alt="وصف الخدمة - يمين أسفل"
                     className="absolute w-[36.4%] h-auto top-[72%] left-[57.3%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame6step55.webp"
+                    src="/guide-images/Frame6step55.webp"
                     alt="وصف الخدمة - يسار أسفل"
                     className="absolute w-[36.4%] h-auto top-[72%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/Arrow3step55.svg"
+                    src="/guide-images/Arrow3step55.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[2.8%] h-auto top-[75.3%] left-[89.5%]"
                 />
 
                 <img
-                    src="/Arrow4step55.svg"
+                    src="/guide-images/Arrow4step55.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[35%] h-auto top-[5.5%] left-[36%] "
                 />
 
                 <img
-                    src="/Arrow1step55.svg"
+                    src="/guide-images/Arrow1step55.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[5.5%] h-auto top-[7.1%] left-[88.4%]"
                 />
 
                 <img
-                    src="/Arrow2step55.svg"
+                    src="/guide-images/Arrow2step55.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[10.4%] h-auto top-[20.4%] left-[80.8%]"
                 />
 
                 <img
-                    src="/Arrow5step55.svg"
+                    src="/guide-images/Arrow5step55.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[34.7%] h-auto top-[77%] left-[37%] "
                 />
 
                 <img
-                    src="/Arrow1step55.svg"
+                    src="/guide-images/Arrow1step55.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[4.5%] h-auto top-[57.1%] left-[88.4%]"
                 />
                 
                 <img
-                    src="/Arrow6step55.svg"
+                    src="/guide-images/Arrow6step55.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[49%] scale-y-106 top-[40.5%] left-[35.5%] "
@@ -128,7 +128,7 @@ export default function StepFive() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div className="flex flex-col gap-3 order-1">
                         <img
-                            src="/images/Frame1step55.webp"
+                            src="/guide-images/Frame1step55.webp"
                             alt="وصف الخدمة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -139,7 +139,7 @@ export default function StepFive() {
 
                     <div className="flex flex-col gap-3 order-2">
                         <img
-                            src="/images/Frame2step55.webp"
+                            src="/guide-images/Frame2step55.webp"
                             alt="وصف الخدمة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -148,7 +148,7 @@ export default function StepFive() {
 
                     <div className="flex flex-col gap-3 order-2">
                         <img
-                            src="/images/Frame1step55.webp"
+                            src="/guide-images/Frame1step55.webp"
                             alt="وصف الخدمة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -159,7 +159,7 @@ export default function StepFive() {
 
                     <div className="flex flex-col gap-3 order-3">
                         <img
-                            src="/images/Frame3step55.webp"
+                            src="/guide-images/Frame3step55.webp"
                             alt="وصف الخدمة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -169,7 +169,7 @@ export default function StepFive() {
 
                     <div className="flex flex-col gap-3 order-4">
                         <img
-                            src="/images/Frame5step55.webp"
+                            src="/guide-images/Frame5step55.webp"
                             alt="وصف الخدمة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -180,7 +180,7 @@ export default function StepFive() {
 
                     <div className="flex flex-col gap-3 order-4">
                         <img
-                            src="/images/Frame6step55.webp"
+                            src="/guide-images/Frame6step55.webp"
                             alt="وصف الخدمة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"

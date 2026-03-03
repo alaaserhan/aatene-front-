@@ -15,56 +15,56 @@ export default function StepTwo() {
 
             <div className="hidden lg:block relative w-full max-w-[1336px] min-h-[700px] mx-auto ">
                 <img
-                    src="/images/Frame2step22.webp"
+                    src="/guide-images/Frame2step22.webp"
                     alt="التصنيفات - يسار"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame1step22.webp"
+                    src="/guide-images/Frame1step22.webp"
                     alt="التصنيفات - يمين"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[55.9%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame3step22.webp"
+                    src="/guide-images/Frame3step22.webp"
                     alt="التصنيفات - وسط أسفل"
                     className="absolute w-[36.4%] h-auto top-[55%] left-[55.9%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame4step22.webp"
+                    src="/guide-images/Frame4step22.webp"
                     alt="التصنيفات - وسط أسفل"
                     className="absolute w-[36.4%] h-auto top-[55%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/Arrow1step22.svg"
+                    src="/guide-images/Arrow1step22.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[5.1%] h-auto top-[21.5%] left-[87%]"
                 />
 
                 <img
-                    src="/Arrow2step22.svg"
+                    src="/guide-images/Arrow2step22.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[54.8%] h-[30%] top-[1.2%] left-[17.1%]  "
                 />
 
                 <img
-                    src="/Arrow3step22.svg"
+                    src="/guide-images/Arrow3step22.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[4.1%] h-auto top-[32.3%] left-[87.8%]"
                 />
 
                 <img
-                    src="/Arrow4step22.svg"
+                    src="/guide-images/Arrow4step22.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[16.3%] h-auto top-[39.5%] left-[54.8%] "
@@ -74,14 +74,14 @@ export default function StepTwo() {
 
 
                 <img
-                    src="/Arrow5step22.svg"
+                    src="/guide-images/Arrow5step22.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[5.7%] h-auto top-[75.8%] left-[87.5%]"
                 />
 
                 <img
-                    src="/Arrow6step22.svg"
+                    src="/guide-images/Arrow6step22.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[50.7%] h-auto top-[85.5%] left-[21.5%]"
@@ -110,7 +110,7 @@ export default function StepTwo() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div className="flex flex-col gap-3 order-1">
                         <img
-                            src="/images/Frame1step22.webp"
+                            src="/guide-images/Frame1step22.webp"
                             alt="التصنيفات"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -121,7 +121,7 @@ export default function StepTwo() {
 
                     <div className="flex flex-col gap-3 order-2">
                         <img
-                            src="/images/Frame2step22.webp"
+                            src="/guide-images/Frame2step22.webp"
                             alt="التصنيفات"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -130,7 +130,7 @@ export default function StepTwo() {
 
                     <div className="flex flex-col gap-3 order-3 md:col-span-2">
                         <img
-                            src="/images/Frame3step22.webp"
+                            src="/guide-images/Frame3step22.webp"
                             alt="التصنيفات"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -141,7 +141,7 @@ export default function StepTwo() {
 
                     <div className="flex flex-col gap-3 order-3 md:col-span-2">
                         <img
-                            src="/images/Frame4step22.webp"
+                            src="/guide-images/Frame4step22.webp"
                             alt="التصنيفات"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"

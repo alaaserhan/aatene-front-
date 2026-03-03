@@ -15,49 +15,49 @@ export default function StepTwo() {
 
             <div className="hidden lg:block relative w-full max-w-[1336px] min-h-[700px] mx-auto ">
                 <img
-                    src="/images/Frame2steptwo.webp"
+                    src="/guide-images/Frame2steptwo.webp"
                     alt="صفحة المنتج في الموقع"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame1step2.webp"
+                    src="/guide-images/Frame1step2.webp"
                     alt="لوحة التحكم - معلومات أساسية"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[57.3%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame4steptwo.webp"
+                    src="/guide-images/Frame4steptwo.webp"
                     alt="صفحة المنتج - تفاصيل المنتج"
                     className="absolute w-[36.4%] h-auto top-[56.4%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame3steptwo.webp"
+                    src="/guide-images/Frame3steptwo.webp"
                     alt="لوحة التحكم - حالة المنتج والوصف"
                     className="absolute w-[36.4%] h-auto top-[56.4%] left-[57.3%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/Arrow3step2.svg"
+                    src="/guide-images/Arrow3step2.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[48.6%] h-[12.1%] top-[18.4%] right-[15%]"
                 />
 
                 <img
-                    src="/Arrow2step2.png"
+                    src="/guide-images/Arrow2step2.png"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[56%] h-[20%] top-[18%] right-[27.9%]"
                 />
 
                 <img
-                    src="/Arrow4step2.png"
+                    src="/guide-images/Arrow4step2.png"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[56.6%] h-[45.3%] top-[23%] right-[28.5%]"
@@ -67,7 +67,7 @@ export default function StepTwo() {
 
 
                 <img
-                    src="/Arrow1step2.png"
+                    src="/guide-images/Arrow1step2.png"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[4.3%] h-auto top-[58.8%] left-[88.9%]"
@@ -78,7 +78,7 @@ export default function StepTwo() {
                 </p>
 
                 <img
-                    src="/Arrow1step2.png"
+                    src="/guide-images/Arrow1step2.png"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[5.8%] h-auto top-[93.5%] left-[89.8%]"
@@ -92,7 +92,7 @@ export default function StepTwo() {
 
 
                 <img
-                    src="/Arrow3(1)step2.svg"
+                    src="/guide-images/Arrow3(1)step2.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[15%] h-auto top-[61%] left-[57.3%] "
@@ -102,7 +102,7 @@ export default function StepTwo() {
                     مستعمل
                 </p>
                 <img
-                    src="/Arrow5step2.svg"
+                    src="/guide-images/Arrow5step2.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[32%] h-[16%] top-[76.8%] left-[39.3%] "
@@ -113,7 +113,7 @@ export default function StepTwo() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div className="flex flex-col gap-3 order-1">
                         <img
-                            src="/images/Frame1step2.webp"
+                            src="/guide-images/Frame1step2.webp"
                             alt="لوحة التحكم - معلومات أساسية"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -122,7 +122,7 @@ export default function StepTwo() {
 
                     <div className="flex flex-col gap-3 order-3 md:order-2">
                         <img
-                            src="/images/Frame2steptwo.webp"
+                            src="/guide-images/Frame2steptwo.webp"
                             alt="صفحة المنتج في الموقع"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -131,7 +131,7 @@ export default function StepTwo() {
 
                     <div className="flex flex-col gap-3 order-2 md:order-3">
                         <img
-                            src="/images/Frame3steptwo.webp"
+                            src="/guide-images/Frame3steptwo.webp"
                             alt="لوحة التحكم - حالة المنتج والوصف"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -145,7 +145,7 @@ export default function StepTwo() {
 
                     <div className="flex flex-col gap-3 order-4">
                         <img
-                            src="/images/Frame4steptwo.webp"
+                            src="/guide-images/Frame4steptwo.webp"
                             alt="صفحة المنتج - تفاصيل المنتج"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"

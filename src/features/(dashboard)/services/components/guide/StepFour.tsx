@@ -15,28 +15,28 @@ export default function StepFour() {
 
             <div className="hidden lg:block relative w-full max-w-[1336px] min-h-[400px] mx-auto ">
                 <img
-                    src="/images/Frame2step44.webp"
+                    src="/guide-images/Frame2step44.webp"
                     alt="صور الخدمة - يسار"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame1step44.webp"
+                    src="/guide-images/Frame1step44.webp"
                     alt="صور الخدمة - يمين"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[57.3%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/Arrow1step44.svg"
+                    src="/guide-images/Arrow1step44.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[46.2%] h-auto top-[18%] left-[38%] "
                 />
 
                 <img
-                    src="/Arrow2step44.svg"
+                    src="/guide-images/Arrow2step44.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[9.7%] h-[35%] top-[50.1%] left-[88%] "
@@ -51,7 +51,7 @@ export default function StepFour() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div className="flex flex-col gap-3 order-1">
                         <img
-                            src="/images/Frame1step44.webp"
+                            src="/guide-images/Frame1step44.webp"
                             alt="صور الخدمة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -62,7 +62,7 @@ export default function StepFour() {
 
                     <div className="flex flex-col gap-3 order-2">
                         <img
-                            src="/images/Frame2step44.webp"
+                            src="/guide-images/Frame2step44.webp"
                             alt="صور الخدمة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"

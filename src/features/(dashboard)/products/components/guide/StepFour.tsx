@@ -15,28 +15,28 @@ export default function StepFour() {
 
             <div className="hidden lg:block relative w-full max-w-[1336px] min-h-[800px] mx-auto ">
                 <img
-                    src="/images/Frame1step4.webp"
+                    src="/guide-images/Frame1step4.webp"
                     alt="الإختيارات والكميات - يمين"
                     className="absolute w-[36.4%] h-auto top-[3%] left-[57.3%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame2step4.webp"
+                    src="/guide-images/Frame2step4.webp"
                     alt="الإختيارات والكميات - يسار"
                     className="absolute w-[36.4%] h-auto top-[3%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/images/Frame3step4.webp"
+                    src="/guide-images/Frame3step4.webp"
                     alt="الإختيارات والكميات - وسط"
                     className="absolute w-[36.4%] h-auto top-[57.4%] left-[57.3%] drop-shadow-xl"
                     loading="lazy"                
                 />
 
                 <img
-                    src="/images/Frame4step4.webp"
+                    src="/guide-images/Frame4step4.webp"
                     alt="صفحة المنتج - تفاصيل المنتج"
                     className="absolute w-[36.4%] h-auto top-[57.4%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
@@ -44,7 +44,7 @@ export default function StepFour() {
 
 
                 <img
-                    src="/Arrow1step4.svg"
+                    src="/guide-images/Arrow1step4.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[45%] h-auto top-[21%] left-[39.5%] "
@@ -52,7 +52,7 @@ export default function StepFour() {
 
 
                 <img
-                    src="/Arrow3step4.svg"
+                    src="/guide-images/Arrow3step4.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[3.5%] h-auto top-[17.3%] left-[89%]"
@@ -67,7 +67,7 @@ export default function StepFour() {
                 </p>
 
                 <img
-                    src="/Arrow4step4.svg"
+                    src="/guide-images/Arrow4step4.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[17.9%] h-auto top-[80%] left-[53.5%]"
@@ -78,7 +78,7 @@ export default function StepFour() {
                 </p>
 
                 <img
-                    src="/Arrow4step4.svg"
+                    src="/guide-images/Arrow4step4.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[16.7%] h-auto top-[84.4%] left-[57%]"
@@ -89,14 +89,14 @@ export default function StepFour() {
                 </p>
 
                 <img
-                    src="/Arrow4step4.svg"
+                    src="/guide-images/Arrow4step4.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[17.3%] h-auto top-[87.5%] left-[54.5%]"
                 />
 
                 <img
-                    src="/Arrow5step4.svg"
+                    src="/guide-images/Arrow5step4.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[7%] h-auto top-[88.5%] left-[88.5%]"
@@ -107,7 +107,7 @@ export default function StepFour() {
                 </p>
 
                 <img
-                    src="/Arrow6step4.svg"
+                    src="/guide-images/Arrow6step4.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[10%] h-auto top-[74.5%] left-[1.5%]"
@@ -118,7 +118,7 @@ export default function StepFour() {
                 </p>
 
                 <img
-                    src="/Arrow7step4.svg"
+                    src="/guide-images/Arrow7step4.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[60%] h-auto top-[34%] left-[23.5%]"
@@ -133,7 +133,7 @@ export default function StepFour() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div className="flex flex-col gap-3 order-1">
                         <img
-                            src="/images/Frame1step4.webp"
+                            src="/guide-images/Frame1step4.webp"
                             alt="الإختيارات والكميات"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -144,7 +144,7 @@ export default function StepFour() {
 
                     <div className="flex flex-col gap-3 order-2">
                         <img
-                            src="/images/Frame2step4.webp"
+                            src="/guide-images/Frame2step4.webp"
                             alt="الإختيارات والكميات"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -154,7 +154,7 @@ export default function StepFour() {
 
                     <div className="flex flex-col gap-3 order-3 md:col-span-2">
                         <img
-                            src="/images/Frame3step4.webp"
+                            src="/guide-images/Frame3step4.webp"
                             alt="الإختيارات والكميات"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -164,7 +164,7 @@ export default function StepFour() {
 
                     <div className="flex flex-col gap-3 order-3 md:col-span-2">
                         <img
-                            src="/images/Frame4step4.webp"
+                            src="/guide-images/Frame4step4.webp"
                             alt="الإختيارات والكميات"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"

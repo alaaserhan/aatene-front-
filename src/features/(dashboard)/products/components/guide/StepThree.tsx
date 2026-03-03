@@ -19,42 +19,42 @@ export default function StepThree() {
 
             <div className="hidden lg:block relative w-full max-w-[1336px] min-h-[750px] mx-auto overflow-visible">
                 <img
-                    src="/images/Frame1step3.webp"
+                    src="/guide-images/Frame1step3.webp"
                     alt="معلومات متقدمة"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[57.3%] drop-shadow-xl"
                     loading="lazy"
                 />
 
                 <img
-                    src="/Arrow1stepthree.svg"
+                    src="/guide-images/Arrow1stepthree.svg"
                     loading="lazy"
                     alt="arrow"
                     className="absolute w-[32.1%] h-auto top-[22%] left-[40%]"
                 />
 
                 <img
-                    src="/Arrow1stepthree.png"
+                    src="/guide-images/Arrow1stepthree.png"
                     loading="lazy"
                     alt=""
                     className="absolute w-[5.2%] top-[20%] left-[89%]"
                 />
 
                 <img
-                    src="/Arrow2step3.svg"
+                    src="/guide-images/Arrow2step3.svg"
                     loading="lazy"
                     alt=""
                     className="absolute w-[6.5%] top-[76%] left-[88.9%] z-[10]"
                 />
 
                 <img
-                    src="/Arrow2stepthree.png"
+                    src="/guide-images/Arrow2stepthree.png"
                     loading="lazy"
                     alt=""
                     className="absolute w-[5.1%] top-[26.7%] left-[58%]"
                 />
 
                 <img
-                    src="/Arrow4step3.svg"
+                    src="/guide-images/Arrow4step3.svg"
                     loading="lazy"
                     alt=""
                     className="absolute w-[48.5%] h-[30.4%] top-[54.5%] left-[36.5%] z-10"
@@ -69,7 +69,7 @@ export default function StepThree() {
                 </p>
 
                 <img
-                    src="/images/Frame2step1.webp"
+                    src="/guide-images/Frame2step1.webp"
                     alt="معلومات متقدمة"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
@@ -80,7 +80,7 @@ export default function StepThree() {
                 </p>
 
                 <img
-                    src="/images/Frame3step3.webp"
+                    src="/guide-images/Frame3step3.webp"
                     alt="معلومات متقدمة"
                     className="absolute w-[36.4%] h-auto top-[56.4%] left-[5.6%] drop-shadow-xl"
                     loading="lazy"
@@ -92,7 +92,7 @@ export default function StepThree() {
                 </p>
 
                 <img
-                    src="/images/Frame1step3.webp"
+                    src="/guide-images/Frame1step3.webp"
                     alt="معلومات متقدمة"
                     className="absolute w-[36.4%] h-auto top-[56.4%] left-[57.3%] drop-shadow-xl"
                     loading="lazy"
@@ -107,7 +107,7 @@ export default function StepThree() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div className="flex flex-col gap-3 order-1">
                         <img
-                            src="/images/Frame1step3.webp"
+                            src="/guide-images/Frame1step3.webp"
                             alt="معلومات متقدمة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -118,7 +118,7 @@ export default function StepThree() {
 
                     <div className="flex flex-col gap-3 order-2">
                         <img
-                            src="/images/Frame2step1.webp"
+                            src="/guide-images/Frame2step1.webp"
                             alt="معلومات متقدمة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -129,7 +129,7 @@ export default function StepThree() {
 
                     <div className="flex flex-col gap-3 order-2">
                         <img
-                            src="/images/Frame1step3.webp"
+                            src="/guide-images/Frame1step3.webp"
                             alt="معلومات متقدمة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
@@ -141,7 +141,7 @@ export default function StepThree() {
 
                     <div className="flex flex-col gap-3 order-2">
                         <img
-                            src="/images/Frame3step3.webp"
+                            src="/guide-images/Frame3step3.webp"
                             alt="معلومات متقدمة"
                             className="w-full h-auto drop-shadow-xl rounded-lg"
                             loading="lazy"
