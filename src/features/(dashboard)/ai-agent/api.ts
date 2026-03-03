@@ -2,9 +2,9 @@
 import axios, { InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
 
-const BASE_URL_5000 = "https://api1.aatene.com/api";
-const BASE_URL_5002 = "https://api2.aatene.com/api";
-const BASE_URL_5005 = "https://api3.aatene.com";
+const BASE_URL_5000 = "https://api1.mosaady.com/api";
+const BASE_URL_5002 = "https://api2.mosaady.com/api";
+const BASE_URL_5005 = "https://api3.mosaady.com";
 
 const authInterceptor = (config: InternalAxiosRequestConfig) => {
     const token = Cookies.get("token");

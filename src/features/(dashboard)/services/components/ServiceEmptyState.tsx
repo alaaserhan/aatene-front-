@@ -8,9 +8,10 @@ import { Plus, Layers } from "lucide-react";
 interface ServiceEmptyStateProps {
     type: "no-sections" | "no-services";
     storeId: string;
+    onAddSection?: () => void;
 }
 
-export function ServiceEmptyState({ type, storeId }: ServiceEmptyStateProps) {
+export function ServiceEmptyState({ type, storeId, onAddSection }: ServiceEmptyStateProps) {
     const isNoSections = type === "no-sections";
 
     return (
@@ -35,17 +36,19 @@ export function ServiceEmptyState({ type, storeId }: ServiceEmptyStateProps) {
                     : "يمكنك البدء بإضافة خدمات جديدة لهذا المتجر الآن."}
             </p>
 
-            <Link
-                href={isNoSections
-                    ? `/admin/sections?store_id=${storeId}`
-                    : `/admin/serviceProviders/services/add/${storeId}`
-                }
-            >
-                <Button className="bg-blue-3 text-white py-5 cursor-pointer rounded-xs">
+            {isNoSections ? (
+                <Button onClick={onAddSection} className="bg-blue-3 text-white py-5 cursor-pointer rounded-xs">
                     <Plus className="w-5 h-5" />
-                    {isNoSections ? "إضافة قسم جديد" : "إضافة خدمة جديدة"}
+                    إضافة قسم جديد
                 </Button>
-            </Link>
+            ) : (
+                <Link href={`/admin/serviceProviders/services/add/${storeId}`}>
+                    <Button className="bg-blue-3 text-white py-5 cursor-pointer rounded-xs">
+                        <Plus className="w-5 h-5" />
+                        إضافة خدمة جديدة
+                    </Button>
+                </Link>
+            )}
         </div>
     );
 }

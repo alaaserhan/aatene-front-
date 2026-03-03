@@ -17,6 +17,7 @@ interface SidebarFilterPanelProps {
   onValueChange: (value: string) => void;
   className?: string;
   action?: ReactNode;
+  totalItemsCount?: number;
 }
 
 export function SidebarFilterPanel({
@@ -25,6 +26,7 @@ export function SidebarFilterPanel({
   onValueChange,
   className,
   action,
+  totalItemsCount,
 }: SidebarFilterPanelProps) {
   return (
     <div
@@ -45,17 +47,25 @@ export function SidebarFilterPanel({
                     "w-full flex items-center justify-between p-3 transition-colors cursor-pointer",
                     isActive
                       ? "bg-blue-5 text-blue-3 font-medium"
-                      : "text-gray-2 hover:bg-gray-50"
+                      : "text-gray-2 hover:bg-gray-50",
+                    option.value === "other" && !activeValue ? "bg-blue-5 text-blue-3 font-medium" : "" // Handle default selection style
                   )}
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>{option.name}</span>
+                  <span className="flex-1 text-right text-base mx-2">
+                    {option.name}
+                    {option.value === "other" && totalItemsCount !== undefined && (
+                      <span className={cn("mr-1 text-base font-medium", (isActive || !activeValue) ? "text-blue-3" : "text-gray-400")}>
+                        ({totalItemsCount})
+                      </span>
+                    )}
+                  </span>
                 </button>
               </li>
             );
           })}
         </ul>
-      {action && <div className="p-3">{action}</div>}
+        {action && <div className="p-3 border-t border-gray-100">{action}</div>}
       </ScrollArea>
     </div>
   );

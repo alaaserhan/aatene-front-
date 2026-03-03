@@ -279,70 +279,43 @@ export function ServicesPage({ storeId }: { storeId: number }) {
 
             {/* ── Header تاجر ── */}
             {userType === "merchant" && (
-                !showGuide ? (
-                    /* الوضع العادي: Avatar card كما هو */
-                    <>
-                        <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
-                        <header className="p-4 pb-0">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-4">
-                                <div className="flex items-center gap-4">
-                                    <Avatar className="w-16 h-16 border border-gray-100 shadow-sm">
-                                        <AvatarImage src={store?.owner?.avatar_url || ""} />
-                                        <AvatarFallback>{store?.owner?.first_name?.[0]}</AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <h1 className="text-xl text-blue-3 font-medium mb-1">
-                                            {store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "جاري التحميل..."}
-                                        </h1>
-                                        <p className="text-sm text-gray-2 font-medium">{store?.services_count} خدمات</p>
-                                    </div>
-                                </div>
-                                <div className="flex flex-row gap-2">
-                                    <Link href={`/admin/serviceProviders/services/add/${storeId}`}>
-                                        <Button className="bg-blue-3 text-white px-6 gap-2">
-                                            <Plus className="w-5 h-5" />
-                                            انشئ خدمة جديدة
-                                        </Button>
-                                    </Link>
-                                    <button
-                                        onClick={() => { setShowGuide(true); setGuideStep(1); }}
-                                        className="flex items-center gap-2 bg-[#C8D7E8] text-[#2D496A] border border-[#5B87B9] text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#b8cbdc] transition-colors"
-                                    >
-                                        <HelpCircle className="w-4 h-4" />
-                                        مساعدة
-                                    </button>
-                                </div>
+                <header className="w-full bg-transparent p-6 pb-0">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        {!showGuide ? (
+                            <div>
+                                <h1 className="text-xl md:text-2xl font-bold text-brand-black-1">إدارة الخدمات</h1>
+                                <p className="text-sm text-gray-2 mt-1">عرض وإدارة جميع خدماتك</p>
                             </div>
-                        </header>
-                    </>
-                ) : (
-                    /* وضع الدليل: عنوان الدليل فقط */
-                    <header className="w-full bg-transparent p-6 pb-0">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        ) : (
                             <div className="flex items-center gap-2 md:gap-3">
                                 <img src="/Frame.png" alt="" className="w-5 h-5 md:w-6 md:h-6" />
                                 <h1 className="text-xl md:text-2xl font-bold text-[#2D496A]">
                                     دليل شامل مع أمثلة مصورة لإضافة خدمات جديدة بسهولة
                                 </h1>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Link href={`/admin/serviceProviders/services/add/${storeId}`}>
-                                    <Button className="bg-blue-3 text-white px-6 gap-2">
-                                        <Plus className="w-5 h-5" />
-                                        انشئ خدمة جديدة
-                                    </Button>
-                                </Link>
-                                <button
-                                    onClick={() => setShowGuide(false)}
-                                    className="flex items-center gap-2 bg-[#C8D7E8] text-[#2D496A] border border-[#5B87B9] text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#b8cbdc] transition-colors"
+                        )}
+                        <div className="flex items-center gap-2">
+                            {!isLoadingSections && sections.length > 0 ? (
+                                <Link
+                                    href={`/admin/serviceProviders/services/add/${storeId}`}
+                                    className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-lg font-medium transition-colors"
+                                    style={{ backgroundColor: "var(--blue-3)" }}
                                 >
-                                    <HelpCircle className="w-4 h-4" />
-                                    مساعدة
-                                </button>
-                            </div>
+                                    <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
+                                    إضافة خدمة
+                                </Link>
+
+                            ) : null}
+                            <button
+                                onClick={() => { setShowGuide((v) => !v); setGuideStep(1); }}
+                                className="flex items-center gap-2 bg-[#C8D7E8] text-[#2D496A] border border-[#5B87B9] text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#b8cbdc] transition-colors"
+                            >
+                                <HelpCircle className="w-4 h-4" />
+                                مساعدة
+                            </button>
                         </div>
-                    </header>
-                )
+                    </div>
+                </header>
             )}
 
             {/* ── دليل المساعدة (للتاجر فقط) ── */}
@@ -395,7 +368,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
 
                                 {/* Dots - منتصف */}
                                 <div className="flex items-center gap-2">
-                                    {[1,2,3,4,5,6].map((s) => (
+                                    {[1, 2, 3, 4, 5, 6].map((s) => (
                                         <button
                                             key={s}
                                             onClick={() => setGuideStep(s)}
@@ -450,93 +423,94 @@ export function ServicesPage({ storeId }: { storeId: number }) {
 
             {/* ── Main (مخفي عند عرض الدليل للتاجر) ── */}
             {(userType !== "merchant" || !showGuide) && (
-            <main className="flex-1 p-4">
-                <div className="mb-4">
-                    <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
-                        <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <Input
-                            placeholder="ابحث باسم الخدمة..."
-                            value={searchQuery}
-                            onChange={(e) => {
-                                setSearchQuery(e.target.value);
-                                setCurrentPage(1);
-                            }}
-                            className="pr-10 h-12 border-none shadow-none focus-visible:ring-0"
-                        />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-12 gap-6 items-start ">
-                    {!isLoadingSections && sections.length > 0 && (
-                        <div className="col-span-12 lg:col-span-3 h-full flex flex-col">
-                            <SidebarFilterPanel
-                                options={sectionOptions}
-                                activeValue={selectedSectionId}
-                                onValueChange={(val) => {
-                                    setSelectedSectionId(val);
+                <main className="flex-1 p-4">
+                    <div className="mb-4">
+                        <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
+                            <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <Input
+                                placeholder="ابحث باسم الخدمة..."
+                                value={searchQuery}
+                                onChange={(e) => {
+                                    setSearchQuery(e.target.value);
                                     setCurrentPage(1);
                                 }}
-                                className="h-full border border-gray-200 rounded-lg bg-white"
-                                action={
-                                    <Button
-                                        onClick={() => setIsSectionModalOpen(true)}
-                                        className="w-full  gap-2 text-blue-3 border-blue-3 rounded-xs border"
-                                        style={{ backgroundColor: "var(--blue-5)" }}
-                                    >
-                                        اضافة أقسام جديدة
-                                        <Plus className="w-4 h-4" />
-                                    </Button>
-                                }
+                                className="pr-10 h-12 border-none shadow-none focus-visible:ring-0"
                             />
                         </div>
-                    )}
+                    </div>
 
-                    <div className={`col-span-12 ${!isLoadingSections && sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col`}>
-                        <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
-                            {statusTabs.map((tab) => (
-                                <button
-                                    key={tab.key}
-                                    onClick={() => {
-                                        setActiveStatus(tab.key);
+                    <div className="grid grid-cols-12 gap-6 items-start ">
+                        {!isLoadingSections && sections.length > 0 && (
+                            <div className="col-span-12 lg:col-span-3 h-full flex flex-col">
+                                <SidebarFilterPanel
+                                    options={sectionOptions}
+                                    activeValue={selectedSectionId}
+                                    totalItemsCount={store?.services_count || 0}
+                                    onValueChange={(val) => {
+                                        setSelectedSectionId(val);
                                         setCurrentPage(1);
                                     }}
-                                    className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${activeStatus === tab.key
-                                        ? tab.activeClass
-                                        : "border-transparent text-gray-2 hover:text-gray-2"
-                                        }`}
-                                >
-                                    <span className="font-bold text-sm">{tab.label}</span>
-                                    <span
-                                        className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-xs font-bold text-white ${activeStatus === tab.key ? tab.badgeClass : "bg-gray-2"
+                                    className="h-full border border-gray-200 rounded-lg bg-white"
+                                    action={
+                                        <Button
+                                            onClick={() => setIsSectionModalOpen(true)}
+                                            className="w-full  gap-2 text-blue-3 border-blue-3 rounded-xs border"
+                                            style={{ backgroundColor: "var(--blue-5)" }}
+                                        >
+                                            اضافة أقسام جديدة
+                                            <Plus className="w-4 h-4" />
+                                        </Button>
+                                    }
+                                />
+                            </div>
+                        )}
+
+                        <div className={`col-span-12 ${!isLoadingSections && sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col`}>
+                            <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
+                                {statusTabs.map((tab) => (
+                                    <button
+                                        key={tab.key}
+                                        onClick={() => {
+                                            setActiveStatus(tab.key);
+                                            setCurrentPage(1);
+                                        }}
+                                        className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${activeStatus === tab.key
+                                            ? tab.activeClass
+                                            : "border-transparent text-gray-2 hover:text-gray-2"
                                             }`}
                                     >
-                                        {getCountForStatus(tab.key)}
-                                    </span>
-                                </button>
-                            ))}
-                        </div>
+                                        <span className="font-bold text-sm">{tab.label}</span>
+                                        <span
+                                            className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-xs font-bold text-white ${activeStatus === tab.key ? tab.badgeClass : "bg-gray-2"
+                                                }`}
+                                        >
+                                            {getCountForStatus(tab.key)}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
 
-                        {!isLoadingSections && sections.length === 0 ? (
-                            <ServiceEmptyState type="no-sections" storeId={String(storeId)} />
-                        ) : !isLoadingServices && services.length === 0 ? (
-                            <ServiceEmptyState type="no-services" storeId={String(storeId)} />
-                        ) : (
-                            <ServicesTable
-                                services={services}
-                                isLoading={isLoadingServices}
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={setCurrentPage}
-                                onToggleShown={handleToggleShown}
-                                onEdit={(service) => router.push(`/admin/serviceProviders/services/edit/${service.id}/${storeId}`)}
-                                onDelete={handleDeleteClick}
-                                onReview={(service) => router.push(`/admin/serviceProviders/services/details/${service.id}/${storeId}`)}
-                                activeStatus={activeStatus}
-                            />
-                        )}
+                            {!isLoadingSections && sections.length === 0 ? (
+                                <ServiceEmptyState type="no-sections" storeId={String(storeId)} onAddSection={() => setIsSectionModalOpen(true)} />
+                            ) : !isLoadingServices && services.length === 0 ? (
+                                <ServiceEmptyState type="no-services" storeId={String(storeId)} />
+                            ) : (
+                                <ServicesTable
+                                    services={services}
+                                    isLoading={isLoadingServices}
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={setCurrentPage}
+                                    onToggleShown={handleToggleShown}
+                                    onEdit={(service) => router.push(`/admin/serviceProviders/services/edit/${service.id}/${storeId}`)}
+                                    onDelete={handleDeleteClick}
+                                    onReview={(service) => router.push(`/admin/serviceProviders/services/details/${service.id}/${storeId}`)}
+                                    activeStatus={activeStatus}
+                                />
+                            )}
+                        </div>
                     </div>
-                </div>
-            </main>
+                </main>
             )}
 
             <ConfirmDeleteModal
