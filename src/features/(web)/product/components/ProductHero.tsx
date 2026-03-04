@@ -75,7 +75,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                 <div className="flex flex-col-reverse lg:flex-row gap-3 lg:w-[55%]">
                     {/* Thumbnails Strip */}
                     {allMedia.length > 1 && (
-                        <div className="flex gap-2.5 overflow-auto shrink-0 flex-row w-full h-[100px] lg:flex-col lg:w-[100px] lg:h-auto lg:max-h-[600px]">
+                        <div className="flex gap-2.5 overflow-auto shrink-0 flex-row w-full h-[100px] lg:flex-col lg:w-[100px] lg:h-auto lg:max-h-[600px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                             {allMedia.map((item, index) => (
                                 <button
                                     key={index}
@@ -83,7 +83,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                     className={cn(
                                         "relative w-[100px] h-[100px] rounded-md overflow-hidden shrink-0 border-2 transition-colors",
                                         selectedIndex === index
-                                            ? "border-[#046cff]"
+                                            ? "border-blue-4"
                                             : "border-transparent hover:border-gray-300"
                                     )}
                                 >
