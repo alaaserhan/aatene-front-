@@ -46,7 +46,7 @@ export default function ContactUsPage() {
                                 </div>
                                 <div className="space-y-1.5">
                                     <h3 className="text-sm font-medium ">
-                                        البريد الإلكتروني (Aatene@gmail.com)
+                                        البريد الإلكتروني (support@aatene.com)
                                     </h3>
                                     <p className="text-gray-2 text-sm leading-relaxed max-w-md">
                                         أرسل استفسارك أو مشكلتك على البريد الإلكتروني، وسنرد عليك خلال ساعات العمل الرسمية.

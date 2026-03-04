@@ -112,7 +112,7 @@ export function CreateCollectionModal({
                             onChange={(e) =>
                                 setFormData({ ...formData, name: e.target.value })
                             }
-                            placeholder="هدايا"
+                            placeholder="أدخل اسم المجموعة"
                             className="w-full px-4 py-3 border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-3 focus:border-blue-3 text-right"
                         />
                     </div>

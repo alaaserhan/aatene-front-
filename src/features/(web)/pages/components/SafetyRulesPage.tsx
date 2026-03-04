@@ -82,8 +82,8 @@ export default function SafetyRulesPage() {
                         </div>
                         <div className="flex flex-col items-center gap-5">
                             {safetyRules.customers?.map((customer, index) => (
-                                <div key={index} className="flex items-center gap-3 max-w-2xl text-center">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-black-1 shrink-0" />
+                                <div key={index} className="flex gap-3 max-w-2xl text-center">
+                                    <span className="w-1.5 h-1.5 mt-2 rounded-full bg-black-1 shrink-0" />
                                     <span className="text-[14px] md:text-[16px] font-medium leading-relaxed ">{customer.title}</span>
                                 </div>
                             ))}
@@ -111,8 +111,8 @@ export default function SafetyRulesPage() {
                                                 <Shield className="w-6 h-6 text-blue-3" strokeWidth={1.5} />
                                             )}
                                         </div>
-                                        <div className="text-[14px] md:text-[15px] font-medium leading-[1.8] ">
-                                            {card.title && <span className="block mb-1">{card.title}</span>}
+                                        <div className="text-[14px] md:text-[15px] leading-[1.8] ">
+                                            {card.title && <span className="block font-semibold mb-1">{card.title}</span>}
                                             {card.content && <span>{card.content}</span>}
                                         </div>
                                     </div>
