@@ -65,7 +65,7 @@ export default function PhoneTab() {
                                 if (error) setError(undefined);
                             }}
                             error={error}
-                            placeholder="01289022985"
+                            placeholder="00000000"
                             height="h-[54px]"
                             rounded="rounded-full"
                             containerClassName="max-w-full"
