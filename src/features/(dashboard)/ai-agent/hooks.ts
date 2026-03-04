@@ -26,6 +26,20 @@ export function useGetUrgentUsers(limit?: number, offset?: number) {
   });
 }
 
+export function useGetApi4Users(limit: number = 50, offset: number = 0) {
+  return useQuery({
+    queryKey: ["agent-api4-users", limit, offset],
+    queryFn: () => api.getApi4Users(limit, offset),
+  });
+}
+
+export function useGetDeletedUsers(limit: number = 50, offset: number = 0) {
+  return useQuery({
+    queryKey: ["agent-deleted-users", limit, offset],
+    queryFn: () => api.getDeletedUsers(limit, offset),
+  });
+}
+
 export function useGetAgentUser(chatId: string) {
   return useQuery({
     queryKey: ["agent-user", chatId],
@@ -87,9 +101,9 @@ export function useDeleteConversation() {
       queryClient.invalidateQueries({ queryKey: ["agent-users-urgent"] });
       queryClient.invalidateQueries({ queryKey: ["agent-stats"] });
       queryClient.invalidateQueries({ queryKey: ["agent-overview"] });
-      
+
       if (data.chat_id) {
-         queryClient.invalidateQueries({ queryKey: ["agent-user", data.chat_id] });
+        queryClient.invalidateQueries({ queryKey: ["agent-user", data.chat_id] });
       }
     },
     onError: (error: AxiosError<{ error: string }>) => {
@@ -100,7 +114,7 @@ export function useDeleteConversation() {
 
 export function useSendMessage() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: api.sendMessage,
     onSuccess: (data, variables) => {
@@ -126,6 +140,7 @@ export function useGetAgentOverview() {
   return useQuery({
     queryKey: ["agent-overview"],
     queryFn: api.getOverview,
+    refetchInterval: 30000,
   });
 }
 
@@ -140,6 +155,7 @@ export function useGetDriveFiles() {
   return useQuery({
     queryKey: ["agent-files"],
     queryFn: api.getDriveFiles,
+    refetchInterval: 30000,
   });
 }
 

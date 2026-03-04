@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 const BASE_URL_5000 = "https://api1.mosaady.com/api";
 const BASE_URL_5002 = "https://api2.mosaady.com/api";
 const BASE_URL_5005 = "https://api3.mosaady.com";
+const BASE_URL_API4 = "https://api4.mosaady.com/apidocs";
 
 const authInterceptor = (config: InternalAxiosRequestConfig) => {
     const token = Cookies.get("token");
@@ -25,6 +26,9 @@ api5002.interceptors.request.use(authInterceptor);
 const api5005 = axios.create({ baseURL: BASE_URL_5005 });
 api5005.interceptors.request.use(authInterceptor);
 
+const api4 = axios.create({ baseURL: BASE_URL_API4 });
+api4.interceptors.request.use(authInterceptor);
+
 export interface Pagination {
     limit: number;
     offset: number;
@@ -36,7 +40,7 @@ export interface ConversationStatus {
     current_state: string;
     needs_human: boolean;
     survey_sent_at: string | null;
-    is_deleted?: boolean; 
+    is_deleted?: boolean;
 }
 
 export interface Message {
@@ -195,6 +199,26 @@ export interface GetUsersParams {
     needs_human?: boolean;
 }
 
+export interface Api4User {
+    chat_id: string;
+    first_name: string;
+    last_message: string;
+    last_seen: string;
+    total_messages: number;
+}
+
+export interface Api4UsersResponse {
+    success: boolean;
+    pagination: Pagination;
+    users: Api4User[];
+}
+
+export interface DeletedUsersResponse {
+    success: boolean;
+    pagination: Pagination;
+    deleted_users: AgentUser[];
+}
+
 export const getPlatformUsers = async (params: GetUsersParams): Promise<UsersResponse> => {
     const queryParams = new URLSearchParams();
     if (params.limit) queryParams.set("limit", String(params.limit));
@@ -212,6 +236,16 @@ export const getPlatformUsersInfo = async (params: GetUsersParams): Promise<User
     if (params.needs_human !== undefined) queryParams.set("needs_human", String(params.needs_human));
 
     const { data } = await api5000.get<UsersInfoResponse>(`/users/platform/${params.platform}/info?${queryParams.toString()}`);
+    return data;
+};
+
+export const getApi4Users = async (limit: number = 50, offset: number = 0): Promise<Api4UsersResponse> => {
+    const { data } = await api4.get<Api4UsersResponse>(`/users?limit=${limit}&offset=${offset}`);
+    return data;
+};
+
+export const getDeletedUsers = async (limit: number = 50, offset: number = 0): Promise<DeletedUsersResponse> => {
+    const { data } = await api5000.get<DeletedUsersResponse>(`/users/deleted?limit=${limit}&offset=${offset}`);
     return data;
 };
 

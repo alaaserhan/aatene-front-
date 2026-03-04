@@ -84,17 +84,17 @@ export default function TermsPage() {
                                         key={index}
                                         onClick={() => scrollToSection(index)}
                                         className={cn(
-                                            "w-full cursor-pointer flex items-center gap-2 py-[10px] px-[10px]  transition-all border-b border-[#e6e6e6]",
+                                            "w-full cursor-pointer flex  gap-2 py-[10px] px-[10px]  transition-all border-b border-[#e6e6e6]",
                                             activeId === index
                                                 ? "text-blue-3"
                                                 : ""
                                         )}
                                     >
-                                        <span className="bg-blue-4 rounded-full size-[22px] flex items-center justify-center text-white text-[12px] font-normal shrink-0">
+                                        <span className="bg-blue-4 pt-1 rounded-full size-[22px] flex items-center justify-center text-white text-[12px] font-normal shrink-0">
                                             {index + 1}
                                         </span>
                                         <span className={cn(
-                                            "text-[15px] leading-[1.7]",
+                                            "text-[15px] leading-[1.7] text-start",
                                             activeId === index
                                                 ? "font-medium"
                                                 : "font-normal"
@@ -106,7 +106,7 @@ export default function TermsPage() {
                             </div>
                         </div>
                         {/* Vertical Divider */}
-                        <div className="hidden lg:block w-[2px] max-h-[600px] mx-8 bg-blue-4 self-stretch" />
+                        <div className="hidden lg:block w-[2px] mx-8 bg-blue-4 self-stretch" />
                         {/* Main Content (Left in RTL) */}
                         <div className="flex-1 w-full">
                             <div className="flex flex-col gap-4">
