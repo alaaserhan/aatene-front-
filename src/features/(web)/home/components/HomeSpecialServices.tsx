@@ -24,7 +24,7 @@ export default function HomeSpecialServices({ services }: HomeSpecialServicesPro
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-6">
                     {services.slice(0, 4).map((service) => (
                         <ServiceCard
                             key={service.id}

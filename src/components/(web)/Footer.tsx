@@ -112,26 +112,24 @@ const Footer = () => {
           {/* Mobile App Downloads - Mobile Position */}
           <div className="block lg:hidden col-span-1 sm:col-span-1">
             <h4 className="font-bold text-base mb-4  text-center sm:text-right">احصل على التطبيق</h4>
-            <div className="flex flex-row gap-3 max-w-xs mx-auto sm:max-w-none sm:mx-0">
-              <a href="#" className="block group">
-                <div className="relative h-12 sm:h-14 w-full sm:w-32 overflow-hidden rounded-lg transition-transform group-hover:scale-105">
-                  <Image
+            <div className="flex md:flex-col flex-row justify-center sm:justify-start gap-3 md:gap-0">
+              <a href="#" className="">
+                 <Image
+                 width={120}
+                 height={40}
                     src="/Group.svg"
                     alt="Google Play Store"
-                    fill
-                    className="object-contain"
+                    className="h-12"
                   />
-                </div>
               </a>
-              <a href="#" className="block group">
-                <div className="relative h-12 sm:h-14 w-full sm:w-32 overflow-hidden rounded-lg transition-transform group-hover:scale-105">
+              <a href="#" className=" ">
                   <Image
                     src="/apple.svg"
                     alt="Apple App Store"
-                    fill
-                    className="object-contain"
+                    width={120}
+                    height={40}
+                    className="h-12"
                   />
-                </div>
               </a>
             </div>
           </div>
@@ -149,7 +147,7 @@ const Footer = () => {
                       <li key={i}>
                         <Link
                           href={link.href}
-                          className="text-[#8B96A5] text-xs sm:text-sm hover:text-gray-700 transition-colors duration-200 block py-1"
+                          className="text-[#8B96A5] text-sm hover:text-gray-700 transition-colors duration-200 block py-1"
                         >
                           {link.label}
                         </Link>
