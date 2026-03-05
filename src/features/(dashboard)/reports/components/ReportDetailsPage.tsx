@@ -88,8 +88,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
   }
 
   const breadcrumbItems = [
-    { label: "الشكاوي", href: "/admin/reports" },
-    { label: "بلاغات الزبائن", href: "/admin/reports" },
+    { label: "الشكاوي", href: "/admin/all-reports" },
     { label: `#${reportId}` },
   ];
 

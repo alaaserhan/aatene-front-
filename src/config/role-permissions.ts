@@ -46,7 +46,7 @@ const ADMIN_PERMISSION_TO_SEGMENTS: Record<string, string[]> = {
     "abusive-words": ["abusive-words"],
     "notifications": ["notifications"],
     "trash": ["trash"],
-    "reports": ["all-reports"],
+    "reports": ["all-reports", "reports"],
     "settings": ["settings"],
     "permissions": ["permissions"],
 };

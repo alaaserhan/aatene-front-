@@ -295,7 +295,7 @@ export function RequestedServicesPage() {
                 )}
               >
                 <span className={cn(
-                  "px-3 rounded text-sm font-bold transition-colors",
+                  "px-3 pt-0.5 rounded text-sm font-bold transition-colors",
                   isActive ? stat.bgActive : `bg-gray-50 ${stat.color}`
                 )}>
                   {stat.count}

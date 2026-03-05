@@ -116,7 +116,7 @@ export default function FollowingsTab() {
                             : ((item as FollowerItem).follower || (item as FollowerItem).user || (item as unknown as FollowableEntity));
 
                         const name = target?.name || target?.fullname || "مستخدم";
-                        const avatar = target?.avatar || target?.logo || "";
+                        const avatar = target?.avatar_url || target?.logo_url || "";
                         const count = target?.followers_count || 0;
 
                         return (

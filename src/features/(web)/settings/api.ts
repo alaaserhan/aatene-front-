@@ -231,8 +231,8 @@ export interface FollowableEntity {
     id: number | string;
     name?: string | null;
     fullname?: string | null;
-    avatar?: string | null;
-    logo?: string | null;
+    avatar_url?: string | null;
+    logo_url?: string | null;
     followers_count?: number | string;
 }
 
