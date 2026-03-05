@@ -21,6 +21,7 @@ import { ReviewStatisticsDisplay } from "@/src/features/(web)/product/components
 import { ReviewStatistics, ProductInPageData } from "@/src/features/(web)/product/types";
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
 import { Pagination } from "@/src/components/ui/Pagination";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 
@@ -383,6 +384,7 @@ function OverviewTab({ store }: { store: StoreProfile }) {
 }
 
 function StoreOwnerCard({ store }: { store: StoreProfile }) {
+    const router = useRouter();
     const ownerName = store.owner
         ? (store.owner.first_name || "") + " " + (store.owner.last_name || "")
         : store.name;
@@ -420,7 +422,10 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                 {store.description?.slice(0, 150) || "لا يوجد وصف"}
             </p>
             <div className="flex items-center gap-2 w-full">
-                <button className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer">
+                <button
+                    onClick={() => router.push(`/chat?type=user&id=${store.owner?.id || store.owner_id}`)}
+                    className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer"
+                >
                     <MessageSquare size={13} />
                     تواصل مع البائع
                 </button>

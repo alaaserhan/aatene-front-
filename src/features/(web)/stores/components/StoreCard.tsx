@@ -65,7 +65,7 @@ const StoreCard = memo(({
                 {/* Store Name & Crown */}
                 <div className="flex items-center gap-2 mb-3">
                     {/* <Image src="/icons/crown.svg" alt="crown" width={16} height={16} /> */}
-                    <h3 className=" font-medium ">{store.name}</h3>
+                    <h3 className=" font-semibold text-base">{store.name}</h3>
                 </div>
 
                 {/* Description */}
@@ -74,11 +74,11 @@ const StoreCard = memo(({
                 </p>
 
                 {/* Features Row */}
-                <div className="flex items-center gap-3 text-xs  mb-6 flex-wrap">
+                <div className="flex items-center gap-3 text-sm  mb-6 flex-wrap">
                     {/* Rating */}
                     <div className="flex items-center gap-1">
                         <Image src="/icons/star.svg" alt="star" width={15} height={15} />
-                        <span className="font-medium text-[#4B5563]">{rating.toFixed(1)}</span>
+                        <span className="font-medium text-gray-2 pt-1">{rating.toFixed(1)}</span>
                     </div>
 
                     {/* Fast Delivery */}

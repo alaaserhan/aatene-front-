@@ -94,7 +94,7 @@ const ProductCard = memo(({
             <div className="pt-3 text-right" dir="rtl">
                 {/* Product Name */}
                 <Link href={slug ? `/product/${slug}` : "#"} className="block">
-                    <h3 className="font-medium text-base mb-1.5 line-clamp-1 group-hover:text-blue-3 transition-colors">
+                    <h3 className="font-semibold text-base mb-1.5 line-clamp-2 group-hover:text-blue-3 transition-colors">
                         {name || "اسم المنتج"}
                     </h3>
                 </Link>
@@ -113,7 +113,7 @@ const ProductCard = memo(({
                                 )}
                             />
                         ))}
-                        <span className="text-xs font-medium text-[#FB923C] mx-1.5">
+                        <span className="text-xs font-medium text-[#FB923C] pt-1 mx-1.5">
                             {rating.toFixed(1)}
                         </span>
                     </div>

@@ -85,7 +85,7 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
             {/* Content Section */}
             <div className="p-4 flex flex-col flex-1">
                 {/* Service Title */}
-                <h3 className="text-base font-medium  text-right mb-2 leading-snug line-clamp-2 min-h-[2.5rem] group-hover:text-[#3D5E83] transition-colors">
+                <h3 className="font-semibold text-base text-right mb-2 leading-snug line-clamp-2 min-h-[2.5rem] group-hover:text-[#3D5E83] transition-colors">
                     {service.title}
                 </h3>
 
@@ -133,7 +133,7 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                             {/* Rating */}
                             <div className="flex items-center gap-1 text-xs">
                                 <Star className="w-3 h-3 fill-[#FFC220] text-[#FFC220]" />
-                                <span className="whitespace-nowrap">( {service.review_count || 0} مراجعة )</span>
+                                <span className="whitespace-nowrap pt-1">( {service.review_count || 0} مراجعة )</span>
                             </div>
 
 

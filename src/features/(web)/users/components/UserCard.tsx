@@ -58,7 +58,7 @@ export default function UserCard({ user, className }: UserCardProps) {
 
                 {/* Name & Crown */}
                 <div className="flex items-center justify-center gap-2 mb-2 w-full px-4" dir="rtl">
-                    <h3 className="font-medium truncate">{user.name}</h3>
+                    <h3 className="font-semibold text-base truncate">{user.name}</h3>
                 </div>
 
                 {/* Bio / Job Title */}
