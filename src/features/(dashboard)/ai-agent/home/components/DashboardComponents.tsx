@@ -244,8 +244,8 @@ export function RatingSourceCard({ ratings = [] }: RatingSourceCardProps) {
                             </div>
 
                             {/* Left: Rating Badge */}
-                            <div className="bg-blue-3 text-white text-sm font-medium px-1 py-1 rounded-sm flex items-center gap-2 min-w-[60px] justify-center shadow-sm">
-                                {item.average_rating}
+                            <div className="bg-blue-3 text-white text-sm font-medium px-1 py-1 rounded-sm flex items-center gap-1.5 min-w-[60px] justify-center shadow-sm">
+                                <p className="pt-1">{item.average_rating}</p>
                                 <img src="/icons/dashboard/Star.svg" className="w-4 h-4" alt="" />
                             </div>
                         </div>
@@ -313,7 +313,7 @@ export function AverageRatingCard({ average = 0, total = 0 }: AverageRatingCardP
         <div className="bg-white rounded-md p-4 border border-gray-200 h-full flex flex-col items-center">
             <h3 className="text-xl font-medium  mb-5">متوسط تقييم العملاء</h3>
 
-            <div className="w-20 h-20 rounded-full bg-blue-3 flex items-center justify-center text-white text-3xl font-bold mb-5 shadow-none">
+            <div className="w-20 pt-1 h-20 rounded-full bg-blue-3 flex items-center justify-center text-white text-3xl font-bold mb-5 shadow-none">
                 {average.toFixed(1)}
             </div>
 

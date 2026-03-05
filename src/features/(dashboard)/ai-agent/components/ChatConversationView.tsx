@@ -40,10 +40,10 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
     const rawMessages = isApi4 ? (api4Data?.history || []) : (user?.message_history || []);
 
     const messages = rawMessages.map((msg, idx) => ({
-        message_id: 'message_id' in msg ? msg.message_id : idx,
+        message_id: 'message_id' in msg ? (msg as { message_id: number }).message_id : idx,
         message_text: msg.message_text,
         message_type: msg.message_type,
-        bot_response: 'bot_response' in msg ? msg.bot_response : msg.message_text,
+        bot_response: ('bot_response' in msg ? (msg as { bot_response: string }).bot_response : msg.message_text) as string,
         created_at: msg.created_at,
     }));
 
