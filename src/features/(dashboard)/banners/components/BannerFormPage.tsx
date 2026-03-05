@@ -233,11 +233,11 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
   };
 
   const handleCancel = () => {
-    router.push("/dashboard/banners");
+    router.push("/admin/banners");
   };
 
   const breadcrumbItems = [
-    { label: "بنرات إعلانية", href: "/dashboard/banners" },
+    { label: "بنرات إعلانية", href: "/admin/banners" },
     { label: mode === "create" ? "إضافة إعلان جديد" : "تعديل إعلان" },
   ];
 
@@ -500,7 +500,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
-          router.push("/dashboard/banners");
+          router.push("/admin/banners");
         }}
         title={mode === "create" ? "تمت إضافة البانر بنجاح" : "تم تحديث البانر بنجاح"}
         message={mode === "create" ? "تم إضافة البانر الإعلاني بنجاح" : "تم تحديث البانر الإعلاني بنجاح"}
