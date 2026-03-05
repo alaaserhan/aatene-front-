@@ -242,9 +242,9 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     };
 
     return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${badgeClasses[userType as keyof typeof badgeClasses]}`}>
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClasses[userType as keyof typeof badgeClasses]}`}>
         {getUserTypeIcon(userType)}
-        {labels[userType as keyof typeof labels]}
+        <span className="pt-0.5">{labels[userType as keyof typeof labels]}</span>
       </span>
     );
   };
@@ -494,21 +494,23 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                     <div className="px-4 pb-4">
                       {/* User Profile Card */}
                       <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-4 mb-4">
-                        <div className="flex items-center gap-4 mb-4">
-                          {user?.avatar_url ? (
-                            <img
-                              src={user.avatar_url}
-                              alt={user.fullname}
-                              className="w-14 h-14 rounded-full object-cover ring-3 ring-white shadow-lg"
-                            />
-                          ) : (
-                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/80 to-primary text-white flex items-center justify-center font-bold text-lg shadow-lg">
-                              {user?.fullname?.[0]?.toUpperCase()}
-                            </div>
-                          )}
+                        <div className="flex gap-4 mb-4">
+                          <Link href={`/profile/${user?.slug}`} onClick={() => setMobileMenuOpen(false)}>
+                            {user?.avatar_url ? (
+                              <img
+                                src={user.avatar_url}
+                                alt={user.fullname}
+                                className="w-15 h-15 rounded-full object-cover border border-gray-300 shadow-lg"
+                              />
+                            ) : (
+                              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/80 to-primary text-white flex items-center justify-center font-bold text-lg shadow-lg">
+                                {user?.fullname?.[0]?.toUpperCase()}
+                              </div>
+                            )}
+                          </Link>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-900 text-lg truncate">{user?.fullname}</h3>
-                            <p className="text-gray-600 text-sm truncate">{user?.email}</p>
+                            <h3 className="font-semibold text-lg truncate">{user?.fullname}</h3>
+                            <p className="text-gray-2 mt-0.5 text-sm truncate">{user?.email}</p>
                             <div className="mt-2">
                               {getUserTypeBadge(user?.user_type || "client")}
                             </div>

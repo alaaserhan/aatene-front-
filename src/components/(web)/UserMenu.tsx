@@ -126,19 +126,21 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
         {/* User Profile Card */}
         <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-4 mb-4">
           <div className="flex items-center gap-4 mb-4">
-            {user.avatar_url ? (
-              <Image
-                src={user.avatar_url}
-                alt={user.fullname}
-                width={56}
-                height={56}
-                className="w-14 h-14 rounded-full object-cover ring-3 ring-white shadow-lg"
-              />
-            ) : (
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/80 to-primary text-white flex items-center justify-center font-bold text-lg shadow-lg">
-                {user.fullname[0]?.toUpperCase()}
-              </div>
-            )}
+            <Link href={`/profile/${user.slug}`} onClick={handleLinkClick}>
+              {user.avatar_url ? (
+                <Image
+                  src={user.avatar_url}
+                  alt={user.fullname}
+                  width={56}
+                  height={56}
+                  className="w-14 h-14 rounded-full object-cover ring-3 ring-white shadow-lg hover:scale-105 transition-transform"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/80 to-primary text-white flex items-center justify-center font-bold text-lg shadow-lg hover:scale-105 transition-transform">
+                  {user.fullname[0]?.toUpperCase()}
+                </div>
+              )}
+            </Link>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold  text-lg truncate">{user.fullname}</h3>
               <p className="text-gray-2 text-sm truncate">{user.email}</p>
@@ -263,19 +265,21 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
           {/* Header Section */}
           <div className="px-6 py-4 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100">
             <div className="flex items-center gap-4">
-              {user.avatar_url ? (
-                <Image
-                  src={user.avatar_url}
-                  alt={user.fullname}
-                  width={56}
-                  height={56}
-                  className="w-14 h-14 rounded-full object-cover ring-3 ring-white shadow-md"
-                />
-              ) : (
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/80 to-primary text-white flex items-center justify-center font-bold text-lg shadow-md">
-                  {user.fullname[0]?.toUpperCase()}
-                </div>
-              )}
+              <Link href={`/profile/${user.slug}`} onClick={handleLinkClick}>
+                {user.avatar_url ? (
+                  <Image
+                    src={user.avatar_url}
+                    alt={user.fullname}
+                    width={56}
+                    height={56}
+                    className="w-14 h-14 rounded-full object-cover ring-3 ring-white shadow-md hover:scale-105 transition-transform"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/80 to-primary text-white flex items-center justify-center font-bold text-lg shadow-md hover:scale-105 transition-transform">
+                    {user.fullname[0]?.toUpperCase()}
+                  </div>
+                )}
+              </Link>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold  text-lg truncate">{user.fullname}</h3>
                 <p className="text-gray-2 text-sm truncate">{user.email}</p>

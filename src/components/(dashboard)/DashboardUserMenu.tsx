@@ -132,8 +132,7 @@ export function DashboardUserMenu() {
                     size={null}
                     className="flex items-center gap-3 px-0 md:px-1 py-1 rounded-lg hover:bg-transparent h-auto outline-none ring-0 focus-visible:ring-0 group"
                 >
-                    <Avatar className="w-10 h-10 border border-white group-hover:border-blue-100 transition-colors">
-                        {/* هنا في الزر الخارجي، نعرض صورة المستخدم كما هي */}
+                    <Avatar className="w-12 h-12 border border-white group-hover:border-blue-100 transition-colors">
                         <AvatarImage src={user?.avatar_url || undefined} alt={user?.fullname} />
                         <AvatarFallback className="bg-blue-4 text-white">
                             {user?.fullname?.[0]?.toUpperCase()}
@@ -162,9 +161,9 @@ export function DashboardUserMenu() {
                 {/* --- Header Section (MERCHANT: Show Active Store Data) --- */}
                 {isMerchant && (
                     <div className="bg-white p-4 flex flex-row gap-3">
-                        <Avatar className="w-12 h-12">
+                        <Avatar className="w-13 h-13 border border-blue-1">
                             {/* عرض صورة المتجر المختار */}
-                            <AvatarImage src={activeStore?.logo_url || ""} />
+                            <AvatarImage src={activeStore?.logo_url || ""} className="object-contain" />
                             <AvatarFallback className="bg-blue-4 text-white text-xl">
                                 {activeStore?.name?.[0] || user?.fullname?.[0]}
                             </AvatarFallback>
@@ -174,7 +173,7 @@ export function DashboardUserMenu() {
                             <h3 className="font-medium text-blue-4 mb-1">
                                 {activeStore ? activeStore.name : "اختر متجر"}
                             </h3>
-                            <span className="text-xs font-medium text-blue-4 bg-blue-5 border border-blue-4 px-4 py-1 pt-0.5 w-fit rounded-full">
+                            <span className="text-xs font-medium text-blue-4 bg-blue-5 border border-blue-4 px-4 py-1 pb-0.5 w-fit rounded-full">
                                 {
                                     activeStore?.type === "services" ? "متجر خدمات" : "متجر منتجات"
                                 }
@@ -233,7 +232,7 @@ export function DashboardUserMenu() {
                                                 className={cn(
                                                     "flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all border",
                                                     isActive
-                                                        ? "bg-blue-50 border-blue-200"
+                                                        ? "bg-blue-5 border-blue-1"
                                                         : "hover:bg-gray-50 border-transparent"
                                                 )}
                                             >
@@ -247,15 +246,15 @@ export function DashboardUserMenu() {
                                                     )}
                                                 </div>
                                                 <span className={cn(
-                                                    "text-sm",
+                                                    "text-sm line-clamp-1 flex-1",
                                                     isActive ? "text-gray-2" : "text-gray-2"
                                                 )}>
                                                     {store.name}
                                                 </span>
                                                 {store.type === "services" ? (
-                                                    <img src="/icons/dashboard/nav_services.svg" alt="service" className="w-4 h-4" style={{ filter: "brightness(1)" }} />
+                                                    <img src="/icons/dashboard/nav_services.svg" alt="service" className="w-4 h-4" />
                                                 ) : (
-                                                    <img src="/icons/dashboard/nav_products.svg" alt="product" className="w-4 h-4" style={{ filter: "brightness(1)" }} />
+                                                    <img src="/icons/dashboard/nav_products.svg" alt="product" className="w-4 h-4" />
                                                 )}
                                             </div>
                                         );

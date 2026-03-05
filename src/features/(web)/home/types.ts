@@ -181,7 +181,7 @@ export interface HomePageResponse {
     thirdBanner: Banner | null;
     specialMerchants: StoreInPageData[];
     newProducts: ProductInPageData[];
-    mostPopularServices: ServiceRequest[];
+    mostPopularServices: Service[];
     toDayBiggestOffers: ProductInPageData[];
     toRatedCategories: HomeCategory[];
     productSelectedForYou: ProductInPageData[];

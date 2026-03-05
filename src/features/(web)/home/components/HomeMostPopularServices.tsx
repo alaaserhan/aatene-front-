@@ -2,13 +2,13 @@
 
 import React from "react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
-import { ServiceRequest } from "../types";
+import { Service } from "../types";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { ChevronsLeft } from "lucide-react";
 import Link from "next/link";
 
 interface HomeMostPopularServicesProps {
-    services: ServiceRequest[];
+    services: Service[];
 }
 
 export default function HomeMostPopularServices({ services }: HomeMostPopularServicesProps) {
@@ -31,7 +31,7 @@ export default function HomeMostPopularServices({ services }: HomeMostPopularSer
                     {services.slice(0, 4).map((service) => (
                         <ServiceCard
                             key={service.id}
-                            service={service as unknown as Parameters<typeof ServiceCard>[0]['service']}
+                            service={service}
                         />
                     ))}
                 </div>

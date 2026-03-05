@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Service } from "../api";
 import { cn } from "@/src/lib/utils";
 import { Star, MapPin, User } from "lucide-react";
@@ -7,15 +8,20 @@ import Image from "next/image";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ServiceCardProps {
     service: Service;
     className?: string;
     onClick?: () => void;
+    onFavoriteClick?: (id: number) => void;
 }
 
-export default function ServiceCard({ service, className, onClick }: ServiceCardProps) {
+export default function ServiceCard({ service, className, onClick, onFavoriteClick }: ServiceCardProps) {
     const router = useRouter();
+    const qc = useQueryClient();
+
+    const [localIsFavorite, setLocalIsFavorite] = useState(service.is_favorite);
 
     const price = parseFloat(service.price || "0");
     const cityName = service.store?.service_cities?.[0]?.name || "فلسطين";
@@ -76,7 +82,13 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                     <FavoriteButton
                         id={service.id}
                         type="service"
-                        isFavorite={service.is_favorite}
+                        isFavorite={localIsFavorite}
+                        onSuccess={() => {
+                            setLocalIsFavorite(!localIsFavorite);
+                            qc.invalidateQueries();
+                            router.refresh();
+                            onFavoriteClick?.(service.id);
+                        }}
                         className="w-full h-full rounded-full"
                         iconClassName="w-5 h-5"
                     />

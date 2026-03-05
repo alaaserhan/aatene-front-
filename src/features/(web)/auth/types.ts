@@ -3,6 +3,7 @@
 // The structure of the User object returned by login/register
 export interface User {
   id: number;
+  slug: string;
   fullname: string;
   avatar: string | null;
   avatar_url: string | null;

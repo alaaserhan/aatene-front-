@@ -7,6 +7,8 @@ import { Star } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface ProductCardProps {
     id: number | string;
@@ -44,6 +46,9 @@ const ProductCard = memo(({
     const displayPrice = priceAfterDiscount || price;
     const hasDiscount = priceAfterDiscount && priceAfterDiscount !== price;
     const rating = parseFloat(reviewRate || "0");
+    const router = useRouter();
+    const qc = useQueryClient();
+    const [localIsFavorite, setLocalIsFavorite] = useState(isFavorite);
 
     return (
         <div
@@ -75,8 +80,13 @@ const ProductCard = memo(({
                     <FavoriteButton
                         id={id}
                         type={type}
-                        isFavorite={isFavorite}
-                        onSuccess={() => onFavoriteClick?.(id)}
+                        isFavorite={localIsFavorite}
+                        onSuccess={() => {
+                            setLocalIsFavorite(!localIsFavorite);
+                            qc.invalidateQueries();
+                            router.refresh();
+                            onFavoriteClick?.(id);
+                        }}
                         className="w-full h-full rounded-full"
                         iconClassName="w-5 h-5"
                     />
