@@ -40,11 +40,19 @@ export function useGetDeletedUsers(limit: number = 50, offset: number = 0) {
   });
 }
 
-export function useGetAgentUser(chatId: string) {
+export function useGetAgentUser(chatId: string, enabled: boolean = true) {
   return useQuery({
     queryKey: ["agent-user", chatId],
     queryFn: () => api.getSingleUser(chatId),
-    enabled: !!chatId,
+    enabled: !!chatId && enabled,
+  });
+}
+
+export function useGetApi4MessageHistory(chatId: string, enabled: boolean = true) {
+  return useQuery({
+    queryKey: ["api4-message-history", chatId],
+    queryFn: () => api.getApi4MessageHistory(chatId),
+    enabled: !!chatId && enabled,
   });
 }
 

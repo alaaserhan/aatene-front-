@@ -122,7 +122,7 @@ export function MessagesPage() {
                             ${selectedChatId ? 'flex' : 'hidden lg:flex'}
                         `}>
                             {selectedChatId ? (
-                                <ChatConversationView chatId={selectedChatId} />
+                                <ChatConversationView chatId={selectedChatId} platform={activePlatform} />
                             ) : (
                                 <div className="p-4 h-full">
                                     <ChatEmptyState />

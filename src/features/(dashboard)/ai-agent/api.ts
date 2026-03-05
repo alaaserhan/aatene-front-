@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 const BASE_URL_5000 = "https://api1.mosaady.com/api";
 const BASE_URL_5002 = "https://api2.mosaady.com/api";
 const BASE_URL_5005 = "https://api3.mosaady.com";
-const BASE_URL_API4 = "https://api4.mosaady.com/apidocs";
+const BASE_URL_API4 = "https://api4.mosaady.com/api";
 
 const authInterceptor = (config: InternalAxiosRequestConfig) => {
     const token = Cookies.get("token");
@@ -219,6 +219,18 @@ export interface DeletedUsersResponse {
     deleted_users: AgentUser[];
 }
 
+export interface Api4Message {
+    created_at: string;
+    message_text: string;
+    message_type: string;
+}
+
+export interface Api4MessageHistoryResponse {
+    chat_id: string;
+    count: number;
+    history: Api4Message[];
+}
+
 export const getPlatformUsers = async (params: GetUsersParams): Promise<UsersResponse> => {
     const queryParams = new URLSearchParams();
     if (params.limit) queryParams.set("limit", String(params.limit));
@@ -246,6 +258,11 @@ export const getApi4Users = async (limit: number = 50, offset: number = 0): Prom
 
 export const getDeletedUsers = async (limit: number = 50, offset: number = 0): Promise<DeletedUsersResponse> => {
     const { data } = await api5000.get<DeletedUsersResponse>(`/users/deleted?limit=${limit}&offset=${offset}`);
+    return data;
+};
+
+export const getApi4MessageHistory = async (chatId: string): Promise<Api4MessageHistoryResponse> => {
+    const { data } = await api4.get<Api4MessageHistoryResponse>(`/messages/${encodeURIComponent(chatId)}`);
     return data;
 };
 

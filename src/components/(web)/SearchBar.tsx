@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/src/lib/utils";
 import { Search } from "lucide-react";
@@ -51,6 +51,14 @@ function SearchBarContent({
       setSelectedType(urlType);
     }
   }
+
+  const handleTypeSelect = (newType: SearchType) => {
+    setSelectedType(newType);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("type", newType);
+    params.delete("compare");
+    router.push(`/${currentLocale}/search?${params.toString()}`);
+  };
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -103,12 +111,7 @@ function SearchBarContent({
           {SEARCH_TYPES.map((type) => (
             <button
               key={type.value}
-              onClick={() => {
-                setSelectedType(type.value);
-                const params = new URLSearchParams(searchParams.toString());
-                params.set("type", type.value);
-                router.push(`/${currentLocale}/search?${params.toString()}`);
-              }}
+              onClick={() => handleTypeSelect(type.value)}
               className={cn(
                 "py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full",
                 selectedType === type.value
@@ -150,12 +153,7 @@ function SearchBarContent({
             {SEARCH_TYPES.map((type) => (
               <button
                 key={type.value}
-                onClick={() => {
-                  setSelectedType(type.value);
-                  const params = new URLSearchParams(searchParams.toString());
-                  params.set("type", type.value);
-                  router.push(`/${currentLocale}/search?${params.toString()}`);
-                }}
+                onClick={() => handleTypeSelect(type.value)}
                 className={cn(
                   "py-2 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full",
                   selectedType === type.value
@@ -195,12 +193,7 @@ function SearchBarContent({
             {SEARCH_TYPES.map((type) => (
               <button
                 key={type.value}
-                onClick={() => {
-                  setSelectedType(type.value);
-                  const params = new URLSearchParams(searchParams.toString());
-                  params.set("type", type.value);
-                  router.push(`/${currentLocale}/search?${params.toString()}`);
-                }}
+                onClick={() => handleTypeSelect(type.value)}
                 className={cn(
                   "px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap rounded-full shrink-0",
                   selectedType === type.value
@@ -234,12 +227,7 @@ function SearchBarContent({
         {SEARCH_TYPES.map((type) => (
           <button
             key={type.value}
-            onClick={() => {
-              setSelectedType(type.value);
-              const params = new URLSearchParams(searchParams.toString());
-              params.set("type", type.value);
-              router.push(`/${currentLocale}/search?${params.toString()}`);
-            }}
+            onClick={() => handleTypeSelect(type.value)}
             className={cn(
               "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap",
               selectedType === type.value

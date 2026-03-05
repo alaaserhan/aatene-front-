@@ -41,7 +41,7 @@ export function CompareFloatingBar() {
     const serviceCount = services.length;
     const totalCount = productCount + serviceCount;
 
-    const tabToDisplay = (serviceCount > 0 && productCount === 0)
+    const tabToDisplay = (isCompareMode === "services" || (serviceCount > 0 && productCount === 0))
         ? "services"
         : "products";
 
@@ -68,25 +68,25 @@ export function CompareFloatingBar() {
     if (!isOpen) {
         return (
             <div
-                className="fixed bottom-0 right-0 sm:right-4 z-50 bg-[#F3F4F6] cursor-pointer shadow-[0_0_20px_rgba(0,0,0,0.1)] border-t sm:border border-gray-200 rounded-t-none sm:rounded-t-lg px-6 py-3 flex items-center justify-between gap-4 w-full sm:max-w-[500px] transition-all duration-300"
+                className="fixed bottom-0 right-0 sm:right-4 z-50 bg-blue-4 text-white cursor-pointer shadow-[0_0_20px_rgba(0,0,0,0.1)] rounded-t-none sm:rounded-t-lg px-6 py-3 flex items-center justify-between gap-4 w-full sm:max-w-[500px] transition-all duration-300"
                 onClick={() => setIsOpen(true)}
                 dir="rtl"
             >
                 <div className="flex items-center gap-2">
                     <span className="font-medium ">مقارنة {currentItems.length} {countLabel}</span>
                 </div>
-                <ChevronDown className="w-5 h-5 text-gray-500 rotate-180" />
+                <ChevronDown className="w-5 h-5  rotate-180" />
             </div>
         )
     }
 
     return (
         <div className="fixed bottom-0 right-0 sm:right-4 z-50 flex flex-col items-end w-full sm:max-w-[500px]" >
-            <div className="bg-white rounded-t-none sm:rounded-t-xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)] border-t sm:border border-gray-100 w-full flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+            <div className="bg-blue-4 rounded-t-none sm:rounded-t-xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)] w-full flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
 
                 {/* Header */}
                 <div
-                    className="bg-[#F3F4F6] px-5 py-4 flex items-center justify-between cursor-pointer"
+                    className="bg-blue-4 text-white px-5 py-4 flex items-center justify-between cursor-pointer"
                     onClick={() => setIsOpen(false)}
                 >
 

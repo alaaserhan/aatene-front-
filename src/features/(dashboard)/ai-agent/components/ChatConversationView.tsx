@@ -3,8 +3,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Send, Headset, CheckCircle } from "lucide-react";
-import { useGetAgentUser, useSendMessage, useResolveConversation, useDeleteConversation } from "../hooks";
+import { Loader2, Send, Headset, CheckCircle, Shirt, Wrench } from "lucide-react";
+import { useGetAgentUser, useSendMessage, useResolveConversation, useDeleteConversation, useGetApi4MessageHistory } from "../hooks";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { formatDistanceToNow } from "date-fns";
@@ -15,9 +15,10 @@ import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteMo
 
 interface ChatConversationViewProps {
     chatId: string;
+    platform?: string;
 }
 
-export function ChatConversationView({ chatId }: ChatConversationViewProps) {
+export function ChatConversationView({ chatId, platform }: ChatConversationViewProps) {
     const router = useRouter();
     const scrollRef = useRef<HTMLDivElement>(null);
     const [messageText, setMessageText] = useState("");
@@ -25,14 +26,29 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-    const { data: userData, isLoading, refetch } = useGetAgentUser(chatId);
+    const isApi4 = platform === "api4_whatsapp";
+    const { data: userData, isLoading: isUserLoading, refetch: refetchUser } = useGetAgentUser(chatId, !isApi4);
+    const { data: api4Data, isLoading: isApi4Loading, refetch: refetchApi4 } = useGetApi4MessageHistory(chatId, isApi4);
     const { mutate: sendMessage, isPending: isSending } = useSendMessage();
     const { mutate: resolveConversation, isPending: isResolving } = useResolveConversation();
     const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversation();
 
+    const isLoading = isApi4 ? isApi4Loading : isUserLoading;
+    const refetch = isApi4 ? refetchApi4 : refetchUser;
+
     const user = userData?.user;
-    const messages = user?.message_history || [];
-    const needsHuman = user?.conversation_status?.needs_human ?? false;
+    const rawMessages = isApi4 ? (api4Data?.history || []) : (user?.message_history || []);
+
+    const messages = rawMessages.map((msg, idx) => ({
+        message_id: 'message_id' in msg ? msg.message_id : idx,
+        message_text: msg.message_text,
+        message_type: msg.message_type,
+        bot_response: 'bot_response' in msg ? msg.bot_response : msg.message_text,
+        created_at: msg.created_at,
+    }));
+
+    const needsHuman = isApi4 ? false : (user?.conversation_status?.needs_human ?? false);
+    const userName = isApi4 ? chatId : (user?.user_info.first_name || user?.user_info.phone_number || "المستخدم");
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -94,10 +110,18 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
         );
     }
 
-    if (!user) {
+    if (!isApi4 && !user) {
         return (
             <div className="flex items-center justify-center h-full text-gray-2">
                 مستخدم غير موجود
+            </div>
+        );
+    }
+
+    if (isApi4 && !api4Data) {
+        return (
+            <div className="flex items-center justify-center h-full text-gray-2">
+                محادثة غير موجودة
             </div>
         );
     }
@@ -117,7 +141,7 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
                         </div>
                         <div>
                             <h2 className="text-base font-bold hover:text-blue-4 hover:underline transition-colors">
-                                {user.user_info.first_name || user.user_info.phone_number}
+                                {userName}
                             </h2>
                         </div>
                     </div>
@@ -172,13 +196,32 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
                                 const isPrevSupport = prevMsg?.message_type === "bot" || prevMsg?.message_type === "agent";
 
                                 // هل هذه الرسالة تابعة لنفس مجموعة الرسالة السابقة؟
-                                const isSequence = index > 0 && (isSupport === isPrevSupport);
+                                const isSequence = index > 0 && (isSupport === isPrevSupport) && (msg.message_type !== "choice") && (prevMsg?.message_type !== "choice");
 
                                 let text = msg.message_text;
                                 if (isBot) text = msg.bot_response;
                                 if (isAgent) text = msg.message_text;
 
-                                if (!text) return null;
+                                if (!text && msg.message_type !== "choice") return null;
+
+                                if (msg.message_type === "choice") {
+                                    const isProduct = text.toLowerCase() === "product";
+                                    return (
+                                        <div key={msg.message_id} className="flex justify-center w-full my-4">
+                                            <div className="bg-[#DCE8F5] border-r-4 border-[#3A5779] text-[#1D3557] px-4 py-3 rounded flex items-center justify-between gap-4 w-full">
+                                                <div className="flex items-center gap-3">
+                                                    {isProduct ? <Shirt className="w-5 h-5" /> : <Wrench className="w-5 h-5" />}
+                                                    <span className="font-medium text-sm">
+                                                        {isProduct ? "تم تحويل العميل إلى قسم المنتجات" : "تم تحويل العميل إلى قسم الخدمات"}
+                                                    </span>
+                                                </div>
+                                                <span className="text-xs text-[#3A5779] font-medium" dir="ltr">
+                                                    {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true, locale: arSA })}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    );
+                                }
 
                                 return (
                                     <div
@@ -198,7 +241,7 @@ export function ChatConversationView({ chatId }: ChatConversationViewProps) {
                                                     <div className="flex items-center gap-2 text-xs px-1 mb-1">
                                                         <span className="text-gray-2">{formatDistanceToNow(new Date(msg.created_at), { addSuffix: true, locale: arSA })}</span>
                                                         <span>|</span>
-                                                        <span className="font-medium text-gray-700">{user.user_info.first_name || "المستخدم"}</span>
+                                                        <span className="font-medium text-gray-700">{userName}</span>
                                                     </div>
                                                 )}
 

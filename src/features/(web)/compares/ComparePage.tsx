@@ -106,8 +106,8 @@ export default function ComparePage() {
 
     // Table columns
     const columns = compareType === "products"
-        ? ["المنتج", "الوصف", "السعر", "رسوم التوصيل", "التقييمات", "فعل"]
-        : ["الخدمة", "الوصف", "السعر", "التقييمات", "فعل"];
+        ? ["المنتج", "الوصف", "السعر", "رسوم التوصيل", "التقييمات", "الإجراءات"]
+        : ["الخدمة", "الوصف", "السعر", "التقييمات", "الإجراءات"];
 
     return (
         <div className="container mx-auto my-10 px-4 md:px-6" dir="rtl">
@@ -256,6 +256,7 @@ function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: Product
     const hasDiscount = item.discount_present > 0;
     const rating = parseFloat(item.review_rate || "0");
     const reviewCount = parseInt(item.review_count || "0");
+    const router = useRouter();
 
     return (
         <div className="bg-white border border-gray-200/80 rounded-lg flex items-center px-6 md:px-12 py-6 gap-6">
@@ -335,7 +336,7 @@ function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: Product
                 >
                     <Heart className={cn("w-4 h-4", item.is_favorite ? "text-red-500 fill-red-500" : "text-gray-500")} />
                 </button>
-                <button className="w-9 h-9 border border-gray-200 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
+                <button onClick={() => router.push(`/product/${item.slug}`)} className="w-9 h-9 border border-gray-200 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
                     <Maximize2 className="w-4 h-4 text-gray-500" />
                 </button>
             </div>
@@ -350,6 +351,7 @@ function ServiceCompareRow({ item, onRemove, onToggleFavorite }: { item: Service
     const price = parseFloat(item.price || "0");
     const rating = parseFloat(item.review_rate || "0");
     const reviewCount = parseInt(item.review_count || "0");
+    const router = useRouter();
 
     return (
         <div className="bg-white border border-gray-200/80 rounded-lg flex items-center px-6 md:px-12 py-6 gap-6">
@@ -420,7 +422,7 @@ function ServiceCompareRow({ item, onRemove, onToggleFavorite }: { item: Service
                 >
                     <Heart className={cn("w-4 h-4", item.is_favorite ? "text-red-500 fill-red-500" : "text-gray-500")} />
                 </button>
-                <button className="w-9 h-9 border border-gray-200 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
+                <button onClick={() => router.push(`/services/${item.slug}`)} className="w-9 h-9 border border-gray-200 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
                     <Maximize2 className="w-4 h-4 text-gray-500" />
                 </button>
             </div>
