@@ -2,7 +2,7 @@
 
 import { Service } from "../api";
 import { cn } from "@/src/lib/utils";
-import { Star, MapPin } from "lucide-react";
+import { Star, MapPin, User } from "lucide-react";
 import Image from "next/image";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
@@ -43,9 +43,7 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
         ? service.image_url!
         : (isValidUrl(service.images_urls?.[0]) ? service.images_urls![0] : "/placeholder.png");
 
-    const storeLogo = isValidUrl(service.store?.logo)
-        ? service.store!.logo!
-        : "/default-avatar.png";
+
 
     return (
         <div
@@ -71,7 +69,10 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                 />
 
                 {/* Favorite Button - Top Left */}
-                <div className="absolute top-3 left-3 z-10 w-10 h-10 rounded-full bg-[#ffffffc9] flex items-center justify-center shadow-md hover:scale-110 transition-transform">
+                <div
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    className="absolute top-3 left-3 z-10 w-10 h-10 rounded-full bg-[#ffffffc9] flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                >
                     <FavoriteButton
                         id={service.id}
                         type="service"
@@ -103,16 +104,17 @@ export default function ServiceCard({ service, className, onClick }: ServiceCard
                 {/* Provider Info */}
                 <div className="flex items-center gap-2">
                     {/* Avatar */}
-                    <div className="relative w-10 h-10 shrink-0 rounded-full overflow-hidden shadow-sm ring-1 ring-gray-100">
-                        <Image
-                            src={storeLogo}
-                            alt={providerName}
-                            fill
-                            className="object-cover"
-                            onError={(e) => {
-                                e.currentTarget.src = "/default-avatar.png";
-                            }}
-                        />
+                    <div className="relative w-10 h-10 shrink-0 rounded-full overflow-hidden shadow-sm ring-1 ring-gray-100 flex items-center justify-center bg-gray-50">
+                        {isValidUrl(service.store?.logo) ? (
+                            <Image
+                                src={service.store!.logo!}
+                                alt={providerName}
+                                fill
+                                className="object-cover"
+                            />
+                        ) : (
+                            <User className="w-6 h-6 text-gray-400" />
+                        )}
                     </div>
 
 

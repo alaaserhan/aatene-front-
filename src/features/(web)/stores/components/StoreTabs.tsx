@@ -12,6 +12,7 @@ import {
     Facebook,
     Instagram,
     Youtube,
+    User,
 } from "lucide-react";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../hooks";
 import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
@@ -392,13 +393,17 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
 
     return (
         <div className="bg-white border border-[#e0dfdc] rounded-lg p-4 flex flex-col items-center gap-4">
-            <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100">
-                <Image
-                    src={ownerAvatar || "/default-avatar.png"}
-                    alt={ownerName}
-                    fill
-                    className="object-cover"
-                />
+            <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100 flex items-center justify-center bg-gray-50">
+                {ownerAvatar ? (
+                    <Image
+                        src={ownerAvatar}
+                        alt={ownerName}
+                        fill
+                        className="object-cover"
+                    />
+                ) : (
+                    <User size={50} className="text-gray-400" />
+                )}
             </div>
             <div className="flex flex-col items-center gap-1">
                 <h3 className="text-[17px] font-medium text-[#4d4d4d] capitalize">

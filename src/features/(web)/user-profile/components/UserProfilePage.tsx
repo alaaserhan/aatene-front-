@@ -124,14 +124,16 @@ function UserHeader({ user, isOwnProfile, followers }: {
                                         ))
                                     )}
                                 </div>
-                                <span className="text-gray-500 text-xs md:text-sm font-medium">{user.followers_count || 0} متابعين</span>
+                                <span className="text-gray-500 text-xs md:text-sm font-medium">
+                                    {Number(user.followers_count || 0) > 0 ? `${user.followers_count} متابعين` : "لا يوجد متابعين"}
+                                </span>
                             </div>
                         </div>
                     </div>
 
                     {/* Column 2: User Personal Information & Action Buttons */}
                     <div className="flex flex-col py-2">
-                        <h1 className="text-2xl md:text-3xl font-medium leading-tight mb-1 ">{user.fullname}</h1>
+                        <h1 className="text-xl lg:text-2xl font-medium pt-2">{user.fullname}</h1>
                         <p className="text-gray-500 text-sm md:text-base font-medium mb-1 ">{user.slug}</p>
                         <p className="text-gray-500 text-sm  font-medium mb-3">{user.city?.name}</p>
 

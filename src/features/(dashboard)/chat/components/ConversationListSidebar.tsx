@@ -202,7 +202,7 @@ export function ConversationListSidebar({
 
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
-                                <p className="text-sm font-semibold truncate">{displayName}</p>
+                                <p className="text-sm font-medium truncate">{displayName}</p>
                                 <span className="text-xs text-gray-400 whitespace-nowrap">{time}</span>
                             </div>
 

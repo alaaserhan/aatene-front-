@@ -41,7 +41,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     const { mutate: sendMessage } = useSendMessage();
     const { mutate: markSeen } = useMarkMessageAsSeen();
     const { mutate: blockUser } = useBlockUser();
-    const { mutate: deleteConversation } = useDeleteConversation();
+    const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversation();
 
     const [newMessage, setNewMessage] = useState("");
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -143,6 +143,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                 setPendingMessages(prev => prev.map(m =>
                     m.id === tempId ? { ...m, status: "failed" as const } : m
                 ));
+                toast.error("حدث خطأ أثناء إرسال الرسالة");
             }
         });
     }
@@ -180,6 +181,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                 setPendingMessages(prev => prev.map(m =>
                     m.id === tempId ? { ...m, status: "failed" as const } : m
                 ));
+                toast.error("حدث خطأ أثناء إرسال الرسالة");
             }
         });
     };
@@ -197,8 +199,13 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         }
     };
 
-    if (isLoading) {
-        return <div className="h-full flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-3" /></div>;
+    if (isLoading || isDeleting) {
+        return (
+            <div className="h-full flex flex-col items-center justify-center gap-3">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
+                {isDeleting && <p className="text-sm text-gray-2">جاري حذف المحادثة...</p>}
+            </div>
+        );
     }
 
     return (

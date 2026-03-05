@@ -35,6 +35,7 @@ export const useSendMessage = () => {
 
     return useMutation({
         mutationKey: ["send-message"],
+        retry: 0,
         mutationFn: ({ payload, ignoreCookie }: { payload: api.SendMessagePayload; ignoreCookie?: boolean }) =>
             api.sendMessage(payload, ignoreCookie),
         onSuccess: () => {
@@ -87,6 +88,7 @@ export const useDeleteConversation = () => {
 
     return useMutation({
         mutationKey: ["delete-conversation"],
+        retry: 0,
         mutationFn: ({ id, ignoreCookie }: { id: number | string; ignoreCookie?: boolean }) =>
             api.deleteConversation(id, ignoreCookie),
         onSuccess: () => {
@@ -120,6 +122,7 @@ export const useCreateConversation = () => {
 
     return useMutation({
         mutationKey: ["create-conversation"],
+        retry: 0,
         mutationFn: ({ payload, ignoreCookie }: { payload: api.CreateConversationPayload; ignoreCookie?: boolean }) =>
             api.createConversation(payload, ignoreCookie),
         onSuccess: () => {

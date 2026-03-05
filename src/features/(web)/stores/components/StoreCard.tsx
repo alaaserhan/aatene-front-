@@ -3,7 +3,7 @@
 import { memo, useState } from "react";
 import { Store } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
-import { ArrowRight, UserPlus } from "lucide-react";
+import { ArrowRight, UserPlus, Store as StoreIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -49,15 +49,21 @@ const StoreCard = memo(({
         >
             {/* Cover Image */}
             <div className="relative h-48 w-full bg-gray-200">
-                <Image
-                    src={imgSrc}
-                    alt={store.name}
-                    fill
-                    className="object-cover"
-                    onError={() => {
-                        setImgSrc("/placeholder.png");
-                    }}
-                />
+                {store.logo_url ? (
+                    <Image
+                        src={imgSrc}
+                        alt={store.name}
+                        fill
+                        className="object-cover"
+                        onError={() => {
+                            setImgSrc("/placeholder.png");
+                        }}
+                    />
+                ) : (
+                    <div className="flex items-center justify-center w-full h-full">
+                        <StoreIcon className="w-16 h-16 text-gray-400" />
+                    </div>
+                )}
             </div>
 
             {/* Content Section */}

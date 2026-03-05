@@ -9,14 +9,12 @@ import {
     Heart,
     MessageCircle,
     Star,
-    Truck,
-    PackageCheck,
-    MessageSquareText,
     ChevronLeft,
     ChevronRight,
     UserPlus,
     Loader2,
-    User as UserIcon
+    User as UserIcon,
+    StoreIcon
 } from "lucide-react";
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
@@ -118,13 +116,17 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                         <div className="flex flex-col gap-3 items-center relative w-full lg:w-auto shrink-0">
                             {/* Avatar */}
                             <div className="relative group">
-                                <div className="w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full border-2 -mt-5 border-white shadow-sm shrink-0 bg-gray-100 overflow-hidden relative">
-                                    <Image
-                                        src={store.logo_url || "/default-avatar.png"}
-                                        alt={store.name}
-                                        fill
-                                        className="object-contain"
-                                    />
+                                <div className="w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full border-2 -mt-5 border-white shadow-sm shrink-0 bg-gray-100 overflow-hidden relative flex items-center justify-center">
+                                    {store.logo_url ? (
+                                        <Image
+                                            src={store.logo_url}
+                                            alt={store.name}
+                                            fill
+                                            className="object-contain"
+                                        />
+                                    ) : (
+                                        <StoreIcon className="w-16 h-16 text-gray-400" />
+                                    )}
                                 </div>
                             </div>
 
@@ -178,13 +180,15 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                                             <div className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100" />
                                         )}
                                     </div>
-                                    <span className="text-gray-500 text-xs md:text-sm font-medium">{followersCount} متابع</span>
+                                    <span className="text-gray-500 text-xs md:text-sm font-medium">
+                                        {followersCount > 0 ? `${followersCount} متابع` : "لا يوجد متابعين"}
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Title & Description Column */}
-                        <div className="flex flex-col items-center lg:items-start gap-1 pb-2 lg:mt-20">
+                        <div className="flex flex-col items-center lg:items-start gap-1 py-2 lg:mt-20">
                             <h1 className="text-xl lg:text-2xl font-medium ">{store.name}</h1>
                             {store.description && (
                                 <p className="text-gray-500 text-sm max-w-lg leading-relaxed">{store.description}</p>
@@ -277,44 +281,8 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
 
                     </div>
 
-                    {/* Right features block (Left statically translated depending on dir=rtl) */}
-                    {/* {
-                        store.type === "products" && (
-                            <div className="flex flex-row   justify-center gap-2 md:gap-2 mt-6 lg:mt-0  shrink-0 overflow-x-auto w-full lg:w-auto px-4 lg:px-0">
-                                <FeatureBox
-                                    icon={<Truck className="w-6 h-6 text-blue-4" />}
-                                    title="خدمة توصيل"
-                                    desc="يتميز بسجل حافل بالشحن في الوقت المحدد مع خدمة التتبع."
-                                />
-                                <FeatureBox
-                                    icon={<PackageCheck className="w-6 h-6 text-blue-4" />}
-                                    title="شحن سلس"
-                                    desc="يتميز بسجل دقيق في الوقت المحدد مع خدمة التتبع."
-                                />
-                                <FeatureBox
-                                    icon={<MessageSquareText className="w-6 h-6 text-blue-4" />}
-                                    title="ردود سريعة"
-                                    desc="يتميز بسجل حافل بالرد السريع على الرسائل."
-                                />
-                            </div>
-                        )
-                    } */}
                 </div>
             </div>
         </div >
-    );
-}
-
-function FeatureBox({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
-    return (
-        <div className="flex flex-col items-center  text-center gap-2 w-[100px] md:w-[110px]">
-            <div className="w-[70px] h-[70px] bg-gray-50 rounded-lg flex items-center justify-center">
-                {icon}
-            </div>
-            <div className="text-[11px]">
-                <h4 className=" text-gray-2  mb-1">{title}</h4>
-                <p className=" text-gray-400 leading-tight">{desc}</p>
-            </div>
-        </div>
     );
 }
