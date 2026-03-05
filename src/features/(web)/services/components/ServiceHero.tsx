@@ -16,6 +16,13 @@ interface ServiceHeroProps {
     service: Service;
 }
 
+const executeTypeMap: Record<string, string> = {
+    hour: "ساعة",
+    day: "يوم",
+    week: "اسبوع",
+    month: "شهر",
+};
+
 export default function ServiceHero({ service }: ServiceHeroProps) {
     const allMedia = useMemo(() => {
         const isVideoFile = (url: string) => {
@@ -274,7 +281,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                                                     {parseFloat(extra.price).toFixed(2)} <span className="text-base">₪ </span>
                                                 </span>
                                                 <span className="flex items-center gap-1">
-                                                    <Clock4 className="w-3 h-3" /> {extra.execute_count} {extra.execute_type}
+                                                    <Clock4 className="w-3 h-3 mb-0.5" /> {extra.execute_count} {executeTypeMap[extra.execute_type] || extra.execute_type}
                                                 </span>
                                             </div>
                                         </div>
@@ -303,10 +310,10 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                     <div className="flex flex-col gap-3">
                         {service.store?.phone && (
                             <a
-                                href={`tel:${service.store.phone} `}
+                                href={`tel:${service.store.phone}`}
                                 className="flex items-center justify-center gap-2 bg-blue-3 text-white h-11 rounded-full font-medium hover:opacity-90 transition-opacity"
                             >
-                                <span dir="ltr">{service.store.phone?.replace(/(\d{3})(\d{3})(\d{3})(\d+)/, "+$1 *** *** ***")}</span>
+                                <span dir="ltr">{service.store.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** ***")}</span>
                                 <Phone className="w-5 h-5" />
                             </a>
                         )}

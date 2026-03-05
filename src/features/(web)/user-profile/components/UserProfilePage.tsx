@@ -292,7 +292,7 @@ function ProfileTabs({ user }: { user: UserProfile }) {
                         : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                         }`}
                 >
-                    البيانات
+                    نظره عامة
                     {activeTab === "bio" && (
                         <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-4" />
                     )}

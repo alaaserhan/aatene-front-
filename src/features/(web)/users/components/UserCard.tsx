@@ -11,19 +11,11 @@ interface UserCardProps {
     className?: string;
 }
 
-// In a real app this would be in the user object
-const USER_COVERS = [
-    "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80"
-];
 
 export default function UserCard({ user, className }: UserCardProps) {
     const rating = parseFloat(user.review_rate || "0").toFixed(1);
-    const cityName = user.city?.name || "الخليل";
-    // Deterministic cover based on user ID or random
-    const coverIndex = user.id ? user.id % USER_COVERS.length : 0;
-    const coverImage = USER_COVERS[coverIndex];
+    const cityName = user.city?.name || "لا يوجد مدينة";
+    const coverImage = "/background.svg";
 
     // Use slug if available, otherwise ID
     const profileLink = `/profile/${user.slug || user.id}`;
@@ -86,7 +78,7 @@ export default function UserCard({ user, className }: UserCardProps) {
 
                 {/* Bio / Job Title */}
                 <p className="text-gray-500 text-xs font-medium mb-5 truncate w-full px-4" dir="rtl">
-                    {user.bio || "مهندس معماري وديكور داخلي"}
+                    {user.bio || "لا يوجد وصف"}
                 </p>
 
                 {/* Location & Rating Row */}

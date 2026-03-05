@@ -273,13 +273,13 @@ function ServiceFAQ({ service }: { service: Service }) {
             </div>
 
             <div className="divide-y divide-gray-100">
-                {displayQuestions.map((q) => (
+                {displayQuestions.map((q, index) => (
                     <div key={q.id} className="py-4">
                         <button
                             className="flex items-center justify-between w-full text-right group"
                         >
                             <span className={`font-medium text-sm transition-colors `}>
-                                {q.id}. {q.question}
+                                {index + 1}. {q.question}
                             </span>
                         </button>
                         <div
@@ -569,7 +569,7 @@ function ServiceQAAnswerForm({ questionId, onClose }: { questionId: number, onCl
             <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="الاستشارات تتم من قبل محامين مرخصين، لكن تظل استشارة أولية ولا تُغني عن التمثيل القانوني الرسمي..."
+                placeholder="أضف إجابتك هنا"
                 className="w-full h-24 resize-none focus:outline-none bg-transparent placeholder-gray-400 text-sm leading-relaxed"
                 maxLength={300}
             />
