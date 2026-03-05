@@ -169,13 +169,13 @@ export function TermsSection({
               >
                 <div
                   className={cn(
-                    "w-3 h-3 rounded-full text-[8px] flex items-center justify-center",
+                    "w-4 h-4 rounded-full text-[9px] flex items-center justify-center",
                     editingIndex === index
                       ? "bg-white text-blue-4"
                       : "bg-blue-4 text-white"
                   )}
                 >
-                  <span className="pt-px">{index + 1}</span>
+                  <span className="flex justify-center items-center pt-0.5">{index + 1}</span>
                 </div>
                 <span className="text-sm">
                   {paragraph.titleAr ||

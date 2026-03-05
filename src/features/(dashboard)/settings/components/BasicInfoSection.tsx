@@ -4,7 +4,6 @@
 import { useState } from "react";
 import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
-import { Button } from "@/src/components/ui/button";
 import { MapModal } from "./MapModal";
 import { MediaSelectButton } from "../../mediaCenter/components/MediaSelectButton";
 import { MultiSelectDropdown } from "@/src/components/ui/MultiSelectDropdown";
@@ -58,9 +57,7 @@ export function BasicInfoSection({
   };
 
   const handleSelectAddressFromMap = (
-    address: string,
-    lat: number,
-    lng: number
+    address: string
   ) => {
     onChange({ address });
   };
@@ -138,7 +135,7 @@ export function BasicInfoSection({
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-start">
-                البريد الإلكتروني
+                البريد الإلكتروني <span className="text-red-500">*</span>
               </Label>
               <div className="flex items-center gap-3 px-3 border border-gray-300 rounded-lg focus-within:border-brand-blue-2">
                 <img
@@ -151,6 +148,7 @@ export function BasicInfoSection({
                   type="email"
                   value={data.email}
                   onChange={(e) => onChange({ email: e.target.value })}
+                  required
                   className="w-full h-10 border-none shadow-none px-0 focus-visible:ring-0"
                 />
               </div>
@@ -158,7 +156,7 @@ export function BasicInfoSection({
 
             <div className="space-y-2">
               <Label htmlFor="address" className="text-start">
-                العنوان
+                العنوان <span className="text-red-500">*</span>
               </Label>
               <div className="flex items-center gap-3 ps-3 border border-gray-300 rounded-lg focus-within:border-brand-blue-2">
                 <img
@@ -171,6 +169,7 @@ export function BasicInfoSection({
                   type="text"
                   value={data.address}
                   onChange={(e) => onChange({ address: e.target.value })}
+                  required
                   className="text-[12px] border-none shadow-none px-0 py-2.5 focus-visible:ring-0"
                 />
                 {/* <Button
@@ -190,6 +189,7 @@ export function BasicInfoSection({
                 label="الهاتف المحمول"
                 value={data.phone}
                 onChange={(e) => onChange({ phone: e.target.value })}
+                required={true}
                 countryCode={phoneCountryCode}
                 onCountryCodeChange={setPhoneCountryCode}
                 placeholder="0000000000"
@@ -200,6 +200,7 @@ export function BasicInfoSection({
                 label="الواتساب"
                 value={data.whatsapp}
                 onChange={(e) => onChange({ whatsapp: e.target.value })}
+                required={true}
                 countryCode={whatsappCountryCode}
                 onCountryCodeChange={setWhatsappCountryCode}
                 placeholder="0000000000"

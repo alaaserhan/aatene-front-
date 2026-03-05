@@ -217,6 +217,23 @@ export function ClientSettingsPage() {
 
   const handleSaveAll = async () => {
     try {
+      if (!formData.basicInfo.phone) {
+        toast.error("يرجى إدخال رقم الهاتف المحمول");
+        return;
+      }
+      if (!formData.basicInfo.whatsapp) {
+        toast.error("يرجى إدخال رقم الواتساب");
+        return;
+      }
+      if (!formData.basicInfo.email) {
+        toast.error("يرجى إدخال البريد الإلكتروني");
+        return;
+      }
+      if (!formData.basicInfo.address) {
+        toast.error("يرجى إدخال العنوان");
+        return;
+      }
+
       const selectedLangs = formData.languages;
 
       const policiesPayload: PolicyItemPayload[] = formData.privacyPolicies.map(

@@ -142,13 +142,13 @@ export function FollowingsPage() {
                 {/* 3. Search */}
                 <div className="mb-4">
                     <div className="relative">
+                        <Search className="absolute right-3 top-3 text-gray-2 w-5 h-5" />
                         <Input
                             placeholder="ابحث بالاسم"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-white  h-12 "
+                            className="w-full bg-white  h-12 pr-10 border-gray-200 "
                         />
-                        <Search className="absolute left-3 top-3 text-gray-2 w-5 h-5" />
                     </div>
                 </div>
 
