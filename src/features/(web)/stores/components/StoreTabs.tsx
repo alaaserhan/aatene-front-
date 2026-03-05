@@ -12,11 +12,6 @@ import {
     Facebook,
     Instagram,
     Youtube,
-    Link as LinkIcon,
-    Clock,
-    Heart,
-    Package,
-    Award,
 } from "lucide-react";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../hooks";
 import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
@@ -245,11 +240,6 @@ function ShortcutButton({
 }
 
 function StoreShortcuts({ store }: { store: StoreProfile }) {
-    const copyToClipboard = () => {
-        if (typeof window !== "undefined") {
-            navigator.clipboard.writeText(window.location.href);
-        }
-    };
 
     const shortcuts: {
         icon: React.ElementType;
@@ -295,6 +285,10 @@ function StoreShortcuts({ store }: { store: StoreProfile }) {
                 show: !!store.whats_app
             }
         ];
+
+    const hasShortcuts = shortcuts.some(s => s.show);
+
+    if (!hasShortcuts) return null;
 
     return (
         <div className="mb-2 bg-white border border-[#e0dfdc] rounded-[10px] p-[10px_14px] flex flex-col gap-1.5 justify-between" dir="rtl">

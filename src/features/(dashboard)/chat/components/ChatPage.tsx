@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useConversations, useTotalUnreadCount, useCreateConversation, useSendMessage } from "../hooks";
+import { Loader2 } from "lucide-react";
 import { Conversation } from "../api";
 import { ConversationListSidebar } from "./ConversationListSidebar";
 import { ChatWindow } from "./ChatWindow";
@@ -61,15 +62,23 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const ignoreCookie = !isDashboard;
     const storeId = isDashboard ? Cookies.get("current_store_id") : undefined;
 
-    const { data, isLoading, isError, refetch } = useConversations(storeId, ignoreCookie);
+    const typeParam = searchParams.get("type");
+    const idParam = searchParams.get("id");
+    const chatParam = searchParams.get("chat");
+    const isCreatingStartedInfo = !!typeParam && !!idParam && !chatParam;
+
+    const { data, isLoading, isError, refetch } = useConversations(storeId, ignoreCookie, !isCreatingStartedInfo);
     const { data: unreadData } = useTotalUnreadCount(storeId, ignoreCookie);
-    const { mutate: createConversation } = useCreateConversation();
-    const { mutate: sendMessage } = useSendMessage();
+    const { mutate: createConversation, isPending: isCreatingDirect } = useCreateConversation();
+    const { mutate: sendMessage, isPending: isCreatingWithProductService } = useSendMessage();
+
+    const isCreatingMutationPending = isCreatingDirect || isCreatingWithProductService;
+    const showCreationLoading = isCreatingStartedInfo || isCreatingMutationPending;
 
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("all");
     const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
-    const [isCreatingFromUrl, setIsCreatingFromUrl] = useState(false);
+    const creationStartedRef = useRef(false);
 
     const allConversations = useMemo(() => data?.conversations || [], [data]);
 
@@ -107,13 +116,17 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     }, [handleCloseChat]);
 
     useEffect(() => {
-        const typeParam = searchParams.get("type");
-        const idParam = searchParams.get("id");
+        if (!searchParams.get("type") || !searchParams.get("id")) {
+            creationStartedRef.current = false;
+        }
+    }, [searchParams]);
+
+    useEffect(() => {
         const serviceIdParam = searchParams.get("serviceId");
         const productIdParam = searchParams.get("productId");
 
-        if (typeParam && idParam && !isCreatingFromUrl && !selectedConversation) {
-            setIsCreatingFromUrl(true);
+        if (typeParam && idParam && !selectedConversation && !creationStartedRef.current) {
+            creationStartedRef.current = true;
 
             if (serviceIdParam) {
                 sendMessage(
@@ -128,20 +141,20 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     {
                         onSuccess: (res) => {
                             if (res.status && res.message) {
+                                handleSelectConversation({ id: res.message.conversation_id } as unknown as Conversation);
                                 queryClient.invalidateQueries({ queryKey: ["conversations"] });
-                                refetch().then((result) => {
-                                    const conv = result.data?.conversations?.find(
-                                        c => String(c.id) === String(res.message.conversation_id)
-                                    );
-                                    if (conv) {
-                                        handleSelectConversation(conv);
-                                    }
-                                });
                             }
                         },
-                        onError: () => {
-                            toast.error("حدث خطأ أثناء إرسال الرسالة");
-                            setIsCreatingFromUrl(false);
+                        onError: (error: unknown) => {
+                            let msg = "لا يمكنك التواصل مع هذا المستخدم";
+                            const resData = (error as { response?: { data?: { errors?: string; message?: string } } })?.response?.data;
+                            if (typeof resData?.errors === "string") {
+                                msg = resData.errors;
+                            } else if (resData?.message) {
+                                msg = resData.message;
+                            }
+                            toast.error(msg);
+                            handleCloseChat();
                         }
                     }
                 );
@@ -158,20 +171,20 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     {
                         onSuccess: (res) => {
                             if (res.status && res.message) {
+                                handleSelectConversation({ id: res.message.conversation_id } as unknown as Conversation);
                                 queryClient.invalidateQueries({ queryKey: ["conversations"] });
-                                refetch().then((result) => {
-                                    const conv = result.data?.conversations?.find(
-                                        c => String(c.id) === String(res.message.conversation_id)
-                                    );
-                                    if (conv) {
-                                        handleSelectConversation(conv);
-                                    }
-                                });
                             }
                         },
-                        onError: () => {
-                            toast.error("حدث خطأ أثناء إرسال الرسالة");
-                            setIsCreatingFromUrl(false);
+                        onError: (error: unknown) => {
+                            let msg = "لا يمكنك التواصل مع هذا المستخدم";
+                            const resData = (error as { response?: { data?: { errors?: string; message?: string } } })?.response?.data;
+                            if (typeof resData?.errors === "string") {
+                                msg = resData.errors;
+                            } else if (resData?.message) {
+                                msg = resData.message;
+                            }
+                            toast.error(msg);
+                            handleCloseChat();
                         }
                     }
                 );
@@ -188,19 +201,28 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                         onSuccess: (res) => {
                             if (res.status && res.conversation) {
                                 handleSelectConversation(res.conversation);
+                                queryClient.invalidateQueries({ queryKey: ["conversations"] });
                             } else {
-                                toast.error(res.message || "حدث خطأ أثناء إنشاء المحادثة");
+                                toast.error(res.message || "لا يمكنك التواصل مع هذا المستخدم");
+                                handleCloseChat();
                             }
                         },
-                        onError: () => {
-                            toast.error("حدث خطأ أثناء إنشاء المحادثة");
-                            setIsCreatingFromUrl(false);
+                        onError: (error: unknown) => {
+                            let msg = "لا يمكنك التواصل مع هذا المستخدم";
+                            const resData = (error as { response?: { data?: { errors?: string; message?: string } } })?.response?.data;
+                            if (typeof resData?.errors === "string") {
+                                msg = resData.errors;
+                            } else if (resData?.message) {
+                                msg = resData.message;
+                            }
+                            toast.error(msg);
+                            handleCloseChat();
                         }
                     }
                 );
             }
         }
-    }, [searchParams, createConversation, sendMessage, isCreatingFromUrl, handleSelectConversation, selectedConversation, authUser, queryClient, refetch]);
+    }, [searchParams, createConversation, sendMessage, handleSelectConversation, selectedConversation, authUser, queryClient, refetch, handleCloseChat, ignoreCookie, idParam, typeParam]);
 
     useEffect(() => {
         if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
@@ -318,7 +340,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
 
                 {/* Conversation List - Full width on mobile when no chat selected */}
                 <div className={`
-                    ${selectedConversation ? 'hidden md:block' : 'flex-1 md:flex-none'}
+                    ${selectedConversation || showCreationLoading ? 'hidden md:block' : 'flex-1 md:flex-none'}
                     md:w-96 shrink-0 flex flex-col
                 `}>
                     {/* Mobile Filter Buttons - Only visible on small screens */}
@@ -367,10 +389,15 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
 
                 {/* Chat Area - Full width on mobile when chat is selected */}
                 <div className={`
-                    ${selectedConversation ? 'flex-1' : 'hidden md:flex md:flex-1'}
+                    ${selectedConversation || showCreationLoading ? 'flex-1' : 'hidden md:flex md:flex-1'}
                     bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none h-full
                 `}>
-                    {selectedConversation ? (
+                    {showCreationLoading ? (
+                        <div className="flex flex-col items-center justify-center h-full animate-pulse">
+                            <Loader2 className="w-10 h-10 animate-spin text-blue-3 mb-4" />
+                            <p className="text-gray-500 font-medium">جاري تجهيز المحادثة...</p>
+                        </div>
+                    ) : selectedConversation ? (
                         <ChatWindow
                             conversation={selectedConversation}
                             onClose={handleCloseChat}

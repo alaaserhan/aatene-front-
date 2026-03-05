@@ -7,6 +7,7 @@ import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarL
 import { useAuthStore } from "@/src/stores/auth-store";
 import Cookies from "js-cookie";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
+import { User, Store } from "lucide-react";
 
 interface ConversationListSidebarProps {
     conversations: Conversation[];
@@ -61,15 +62,7 @@ export function ConversationListSidebar({
         return otherParticipant?.participant_data?.avatar || null;
     };
 
-    const getInitials = (name: string) => {
-        if (!name) return "U";
-        return name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .slice(0, 1)
-            .toUpperCase();
-    };
+
 
     const formatTime = (dateString: string) => {
         const date = new Date(dateString);
@@ -198,7 +191,11 @@ export function ConversationListSidebar({
                                     <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
                                 ) : null}
                                 <AvatarFallback className="bg-blue-5 text-blue-3 font-medium text-lg">
-                                    {getInitials(displayName)}
+                                    {getOtherParticipant(conversation)?.participant_data.type === "store" ? (
+                                        <Store className="w-6 h-6" />
+                                    ) : (
+                                        <User className="w-6 h-6" />
+                                    )}
                                 </AvatarFallback>
                             </Avatar>
                         </div>

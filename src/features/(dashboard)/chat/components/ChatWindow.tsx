@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useConversationMessages, useSendMessage, useMarkMessageAsSeen, useBlockUser, useDeleteConversation } from "../hooks";
 import { Conversation } from "../api";
-import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon, Star } from "lucide-react";
+import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon, Star, User, Store } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import {
@@ -220,8 +220,10 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             <span>{conversation.name?.[0].toUpperCase() || "G"}</span>
                         ) : otherParticipant?.participant_data.avatar ? (
                             <img src={otherParticipant.participant_data.avatar} alt="" className="w-full h-full object-cover" />
+                        ) : otherParticipant?.participant_data.type === "store" ? (
+                            <Store className="w-6 h-6 text-blue-3" />
                         ) : (
-                            <span>{otherParticipant?.participant_data.name?.[0].toUpperCase() || "U"}</span>
+                            <User className="w-6 h-6 text-blue-3" />
                         )}
                     </div>
                     <div>

@@ -1,7 +1,7 @@
 // src/features/(dashboard)/ai-agent/components/ChatListSidebar.tsx
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, User, Store } from "lucide-react";
 import { useGetPlatformUsersInfo, useGetApi4Users, useGetDeletedUsers } from "../hooks";
 import { PlatformType } from "../api";
 import { cn } from "@/src/lib/utils";
@@ -20,12 +20,14 @@ function UserCard({
   name,
   time,
   lastMessage,
+  type,
 }: {
   isSelected: boolean;
   onClick: () => void;
   name: string;
   time: string;
   lastMessage: string;
+  type?: string;
 }) {
   return (
     <div
@@ -36,8 +38,12 @@ function UserCard({
       )}
     >
       <div className="relative shrink-0">
-        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-blue-4">
-          <img src="/icons/dashboard/user.svg" className="w-12" alt="User" />
+        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-blue-4 text-blue-3">
+          {type === "store" ? (
+            <Store className="w-6 h-6" />
+          ) : (
+            <User className="w-6 h-6" />
+          )}
         </div>
       </div>
 
@@ -93,6 +99,7 @@ function Api4ChatList({ selectedChatId, onSelectChat }: { selectedChatId: string
           name={user.first_name || user.chat_id}
           time={user.last_seen}
           lastMessage={user.last_message || "محادثة"}
+          type={(user as { type?: string }).type}
         />
       ))}
     </div>
@@ -135,6 +142,7 @@ function DeletedChatList({ selectedChatId, onSelectChat }: { selectedChatId: str
             name={user.user_info.first_name || user.user_info.phone_number || user.user_info.chat_id}
             time={time}
             lastMessage={lastMsgText}
+            type={(user.user_info as { type?: string }).type}
           />
         );
       })}
@@ -190,6 +198,7 @@ function StandardChatList({
             name={user.user_info.first_name || user.user_info.phone_number || "مستخدم"}
             time={user.last_message?.created_at || user.user_info.last_seen}
             lastMessage={lastMessage}
+            type={(user.user_info as { type?: string }).type}
           />
         );
       })}

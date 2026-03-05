@@ -83,11 +83,15 @@ api.interceptors.response.use(
       let message = responseData?.message || "هناك خطأ ما";
 
       // ⭐ أولاً: حاول أخذ أول خطأ من errors object
-      if (responseData?.errors && Object.keys(responseData.errors).length > 0) {
+      if (typeof responseData?.errors === "string") {
+        message = responseData.errors;
+      } else if (responseData?.errors && typeof responseData.errors === "object" && Object.keys(responseData.errors).length > 0) {
         const firstErrorKey = Object.keys(responseData.errors)[0];
-        const firstErrorArray = responseData.errors[firstErrorKey];
-        if (firstErrorArray && firstErrorArray.length > 0) {
-          message = firstErrorArray[0];
+        const firstErrorValue = responseData.errors[firstErrorKey];
+        if (Array.isArray(firstErrorValue) && firstErrorValue.length > 0) {
+          message = firstErrorValue[0];
+        } else if (typeof firstErrorValue === "string") {
+          message = firstErrorValue;
         }
       }
 

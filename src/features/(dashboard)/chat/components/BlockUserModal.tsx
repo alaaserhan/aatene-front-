@@ -37,13 +37,13 @@ export function BlockUserModal({
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent className="sm:max-w-md" dir="rtl">
-                <DialogHeader className="pt-4">
-                    <DialogTitle className="text-lg font-bold text-right text-gray-800">
-                        أضف سبب حظر المستخدم هنا مع التوضيح للعميل
+                <DialogHeader className="">
+                    <DialogTitle className="text-lg font-semibold ">
+                       اضف سبب الحظر
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="space-y-4 py-4">
+                <div className="space-y-4">
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 block text-right">
                             سبب الحظر

@@ -7,10 +7,11 @@ const QK = {
     conversations: ["conversations"] as const,
 };
 
-export const useConversations = (storeId?: number | string, ignoreCookie: boolean = false) => {
+export const useConversations = (storeId?: number | string, ignoreCookie: boolean = false, enabled: boolean = true) => {
     return useQuery({
         queryKey: [...QK.conversations, storeId, ignoreCookie],
         queryFn: () => api.getConversations(storeId, ignoreCookie),
+        enabled,
     });
 };
 

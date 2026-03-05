@@ -2,7 +2,7 @@
 
 import { User } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
-import { Star, MapPin, Crown } from "lucide-react";
+import { Star, MapPin, Crown, User as UserIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -17,21 +17,7 @@ export default function UserCard({ user, className }: UserCardProps) {
     const cityName = user.city?.name || "لا يوجد مدينة";
     const coverImage = "/background.svg";
 
-    // Use slug if available, otherwise ID
     const profileLink = `/profile/${user.slug || user.id}`;
-
-    const getValidImageSrc = (src: string | undefined | null, fallback: string) => {
-        if (!src) return fallback;
-        if (src.startsWith('/') || src.startsWith('http://') || src.startsWith('https://')) return src;
-        try {
-            new URL(src);
-            return src;
-        } catch {
-            return fallback;
-        }
-    };
-
-    const validAvatar = getValidImageSrc(user.avatar_url, "/default-avatar.png");
 
     return (
         <Link
@@ -55,20 +41,19 @@ export default function UserCard({ user, className }: UserCardProps) {
             <div className="relative px-3 pb-3 pt-12 flex flex-col items-center text-center">
 
                 {/* Profile Picture - Centered & Overlapping */}
-                {/* Positioned absolute relative to this container. 
-                    Top padding (pt-16) pushes content down.
-                    Avatar is pulled up with negative top margin or absolute positioning from top of container.
-                */}
-                <div className="absolute -top-[2.5rem] left-1/2 -translate-x-1/2 w-20 h-20 rounded-full border-[2px] border-white overflow-hidden shadow-sm bg-gray-50 z-10">
-                    <Image
-                        src={validAvatar}
-                        alt={user.name || "User"}
-                        fill
-                        className="object-cover"
-                        onError={(e) => {
-                            e.currentTarget.src = "/default-avatar.png";
-                        }}
-                    />
+                <div className="absolute -top-[2.5rem] left-1/2 -translate-x-1/2 w-20 h-20 rounded-full border-[2px] border-white overflow-hidden shadow-sm bg-gray-100 z-10 flex items-center justify-center">
+                    <UserIcon className="w-8 h-8 text-gray-400 absolute" />
+                    {user.avatar_url && (
+                        <Image
+                            src={user.avatar_url}
+                            alt={user.name || "User"}
+                            fill
+                            className="object-cover z-10"
+                            onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                            }}
+                        />
+                    )}
                 </div>
 
                 {/* Name & Crown */}

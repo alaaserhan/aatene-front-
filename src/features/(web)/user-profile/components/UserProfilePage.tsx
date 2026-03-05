@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { UserProfile, UserStory, UserFollower } from "../types";
 import Image from "next/image";
-import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, Type, Image as ImageIcon, UserMinus } from "lucide-react";
+import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, Type, Image as ImageIcon, UserMinus, User as UserIcon } from "lucide-react";
 import { useUserProfile, useUserProfilePageData, useUserFavProducts, useUserProducts } from "../hooks";
 import { useParams, useRouter, notFound } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
@@ -63,13 +63,19 @@ function UserHeader({ user, isOwnProfile, followers }: {
                     {/* Column 1: Avatar & Meta Stats */}
                     <div className="flex flex-col items-center relative -mt-20 z-10 w-full md:w-auto">
                         <div className="relative group">
-                            <div className="w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white shadow-sm shrink-0 bg-gray-100 overflow-hidden relative">
-                                <Image
-                                    src={user.avatar_url || "/default-avatar.png"}
-                                    alt={user.fullname}
-                                    fill
-                                    className="object-cover"
-                                />
+                            <div className="w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white shadow-sm shrink-0 bg-gray-100 overflow-hidden relative flex items-center justify-center">
+                                <UserIcon className="w-14 h-14 text-gray-400 absolute" />
+                                {user.avatar_url && (
+                                    <Image
+                                        src={user.avatar_url}
+                                        alt={user.fullname}
+                                        fill
+                                        className="object-cover z-10"
+                                        onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                        }}
+                                    />
+                                )}
                             </div>
 
                         </div>
@@ -101,8 +107,19 @@ function UserHeader({ user, isOwnProfile, followers }: {
                                 <div className="hidden sm:flex -space-x-2 md:-space-x-3 space-x-reverse">
                                     {followers && followers.length > 0 && (
                                         followers.slice(0, 3).map((fItem, idx) => (
-                                            <div key={fItem.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100">
-                                                <Image src={fItem.follower?.avatar_url || "/default-avatar.png"} fill className="object-cover" alt="follower" />
+                                            <div key={fItem.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100 flex items-center justify-center">
+                                                <UserIcon className="w-4 h-4 text-gray-400 absolute" />
+                                                {fItem.follower?.avatar_url && (
+                                                    <Image
+                                                        src={fItem.follower.avatar_url}
+                                                        fill
+                                                        className="object-cover z-10"
+                                                        alt="follower"
+                                                        onError={(e) => {
+                                                            e.currentTarget.style.display = 'none';
+                                                        }}
+                                                    />
+                                                )}
                                             </div>
                                         ))
                                     )}
@@ -153,7 +170,7 @@ function UserHeader({ user, isOwnProfile, followers }: {
                                         className="flex items-center min-w-[100px] justify-center cursor-pointer gap-2 border border-[#456A8E] text-[#456A8E] bg-white px-4 md:px-8 py-2 rounded-full font-medium hover:bg-blue-50 transition-colors text-sm flex-1 md:flex-none"
                                     >
                                         <MessageSquare className="w-4 h-4" />
-                                        الدردشة
+                                        دردش
                                     </button>
                                 </>
                             )}

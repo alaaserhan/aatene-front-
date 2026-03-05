@@ -15,7 +15,8 @@ import {
     ChevronLeft,
     ChevronRight,
     UserPlus,
-    Loader2
+    Loader2,
+    User as UserIcon
 } from "lucide-react";
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
@@ -154,16 +155,25 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                                 <div className="flex items-center gap-3">
                                     <div className="hidden sm:flex -space-x-2 md:-space-x-3 space-x-reverse">
                                         {(followers && followers.length > 0) ? (
-                                            followers.slice(0, 3).map((fItem, idx) => (
-                                                <div key={fItem.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100">
-                                                    <Image
-                                                        src={(fItem.follower_type === "store" ? fItem.follower.logo_url : fItem.follower.avatar_url) || "/default-avatar.png"}
-                                                        fill
-                                                        className="object-cover"
-                                                        alt="follower"
-                                                    />
-                                                </div>
-                                            ))
+                                            followers.slice(0, 3).map((fItem, idx) => {
+                                                const avatarUrl = fItem.follower_type === "store" ? fItem.follower.logo_url : fItem.follower.avatar_url;
+                                                return (
+                                                    <div key={fItem.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100 flex items-center justify-center">
+                                                        <UserIcon className="w-4 h-4 text-gray-400 absolute" />
+                                                        {avatarUrl && (
+                                                            <Image
+                                                                src={avatarUrl}
+                                                                fill
+                                                                className="object-cover z-10"
+                                                                alt="follower"
+                                                                onError={(e) => {
+                                                                    e.currentTarget.style.display = 'none';
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                )
+                                            })
                                         ) : (
                                             <div className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100" />
                                         )}
@@ -194,6 +204,7 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                                                 {
                                                     onSuccess: () => {
                                                         queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
+                                                        queryClient.invalidateQueries({ queryKey: ["storePageData"] });
                                                     },
                                                 }
                                             );
@@ -203,6 +214,7 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                                                 {
                                                     onSuccess: () => {
                                                         queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
+                                                        queryClient.invalidateQueries({ queryKey: ["storePageData"] });
                                                     },
                                                 }
                                             );
@@ -224,7 +236,7 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                                     className="h-10 px-6 rounded-full text-sm border border-blue-4 text-blue-4 font-medium flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors cursor-pointer"
                                 >
                                     <MessageCircle className="w-4 h-4" />
-                                    <span>الدردشة</span>
+                                    <span>دردش</span>
                                 </button>
 
                                 <button
