@@ -114,15 +114,17 @@ export default function ProductViewPage() {
     const currentStatus = raw.status;
 
     // gallery_url قد يأتي كـ object من الباك اند — نحوّله لـ array بأمان
+    const coverUrl = raw.cover_url || raw.cover || null;
+
     const galleryUrls: string[] = raw.gallery_url
         ? (Array.isArray(raw.gallery_url)
             ? raw.gallery_url
             : Object.values(raw.gallery_url as Record<string, string>)
-          ).filter((u): u is string => !!u && typeof u === "string")
+          ).filter((u): u is string => !!u && typeof u === "string" && u !== coverUrl)
         : [];
 
     const imagesList: string[] = [
-        ...(raw.cover_url ? [raw.cover_url] : raw.cover ? [raw.cover] : []),
+        ...(coverUrl ? [coverUrl] : []),
         ...galleryUrls,
     ].filter(Boolean) as string[];
 
@@ -319,6 +321,7 @@ export default function ProductViewPage() {
                                     <ProviderInfoCard
                                         store={store}
                                         isOwner={!isAdmin && !!storeId && String(storeId) === Cookies.get("current_store_id")}
+                                        isAdmin={isAdmin}
                                     />
                                 </div>
                             )}
