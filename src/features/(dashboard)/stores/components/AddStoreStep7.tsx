@@ -3,6 +3,7 @@
 import { useState, KeyboardEvent } from "react";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { StoreFormActions } from "./StoreFormActions";
 import { StoreType } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -167,6 +168,7 @@ export function AddStoreStep7({
                 coverImages: previousData.cover_previews,
               }}
             />
+            <GuideVideoCard location="create-store" />
           </div>
         </div>
       </div>

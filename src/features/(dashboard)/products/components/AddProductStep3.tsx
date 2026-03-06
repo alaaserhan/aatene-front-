@@ -4,9 +4,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { Search, X, Plus, Image as ImageIcon, UploadCloud, HelpCircle, Check } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import Cookies from "js-cookie"; // Import Cookies
+import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Button } from "@/src/components/ui/button";
@@ -554,6 +555,7 @@ export function AddProductStep3({
                                 galleryImages: previousData.gallery_previews,
                             }}
                         />
+                        <GuideVideoCard location="add-product" />
                     </div>
                 </div>
             </div>

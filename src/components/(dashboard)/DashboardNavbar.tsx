@@ -32,7 +32,7 @@ import {
   Shield,
   ShieldOff,
   Bell,
-
+  Video,
   TicketPercent,
   Trash2,
 } from "lucide-react";
@@ -190,6 +190,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant && (storeType === "products") && isAllowedByRole("/coupons"), desc: "إدارة ومتابعة الخصومات" },
 
     { label: "المحذوفات", icon: Trash2, href: "/trash", show: hasAdminPerm("/trash"), desc: "إدارة ومتابعة المحذوفات" },
+    { label: "دليل الاستخدام", icon: Video, href: "/user-guide", show: isAdmin, desc: "إضافة فيديوهات لمساعدة المستخدمين" },
   ];
 
   const visibleNavItems = allNavItems.filter((item) => item.show);

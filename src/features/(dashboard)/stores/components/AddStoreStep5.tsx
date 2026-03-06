@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { StoreFormActions } from "./StoreFormActions";
 import { TimePicker } from "./TimePicker";
 import { StoreType, WorkingTimePayload, OpenStatus } from "../api";
@@ -211,6 +212,7 @@ export function AddStoreStep5({
                 coverImages: previousData.cover_previews,
               }}
             />
+            <GuideVideoCard location="create-store" />
           </div>
         </div>
       </div>

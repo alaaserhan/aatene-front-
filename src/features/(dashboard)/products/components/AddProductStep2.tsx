@@ -4,6 +4,7 @@ import { useState, KeyboardEvent, useMemo, useEffect } from "react";
 import { HelpCircle, Loader2 } from "lucide-react";
 import Cookies from "js-cookie";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -444,6 +445,7 @@ export function AddProductStep2({
                 galleryImages: previousData.gallery_previews,
               }}
             />
+            <GuideVideoCard location="add-product" />
           </div>
         </div>
       </div>
@@ -497,6 +499,6 @@ export function AddProductStep2({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 }

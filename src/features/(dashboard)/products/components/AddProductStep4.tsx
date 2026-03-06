@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Step1FormData, Step4FormData, RelatedProduct } from "../types";
@@ -334,6 +335,7 @@ export function AddProductStep4({
                                 galleryImages: previousData.gallery_previews,
                             }}
                         />
+                        <GuideVideoCard location="add-product" />
                     </div>
                 </div>
             </div>
