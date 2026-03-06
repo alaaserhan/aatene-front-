@@ -105,9 +105,9 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
             </h1>
           </div>
 
-          {/* Action Buttons - تظهر فقط إذا كانت الحالة قيد المراجعة */}
-          {service.status === "pending" && (
-            <div className="flex gap-3">
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            {service.status === "pending" && (
               <Button
                 onClick={handleApprove}
                 disabled={isUpdating}
@@ -115,6 +115,8 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
               >
                 {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : "قبول الخدمة"}
               </Button>
+            )}
+            {(service.status === "pending" || service.status === "approved") && (
               <Button
                 onClick={handleRejectClick}
                 disabled={isUpdating}
@@ -122,8 +124,8 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
               >
                 رفض الخدمة
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* ✅ عرض بانر الرفض إذا كانت الحالة مرفوضة */}

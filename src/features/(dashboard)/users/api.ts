@@ -12,6 +12,8 @@ export interface User {
   id: number;
   avatar: string | null;
   avatar_url: string;
+  cover: string | null;
+  cover_url: string | null;
   first_name: string;
   last_name: string;
   email: string;
@@ -45,6 +47,7 @@ export interface SingleUserResponse extends BaseResponse {
 
 export interface UserCreatePayload {
   avatar?: string | null;
+  cover?: string | null;
   first_name: string;
   last_name: string;
   email: string;
@@ -60,6 +63,7 @@ export interface UserCreatePayload {
 
 export interface UserUpdatePayload {
   avatar?: string | null;
+  cover?: string | null;
   first_name?: string;
   last_name?: string;
   email?: string;

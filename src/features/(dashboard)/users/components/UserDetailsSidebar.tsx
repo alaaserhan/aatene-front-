@@ -18,6 +18,7 @@ import {
   Loader2,
   Trash2,
   Pencil,
+  User as UserIcon,
 } from "lucide-react";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
@@ -104,9 +105,12 @@ export function UserDetailsSidebar({
 
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [showMediaCenter, setShowMediaCenter] = useState(false);
+  const [showCoverMediaCenter, setShowCoverMediaCenter] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [newAvatarFileName, setNewAvatarFileName] = useState<string | null>(null);
   const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | null>(null);
+  const [newCoverFileName, setNewCoverFileName] = useState<string | null>(null);
+  const [currentCoverUrl, setCurrentCoverUrl] = useState<string | null>(null);
 
   const {
     data: userData,
@@ -178,6 +182,8 @@ export function UserDetailsSidebar({
       });
       setNewAvatarFileName(user.avatar);
       setCurrentAvatarUrl(user.avatar_url || null);
+      setNewCoverFileName(user.cover || null);
+      setCurrentCoverUrl(user.cover_url || null);
     } else {
       reset({
         first_name: "",
@@ -189,6 +195,8 @@ export function UserDetailsSidebar({
       });
       setNewAvatarFileName(null);
       setCurrentAvatarUrl(null);
+      setNewCoverFileName(null);
+      setCurrentCoverUrl(null);
     }
   }, [userData, reset]);
 
@@ -206,10 +214,25 @@ export function UserDetailsSidebar({
     setShowMediaCenter(false);
   };
 
+  const handleCoverSelect = (file: MediaItem | MediaItem[]) => {
+    let selectedFile: MediaItem;
+    if (Array.isArray(file)) selectedFile = file[0];
+    else selectedFile = file;
+
+    setNewCoverFileName(selectedFile.file_name);
+    setCurrentCoverUrl(selectedFile.src);
+    setShowCoverMediaCenter(false);
+  };
+
   const handleImageDelete = () => {
     setNewAvatarFileName(null);
     setCurrentAvatarUrl(null);
     setShowActionMenu(false);
+  };
+
+  const handleCoverDelete = () => {
+    setNewCoverFileName(null);
+    setCurrentCoverUrl(null);
   };
 
   const onSubmit = (data: UserFormData) => {
@@ -219,6 +242,7 @@ export function UserDetailsSidebar({
 
     const payload: UserUpdatePayload = {
       avatar: newAvatarFileName,
+      cover: newCoverFileName,
       date_of_birth: originalUser.date_of_birth,
       gender: originalUser.gender,
       referral_code: originalUser.referral_code,
@@ -269,6 +293,19 @@ export function UserDetailsSidebar({
     });
   };
 
+  const user = userData?.record;
+  const whatsappUrl = useMemo(() => {
+    if (!user?.phone) return "";
+    return `https://wa.me/${user.phone.replace(/[^\d+]/g, "")}`;
+  }, [user?.phone]);
+
+  const handleWhatsAppClick = () => {
+    if (whatsappUrl) {
+      window.open(whatsappUrl, "_blank");
+    }
+  };
+
+
   if (isLoadingUser && selectedUserId) {
     return (
       <div
@@ -297,51 +334,92 @@ export function UserDetailsSidebar({
     );
   }
 
-  const user = userData?.record;
   if (!user) return null;
 
   const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
   const roleNames =
     user.roles?.map((r) => r.name).join(", ") || "مستخدم عادي";
 
-  const avatarUrl = currentAvatarUrl || "https://aatene.dev/main/user.png";
+  const avatarUrl = currentAvatarUrl;
 
   return (
     <div className={cn("space-y-4 max-h-[calc(100vh-193px)] overflow-y-auto", className)}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
 
-          {/* --- Profile Picture Area --- */}
+          {/* --- Profile Picture & Cover Area --- */}
           <div className="flex flex-col gap-4 mb-6">
             <h3 className="text-lg font-medium text-blue-4">
               بيانات المستخدم
             </h3>
 
-            <div className="relative w-fit">
-              <p className="text-sm font-medium mb-2">الصورة الشخصية</p>
-              <img
-                src={avatarUrl}
-                alt={fullName}
-                className="w-32 h-32 rounded-full object-cover border-1 border-gray-50 cursor-pointer"
-                onClick={() => setShowImageModal(true)}
-              />
-
-              <button
-                type="button"
-                onClick={() => setShowActionMenu(!showActionMenu)}
-                className="absolute bottom-0 end-1 p-1.5 rounded-full bg-blue-3 border border-white shadow-sm text-white hover:bg-gray-50 transition-colors cursor-pointer"
-                aria-label="تغيير الصورة"
-              >
-                <Pencil className="w-4 h-4" />
-              </button>
-
-              {showActionMenu && (
-                <ImageActionMenu
-                  onClose={() => setShowActionMenu(false)}
-                  onChange={() => setShowMediaCenter(true)}
-                  onDelete={handleImageDelete}
-                />
+            {/* Cover Image Area */}
+            <div className="relative w-full h-32 md:h-40 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 mt-2">
+              {currentCoverUrl ? (
+                <img src={currentCoverUrl} alt="Cover" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-blue-5 flex items-center justify-center text-blue-4">
+                  صورة الغلاف
+                </div>
               )}
+              <div className="absolute top-3 end-3 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCoverMediaCenter(true)}
+                  className="px-3 py-1.5 bg-white/90 rounded-md hover:bg-white shadow-sm flex items-center gap-2 text-xs font-medium text-gray-700 cursor-pointer transition-colors"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                  <span className="pt-0.5">  تغيير الغلاف</span>
+                </button>
+                {currentCoverUrl && (
+                  <button
+                    type="button"
+                    onClick={handleCoverDelete}
+                    className="p-1.5 bg-red-100/90 text-red-600 rounded-md hover:text-white shadow-sm flex items-center justify-center cursor-pointer transition-colors"
+                    title="حذف الغلاف"
+                  >
+                    <img src="/icons/dashboard/trash.svg" alt="" className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Avatar Image Area */}
+            <div className="relative w-fit -mt-20 md:-mt-22 start-6 z-10 flex flex-col">
+              <div className="relative w-fit bg-white p-1 rounded-full shadow-sm">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={fullName}
+                    className="w-28 h-28 md:w-36 md:h-36 rounded-full object-cover border-0 border-white cursor-pointer bg-white"
+                    onClick={() => setShowImageModal(true)}
+                  />
+                ) : (
+                  <div
+                    className="w-28 h-28 md:w-36 md:h-36 rounded-full border-2 border-white bg-gray-50 flex items-center justify-center cursor-pointer"
+                    onClick={() => setShowMediaCenter(true)}
+                  >
+                    <UserIcon className="w-12 h-12 text-gray-300" />
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setShowActionMenu(!showActionMenu)}
+                  className="absolute bottom-0 end-2 p-2 rounded-full bg-blue-3 border-2 border-white shadow-md text-white hover:bg-gray-50 hover:text-blue-3 transition-colors cursor-pointer"
+                  aria-label="تغيير الصورة"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+
+                {showActionMenu && (
+                  <ImageActionMenu
+                    onClose={() => setShowActionMenu(false)}
+                    onChange={() => setShowMediaCenter(true)}
+                    onDelete={handleImageDelete}
+                  />
+                )}
+              </div>
             </div>
           </div>
 
@@ -450,20 +528,26 @@ export function UserDetailsSidebar({
 
           <div className="flex flex-row justify-between items-center ">
             <div className="flex flex-row gap-3 items-center">
-              <img
-                src={user.avatar_url || "/default-avatar.png"}
-                alt={fullName}
-                className="w-22 h-22 rounded-full object-cover mb-3"
-              />
+              {user.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt={fullName}
+                  className="w-22 h-22 rounded-full object-cover mb-3"
+                />
+              ) : (
+                <div className="w-22 h-22 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center mb-3">
+                  <UserIcon className="w-10 h-10 text-gray-300" />
+                </div>
+              )}
               <div className="flex flex-col gap-2.5">
                 <h4 className="text-base font-medium ">{fullName}</h4>
                 <div className="flex gap-3">
                   <p className="text-sm text-gray-2 ">{user.phone}</p>
                   <div className="flex items-center  gap-3 ">
-                    <button
-                      type="button"
-                      className=" cursor-pointer"
-                      title="إرسال بريد"
+                    <a
+                      href={`mailto:${user.email}`}
+                      className="cursor-pointer"
+                      title="إرسال بريد الكتروني"
                     >
                       <div
                         className="w-5 h-5 bg-blue-4"
@@ -474,25 +558,38 @@ export function UserDetailsSidebar({
                           maskPosition: "center",
                         }}
                       ></div>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handleWhatsAppClick}
+                      className="cursor-pointer"
+                      title="واتساب"
+                    >
+                      <div
+                        className="w-5 h-5 bg-blue-4"
+                        style={{
+                          maskImage: "url(/icons/dashboard/whatsapp.svg)",
+                          maskSize: "contain",
+                          maskRepeat: "no-repeat",
+                          maskPosition: "center",
+                        }}
+                      ></div>
                     </button>
-                    <div
-                      className="w-5 h-5 bg-blue-4"
-                      style={{
-                        maskImage: "url(/icons/dashboard/whatsapp.svg)",
-                        maskSize: "contain",
-                        maskRepeat: "no-repeat",
-                        maskPosition: "center",
-                      }}
-                    ></div>
-                    <div
-                      className="w-5 h-5 bg-blue-4"
-                      style={{
-                        maskImage: "url(/icons/dashboard/phone.svg)",
-                        maskSize: "contain",
-                        maskRepeat: "no-repeat",
-                        maskPosition: "center",
-                      }}
-                    ></div>
+                    <a
+                      href={`tel:${user.phone}`}
+                      className="cursor-pointer"
+                      title="اتصال هاتفي"
+                    >
+                      <div
+                        className="w-5 h-5 bg-blue-4"
+                        style={{
+                          maskImage: "url(/icons/dashboard/phone.svg)",
+                          maskSize: "contain",
+                          maskRepeat: "no-repeat",
+                          maskPosition: "center",
+                        }}
+                      ></div>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -542,11 +639,17 @@ export function UserDetailsSidebar({
             </DialogTitle>
           </DialogHeader>
           <div className="p-3 flex items-center justify-center">
-            <img
-              src={avatarUrl}
-              alt={fullName}
-              className="max-w-full max-h-[70vh] object-contain rounded-sm"
-            />
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={fullName}
+                className="max-w-full max-h-[70vh] object-contain rounded-sm"
+              />
+            ) : (
+              <div className="w-64 h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                <UserIcon className="w-32 h-32 text-gray-300" />
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
@@ -557,7 +660,18 @@ export function UserDetailsSidebar({
           onOpenChange={() => setShowMediaCenter(false)}
           onSelect={handleMediaSelect}
           multiple={false}
-          allowedMediaTypes={["avatar"]}
+          allowedMediaTypes={["avatar", "image"]}
+          selectionLimit={1}
+        />
+      )}
+
+      {showCoverMediaCenter && (
+        <MediaCenterModal
+          open={showCoverMediaCenter}
+          onOpenChange={() => setShowCoverMediaCenter(false)}
+          onSelect={handleCoverSelect}
+          multiple={false}
+          allowedMediaTypes={["cover", "image"]}
           selectionLimit={1}
         />
       )}

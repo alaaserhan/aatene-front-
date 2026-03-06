@@ -17,6 +17,8 @@ import {
     Link2,
     Flag,
     MessageSquare,
+    Store as StoreIcon,
+    User as UserIcon,
 } from "lucide-react";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
@@ -52,17 +54,25 @@ function StarRating({
 function AuthorCard({ blog }: { blog: Blog }) {
     const isStore = blog.owner_type === "store";
     const authorName = isStore ? blog.store?.name : `${blog.user?.first_name || ""} ${blog.user?.last_name || ""}`.trim();
-    const avatarUrl = isStore ? blog.store?.logo : blog.user?.avatar_url;
+    const avatarUrl = isStore ? blog.store?.logo_url : blog.user?.avatar_url;
+
+    const chatHref = `/chat?type=${isStore ? "store" : "user"}&id=${isStore ? blog.store?.id : blog.user?.id}`;
 
     return (
         <div className="bg-white border border-[#e0dfdc] rounded-xl p-6 flex flex-col items-center gap-4">
-            <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100">
-                <Image
-                    src={avatarUrl || "/assets/images/placeholder.jpg"}
-                    alt={authorName || "Author"}
-                    fill
-                    className="object-cover"
-                />
+            <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100 flex items-center justify-center bg-gray-50">
+                {avatarUrl && avatarUrl !== "" ? (
+                    <Image
+                        src={avatarUrl}
+                        alt={authorName || "Author"}
+                        fill
+                        className="object-cover"
+                    />
+                ) : isStore ? (
+                    <StoreIcon className="w-14 h-14 text-gray-400" />
+                ) : (
+                    <UserIcon className="w-14 h-14 text-gray-400" />
+                )}
             </div>
             <div className="flex flex-col items-center gap-1">
                 <h3 className="text-[17px] font-medium text-[#4d4d4d] capitalize">
@@ -74,10 +84,12 @@ function AuthorCard({ blog }: { blog: Blog }) {
                 {blog.user?.bio?.slice(0, 150) || "لا يوجد وصف"}
             </p>
             <div className="flex items-center gap-2 w-full">
-                <button className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer">
-                    <MessageSquare size={13} />
-                    تواصل معي
-                </button>
+                <Link href={chatHref} className="flex-1">
+                    <button className="w-full flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer">
+                        <MessageSquare size={13} />
+                        تواصل معي
+                    </button>
+                </Link>
                 {blog.store ? (
                     <ReportAbuse type="store" id={blog.store.id}>
                         <button className="flex cursor-pointer items-center justify-center gap-1 border border-[#b75959] text-[#b75959] rounded-full px-4 h-[25px] text-[11px] font-medium whitespace-nowrap">

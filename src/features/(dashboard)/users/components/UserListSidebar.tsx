@@ -4,6 +4,7 @@
 import { User } from "../api";
 import { cn } from "@/src/lib/utils";
 import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarList";
+import { User as UserIcon } from "lucide-react";
 
 interface UserListSidebarProps {
   users: User[]; // نستقبل المصفوفة مباشرة الآن
@@ -43,7 +44,7 @@ export function UserListSidebar({
   hasNextPage,
   isFetchingNextPage,
 }: UserListSidebarProps) {
-  
+
   const getStatusProps = (user: User) => {
     const isActive = user.is_active === "1" || user.is_active === true;
 
@@ -79,12 +80,12 @@ export function UserListSidebar({
       onLoadMore={onLoadMore}
       hasNextPage={hasNextPage}
       isFetchingNextPage={isFetchingNextPage}
-      
+
       renderItem={(user) => {
         const isSelected = selectedUserId === user.id;
         const fullName =
           `${user.first_name || ""} ${user.last_name || ""}`.trim();
-          
+
         const roleName = user.roles?.[0]?.name || "مستخدم";
         const status = getStatusProps(user);
 
@@ -97,12 +98,18 @@ export function UserListSidebar({
               isSelected ? "bg-blue-5" : "hover:bg-gray-50"
             )}
           >
-            <div className="flex-shrink-0">
-              <img
-                src={user.avatar_url || "/default-avatar.png"}
-                alt={fullName}
-                className="w-14 h-14 rounded-full object-cover"
-              />
+            <div className="shrink-0">
+              {user.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt={fullName}
+                  className="w-14 h-14 rounded-full object-cover border border-gray-100"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center">
+                  <UserIcon className="w-8 h-8 text-gray-300" />
+                </div>
+              )}
             </div>
 
             <div className="flex-1 min-w-0">
@@ -114,7 +121,7 @@ export function UserListSidebar({
 
             <div
               className={cn(
-                "flex-shrink-0 flex items-center gap-1.5 h-fit",
+                "shrink-0 flex items-center gap-1.5 h-fit",
                 status.color
               )}
             >

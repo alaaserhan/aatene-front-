@@ -10,7 +10,7 @@ interface BlogsTableProps {
   isLoading: boolean;
   onEdit: (blog: Blog) => void;
   onDelete: (id: number) => void;
-  onView: (id: number) => void;
+  onView: (slug: string) => void;
 }
 
 export function BlogsTable({
@@ -104,7 +104,7 @@ export function BlogsTable({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => onView(blog.id)}
+                      onClick={() => onView(blog.slug)}
                       className="bg-cyan-50 text-cyan-500 hover:bg-cyan-100 h-8 w-8 rounded-xs"
                     >
                       <Eye className="w-4 h-4" />

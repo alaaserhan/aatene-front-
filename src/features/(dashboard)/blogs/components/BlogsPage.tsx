@@ -171,7 +171,7 @@ export function BlogsPage() {
                                     isLoading={isBlogsLoading}
                                     onEdit={(blog) => router.push(`/admin/blogs/${blog.store_id}/${blog.id}`)}
                                     onDelete={handleDeleteClick}
-                                    onView={(id) => router.push(`/blogs/view/${selectedStoreId}/${id}`)}
+                                    onView={(slug) => router.push(`/blogs/${slug}`)}
                                 />
 
                                 {/* Pagination */}

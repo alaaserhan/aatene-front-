@@ -58,6 +58,7 @@ export interface Blog {
 
 export interface BlogReviewUser {
     name: string;
+    slug?: string;
     email: string;
     avatar: string;
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { ChevronDown, ChevronUp, Flag, User } from "lucide-react";
 import { StarRating } from "@/src/components/ui/StarRating";
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
@@ -9,6 +10,7 @@ import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 
 export interface SharedReviewUser {
     name: string;
+    slug?: string;
     avatar: string | null;
 }
 
@@ -52,9 +54,12 @@ export function ReviewItem({
             <div className={`bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-4 ${isReply ? "mr-8 md:mr-16" : ""}`}>
                 <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="relative flex items-center justify-center w-10 h-10 rounded-full overflow-hidden border border-gray-100">
+                        <Link
+                            href={`/profile/${review.user.slug || "#"}`}
+                            className="relative flex items-center justify-center w-10 h-10 rounded-full overflow-hidden border border-gray-100 hover:opacity-80 transition-opacity"
+                        >
                             {
-                                review.user.avatar ? (
+                                review.user.avatar && review.user.avatar !== "" ? (
                                     <Image
                                         src={review.user.avatar}
                                         alt={review.user.name}
@@ -68,10 +73,13 @@ export function ReviewItem({
                                     />
                                 )
                             }
-                        </div>
-                        <div className="flex flex-col ">
+                        </Link>
+                        <Link
+                            href={`/profile/${review.user.slug || "#"}`}
+                            className="hover:opacity-80 transition-opacity"
+                        >
                             <h4 className="text-sm font-medium ">{review.user.name}</h4>
-                        </div>
+                        </Link>
                     </div>
                     <div className="flex items-center gap-1">
                         {review.rate ? (

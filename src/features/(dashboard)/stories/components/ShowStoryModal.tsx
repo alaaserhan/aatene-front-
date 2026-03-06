@@ -14,7 +14,8 @@ import {
     PenLine,
     Loader2
 } from "lucide-react";
-import { Story } from "../api";
+import { Story, CreateStoryPayload } from "../api";
+import { MediaItem } from "@/src/features/(dashboard)/mediaCenter/api";
 import { cn } from "@/src/lib/utils";
 import {
     Popover,
@@ -26,15 +27,23 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { AddStoryModal } from "./AddStoryModal";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 
+interface MediaPickerProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSelect: (items: MediaItem | MediaItem[]) => void;
+    allowedMediaTypes?: string[];
+    multiple?: boolean;
+}
+
 interface ShowStoryModalProps {
     isOpen: boolean;
     onClose: () => void;
     stories: Story[];
     initialIndex: number;
     onDelete?: (id: number) => void;
-    onSave?: (payload: any, onSuccess?: () => void) => void;
+    onSave?: (payload: CreateStoryPayload, onSuccess?: () => void) => void;
     isPending?: boolean;
-    MediaPickerComponent?: React.ComponentType<any>;
+    MediaPickerComponent?: React.ComponentType<MediaPickerProps>;
     showActions?: boolean;
 }
 
@@ -226,7 +235,7 @@ export function ShowStoryModal({
                                         key={story.id}
                                         onClick={() => !isActive && setActiveIndex(index)}
                                         className={cn(
-                                            "relative aspect-[9/16] rounded-[24px] overflow-hidden transition-all duration-500 ease-in-out shrink-0 border border-gray-800",
+                                            "relative bg-white aspect-[9/16] rounded-[24px] overflow-hidden transition-all duration-500 ease-in-out shrink-0 border border-gray-800",
                                             isActive
                                                 ? `opacity-100 scale-100 z-20 shadow-2xl`
                                                 : `opacity-40 scale-90 blur-[1px] cursor-pointer hover:opacity-60`

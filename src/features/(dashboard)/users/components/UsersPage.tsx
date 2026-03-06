@@ -156,7 +156,7 @@ export function UsersPage() {
         </div>
       </header>
 
-      <main className="flex-1 p-6 h-[calc(100vh-65px)]">
+      <main className="flex-1 p-1 md:p-6 h-[calc(100vh-65px)]">
         <div className="grid grid-cols-12 gap-4 h-full">
           <div className="col-span-12 lg:col-span-2 h-full">
             <SidebarFilterPanel
