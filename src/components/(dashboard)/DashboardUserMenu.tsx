@@ -9,6 +9,7 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import { useLogout } from "@/src/features/(web)/auth/hooks";
 import { useGetStores } from "@/src/features/(dashboard)/stores/hooks";
 import { useLanguage } from "@/src/hooks/use-language";
+import { isSegmentAllowedForRole, MerchantRole } from "@/src/config/role-permissions";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -39,6 +40,7 @@ import {
     Store,
     ArrowRight,
     ChevronLeft,
+    Coins,
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
@@ -53,6 +55,13 @@ export function DashboardUserMenu() {
     const [currentStoreId, setCurrentStoreId] = useState<string | null>(() => {
         if (typeof window !== 'undefined') {
             return Cookies.get("current_store_id") || null;
+        }
+        return null;
+    });
+
+    const [storeRole, setStoreRole] = useState<MerchantRole | null>(() => {
+        if (typeof window !== 'undefined') {
+            return (Cookies.get("store_role") as MerchantRole) || null;
         }
         return null;
     });
@@ -77,6 +86,10 @@ export function DashboardUserMenu() {
                 setCurrentStoreId(firstStoreId);
                 Cookies.set("current_store_id", firstStoreId, { expires: 365 });
                 Cookies.set("store_type", stores[0].type, { expires: 365 });
+                if (stores[0].role_in_store) {
+                    Cookies.set("store_role", stores[0].role_in_store, { expires: 365 });
+                    setStoreRole(stores[0].role_in_store);
+                }
             }, 0);
             return () => clearTimeout(timer);
         }
@@ -96,6 +109,13 @@ export function DashboardUserMenu() {
         Cookies.set("current_store_id", String(storeId), { expires: 365 });
         if (selectedStore) {
             Cookies.set("store_type", selectedStore.type, { expires: 365 });
+            if (selectedStore.role_in_store) {
+                Cookies.set("store_role", selectedStore.role_in_store, { expires: 365 });
+                setStoreRole(selectedStore.role_in_store);
+            } else {
+                Cookies.remove("store_role");
+                setStoreRole(null);
+            }
         }
         setCurrentStoreId(String(storeId));
 
@@ -188,10 +208,12 @@ export function DashboardUserMenu() {
                 {isMerchant && (
                     <div className="bg-white">
                         <div className=" space-y-1 p-2">
-                            {/* <MenuItem href={`/${lang}/admin/points`} icon={Coins} label="النقاط" /> */}
-                            <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label=" السجل المالي" />
-                            {/* <MenuItem href={`/${lang}/admin/stores`} icon={Settings} label="ادارة المتاجر" /> */}
-                            {/* <MenuItem href={`/${lang}/admin/roles`} icon={Users} label="الادوار الوظيفية" /> */}
+                            {isSegmentAllowedForRole(storeRole || undefined, "coins") && (
+                                <MenuItem href={`/${lang}/admin/coins`} icon={Coins} label="النقاط" />
+                            )}
+                            {isSegmentAllowedForRole(storeRole || undefined, "financial-record") && (
+                                <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label="السجل المالي" />
+                            )}
                             <MenuItem href={`/${lang}`} icon={Store} label="العودة للمنصة" />
 
                             <button

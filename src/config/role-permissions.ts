@@ -8,6 +8,7 @@ const ROLE_ALLOWED_SEGMENTS: Record<MerchantRole, Set<string> | "all"> = {
     social: new Set(["chat", "stories", "blogs", "following"]),
     sales: new Set([
         "products",
+        "serviceProviders",
         "sections",
         "categories",
         "coupons",

@@ -33,6 +33,8 @@ export interface User {
 export interface BaseResponse {
   status: boolean;
   message: string;
+  exists?: boolean;
+  user?: User | null;
 }
 
 export interface PaginatedUsersResponse extends BaseResponse {

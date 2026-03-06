@@ -105,7 +105,7 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-full">
-                <Loader2 className="w-8 h-8 text-[#3A5779] animate-spin" />
+                <Loader2 className="w-8 h-8 text-blue-3 animate-spin" />
             </div>
         );
     }
@@ -208,14 +208,14 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                                     const isProduct = text.toLowerCase() === "product";
                                     return (
                                         <div key={msg.message_id} className="flex justify-center w-full my-4">
-                                            <div className="bg-[#DCE8F5] border-r-4 border-[#3A5779] text-[#1D3557] px-4 py-3 rounded flex items-center justify-between gap-4 w-full">
+                                            <div className="bg-[#DCE8F5] border-r-4 border-blue-3 text-blue-3 px-4 py-3 rounded-sm flex items-center justify-between gap-4 w-full">
                                                 <div className="flex items-center gap-3">
                                                     {isProduct ? <Shirt className="w-5 h-5" /> : <Wrench className="w-5 h-5" />}
                                                     <span className="font-medium text-sm">
                                                         {isProduct ? "تم تحويل العميل إلى قسم المنتجات" : "تم تحويل العميل إلى قسم الخدمات"}
                                                     </span>
                                                 </div>
-                                                <span className="text-xs text-[#3A5779] font-medium" dir="ltr">
+                                                <span className="text-xs text-blue-3 font-medium" dir="ltr">
                                                     {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true, locale: arSA })}
                                                 </span>
                                             </div>
@@ -289,7 +289,7 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                                                             isBot ? (
                                                                 <img src="/icons/dashboard/Mosaady.svg" className="w-6" alt="Bot" />
                                                             ) : (
-                                                                <Headset className="w-5 h-5 text-[#3A5779]" />
+                                                                <Headset className="w-5 h-5 text-blue-3" />
                                                             )
                                                         )}
                                                     </div>
@@ -328,7 +328,7 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                                         size="icon"
                                         className={cn(
                                             "w-10 h-10 rounded-lg shrink-0 transition-all cursor-pointer",
-                                            messageText.trim() ? "bg-[#3A5779] hover:bg-[#2c4460] text-white" : "bg-gray-200 text-gray-2"
+                                            messageText.trim() ? "bg-blue-3 hover:bg-[#2c4460] text-white" : "bg-gray-200 text-gray-2"
                                         )}
                                     >
                                         {isSending ? (

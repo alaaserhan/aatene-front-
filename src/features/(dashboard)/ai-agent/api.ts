@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 const BASE_URL_5000 = "https://api1.mosaady.com/api";
 const BASE_URL_5002 = "https://api2.mosaady.com/api";
 const BASE_URL_5005 = "https://api3.mosaady.com";
-const BASE_URL_API4 = "https://api4.mosaady.com/api";
+const BASE_URL_API4 = "https://api4.mosaady.com";
 
 const authInterceptor = (config: InternalAxiosRequestConfig) => {
     const token = Cookies.get("token");
@@ -252,7 +252,7 @@ export const getPlatformUsersInfo = async (params: GetUsersParams): Promise<User
 };
 
 export const getApi4Users = async (limit: number = 50, offset: number = 0): Promise<Api4UsersResponse> => {
-    const { data } = await api4.get<Api4UsersResponse>(`/users?limit=${limit}&offset=${offset}`);
+    const { data } = await api4.get<Api4UsersResponse>(`api/users?limit=${limit}&offset=${offset}`);
     return data;
 };
 

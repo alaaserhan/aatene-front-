@@ -129,10 +129,13 @@ export function AddStoreStep4({
             setErrors({ email: "هذا البريد الإلكتروني غير موجود في النظام" });
             return;
           }
+          if (res.exists === false) {
+            setErrors({ email: res.message || "هذا البريد الإلكتروني غير موجود في النظام" });
+            return;
+          }
         } catch {
           return;
         }
-
       }
 
       const managerData: StoreManagerPayload = {
@@ -177,9 +180,25 @@ export function AddStoreStep4({
     setErrors({});
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (activeTab === "add" && (newManager.email || newManager.title)) {
       if (validateManager()) {
+        if (!isAdmin) {
+          try {
+            const res = await checkEmail({ email: newManager.email });
+            if (!res.status) {
+              setErrors({ email: "هذا البريد الإلكتروني غير موجود في النظام" });
+              return;
+            }
+            if (res.exists === false) {
+              setErrors({ email: res.message || "هذا البريد الإلكتروني غير موجود في النظام" });
+              return;
+            }
+          } catch {
+            return;
+          }
+        }
+
         const managerData: StoreManagerPayload = {
           email: newManager.email,
           title: newManager.title as ManagerTitle,
