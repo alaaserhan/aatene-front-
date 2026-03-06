@@ -229,6 +229,8 @@ export interface User {
     city: City | null;
     is_following: boolean;
     slug?: string;
+    cover: string | null;
+    cover_url: string | null;
 }
 
 export interface UsersSearchResponse extends GenericPaginationResponse {

@@ -15,7 +15,7 @@ interface UserCardProps {
 export default function UserCard({ user, className }: UserCardProps) {
     const rating = parseFloat(user.review_rate || "0").toFixed(1);
     const cityName = user.city?.name || "لا يوجد مدينة";
-    const coverImage = "/background.svg";
+    const coverImage = user.cover_url;
 
     const profileLink = `/profile/${user.slug || user.id}`;
 
@@ -28,13 +28,19 @@ export default function UserCard({ user, className }: UserCardProps) {
             )}>
             {/* Cover Image */}
             <div className="relative h-32 w-full bg-gray-100">
-                <Image
-                    src={coverImage}
-                    alt="Cover"
-                    fill
-                    className="object-cover"
-                    priority
-                />
+                {
+                    coverImage ? (
+                        <Image
+                            src={coverImage}
+                            alt="Cover"
+                            fill
+                            className="object-cover"
+                            priority
+                        />
+                    ) : (
+                        <div className="absolute inset-0 bg-gray-100" />
+                    )
+                }
             </div>
 
             {/* Content Section */}

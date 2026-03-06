@@ -80,12 +80,6 @@ const useFCMToken = () => {
 
                 toast.info(payload.notification?.title || "New Notification", {
                     description: payload.notification?.body,
-                    action: conversationId ? {
-                        label: 'عرض المحادثة',
-                        onClick: () => {
-                            router.push(`/chat?chat=${conversationId}`);
-                        }
-                    } : undefined,
                 });
                 queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
                 queryClient.invalidateQueries({ queryKey: ["myNotificationStats"] });

@@ -225,16 +225,9 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             const unsubscribe = onMessage(messaging, (payload: MessagePayload) => {
                 playNotificationSound();
 
-                const conversationId = payload.data?.conversation_id;
 
                 toast.info(payload.notification?.title || "New Notification", {
                     description: payload.notification?.body,
-                    action: conversationId ? {
-                        label: 'عرض المحادثة',
-                        onClick: () => {
-                            router.push(`/chat?chat=${conversationId}`);
-                        }
-                    } : undefined,
                 });
 
                 refetch();
@@ -256,12 +249,6 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
 
                     toast.info(event.data.payload?.notification?.title || "New Notification", {
                         description: event.data.payload?.notification?.body,
-                        action: conversationId ? {
-                            label: 'عرض المحادثة',
-                            onClick: () => {
-                                router.push(`/chat?chat=${conversationId}`);
-                            }
-                        } : undefined,
                     });
 
                     refetch();
