@@ -33,6 +33,7 @@ export interface BlogStore {
     name: string;
     logo: string | null;
     logo_url: string | null;
+    description: string | null;
 }
 
 export interface Blog {

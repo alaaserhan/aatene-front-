@@ -55,6 +55,7 @@ function AuthorCard({ blog }: { blog: Blog }) {
     const isStore = blog.owner_type === "store";
     const authorName = isStore ? blog.store?.name : `${blog.user?.first_name || ""} ${blog.user?.last_name || ""}`.trim();
     const avatarUrl = isStore ? blog.store?.logo_url : blog.user?.avatar_url;
+    const description = isStore ? blog.store?.description : blog.user?.bio;
 
     const chatHref = `/chat?type=${isStore ? "store" : "user"}&id=${isStore ? blog.store?.id : blog.user?.id}`;
 
@@ -81,7 +82,7 @@ function AuthorCard({ blog }: { blog: Blog }) {
                 <StarRating rating={Number(blog.user?.review_rate)} size={11} />
             </div>
             <p className="text-xs text-gray-2 leading-[17px] text-center">
-                {blog.user?.bio?.slice(0, 150) || "لا يوجد وصف"}
+                {description?.slice(0, 150) || "لا يوجد وصف"}
             </p>
             <div className="flex items-center gap-2 w-full">
                 <Link href={chatHref} className="flex-1">
