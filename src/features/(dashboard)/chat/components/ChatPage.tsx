@@ -382,6 +382,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                         handleSelectConversation(newConv);
                     }
                 }}
+                ignoreCookie={ignoreCookie}
             />
         </div>
     );

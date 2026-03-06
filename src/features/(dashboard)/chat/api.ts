@@ -90,6 +90,10 @@ export interface Conversation {
     created_at: string;
     updated_at: string;
     can_chat: boolean;
+    who_blocked?: {
+        type: string;
+        id: string | number;
+    } | null;
 }
 
 export interface GetConversationsResponse {

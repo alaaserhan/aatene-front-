@@ -1,6 +1,6 @@
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getMessaging, getToken, Messaging } from "firebase/messaging";
+import { getMessaging, getToken, deleteToken, Messaging } from "firebase/messaging";
 import { getFirestore, Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -38,6 +38,16 @@ export const getFCMToken = async () => {
     } catch (err) {
         console.log("An error occurred while retrieving token. ", err);
         return null;
+    }
+};
+
+export const deleteFCMToken = async () => {
+    if (!messaging) return false;
+    try {
+        return await deleteToken(messaging);
+    } catch (err) {
+        console.log("An error occurred while deleting token. ", err);
+        return false;
     }
 };
 

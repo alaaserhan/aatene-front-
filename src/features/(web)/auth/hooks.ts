@@ -16,7 +16,7 @@ import { useAuthStore } from "@/src/stores/auth-store"; // Import the store
 import { toast } from "sonner"; // For specific success/error messages if needed
 import { useLanguage } from "@/src/hooks/use-language"; // Import language hook
 
-import { getFCMToken } from "@/src/lib/firebase";
+import { getFCMToken, deleteFCMToken } from "@/src/lib/firebase";
 
 // --- Login Hook ---
 export const useLogin = () => {
@@ -26,7 +26,10 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: async (credentials: import("./types").LoginCredentials) => {
-      const device_token = await getFCMToken();
+      let device_token = credentials.device_token || await getFCMToken();
+      if (!device_token) {
+        device_token = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+      }
       return loginUser({ ...credentials, device_token, device_name: "Web" });
     },
     onSuccess: (data) => {
@@ -72,7 +75,10 @@ export const useLogout = () => {
   const logoutFromStore = useAuthStore((state) => state.logout); // Get logout function
 
   return useMutation({
-    mutationFn: logoutUser,
+    mutationFn: async () => {
+      await deleteFCMToken();
+      return logoutUser();
+    },
     onSuccess: (data) => {
       logoutFromStore();
       queryClient.cancelQueries();

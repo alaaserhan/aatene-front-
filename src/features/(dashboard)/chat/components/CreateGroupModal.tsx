@@ -19,13 +19,14 @@ interface CreateGroupModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess?: (conversationId: number) => void;
+    ignoreCookie?: boolean;
 }
 
-export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModalProps) {
+export function CreateGroupModal({ isOpen, onClose, onSuccess, ignoreCookie }: CreateGroupModalProps) {
     const [groupName, setGroupName] = useState("");
     const [selectedParticipants, setSelectedParticipants] = useState<Set<string>>(new Set());
 
-    const { data: participantsData, isLoading } = usePreviousParticipants();
+    const { data: participantsData, isLoading } = usePreviousParticipants(ignoreCookie);
     const { mutate: createConversation, isPending: isCreating } = useCreateConversation();
 
     const uniqueParticipants = useMemo(() => {
@@ -73,7 +74,8 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                     type: "group",
                     name: groupName.trim(),
                     participants,
-                }
+                },
+                ignoreCookie,
             },
             {
                 onSuccess: (data) => {

@@ -17,12 +17,13 @@ interface AddMemberModalProps {
     isOpen: boolean;
     onClose: () => void;
     conversationId: number;
+    ignoreCookie?: boolean;
 }
 
-export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberModalProps) {
+export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }: AddMemberModalProps) {
     const [selectedParticipant, setSelectedParticipant] = useState<string | null>(null);
 
-    const { data: participantsData, isLoading } = usePreviousParticipants();
+    const { data: participantsData, isLoading } = usePreviousParticipants(ignoreCookie);
     const { mutate: addParticipant, isPending: isAdding } = useAddParticipant();
 
     const uniqueParticipants = useMemo(() => {
@@ -56,6 +57,7 @@ export function AddMemberModal({ isOpen, onClose, conversationId }: AddMemberMod
                     type: type as "user" | "store",
                     id,
                 },
+                ignoreCookie,
             },
             {
                 onSuccess: (data) => {
