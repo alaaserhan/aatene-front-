@@ -233,44 +233,14 @@ export function AddProductStep2({
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    // If we have AI keywords and the tag being removed is one of them
     if (aiKeywords.length > 0 && aiKeywords.includes(tagToRemove)) {
-      // Count how many AI tags are currently in the form data
       const currentAiTagsCount = formData.tags.filter(tag => aiKeywords.includes(tag)).length;
-
-      // If removing this tag would leave us with less than 3 AI tags, block it
       if (currentAiTagsCount <= 3) {
         toast.error("يجب الإبقاء على 3 كلمات مفتاحية من المولدة بالذكاء الاصطناعي على الأقل");
         return;
       }
     } else {
-      // Fallback for non-AI or general case: ensure at least 3 total tags if no AI keywords present?
-      // The user request was specific to AI generated items. 
-      // If mixed, we only protect AI items if specific logic applies.
-      // However, keeping the original logic of "min 3 total" as a fallback might be safer or requested previously.
-      // User said: "ensure dont delete at least 3 items generated from ai". 
-      // Previous logic was: if (formData.tags.length <= 3) block.
-      // If I remove the previous logic, I allow deleting all manual tags.
-      // I will keep the previous logic ONLY if there are NO aiKeywords, or maybe relax it?
-      // The user said: "if get 5 item so can delete 2 only... and if user dont change in titile or description so dont go to refetch endpoint again... i still delete 2 then add one then delete one form 3 ai item genertaed" -> this implies specifically AI items.
-      // Let's rely on the AI check primarily. If there are NO AI keywords, maybe we should still enforce general min 3? 
-      // I'll stick to: if it's an AI tag, enforce min 3 AI tags. If it's NOT an AI tag, allow deletion (unless we want to enforce global min 3). 
-      // To be safe and minimal disturbance, I will ONLY enforce the AI rule as requested now.
-      // But wait, the previous code had `if (formData.tags.length <= 3)`. I should probably remove that if it conflicts with the new "add one then delete one" flow if the added one is manual.
-      // Example: 3 AI tags left. user adds 1 manual. Total 4. User tries to delete 1 AI. 
-      // Old logic: Total 4 > 3, so allowed.
-      // New logic: AI count 3 <= 3, so BLOCKED. Correct.
-
-      // Example: 3 AI tags. User adds 1 manual. User tries to delete MANUAL tag.
-      // Old logic: Total 4 > 3, allowed.
-      // New logic: Not in aiKeywords. Allowed.
-
-      // Example: 3 Manual tags only (no AI).
-      // Old logic: Blocked.
-      // New logic: aiKeywords empty. Allowed? 
-      // The user's specific request "ensure ... generated from ai" suggests this rule is specific.
-      // However, "short description validation" and "min 3 keywords" were part of the whole feature.
-      // I will keep the general rule if aiKeywords is empty, essentially falling back to old behavior for non-AI flows.
+    
       if (aiKeywords.length === 0 && formData.tags.length <= 3) {
         toast.error("يجب الإبقاء على 3 كلمات مفتاحية على الأقل");
         return;

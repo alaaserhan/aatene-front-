@@ -35,7 +35,7 @@ export function useGetStores(
   return useQuery({
     queryKey: key,
     queryFn: () => api.getStores(params),
-    ...options, 
+    ...options,
   });
 }
 
@@ -291,3 +291,10 @@ export function useDeleteStore() {
     },
   });
 }
+
+export const useGenerateStoreAI = () => {
+  return useMutation({
+    mutationFn: (payload: { name: string; description: string }) =>
+      api.generateStoreAI(payload),
+  });
+};

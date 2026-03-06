@@ -230,7 +230,7 @@ export const generateProductAI = async (
   payload: { title: string; description: string; short_description?: string; type: string }
 ): Promise<GenerateAIResponse> => {
   const { data } = await api.post<GenerateAIResponse>(
-    "https://n8n.aatene.com/webhook/932942c7-8bb9-4793-9fae-8468d0b2de32",
+    "https://auto.mosaady.com/webhook/932942c7-8bb9-4793-9fae-8468d0b2de32",
     payload
   );
   return data;

@@ -10,7 +10,7 @@ import { AddStoreStep5 } from "./AddStoreStep5";
 import { AddStoreStep6 } from "./AddStoreStep6";
 import { AddStoreStep7 } from "./AddStoreStep7";
 import { StoreType, StoreCreatePayload } from "../api";
-import { useCreateStore } from "../hooks";
+import { useCreateStore, useGenerateStoreAI } from "../hooks";
 import {
   CompleteStoreFormData,
   Step2FormData,
@@ -39,9 +39,45 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
     type: storeType,
   });
 
+  const generateAIMutation = useGenerateStoreAI();
+  const isGeneratingAI = generateAIMutation.isPending;
+  const [lastGeneratedInput, setLastGeneratedInput] = useState<{ name: string; description: string } | null>(null);
+  const [aiKeywords, setAiKeywords] = useState<string[]>([]);
+
+  const handleGenerateAI = async (step2Data: Step2FormData) => {
+    const name = step2Data.name.trim();
+    const description = step2Data.description.trim();
+
+    if (!name || !description) return;
+
+    if (
+      lastGeneratedInput &&
+      lastGeneratedInput.name === name &&
+      lastGeneratedInput.description === description
+    ) {
+      return;
+    }
+
+    try {
+      const data = await generateAIMutation.mutateAsync({ name, description });
+      setLastGeneratedInput({ name, description });
+
+      if (data.results?.keywords) {
+        setAiKeywords(data.results.keywords);
+        setFormData((prev) => ({
+          ...prev,
+          step7: { tags: data.results!.keywords! },
+        }));
+      }
+    } catch (error) {
+      console.error("AI Generation Error:", error);
+    }
+  };
+
   const handleStep2Next = (data: Step2FormData) => {
     setFormData({ ...formData, step2: data });
     setCurrentStep(3);
+    handleGenerateAI(data);
   };
 
   const handleStep2Back = () => {
@@ -274,6 +310,8 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
             onBack={handleStep7Back}
             isSubmitting={createStoreMutation.isPending}
             barSteps={steps}
+            isGeneratingAI={isGeneratingAI}
+            aiKeywords={aiKeywords}
           />
         );
 

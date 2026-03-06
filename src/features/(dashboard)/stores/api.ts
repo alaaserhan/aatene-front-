@@ -286,3 +286,20 @@ export const deleteStore = async (
   const { data } = await api.delete<BaseResponse>(endpoint);
   return data;
 };
+
+export interface GenerateStoreAIResponse {
+  results?: {
+    keywords?: string[];
+  };
+  success?: boolean;
+}
+
+export const generateStoreAI = async (
+  payload: { name: string; description: string }
+): Promise<GenerateStoreAIResponse> => {
+  const { data } = await api.post<GenerateStoreAIResponse>(
+    "https://auto.mosaady.com/webhook/6281f79d-a9ee-44e0-9bad-4f2d04abba5f",
+    payload
+  );
+  return data;
+};

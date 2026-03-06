@@ -1,6 +1,6 @@
 // src/features/(dashboard)/stores/components/AddStoreStep7.tsx
 "use client";
-import { useState, KeyboardEvent } from "react";
+import { useState, KeyboardEvent, useEffect } from "react";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
 import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { Step2FormData, Step7FormData } from "../types";
 import { Tooltip } from "@/src/components/ui/Tooltip";
+import { Loader2 } from "lucide-react";
 
 interface AddStoreStep7Props {
   storeType: StoreType;
@@ -21,6 +22,8 @@ interface AddStoreStep7Props {
   onBack: () => void;
   isSubmitting?: boolean;
   barSteps: { number: number; label: string; completed: boolean }[];
+  isGeneratingAI?: boolean;
+  aiKeywords?: string[];
 }
 
 export function AddStoreStep7({
@@ -31,6 +34,8 @@ export function AddStoreStep7({
   onBack,
   isSubmitting = false,
   barSteps,
+  isGeneratingAI = false,
+  aiKeywords = [],
 }: AddStoreStep7Props) {
   const [tags, setTags] = useState<string[]>(() => {
     const rawTags = initialData?.tags;
@@ -43,6 +48,19 @@ export function AddStoreStep7({
 
     return rawTags as string[];
   });
+
+  useEffect(() => {
+    if (initialData?.tags && initialData.tags.length > 0) {
+      const rawTags = initialData.tags;
+      queueMicrotask(() => {
+        if (typeof rawTags[0] === "object" && rawTags[0] !== null) {
+          setTags((rawTags as unknown as { title: string }[]).map((tag) => tag.title || ""));
+        } else {
+          setTags(rawTags as string[]);
+        }
+      });
+    }
+  }, [initialData?.tags]);
 
   const [inputValue, setInputValue] = useState("");
 
@@ -81,6 +99,18 @@ export function AddStoreStep7({
   };
 
   const removeTag = (tagToRemove: string) => {
+    if (aiKeywords.length > 0 && aiKeywords.includes(tagToRemove)) {
+      const currentAiTagsCount = tags.filter(tag => aiKeywords.includes(tag)).length;
+      if (currentAiTagsCount <= 3) {
+        toast.error("يجب الإبقاء على 3 كلمات مفتاحية من المولدة بالذكاء الاصطناعي على الأقل");
+        return;
+      }
+    } else {
+      if (aiKeywords.length === 0 && tags.length <= 3) {
+        toast.error("يجب الإبقاء على 3 كلمات مفتاحية على الأقل");
+        return;
+      }
+    }
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
@@ -101,7 +131,9 @@ export function AddStoreStep7({
           <div className="col-span-12 lg:col-span-8">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
               <div className="p-6 flex justify-between items-center">
-                <h2 className="text-xl font-bold">الكلمات المفتاحية</h2>
+                <h2 className="text-xl font-bold flex items-center gap-2">الكلمات المفتاحية
+                  {isGeneratingAI && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+                </h2>
               </div>
 
               <div className="p-6">
@@ -127,7 +159,7 @@ export function AddStoreStep7({
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      placeholder="اكتب الوسم هنا..."
+                      placeholder={isGeneratingAI ? "جاري توليد الكلمات المفتاحية..." : "اكتب الوسم هنا..."}
                       className="w-full px-4 py-2.5 border border-gray-200 rounded-sm focus:outline-none  text-sm transition-all"
                     />
                   </div>
@@ -149,7 +181,7 @@ export function AddStoreStep7({
                         key={index}
                         label={tag}
                         onRemove={() => removeTag(tag)}
-                        showRemoveButton={true}
+                        showRemoveButton={tags.length > 3}
                       />
                     ))}
                   </div>

@@ -99,7 +99,7 @@ export function ReviewItem({
                                 onClick={() => onOpenMedia?.(review.images || [], i)}
                                 className="relative w-[80px] h-[80px] rounded-lg overflow-hidden border border-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
                             >
-                                <Image src={img} alt="" fill className="object-cover" />
+                                <Image src={img} alt="" fill className="object-contain" />
                             </div>
                         ))}
                     </div>

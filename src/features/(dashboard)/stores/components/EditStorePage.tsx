@@ -9,7 +9,7 @@ import { AddStoreStep5 } from "./AddStoreStep5";
 import { AddStoreStep6 } from "./AddStoreStep6";
 import { AddStoreStep7 } from "./AddStoreStep7";
 import { StoreType, StoreUpdatePayload, StoreManagerPayload } from "../api";
-import { useUpdateStore, useGetSingleStore } from "../hooks";
+import { useUpdateStore, useGetSingleStore, useGenerateStoreAI } from "../hooks";
 import {
   CompleteStoreFormData,
   Step2FormData,
@@ -37,6 +37,41 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
   const [currentStep, setCurrentStep] = useState(2);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState<CompleteStoreFormData | null>(null);
+
+  const generateAIMutation = useGenerateStoreAI();
+  const isGeneratingAI = generateAIMutation.isPending;
+  const [lastGeneratedInput, setLastGeneratedInput] = useState<{ name: string; description: string } | null>(null);
+  const [aiKeywords, setAiKeywords] = useState<string[]>([]);
+
+  const handleGenerateAI = async (step2Data: Step2FormData) => {
+    const name = step2Data.name.trim();
+    const description = step2Data.description.trim();
+
+    if (!name || !description) return;
+
+    if (
+      lastGeneratedInput &&
+      lastGeneratedInput.name === name &&
+      lastGeneratedInput.description === description
+    ) {
+      return;
+    }
+
+    try {
+      const data = await generateAIMutation.mutateAsync({ name, description });
+      setLastGeneratedInput({ name, description });
+
+      if (data.results?.keywords) {
+        setAiKeywords(data.results.keywords);
+        setFormData((prev) => prev ? {
+          ...prev,
+          step7: { tags: data.results!.keywords! },
+        } : prev);
+      }
+    } catch (error) {
+      console.error("AI Generation Error:", error);
+    }
+  };
 
   const store = storeData?.record;
 
@@ -124,6 +159,7 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
     if (!formData) return;
     setFormData({ ...formData, step2: data });
     setCurrentStep(3);
+    handleGenerateAI(data);
   };
 
   const handleStep2Back = () => {
@@ -383,6 +419,8 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
             onBack={handleStep7Back}
             isSubmitting={updateStoreMutation.isPending}
             barSteps={steps}
+            isGeneratingAI={isGeneratingAI}
+            aiKeywords={aiKeywords}
           />
         );
 

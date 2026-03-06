@@ -150,8 +150,9 @@ export function AddStoreStep2({
       newErrors.name = "اسم المتجر مطلوب";
     }
 
-
-
+    if (!formData.description.trim()) {
+      newErrors.description = "وصف المتجر مطلوب";
+    }
     if (formData.email.trim() === "") {
       newErrors.email = "البريد الإلكتروني مطلوب";
     }
@@ -297,7 +298,7 @@ export function AddStoreStep2({
                     htmlFor="description"
                     className="text-start text-sm font-medium"
                   >
-                    وصف المتجر
+                    وصف المتجر <span className="text-red-500">*</span>
                   </Label>
                   <textarea
                     id="description"
