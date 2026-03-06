@@ -9,6 +9,7 @@ import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { AttributeModal } from "./AttributeModal";
 import { useCreateAttribute, useUpdateAttribute } from "../hooks";
 import { Pagination } from "@/src/components/ui/Pagination";
+import { cn } from "@/src/lib/utils";
 
 interface LinkAttributesViewProps {
   categories: Category[];
@@ -243,11 +244,11 @@ export function LinkAttributesView({
                 const isSelected = category.id === selectedCategoryId;
                 return (
                   <div key={category.id} onClick={() => setSelectedCategoryId(category.id)}
-                    className="px-3 py-2.5 rounded-lg cursor-pointer transition-all border"
-                    style={{
-                      backgroundColor: isSelected ? '#EFF6FF' : '#FFFFFF',
-                      borderColor: isSelected ? '#BFDBFE' : '#E5E7EB'
-                    }}>
+                    className={cn(
+                      "px-3 py-2.5 rounded-lg cursor-pointer transition-all border",
+                      isSelected ? "bg-blue-5 border-blue-5" : "bg-white border-[#E5E7EB]"
+                    )}
+                  >
                     <div className="flex flex-wrap items-center gap-1" style={{ direction: 'rtl' }}>
                       {category.breadcrumb.map((part, idx) => (
                         <span key={idx} className="inline-flex items-center gap-1">
@@ -323,12 +324,11 @@ export function LinkAttributesView({
                   <div
                     key={attribute.id}
                     onClick={() => setActiveAttributeId(attribute.id)}
-                    className="flex items-center justify-between px-3 py-2.5 rounded-lg transition-all border cursor-pointer"
-                    style={{
-                      opacity: isToggling ? 0.6 : 1,
-                      backgroundColor: isActive ? '#EFF6FF' : isSelected ? '#EFF6FF' : '#FFFFFF',
-                      borderColor: isActive ? '#BFDBFE' : isSelected ? '#BFDBFE' : '#E5E7EB',
-                    }}
+                    className={cn(
+                      "flex items-center justify-between px-3 py-2.5 rounded-lg transition-all border cursor-pointer",
+                      isToggling ? "opacity-60" : "",
+                      isActive || isSelected ? "bg-blue-5 border-blue-5" : "bg-white border-[#E5E7EB]"
+                    )}
                   >
                     
                     <CustomToggle

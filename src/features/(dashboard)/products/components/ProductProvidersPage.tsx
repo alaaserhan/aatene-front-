@@ -89,6 +89,7 @@ export function ProductProvidersPage() {
                 {/* Search & Filter */}
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="relative flex-1">
+                        <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2" />
                         <Input
                             placeholder="ابحث باسم مقدم المنتجات..."
                             value={searchQuery}
@@ -96,9 +97,9 @@ export function ProductProvidersPage() {
                                 setSearchQuery(e.target.value);
                                 setCurrentPage(1);
                             }}
-                            className="pe-10 h-[46px] bg-white border-gray-200 w-full"
+                            className="ps-4 pe-10 h-[46px] bg-white border-gray-200 w-full"
+                            dir="rtl"
                         />
-                        <Search className="w-5 h-5 text-gray-2 absolute left-3 top-1/2 -translate-y-1/2" />
                     </div>
                     <div className="w-full md:w-[180px] shrink-0">
                         <ReusableDropdown
