@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/src/components/ui/button";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { StoreFormActions } from "./StoreFormActions";
 import { StoreType, DeliveryType, ShippingCompanyPayload } from "../api";
 import { AddShippingCompanyDialog } from "./AddShippingCompanyDialog";
@@ -305,6 +306,7 @@ export function AddStoreStep6({
                 coverImages: previousData.cover_previews,
               }}
             />
+            <GuideVideoCard location="create-store" />
           </div>
         </div>
       </div>

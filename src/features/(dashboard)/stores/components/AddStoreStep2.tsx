@@ -9,6 +9,7 @@ import { StoreIdentitySelector } from "./StoreIdentitySelector";
 import { StoreBannerSelector } from "./StoreBannerSelector";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { useGetCities } from "../../cities/hooks";
 import { StoreType } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -475,6 +476,7 @@ export function AddStoreStep2({
                 coverImages: formData.cover_previews,
               }}
             />
+            <GuideVideoCard location="create-store" />
           </div>
         </div>
       </div>

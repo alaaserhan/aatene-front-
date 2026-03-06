@@ -6,6 +6,7 @@ import { Button } from "@/src/components/ui/button";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { StoreFormActions } from "./StoreFormActions";
 import { StoreType, StoreManagerPayload, StoreStatus, ManagerTitle } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -449,6 +450,7 @@ export function AddStoreStep4({
                 coverImages: previousData.cover_previews,
               }}
             />
+            <GuideVideoCard location="create-store" />
           </div>
         </div>
       </div>

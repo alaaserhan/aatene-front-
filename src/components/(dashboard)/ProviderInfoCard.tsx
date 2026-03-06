@@ -28,11 +28,12 @@ interface ProviderInfoCardProps {
     onFollow?: () => void;
     isFollowing?: boolean;
     isOwner?: boolean;
+    isAdmin?: boolean;
 }
 
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
 
-export function ProviderInfoCard({ store, provider, className, onReport, onFollow, isFollowing, isOwner }: ProviderInfoCardProps) {
+export function ProviderInfoCard({ store, provider, className, onReport, onFollow, isFollowing, isOwner, isAdmin }: ProviderInfoCardProps) {
     // If store is provided, map it to ProviderData
     const data: ProviderData | null = store ? {
         id: store.id,
@@ -96,7 +97,7 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
                         )}
                     </Button>
 
-                    {data.id && !isOwner ? (
+                    {data.id && !isOwner && !isAdmin ? (
                         <ReportAbuse type="store" id={data.id}>
                             <Button
                                 variant="destructive"
@@ -109,11 +110,11 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
                     ) : (
                         <Button
                             variant="destructive"
-                            onClick={!isOwner ? onReport : undefined}
-                            disabled={isOwner}
+                            onClick={!isOwner && !isAdmin ? onReport : undefined}
+                            disabled={isOwner || isAdmin}
                             className={cn(
                                 "font-medium h-8 px-8 gap-2 rounded-full flex-1 md:flex-none",
-                                isOwner
+                                (isOwner || isAdmin)
                                     ? "bg-[#D00416] hover:bg-[#D00416] text-white cursor-not-allowed opacity-60"
                                     : "bg-[#D00416] hover:bg-[#d93838] cursor-pointer text-white"
                             )}

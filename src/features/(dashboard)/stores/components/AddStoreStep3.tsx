@@ -7,6 +7,7 @@ import { Button } from "@/src/components/ui/button";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { StoreType } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Step2FormData, Step3FormData } from "../types";
@@ -313,6 +314,7 @@ export function AddStoreStep3({
                 coverImages: previousData.cover_previews,
               }}
             />
+            <GuideVideoCard location="create-store" />
           </div>
         </div>
       </div>

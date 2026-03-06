@@ -129,7 +129,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
     return params;
   }, [effectiveStoreId, selectedSectionId, searchQuery]);
 
-  const countQueryOptions = { enabled: isProductsEnabled, staleTime: 0 };
+  const countQueryOptions = { enabled: isProductsEnabled, staleTime: 0, refetchInterval: 30_000, refetchOnWindowFocus: true };
   const { data: activeCountData } = useGetProducts(activeCountParams, countQueryOptions);
   const { data: notActiveCountData } = useGetProducts(notActiveCountParams, countQueryOptions);
   const { data: rejectedCountData } = useGetProducts(rejectedCountParams, countQueryOptions);
@@ -175,6 +175,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
     enabled: isProductsEnabled,
     staleTime: 0,
     refetchOnWindowFocus: true,
+    refetchInterval: 30_000,
   });
 
   const products = productsData?.data || [];

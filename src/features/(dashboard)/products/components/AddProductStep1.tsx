@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { HelpCircle } from "lucide-react";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { ProductFormActions } from "./ProductFormActions";
 import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -486,6 +487,7 @@ export function AddProductStep1({
                 galleryImages: formData.gallery_previews,
               }}
             />
+            <GuideVideoCard location="add-product" />
           </div>
         </div>
       </div>
@@ -498,6 +500,6 @@ export function AddProductStep1({
         showCancel={true}
         showSaveDraft={showSaveDraft}
       />
-    </div>
+    </div >
   );
 }

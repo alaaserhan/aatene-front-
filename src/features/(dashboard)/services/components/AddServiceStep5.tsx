@@ -6,6 +6,7 @@ import { ProductFormActions } from "../../products/components/ProductFormActions
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Stepper } from "@/src/components/ui/Stepper";
 import { ServicePreviewSidebar } from "./ServicePreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { useGetSingleStore } from "../../stores/hooks";
 import {
     Step1ServiceData,
@@ -184,6 +185,7 @@ export function AddServiceStep5({
                                 address: store?.address || ""
                             }}
                         />
+                        <GuideVideoCard location="add-service" />
                     </div>
 
                 </div>

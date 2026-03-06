@@ -15,6 +15,7 @@ import { useGetCategories } from "../../categoriesAndAttributes/hooks";
 import { useGetSections, useCreateSection } from "../../sections/hooks"; // استيراد هوك الأقسام
 import { Stepper } from "@/src/components/ui/Stepper";
 import { ServicePreviewSidebar } from "./ServicePreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { useGetSingleStore } from "../../stores/hooks";
 import { toast } from "sonner";
 import { SectionModal, SectionFormData } from "../../sections/components/SectionModal";
@@ -378,6 +379,7 @@ export function AddServiceStep1({
                 address: store?.address || ""
               }}
             />
+            <GuideVideoCard location="add-service" />
           </div>
 
         </div>

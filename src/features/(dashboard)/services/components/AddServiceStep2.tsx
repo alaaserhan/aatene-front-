@@ -9,6 +9,7 @@ import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Label } from "@/src/components/ui/label";
 import { Stepper } from "@/src/components/ui/Stepper";
 import { ServicePreviewSidebar } from "./ServicePreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Step1ServiceData, Step2ServiceData } from "../types";
 import { ExecuteType, ServiceExtra } from "../api";
@@ -354,6 +355,7 @@ export function AddServiceStep2({
                                 address: store?.address || ""
                             }}
                         />
+                        <GuideVideoCard location="add-service" />
                     </div>
 
                 </div>
