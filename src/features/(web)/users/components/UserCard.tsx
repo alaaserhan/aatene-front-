@@ -38,7 +38,7 @@ export default function UserCard({ user, className }: UserCardProps) {
                             priority
                         />
                     ) : (
-                        <div className="absolute inset-0 bg-gray-100" />
+                        <div className="bg-blue-1 w-full h-full" />
                     )
                 }
             </div>

@@ -9,7 +9,7 @@ import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
     Star,
     MessageCircle,
@@ -19,9 +19,23 @@ import {
     MessageSquare,
     Store as StoreIcon,
     User as UserIcon,
+    Facebook,
+    Instagram,
 } from "lucide-react";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
+
+const TiktokIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+    </svg>
+);
+
+const WhatsAppIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    </svg>
+);
 
 function StarRating({
     rating,
@@ -109,24 +123,35 @@ function AuthorCard({ blog }: { blog: Blog }) {
     );
 }
 
-
-
-
-
-
-// ImageOverlay removed
-
-
-// ReviewItem and ReviewForm removed as they are now imported 
-// Also StarRating and InteractiveStarRating are used inside reusable components, 
-// so we don't need to redefine them here unless used elsewhere (StarRating is used in Header).
-// But Header StarRating is locally defined at top. 
-// Reusable components import their own StarRating. 
-// We should probably keep local StarRating for Header if it differs, or use reusable one.
-// Header uses local StarRating. Let's keep it for now to minimize diff, or better: replace it too.
-// The user request was to use reusable components for Reviews.
-// I will keep local StarRating for now to avoid breaking Header layout if styles differ slighty, 
-// but I will remove local ReviewItem and ReviewForm.
+function TableOfContents({
+    contents,
+    activeIndex,
+    onSelect,
+}: {
+    contents: { title: string }[];
+    activeIndex: number;
+    onSelect: (index: number) => void;
+}) {
+    return (
+        <div className="flex flex-col gap-6 w-full">
+            <h3 className="font-semibold font-lg border-b border-transparent pb-1">في هذه المقالة</h3>
+            <div className="flex flex-col gap-2">
+                {contents.map((content, idx) => (
+                    <button
+                        key={idx}
+                        onClick={() => onSelect(idx)}
+                        className={`text-sm text-right py-1 pr-4 border-r-[3px] transition-all duration-300 ${idx === activeIndex
+                                ? "border-[#2e2bc2] text-[#2e2bc2] font-semibold"
+                                : "border-transparent text-[#444444] hover:text-[#2e2bc2]"
+                            }`}
+                    >
+                        {content.title}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+}
 
 export default function BlogDetailsPage() {
     const params = useParams();
@@ -141,6 +166,38 @@ export default function BlogDetailsPage() {
         media: [],
         index: 0,
     });
+    const [copied, setCopied] = useState(false);
+
+    const [activeContentIndex, setActiveContentIndex] = useState<number>(0);
+
+    const scrollToContent = (index: number) => {
+        setActiveContentIndex(index);
+        const ref = contentRefs.current[index];
+        if (ref) {
+            const top = ref.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({ top, behavior: "smooth" });
+        }
+    };
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollPosition = window.scrollY + 120;
+            let activeIdx = 0;
+
+            contentRefs.current.forEach((ref, index) => {
+                if (!ref) return;
+                const top = ref.offsetTop;
+                if (scrollPosition >= top) {
+                    activeIdx = index;
+                }
+            });
+
+            setActiveContentIndex(activeIdx);
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     const openMedia = (media: string[], index: number = 0) => {
         setMediaViewerState({ isOpen: true, media, index });
@@ -198,7 +255,24 @@ export default function BlogDetailsPage() {
         (b) => b.slug !== slug && b.id !== Number(slug)
     );
 
+    const handleShare = (platform: string) => {
+        if (typeof window === "undefined") return;
+        const url = window.location.href;
+        const text = blog?.title || "";
 
+        switch (platform) {
+            case "facebook":
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank");
+                break;
+            case "whatsapp":
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, "_blank");
+                break;
+            default:
+                navigator.clipboard.writeText(url);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -279,14 +353,33 @@ export default function BlogDetailsPage() {
                                 </span>
                             </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                            {/* <span className="text-[24px] text-[rgba(0,0,0,0.8)] tracking-[-0.36px] leading-[30px]">
+                        <div className="flex items-center gap-3">
+                            <span className="text-[15px] pt-2 md:text-[18px] text-[rgba(0,0,0,0.8)] tracking-[-0.36px] font-medium leading-[30px]">
                                 شارك المقاله
-                            </span> */}
-                            <div className="flex items-center gap-2 px-4">
-                                <button className="w-[27px] h-[27px] cursor-pointer flex items-center justify-center border border-[#3c5d80] rounded text-[#3c5d80] hover:bg-[#3c5d80] hover:text-white transition-colors">
-                                    <Link2 size={15} />
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <button onClick={() => handleShare("tiktok")} className="w-[27px] h-[27px] cursor-pointer flex items-center justify-center border border-[#3c5d80] rounded text-[#3c5d80] hover:bg-[#3c5d80] hover:text-white transition-colors">
+                                    <TiktokIcon className="w-[15px] h-[15px]" />
                                 </button>
+                                <button onClick={() => handleShare("instagram")} className="w-[27px] h-[27px] cursor-pointer flex items-center justify-center border border-[#3c5d80] rounded text-[#3c5d80] hover:bg-[#3c5d80] hover:text-white transition-colors">
+                                    <Instagram size={15} />
+                                </button>
+                                <button onClick={() => handleShare("facebook")} className="w-[27px] h-[27px] cursor-pointer flex items-center justify-center border border-[#3c5d80] rounded text-[#3c5d80] hover:bg-[#3c5d80] hover:text-white transition-colors">
+                                    <Facebook size={15} />
+                                </button>
+                                <button onClick={() => handleShare("whatsapp")} className="w-[27px] h-[27px] cursor-pointer flex items-center justify-center border border-[#3c5d80] rounded text-[#3c5d80] hover:bg-[#3c5d80] hover:text-white transition-colors">
+                                    <WhatsAppIcon className="w-[15px] h-[15px]" />
+                                </button>
+                                <div className="relative">
+                                    <button onClick={() => handleShare("link")} className="w-[27px] h-[27px] cursor-pointer flex items-center justify-center border border-[#3c5d80] rounded text-[#3c5d80] hover:bg-[#3c5d80] hover:text-white transition-colors">
+                                        <Link2 size={15} />
+                                    </button>
+                                    {copied && (
+                                        <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-[#395a7d] text-white text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                            تم النسخ
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -354,13 +447,15 @@ export default function BlogDetailsPage() {
                     <AuthorCard blog={blog} />
 
                     {/* Table of Contents */}
-                    {/* {blog.content && blog.content.length > 0 && (
-                        <TableOfContents
-                            contents={blog.content}
-                            activeIndex={activeContentIndex}
-                            onSelect={scrollToContent}
-                        />
-                    )} */}
+                    {blog.content && blog.content.length > 0 && (
+                        <div className="border border-[#e0dfdc] rounded-xl p-4 hidden lg:flex">
+                            <TableOfContents
+                                contents={blog.content}
+                                activeIndex={activeContentIndex}
+                                onSelect={scrollToContent}
+                            />
+                        </div>
+                    )}
 
                     {/* Related Articles */}
                     {relatedBlogs.length > 0 && (

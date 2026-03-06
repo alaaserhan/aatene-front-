@@ -47,7 +47,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
 
     const serviceImage = isValidUrl(service.image_url)
         ? service.image_url!
-        : (isValidUrl(service.images_urls?.[0]) ? service.images_urls![0] : "/placeholder.png");
+        : (isValidUrl(service.images_urls?.[0]) ? service.images_urls![0]:"");
 
 
 
@@ -63,16 +63,22 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
             <CompareCheckbox id={service.id} type="service" />
 
             {/* Service Image */}
-            <div className="relative aspect-[4/3] w-full bg-gray-50 overflow-hidden">
-                <Image
-                    src={serviceImage}
-                    alt={service.title}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    onError={(e) => {
-                        e.currentTarget.src = "/placeholder.png";
-                    }}
-                />
+            <div className="relative aspect-[4/3] w-full overflow-hidden">
+                {
+                    serviceImage ? (
+                        <Image
+                            src={serviceImage}
+                            alt={service.title}
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                            onError={(e) => {
+                                e.currentTarget.src = "/placeholder.png";
+                            }}
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-blue-1" />
+                    )
+                }
 
                 {/* Favorite Button - Top Left */}
                 <div

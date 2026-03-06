@@ -49,12 +49,20 @@ function UserHeader({ user, isOwnProfile, followers }: {
     return (
         <div className="relative mb-8 bg-white shadow-sm border-b border-gray-100 pb-2 md:pb-6">
             <div className="relative h-44 md:h-[200px] lg:h-[250px] overflow-hidden w-full">
-                <Image
-                    src={user.cover_url || "/background.svg"}
-                    alt="cover"
-                    fill
-                    className="object-cover"
-                />
+                {
+                    user.cover_url ? (
+                        <Image
+                            src={user.cover_url}
+                            alt="cover"
+                            fill
+                            className="object-cover"
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-blue-1">
+                           
+                        </div>
+                    )
+                }
             </div>
 
             <div className="container relative">
