@@ -1,6 +1,6 @@
 "use client";
 
-import { useBlog, useBlogReviews, useAddBlogReview, usePublicBlogs } from "../hooks";
+import { useBlog, useBlogReviews, useAddBlogReview, usePublicBlogs, useBlogReplies } from "../hooks";
 import { Blog } from "../types";
 import { BlogCard } from "./BlogCard";
 import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
@@ -141,8 +141,8 @@ function TableOfContents({
                         key={idx}
                         onClick={() => onSelect(idx)}
                         className={`text-sm text-right py-1 pr-4 border-r-[3px] transition-all duration-300 ${idx === activeIndex
-                                ? "border-[#2e2bc2] text-[#2e2bc2] font-semibold"
-                                : "border-transparent text-[#444444] hover:text-[#2e2bc2]"
+                            ? "border-[#2e2bc2] text-[#2e2bc2] font-semibold"
+                            : "border-transparent text-[#444444] hover:text-[#2e2bc2]"
                             }`}
                     >
                         {content.title}
@@ -150,6 +150,39 @@ function TableOfContents({
                 ))}
             </div>
         </div>
+    );
+}
+
+function BlogReviewWithReplies({
+    review,
+    slug,
+    onOpenMedia,
+    onReply,
+    showReplies,
+    onToggleReplies,
+}: {
+    review: SharedReview;
+    slug: string;
+    onOpenMedia: (media: string[], index: number) => void;
+    onReply: (id: number, userName: string) => void;
+    showReplies: boolean;
+    onToggleReplies: (id: number) => void;
+}) {
+    const { data: repliesData, isLoading: loadingReplies } = useBlogReplies(
+        showReplies ? slug : "",
+        showReplies ? review.id : 0
+    );
+
+    return (
+        <ReviewItem
+            review={review}
+            onOpenMedia={onOpenMedia}
+            onReply={onReply}
+            showReplies={showReplies}
+            onToggleReplies={onToggleReplies}
+            replies={repliesData?.reviews as unknown as SharedReview[]}
+            isLoadingReplies={loadingReplies}
+        />
     );
 }
 
@@ -208,6 +241,19 @@ export default function BlogDetailsPage() {
     };
     const [parentId, setParentId] = useState<number | null>(null);
     const [replyToName, setReplyToName] = useState<string | null>(null);
+    const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
+
+    const handleToggleReplies = (reviewId: number) => {
+        setExpandedReplies((prev) => {
+            const next = new Set(prev);
+            if (next.has(reviewId)) {
+                next.delete(reviewId);
+            } else {
+                next.add(reviewId);
+            }
+            return next;
+        });
+    };
     const formRef = useRef<ReviewFormRef>(null);
     const addReview = useAddBlogReview();
 
@@ -237,6 +283,9 @@ export default function BlogDetailsPage() {
                     onSuccess: () => {
                         setParentId(null);
                         setReplyToName(null);
+                        if (data.parent_id) {
+                            setExpandedReplies((prev) => new Set(prev).add(data.parent_id!));
+                        }
                         resolve();
                     },
                     onError: () => reject(),
@@ -340,21 +389,21 @@ export default function BlogDetailsPage() {
                     {/* Share + Actions Bar */}
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-8">
-                            <div className="relative">
+                            <div className="relative right-2">
                                 <MessageCircle className="w-6 h-6 text-gray-700" strokeWidth={1.5} />
-                                <span className="absolute -top-2 -right-3 bg-[#395a7d] text-white sm:text-[11px] text-[8px] font-normal px-1.5 py-0 rounded-full min-w-[22px] flex items-center justify-center border-2 border-white">
+                                <span className="absolute pt-1 -top-2 -right-3 bg-[#395a7d] text-white sm:text-[11px] text-[8px] font-normal px-1.5 py-0 rounded-full min-w-[25px] flex items-center justify-center border-2 border-white">
                                     {blog.review_count || "6"}
                                 </span>
                             </div>
                             <div className="relative">
                                 <Heart className="w-6 h-6 text-gray-700" strokeWidth={1.5} />
-                                <span className="absolute -top-2 -right-5 bg-[#395a7d] text-white sm:text-[11px] text-[8px] font-normal px-1.5 py-0 rounded-full min-w-[31px] flex items-center justify-center border-2 border-white">
+                                <span className="absolute pt-1 -top-2 -right-4 bg-[#395a7d] text-white sm:text-[11px] text-[8px] font-normal px-1.5 py-0 rounded-full min-w-[25px] flex items-center justify-center border-2 border-white">
                                     {blog.favorites_count || "99"}
                                 </span>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <span className="text-[15px] pt-2 md:text-[18px] text-[rgba(0,0,0,0.8)] tracking-[-0.36px] font-medium leading-[30px]">
+                            <span className="text-[15px] hidden sm:block pt-2 md:text-[18px] text-[rgba(0,0,0,0.8)] tracking-[-0.36px] font-medium leading-[30px]">
                                 شارك المقاله
                             </span>
                             <div className="flex items-center gap-2">
@@ -411,11 +460,14 @@ export default function BlogDetailsPage() {
                             <h3 className="text-xl font-medium ">التعليقات</h3>
                             <div className="flex flex-col gap-4">
                                 {reviews.map((review) => (
-                                    <ReviewItem
+                                    <BlogReviewWithReplies
                                         key={review.id}
                                         review={review as unknown as SharedReview}
+                                        slug={slug}
                                         onOpenMedia={openMedia}
                                         onReply={handleReply}
+                                        showReplies={expandedReplies.has(review.id)}
+                                        onToggleReplies={handleToggleReplies}
                                     />
                                 ))}
                             </div>

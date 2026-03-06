@@ -124,6 +124,10 @@ export function useAddBlogReview() {
         onSuccess: (_, variables) => {
             toast.success("تم إضافة التعليق بنجاح");
             queryClient.invalidateQueries({ queryKey: blogsKeys.reviews(variables.slug) });
+            const parentId = variables.data.get("parent_id");
+            if (parentId) {
+                queryClient.invalidateQueries({ queryKey: blogsKeys.replies(variables.slug, parentId as string) });
+            }
         },
         onError: (error: AxiosError<BaseResponse>) => {
             toast.error(error?.response?.data?.message || "حدث خطأ ما");

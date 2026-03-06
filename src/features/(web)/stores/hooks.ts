@@ -20,10 +20,14 @@ export const useAddStoreReview = () => {
     return useMutation({
         mutationFn: ({ slug, payload }: { slug: string; payload: AddStoreReviewPayload }) =>
             addStoreReview(slug, payload),
-        onSuccess: (data) => {
+        onSuccess: (data, variables) => {
             toast.success(data.message || "تمت إضافة التعليق بنجاح");
-            queryClient.invalidateQueries({ queryKey: ["storeReviews"] });
-            queryClient.invalidateQueries({ queryKey: ["storeReviewReplies"] });
+            queryClient.invalidateQueries({ queryKey: ["storeReviews", variables.slug] });
+            if (variables.payload.parent_id) {
+                queryClient.invalidateQueries({ queryKey: ["storeReviewReplies", variables.slug, Number(variables.payload.parent_id)] });
+            } else {
+                queryClient.invalidateQueries({ queryKey: ["storeReviewReplies"] });
+            }
         },
         onError: (error: AxiosError<{ message?: string }>) => {
             toast.error(error.response?.data?.message || "حدث خطأ ما");
