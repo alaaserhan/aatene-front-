@@ -77,7 +77,7 @@ export function MessagesPage() {
                                     <ArrowRight className="w-5 h-5" />
                                 </button>
                             )}
-                            <h1 className="text-lg lg:text-xl font-bold">
+                            <h1 className="text-xl lg:text-2xl font-semibold">
                                 {getPlatformTitle(activePlatform)}
                             </h1>
                         </div>

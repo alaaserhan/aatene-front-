@@ -61,7 +61,7 @@ export function KnowledgeBasePage() {
 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-gray-200 pb-4 lg:pb-6">
             <div>
-              <h1 className="text-xl lg:text-2xl font-bold mb-1">قاعدة المعرفة</h1>
+              <h1 className="text-xl lg:text-2xl font-semibold mb-1">قاعدة المعرفة</h1>
               <p className="text-gray-2 text-xs lg:text-sm">إدارة الملفات والوثائق الخاصة بتدريب المساعد الذكي</p>
             </div>
           </div>

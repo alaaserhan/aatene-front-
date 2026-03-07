@@ -72,7 +72,7 @@ export function InstructionsPage() {
 
                     <div className="flex justify-between items-start mb-6">
                         <div>
-                            <h1 className="text-2xl font-bold mb-2">التعليمات العامة</h1>
+                            <h1 className="text-xl lg:text-2xl font-semibold mb-2">التعليمات العامة</h1>
                             <p className="text-gray-2 text-sm">تعليمات عامة للروبوت، مثل كيفية الرد على المستخدمين والسلوك، وغير ذلك</p>
                         </div>
 

@@ -337,7 +337,7 @@ export function AverageRatingCard({ average = 0, total = 0 }: AverageRatingCardP
 export function PageHeader() {
     return (
         <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold ">الرئيسية</h1>
+            <h1 className="text-xl lg:text-2xl font-semibold">الرئيسية</h1>
         </div>
     );
 }

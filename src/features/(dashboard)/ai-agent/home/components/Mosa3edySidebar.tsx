@@ -102,7 +102,7 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
             />
           </div>
           {!isCollapsed && (
-            <h2 className="text-3xl font-medium ">مُساعدي</h2>
+            <h2 className="text-2xl font-medium ">مُساعدي</h2>
           )}
         </div>
 
