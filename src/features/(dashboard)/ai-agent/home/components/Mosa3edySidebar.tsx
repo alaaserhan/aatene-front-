@@ -38,6 +38,12 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
       href: "/admin/mosa3edy/messages",
       isActive: pathname.includes("messages")
     },
+    {
+      iconPath: "/icons/dashboard/document.svg",
+      label: "أسئلة لم يتم الرد عليها",
+      href: "/admin/mosa3edy/unanswered-questions",
+      isActive: pathname.includes("unanswered-questions")
+    },
   ];
 
   const activeIconFilter = "brightness-0 saturate-100 invert-[56%] sepia-[68%] saturate-[2087%] hue-rotate-[1deg] brightness-[96%] contrast-[96%]";

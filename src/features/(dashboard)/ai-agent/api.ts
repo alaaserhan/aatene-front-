@@ -391,3 +391,47 @@ export const updateInstruction = async (
     const { data } = await api5002.put<InstructionResponse>(`/${platform}/maya-agent`, payload);
     return data;
 };
+
+const UNANSWERED_WEBHOOK_URL = "https://auto.mosaady.com/webhook/7d7327ec-08a9-4dc2-8402-88521262c437";
+
+export interface UnansweredQuestion {
+    row_number: number;
+    Timestamp: string;
+    Chat_id: number;
+    Question: string;
+    Status: "pending" | "reviewing" | string;
+}
+
+export interface UnansweredQuestionsResponse {
+    data: UnansweredQuestion[];
+}
+
+export interface UnansweredQuestionPayload {
+    type: "request" | "update" | "delete";
+    id?: number;
+    Question?: string;
+    Status?: string;
+}
+
+export const getUnansweredQuestions = async (): Promise<UnansweredQuestionsResponse> => {
+    const { data } = await axios.post<UnansweredQuestionsResponse>(UNANSWERED_WEBHOOK_URL, {
+        type: "request",
+    });
+    return data;
+};
+
+export const updateUnansweredQuestion = async (payload: UnansweredQuestionPayload): Promise<UnansweredQuestionsResponse> => {
+    const { data } = await axios.post<UnansweredQuestionsResponse>(UNANSWERED_WEBHOOK_URL, {
+        ...payload,
+        type: "update",
+    });
+    return data;
+};
+
+export const deleteUnansweredQuestion = async (id: number): Promise<UnansweredQuestionsResponse> => {
+    const { data } = await axios.post<UnansweredQuestionsResponse>(UNANSWERED_WEBHOOK_URL, {
+        type: "delete",
+        id,
+    });
+    return data;
+};

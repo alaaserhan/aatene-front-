@@ -236,3 +236,38 @@ export function useUpdateInstruction() {
     },
   });
 }
+
+export function useGetUnansweredQuestions() {
+  return useQuery({
+    queryKey: ["unanswered-questions"],
+    queryFn: api.getUnansweredQuestions,
+  });
+}
+
+export function useUpdateUnansweredQuestion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: api.updateUnansweredQuestion,
+    onSuccess: () => {
+      toast.success("تم تحديث السؤال بنجاح");
+      queryClient.invalidateQueries({ queryKey: ["unanswered-questions"] });
+    },
+    onError: (error: AxiosError<{ error: string }>) => {
+      toast.error(error.response?.data?.error || "فشل تحديث السؤال");
+    },
+  });
+}
+
+export function useDeleteUnansweredQuestion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: api.deleteUnansweredQuestion,
+    onSuccess: () => {
+      toast.success("تم حذف السؤال بنجاح");
+      queryClient.invalidateQueries({ queryKey: ["unanswered-questions"] });
+    },
+    onError: (error: AxiosError<{ error: string }>) => {
+      toast.error(error.response?.data?.error || "فشل حذف السؤال");
+    },
+  });
+}
