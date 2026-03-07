@@ -440,6 +440,15 @@ export const getMerchantAnalyticsMostViewed = async (
 };
 
 // 4. Merchant Analytics Content
+export interface ChatClientCity {
+    city: string;
+    count: string | number;
+}
+
+export interface ChatClientsAnalyticsResponse extends BaseResponse {
+    clientsByCity: ChatClientCity[];
+}
+
 export const getMerchantAnalyticsContent = async (
     params?: URLSearchParams,
     storeId?: number | string
@@ -448,6 +457,32 @@ export const getMerchantAnalyticsContent = async (
     const headers = getHeaders(storeId);
     const queryString = params ? `?${params.toString()}` : "";
     const { data } = await api.get<MerchantContentAnalyticsResponse>(`${endpoint}${queryString}`, {
+        headers,
+    });
+    return data;
+};
+
+export const getAnalyticsChatClients = async (
+    params?: URLSearchParams,
+    storeId?: number | string
+): Promise<ChatClientsAnalyticsResponse> => {
+    const endpoint = getDynamicEndpoint("/analytics/overview/chatClients");
+    const headers = getHeaders(storeId);
+    const queryString = params ? `?${params.toString()}` : "";
+    const { data } = await api.get<ChatClientsAnalyticsResponse>(`${endpoint}${queryString}`, {
+        headers,
+    });
+    return data;
+};
+
+export const getMerchantAnalyticsChatClients = async (
+    params?: URLSearchParams,
+    storeId?: number | string
+): Promise<ChatClientsAnalyticsResponse> => {
+    const endpoint = getDynamicEndpoint("/analytics/chatClients");
+    const headers = getHeaders(storeId);
+    const queryString = params ? `?${params.toString()}` : "";
+    const { data } = await api.get<ChatClientsAnalyticsResponse>(`${endpoint}${queryString}`, {
         headers,
     });
     return data;

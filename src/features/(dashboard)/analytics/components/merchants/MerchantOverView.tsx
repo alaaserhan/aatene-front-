@@ -8,9 +8,9 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import { MerchantPointsCard } from "./MerchantPointsCard";
 import { MerchantContentAnalytics } from "./MerchantContentAnalytics";
 import { MerchantProfileViews } from "./MerchantProfileViews";
-import { MerchantCustomerLocation } from "./MerchantCustomerLocation";
 import { MerchantFollowersAnalytics } from "./MerchantFollowersAnalytics";
 import { MerchantMostViewed } from "./MerchantMostViewed";
+import { CustomerLocationAnalytics } from "../CustomerLocationAnalytics";
 
 export default function MerchantAnalyticsPage() {
     const [loading, setLoading] = useState(true);
@@ -55,7 +55,7 @@ export default function MerchantAnalyticsPage() {
 
                     {/* Column 1 (Right in RTL): Customer Location */}
                     <div className="col-span-12  order-3">
-                        <MerchantCustomerLocation />
+                        <CustomerLocationAnalytics />
                     </div>
 
                     {/* Column 2 (Left in RTL): Followers Analytics */}

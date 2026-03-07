@@ -99,3 +99,19 @@ export function useGetMerchantAnalyticsContent(params?: URLSearchParams, storeId
         queryFn: () => api.getMerchantAnalyticsContent(params, storeId),
     });
 }
+
+export function useGetAnalyticsChatClients(params?: URLSearchParams, storeId?: number | string, enabled: boolean = true) {
+    return useQuery({
+        queryKey: ["analytics", "chat-clients", params?.toString(), storeId],
+        queryFn: () => api.getAnalyticsChatClients(params, storeId),
+        enabled,
+    });
+}
+
+export function useGetMerchantAnalyticsChatClients(params?: URLSearchParams, storeId?: number | string, enabled: boolean = true) {
+    return useQuery({
+        queryKey: ["merchant-analytics", "chat-clients", params?.toString(), storeId],
+        queryFn: () => api.getMerchantAnalyticsChatClients(params, storeId),
+        enabled,
+    });
+}
