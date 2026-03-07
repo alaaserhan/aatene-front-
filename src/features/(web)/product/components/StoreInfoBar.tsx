@@ -53,14 +53,15 @@ export default function StoreInfoBar({ store }: StoreInfoBarProps) {
 
     const providerData: ProviderData = {
         name: store.name,
-        avatar: store.logo || "",
-        location: store.address || "فلسطين",
+        avatar: store.logo_url || "",
+        location: store.city?.name || "فلسطين",
         memberSince: store.created_at
             ? format(new Date(store.created_at), "dd-MM-yyyy", { locale: ar })
             : "",
         rating: store.review_rate || "0",
         ordersCount: store.view_count || 0,
-        isVerified: true
+        isVerified: true,
+        slug:store.slug
     };
 
     return (

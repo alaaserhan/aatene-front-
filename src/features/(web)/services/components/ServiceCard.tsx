@@ -24,7 +24,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
     const [localIsFavorite, setLocalIsFavorite] = useState(service.is_favorite);
 
     const price = parseFloat(service.price || "0");
-    const cityName = service.store?.service_cities?.[0]?.name || "فلسطين";
+    const cityName = service.store?.city?.name || "فلسطين";
     const providerName = service.store?.name || "مقدم الخدمة";
 
     const handleClick = () => {
@@ -153,7 +153,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                             {/* Rating */}
                             <div className="flex items-center gap-1 text-xs">
                                 <Star className="w-3 h-3 fill-[#FFC220] text-[#FFC220]" />
-                                <span className="whitespace-nowrap pt-1">( {service.review_count || 0} مراجعة )</span>
+                                <span className="whitespace-nowrap pt-1">( {service.store?.review_count || 0} مراجعة )</span>
                             </div>
 
 

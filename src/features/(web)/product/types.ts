@@ -141,9 +141,14 @@ export interface Store {
   whats_app: string | null;
   email: string | null;
   address: string | null;
+  city?: {
+    id: number;
+    name: string;
+  };
   lat: number | null;
   lng: number | null;
   logo: string | null;
+  logo_url:string | null ;
   cover: string | null;
   review_rate: string;
   review_count: string;

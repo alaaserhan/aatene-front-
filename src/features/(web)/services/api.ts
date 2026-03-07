@@ -8,7 +8,10 @@ export interface ServiceCity {
 }
 
 export interface ServiceStore extends Store {
-    service_cities?: ServiceCity[];
+    city?: {
+        id: number;
+        name: string;
+    };
 }
 
 export interface ServiceExtra {

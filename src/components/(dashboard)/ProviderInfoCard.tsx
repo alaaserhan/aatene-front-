@@ -18,6 +18,7 @@ export interface ProviderData {
     ordersCount: number | string;
     isVerified?: boolean;
     isFollowing?: boolean;
+    slug?:string;
 }
 
 interface ProviderInfoCardProps {
@@ -32,6 +33,7 @@ interface ProviderInfoCardProps {
 }
 
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
+import Link from "next/link";
 
 export function ProviderInfoCard({ store, provider, className, onReport, onFollow, isFollowing, isOwner, isAdmin }: ProviderInfoCardProps) {
     // If store is provided, map it to ProviderData
@@ -46,7 +48,8 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
         rating: store.review_rate || "5.0",
         ordersCount: store.conversations_count || 0,
         isVerified: true, // Assuming dashboard stores are verified or we default to true/false
-        isFollowing: isFollowing !== undefined ? isFollowing : store.am_i_following
+        isFollowing: isFollowing !== undefined ? isFollowing : store.am_i_following,
+        slug:store.slug
     } : provider ? {
         ...provider,
         isFollowing: isFollowing !== undefined ? isFollowing : provider.isFollowing
@@ -59,14 +62,21 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
             {/* الجزء العلوي */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div className="flex items-center gap-4  w-full md:w-auto ">
-                    <Avatar className="w-14 h-14 border-2 border-white shadow-sm">
-                        <AvatarImage src={data.avatar} className="object-cover"/>
-                        <AvatarFallback>{data.name?.[0]}</AvatarFallback>
-                    </Avatar>
+                 
+                        <Link href={`/store/${data.slug}`}>
+                            <Avatar className="w-14 h-14 border-2 border-white shadow-sm">
+                                <AvatarImage src={data.avatar} className="object-cover"/>
+                                <AvatarFallback>{data.name?.[0]}</AvatarFallback>
+                            </Avatar>
+                        </Link>
+                    
+
                     <div className="">
-                        <h3 className=" font-medium  mb-1">
-                            {data.name}
-                        </h3>
+                        <Link href={`/store/${data.slug}`}>
+                            <h3 className=" font-medium  mb-1">
+                                {data.name}
+                            </h3>
+                        </Link>
                         <div className="flex items-center  gap-1 text-gray-2 text-sm">
                             <MapPin className="w-4 h-4 text-blue-4" />
                             <span>{data.location}</span>
