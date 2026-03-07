@@ -143,6 +143,7 @@ export interface ServiceStore {
     lat: number | null;
     lng: number | null;
     logo: string | null;
+    logo_url: string | null;
     cover: string | null;
     review_rate: string;
     review_count: string;
