@@ -129,10 +129,10 @@ export function AddStoreStep7({
 
         <div className="grid grid-cols-12 gap-6 mt-8">
           <div className="col-span-12 lg:col-span-8">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="bg-white rounded-xl mb-1 shadow-sm border border-gray-200">
               <div className="p-6 flex justify-between items-center">
                 <h2 className="text-xl font-bold flex items-center gap-2">الكلمات المفتاحية
-                  {isGeneratingAI && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+                  {isGeneratingAI && <Loader2 className="w-4 h-4 animate-spin text-blue-3" />}
                 </h2>
               </div>
 
