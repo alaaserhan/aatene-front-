@@ -1,4 +1,6 @@
 import api from "@/src/lib/axios";
+import { getDynamicEndpoint } from "@/src/lib/api-helper";
+import Cookies from "js-cookie";
 import {
     Video,
     VideosResponse,
@@ -69,8 +71,9 @@ function buildPayload(payload: VideoPayload): Record<string, unknown> {
 }
 
 export const getVideos = async (params?: URLSearchParams): Promise<VideosResponse> => {
+    const endpoint = getDynamicEndpoint("/user-guide-videos");
     const { data } = await api.get<{ status: boolean; message: string; recordsTotal: number; recordsFiltered: number; data: Record<string, unknown>[] }>(
-        "/admin/user-guide-videos",
+        endpoint,
         { params }
     );
     return {
@@ -86,14 +89,20 @@ export const getVideos = async (params?: URLSearchParams): Promise<VideosRespons
 };
 
 export const getStats = async (): Promise<StatsResponse> => {
-    const { data } = await api.get<StatsResponse>("/admin/user-guide-videos/stats");
+    const endpoint = getDynamicEndpoint("/user-guide-videos/stats");
+    const { data } = await api.get<StatsResponse>(endpoint);
     return data;
 };
 
 export const getGuideVideoByLocation = async (location: string): Promise<SingleVideoResponse> => {
     try {
+        const userType = Cookies.get("user_type");
+        const endpoint = userType === "merchant" 
+            ? getDynamicEndpoint("/user-guide-videos")
+            : getDynamicEndpoint("/user-guide-videos/get-by-use-case");
+        
         const { data } = await api.get<{ status: boolean; message: string; record: Record<string, unknown> | null }>(
-            "/merchants/user-guide-videos",
+            endpoint,
             {
                 params: { use_case: location },
                 // x-silent: يخبر axios interceptor بعدم عرض toast عند الخطأ لهذا الطلب
@@ -112,8 +121,9 @@ export const getGuideVideoByLocation = async (location: string): Promise<SingleV
 };
 
 export const getVideo = async (id: number): Promise<SingleVideoResponse> => {
+    const endpoint = getDynamicEndpoint(`/user-guide-videos/${id}`);
     const { data } = await api.get<{ status: boolean; message: string; record: Record<string, unknown> }>(
-        `/admin/user-guide-videos/${id}`
+        endpoint
     );
     return {
         status:  data.status,
@@ -126,8 +136,9 @@ export const createVideo = async (payload: VideoPayload): Promise<SingleVideoRes
     const { videoUrl, imageUrl } = await uploadFilesIfNeeded(payload);
     const body = buildPayload({ ...payload, thumbnail_url: imageUrl, video_url: videoUrl });
     
+    const endpoint = getDynamicEndpoint("/user-guide-videos");
     const { data } = await api.post<{ status: boolean; message: string; record: Record<string, unknown> }>(
-        "/admin/user-guide-videos",
+        endpoint,
         body,
         { headers: { "x-silent": "true" } }
     );
@@ -143,8 +154,9 @@ export const updateVideo = async (id: number, payload: VideoPayload): Promise<Si
     const { videoUrl, imageUrl } = await uploadFilesIfNeeded(payload);
     const body = buildPayload({ ...payload, thumbnail_url: imageUrl, video_url: videoUrl });
     
+    const endpoint = getDynamicEndpoint(`/user-guide-videos/${id}`);
     const { data } = await api.post<{ status: boolean; message: string; record: Record<string, unknown> }>(
-        `/admin/user-guide-videos/${id}`,
+        endpoint,
         body,
         { headers: { "x-silent": "true" } }
     );
@@ -157,13 +169,15 @@ export const updateVideo = async (id: number, payload: VideoPayload): Promise<Si
 };
 
 export const deleteVideo = async (id: number): Promise<BaseResponse> => {
-    const { data } = await api.delete<BaseResponse>(`/admin/user-guide-videos/${id}`);
+    const endpoint = getDynamicEndpoint(`/user-guide-videos/${id}`);
+    const { data } = await api.delete<BaseResponse>(endpoint);
     return data;
 };
 
 export const updateVideoStatus = async (id: number, is_enabled: boolean): Promise<BaseResponse> => {
+    const endpoint = getDynamicEndpoint(`/user-guide-videos/${id}/update-status`);
     const { data } = await api.post<BaseResponse>(
-        `/admin/user-guide-videos/${id}/update-status`,
+        endpoint,
         { is_active: is_enabled ? 1 : 0 }                          
     );
     return data;

@@ -97,7 +97,7 @@ export function ProductProvidersPage() {
                                 setSearchQuery(e.target.value);
                                 setCurrentPage(1);
                             }}
-                            className="ps-4 pe-10 h-[46px] bg-white border-gray-200 w-full"
+                            className="ps-4 pr-10 h-[46px] bg-white border-gray-200 w-full"
                             dir="rtl"
                         />
                     </div>
