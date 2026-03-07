@@ -385,138 +385,143 @@ export function AddProductStep3({
                                                 </Button>
                                             </div>
 
-                                            <div
-                                                className="bg-blue-5 rounded-sm p-4 grid gap-4 items-center text-sm font-bold text-blue-4 mb-2"
-                                                style={{
-                                                    gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px`,
-                                                }}
-                                            >
-                                                {selectedAttributesFull.map((attr) => (
-                                                    <div key={attr.id} className="text-center">
-                                                        {attr.title}
-                                                    </div>
-                                                ))}
-                                                <div className="text-center">السعر</div>
-                                                <div className="text-center">الصور</div>
-                                                <div className="text-center">الاجراءات</div>
-                                            </div>
-
-                                            <div className="space-y-3">
-                                                {variations.map((row) => (
+                                            <div className="overflow-x-auto pb-4 custom-scrollbar">
+                                                <div className="min-w-[800px]">
                                                     <div
-                                                        key={row.id}
-                                                        className="bg-white border-b border-gray-100 p-4 grid gap-4 items-center last:border-0"
+                                                        className="bg-blue-5 rounded-sm p-4 grid gap-4 items-center text-sm font-bold text-blue-4 mb-2"
                                                         style={{
                                                             gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px`,
                                                         }}
                                                     >
-                                                        {selectedAttributesFull.map((attr) => {
-                                                            const options = attr.options.map((opt) => ({
-                                                                value: String(opt.id),
-                                                                label: opt.title,
-                                                            }));
-                                                            return (
-                                                                <ReusableDropdown
-                                                                    key={`${row.id}-${attr.id}`}
-                                                                    options={options}
-                                                                    value={row.attributeValues[attr.id] || ""}
-                                                                    onChange={(val) =>
-                                                                        updateVariationAttributeValue(
-                                                                            row.id,
-                                                                            String(attr.id),
-                                                                            val
-                                                                        )
-                                                                    }
-                                                                    placeholder={attr.title}
-                                                                    className="h-9 text-sm rounded-full border-blue-3 bg-blue-5"
-                                                                    onAddNew={isAdmin ? () => handleEditAttribute(attr.id) : undefined}
-                                                                    addNewLabel={isAdmin ? " إضافة خيارات" : undefined}
-                                                                />
-                                                            );
-                                                        })}
-
-                                                        <div className="relative">
-                                                            <input
-                                                                type="number"
-                                                                value={row.price || ""}
-                                                                onChange={(e) =>
-                                                                    updateVariationRow(
-                                                                        row.id,
-                                                                        "price",
-                                                                        Number(e.target.value)
-                                                                    )
-                                                                }
-                                                                className="w-full h-10 px-2 border border-gray-200 rounded-md text-sm text-center focus:ring-1 focus:ring-blue-300 outline-none"
-                                                                placeholder="0.00"
-                                                            />
-                                                            <span className="absolute end-8 top-1/2 -translate-y-1/2  text-gray-2 font-sans">
-                                                                ₪
-                                                            </span>
-                                                        </div>
-
-                                                        <div>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setActiveRowIdForImage(row.id);
-                                                                    setIsMediaModalOpen(true);
-                                                                }}
-                                                                className={cn(
-                                                                    "w-full h-10 rounded-md flex items-center justify-center gap-2 text-sm transition-colors border",
-                                                                    row.images.length > 0
-                                                                        ? "bg-[#E6F0F9] border-[#3A5779]/20 text-[#3A5779]"
-                                                                        : "bg-[#E6F0F9] border-transparent text-[#3A5779] hover:bg-[#dbe9f5]"
-                                                                )}
-                                                            >
-                                                                {row.images.length > 0 ? (
-                                                                    <>
-                                                                        <div
-                                                                            onClick={(e) => {
-                                                                                e.stopPropagation();
-                                                                                updateVariationRow(row.id, "images", []);
-                                                                            }}
-                                                                            className="hover:text-red-500 cursor-pointer"
-                                                                        >
-                                                                            <X className="w-4 h-4" />
-                                                                        </div>
-                                                                        <span>{row.images.length} صور</span>
-                                                                        <ImageIcon className="w-4 h-4" />
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <UploadCloud className="w-4 h-4" />
-                                                                        <span>قم برفع الصور</span>
-                                                                    </>
-                                                                )}
-                                                            </button>
-                                                        </div>
-
-                                                        <div className="flex items-center justify-center gap-3">
-                                                            <button
-                                                                onClick={() =>
-                                                                    updateVariationRow(row.id, "enabled", !row.enabled)
-                                                                }
-                                                                className={cn(
-                                                                    "w-11 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out relative",
-                                                                    row.enabled ? "bg-green-500" : "bg-gray-200"
-                                                                )}
-                                                            >
-                                                                <div
-                                                                    className={cn(
-                                                                        "w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ease-in-out",
-                                                                        row.enabled ? "-translate-x-5" : "translate-x-0"
-                                                                    )}
-                                                                />
-                                                            </button>
-
-                                                            <button
-                                                                onClick={() => handleRemoveVariationRow(row.id)}
-                                                                className="w-8 h-8 flex items-center justify-center cursor-pointer bg-[#FFE5E5] text-[#FF4D4F] rounded-md hover:bg-[#ffd1d1] transition-colors"
-                                                            >
-                                                                <img src="/icons/dashboard/trash.svg" alt="" className="w-3.5" />
-                                                            </button>
-                                                        </div>
+                                                        {selectedAttributesFull.map((attr) => (
+                                                            <div key={attr.id} className="text-center">
+                                                                {attr.title}
+                                                            </div>
+                                                        ))}
+                                                        <div className="text-center">السعر</div>
+                                                        <div className="text-center">الصور</div>
+                                                        <div className="text-center">الاجراءات</div>
                                                     </div>
-                                                ))}
+
+                                                    <div className="space-y-3">
+                                                        {variations.map((row) => (
+                                                            <div
+                                                                key={row.id}
+                                                                className="bg-white border-b border-gray-100 p-4 grid gap-4 items-center last:border-0"
+                                                                style={{
+                                                                    gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px`,
+                                                                }}
+                                                            >
+                                                                {selectedAttributesFull.map((attr) => {
+                                                                    const options = attr.options.map((opt) => ({
+                                                                        value: String(opt.id),
+                                                                        label: opt.title,
+                                                                    }));
+                                                                    return (
+                                                                        <ReusableDropdown
+                                                                            key={`${row.id}-${attr.id}`}
+                                                                            options={options}
+                                                                            value={row.attributeValues[attr.id] || ""}
+                                                                            onChange={(val) =>
+                                                                                updateVariationAttributeValue(
+                                                                                    row.id,
+                                                                                    String(attr.id),
+                                                                                    val
+                                                                                )
+                                                                            }
+                                                                            dropdownPosition="top"
+                                                                            placeholder={attr.title}
+                                                                            className="h-9 text-sm rounded-full border-blue-3 bg-blue-5"
+                                                                            onAddNew={isAdmin ? () => handleEditAttribute(attr.id) : undefined}
+                                                                            addNewLabel={isAdmin ? " إضافة خيارات" : undefined}
+                                                                        />
+                                                                    );
+                                                                })}
+
+                                                                <div className="relative">
+                                                                    <input
+                                                                        type="number"
+                                                                        value={row.price || ""}
+                                                                        onChange={(e) =>
+                                                                            updateVariationRow(
+                                                                                row.id,
+                                                                                "price",
+                                                                                Number(e.target.value)
+                                                                            )
+                                                                        }
+                                                                        className="w-full h-10 px-2 border border-gray-200 rounded-md text-sm text-center focus:ring-1 focus:ring-blue-300 outline-none"
+                                                                        placeholder="0.00"
+                                                                    />
+                                                                    <span className="absolute end-8 top-1/2 -translate-y-1/2  text-gray-2 font-sans">
+                                                                        ₪
+                                                                    </span>
+                                                                </div>
+
+                                                                <div>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setActiveRowIdForImage(row.id);
+                                                                            setIsMediaModalOpen(true);
+                                                                        }}
+                                                                        className={cn(
+                                                                            "w-full h-10 rounded-md flex items-center justify-center gap-2 text-sm transition-colors border",
+                                                                            row.images.length > 0
+                                                                                ? "bg-[#E6F0F9] border-[#3A5779]/20 text-[#3A5779]"
+                                                                                : "bg-[#E6F0F9] border-transparent text-[#3A5779] hover:bg-[#dbe9f5]"
+                                                                        )}
+                                                                    >
+                                                                        {row.images.length > 0 ? (
+                                                                            <>
+                                                                                <div
+                                                                                    onClick={(e) => {
+                                                                                        e.stopPropagation();
+                                                                                        updateVariationRow(row.id, "images", []);
+                                                                                    }}
+                                                                                    className="hover:text-red-500 cursor-pointer"
+                                                                                >
+                                                                                    <X className="w-4 h-4" />
+                                                                                </div>
+                                                                                <span>{row.images.length} صور</span>
+                                                                                <ImageIcon className="w-4 h-4" />
+                                                                            </>
+                                                                        ) : (
+                                                                            <>
+                                                                                <UploadCloud className="w-4 h-4" />
+                                                                                <span>قم برفع الصور</span>
+                                                                            </>
+                                                                        )}
+                                                                    </button>
+                                                                </div>
+
+                                                                <div className="flex items-center justify-center gap-3">
+                                                                    <button
+                                                                        onClick={() =>
+                                                                            updateVariationRow(row.id, "enabled", !row.enabled)
+                                                                        }
+                                                                        className={cn(
+                                                                            "w-11 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out relative",
+                                                                            row.enabled ? "bg-green-500" : "bg-gray-200"
+                                                                        )}
+                                                                    >
+                                                                        <div
+                                                                            className={cn(
+                                                                                "w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ease-in-out",
+                                                                                row.enabled ? "-translate-x-5" : "translate-x-0"
+                                                                            )}
+                                                                        />
+                                                                    </button>
+
+                                                                    <button
+                                                                        onClick={() => handleRemoveVariationRow(row.id)}
+                                                                        className="w-8 h-8 flex items-center justify-center cursor-pointer bg-[#FFE5E5] text-[#FF4D4F] rounded-md hover:bg-[#ffd1d1] transition-colors"
+                                                                    >
+                                                                        <img src="/icons/dashboard/trash.svg" alt="" className="w-3.5" />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             {variations.length === 0 && (

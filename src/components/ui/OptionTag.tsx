@@ -29,7 +29,7 @@ export function OptionTag({
         className
       )}
     >
-      <span className="text-xs font-medium  text-blue-3">{label}</span>
+      <span className="text-xs font-medium pt-1  text-blue-3">{label}</span>
 
       {showRemoveButton && onRemove && (
         <>
