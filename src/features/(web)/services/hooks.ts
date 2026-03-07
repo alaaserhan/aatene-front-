@@ -49,6 +49,7 @@ export const useAddServiceReview = () => {
         onSuccess: (_, { slug }) => {
             queryClient.invalidateQueries({ queryKey: ["service-reviews", slug] });
             queryClient.invalidateQueries({ queryKey: ["service", slug] });
+            queryClient.invalidateQueries({ queryKey: ["service-page-data", slug] });
         },
     });
 };

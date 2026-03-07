@@ -113,7 +113,7 @@ export interface ReportsParams {
   per_page?: number;
   store_id?: string | number;
   status?: ReportStatus;
-  type?: "store" | "product" | "service";
+  type?: "store" | "product" | "service" | "requested_service" | string;
 }
 
 // ============== API Functions ==============

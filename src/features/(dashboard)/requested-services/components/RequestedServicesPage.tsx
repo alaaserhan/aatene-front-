@@ -1,11 +1,11 @@
 // src/features/(dashboard)/requested-services/components/RequestedServicesPage.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useGetReports } from "../../reports/hooks";
 import {
-  Trash2,
   Eye,
-  Edit,
   Search,
   Loader2
 } from "lucide-react";
@@ -25,9 +25,22 @@ import { formatDate } from "@/src/lib/date-helper";
 
 const ITEMS_PER_PAGE = 10;
 
-export function RequestedServicesPage() {
+function RequestedServicesPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
-  const [activeTab, setActiveTab] = useState<RequestedServiceStatus | "reports">("approved");
+  const tabParam = searchParams.get("tab") as RequestedServiceStatus | "reports";
+  const activeTab = tabParam || "approved";
+
+  const handleTabChange = (tab: RequestedServiceStatus | "reports") => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    params.delete("page");
+    router.push(`${pathname}?${params.toString()}`);
+    setPage(1);
+  };
+
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [deleteId, setDeleteId] = useState<string | number | null>(null);
@@ -35,7 +48,7 @@ export function RequestedServicesPage() {
   const { data: approvedData } = useGetRequestedServices(new URLSearchParams({ status: "approved", per_page: "1" }));
   const { data: pendingData } = useGetRequestedServices(new URLSearchParams({ status: "pending", per_page: "1" }));
   const { data: rejectedData } = useGetRequestedServices(new URLSearchParams({ status: "rejected", per_page: "1" }));
-  const { data: reportsData } = useGetRequestedServices(new URLSearchParams({ has_reports: "1", per_page: "1" }));
+  const { data: reportsCountData } = useGetReports({ type: "requested_service", per_page: 1 });
 
   const queryParams = new URLSearchParams({
     page: page.toString(),
@@ -43,18 +56,26 @@ export function RequestedServicesPage() {
     user_name: search,
   });
 
-  if (activeTab === "reports") {
-    queryParams.append("has_reports", "1");
-  } else {
+  if (activeTab !== "reports") {
     queryParams.append("status", activeTab);
   }
 
-  const { data: servicesData, isLoading } = useGetRequestedServices(queryParams);
+  const { data: servicesData, isLoading: isLoadingServices } = useGetRequestedServices(queryParams);
 
-  const { mutate: deleteService, isPending: isDeleting } = useDeleteRequestedService();
+  const { data: reportsDataList, isLoading: isLoadingReports } = useGetReports({
+    type: "requested_service",
+    page,
+    per_page: ITEMS_PER_PAGE,
+  });
+
+  const isLoading = activeTab === "reports" ? isLoadingReports : isLoadingServices;
+  const currentData = activeTab === "reports" ? reportsDataList?.data : servicesData?.data;
+  const totalFiltered = activeTab === "reports" ? reportsDataList?.recordsFiltered : servicesData?.recordsFiltered;
+
+  const { mutate: deleteService } = useDeleteRequestedService();
   const { mutate: updateStatus } = useUpdateRequestedServiceStatus();
 
-  const totalPages = Math.ceil((servicesData?.recordsFiltered || 0) / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil((totalFiltered || 0) / ITEMS_PER_PAGE);
 
   const handleDelete = () => {
     if (deleteId) {
@@ -104,7 +125,7 @@ export function RequestedServicesPage() {
     {
       id: "reports",
       label: "طلبات عليها بلاغات",
-      count: reportsData?.recordsFiltered || 0,
+      count: reportsCountData?.recordsFiltered || 0,
       color: "text-[#3A5779]",
       bgActive: "bg-[#3A5779] text-white",
       borderActive: "border-[#3A5779]"
@@ -157,7 +178,7 @@ export function RequestedServicesPage() {
       );
     }
 
-    if (!servicesData?.data || servicesData.data.length === 0) {
+    if (!currentData || currentData.length === 0) {
       return (
         <tr>
           <td colSpan={5} className="py-20 text-center text-gray-2">
@@ -167,7 +188,56 @@ export function RequestedServicesPage() {
       );
     }
 
-    return servicesData.data.map((item) => {
+    if (activeTab === "reports") {
+      return (reportsDataList?.data || []).map((item) => {
+        const report = item as unknown as {
+          id: string | number;
+          user?: { fullname?: string; first_name?: string; avatar_url?: string | null };
+          requested_service?: { id: number | string };
+          content?: string;
+          report_type?: { name: string };
+        };
+        const reqId = report.requested_service?.id || "-";
+        const userFullName = report.user?.fullname || report.user?.first_name || "غير محدد";
+        const userAvatar = report.user?.avatar_url || "/default-avatar.png";
+
+        return (
+          <tr key={`report-${report.id}`} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50">
+            <td className="px-6 py-4 text-sm font-medium text-center underline decoration-gray-300 underline-offset-4">
+              <Link href={`/admin/requested-services/${reqId}`}>#{reqId}</Link>
+            </td>
+            <td className="px-6 py-4">
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-200 shrink-0">
+                  <img
+                    src={userAvatar}
+                    alt={userFullName}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium line-clamp-1">
+                    {userFullName}
+                  </span>
+                </div>
+              </div>
+            </td>
+            <td className="px-6 py-4 text-sm">
+              <p className="line-clamp-1 text-center">{report.content || report.report_type?.name || "محتوى غير لائق أو مخالف"}</p>
+            </td>
+            <td className="px-6 py-4 text-center">
+              <Link href={`/admin/reports/details/${report.id}`}>
+                <Button variant="secondary" className="bg-[#CFE2F3] text-[#3A5779] hover:bg-[#b0cce6] text-xs font-bold px-4 h-9">
+                  مراجعة تفاصيل الشكوى
+                </Button>
+              </Link>
+            </td>
+          </tr>
+        );
+      });
+    }
+
+    return (servicesData?.data || []).map((item: RequestedService) => {
       const ownerCell = (
         <td className="px-6 py-4">
           <div className="flex items-center justify-center gap-3">
@@ -203,25 +273,6 @@ export function RequestedServicesPage() {
             </td>
             <td className="px-6 py-4  text-sm  text-center  font-medium">
               {item.reject_reason || "لا يوجد سبب محدد"}
-            </td>
-          </tr>
-        );
-      }
-
-      if (activeTab === "reports") {
-        return (
-          <tr key={item.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50">
-            {idCell}
-            {ownerCell}
-            <td className="px-6 py-4  text-sm">
-              <p className="line-clamp-1">محتوى غير لائق أو مخالف</p>
-            </td>
-            <td className="px-6 py-4 text-center">
-              <Link href={`/admin/requested-services/${item.id}/reports`}>
-                <Button variant="secondary" className="bg-[#CFE2F3] text-[#3A5779] hover:bg-[#b0cce6] text-xs font-bold px-4 h-9">
-                  مراجعة تفاصيل الشكوى
-                </Button>
-              </Link>
             </td>
           </tr>
         );
@@ -286,10 +337,7 @@ export function RequestedServicesPage() {
             return (
               <button
                 key={stat.id}
-                onClick={() => {
-                  setActiveTab(stat.id as RequestedServiceStatus);
-                  setPage(1);
-                }}
+                onClick={() => handleTabChange(stat.id as RequestedServiceStatus | "reports")}
                 className={cn(
                   "flex items-center gap-2 px-6 py-4 cursor-pointer ",
                 )}
@@ -353,5 +401,13 @@ export function RequestedServicesPage() {
         description="هل أنت متأكد من رغبتك في حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء."
       />
     </div>
+  );
+}
+
+export function RequestedServicesPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-8 h-8 animate-spin text-[#3A5779]" /></div>}>
+      <RequestedServicesPageContent />
+    </Suspense>
   );
 }

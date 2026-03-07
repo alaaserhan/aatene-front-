@@ -44,10 +44,11 @@ export const useAddProductReview = () => {
   return useMutation({
     mutationFn: ({ slug, payload }: { slug: string; payload: AddReviewPayload }) =>
       addProductReview(slug, payload),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       toast.success(data.message || "تمت إضافة التعليق بنجاح");
       queryClient.invalidateQueries({ queryKey: ["productReviews"] });
       queryClient.invalidateQueries({ queryKey: ["productReviewReplies"] });
+      queryClient.invalidateQueries({ queryKey: ["product", variables.slug] });
     },
     onError: (error: AxiosError<{ message?: string }>) => {
       toast.error(error.response?.data?.message || "حدث خطأ ما");

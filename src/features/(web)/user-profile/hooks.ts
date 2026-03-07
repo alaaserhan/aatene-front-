@@ -50,6 +50,7 @@ export const useAddUserReview = () => {
         mutationFn: ({ userId, data }: { userId: number; data: FormData }) => addUserReview(userId, data),
         onSuccess: (_, { userId }) => {
             queryClient.invalidateQueries({ queryKey: USER_PROFILE_KEYS.reviews(userId, 1) });
+            queryClient.invalidateQueries({ queryKey: USER_PROFILE_KEYS.detail(userId) });
         },
     });
 };

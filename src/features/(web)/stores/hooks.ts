@@ -28,6 +28,7 @@ export const useAddStoreReview = () => {
             } else {
                 queryClient.invalidateQueries({ queryKey: ["storeReviewReplies"] });
             }
+            queryClient.invalidateQueries({ queryKey: ["storeProfile", variables.slug] });
         },
         onError: (error: AxiosError<{ message?: string }>) => {
             toast.error(error.response?.data?.message || "حدث خطأ ما");
