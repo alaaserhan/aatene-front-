@@ -106,7 +106,7 @@ export function CustomerLocationAnalytics({ storeId }: { storeId?: number | stri
                     dataKey="value"
                     stroke="none"
                     labelLine={false}
-                    label={renderCustomizedLabel}
+                    // label={renderCustomizedLabel}
                   >
                     {chartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
@@ -127,20 +127,17 @@ export function CustomerLocationAnalytics({ storeId }: { storeId?: number | stri
               <thead>
                 <tr className="text-gray-400 text-xs border-b border-gray-50">
                   <th className="font-medium pb-3 pt-1">
-                    <div className="flex items-center justify-end gap-1 cursor-pointer hover:text-gray-500">
-                      <ChevronsUpDown className="w-3 h-3" />
+                    <div className="flex items-center  gap-1 cursor-pointer hover:text-gray-500">
                       المدينة
                     </div>
                   </th>
                   <th className="font-medium pb-3 pt-1">
                     <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-500">
-                      <ChevronsUpDown className="w-3 h-3" />
                       نسبة العملاء
                     </div>
                   </th>
                   <th className="font-medium pb-3 pt-1">
                     <div className="flex items-center justify-center gap-1 cursor-pointer hover:text-gray-500">
-                      <ChevronsUpDown className="w-3 h-3" />
                       عدد العملاء
                     </div>
                   </th>
@@ -150,12 +147,12 @@ export function CustomerLocationAnalytics({ storeId }: { storeId?: number | stri
                 {chartData.map((item) => (
                   <tr key={item.name} className="group hover:bg-gray-50/50 transition-colors">
                     <td className="py-3">
-                      <div className="flex items-center justify-end gap-2">
-                        <span className="font-bold text-gray-700 text-sm whitespace-nowrap">{item.name}</span>
+                      <div className="flex items-center  gap-2">
                         <div
                           className="w-3 h-3 rounded-[2px] shrink-0"
                           style={{ backgroundColor: item.color }}
                         />
+                        <span className="font-bold text-gray-700 text-sm whitespace-nowrap">{item.name}</span>
                       </div>
                     </td>
                     <td className="py-3 text-center px-1">
