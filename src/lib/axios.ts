@@ -79,6 +79,11 @@ api.interceptors.response.use(
     }
 
     if (error.response && error.response.status !== 401) {
+      // x-silent: الطلبات التي ترسل هذا الهيدر لا نعرض toast عند خطأها (مثل user-guide-videos)
+      if (error.config?.headers?.["x-silent"] === "true") {
+        return Promise.reject(error);
+      }
+
       const responseData = error.response.data as ErrorResponse;
       let message = responseData?.message || "هناك خطأ ما";
 

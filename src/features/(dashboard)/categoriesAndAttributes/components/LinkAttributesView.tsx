@@ -179,17 +179,22 @@ export function LinkAttributesView({
   // إضافة قيمة لسمة موجودة
   const handleSaveNewValue = (data: { title: string; options: { title: string; data?: string | null }[] }) => {
     if (!activeAttribute) return;
-    // ندمج القيم الحالية مع القيم الجديدة المضافة
-    const existingOptions = activeAttribute.options.map(o => ({ title: o.title, data: o.data ?? null }));
-    const merged = [
-      ...existingOptions,
-      ...data.options.filter(o => !existingOptions.find(e => e.title === o.title)),
-    ];
+    
+    const existingOptions = activeAttribute.options.map(o => ({
+      id: String(o.id),
+      title: o.title,
+      data: o.data ?? null,
+    }));
+    // نضيف الخيارات الجديدة (بدون id)
+    const newOptions = data.options
+      .filter(o => !existingOptions.find(e => e.title === o.title))
+      .map(o => ({ title: o.title, data: o.data ?? null }));
+    const merged = [...existingOptions, ...newOptions];
     updateAttributeMutation.mutate(
       {
         id: activeAttribute.id,
         payload: {
-          title: activeAttribute.title, 
+          title: activeAttribute.title,
           options: merged,
         },
       },
@@ -251,7 +256,7 @@ export function LinkAttributesView({
                   >
                     <div className="flex flex-wrap items-center gap-1" style={{ direction: 'rtl' }}>
                       {category.breadcrumb.map((part, idx) => (
-                        <span key={idx} className="inline-flex items-center gap-1">
+                        <span key={`${category.id}-part-${idx}`} className="inline-flex items-center gap-1">
                           <span style={{
                             color: idx === category.breadcrumb.length - 1
                               ?  '#374151'
@@ -262,7 +267,7 @@ export function LinkAttributesView({
                             {part}
                           </span>
                           {idx < category.breadcrumb.length - 1 && (
-                            <span style={{ color: '#9CA3AF', fontSize: '10px', margin: '0 2px' }}>›</span>
+                            <span key={`${category.id}-sep-${idx}`} style={{ color: '#9CA3AF', fontSize: '10px', margin: '0 2px' }}>›</span>
                           )}
                         </span>
                       ))}
@@ -416,8 +421,8 @@ export function LinkAttributesView({
             <div className="text-center py-12 text-sm" style={{ color: '#9CA3AF' }}>لا توجد قيم</div>
           ) : (
             <div className="space-y-1 py-1">
-              {paginatedValues.map(value => (
-                <div key={value.id} className="px-3 py-2.5 rounded-lg transition-all border"
+              {paginatedValues.map((value, idx) => (
+                <div key={value.id ?? `new-${idx}-${value.title}`} className="px-3 py-2.5 rounded-lg transition-all border"
                   style={{
                     backgroundColor: '#FFFFFF',
                     borderColor: '#E5E7EB',

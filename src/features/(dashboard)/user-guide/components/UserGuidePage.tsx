@@ -8,6 +8,7 @@ import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteMo
 import { AddVideoModal, VideoFormData } from "./AddVideoModal";
 import {
   useGetVideos,
+  useGetStats,
   useCreateVideo,
   useUpdateVideo,
   useDeleteVideo,
@@ -24,16 +25,21 @@ export function UserGuidePage() {
   const queryParams = useMemo(() => new URLSearchParams(), []);
 
   const { data, isLoading, isError } = useGetVideos(queryParams);
+  const { data: statsData } = useGetStats();
   const { mutate: createVideo, isPending: isCreating } = useCreateVideo();
   const { mutate: updateVideo, isPending: isUpdating } = useUpdateVideo();
   const { mutate: deleteVideo } = useDeleteVideo();
   const { mutate: updateStatus } = useUpdateVideoStatus();
 
   const videos = data?.data || [];
+
+
+  const usedLocations = videos.map((v) => v.location ?? v.display_pages?.[0] ?? "").filter(Boolean);
+
   const stats = [
-    { label: "إجمالي الفيديوهات", value: data?.recordsTotal ?? 0, icon: "/videos/Frame 2085664438.svg" },
-    { label: "الفيديوهات النشطة", value: data?.active_count ?? 0, icon: "/videos/Frame 2085664438(1).svg" },
-    { label: "إجمالي المشاهدات", value: data?.total_views ?? 0, icon: "/videos/Frame 2085664438(2).svg" },
+    { label: "إجمالي الفيديوهات", value: statsData?.stats?.total_count ?? data?.recordsTotal ?? 0, icon: "/videos/Frame 2085664438.svg" },
+    { label: "الفيديوهات النشطة", value: statsData?.stats?.total_active ?? 0, icon: "/videos/Frame 2085664438(1).svg" },
+    { label: "إجمالي المشاهدات", value: statsData?.stats?.total_views ?? 0, icon: "/videos/Frame 2085664438(2).svg" },
   ];
 
   const handleAddVideo = () => {
@@ -87,36 +93,36 @@ export function UserGuidePage() {
   };
 
   return (
-    <div className="p-3 sm:p-6 max-w-[1400px] mx-auto bg-transparent min-h-screen" dir="rtl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-[1400px] mx-auto bg-transparent min-h-screen" dir="rtl">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <div className="text-right">
-          <h1 className="text-xl sm:text-2xl font-bold text-[#2D496A]">دليل المستخدم</h1>
-          <p className="text-xs sm:text-sm text-gray-2 mt-1">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mb-6">
+        <div className="text-right flex-1">
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#2D496A]">دليل المستخدم</h1>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1.5 leading-relaxed">
             هو الجزء الذي يتم فيه إضافة الفيديوهات التعليمية التي تظهر للمستخدم لشرح كيفية التعامل مع الموقع.
           </p>
         </div>
         <button
           onClick={handleAddVideo}
-          className="flex items-center gap-2 cursor-pointer px-4 sm:px-6 py-2 text-white rounded-[20px] font-medium text-sm sm:text-[15px] transition-colors hover:opacity-90 shrink-0"
+          className="flex items-center justify-center gap-2 cursor-pointer px-5 sm:px-6 py-2.5 sm:py-3 text-white rounded-[20px] font-medium text-sm sm:text-[15px] transition-all hover:opacity-90 hover:shadow-md shrink-0 w-full sm:w-auto"
           style={{ backgroundColor: "#2D496A" }}
         >
           <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-          إضافة فيديو جديد
+          <span>إضافة فيديو جديد</span>
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm p-3 sm:p-6 border border-gray-100">
+      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5 lg:p-6 border border-gray-100">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           {stats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 flex flex-col justify-between min-h-[130px] sm:min-h-[150px]">
-              <div className="flex justify-start w-full">
-                <img src={stat.icon} alt={stat.label} className="w-12 h-12 sm:w-14 sm:h-14 object-contain opacity-90" />
+            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-5 lg:p-6 flex flex-col justify-between min-h-[120px] sm:min-h-[140px] lg:min-h-[150px] hover:shadow-md transition-shadow">
+              <div className="flex justify-start w-full mb-3 sm:mb-4">
+                <img src={stat.icon} alt={stat.label} className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 object-contain opacity-90" />
               </div>
               <div className="flex flex-col gap-1 text-right mt-auto">
-                <span className="text-xs sm:text-sm font-medium text-gray-400 mb-1">{stat.label}</span>
-                <p className="text-2xl sm:text-[28px] font-bold text-[#222B45] leading-none">{stat.value}</p>
+                <span className="text-xs sm:text-sm font-medium text-gray-400">{stat.label}</span>
+                <p className="text-xl sm:text-2xl lg:text-[28px] font-bold text-[#222B45] leading-none mt-1">{stat.value}</p>
               </div>
             </div>
           ))}
@@ -154,7 +160,7 @@ export function UserGuidePage() {
                 >
                   {/* Desktop Row */}
                   <div className={cn("hidden md:flex items-center text-sm transition-colors h-[72px] px-4")}>
-                    <span className="w-[10%] text-gray-400 font-medium text-right pr-2">{video.code}</span>
+                    <span className="w-[10%] text-gray-400 font-medium text-right pr-2">#{video.id}</span>
                     <span className="w-[18%] text-[#222B45] font-semibold text-right">{video.title}</span>
                     <span className="w-[12%] text-[#5B7C93] text-right font-medium">{video.location}</span>
                     <div className="w-[16%] flex items-center gap-3 justify-start">
@@ -180,31 +186,63 @@ export function UserGuidePage() {
                     </div>
                   </div>
 
-                  {/* Mobile Card */}
-                  <div className="flex md:hidden flex-col gap-2 p-4">
-                    <div className="flex items-start justify-between">
+                  {/* Mobile Card - Redesigned to match Web Layout */}
+                  <div className="flex md:hidden flex-col gap-3 p-4">
+                    {/* Header: ID and Title */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400 font-medium text-sm">#{video.id}</span>
+                      <h3 className="text-[#222B45] font-bold text-base text-right flex-1 mr-3">{video.title}</h3>
+                    </div>
+
+                    {/* Location */}
+                    <div className="flex items-center justify-between py-2 border-y border-gray-100">
+                      <span className="text-xs text-gray-400 font-medium">مكان العرض</span>
+                      <span className="text-sm text-[#5B7C93] font-medium">{video.location}</span>
+                    </div>
+
+                    {/* Status */}
+                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                      <span className="text-xs text-gray-400 font-medium">الحالة</span>
                       <div className="flex items-center gap-2">
-                        <button onClick={() => handleEditVideo(video)} className="cursor-pointer hover:opacity-80 transition-opacity">
-                          <img src="/videos/Frame 1871278126.svg" alt="تعديل" className="w-7 h-7" />
-                        </button>
-                        <button onClick={() => setDeleteVideoId(video.id)} className="cursor-pointer hover:opacity-80 transition-opacity">
-                          <img src="/videos/Frame 1871278125.svg" alt="حذف" className="w-7 h-7" />
-                        </button>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[#222B45] font-semibold text-sm">{video.title}</p>
-                        <p className="text-gray-400 text-xs mt-0.5">{video.code}</p>
+                        <span className={cn("text-sm font-medium", video.is_enabled ? "text-[#2D496A]" : "text-gray-400")}>
+                          {video.is_enabled ? "مفعّل" : "غير مفعّل"}
+                        </span>
+                        <ToggleSwitch enabled={video.is_enabled} onChange={() => handleToggleStatus(video.id, video.is_enabled)} />
                       </div>
                     </div>
-                    <div className="flex items-center justify-between text-xs text-gray-500 pt-1 border-t border-gray-50">
-                      <div className="flex items-center gap-1">
-                        <img src="/videos/iconamoon_eye-light.svg" alt="views" className="w-4 h-4 opacity-60" />
-                        <span className="text-[#222B45] font-semibold">{video.views}</span>
+
+                    {/* Views */}
+                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                      <span className="text-xs text-gray-400 font-medium">عدد المشاهدات</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm text-[#222B45] font-semibold">{video.views}</span>
+                        <img src="/videos/iconamoon_eye-light.svg" alt="views" className="w-4 h-4 object-contain opacity-60" />
                       </div>
-                      <ToggleSwitch enabled={video.is_enabled} onChange={() => handleToggleStatus(video.id, video.is_enabled)} />
-                      <span className="text-[#5B7C93]">{video.location}</span>
                     </div>
-                    <p className="text-xs text-gray-400 text-right">{video.created_at}</p>
+
+                    {/* Date */}
+                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                      <span className="text-xs text-gray-400 font-medium">تاريخ الإضافة</span>
+                      <span className="text-sm text-[#222B45] font-medium">{video.created_at}</span>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-center gap-3 pt-2">
+                      <button 
+                        onClick={() => handleEditVideo(video)} 
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+                      >
+                        <img src="/videos/Frame 1871278126.svg" alt="تعديل" className="w-5 h-5" />
+                        <span className="text-sm font-medium text-[#222B45]">تعديل</span>
+                      </button>
+                      <button 
+                        onClick={() => setDeleteVideoId(video.id)} 
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 cursor-pointer hover:bg-red-50 transition-colors"
+                      >
+                        <img src="/videos/Frame 1871278125.svg" alt="حذف" className="w-5 h-5" />
+                        <span className="text-sm font-medium text-red-600">حذف</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -219,6 +257,7 @@ export function UserGuidePage() {
         onSave={handleSaveVideo}
         editData={editData}
         isLoading={isCreating || isUpdating}
+        usedLocations={usedLocations}
       />
 
       <ConfirmDeleteModal

@@ -1,6 +1,6 @@
 export interface Video {
     id: number;
-    code: string;
+   
     title: string;
     description: string;
     video_url: string;
@@ -31,9 +31,19 @@ export interface BaseResponse {
     message: string;
 }
 
+// الإحصائيات من endpoint منفصل: GET /admin/user-guide-videos/stats
+export interface StatsResponse extends BaseResponse {
+    stats: {
+        total_count: number;
+        total_views: number;
+        total_active: number;
+    };
+}
+
 export interface VideosResponse extends BaseResponse {
     recordsTotal: number;
     recordsFiltered: number;
+    // active_count و total_views تأتي من StatsResponse (endpoint منفصل)
     active_count: number;
     total_views: number;
     data: Video[];

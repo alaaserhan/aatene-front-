@@ -9,6 +9,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/utils";
 import { X } from "lucide-react";
+import { getEmbedUrl } from "../utils";
 
 // ---- Types (client-side form state, differs from API VideoPayload in types.ts) ----
 export interface VideoFormData {
@@ -23,21 +24,33 @@ export interface VideoFormData {
   isEnabled: boolean;
 }
 
-// ---- Helper: extract embed URL ----
-function getEmbedUrl(url: string): string | null {
-  if (!url) return null;
-  try {
-    // YouTube
-    let match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
-    if (match) return `https://www.youtube.com/embed/${match[1]}`;
-    // Vimeo
-    match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-    if (match) return `https://player.vimeo.com/video/${match[1]}`;
-    // Dailymotion
-    match = url.match(/dailymotion\.com\/video\/([\w]+)/);
-    if (match) return `https://www.dailymotion.com/embed/video/${match[1]}`;
-  } catch { }
-  return null;
+// ---- Validation ----
+interface ValidationErrors {
+  title?: string;
+  videoUrl?: string;
+  displayPages?: string;
+}
+
+function validateStep(step: number, formData: VideoFormData): ValidationErrors {
+  const errors: ValidationErrors = {};
+  if (step === 0) {
+    if (!formData.title?.trim())
+      errors.title = "عنوان الفيديو مطلوب";
+    else if (formData.title.trim().length > 255)
+      errors.title = "عنوان الفيديو يجب أن لا يتجاوز 255 حرفاً";
+  }
+  if (step === 1) {
+    const url = (formData.videoUrl || "").trim();
+    if (!url && !formData.uploadedFile)
+      errors.videoUrl = "رابط الفيديو مطلوب";
+    else if (url && !/^https?:\/\/.+/.test(url))
+      errors.videoUrl = "رابط الفيديو غير صالح، يجب أن يبدأ بـ http أو https";
+  }
+  if (step === 2) {
+    if (!formData.displayPages?.length)
+      errors.displayPages = "يجب اختيار مكان عرض الفيديو";
+  }
+  return errors;
 }
 
 interface AddVideoModalProps {
@@ -46,6 +59,8 @@ interface AddVideoModalProps {
   onSave: (data: VideoFormData) => void;
   isLoading?: boolean;
   editData?: VideoFormData | null;
+  // الـ use_cases المستخدمة مسبقاً - لمنع الإضافة المكررة
+  usedLocations?: string[];
 }
 
 // ---- Steps Definition ----
@@ -87,7 +102,7 @@ function StepIndicator({ steps, currentStep }: { steps: typeof STEPS; currentSte
 }
 
 // ---- Step 1: Video Info ----
-function StepOne({ formData, onChange }: { formData: VideoFormData; onChange: (d: Partial<VideoFormData>) => void }) {
+function StepOne({ formData, onChange, errors }: { formData: VideoFormData; onChange: (d: Partial<VideoFormData>) => void; errors: ValidationErrors }) {
   return (
     <div className="px-4 sm:px-10 flex flex-col gap-5">
       <div>
@@ -97,12 +112,13 @@ function StepOne({ formData, onChange }: { formData: VideoFormData; onChange: (d
         <input
           type="text"
           placeholder="كيفية إضافة منتج جديد"
-          value={formData.title}
+          value={formData.title || ""}
           onChange={(e) => onChange({ title: e.target.value })}
           dir="rtl"
-          style={{ width: "100%", height: 48, borderRadius: 6, border: "1px solid #E2E8F0", padding: "0 14px", fontSize: 14, outline: "none", boxSizing: "border-box" }}
+          style={{ width: "100%", height: 48, borderRadius: 6, border: `1px solid ${errors.title ? "#E02424" : "#E2E8F0"}`, padding: "0 14px", fontSize: 14, outline: "none", boxSizing: "border-box" }}
           className="placeholder:text-[#9CA3AF] focus:border-[#38587A] transition-colors"
         />
+        {errors.title && <p style={{ color: "#E02424", fontSize: 13, marginTop: 4, textAlign: "right" }}>{errors.title}</p>}
       </div>
       <div>
         <label style={{ display: "block", textAlign: "right", fontSize: 15, fontWeight: 700, color: "#111827", marginBottom: 8 }}>
@@ -110,7 +126,7 @@ function StepOne({ formData, onChange }: { formData: VideoFormData; onChange: (d
         </label>
         <textarea
           placeholder="وصف قصير عن محتوى الفيديو يساعد المستخدمين على الفهم"
-          value={formData.description}
+          value={formData.description || ""}
           maxLength={140}
           onChange={(e) => onChange({ description: e.target.value })}
           dir="rtl"
@@ -118,7 +134,7 @@ function StepOne({ formData, onChange }: { formData: VideoFormData; onChange: (d
           className="placeholder:text-[#9CA3AF] focus:border-[#38587A] transition-colors"
         />
         <div style={{ textAlign: "left", marginTop: 4, fontSize: 13, color: "#6B7280" }}>
-          {formData.description.length}/140
+          {(formData.description || "").length}/140
         </div>
       </div>
     </div>
@@ -194,7 +210,7 @@ function ThumbnailField({ formData, onChange }: { formData: VideoFormData; onCha
 }
 
 // ---- Step 2: Video Source ----
-function StepTwo({ formData, onChange }: { formData: VideoFormData; onChange: (d: Partial<VideoFormData>) => void }) {
+function StepTwo({ formData, onChange, errors }: { formData: VideoFormData; onChange: (d: Partial<VideoFormData>) => void; errors: ValidationErrors }) {
   const isLink = (formData.videoSource || "link") === "link";  const embedUrl = useMemo(() => getEmbedUrl(formData.videoUrl || ""), [formData.videoUrl]);
   const uploadPreviewUrl = useMemo(() => {
     if (formData.uploadedFile) return URL.createObjectURL(formData.uploadedFile);
@@ -261,12 +277,13 @@ function StepTwo({ formData, onChange }: { formData: VideoFormData; onChange: (d
               value={formData.videoUrl || ""}
               onChange={(e) => onChange({ videoUrl: e.target.value })}
               dir="rtl"
-              style={{ width: "100%", height: 48, borderRadius: 6, border: "1px solid #E2E8F0", padding: "0 14px", fontSize: 14, outline: "none", boxSizing: "border-box" }}
+              style={{ width: "100%", height: 48, borderRadius: 6, border: `1px solid ${errors.videoUrl ? "#E02424" : "#E2E8F0"}`, padding: "0 14px", fontSize: 14, outline: "none", boxSizing: "border-box" }}
               className="placeholder:text-[#9CA3AF] focus:border-[#38587A] transition-colors"
             />
-            <p style={{ textAlign: "right", fontSize: 13, color: "#6B7280", marginTop: 6 }}>
-              يدعم: YouTube, Vimeo, Dailymotion
-            </p>
+            {errors.videoUrl
+              ? <p style={{ color: "#E02424", fontSize: 13, marginTop: 4, textAlign: "right" }}>{errors.videoUrl}</p>
+              : <p style={{ textAlign: "right", fontSize: 13, color: "#6B7280", marginTop: 6 }}>يدعم: YouTube, Vimeo, Dailymotion</p>
+            }
           </div>
 
           <ThumbnailField formData={formData} onChange={onChange} />
@@ -368,45 +385,59 @@ const DISPLAY_PAGES = [
   { id: "add-service", label: "صفحة إضافة خدمة" },
 ];
 
-function StepThree({ formData, onChange }: { formData: VideoFormData; onChange: (d: Partial<VideoFormData>) => void }) {
-  const togglePage = (pageId: string) => {
-    const current = formData.displayPages || [];
-    const updated = current.includes(pageId)
-      ? current.filter((p) => p !== pageId)
-      : [...current, pageId];
-    onChange({ displayPages: updated });
-  };
+function StepThree({ formData, onChange, errors, usedLocations = [], isEditMode = false }: {
+  formData: VideoFormData;
+  onChange: (d: Partial<VideoFormData>) => void;
+  errors: ValidationErrors;
+  usedLocations?: string[];
+  isEditMode?: boolean;
+}) {
+  const selected = formData.displayPages?.[0] ?? "";
 
   return (
     <div className="px-4 sm:px-10 flex flex-col gap-3">
+      {errors.displayPages && (
+        <p style={{ color: "#E02424", fontSize: 13, textAlign: "right", marginBottom: 4 }}>{errors.displayPages}</p>
+      )}
       {DISPLAY_PAGES.map((page) => {
-        const checked = (formData.displayPages || []).includes(page.id);
+        const isSelected = selected === page.id;
+        // عند الإضافة فقط: نُعطّل المواقع المستخدمة مسبقاً (الباك يرفضها بـ unique)
+        const isUsed = !isEditMode && usedLocations.includes(page.id) && !isSelected;
         return (
           <label
             key={page.id}
-            className="cursor-pointer hover:bg-gray-50 transition-colors"
+            className={isUsed ? "cursor-not-allowed" : "cursor-pointer hover:bg-gray-50 transition-colors"}
             style={{
               display: "flex",
               alignItems: "center",
               gap: 12,
               padding: "14px 16px",
-              border: "1px solid #E2E8F0",
+              border: `1px solid ${isSelected ? "#38587A" : isUsed ? "#E2E8F0" : "#E2E8F0"}`,
               borderRadius: 6,
+              backgroundColor: isSelected ? "#F0F4F8" : isUsed ? "#F9FAFB" : "white",
+              opacity: isUsed ? 0.5 : 1,
             }}
           >
             <input
-              type="checkbox"
-              checked={checked}
-              onChange={() => togglePage(page.id)}
-              className="cursor-pointer"
-              style={{
-                width: 20,
-                height: 20,
-                accentColor: "#38587A",
-                flexShrink: 0,
-              }}
+              type="radio"
+              name="display_page"
+              value={page.id}
+              checked={isSelected}
+              disabled={isUsed}
+              onChange={() => !isUsed && onChange({ displayPages: [page.id] })}
+              className={isUsed ? "cursor-not-allowed" : "cursor-pointer"}
+              style={{ width: 18, height: 18, accentColor: "#38587A", flexShrink: 0 }}
             />
-            <span style={{ fontSize: 15, fontWeight: 500, color: "#111827" }}>{page.label}</span>
+            <div className="flex-1">
+              <span style={{ fontSize: 15, fontWeight: 500, color: isUsed ? "#9CA3AF" : isSelected ? "#38587A" : "#111827" }}>
+                {page.label}
+              </span>
+              {isUsed && (
+                <span style={{ display: "block", fontSize: 12, color: "#9CA3AF", marginTop: 2 }}>
+                  يوجد فيديو مضاف لهذا المكان — عدّل الفيديو الموجود بدلاً من إضافة جديد
+                </span>
+              )}
+            </div>
           </label>
         );
       })}
@@ -470,15 +501,24 @@ function StepFour({ formData, onChange }: { formData: VideoFormData; onChange: (
 }
 
 // ---- Main Modal ----
-export function AddVideoModal({ isOpen, onClose, onSave, isLoading = false, editData = null }: AddVideoModalProps) {
+export function AddVideoModal({ isOpen, onClose, onSave, isLoading = false, editData = null, usedLocations = [] }: AddVideoModalProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<VideoFormData>(DEFAULT_FORM);
+  const [touched, setTouched] = useState(false);
   const isEditMode = !!editData;
 
   useEffect(() => {
     if (isOpen) {
       setCurrentStep(0);
-      setFormData(editData ? { ...editData } : DEFAULT_FORM);
+      setTouched(false);
+      setFormData(editData ? {
+        ...editData,
+        title:       editData.title       ?? "",
+        description: editData.description ?? "",
+        videoUrl:    editData.videoUrl    ?? "",
+        thumbnailUrl:editData.thumbnailUrl?? "",
+        displayPages:editData.displayPages?? [],
+      } : DEFAULT_FORM);
     }
   }, [isOpen, editData]);
 
@@ -486,16 +526,18 @@ export function AddVideoModal({ isOpen, onClose, onSave, isLoading = false, edit
   const isLastStep = currentStep === STEPS.length - 1;
   const isFirstStep = currentStep === 0;
 
-  const handleNext = () => { if (isLastStep) onSave(formData); else setCurrentStep((s) => s + 1); };
-  const handlePrev = () => { if (!isFirstStep) setCurrentStep((s) => s - 1); };
+  const errors = touched ? validateStep(currentStep, formData) : {};
+  const hasErrors = Object.keys(validateStep(currentStep, formData)).length > 0;
 
-  const canProceed = currentStep === 0
-    ? formData.title.trim().length > 0
-    : currentStep === 1
-      ? (formData.videoUrl || "").trim().length > 0 || !!formData.uploadedFile
-      : currentStep === 2
-        ? (formData.displayPages || []).length > 0
-        : true;
+  const handleNext = () => {
+    setTouched(true);
+    if (hasErrors) return;
+    setTouched(false);
+    if (isLastStep) onSave(formData); else setCurrentStep((s) => s + 1);
+  };
+  const handlePrev = () => { setTouched(false); if (!isFirstStep) setCurrentStep((s) => s - 1); };
+
+  const canProceed = !hasErrors;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -526,9 +568,9 @@ export function AddVideoModal({ isOpen, onClose, onSave, isLoading = false, edit
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto py-3">
-          {currentStep === 0 && <StepOne formData={formData} onChange={handleChange} />}
-          {currentStep === 1 && <StepTwo formData={formData} onChange={handleChange} />}
-          {currentStep === 2 && <StepThree formData={formData} onChange={handleChange} />}
+          {currentStep === 0 && <StepOne formData={formData} onChange={handleChange} errors={errors} />}
+          {currentStep === 1 && <StepTwo formData={formData} onChange={handleChange} errors={errors} />}
+          {currentStep === 2 && <StepThree formData={formData} onChange={handleChange} errors={errors} usedLocations={usedLocations} isEditMode={isEditMode} />}
           {currentStep === 3 && <StepFour formData={formData} onChange={handleChange} />}
         </div>
 
@@ -536,8 +578,8 @@ export function AddVideoModal({ isOpen, onClose, onSave, isLoading = false, edit
         <div className="flex items-center justify-center gap-3 px-4 sm:px-10 py-5 shrink-0">
           <Button
             onClick={handleNext}
-            disabled={!canProceed || isLoading}
-            className={cn("rounded-full text-white font-medium cursor-pointer transition-colors shadow-none w-[120px] sm:w-[130px] h-11 text-sm sm:text-base", canProceed && !isLoading ? "hover:opacity-90" : "opacity-50 cursor-not-allowed")}
+            disabled={isLoading}
+            className={cn("rounded-full text-white font-medium cursor-pointer transition-colors shadow-none w-[120px] sm:w-[130px] h-11 text-sm sm:text-base", !isLoading ? "hover:opacity-90" : "opacity-50 cursor-not-allowed")}
             style={{ backgroundColor: "#38587A", borderRadius: 30 }}
           >
             {isLastStep ? "نشر الفيديو" : "التالي"}

@@ -28,6 +28,9 @@ export const useGetTrashOptions = (
   useQuery({
     queryKey: TrashQK.options,
     queryFn: api.getTrashOptions,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 0,
     ...options,
   });
 
@@ -40,6 +43,10 @@ export const useGetTrashedItems = (
   useQuery({
     queryKey: TrashQK.items(slug, params.toString()),
     queryFn: () => api.getTrashedItems(slug, params),
+    
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 0,
     ...options,
   });
 

@@ -212,6 +212,7 @@ export interface SingleAttributeResponse extends BaseResponse {
 }
 
 export interface AttributeOptionPayload {
+  id?: string;   
   title: string;
   data?: string | null;
 }
@@ -309,6 +310,20 @@ export const deleteAttribute = async (
   id: string | number
 ): Promise<BaseResponse> => {
   const endpoint = getDynamicEndpoint(`/attributes/${id}`);
+  const userType = Cookies.get("user_type");
+  const storeId = Cookies.get("current_store_id");
+
+  const headers = userType === "merchant" && storeId ? { storeId } : undefined;
+
+  const { data } = await api.delete<BaseResponse>(endpoint, { headers });
+  return data;
+};
+
+// حذف خيار سمة (Soft Delete - يظهر في المحذوفات)
+export const deleteAttributeOption = async (
+  id: string | number
+): Promise<BaseResponse> => {
+  const endpoint = getDynamicEndpoint(`/options/${id}`);
   const userType = Cookies.get("user_type");
   const storeId = Cookies.get("current_store_id");
 

@@ -25,6 +25,7 @@ import {
   useDeleteAttribute,
   useUpdateCategoryStatus,
   useUpdateAttributeStatus,
+  useDeleteAttributeOption,
 } from "../hooks";
 
 import { Button } from "@/src/components/ui/button";
@@ -164,6 +165,7 @@ export function CategoriesPage() {
   const { mutate: createAttributeMutation, isPending: isCreatingAttribute } = useCreateAttribute();
   const { mutate: updateAttributeMutation, isPending: isUpdatingAttribute } = useUpdateAttribute();
   const { mutate: deleteAttributeMutation } = useDeleteAttribute();
+  const { mutate: deleteAttributeOptionMutation } = useDeleteAttributeOption();
   const { mutate: updateAttributeStatusMutation } = useUpdateAttributeStatus();
 
   const categories = categoriesData?.data || [];
@@ -314,23 +316,11 @@ export function CategoriesPage() {
         onSuccess: () => onSuccess("تم حذف السمة بنجاح"),
       });
     } else if (optionToDelete !== null) {
-      const { optionId, attribute } = optionToDelete;
-
-      const newOptionsPayload = attribute.options
-        .filter((opt) => opt.id !== optionId)
-        .map((opt) => ({ title: opt.title, data: opt.data }));
-
-      const payload: api.AttributeUpdatePayload = {
-        title: attribute.title,
-        options: newOptionsPayload,
-      };
-
-      updateAttributeMutation(
-        { id: attribute.id, payload },
-        {
-          onSuccess: () => onSuccess("تم حذف الخيار بنجاح"),
-        }
-      );
+      const { optionId } = optionToDelete;
+      // DELETE /admin/options/{id} → Soft Delete → يظهر في المحذوفات
+      deleteAttributeOptionMutation(optionId, {
+        onSuccess: () => onSuccess("تم حذف الخيار بنجاح"),
+      });
     }
   };
 
@@ -368,7 +358,7 @@ export function CategoriesPage() {
     if (optionToDelete) {
       return {
         title: "هل أنت متأكد من حذف الخيار؟",
-        description: "سيتم حذف هذا الخيار بشكل نهائي.",
+        description: "سيتم نقل هذا الخيار إلى سلة المحذوفات ويمكن استرجاعه لاحقاً.",
       };
     }
     if (pageMode === "product") {

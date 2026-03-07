@@ -301,6 +301,7 @@ export function useDeleteCategory() {
     onSettled: () => {
       qc.invalidateQueries({ queryKey: CategoryQK.listAny });
       qc.invalidateQueries({ queryKey: CategoryQK.options });
+      qc.invalidateQueries({ queryKey: ["trash"] });
     },
   });
 }
@@ -490,6 +491,21 @@ export function useDeleteAttribute() {
 
     onSettled: () => {
       qc.invalidateQueries({ queryKey: AttributeQK.listAny });
+      qc.invalidateQueries({ queryKey: ["trash"] });
+    },
+  });
+}
+
+
+export function useDeleteAttributeOption() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string | number) => api.deleteAttributeOption(id),
+    onSettled: () => {
+      
+      qc.invalidateQueries({ queryKey: AttributeQK.listAny });
+   
+      qc.invalidateQueries({ queryKey: ["trash"] });
     },
   });
 }

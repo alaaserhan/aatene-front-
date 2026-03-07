@@ -1,5 +1,5 @@
 // src/components/ui/OptionTag.tsx
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
 interface OptionTagProps {
@@ -7,6 +7,7 @@ interface OptionTagProps {
   onRemove?: () => void;
   showRemoveButton?: boolean;
   className?: string;
+  disabled?: boolean;
 }
 
 export function OptionTag({
@@ -14,6 +15,7 @@ export function OptionTag({
   onRemove,
   showRemoveButton = true,
   className,
+  disabled = false,
 }: OptionTagProps) {
   return (
     <div
@@ -23,6 +25,7 @@ export function OptionTag({
         "rounded-full",
         "border border-blue-3 bg-blue-5",
         "cursor-default",
+        disabled && "opacity-60",
         className
       )}
     >
@@ -34,11 +37,15 @@ export function OptionTag({
 
           <button
             type="button"
-            onClick={onRemove}
-            className="flex items-center justify-center cursor-pointer"
+            onClick={disabled ? undefined : onRemove}
+            disabled={disabled}
+            className="flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
             aria-label={`حذف ${label}`}
           >
-            <X className="w-4 h-4 text-gray-2 hover:" />
+            {disabled
+              ? <Loader2 className="w-4 h-4 text-gray-2 animate-spin" />
+              : <X className="w-4 h-4 text-gray-2 hover:" />
+            }
           </button>
         </>
       )}

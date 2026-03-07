@@ -18,6 +18,13 @@ import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { Attribute, AttributeOptionPayload } from "../api";
+import { useDeleteAttributeOption } from "../hooks";
+
+interface OptionWithId {
+  id?: number;
+  title: string;
+  data?: string | null;
+}
 
 interface AttributeModalProps {
   isOpen: boolean;
@@ -46,8 +53,11 @@ export function AttributeModal({
   disableTitle = false,
   isLoading = false,
 }: AttributeModalProps) {
-  const [options, setOptions] = useState<AttributeOptionPayload[]>([]);
+  const [options, setOptions] = useState<OptionWithId[]>([]);
   const [optionInput, setOptionInput] = useState("");
+  const [deletingOptionId, setDeletingOptionId] = useState<number | null>(null);
+
+  const deleteOptionMutation = useDeleteAttributeOption();
 
   const {
     register,
@@ -68,6 +78,7 @@ export function AttributeModal({
         // For simple modals, this effect pattern is acceptable but let's silence the strict linter if logic is sound (running once on open).
         setOptions(
           attribute.options.map((opt) => ({
+            id: opt.id,       // نحتفظ بالـ id للحذف عبر API
             title: opt.title,
             data: opt.data,
           }))
@@ -89,14 +100,34 @@ export function AttributeModal({
     setOptionInput("");
   };
 
+  // حذف خيار: لو له id → DELETE API (يذهب للمحذوفات)، وإلا → حذف محلي فقط
   const handleRemoveOption = (titleToRemove: string) => {
-    setOptions((prev) => prev.filter((opt) => opt.title !== titleToRemove));
+    const opt = options.find((o) => o.title === titleToRemove);
+    if (opt?.id) {
+      setDeletingOptionId(opt.id);
+      deleteOptionMutation.mutate(opt.id, {
+        onSuccess: () => {
+          setOptions((prev) => prev.filter((o) => o.title !== titleToRemove));
+        },
+        onSettled: () => {
+          setDeletingOptionId(null);
+        },
+      });
+    } else {
+      // خيار جديد لم يُحفظ بعد → أزله محلياً فقط
+      setOptions((prev) => prev.filter((o) => o.title !== titleToRemove));
+    }
   };
 
   const handleFormSubmit = (data: AttributeFormData) => {
     onSave({
       title: data.title,
-      options: options,
+      // نُحوّل id من number إلى string لأن الباك يتوقع string في validation
+      options: options.map(opt => ({
+        ...(opt.id !== undefined ? { id: String(opt.id) } : {}),
+        title: opt.title,
+        data: opt.data,
+      })),
     });
   };
 
@@ -164,6 +195,7 @@ export function AttributeModal({
                       key={opt.title}
                       label={opt.title}
                       onRemove={() => handleRemoveOption(opt.title)}
+                      disabled={deletingOptionId === opt.id}
                     />
                   ))}
                 </div>
