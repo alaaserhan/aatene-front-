@@ -22,7 +22,7 @@ interface RichTextEditorProps {
   required?: boolean;
 }
 
-type ModalType = "link" | "image" | "table" | "color" | "hiliteColor" | null;
+type ModalType = "link" | "table" | "color" | "hiliteColor" | null;
 
 // دالة مساعدة للتحقق من صحة الرابط
 const isValidUrl = (url: string) => {
@@ -153,18 +153,14 @@ export function RichTextEditor({
   const handleModalSave = () => {
     restoreSelection();
 
-    if (modalType === "link" || modalType === "image") {
+    if (modalType === "link") {
       // التحقق من صحة الرابط
       if (!urlInput || !isValidUrl(urlInput)) {
         setUrlError("الرجاء إدخال رابط صحيح (مثال: https://example.com)");
         return; // إيقاف العملية إذا كان الرابط غير صالح
       }
 
-      if (modalType === "link") {
-        execCommand("createLink", urlInput);
-      } else {
-        execCommand("insertImage", urlInput);
-      }
+      execCommand("createLink", urlInput);
     } else if (modalType === "color") {
       execCommand("foreColor", colorInput);
     } else if (modalType === "hiliteColor") {
@@ -322,12 +318,7 @@ export function RichTextEditor({
 
             <Divider />
 
-            <ToolbarButton
-              onClick={() => openModal("image")}
-              title="إدراج صورة"
-            >
-              <ImageIcon />
-            </ToolbarButton>
+
             <ToolbarButton
               onClick={() => openModal("table")}
               title="إدراج جدول"
@@ -389,7 +380,7 @@ export function RichTextEditor({
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h3 className="text-lg font-bold ">
                 {modalType === "link" && "إضافة رابط"}
-                {modalType === "image" && "إضافة صورة"}
+
                 {modalType === "table" && "إضافة جدول"}
                 {modalType === "color" && "لون النص"}
                 {modalType === "hiliteColor" && "لون الخلفية"}
@@ -403,10 +394,10 @@ export function RichTextEditor({
             </div>
 
             <div className="p-6 space-y-4">
-              {(modalType === "link" || modalType === "image") && (
+              {modalType === "link" && (
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700 text-start">
-                    {modalType === "link" ? "الرابط (URL)" : "رابط الصورة"}
+                    الرابط (URL)
                   </label>
                   <input
                     type="url"
@@ -692,15 +683,7 @@ function NumberedListIcon() {
   );
 }
 
-function ImageIcon() {
-  return (
-    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-      <circle cx="8.5" cy="8.5" r="1.5" />
-      <polyline points="21 15 16 10 5 21" />
-    </svg>
-  );
-}
+
 
 function TableIcon() {
   return (
