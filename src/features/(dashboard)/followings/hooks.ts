@@ -77,3 +77,23 @@ export function useCheckFollowing() {
     },
   });
 }
+
+export function useRemoveFollower() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      payload,
+      storeId,
+    }: {
+      payload: { follower_type: string; follower_id: number | string };
+      storeId?: number | string;
+    }) => api.removeFollower(payload, storeId),
+    onSuccess: () => {
+      toast.success("تمت إزالة المتابع بنجاح");
+      queryClient.invalidateQueries({ queryKey: ["followers"] });
+    },
+    onError: (error: AxiosError<api.BaseResponse>) => {
+      toast.error(error.response?.data?.message || "حدث خطأ أثناء إزالة المتابع");
+    },
+  });
+}

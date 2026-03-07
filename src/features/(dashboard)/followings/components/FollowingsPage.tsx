@@ -5,13 +5,14 @@ import { Input } from "@/src/components/ui/input";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Search, Loader2, Users } from "lucide-react";
 import { cn } from "@/src/lib/utils";
-import { useGetMyFollowers, useGetMyFollowings, useFollowUser, useUnfollowUser } from "../hooks";
+import { useGetMyFollowers, useGetMyFollowings, useFollowUser, useUnfollowUser, useRemoveFollower } from "../hooks";
 import { FollowersTable } from "./FollowersTable";
 import { FollowersEmptyState } from "./FollowersEmptyState";
 import { FollowEntity } from "../api";
 import { Pagination } from "@/src/components/ui/Pagination";
 import Cookies from "js-cookie";
-import { StoreEmptyState } from "@/src/components/(dashboard)/StoreEmptyState"; // ✅ استيراد المكون
+import { StoreEmptyState } from "@/src/components/(dashboard)/StoreEmptyState";
+import { useBlockUser } from "@/src/features/(web)/settings/hooks";
 
 type TabType = "followers" | "followings";
 
@@ -25,7 +26,6 @@ export function FollowingsPage() {
     const storeId = storeIdStr ? Number(storeIdStr) : undefined;
     const hasStore = !!storeId && !isNaN(storeId);
 
-    // إعداد استعلام البيانات
     const queryParams = useMemo(() => {
         const params = new URLSearchParams();
         params.set("page", String(currentPage));
@@ -34,7 +34,6 @@ export function FollowingsPage() {
         return params;
     }, [currentPage, searchQuery]);
 
-    // ملاحظة: يُفضل تمرير { enabled: hasStore } للهوكس إذا كانت تدعم ذلك لتجنب استدعاء API بلا فائدة
     const {
         data: followersData,
         isLoading: isLoadingFollowers
@@ -45,7 +44,6 @@ export function FollowingsPage() {
         isLoading: isLoadingFollowings
     } = useGetMyFollowings(queryParams, storeId);
 
-    // تحديد البيانات الحالية للعرض
     const currentData = activeTab === "followers" ? followersData : followingsData;
     const isLoading = activeTab === "followers" ? isLoadingFollowers : isLoadingFollowings;
     const records = currentData?.data || [];
@@ -54,28 +52,57 @@ export function FollowingsPage() {
 
     const followMutation = useFollowUser();
     const unfollowMutation = useUnfollowUser();
+    const removeFollowerMutation = useRemoveFollower();
+    const blockMutation = useBlockUser();
 
-    const handleAction = (item: FollowEntity) => {
+    const isAnyPending = followMutation.isPending || unfollowMutation.isPending || removeFollowerMutation.isPending || blockMutation.isPending;
+
+    const handleFollowBack = (item: FollowEntity) => {
         if (!storeId) return;
         setActionTargetId(item.id);
+        followMutation.mutate(
+            {
+                payload: { followed_type: item.type, followed_id: item.id },
+                storeId
+            },
+            { onSettled: () => setActionTargetId(null) }
+        );
+    };
 
-        if (activeTab === "followings") {
-            unfollowMutation.mutate(
-                {
-                    payload: { followed_type: item.type, followed_id: item.id },
-                    storeId
-                },
-                { onSettled: () => setActionTargetId(null) }
-            );
-        } else {
-            followMutation.mutate(
-                {
-                    payload: { followed_type: item.type, followed_id: item.id },
-                    storeId
-                },
-                { onSettled: () => setActionTargetId(null) }
-            );
-        }
+    const handleUnfollow = (item: FollowEntity) => {
+        if (!storeId) return;
+        setActionTargetId(item.id);
+        unfollowMutation.mutate(
+            {
+                payload: { followed_type: item.type, followed_id: item.id },
+                storeId
+            },
+            { onSettled: () => setActionTargetId(null) }
+        );
+    };
+
+    const handleRemoveFollower = (item: FollowEntity) => {
+        if (!storeId) return;
+        setActionTargetId(item.id);
+        removeFollowerMutation.mutate(
+            {
+                payload: { follower_type: item.type, follower_id: item.id },
+                storeId
+            },
+            { onSettled: () => setActionTargetId(null) }
+        );
+    };
+
+    const handleBlock = (item: FollowEntity) => {
+        if (!storeId) return;
+        setActionTargetId(item.id);
+        blockMutation.mutate(
+            {
+                blocked_type: item.type,
+                blocked_id: item.id,
+            },
+            { onSettled: () => setActionTargetId(null) }
+        );
     };
 
     if (!hasStore) {
@@ -96,7 +123,6 @@ export function FollowingsPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col pb-8">
-            {/* 1. Header with Tabs */}
             <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
                 <div className="flex items-center justify-between h-16 px-6 container mx-auto">
                     <nav className="flex items-center h-full">
@@ -134,12 +160,10 @@ export function FollowingsPage() {
 
             <main className="container mx-auto px-4 sm:px-6 py-6 flex-1">
 
-                {/* 2. Breadcrumb */}
                 <div className="my-3">
                     <Breadcrumb items={breadcrumbItems} />
                 </div>
 
-                {/* 3. Search */}
                 <div className="mb-4">
                     <div className="relative">
                         <Search className="absolute right-3 top-3 text-gray-2 w-5 h-5" />
@@ -152,9 +176,7 @@ export function FollowingsPage() {
                     </div>
                 </div>
 
-                {/* 4. Content Area */}
                 <div className="space-y-4 bg-white rounded-lg border border-gray-200 p-2">
-                    {/* Title & Count */}
                     <div className="flex  mb-4">
                         <h2 className="text-xl flex flex-row items-center gap-1 font-medium p-2">
                             <Users className="w-4" />
@@ -163,7 +185,6 @@ export function FollowingsPage() {
                         </h2>
                     </div>
 
-                    {/* List or Empty State */}
                     {isLoading ? (
                         <div className="flex justify-center items-center h-64 bg-white rounded-lg">
                             <Loader2 className="w-8 h-8 animate-spin text-blue-3" />
@@ -174,8 +195,11 @@ export function FollowingsPage() {
                             <FollowersTable
                                 data={records}
                                 type={activeTab}
-                                onAction={handleAction}
-                                isActionPending={followMutation.isPending || unfollowMutation.isPending}
+                                onFollowBack={handleFollowBack}
+                                onUnfollow={handleUnfollow}
+                                onRemoveFollower={handleRemoveFollower}
+                                onBlock={handleBlock}
+                                isActionPending={isAnyPending}
                                 targetId={actionTargetId}
                             />
 

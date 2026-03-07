@@ -85,6 +85,16 @@ export const unfollowUser = async (
   return data;
 };
 
+export const removeFollower = async (
+  payload: { follower_type: string; follower_id: number | string },
+  storeId?: number | string
+): Promise<BaseResponse> => {
+  const endpoint = getDynamicEndpoint("/followers/remove");
+  const headers = getHeaders(storeId);
+  const { data } = await api.post<BaseResponse>(endpoint, payload, { headers });
+  return data;
+};
+
 export const checkFollowing = async (
   payload: FollowPayload,
   storeId?: number | string
