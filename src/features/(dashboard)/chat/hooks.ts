@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import * as api from "./api";
 
 const QK = {
@@ -111,9 +111,14 @@ export const useAddParticipant = () => {
 };
 
 export const usePreviousParticipants = (ignoreCookie: boolean = false) => {
-    return useQuery({
+    return useInfiniteQuery({
         queryKey: ["previous-participants", ignoreCookie],
-        queryFn: () => api.getPreviousParticipants(ignoreCookie),
+        queryFn: ({ pageParam = 1 }) => api.getPreviousParticipants(pageParam, 15, ignoreCookie),
+        initialPageParam: 1,
+        getNextPageParam: (lastPage: api.GetPreviousParticipantsResponse, allPages: api.GetPreviousParticipantsResponse[]) => {
+            const currentTotal = allPages.reduce((sum: number, page: api.GetPreviousParticipantsResponse) => sum + page.participants.length, 0);
+            return currentTotal < lastPage.total ? allPages.length + 1 : undefined;
+        },
     });
 };
 

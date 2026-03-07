@@ -73,10 +73,9 @@ const useFCMToken = () => {
     useEffect(() => {
         if (typeof window !== "undefined" && "serviceWorker" in navigator && messaging) {
             const unsubscribe = onMessage(messaging, (payload: MessagePayload) => {
-                console.log("Foreground message received:", payload);
                 playNotificationSound();
 
-                const conversationId = payload.data?.conversation_id;
+                // const conversationId = payload.data?.conversation_id;
 
                 toast.info(payload.notification?.title || "New Notification", {
                     description: payload.notification?.body,
@@ -92,8 +91,6 @@ const useFCMToken = () => {
         if (typeof window !== "undefined" && "serviceWorker" in navigator) {
             const handler = (event: MessageEvent) => {
                 if (event.data && event.data.type === 'FCM_MESSAGE_RECEIVED') {
-                    console.log("Background message received via SW:", event.data);
-                    // The service worker already showed a notification, but we need to update our queries
                     queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
                     queryClient.invalidateQueries({ queryKey: ["myNotificationStats"] });
                 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import {
     Dialog,
     DialogContent,
@@ -23,13 +23,20 @@ interface AddMemberModalProps {
 export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }: AddMemberModalProps) {
     const [selectedParticipant, setSelectedParticipant] = useState<string | null>(null);
 
-    const { data: participantsData, isLoading } = usePreviousParticipants(ignoreCookie);
+    const { data: participantsData, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = usePreviousParticipants(ignoreCookie);
     const { mutate: addParticipant, isPending: isAdding } = useAddParticipant();
 
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+        if (scrollHeight - scrollTop <= clientHeight + 50 && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    };
+
     const uniqueParticipants = useMemo(() => {
-        if (!participantsData?.participants) return [];
+        if (!participantsData?.pages) return [];
         const seen = new Set<string>();
-        return participantsData.participants.filter((p) => {
+        return participantsData.pages.flatMap(p => p.participants).filter((p) => {
             const key = `${p.type}-${p.id}`;
             if (seen.has(key)) return false;
             seen.add(key);
@@ -97,7 +104,7 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
                             اختر العضو
                             <span className="text-red-500">*</span>
                         </label>
-                        <ScrollArea className="h-[300px] border border-gray-200 rounded-lg" dir="rtl">
+                        <div className="h-[300px] border border-gray-200 rounded-lg overflow-y-auto" dir="rtl" onScroll={handleScroll}>
                             {isLoading ? (
                                 <div className="p-4 text-center text-gray-500">جاري التحميل...</div>
                             ) : uniqueParticipants.length === 0 ? (
@@ -150,9 +157,14 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
                                             </div>
                                         );
                                     })}
+                                    {hasNextPage && isFetchingNextPage && (
+                                        <div className="p-4 flex justify-center mt-2">
+                                            <span className="text-sm text-gray-400">جاري التحميل...</span>
+                                        </div>
+                                    )}
                                 </div>
                             )}
-                        </ScrollArea>
+                        </div>
                     </div>
                 </div>
 

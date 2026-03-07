@@ -273,10 +273,14 @@ export interface GetPreviousParticipantsResponse {
     participants: ParticipantData[];
 }
 
-export const getPreviousParticipants = async (ignoreCookie: boolean = false): Promise<GetPreviousParticipantsResponse> => {
+export const getPreviousParticipants = async (page: number = 1, perPage: number = 15, ignoreCookie: boolean = false): Promise<GetPreviousParticipantsResponse> => {
     const headers = getHeaders(undefined, ignoreCookie);
     const { data } = await api.get<GetPreviousParticipantsResponse>("/conversations/prev_participants", {
         headers,
+        params: {
+            page,
+            per_page: perPage
+        }
     });
     return data;
 };

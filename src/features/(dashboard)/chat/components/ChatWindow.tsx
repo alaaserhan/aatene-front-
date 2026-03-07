@@ -75,8 +75,8 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     );
 
     const isMeBlocked = conversation.who_blocked &&
-        String(conversation.who_blocked.id) === String(currentParticipantId) &&
-        conversation.who_blocked.type === currentParticipantType;
+        !(String(conversation.who_blocked.id) === String(currentParticipantId) &&
+            conversation.who_blocked.type === currentParticipantType);
 
     const [currentConvId, setCurrentConvId] = useState(conversation.id);
 

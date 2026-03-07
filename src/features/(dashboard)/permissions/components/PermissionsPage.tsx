@@ -131,67 +131,69 @@ function PermissionForm({
         </div>
       </div>
 
-      <div className="bg-white rounded-lg p-6 mt-6">
-        <div className="space-y-4">
-          <h3 className="text-lg text-blue-4 font-semibold">
-            صلاحية الموظف
-          </h3>
-          <div className="space-y-3">
-            {allPermissions.map((permission) => {
-              const isChecked = selectedPermissions.includes(permission.id);
-              return (
-                <div
-                  key={permission.id}
-                  className="flex items-center justify-between py-2"
-                >
+      {roleNameInput !== "admin" && roleNameInput !== "merchant" && (
+        <div className="bg-white rounded-lg p-6 mt-6">
+          <div className="space-y-4">
+            <h3 className="text-lg text-blue-4 font-semibold">
+              صلاحية الموظف
+            </h3>
+            <div className="space-y-3">
+              {allPermissions.map((permission) => {
+                const isChecked = selectedPermissions.includes(permission.id);
+                return (
                   <div
-                    className="flex items-center gap-3 cursor-pointer flex-1 select-none"
-                    onClick={() => handlePermissionToggle(permission.id)}
+                    key={permission.id}
+                    className="flex items-center justify-between py-2"
                   >
+                    <div
+                      className="flex items-center gap-3 cursor-pointer flex-1 select-none"
+                      onClick={() => handlePermissionToggle(permission.id)}
+                    >
+                      <button
+                        type="button"
+                        className={cn(
+                          "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer pointer-events-none",
+                          isChecked
+                            ? "bg-blue-5 border-blue-4"
+                            : "bg-white border-gray-300 group-hover:border-gray-2"
+                        )}
+                        aria-checked={isChecked}
+                        role="checkbox"
+                      >
+                        {isChecked && (
+                          <svg
+                            className="w-4 h-4 text-blue-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={3}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        )}
+                      </button>
+                      <span className="text-sm text-gray-700">
+                        {permission.title}
+                      </span>
+                    </div>
                     <button
                       type="button"
-                      className={cn(
-                        "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer pointer-events-none",
-                        isChecked
-                          ? "bg-blue-5 border-blue-4"
-                          : "bg-white border-gray-300 group-hover:border-gray-2"
-                      )}
-                      aria-checked={isChecked}
-                      role="checkbox"
+                      className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded text-gray-2 hover:bg-gray-50 cursor-pointer opacity-50"
+                      disabled
                     >
-                      {isChecked && (
-                        <svg
-                          className="w-4 h-4 text-blue-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={3}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      )}
+                      +
                     </button>
-                    <span className="text-sm text-gray-700">
-                      {permission.title}
-                    </span>
                   </div>
-                  <button
-                    type="button"
-                    className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded text-gray-2 hover:bg-gray-50 cursor-pointer opacity-50"
-                    disabled
-                  >
-                    +
-                  </button>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="bg-white rounded-lg p-6 mt-6">
         <div className="flex gap-4">

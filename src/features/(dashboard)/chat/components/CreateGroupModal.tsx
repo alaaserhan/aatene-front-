@@ -8,7 +8,6 @@ import {
 } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
-import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { usePreviousParticipants, useCreateConversation } from "../hooks";
 import { ParticipantData } from "../api";
 import { toast } from "sonner";
@@ -26,13 +25,20 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess, ignoreCookie }: C
     const [groupName, setGroupName] = useState("");
     const [selectedParticipants, setSelectedParticipants] = useState<Set<string>>(new Set());
 
-    const { data: participantsData, isLoading } = usePreviousParticipants(ignoreCookie);
+    const { data: participantsData, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = usePreviousParticipants(ignoreCookie);
     const { mutate: createConversation, isPending: isCreating } = useCreateConversation();
 
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+        if (scrollHeight - scrollTop <= clientHeight + 50 && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    };
+
     const uniqueParticipants = useMemo(() => {
-        if (!participantsData?.participants) return [];
+        if (!participantsData?.pages) return [];
         const seen = new Set<string>();
-        return participantsData.participants.filter((p) => {
+        return participantsData.pages.flatMap(p => p.participants).filter((p) => {
             const key = `${p.type}-${p.id}`;
             if (seen.has(key)) return false;
             seen.add(key);
@@ -122,7 +128,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess, ignoreCookie }: C
                             المستخدمين
                             <span className="text-red-500">*</span>
                         </label>
-                        <ScrollArea className="h-[300px] border border-gray-200 rounded-lg" dir="rtl">
+                        <div className="h-[300px] border border-gray-200 rounded-lg overflow-y-auto" dir="rtl" onScroll={handleScroll}>
                             {isLoading ? (
                                 <div className="p-4 text-center text-gray-500">جاري التحميل...</div>
                             ) : uniqueParticipants.length === 0 ? (
@@ -181,9 +187,14 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess, ignoreCookie }: C
                                             </div>
                                         );
                                     })}
+                                    {hasNextPage && isFetchingNextPage && (
+                                        <div className="p-4 flex justify-center mt-2">
+                                            <span className="text-sm text-gray-400">جاري التحميل...</span>
+                                        </div>
+                                    )}
                                 </div>
                             )}
-                        </ScrollArea>
+                        </div>
                     </div>
                 </div>
 
