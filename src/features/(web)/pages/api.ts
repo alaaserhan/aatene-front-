@@ -89,3 +89,87 @@ export const getFaqs = async (): Promise<FaqsResponse> => {
     const { data } = await api.get<FaqsResponse>("/pages/faqs");
     return data;
 };
+
+// ─── About Us ───────────────────────────────────────────────────────────────
+
+export interface AboutUsVisionSection {
+    vision: string;
+    message: string;
+    goals: string;
+    image?: string | null;
+    image_url?: string | null;
+}
+
+export interface AboutUsWhyUsItem {
+    title: string;
+    content: string;
+    image?: string | null;
+    image_url?: string | null;
+}
+
+export interface AboutUsMerchantSection {
+    title: string;
+    content: string;
+    image?: string | null;
+    image_url?: string | null;
+}
+
+export interface AboutUsMerchants {
+    title?: string;
+    content?: string;
+    sections?: AboutUsMerchantSection[];
+}
+
+export interface AboutUsCustomers {
+    title?: string;
+    content?: string;
+    sections?: AboutUsMerchantSection[];
+}
+
+export interface AboutUsSection {
+    content?: string;
+    image?: string | null;
+    image_url?: string | null;
+}
+
+export interface AboutUsData {
+    sectionIntroContent?: string | null;
+    sectionAboutUs?: AboutUsSection | null;
+    sectionVision?: AboutUsVisionSection | null;
+    sectionWhyUs?: AboutUsWhyUsItem[];
+    sectionMerchants?: AboutUsMerchants | null;
+    sectionCustomers?: AboutUsCustomers | null;
+}
+
+export interface AboutUsResponse {
+    status: boolean;
+    message: string;
+    aboutUs: AboutUsData;
+}
+
+export const getAboutUs = async (): Promise<AboutUsResponse> => {
+    const { data } = await api.get<AboutUsResponse>("/pages/about-us");
+    return data;
+};
+
+// ─── Contact Us ─────────────────────────────────────────────────────────────
+
+export interface ContactUsPayload {
+    name: string;
+    email: string;
+    message: string;
+}
+
+export interface ContactUsResponse {
+    status: boolean;
+    message: string;
+}
+
+export const sendContact = async (payload: ContactUsPayload): Promise<ContactUsResponse> => {
+    const formData = new FormData();
+    formData.append("name", payload.name);
+    formData.append("email", payload.email);
+    formData.append("message", payload.message);
+    const { data } = await api.post<ContactUsResponse>("/contacts", formData);
+    return data;
+};
