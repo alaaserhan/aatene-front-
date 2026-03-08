@@ -9,8 +9,10 @@ import {
     Share2,
     CheckCircle2,
     Pen,
+    XCircle,
+    PauseCircle,
 } from "lucide-react";
-import { useGetService, useUpdateServiceStatus } from "../hooks";
+import { useGetService, useUpdateServiceStatus, useUpdateServiceShown } from "../hooks";
 import { useGetReportTypes } from "@/src/features/(dashboard)/reports/hooks";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -23,6 +25,9 @@ import { ShareModal } from "@/src/components/ui/ShareModal";
 import { cn } from "@/src/lib/utils";
 import Cookies from "js-cookie"; // ✅ للتحقق من الصلاحيات
 import { useQueryClient } from "@tanstack/react-query";
+import ServiceTabs from "@/src/features/(web)/services/components/ServiceTabs";
+import { Service as WebService } from "@/src/features/(web)/services/api";
+import Link from "next/link";
 
 interface ServiceDetailsPageProps {
     serviceId: number;
@@ -40,11 +45,16 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [activeImage, setActiveImage] = useState<string>("");
     const [isAdmin, setIsAdmin] = useState(false); // ✅ حالة الأدمن
+    const [currentStoreId, setCurrentStoreId] = useState<number | null>(null);
 
     // التحقق من صلاحية الأدمن عند التحميل
     useEffect(() => {
         const userType = Cookies.get("user_type");
         setIsAdmin(userType === "admin");
+        const storeIdCookie = Cookies.get("current_store_id");
+        if (storeIdCookie) {
+            setCurrentStoreId(Number(storeIdCookie));
+        }
     }, []);
 
     // --- Data Fetching ---
@@ -55,6 +65,19 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     const store = storeData?.record;
 
     const { mutate: updateStatus, isPending: isUpdating } = useUpdateServiceStatus();
+    const { mutate: updateShown, isPending: isUpdatingShown } = useUpdateServiceShown();
+
+    const [alertDismissed, setAlertDismissed] = useState(false);
+    const dismissAlert = () => setAlertDismissed(true);
+    const [shownAlertDismissed, setShownAlertDismissed] = useState(false);
+
+    useEffect(() => {
+        const status = serviceData?.data?.status;
+        if (status) {
+            setAlertDismissed(false);
+            setShownAlertDismissed(false);
+        }
+    }, [serviceData?.data?.status]);
 
     // جلب أسباب الرفض فقط للأدمن
     const { data: reportTypesData, isLoading: isLoadingReportTypes } = useGetReportTypes({ enabled: isAdmin });
@@ -114,6 +137,10 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     if (isLoading) return <div className="flex h-screen items-center justify-center">جاري التحميل...</div>;
     if (!service) return <div className="flex h-screen items-center justify-center">الخدمة غير موجودة</div>;
 
+    const currentStatus = service.status;
+    const isOwner = !isAdmin && currentStoreId !== null && currentStoreId === store?.id;
+    const isShown = (service as unknown as { shown?: boolean })?.shown;
+
     const breadcrumbItems = [
         { label: "مقدمي الخدمات", href: "/admin/serviceProviders" },
         { label: store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "تفاصيل المتجر", href: `/admin/serviceProviders/${storeId}` },
@@ -125,6 +152,78 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
             {/* Header Area */}
             <div>
                 <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
+
+                {/* ✅ تم قبول الخدمه */}
+                {isOwner && !alertDismissed && currentStatus === "approved" && (
+                    <div className="container mx-auto mt-4 px-4 md:px-0">
+                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#66FF99]/60 bg-[#E6FFF1] relative" dir="rtl">
+                            <CheckCircle2 className="w-5 h-5 text-[#00A846] mt-0.5 shrink-0" />
+                            <div className="flex-1">
+                                <p className="font-bold text-[#006B2E] text-sm">تم قبول الخدمة بنجاح</p>
+                                <p className="text-[#008A3A] text-sm mt-1 leading-relaxed">
+                                    نحيطك علمًا بأنه تم قبول عرض الخدمة على الموقع، وهي الآن متاحة للزوار ويمكن للعملاء طلبها في أي وقت.
+                                </p>
+                            </div>
+                            <button onClick={dismissAlert} className="text-[#00A846] hover:text-[#006B2E] transition-colors shrink-0 mt-0.5">
+                                <XCircle className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* ❌ تم رفض الخدمه */}
+                {isOwner && !alertDismissed && currentStatus === "rejected" && (
+                    <div className="container mx-auto mt-4 px-4 md:px-0">
+                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#FF9999]/60 bg-[#FFF0F0] relative" dir="rtl">
+                            <XCircle className="w-5 h-5 text-[#D00739] mt-0.5 shrink-0" />
+                            <div className="flex-1">
+                                <p className="font-bold text-[#D00739] text-sm">تم رفض الخدمة</p>
+                                <p className="text-[#A00028] text-sm mt-1 leading-relaxed">
+                                    نعتذر، لم يتم قبول عرض الخدمة في الوقت الحالي، وذلك لعدم استيفائها متطلبات النشر على المنصة. يرجى مراجعة الإرشادات وإجراء التعديلات اللازمة، ثم إعادة الإرسال.
+                                </p>
+                            </div>
+                            <button onClick={dismissAlert} className="text-[#D00739] hover:text-[#A00028] transition-colors shrink-0 mt-0.5">
+                                <XCircle className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* 🕐 الخدمه قيد المراجعة */}
+                {isOwner && !alertDismissed && currentStatus === "pending" && (
+                    <div className="container mx-auto mt-4 px-4 md:px-0">
+                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#FFD87D]/60 bg-[#FFFBF0] relative" dir="rtl">
+                            <PauseCircle className="w-5 h-5 text-[#C48A00] mt-0.5 shrink-0" />
+                            <div className="flex-1">
+                                <p className="font-bold text-[#8A6000] text-sm">الخدمة قيد المراجعة من قبل فريق أعطيني</p>
+                                <p className="text-[#6B4A00] text-sm mt-1 leading-relaxed">
+                                    سيتم نشر الخدمة بعد الانتهاء من مراجعتها واعتمادها من قبل الإدارة.
+                                </p>
+                            </div>
+                            <button onClick={dismissAlert} className="text-[#C48A00] hover:text-[#8A6000] transition-colors shrink-0 mt-0.5">
+                                <XCircle className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* ⏸ إلغاء تفعيل مؤقت من التاجر */}
+                {isOwner && isShown === false && !shownAlertDismissed && currentStatus === "approved" && (
+                    <div className="container mx-auto mt-4 px-4 md:px-0">
+                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#6D6D6D]/30 bg-[#F5F5F5] relative" dir="rtl">
+                            <PauseCircle className="w-5 h-5 text-[#6D6D6D] mt-0.5 shrink-0" />
+                            <div className="flex-1">
+                                <p className="font-bold text-[#3D3D3D] text-sm">لقد قمت بإلغاء تفعيل الخدمة مؤقتاً</p>
+                                <p className="text-[#555555] text-sm mt-1 leading-relaxed">
+                                    تم تعليق الخدمة بشكل مؤقت من قبلك، وهي حالياً غير متاحة للطلب حتى يتم تفعيلها مجددًا. يمكنك إعادة تفعيل الخدمة في أي وقت من خلال لوحة التحكم.
+                                </p>
+                            </div>
+                            <button onClick={() => setShownAlertDismissed(true)} className="text-[#6D6D6D] hover:text-[#3D3D3D] transition-colors shrink-0 mt-0.5">
+                                <XCircle className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* ✅ Action Bar: يظهر للأدمن عندما تكون الحالة pending أو rejected أو approved */}
                 {isAdmin && (service.status === "pending" || service.status === "rejected" || service.status === "approved") && (
@@ -154,9 +253,8 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                         </div>
                     </div>
                 )}
-            </div>
 
-            <div className="container mx-auto px-4 md:px-0 mt-6">
+            </div>            <div className="container mx-auto px-4 md:px-0 mt-6">
                 <div className="grid grid-cols-12 gap-6">
 
                     {/* Main Content Area */}
@@ -222,126 +320,146 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
                             )}
 
-                            {/* Description Section */}
-                            <div className="mb-8">
-                                <h3 className="text-xl font-bold  mb-4">تفاصيل الخدمة</h3>
-                                <div
-                                    className="text-gray-2 leading-relaxed whitespace-pre-line text-sm"
-                                    dangerouslySetInnerHTML={{ __html: service.description }}
-                                />
-                            </div>
+                            <ServiceTabs service={service as unknown as WebService} />
 
-                            {/* Specialties Section */}
-                            {service.specialties && service.specialties.length > 0 && (
-                                <div className="mb-8">
-                                    <h3 className="text-sm font-bold  mb-3">مجالات الخدمة:</h3>
-                                    <ul className="space-y-2">
-                                        {service.specialties.map((item: any, idx) => (
-                                            <li key={item.id || idx} className="flex items-center gap-2 text-gray-700 text-sm">
-                                                <div className="text-green-500">
-                                                    <CheckCircle2 className="w-4 h-4" />
-                                                </div>
-                                                {typeof item === 'object' ? item.title : item}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-
-                            {/* FAQ Section */}
-                            {service.questions && service.questions.length > 0 && (
-                                <div>
-                                    <h3 className="text-xl font-bold  mb-1">الأسئلة الشائعة (اختياري)</h3>
-                                    <p className="text-gray-2 text-xs mb-6">اكتب إجابات للأسئلة الشائعة التي يطرحها عميلك. أضف حتى خمسة أسئلة.</p>
-
-                                    <div className="space-y-6">
-                                        {service.questions.map((q, idx) => (
-                                            <div key={idx} className="border-b border-gray-50 pb-4 last:border-0">
-                                                <h4 className="font-bold  text-sm mb-2">{idx + 1}. {q.question}</h4>
-                                                <p className="text-gray-2 text-sm leading-relaxed">{q.answer}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
                         </div>
                     </div>
 
                     {/* Sidebar Area */}
                     <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-1 lg:order-2">
-                        <div className="bg-white rounded-2xl p-6  border border-gray-100 h-fit">
+                        <div className="bg-white rounded-2xl border border-gray-100 h-fit overflow-hidden">
 
-                            {/* Category Section */}
-                            <div className="grid grid-cols-2 py-4 border-b border-gray-100">
-                                <div className="t">
-                                    <p className=" font-bold text-sm mb-1">التصنيف الرئيسي</p>
-                                    <p className="text-gray-2 text-sm">{service.section?.name || "-"}</p>
+                            {/* Activate Toggle Row — يظهر فقط للتاجر وفقط إذا كان الخدمه مقبولاً */}
+                            {isOwner && currentStatus === "approved" && (
+                                <div className="flex items-center justify-between px-5 py-3 rounded-md mx-4 mt-4 bg-[#C8D7E8]">
+                                    <span className="font-bold text-sm text-[#1e3a52]">تفعيل الخدمة</span>
+                                    <button
+                                        onClick={() => {
+                                            const newShown = isShown === false ? true : false;
+                                            updateShown(
+                                                { id: serviceId, shown: newShown ? 1 : 0, storeId: storeId },
+                                                {
+                                                    onSuccess: () => {
+                                                        queryClient.invalidateQueries({ queryKey: ["services", serviceId] });
+                                                        if (!newShown) setShownAlertDismissed(false);
+                                                    }
+                                                }
+                                            );
+                                        }}
+                                        disabled={isUpdatingShown}
+                                        role="switch"
+                                        aria-checked={isShown !== false}
+                                        style={{
+                                            width: 44,
+                                            height: 24,
+                                            borderRadius: 9999,
+                                            backgroundColor: isShown !== false ? "#34D399" : "#6B7280",
+                                            position: "relative",
+                                            border: "none",
+                                            cursor: "pointer",
+                                            transition: "background-color 0.2s",
+                                            flexShrink: 0,
+                                            opacity: isUpdatingShown ? 0.6 : 1,
+                                        }}
+                                    >
+                                        <span
+                                            style={{
+                                                position: "absolute",
+                                                top: 4,
+                                                width: 16,
+                                                height: 16,
+                                                borderRadius: 9999,
+                                                backgroundColor: "white",
+                                                boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                                                transition: "left 0.2s",
+                                                left: isShown !== false ? 24 : 4,
+                                            }}
+                                        />
+                                    </button>
                                 </div>
-                                <div className="">
-                                    <p className=" font-bold text-sm mb-1">التصنيف الفرعي</p>
-                                    <p className="text-gray-2 text-sm">{service.category?.name || "-"}</p>
+                            )}
+
+                            <div className="p-6 py-2">
+
+                                {/* Category Section */}
+                                <div className="grid grid-cols-2 py-4 border-b border-gray-100">
+                                    <div className="t">
+                                        <p className=" font-bold text-sm mb-1">التصنيف الرئيسي</p>
+                                        <p className="text-gray-2 text-sm">{service.section?.name || "-"}</p>
+                                    </div>
+                                    <div className="">
+                                        <p className=" font-bold text-sm mb-1">التصنيف الفرعي</p>
+                                        <p className="text-gray-2 text-sm">{service.category?.name || "-"}</p>
+                                    </div>
                                 </div>
+
+                                {/* Price & Delivery Section */}
+                                <div className="grid grid-cols-2 py-4 border-b border-gray-100">
+                                    <div className="t">
+                                        <p className=" font-bold text-sm mb-1">سعر الخدمة</p>
+                                        <p className="text-gray-2 text-sm font-medium">₪  {service.price}</p>
+                                    </div>
+                                    <div className="">
+                                        <p className=" font-bold text-sm mb-1">التسليم خلال</p>
+                                        <p className="text-gray-2 text-sm">{service.execute_count} {service.execute_type}</p>
+                                    </div>
+                                </div>
+
+                                {/* Cities Section */}
+                                <div className="py-4 border-b border-gray-100">
+                                    <p className=" font-bold text-sm mb-3">المدن التي يمكنه العمل بها</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {store?.serviceCities && store.serviceCities.length > 0 ? (
+                                            store.serviceCities.map((city) => (
+                                                <span key={city.id} className="px-3 py-1 bg-[#F0F4F8] text-[#3A5779] text-xs rounded-full font-medium border border-[#E1E8F0]">
+                                                    {city.name}
+                                                </span>
+                                            ))
+                                        ) : (
+                                            <span className="text-xs text-gray-2">لا توجد مدن محددة</span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Keywords Section */}
+                                <div className="py-4">
+                                    <p className=" font-bold text-sm mb-2">الكلمات المفتاحية</p>
+                                    <div className="flex flex-wrap gap-1">
+                                        {service.tags && service.tags.length > 0 ? (
+                                            service.tags.map((tag: string | { id: number; title: string }, idx: number) => (
+                                                <span key={idx} className="text-gray-2 text-xs leading-relaxed bg-gray-50 px-2 py-1 rounded">
+                                                    {typeof tag === 'object' ? tag.title : tag}
+                                                </span>
+                                            ))
+                                        ) : (
+                                            <span className="text-gray-2 text-xs">لا توجد كلمات مفتاحية</span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Contact Buttons */}
+                                {currentStoreId !== store?.id && (
+                                    <div className="flex flex-col gap-3 mt-4">
+                                        {
+                                            store?.phone && (
+                                                <Button className="w-full bg-[#3A5779] hover:bg-[#2c425e] text-white font-bold h-12 rounded-lg gap-2 text-sm ">
+                                                    <span>{store?.phone}</span>
+                                                    <Phone className="w-5 h-5 " />
+                                                </Button>
+                                            )
+                                        }
+                                        <Link href={`/admin/chat?type=store&id=${store?.id}`}>
+                                            <Button variant="outline" className="w-full border-[#3A5779] text-[#3A5779] bg-transparent font-bold h-12 rounded-lg gap-2 text-sm">
+                                                <span>دردشة</span>
+                                                <Send className="w-5 h-5 rotate-45" />
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                )}
+
                             </div>
-
-                            {/* Price & Delivery Section */}
-                            <div className="grid grid-cols-2 py-4 border-b border-gray-100">
-                                <div className="t">
-                                    <p className=" font-bold text-sm mb-1">سعر الخدمة</p>
-                                    <p className="text-gray-2 text-sm font-medium">₪  {service.price}</p>
-                                </div>
-                                <div className="">
-                                    <p className=" font-bold text-sm mb-1">التسليم خلال</p>
-                                    <p className="text-gray-2 text-sm">{service.execute_count} {service.execute_type}</p>
-                                </div>
-                            </div>
-
-                            {/* Cities Section */}
-                            <div className="py-4 border-b border-gray-100">
-                                <p className=" font-bold text-sm mb-3">المدن التي يمكنه العمل بها</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {store?.serviceCities && store.serviceCities.length > 0 ? (
-                                        store.serviceCities.map((city) => (
-                                            <span key={city.id} className="px-3 py-1 bg-[#F0F4F8] text-[#3A5779] text-xs rounded-full font-medium border border-[#E1E8F0]">
-                                                {city.name}
-                                            </span>
-                                        ))
-                                    ) : (
-                                        <span className="text-xs text-gray-2">لا توجد مدن محددة</span>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Keywords Section */}
-                            <div className="py-4 mb-4">
-                                <p className=" font-bold text-sm mb-2">الكلمات المفتاحية</p>
-                                <div className="flex flex-wrap gap-1">
-                                    {service.tags && service.tags.length > 0 ? (
-                                        service.tags.map((tag: string | { id: number; title: string }, idx: number) => (
-                                            <span key={idx} className="text-gray-2 text-xs leading-relaxed bg-gray-50 px-2 py-1 rounded">
-                                                {typeof tag === 'object' ? tag.title : tag}
-                                            </span>
-                                        ))
-                                    ) : (
-                                        <span className="text-gray-2 text-xs">لا توجد كلمات مفتاحية</span>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Contact Buttons */}
-                            <div className="flex flex-col gap-3">
-                                <Button className="w-full bg-[#3A5779] hover:bg-[#2c425e] text-white font-bold h-12 rounded-lg gap-2 text-sm ">
-                                    <span>{store?.phone || "+972 *** *** ***"}</span>
-                                    <Phone className="w-5 h-5 " />
-                                </Button>
-                                <Button variant="outline" className="w-full border-[#3A5779] text-[#3A5779] bg-transparent font-bold h-12 rounded-lg gap-2 text-sm">
-                                    <span>دردشة</span>
-                                    <Send className="w-5 h-5 rotate-45" />
-                                </Button>
-                            </div>
-
                         </div>
                     </div>
-
                 </div>
             </div>
 

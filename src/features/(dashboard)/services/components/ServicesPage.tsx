@@ -507,7 +507,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 >
                                     <span className="font-bold text-sm">{tab.label}</span>
                                     <span
-                                        className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-xs font-bold text-white ${activeStatus === tab.key ? tab.badgeClass : "bg-gray-2"
+                                        className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 pt-1 rounded text-xs font-bold text-white ${activeStatus === tab.key ? tab.badgeClass : "bg-gray-2"
                                             }`}
                                     >
                                         {getCountForStatus(tab.key)}
