@@ -169,7 +169,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                             e.stopPropagation();
                                             router.push("/admin/stories");
                                         }}
-                                        className="absolute bottom-1 right-1 w-8 h-8 bg-blue-4 rounded-full flex items-center justify-center shadow-md border-2 border-white cursor-pointer hover:bg-blue-3 transition-colors z-20"
+                                        className="absolute bottom-1 left-2 w-8 h-8 bg-blue-4 rounded-full flex items-center justify-center shadow-md border-2 border-white cursor-pointer hover:bg-blue-3 transition-colors z-20"
                                     >
                                         <PenLine className="w-3.5 h-3.5 text-white" />
                                     </button>
