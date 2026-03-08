@@ -42,7 +42,7 @@ export function ImageGallerySelector({
     label,
     subLabel,
     emptyStateText = "أضف أو اسحب صورة",
-    emptyStateSubText = "png, jpg",
+    emptyStateSubText = "png, jpg, svg",
     mainImageLabel = "الصورة الاساسية",
     showMainSelector = true,
     showDragHint = false,

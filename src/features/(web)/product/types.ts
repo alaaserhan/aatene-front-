@@ -20,6 +20,19 @@ export interface Section {
   store_id: number | null;
 }
 
+export interface VariationOption {
+  id?: number;
+  option_id: number | string;
+  attribute_id: number | string;
+}
+
+export interface Variation {
+  id: number;
+  price: number | string;
+  image: string | null;
+  attributeOptions: VariationOption[];
+}
+
 export interface Tag {
   id: number;
   title: string;
@@ -148,7 +161,7 @@ export interface Store {
   lat: number | null;
   lng: number | null;
   logo: string | null;
-  logo_url:string | null ;
+  logo_url: string | null;
   cover: string | null;
   review_rate: string;
   review_count: string;
@@ -184,7 +197,7 @@ export interface Product {
   in_compare: boolean;
   store_id: number | null;
   category: Category | null;
-  variations: unknown[];
+  variations?: Variation[];
   crossSells: Product[];
   upSells: Product[];
   created_at?: string;

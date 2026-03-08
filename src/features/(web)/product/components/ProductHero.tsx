@@ -20,6 +20,23 @@ interface ProductHeroProps {
 }
 
 export default function ProductHero({ product, store, attributes }: ProductHeroProps) {
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [showMenu, setShowMenu] = useState(false);
+    const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
+
+    const selectedVariation = useMemo(() => {
+        if (!product.variations || product.variations.length === 0) return null;
+        if (!attributes || Object.keys(selectedVariations).length !== attributes.length) return null;
+
+        return product.variations.find(v => {
+            if (!v.attributeOptions) return false;
+            return v.attributeOptions.every(opt => {
+                const selectedVal = selectedVariations[String(opt.attribute_id)];
+                return selectedVal && selectedVal === String(opt.option_id);
+            });
+        });
+    }, [product.variations, selectedVariations, attributes]);
+
     const allMedia = useMemo(() => {
         const isVideoFile = (url: string) => {
             return /\.(mp4|webm|avi|mkv|mov|wmv|x-ms-wmv|3gp|3gpp|3gpp2|ogg|quicktime|mp2t)(\?.*)?$/i.test(url || "");
@@ -30,23 +47,28 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
             product.gallery.forEach((url) => items.push({ type: isVideoFile(url) ? "video" : "image", url: url }));
         }
         if (product.video) items.push({ type: "video", url: product.video });
+
+        // Ensure variation image is in the list
+        if (selectedVariation?.image) {
+            const exists = items.find(i => i.url === selectedVariation.image);
+            if (!exists) {
+                items.unshift({ type: "image", url: selectedVariation.image });
+            }
+        }
+
         return items;
-    }, [product]);
-
-    const [selectedIndex, setSelectedIndex] = useState(0);
-    const [showMenu, setShowMenu] = useState(false);
-    const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
-
-    const { mutate: addToCompare } = useAddProductToCompare();
-    const router = useRouter();
+    }, [product, selectedVariation]);
 
     const currentStoreId = Cookies.get("current_store_id");
     const isProductOwner = !!currentStoreId && !!product.store_id && Number(currentStoreId) === product.store_id;
 
+    const { mutate: addToCompare } = useAddProductToCompare();
+    const router = useRouter();
+
     const currentMedia = allMedia[selectedIndex] || allMedia[0];
     const rating = parseFloat(product.review_rate || "0");
-    const hasDiscount = product.price_after_discount && product.price_after_discount !== product.price;
-    const displayPrice = product.price_after_discount || product.price;
+    const hasDiscount = !selectedVariation && product.price_after_discount && product.price_after_discount !== product.price;
+    const displayPrice = selectedVariation ? String(selectedVariation.price) : (product.price_after_discount || product.price);
 
     const handlePrev = () => {
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : allMedia.length - 1));
@@ -282,12 +304,31 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                         label: option.title,
                                     })) || []}
                                     value={selectedVariations[attr.id] || ""}
-                                    onChange={(val) =>
-                                        setSelectedVariations((prev) => ({
-                                            ...prev,
+                                    onChange={(val) => {
+                                        const newSelections: Record<string, string> = {
+                                            ...selectedVariations,
                                             [attr.id]: val,
-                                        }))
-                                    }
+                                        };
+                                        setSelectedVariations(newSelections);
+
+                                        // Try to find the matching variation immediately
+                                        if (product.variations && attributes && Object.keys(newSelections).length === attributes.length) {
+                                            const matchedVar = product.variations.find(v => {
+                                                if (!v.attributeOptions) return false;
+                                                return v.attributeOptions.every(opt => {
+                                                    const selectedVal = newSelections[String(opt.attribute_id)];
+                                                    return selectedVal && selectedVal === String(opt.option_id);
+                                                });
+                                            });
+
+                                            if (matchedVar?.image) {
+                                                // Find the index of this image in the current allMedia array or wait for next render where it's prepended
+                                                // But if it's prepended, it will be at index 0
+                                                const existingIdx = allMedia.findIndex(m => m.url === matchedVar.image);
+                                                setSelectedIndex(existingIdx !== -1 ? existingIdx : 0);
+                                            }
+                                        }
+                                    }}
                                 />
                             ))}
                         </div>

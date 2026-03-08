@@ -4,13 +4,12 @@ import { useState, useMemo, useEffect } from "react";
 import {
     Check,
     List,
-    DollarSign,
     Percent,
     Loader2,
 } from "lucide-react";
 import { InfiniteData } from "@tanstack/react-query";
 import { OptionTag } from "@/src/components/ui/OptionTag";
-import Cookies from "js-cookie";
+
 import { Section, SectionsResponse } from "@/src/features/(dashboard)/sections/api";
 
 import {
@@ -46,8 +45,6 @@ interface CouponFormData {
     type: "value" | "percentage";
     value: string;
     start_date: string;
-    end_date: string;
-
     end_date: string;
 
     // Step 2: Included
