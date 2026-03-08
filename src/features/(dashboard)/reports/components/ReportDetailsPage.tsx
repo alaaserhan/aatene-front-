@@ -305,11 +305,11 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
           </div>
 
           {/* Reply Section or Response Details */}
-          <div className="pt-6 border-t border-gray-100">
-            {report.response_text ? (
+          <div className="pt-6 border-t border-gray-100 space-y-6">
+            {report.response_text && (
               <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-gray-800">الرد على الشكوى</h3>
+                  <h3 className="font-bold text-gray-800">الردود السابقة</h3>
                   {report.responded_at && (
                     <span className="text-xs text-gray-500">
                       {format(new Date(report.responded_at), "yyyy-MM-dd HH:mm")}
@@ -344,57 +344,58 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="relative border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all">
-                <textarea
-                  className="w-full h-32 p-4 resize-none outline-none text-sm placeholder:text-gray-400"
-                  placeholder="اضافة رد ....."
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                ></textarea>
-
-                {/* Selected Files for Reply */}
-                {replyFiles.length > 0 && (
-                  <div className="px-4 pb-2 flex gap-2 flex-wrap">
-                    {replyFiles.map((file, i) => (
-                      <div key={i} className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded text-xs border border-gray-200">
-                        <span className="max-w-[150px] truncate">{file.name}</span>
-                        <button onClick={() => handleRemoveReplyFile(i)} className="text-gray-400 hover:text-red-500">
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between p-3 bg-gray-50 border-t border-gray-100">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="file"
-                      id="reply-file-upload"
-                      multiple
-                      className="hidden"
-                      onChange={handleReplyFileSelect}
-                    />
-                    <label
-                      htmlFor="reply-file-upload"
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-600 text-sm cursor-pointer transition-colors"
-                    >
-                      <Paperclip className="w-4 h-4" />
-                      <span>ارفاق ملفات</span>
-                    </label>
-                  </div>
-
-                  <Button
-                    onClick={handleSendReply}
-                    disabled={isSendingReply || !replyText.trim()}
-                    className="bg-[#3A5779] hover:bg-[#2c4460] text-white px-6 h-9"
-                  >
-                    {isSendingReply ? <Loader2 className="w-4 h-4 animate-spin" /> : "اضافة"}
-                  </Button>
-                </div>
-              </div>
             )}
+
+            {/* Input Form for New Additions */}
+            <div className="relative border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all">
+              <textarea
+                className="w-full h-32 p-4 resize-none outline-none text-sm placeholder:text-gray-400"
+                placeholder="اضافة رد ....."
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+              ></textarea>
+
+              {/* Selected Files for Reply */}
+              {replyFiles.length > 0 && (
+                <div className="px-4 pb-2 flex gap-2 flex-wrap">
+                  {replyFiles.map((file, i) => (
+                    <div key={i} className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded text-xs border border-gray-200">
+                      <span className="max-w-[150px] truncate">{file.name}</span>
+                      <button onClick={() => handleRemoveReplyFile(i)} className="text-gray-400 hover:text-red-500">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between p-3 bg-gray-50 border-t border-gray-100">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    id="reply-file-upload"
+                    multiple
+                    className="hidden"
+                    onChange={handleReplyFileSelect}
+                  />
+                  <label
+                    htmlFor="reply-file-upload"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-600 text-sm cursor-pointer transition-colors"
+                  >
+                    <Paperclip className="w-4 h-4" />
+                    <span>ارفاق ملفات</span>
+                  </label>
+                </div>
+
+                <Button
+                  onClick={handleSendReply}
+                  disabled={isSendingReply || !replyText.trim()}
+                  className="bg-[#3A5779] hover:bg-[#2c4460] text-white px-6 h-9"
+                >
+                  {isSendingReply ? <Loader2 className="w-4 h-4 animate-spin" /> : "اضافة"}
+                </Button>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -415,7 +416,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
             onOpenChange={() => setShowMediaModal(false)}
             onSelect={handleAddAttachment}
             multiple={true} // Allow multiple selection
-            allowedMediaTypes={[ "gallery"]} // Adjust based on your MediaCenter config
+            allowedMediaTypes={["gallery"]} // Adjust based on your MediaCenter config
             selectionLimit={5}
           />
         )

@@ -24,6 +24,10 @@ import {
 } from "lucide-react";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
+import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
+import { useQueryClient } from "@tanstack/react-query";
+import { blogsKeys } from "../hooks";
+import { cn } from "@/src/lib/utils";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -257,6 +261,35 @@ export default function BlogDetailsPage() {
     const formRef = useRef<ReviewFormRef>(null);
     const addReview = useAddBlogReview();
 
+    // Favorites handling
+    const addToFavorites = useAddToFavorites();
+    const removeFromFavorites = useRemoveFromFavorites();
+    const queryClient = useQueryClient();
+
+    const handleToggleFavorite = () => {
+        if (!blog) return;
+
+        mutationCallback({ favs_type: "blog", favs_id: String(blog.id) });
+    };
+
+    const mutationCallback = (payload: { favs_type: string, favs_id: string }) => {
+        if (blog?.is_favorite) {
+            removeFromFavorites.mutate(payload, {
+                onSuccess: () => {
+                    queryClient.invalidateQueries({ queryKey: blogsKeys.detail(blog.id) });
+                    queryClient.invalidateQueries({ queryKey: blogsKeys.detail(slug) });
+                }
+            });
+        } else {
+            addToFavorites.mutate(payload, {
+                onSuccess: () => {
+                    queryClient.invalidateQueries({ queryKey: blogsKeys.detail(blog!.id) });
+                    queryClient.invalidateQueries({ queryKey: blogsKeys.detail(slug) });
+                }
+            });
+        }
+    };
+
     const handleReply = (id: number, userName: string) => {
         setParentId(id);
         setReplyToName(userName);
@@ -389,16 +422,28 @@ export default function BlogDetailsPage() {
                     {/* Share + Actions Bar */}
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-8">
-                            <div className="relative right-2">
+                            <div
+                                className="relative right-2 cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => {
+                                    formRef.current?.scrollToForm();
+                                    formRef.current?.focusTextarea();
+                                }}
+                            >
                                 <MessageCircle className="w-6 h-6 text-gray-700" strokeWidth={1.5} />
                                 <span className="absolute pt-1 -top-2 -right-3 bg-[#395a7d] text-white sm:text-[11px] text-[8px] font-normal px-1.5 py-0 rounded-full min-w-[25px] flex items-center justify-center border-2 border-white">
-                                    {blog.review_count || "6"}
+                                    {blog.review_count || "0"}
                                 </span>
                             </div>
-                            <div className="relative">
-                                <Heart className="w-6 h-6 text-gray-700" strokeWidth={1.5} />
+                            <div
+                                className="relative cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={handleToggleFavorite}
+                            >
+                                <Heart
+                                    className={cn("w-6 h-6 transition-colors", blog.is_favorite ? "fill-red-500 text-red-500" : "text-gray-700")}
+                                    strokeWidth={1.5}
+                                />
                                 <span className="absolute pt-1 -top-2 -right-4 bg-[#395a7d] text-white sm:text-[11px] text-[8px] font-normal px-1.5 py-0 rounded-full min-w-[25px] flex items-center justify-center border-2 border-white">
-                                    {blog.favorites_count || "99"}
+                                    {blog.favorites_count || "0"}
                                 </span>
                             </div>
                         </div>
