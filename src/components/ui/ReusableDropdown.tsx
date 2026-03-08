@@ -139,7 +139,6 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <div className="flex flex-col bg-white rounded-lg overflow-hidden max-h-[280px]">
-            {/* Search Input Section */}
             {onSearch && (
               <div className="p-2 sticky top-0 bg-white border-b border-gray-100 z-10 shrink-0">
                 <div className="relative">
