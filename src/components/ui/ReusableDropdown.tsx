@@ -137,6 +137,8 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
           align="start"
           dir="rtl"
           onOpenAutoFocus={(e) => e.preventDefault()}
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
         >
           <div className="flex flex-col bg-white rounded-lg overflow-hidden max-h-[280px]">
             {onSearch && (

@@ -1,13 +1,15 @@
 // src/features/(dashboard)/sections/hooks.ts
 "use client";
 
-import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
+import { useMutation, useQuery, useInfiniteQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import * as api from "./api";
 import { SectionCreatePayload, SectionUpdatePayload, SectionsResponse } from "./api";
 import { toast } from "sonner";
+import Cookies from "js-cookie";
 
 const SectionsQK = {
   list: (storeId?: string | number, params?: string) => ["sections", "list", String(storeId), params] as const,
+  infiniteList: (storeId?: string | number, params?: string) => ["sections", "infiniteList", String(storeId), params] as const,
 };
 
 export const useGetSections = (
@@ -20,6 +22,25 @@ export const useGetSections = (
     queryFn: () => api.getSections(params, storeId),
     enabled: !!storeId && (options?.enabled ?? true),
     ...options,
+  });
+};
+
+export const useInfiniteSections = (params?: URLSearchParams) => {
+  const storeId = Cookies.get("current_store_id") || "";
+
+  return useInfiniteQuery({
+    queryKey: SectionsQK.infiniteList(storeId, params?.toString()),
+    queryFn: async ({ pageParam = 1 }) => {
+      const currentParams = params ? new URLSearchParams(params.toString()) : new URLSearchParams();
+      currentParams.set("page", String(pageParam));
+      return await api.getSections(currentParams, storeId);
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      const totalPages = Math.ceil(lastPage.recordsFiltered / 10);
+      return allPages.length < totalPages ? allPages.length + 1 : undefined;
+    },
+    enabled: !!storeId,
   });
 };
 

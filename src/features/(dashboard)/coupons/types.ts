@@ -1,4 +1,4 @@
-export interface CouponCategory {
+export interface CouponSection {
     id: number;
     name: string;
     slug?: string;
@@ -21,7 +21,7 @@ export interface Coupon {
     start_date: string;
     end_date: string;
     status: "active" | "not-active" | string;
-    categories?: (number | CouponCategory)[];
+    sections?: (number | CouponSection)[];
     products?: (number | CouponProduct)[];
     store_id?: string | number;
 }
@@ -34,7 +34,7 @@ export interface CouponPayload {
     start_date: string;
     end_date: string;
     status: "active" | "not-active" | string;
-    categories: number[];
+    sections: number[];
     products: number[];
     store_id?: number;
 }

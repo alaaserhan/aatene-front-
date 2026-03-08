@@ -9,9 +9,9 @@ import {
     Loader2,
 } from "lucide-react";
 import { InfiniteData } from "@tanstack/react-query";
-import { SelectOptionsResponse } from "@/src/features/(dashboard)/categoriesAndAttributes/api";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import Cookies from "js-cookie";
+import { Section, SectionsResponse } from "@/src/features/(dashboard)/sections/api";
 
 import {
     Dialog,
@@ -22,7 +22,7 @@ import { FormInput } from "@/src/components/ui/FormInput";
 import { DatePicker } from "@/src/components/ui/DatePicker";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { cn } from "@/src/lib/utils";
-import { useInfiniteCategoryOptions } from "@/src/features/(dashboard)/categoriesAndAttributes/hooks";
+import { useInfiniteSections } from "@/src/features/(dashboard)/sections/hooks";
 import { useCreateCoupon, useUpdateCoupon, useGetCoupon } from "../hooks";
 
 import { Coupon, CouponPayload } from "../types";
@@ -48,8 +48,10 @@ interface CouponFormData {
     start_date: string;
     end_date: string;
 
+    end_date: string;
+
     // Step 2: Included
-    categories: { id: string; name: string }[];
+    sections: { id: string; name: string }[];
     products: { id: string; name: string }[]; // Placeholder for now
 }
 
@@ -117,7 +119,7 @@ function InfiniteMultiSelect({
     selectedItems: { id: string; name: string }[];
     onChange: (items: { id: string; name: string }[]) => void;
     useInfiniteHook: (params: URLSearchParams) => {
-        data: InfiniteData<SelectOptionsResponse> | undefined;
+        data: InfiniteData<SectionsResponse> | undefined;
         fetchNextPage: () => void;
         hasNextPage: boolean;
         isFetchingNextPage: boolean;
@@ -159,7 +161,7 @@ function InfiniteMultiSelect({
     const options = useMemo(() => {
         if (!data) return [];
         const allOptions = data.pages.flatMap((page) =>
-            page.categories?.map((item) => ({
+            page.data?.map((item: Section) => ({
                 value: String(item.id),
                 label: item.name,
             })) || []
@@ -244,7 +246,7 @@ export function CreateCouponModal({
         value: "",
         start_date: "",
         end_date: "",
-        categories: [],
+        sections: [],
         products: [],
     });
 
@@ -270,7 +272,7 @@ export function CreateCouponModal({
                     start_date: couponToEdit.start_date?.split(" ")[0] || "",
                     end_date: couponToEdit.end_date?.split(" ")[0] || "",
 
-                    categories: [], // Populate if available in full details
+                    sections: [], // Populate if available in full details
                     products: [], // Populate if available
                 });
                 // Note: If categories/products are just IDs in `couponToEdit`, we might need to fetch them
@@ -283,7 +285,7 @@ export function CreateCouponModal({
                     value: "",
                     start_date: "",
                     end_date: "",
-                    categories: [],
+                    sections: [],
                     products: [],
                 });
             }
@@ -302,7 +304,7 @@ export function CreateCouponModal({
                 start_date: record.start_date?.split(" ")[0] || "",
                 end_date: record.end_date?.split(" ")[0] || "",
                 // Handle mixed types (number or object)
-                categories: record.categories?.map(c =>
+                sections: record.sections?.map(c =>
                     typeof c === 'object' ? { id: String(c.id), name: c.name } : { id: String(c), name: '' }
                 ) || [],
                 products: record.products?.map(p =>
@@ -373,7 +375,7 @@ export function CreateCouponModal({
             start_date: formData.start_date,
             end_date: formData.end_date,
             status: couponToEdit?.status || "active", // Default active
-            categories: formData.categories.map(c => Number(c.id)),
+            sections: formData.sections.map(c => Number(c.id)),
             products: formData.products.map(p => Number(p.id)),
             store_id: couponToEdit?.store_id ? Number(couponToEdit.store_id) : undefined
         };
@@ -487,13 +489,13 @@ export function CreateCouponModal({
         return (
             <div className="space-y-6">
                 <InfiniteMultiSelect
-                    label="تصنيفات "
+                    label="الاقسام "
                     placeholder="اختر..."
-                    searchPlaceholder="ابحث عن تصنيف..."
-                    selectedItems={formData.categories}
-                    onChange={(items) => updateFormData({ categories: items })}
-                    useInfiniteHook={useInfiniteCategoryOptions}
-                    extraParams={{ type: "product" }}
+                    searchPlaceholder="ابحث عن قسم..."
+                    selectedItems={formData.sections}
+                    onChange={(items) => updateFormData({ sections: items })}
+                    useInfiniteHook={useInfiniteSections as unknown as Parameters<typeof InfiniteMultiSelect>[0]["useInfiniteHook"]}
+                    extraParams={{}}
                     required
                 />
 
