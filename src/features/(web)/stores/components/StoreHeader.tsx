@@ -54,7 +54,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     const { mutate: addFav, isPending: isAddingFav } = useAddToFavorites();
     const { mutate: removeFav, isPending: isRemovingFav } = useRemoveFromFavorites();
     const [isFav, setIsFav] = useState(store.is_favorite);
-    const covers = store.cover_urls?.length ? store.cover_urls : ["/background.svg"];
+    const covers = store.cover_urls || [];
 
     const [avatarStoryOpen, setAvatarStoryOpen] = useState(false);
     const hasStories = stories && stories.length > 0;
@@ -89,12 +89,16 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
         <div className="relative bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] pb-4">
             {/* Cover Slider */}
             <div className="relative h-48 md:h-[250px] lg:h-[300px] w-full overflow-hidden group">
-                <Image
-                    src={covers[currentImageIndex]}
-                    alt="Store Cover"
-                    fill
-                    className="object-cover transition-all duration-700"
-                />
+                {covers.length > 0 ? (
+                    <Image
+                        src={covers[currentImageIndex]}
+                        alt="Store Cover"
+                        fill
+                        className="object-cover transition-all duration-700"
+                    />
+                ) : (
+                    <div className="w-full h-full bg-blue-1" />
+                )}
                 <div className="absolute inset-0 bg-black/10 pointer-events-none" />
 
                 {covers.length > 1 && (
