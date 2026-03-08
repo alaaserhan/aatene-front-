@@ -33,19 +33,13 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
-            <StoreHeader store={store} followers={pageData?.followers} />
+            <StoreHeader store={store} followers={pageData?.followers} stories={pageData?.stories} />
             <MaxWidthWrapper className="mt-8 flex flex-col gap-6 lg:max-w-[70%] lg:mr-auto">
-                {/* Stories & Highlights Map Box */}
+                {/* Highlights Map Box */}
                 <div className="flex flex-col gap-6 w-full">
-                    {pageData?.stories && pageData?.stories.length > 0 && (
+                    {pageData?.highlights && pageData.highlights.length > 0 && (
                         <StoreStoriesSection
-                            stories={pageData.stories as unknown as {
-                                id: number;
-                                image: string | null;
-                                text: string | null;
-                                color: string | null;
-                                created_at: string;
-                            }[]}
+                            highlights={pageData.highlights}
                             isOwnStore={isOwnStore}
                         />
                     )}

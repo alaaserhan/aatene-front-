@@ -201,7 +201,7 @@ export function AddStoryModal({
                                         </div>
                                         <div className="text-center">
                                             <p className="text-gray-800 font-bold mb-1">اضغط لاختيار صورة</p>
-                                            <p className="text-gray-400 text-xs text-right">يفضّل استخدام صورة طولية (9:16)</p>
+                                            <p className="text-white text-xs text-right">يفضّل استخدام صورة طولية (9:16)</p>
                                         </div>
                                     </div>
                                 )}

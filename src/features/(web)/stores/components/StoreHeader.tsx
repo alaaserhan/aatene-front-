@@ -19,6 +19,8 @@ import {
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
 import { useQueryClient } from "@tanstack/react-query";
+import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
+import { Story } from "@/src/features/(dashboard)/stories/api";
 
 interface StoreHeaderProps {
     store: StoreProfile;
@@ -32,9 +34,16 @@ interface StoreHeaderProps {
             logo_url?: string | null;
         };
     }[];
+    stories?: {
+        id: number;
+        image: string | null;
+        text: string | null;
+        color: string | null;
+        created_at: string;
+    }[];
 }
 
-export default function StoreHeader({ store, followers }: StoreHeaderProps) {
+export default function StoreHeader({ store, followers, stories = [] }: StoreHeaderProps) {
     const router = useRouter();
     const queryClient = useQueryClient();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -44,6 +53,17 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
     const { mutate: removeFav, isPending: isRemovingFav } = useRemoveFromFavorites();
     const [isFav, setIsFav] = useState(store.is_favorite);
     const covers = store.cover_urls?.length ? store.cover_urls : ["/background.svg"];
+
+    const [avatarStoryOpen, setAvatarStoryOpen] = useState(false);
+    const hasStories = stories && stories.length > 0;
+
+    const mappedAvatarStories: Story[] = stories.map(s => ({
+        id: s.id,
+        image: s.image,
+        text: s.text,
+        color: s.color,
+        created_at: s.created_at,
+    }));
 
     useEffect(() => {
         if (covers.length <= 1) return;
@@ -115,18 +135,31 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
                         {/* Column 1: Avatar & Meta Stats (UserHeader Style) */}
                         <div className="flex flex-col gap-3 items-center relative w-full lg:w-auto shrink-0">
                             {/* Avatar */}
-                            <div className="relative group">
-                                <div className="w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full border-2 -mt-5 border-white shadow-sm shrink-0 bg-gray-100 overflow-hidden relative flex items-center justify-center">
-                                    {store.logo_url ? (
-                                        <Image
-                                            src={store.logo_url}
-                                            alt={store.name}
-                                            fill
-                                            className="object-contain"
-                                        />
-                                    ) : (
-                                        <StoreIcon className="w-16 h-16 text-gray-400" />
-                                    )}
+                            <div
+                                className={cn("relative group", hasStories && "cursor-pointer")}
+                                onClick={() => hasStories && setAvatarStoryOpen(true)}
+                            >
+                                <div className={cn(
+                                    "w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full -mt-5 shrink-0 bg-gray-100 overflow-hidden relative flex items-center justify-center",
+                                    hasStories
+                                        ? "border-[3.5px] border-[#F05A28] shadow-md p-[3px]"
+                                        : "border-2 border-white shadow-sm"
+                                )}>
+                                    <div className={cn(
+                                        "w-full h-full rounded-full overflow-hidden relative flex items-center justify-center bg-gray-100",
+                                        hasStories && "border-2 border-white"
+                                    )}>
+                                        {store.logo_url ? (
+                                            <Image
+                                                src={store.logo_url}
+                                                alt={store.name}
+                                                fill
+                                                className="object-contain"
+                                            />
+                                        ) : (
+                                            <StoreIcon className="w-16 h-16 text-gray-400" />
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -283,6 +316,16 @@ export default function StoreHeader({ store, followers }: StoreHeaderProps) {
 
                 </div>
             </div>
+
+            {avatarStoryOpen && (
+                <ShowStoryModal
+                    isOpen={avatarStoryOpen}
+                    onClose={() => setAvatarStoryOpen(false)}
+                    stories={mappedAvatarStories}
+                    initialIndex={0}
+                    showActions={false}
+                />
+            )}
         </div >
     );
 }

@@ -71,9 +71,29 @@ export interface StoreProfile {
     workingtimes: WorkingTime[];
 }
 
+export interface StoreHighlight {
+    id: number;
+    name: string;
+    stories: {
+        id: number;
+        image: string | null;
+        text: string | null;
+        color: string | null;
+        created_at: string;
+        owner_type: string;
+    }[];
+}
+
 export interface StorePageData {
-    stories: unknown[];
-    highlights: unknown[];
+    stories: {
+        id: number;
+        image: string | null;
+        text: string | null;
+        color: string | null;
+        created_at: string;
+        owner_type: string;
+    }[];
+    highlights: StoreHighlight[];
     coupons: {
         id: number;
         code: string;
@@ -101,6 +121,7 @@ export interface StorePageData {
             id: number;
             avatar_url: string | null;
             logo?: string | null;
+            logo_url?: string | null;
         };
     }[];
 }

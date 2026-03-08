@@ -109,7 +109,7 @@ export function GenericSidebarList<T extends { id: number | string }>({
                 />
               )
             }
-            className="min-w-[120px]"
+            className="w-[120px]"
           />
         )}
       </div>

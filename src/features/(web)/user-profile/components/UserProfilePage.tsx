@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { UserProfile, UserStory, UserFollower } from "../types";
+import { UserProfile, UserStory, UserFollower, UserProfilePageData } from "../types";
 import Image from "next/image";
 import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, Type, Image as ImageIcon, UserMinus, User as UserIcon } from "lucide-react";
 import { useUserProfile, useUserProfilePageData, useUserFavProducts, useUserProducts } from "../hooks";
@@ -24,11 +24,22 @@ import { CreateStoryPayload, Story } from "@/src/features/(dashboard)/stories/ap
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 
-function UserHeader({ user, isOwnProfile, followers }: {
+function UserHeader({ user, isOwnProfile, followers, stories }: {
     user: UserProfile;
     isOwnProfile: boolean;
     followers: UserFollower[];
+    stories: UserStory[];
 }) {
+    const [avatarStoryOpen, setAvatarStoryOpen] = useState(false);
+    const hasStories = stories && stories.length > 0;
+
+    const mappedAvatarStories: Story[] = stories.map(s => ({
+        id: s.id,
+        image: s.image,
+        text: s.text,
+        color: s.color,
+        created_at: s.created_at,
+    }));
     const router = useRouter();
     const queryClient = useQueryClient();
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
@@ -59,7 +70,7 @@ function UserHeader({ user, isOwnProfile, followers }: {
                         />
                     ) : (
                         <div className="w-full h-full bg-blue-1">
-                           
+
                         </div>
                     )
                 }
@@ -70,22 +81,34 @@ function UserHeader({ user, isOwnProfile, followers }: {
 
                     {/* Column 1: Avatar & Meta Stats */}
                     <div className="flex flex-col items-center relative -mt-20 z-10 w-full md:w-auto">
-                        <div className="relative group">
-                            <div className="w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full border-2 border-white shadow-sm shrink-0 bg-gray-100 overflow-hidden relative flex items-center justify-center">
-                                <UserIcon className="w-14 h-14 text-gray-400 absolute" />
-                                {user.avatar_url && (
-                                    <Image
-                                        src={user.avatar_url}
-                                        alt={user.fullname}
-                                        fill
-                                        className="object-cover z-10"
-                                        onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                        }}
-                                    />
-                                )}
+                        <div
+                            className={cn("relative group", hasStories && "cursor-pointer")}
+                            onClick={() => hasStories && setAvatarStoryOpen(true)}
+                        >
+                            <div className={cn(
+                                "w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full shrink-0 bg-gray-100 overflow-hidden relative flex items-center justify-center",
+                                hasStories
+                                    ? "border-[3.5px] border-[#F05A28] shadow-md p-[3px]"
+                                    : "border-2 border-white shadow-sm"
+                            )}>
+                                <div className={cn(
+                                    "w-full h-full rounded-full overflow-hidden relative flex items-center justify-center bg-gray-100",
+                                    hasStories && "border-2 border-white"
+                                )}>
+                                    <UserIcon className="w-14 h-14 text-gray-400 absolute" />
+                                    {user.avatar_url && (
+                                        <Image
+                                            src={user.avatar_url}
+                                            alt={user.fullname}
+                                            fill
+                                            className="object-cover z-10"
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                            }}
+                                        />
+                                    )}
+                                </div>
                             </div>
-
                         </div>
 
                         <div className="flex flex-row md:flex-col items-center justify-center gap-6 md:gap-4 mt-4 md:mt-2 px-2">
@@ -189,30 +212,45 @@ function UserHeader({ user, isOwnProfile, followers }: {
 
                 </div>
             </div >
+            {avatarStoryOpen && (
+                <ShowStoryModal
+                    isOpen={avatarStoryOpen}
+                    onClose={() => setAvatarStoryOpen(false)}
+                    stories={mappedAvatarStories}
+                    initialIndex={0}
+                    showActions={false}
+                />
+            )}
         </div >
     );
 }
 
-function StoriesSection({ stories, isOwnProfile, onAddStory }: {
-    stories: UserStory[];
+function HighlightsSection({ highlights, isOwnProfile, onAddStory }: {
+    highlights: UserProfilePageData["highlights"];
     isOwnProfile: boolean;
     onAddStory: (mode: "text" | "media") => void;
 }) {
     const [storyModalOpen, setStoryModalOpen] = useState(false);
-    const [storyIndex, setStoryIndex] = useState(0);
+    const [selectedStories, setSelectedStories] = useState<Story[]>([]);
 
-    if (!isOwnProfile && (!stories || stories.length === 0)) return null;
+    const filteredHighlights = highlights.filter(h => h.stories && h.stories.length > 0);
 
-    const mappedStories: Story[] = stories.map(s => ({
-        id: s.id,
-        image: s.image,
-        text: s.text,
-        color: s.color,
-        created_at: s.created_at,
-    }));
+    if (!isOwnProfile && filteredHighlights.length === 0) return null;
 
-    const handleStoryClick = (index: number) => {
-        setStoryIndex(index);
+    const getLastStory = (highlight: UserProfilePageData["highlights"][0]) => {
+        if (!highlight.stories || highlight.stories.length === 0) return undefined;
+        return highlight.stories[highlight.stories.length - 1];
+    };
+
+    const handleHighlightClick = (highlight: UserProfilePageData["highlights"][0]) => {
+        const mapped: Story[] = highlight.stories.map(s => ({
+            id: s.id,
+            image: s.image,
+            text: s.text,
+            color: s.color,
+            created_at: s.created_at,
+        }));
+        setSelectedStories(mapped);
         setStoryModalOpen(true);
     };
 
@@ -229,7 +267,7 @@ function StoriesSection({ stories, isOwnProfile, onAddStory }: {
                                         <Plus className="w-7 h-7 text-[#7352C7]" />
                                     </div>
                                 </div>
-                                <span className="text-[13px] font-medium text-[#3F3F46]">أضف قصتك</span>
+                                <span className="text-[13px] font-medium text-[#3F3F46]">أضف هايلايت</span>
                             </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-56 p-2 rounded-lg border border-gray-200 shadow-none bg-white z-50">
@@ -262,46 +300,56 @@ function StoriesSection({ stories, isOwnProfile, onAddStory }: {
                     </DropdownMenu>
                 )}
 
-                {stories.map((story, index) => (
-                    <button
-                        key={story.id}
-                        onClick={() => handleStoryClick(index)}
-                        className="shrink-0 flex flex-col items-center gap-1.5 cursor-pointer group"
-                    >
-                        <div
-                            className="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-3 p-0.5 group-hover:scale-105 transition-transform"
+                {filteredHighlights.map((highlight) => {
+                    const lastStory = getLastStory(highlight);
+                    return (
+                        <button
+                            key={highlight.id}
+                            onClick={() => handleHighlightClick(highlight)}
+                            className="shrink-0 flex flex-col items-center gap-1.5 cursor-pointer group"
                         >
-                            <div
-                                className="w-full h-full rounded-full overflow-hidden flex items-center justify-center"
-                                style={{ backgroundColor: story.color || "#3A5779" }}
-                            >
-                                {story.image ? (
-                                    <Image
-                                        src={story.image}
-                                        alt=""
-                                        width={60}
-                                        height={60}
-                                        className="w-full h-full object-cover rounded-full"
-                                    />
-                                ) : (
-                                    <span className="text-white text-xs font-medium text-center px-1 line-clamp-2">
-                                        {story.text}
-                                    </span>
-                                )}
+                            <div className="w-18 h-18 rounded-full border-2 border-blue-4 p-1 group-hover:scale-105 transition-transform">
+                                <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative border border-gray-100 flex items-center justify-center">
+                                    {lastStory ? (
+                                        lastStory.image ? (
+                                            <div className="relative w-full h-full">
+                                                <Image
+                                                    src={lastStory.image}
+                                                    alt={highlight.name}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div
+                                                className="w-full h-full flex items-center justify-center p-1 text-center text-white text-[10px] font-bold leading-tight"
+                                                style={{ backgroundColor: lastStory.color || "#3A5779" }}
+                                            >
+                                                {lastStory.text}
+                                            </div>
+                                        )
+                                    ) : (
+                                        <div className="w-full h-full bg-gradient-to-tr from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                                            {highlight.name[0]}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                        <span className="text-[13px] font-medium text-[#3F3F46] max-w-[66px] truncate">{story.text || "قصة"}</span>
-                    </button>
-                ))}
+                            <span className="text-[13px] font-medium text-[#3F3F46] max-w-[66px] truncate">{highlight.name}</span>
+                        </button>
+                    );
+                })}
             </div>
 
-            <ShowStoryModal
-                isOpen={storyModalOpen}
-                onClose={() => setStoryModalOpen(false)}
-                stories={mappedStories}
-                initialIndex={storyIndex}
-                showActions={false}
-            />
+            {storyModalOpen && (
+                <ShowStoryModal
+                    isOpen={storyModalOpen}
+                    onClose={() => setStoryModalOpen(false)}
+                    stories={selectedStories}
+                    initialIndex={0}
+                    showActions={false}
+                />
+            )}
         </div>
     );
 }
@@ -585,6 +633,7 @@ export default function UserProfilePage() {
     const user = profileData.user;
     const isOwnProfile = authUser?.id === user.id;
     const stories = pageData?.stories || [];
+    const highlights = pageData?.highlights || [];
     const sections = pageData?.sections || [];
     const followers = pageData?.followers || [];
 
@@ -594,11 +643,12 @@ export default function UserProfilePage() {
                 user={user}
                 isOwnProfile={isOwnProfile}
                 followers={followers}
+                stories={stories}
             />
             <div className="container ">
 
-                <StoriesSection
-                    stories={stories}
+                <HighlightsSection
+                    highlights={highlights}
                     isOwnProfile={isOwnProfile}
                     onAddStory={handleOpenAdd}
                 />
