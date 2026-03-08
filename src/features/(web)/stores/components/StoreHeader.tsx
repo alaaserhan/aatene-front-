@@ -14,7 +14,8 @@ import {
     UserPlus,
     Loader2,
     User as UserIcon,
-    StoreIcon
+    StoreIcon,
+    PenLine
 } from "lucide-react";
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
@@ -41,9 +42,10 @@ interface StoreHeaderProps {
         color: string | null;
         created_at: string;
     }[];
+    isOwnStore?: boolean;
 }
 
-export default function StoreHeader({ store, followers, stories = [] }: StoreHeaderProps) {
+export default function StoreHeader({ store, followers, stories = [], isOwnStore = false }: StoreHeaderProps) {
     const router = useRouter();
     const queryClient = useQueryClient();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -161,6 +163,17 @@ export default function StoreHeader({ store, followers, stories = [] }: StoreHea
                                         )}
                                     </div>
                                 </div>
+                                {isOwnStore && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            router.push("/admin/stories");
+                                        }}
+                                        className="absolute bottom-1 right-1 w-8 h-8 bg-blue-4 rounded-full flex items-center justify-center shadow-md border-2 border-white cursor-pointer hover:bg-blue-3 transition-colors z-20"
+                                    >
+                                        <PenLine className="w-3.5 h-3.5 text-white" />
+                                    </button>
+                                )}
                             </div>
 
                             {/* Ratings & Followers */}

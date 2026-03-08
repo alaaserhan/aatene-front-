@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { notFound } from "next/navigation";
 import { useStoreProfile, useStorePageData } from "../hooks";
 import StoreHeader from "../components/StoreHeader";
@@ -7,6 +8,17 @@ import StoreStoriesSection from "../components/StoreStoriesSection";
 import StoreTabs from "../components/StoreTabs";
 import StoreProductsSection from "../components/StoreProductsSection";
 import StoreFavoritesSection from "../components/StoreFavoritesSection";
+import { useAuthStore } from "@/src/stores/auth-store";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+    useCreateStory,
+    useCreateHighlight,
+    useGetStories,
+} from "@/src/features/(web)/settings/hooks";
+import { AddStoryModal } from "@/src/features/(dashboard)/stories/components/AddStoryModal";
+import { CreateHighlightModal } from "@/src/features/(dashboard)/stories/components/CreateHighlightModal";
+import { MediaCenterModal } from "@/src/features/(dashboard)/mediaCenter/components/MediaCenterModal";
+import { CreateStoryPayload } from "@/src/features/(dashboard)/stories/api";
 
 import { Loader2 } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
@@ -14,6 +26,16 @@ import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 export default function StoreProfilePage({ slug }: { slug: string }) {
     const { data: profileData, isPending: isPendingProfile, error: profileError } = useStoreProfile(slug);
     const { data: pageData, isPending: isPendingPageData } = useStorePageData(slug);
+    const authUser = useAuthStore(state => state.user);
+    const queryClient = useQueryClient();
+
+    const { mutate: createStory, isPending: isCreatingStory } = useCreateStory();
+    const { mutate: createHighlight, isPending: isCreatingHighlight } = useCreateHighlight();
+    const { data: storiesData } = useGetStories();
+
+    const [isAddStoryOpen, setIsAddStoryOpen] = useState(false);
+    const [addStoryMode, setAddStoryMode] = useState<"text" | "media">("text");
+    const [isCreateHighlightOpen, setIsCreateHighlightOpen] = useState(false);
 
     if (isPendingProfile || isPendingPageData) {
         return (
@@ -28,21 +50,51 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
     }
 
     const store = profileData.store;
-    // Current user id or logic will be passed here if required in the future
-    const isOwnStore = false;
+    const isAdmin = authUser?.user_type === "admin";
+    const isOwnStore = authUser?.id === Number(store.owner_id);
+
+    const handleCreateStory = (payload: CreateStoryPayload, onSuccess?: () => void) => {
+        createStory(payload, {
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
+                queryClient.invalidateQueries({ queryKey: ["storePageData"] });
+                onSuccess?.();
+            }
+        });
+    };
+
+    const handleCreateHighlight = (payload: { name: string; stories: number[] }, onSuccess?: () => void) => {
+        createHighlight(payload, {
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
+                queryClient.invalidateQueries({ queryKey: ["storePageData"] });
+                onSuccess?.();
+            }
+        });
+    };
+
+    const handleOpenAddStory = (mode: "text" | "media") => {
+        setAddStoryMode(mode);
+        setIsAddStoryOpen(true);
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
-            <StoreHeader store={store} followers={pageData?.followers} stories={pageData?.stories} />
+            <StoreHeader
+                store={store}
+                followers={pageData?.followers}
+                stories={pageData?.stories}
+                isOwnStore={isOwnStore}
+            />
             <MaxWidthWrapper className="mt-8 flex flex-col gap-6 lg:max-w-[70%] lg:mr-auto">
-                {/* Highlights Map Box */}
                 <div className="flex flex-col gap-6 w-full">
-                    {pageData?.highlights && pageData.highlights.length > 0 && (
-                        <StoreStoriesSection
-                            highlights={pageData.highlights}
-                            isOwnStore={isOwnStore}
-                        />
-                    )}
+                    <StoreStoriesSection
+                        highlights={pageData?.highlights || []}
+                        isOwnStore={isOwnStore}
+                        isAdmin={isAdmin}
+                        onAddHighlight={() => setIsCreateHighlightOpen(true)}
+                        onAddStory={handleOpenAddStory}
+                    />
 
                     {pageData && <StoreTabs store={store} pageData={pageData} />}
 
@@ -50,6 +102,23 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
                     <StoreProductsSection storeId={store.id} storeType={store.type} sections={pageData?.sections || []} />
                 </div>
             </MaxWidthWrapper>
+
+            <CreateHighlightModal
+                isOpen={isCreateHighlightOpen}
+                onClose={() => setIsCreateHighlightOpen(false)}
+                availableStories={storiesData?.data || []}
+                onSave={handleCreateHighlight}
+                isPending={isCreatingHighlight}
+            />
+
+            <AddStoryModal
+                isOpen={isAddStoryOpen}
+                onClose={() => setIsAddStoryOpen(false)}
+                mode={addStoryMode}
+                onSave={handleCreateStory}
+                isPending={isCreatingStory}
+                MediaPickerComponent={MediaCenterModal}
+            />
         </div>
     );
 }

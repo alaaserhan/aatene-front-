@@ -3,24 +3,17 @@
 import { useState, useEffect } from "react";
 import { UserProfile, UserStory, UserFollower, UserProfilePageData } from "../types";
 import Image from "next/image";
-import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, Type, Image as ImageIcon, UserMinus, User as UserIcon } from "lucide-react";
+import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, UserMinus, User as UserIcon } from "lucide-react";
 import { useUserProfile, useUserProfilePageData, useUserFavProducts, useUserProducts } from "../hooks";
 import { useParams, useRouter, notFound } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
 import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { useFollowUserOrStore, useUnfollowUserOrStore, useCreateStory } from "@/src/features/(web)/settings/hooks";
+import { useFollowUserOrStore, useUnfollowUserOrStore, useCreateHighlight, useGetStories } from "@/src/features/(web)/settings/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
-import { AddStoryModal } from "@/src/features/(dashboard)/stories/components/AddStoryModal";
-import { MediaCenterModal } from "@/src/features/(dashboard)/mediaCenter/components/MediaCenterModal";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/src/components/ui/dropdown-menu";
-import { CreateStoryPayload, Story } from "@/src/features/(dashboard)/stories/api";
+import { CreateHighlightModal } from "@/src/features/(dashboard)/stories/components/CreateHighlightModal";
+import { Story } from "@/src/features/(dashboard)/stories/api";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 
@@ -225,10 +218,10 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
     );
 }
 
-function HighlightsSection({ highlights, isOwnProfile, onAddStory }: {
+function HighlightsSection({ highlights, isOwnProfile, onAddHighlight }: {
     highlights: UserProfilePageData["highlights"];
     isOwnProfile: boolean;
-    onAddStory: (mode: "text" | "media") => void;
+    onAddHighlight: () => void;
 }) {
     const [storyModalOpen, setStoryModalOpen] = useState(false);
     const [selectedStories, setSelectedStories] = useState<Story[]>([]);
@@ -259,45 +252,17 @@ function HighlightsSection({ highlights, isOwnProfile, onAddStory }: {
             <h2 className=" font-medium mb-2 px-1 border-b border-gray-100 pb-2" dir="rtl">أبرز الأحداث</h2>
             <div className="flex gap-4 overflow-x-auto py-2 px-1 scrollbar-hide" dir="rtl">
                 {isOwnProfile && (
-                    <DropdownMenu dir="rtl">
-                        <DropdownMenuTrigger asChild>
-                            <button className="shrink-0 flex flex-col items-center gap-1.5 cursor-pointer group outline-none">
-                                <div className="w-[66px] h-[66px] rounded-full overflow-hidden border-[2.5px] border-[#F05A28] p-0.5 group-hover:scale-105 transition-transform flex items-center justify-center bg-white">
-                                    <div className="w-full h-full rounded-full border border-gray-100 flex items-center justify-center bg-white">
-                                        <Plus className="w-7 h-7 text-[#7352C7]" />
-                                    </div>
-                                </div>
-                                <span className="text-[13px] font-medium text-[#3F3F46]">أضف هايلايت</span>
-                            </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-56 p-2 rounded-lg border border-gray-200 shadow-none bg-white z-50">
-                            <DropdownMenuItem
-                                onSelect={() => onAddStory("text")}
-                                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg focus:bg-gray-50"
-                            >
-                                <div className="bg-blue-5 p-2 rounded">
-                                    <Type className="w-5 h-5 text-blue-4" />
-                                </div>
-                                <div className="flex flex-col text-right">
-                                    <span className="font-medium text-blue-4 text-sm">نص</span>
-                                    <span className="text-xs text-gray-2 mt-0.5">قم باضافة نص الي قصتك</span>
-                                </div>
-                            </DropdownMenuItem>
-
-                            <DropdownMenuItem
-                                onSelect={() => onAddStory("media")}
-                                className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg mt-1 focus:bg-gray-50"
-                            >
-                                <div className="bg-blue-5 p-2 rounded">
-                                    <ImageIcon className="w-5 h-5 text-blue-4" />
-                                </div>
-                                <div className="flex flex-col text-right">
-                                    <span className="font-medium text-blue-4 text-sm">صورة او فيديو</span>
-                                    <span className="text-xs text-gray-2 mt-0.5">قم باضافة صورة او فيديو الي قصتك</span>
-                                </div>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <button
+                        onClick={onAddHighlight}
+                        className="shrink-0 flex flex-col items-center gap-1.5 cursor-pointer group outline-none"
+                    >
+                        <div className="w-[66px] h-[66px] rounded-full overflow-hidden border-[2.5px] border-[#F05A28] p-0.5 group-hover:scale-105 transition-transform flex items-center justify-center bg-white">
+                            <div className="w-full h-full rounded-full border border-gray-100 flex items-center justify-center bg-white">
+                                <Plus className="w-7 h-7 text-[#7352C7]" />
+                            </div>
+                        </div>
+                        <span className="text-[13px] font-medium text-[#3F3F46]">أضف هايلايت</span>
+                    </button>
                 )}
 
                 {filteredHighlights.map((highlight) => {
@@ -329,7 +294,7 @@ function HighlightsSection({ highlights, isOwnProfile, onAddStory }: {
                                             </div>
                                         )
                                     ) : (
-                                        <div className="w-full h-full bg-gradient-to-tr from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                                        <div className="w-full h-full bg-linear-to-tr from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
                                             {highlight.name[0]}
                                         </div>
                                     )}
@@ -597,20 +562,16 @@ export default function UserProfilePage() {
     const authUser = useAuthStore(state => state.user);
     const queryClient = useQueryClient();
 
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [addMode, setAddMode] = useState<"text" | "media">("text");
-    const { mutate: createStory, isPending: isCreatingStory } = useCreateStory();
+    const [isCreateHighlightOpen, setIsCreateHighlightOpen] = useState(false);
+    const { mutate: createHighlight, isPending: isCreatingHighlight } = useCreateHighlight();
+    const { data: storiesData } = useGetStories();
 
     const { data: profileData, isLoading: isProfileLoading } = useUserProfile(slugOrId);
     const { data: pageData, isLoading: isPageDataLoading } = useUserProfilePageData(slugOrId);
 
-    const handleOpenAdd = (mode: "text" | "media") => {
-        setAddMode(mode);
-        setIsAddModalOpen(true);
-    };
 
-    const handleCreateStory = (payload: CreateStoryPayload, onSuccess?: () => void) => {
-        createStory(payload, {
+    const handleCreateHighlight = (payload: { name: string; stories: number[] }, onSuccess?: () => void) => {
+        createHighlight(payload, {
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ["userProfile"] });
                 onSuccess?.();
@@ -650,7 +611,7 @@ export default function UserProfilePage() {
                 <HighlightsSection
                     highlights={highlights}
                     isOwnProfile={isOwnProfile}
-                    onAddStory={handleOpenAdd}
+                    onAddHighlight={() => setIsCreateHighlightOpen(true)}
                 />
 
                 <ProfileTabs user={user} />
@@ -662,13 +623,12 @@ export default function UserProfilePage() {
                 )}
             </div>
 
-            <AddStoryModal
-                isOpen={isAddModalOpen}
-                onClose={() => setIsAddModalOpen(false)}
-                mode={addMode}
-                onSave={handleCreateStory}
-                isPending={isCreatingStory}
-                MediaPickerComponent={MediaCenterModal}
+            <CreateHighlightModal
+                isOpen={isCreateHighlightOpen}
+                onClose={() => setIsCreateHighlightOpen(false)}
+                availableStories={storiesData?.data || []}
+                onSave={handleCreateHighlight}
+                isPending={isCreatingHighlight}
             />
         </div>
     );
