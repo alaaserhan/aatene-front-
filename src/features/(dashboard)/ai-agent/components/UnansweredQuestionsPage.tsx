@@ -74,7 +74,7 @@ export function UnansweredQuestionsPage() {
         if (question.Status === newStatus) return;
         updateQuestion({
             type: "update",
-            id: question.Chat_id,
+            id: question.row_number,
             Status: newStatus,
         });
     };
@@ -86,7 +86,7 @@ export function UnansweredQuestionsPage() {
 
     const handleConfirmDelete = () => {
         if (questionToDelete) {
-            deleteQuestion(questionToDelete.Chat_id, {
+            deleteQuestion(questionToDelete.row_number, {
                 onSuccess: () => {
                     setIsDeleteConfirmOpen(false);
                     setQuestionToDelete(null);
