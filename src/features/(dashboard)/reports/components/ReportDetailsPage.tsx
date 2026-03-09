@@ -311,8 +311,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
             {report.responses && report.responses.length > 0 && (
               <div className="space-y-4">
                 <h3 className="font-bold text-gray-800">الردود السابقة</h3>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {report.responses.map((resp: any) => (
+                {report.responses.map((resp) => (
                   <div key={resp.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6 space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">

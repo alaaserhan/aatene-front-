@@ -38,6 +38,19 @@ export interface User {
   user_type?: string;
 }
 
+export interface ReportResponse {
+  id: number;
+  response_text: string;
+  response_files: string[];
+  admin: {
+    id: number;
+    fullname: string;
+    avatar_url: string | null;
+  } | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Report {
   id: number;
   uuid: string | null;
@@ -48,6 +61,7 @@ export interface Report {
   product: Product | null;
   media: string | string[] | null;
   content?: string;
+  responses?: ReportResponse[];
   response_text?: string;
   response_files?: string[];
   responded_at?: string;
