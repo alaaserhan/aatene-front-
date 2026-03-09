@@ -109,6 +109,7 @@ export function useDeleteConversation() {
       queryClient.invalidateQueries({ queryKey: ["agent-users-urgent"] });
       queryClient.invalidateQueries({ queryKey: ["agent-stats"] });
       queryClient.invalidateQueries({ queryKey: ["agent-overview"] });
+      queryClient.invalidateQueries({ queryKey: ["agent-deleted-users"] });
 
       if (data.chat_id) {
         queryClient.invalidateQueries({ queryKey: ["agent-user", data.chat_id] });
@@ -116,6 +117,30 @@ export function useDeleteConversation() {
     },
     onError: (error: AxiosError<{ error: string }>) => {
       toast.error(error.response?.data?.error || "فشل حذف المحادثة");
+    },
+  });
+}
+
+export function useRestoreConversation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: api.restoreConversation,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["agent-users"] });
+      queryClient.invalidateQueries({ queryKey: ["agent-users-info"] });
+      queryClient.invalidateQueries({ queryKey: ["agent-users-urgent"] });
+      queryClient.invalidateQueries({ queryKey: ["agent-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["agent-overview"] });
+      queryClient.invalidateQueries({ queryKey: ["agent-deleted-users"] });
+
+      if (data.chat_id) {
+        queryClient.invalidateQueries({ queryKey: ["agent-user", data.chat_id] });
+      }
+      toast.success(data.message || "تم استعادة المحادثة بنجاح");
+    },
+    onError: (error: AxiosError<{ error: string }>) => {
+      toast.error(error.response?.data?.error || "فشل استعادة المحادثة");
     },
   });
 }

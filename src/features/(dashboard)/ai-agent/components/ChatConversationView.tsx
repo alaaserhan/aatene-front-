@@ -3,8 +3,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Send, Headset, CheckCircle, Shirt, Wrench } from "lucide-react";
-import { useGetAgentUser, useSendMessage, useResolveConversation, useDeleteConversation, useGetApi4MessageHistory } from "../hooks";
+import { Loader2, Send, Headset, CheckCircle, Shirt, Wrench, RefreshCw } from "lucide-react";
+import { useGetAgentUser, useSendMessage, useResolveConversation, useDeleteConversation, useRestoreConversation, useGetApi4MessageHistory } from "../hooks";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { formatDistanceToNow } from "date-fns";
@@ -32,6 +32,9 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
     const { mutate: sendMessage, isPending: isSending } = useSendMessage();
     const { mutate: resolveConversation, isPending: isResolving } = useResolveConversation();
     const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversation();
+    const { mutate: restoreConversation, isPending: isRestoring } = useRestoreConversation();
+
+    const isDeletedChats = platform === "deleted_chats";
 
     const isLoading = isApi4 ? isApi4Loading : isUserLoading;
     const refetch = isApi4 ? refetchApi4 : refetchUser;
@@ -93,6 +96,14 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
             onSuccess: () => {
                 setShowDeleteModal(false);
                 setShowSuccessModal(true);
+            }
+        });
+    };
+
+    const handleRestoreClick = () => {
+        restoreConversation(chatId, {
+            onSuccess: () => {
+                router.push("/admin/mosa3edy/messages?platform=deleted_chats");
             }
         });
     };
@@ -159,20 +170,37 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                             </Button>
                         )}
 
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleDeleteClick}
-                            disabled={isDeleting}
-                            className="text-gray-2 bg-red-50 hover:bg-red-100 transition-colors w-9 h-9 cursor-pointer"
-                            title="حذف المحادثة"
-                        >
-                            {isDeleting ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                                <img src="/icons/dashboard/trash.svg" alt="" className="w-4 h-4" />
-                            )}
-                        </Button>
+                        {isDeletedChats ? (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleRestoreClick}
+                                disabled={isRestoring}
+                                className="text-gray-2 bg-blue-50 hover:bg-blue-100 transition-colors w-9 h-9 cursor-pointer"
+                                title="استعادة المحادثة"
+                            >
+                                {isRestoring ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <RefreshCw className="w-4 h-4 text-blue-500" />
+                                )}
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleDeleteClick}
+                                disabled={isDeleting}
+                                className="text-gray-2 bg-red-50 hover:bg-red-100 transition-colors w-9 h-9 cursor-pointer"
+                                title="حذف المحادثة"
+                            >
+                                {isDeleting ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <img src="/icons/dashboard/trash.svg" alt="" className="w-4 h-4" />
+                                )}
+                            </Button>
+                        )}
                     </div>
                 </div>
 

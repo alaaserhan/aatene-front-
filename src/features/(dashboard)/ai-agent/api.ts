@@ -126,6 +126,15 @@ export interface DeleteConversationResponse {
     };
 }
 
+export interface RestoreConversationResponse {
+    chat_id: string;
+    message: string;
+    success: boolean;
+    updated_status: {
+        is_deleted: boolean;
+    };
+}
+
 export interface SendMessagePayload {
     chat_id: string;
     message_text: string;
@@ -283,6 +292,11 @@ export const resolveConversation = async (chatId: string): Promise<ResolveRespon
 
 export const deleteConversation = async (chatId: string): Promise<DeleteConversationResponse> => {
     const { data } = await api5000.delete<DeleteConversationResponse>(`/user/${encodeURIComponent(chatId)}`);
+    return data;
+};
+
+export const restoreConversation = async (chatId: string): Promise<RestoreConversationResponse> => {
+    const { data } = await api5000.put<RestoreConversationResponse>(`/user/${encodeURIComponent(chatId)}/restore`);
     return data;
 };
 
