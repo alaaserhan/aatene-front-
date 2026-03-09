@@ -181,34 +181,36 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
         {/* --- Header Card --- */}
         <div className="bg-blue-6 rounded-md  p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-blue-3  flex items-center gap-2 mb-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-blue-3 flex items-center gap-2 mb-4">
               شكوى رقم: {report.id}
             </h1>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-gray-2">حاله الشكوى</span>
-              <span className={cn("px-2 py-0.5 rounded-full  text-xs border font-medium", STATUS_STYLES[report.status])}>
+            <div className="flex items-center flex-wrap gap-2 text-sm">
+              <span className="text-gray-2 shrink-0">حاله الشكوى</span>
+              <span className={cn("px-2 py-0.5 rounded-full text-xs border font-medium shrink-0", STATUS_STYLES[report.status])}>
                 {STATUS_OPTIONS.find(o => o.value === report.status)?.label || report.status}
               </span>
-              <span className="text-gray-2">نوع البلاغ:</span>
-              <span className="font-medium ">{report.report_type?.name}</span>
+              <span className="text-gray-2 shrink-0">نوع البلاغ:</span>
+              <span className="font-medium shrink-0">{report.report_type?.name}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <ReusableDropdown
-              options={STATUS_OPTIONS}
-              value={report.status}
-              onChange={handleStatusChange}
-              placeholder="تغيير الحالة"
-              className="rounded-md w-40"
-            />
+          <div className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
             <Button
               variant="destructive"
               onClick={() => setDeleteModalOpen(true)}
-              className="bg-red-500 hover:bg-red-600 text-white "
+              className="bg-red-500 hover:bg-red-600 text-white flex-1 md:flex-none"
             >
               حذف الشكوى
             </Button>
+            <div className="flex-1 md:w-40">
+              <ReusableDropdown
+                options={STATUS_OPTIONS}
+                value={report.status}
+                onChange={handleStatusChange}
+                placeholder="تغيير الحالة"
+                className="rounded-md w-full"
+              />
+            </div>
           </div>
         </div>
 
@@ -219,45 +221,45 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
           <div className="grid grid-cols-1 gap-6">
 
             {/* Row 1 */}
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <div className="flex items-center gap-2 text-gray-2 w-1/5">
+            <div className="flex max-sm:flex-col items-start sm:items-center justify-between border-b border-gray-100 pb-4 max-sm:gap-2">
+              <div className="flex items-center gap-2 text-gray-2 sm:w-1/4 shrink-0">
                 <img src="/icons/dashboard/mark2.svg" className="w-5" alt="" />
                 <span>نوع الشكوى</span>
               </div>
-              <div className=" font-medium w-4/5 ">
+              <div className="font-medium sm:w-3/4">
                 {report.report_type?.name}
               </div>
             </div>
 
             {/* Row 2 */}
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <div className="flex items-center gap-2 text-gray-2 w-1/5">
+            <div className="flex max-sm:flex-col items-start sm:items-center justify-between border-b border-gray-100 pb-4 max-sm:gap-2">
+              <div className="flex items-center gap-2 text-gray-2 sm:w-1/4 shrink-0">
                 <img src="/icons/dashboard/calender.svg" className="w-5" alt="" />
                 <span>تاريخ الشكوى</span>
               </div>
-              <div className=" font-medium w-4/5 " >
+              <div className="font-medium sm:w-3/4" >
                 {format(new Date(report.created_at), "yyyy-MM-dd HH:mm:ss")}
               </div>
             </div>
 
             {/* Row 3 */}
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <div className="flex items-center gap-2 text-gray-2 w-1/5">
+            <div className="flex max-sm:flex-col items-start sm:items-center justify-between border-b border-gray-100 pb-4 max-sm:gap-2">
+              <div className="flex items-center gap-2 text-gray-2 sm:w-1/4 shrink-0">
                 <User className="w-5 h-5" />
                 <span>العميل</span>
               </div>
-              <div className=" font-medium w-4/5  flex items-center gap-2 cursor-pointer hover:underline" onClick={() => router.push(`/admin/users?userId=${report?.user?.id}`)}>
+              <div className="font-medium sm:w-3/4 flex items-center gap-2 cursor-pointer hover:underline" onClick={() => router.push(`/admin/users?userId=${report?.user?.id}`)}>
                 <span>{report?.user?.fullname || "غير معروف"}</span>
               </div>
             </div>
 
             {/* Row 4 */}
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <div className="flex items-center gap-2 text-gray-2 w-1/5">
+            <div className="flex max-sm:flex-col items-start sm:items-center justify-between border-b border-gray-100 pb-4 max-sm:gap-2">
+              <div className="flex items-center gap-2 text-gray-2 sm:w-1/4 shrink-0">
                 <Hash className="w-5 h-5" />
                 <span>رقم {report.product ? "المنتج" : "الطلب"}</span>
               </div>
-              <div className=" font-medium w-4/5 ">
+              <div className="font-medium sm:w-3/4">
                 {report.product?.id || report.id}
               </div>
             </div>
@@ -273,14 +275,14 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
           </div>
 
           {/* Attachments Section */}
-          <div className="flex items-center  border-t border-gray-100 pt-6">
-            <div className="flex items-center gap-2 text-gray-2 w-1/5">
+          <div className="flex max-sm:flex-col items-start sm:items-center border-t border-gray-100 pt-6 max-sm:gap-2">
+            <div className="flex items-center gap-2 text-gray-2 sm:w-1/4 shrink-0">
               <img src="/icons/dashboard/gallery.svg" className="w-5" alt="" />
               <span>المرفقات</span>
             </div>
 
-            <div className="w-4/5 flex items-center justify-between">
-              <div className="flex items-center gap-3 flex-wrap  ">
+            <div className="sm:w-3/4 flex items-center justify-between w-full">
+              <div className="flex items-center gap-3 flex-wrap">
                 {attachments.map((file, idx) => (
                   <a
                     key={idx}
@@ -290,12 +292,12 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
                     title={file.file_name}
                     className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200 hover:bg-gray-200 transition-colors"
                   >
-                    {file.mime_type?.includes('image') || file.src?.match(/\.(jpeg|jpg|gif|png)$/) ? (
+                    {file.mime_type?.includes('image') || file.src?.match(/\.(jpeg|jpg|gif|png)$/i) ? (
                       <img src="/icons/dashboard/gallery.svg" className="w-4" alt="" />
                     ) : (
                       <FileIcon className="w-4 h-4 " />
                     )}
-                    <span className="text-xs font-medium text-gray-2  max-w-[100px] truncate" dir="ltr">
+                    <span className="text-xs font-medium text-gray-2 max-w-[100px] truncate" dir="ltr">
                       {file.file_name || "مرفق"}
                     </span>
                   </a>
@@ -306,43 +308,56 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
 
           {/* Reply Section or Response Details */}
           <div className="pt-6 border-t border-gray-100 space-y-6">
-            {report.response_text && (
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-gray-800">الردود السابقة</h3>
-                  {report.responded_at && (
-                    <span className="text-xs text-gray-500">
-                      {format(new Date(report.responded_at), "yyyy-MM-dd HH:mm")}
-                    </span>
-                  )}
-                </div>
-
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {report.response_text}
-                </p>
-
-                {report.response_files && report.response_files.length > 0 && (
-                  <div className="flex items-center gap-3 flex-wrap mt-4 border-t border-gray-200 pt-4">
-                    {report.response_files.map((fileUrl, idx) => (
-                      <a
-                        key={idx}
-                        href={fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-gray-200 hover:bg-gray-100 transition-colors"
-                      >
-                        {fileUrl.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                          <img src="/icons/dashboard/gallery.svg" className="w-4" alt="" />
+            {report.responses && report.responses.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="font-bold text-gray-800">الردود السابقة</h3>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {report.responses.map((resp: any) => (
+                  <div key={resp.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {resp.admin?.avatar_url ? (
+                          <img src={resp.admin.avatar_url} className="w-8 h-8 rounded-full object-cover" alt="" />
                         ) : (
-                          <FileIcon className="w-4 h-4 text-blue-3" />
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                            {resp.admin?.fullname?.charAt(0) || "-"}
+                          </div>
                         )}
-                        <span className="text-xs font-medium text-gray-600 max-w-[200px] truncate" dir="ltr">
-                          {fileUrl.split('/').pop()}
-                        </span>
-                      </a>
-                    ))}
+                        <span className="font-medium text-sm text-gray-700">{resp.admin?.fullname}</span>
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {format(new Date(resp.created_at), "yyyy-MM-dd HH:mm")}
+                      </span>
+                    </div>
+
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm sm:text-base">
+                      {resp.response_text}
+                    </p>
+
+                    {resp.response_files && resp.response_files.length > 0 && (
+                      <div className="flex items-center gap-3 flex-wrap mt-4 border-t border-gray-200 pt-4">
+                        {resp.response_files.map((fileUrl: string, idx: number) => (
+                          <a
+                            key={idx}
+                            href={fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-gray-200 hover:bg-gray-100 transition-colors"
+                          >
+                            {fileUrl.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                              <img src="/icons/dashboard/gallery.svg" className="w-4" alt="" />
+                            ) : (
+                              <FileIcon className="w-4 h-4 text-blue-3" />
+                            )}
+                            <span className="text-xs font-medium text-gray-600 max-w-[200px] truncate" dir="ltr">
+                              {fileUrl.split('/').pop()}
+                            </span>
+                          </a>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
             )}
 

@@ -14,7 +14,7 @@ import {
     useCreateStory,
     useCreateHighlight,
     useGetStories,
-} from "@/src/features/(web)/settings/hooks";
+} from "@/src/features/(dashboard)/stories/hooks";
 import { AddStoryModal } from "@/src/features/(dashboard)/stories/components/AddStoryModal";
 import { CreateHighlightModal } from "@/src/features/(dashboard)/stories/components/CreateHighlightModal";
 import { MediaCenterModal } from "@/src/features/(dashboard)/mediaCenter/components/MediaCenterModal";
@@ -31,7 +31,7 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
 
     const { mutate: createStory, isPending: isCreatingStory } = useCreateStory();
     const { mutate: createHighlight, isPending: isCreatingHighlight } = useCreateHighlight();
-    const { data: storiesData } = useGetStories();
+    const { data: storiesData } = useGetStories(profileData?.store?.id);
 
     const [isAddStoryOpen, setIsAddStoryOpen] = useState(false);
     const [addStoryMode, setAddStoryMode] = useState<"text" | "media">("text");
@@ -53,8 +53,9 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
     const isAdmin = authUser?.user_type === "admin";
     const isOwnStore = authUser?.id === Number(store.owner_id);
 
+
     const handleCreateStory = (payload: CreateStoryPayload, onSuccess?: () => void) => {
-        createStory(payload, {
+        createStory({ payload, storeId: store.id }, {
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
                 queryClient.invalidateQueries({ queryKey: ["storePageData"] });
@@ -64,7 +65,7 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
     };
 
     const handleCreateHighlight = (payload: { name: string; stories: number[] }, onSuccess?: () => void) => {
-        createHighlight(payload, {
+        createHighlight({ payload, storeId: store.id }, {
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
                 queryClient.invalidateQueries({ queryKey: ["storePageData"] });
@@ -92,6 +93,7 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
                         highlights={pageData?.highlights || []}
                         isOwnStore={isOwnStore}
                         isAdmin={isAdmin}
+                        storeId={store.id}
                         onAddHighlight={() => setIsCreateHighlightOpen(true)}
                         onAddStory={handleOpenAddStory}
                     />
@@ -106,7 +108,7 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
             <CreateHighlightModal
                 isOpen={isCreateHighlightOpen}
                 onClose={() => setIsCreateHighlightOpen(false)}
-                availableStories={storiesData?.data || []}
+                availableStories={Array.isArray(storiesData?.data) ? storiesData.data : []}
                 onSave={handleCreateHighlight}
                 isPending={isCreatingHighlight}
             />

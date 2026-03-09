@@ -6,6 +6,7 @@ import { Plus, Type, Image as ImageIcon } from "lucide-react";
 import { Story } from "@/src/features/(dashboard)/stories/api";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { StoreHighlight } from "../api";
+import api from "@/src/lib/axios";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,6 +18,7 @@ interface StoreStoriesSectionProps {
     highlights: StoreHighlight[];
     isOwnStore: boolean;
     isAdmin?: boolean;
+    storeId?: number | string;
     onAddHighlight?: () => void;
     onAddStory?: (mode: "text" | "media") => void;
 }
@@ -25,6 +27,7 @@ export default function StoreStoriesSection({
     highlights,
     isOwnStore,
     isAdmin = false,
+    storeId,
     onAddHighlight,
     onAddStory,
 }: StoreStoriesSectionProps) {
@@ -52,13 +55,27 @@ export default function StoreStoriesSection({
         setStoryModalOpen(true);
     };
 
+    const handleAddHighlightClick = () => {
+        if (storeId) {
+            api.defaults.headers.common["storeId"] = String(storeId);
+        }
+        if (onAddHighlight) onAddHighlight();
+    };
+
+    const handleAddStoryClick = (mode: "text" | "media") => {
+        if (storeId) {
+            api.defaults.headers.common["storeId"] = String(storeId);
+        }
+        if (onAddStory) onAddStory(mode);
+    };
+
     return (
         <div className="mb-8 bg-white p-3 rounded-lg border border-gray-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]">
             <h2 className="font-bold text-gray-900 mb-2 px-1 border-b border-gray-100 pb-2" dir="rtl">أبرز الأحداث</h2>
             <div className="flex gap-4 overflow-x-auto py-2 px-1 scrollbar-hide" dir="rtl">
                 {isOwnStore && onAddHighlight && (
                     <button
-                        onClick={onAddHighlight}
+                        onClick={handleAddHighlightClick}
                         className="shrink-0 flex flex-col items-center gap-1.5 cursor-pointer group outline-none"
                     >
                         <div className="w-[66px] h-[66px] rounded-full overflow-hidden border-[2.5px] border-[#F05A28] p-0.5 group-hover:scale-105 transition-transform flex items-center justify-center bg-white">
@@ -84,7 +101,7 @@ export default function StoreStoriesSection({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-56 p-2 rounded-lg border border-gray-200 shadow-none bg-white z-50">
                             <DropdownMenuItem
-                                onSelect={() => onAddStory("text")}
+                                onSelect={() => handleAddStoryClick("text")}
                                 className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg focus:bg-gray-50"
                             >
                                 <div className="bg-blue-5 p-2 rounded">
@@ -96,7 +113,7 @@ export default function StoreStoriesSection({
                                 </div>
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                onSelect={() => onAddStory("media")}
+                                onSelect={() => handleAddStoryClick("media")}
                                 className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 rounded-lg mt-1 focus:bg-gray-50"
                             >
                                 <div className="bg-blue-5 p-2 rounded">

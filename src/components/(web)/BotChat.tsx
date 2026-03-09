@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { X, Send, Loader2, Bot } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useUIStore } from "@/src/stores/ui-store";
+import { usePathname } from "next/navigation";
 import { cn } from "@/src/lib/utils";
 import axios from "axios";
 
@@ -27,6 +28,8 @@ export default function BotChat() {
     const user = useAuthStore((state) => state.user);
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     const isHydrated = useAuthStore((state) => state.isHydrated);
+    const pathname = usePathname();
+
 
     const isOpen = useUIStore((state) => state.isChatOpen);
     const setChatOpen = useUIStore((state) => state.setChatOpen);
@@ -37,6 +40,10 @@ export default function BotChat() {
     const [isSending, setIsSending] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        setChatOpen(false);
+    }, [pathname, setChatOpen]);
 
     useEffect(() => {
         if (scrollRef.current) {
