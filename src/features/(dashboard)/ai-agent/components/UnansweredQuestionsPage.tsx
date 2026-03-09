@@ -100,62 +100,71 @@ export function UnansweredQuestionsPage() {
     const exportToPDF = async () => {
         setIsExporting(true);
         try {
-            const container = document.createElement("div");
-            container.style.position = "absolute";
-            container.style.top = "-9999px";
-            container.style.left = "-9999px";
-            container.style.width = "1000px";
-            container.style.padding = "20px";
-            container.style.backgroundColor = "white";
-            container.dir = "rtl";
-
-            const headerHtml = `
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <h1 style="font-family: Tahoma, Arial, sans-serif; font-size: 24px; color: #333;">الأسئلة التي لم يتمكن البوت من الرد عليها</h1>
-                </div>
-            `;
-
-            let rowsHtml = "";
-            filteredQuestions.forEach((q) => {
-                const statusText = q.Status === "pending" ? "تم التدريب" : "قيد المراجعة";
-                rowsHtml += `
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 12px 8px; font-family: Tahoma, Arial, sans-serif; text-align: right; color: #444;">${q.Question}</td>
-                        <td style="padding: 12px 8px; font-family: Tahoma, Arial, sans-serif; text-align: right; color: #444;">${statusText}</td>
-                    </tr>
-                `;
-            });
-
-            const tableHtml = `
-                <table style="width: 100%; border-collapse: collapse; font-family: Tahoma, Arial, sans-serif; text-align: right;" dir="rtl">
-                    <thead>
-                        <tr style="background-color: #f8f9fa; border-bottom: 2px solid #ddd;">
-                            <th style="padding: 12px 8px; text-align: right; color: #333;">السؤال</th>
-                            <th style="padding: 12px 8px; text-align: right; color: #333;">الحالة</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rowsHtml}
-                    </tbody>
-                </table>
-            `;
-
-            container.innerHTML = headerHtml + tableHtml;
-            document.body.appendChild(container);
-
-            const canvas = await html2canvas(container, {
-                scale: 2,
-                useCORS: true,
-            });
-
-            document.body.removeChild(container);
-
-            const imgData = canvas.toDataURL("image/png");
             const pdf = new jsPDF("p", "mm", "a4");
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            const rowsPerPage = 25;
+            const totalChunks = Math.ceil(filteredQuestions.length / rowsPerPage);
 
-            pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+            for (let i = 0; i < totalChunks; i++) {
+                const chunk = filteredQuestions.slice(i * rowsPerPage, (i + 1) * rowsPerPage);
+
+                const container = document.createElement("div");
+                container.style.position = "absolute";
+                container.style.top = "-9999px";
+                container.style.left = "-9999px";
+                container.style.width = "800px";
+                container.style.padding = "20px";
+                container.style.backgroundColor = "white";
+                container.dir = "rtl";
+
+                const headerHtml = i === 0 ? `
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h1 style="font-family: Tahoma, Arial, sans-serif; font-size: 24px; color: #333;">الأسئلة التي لم يتمكن البوت من الرد عليها</h1>
+                    </div>
+                ` : `<div style="margin-bottom: 20px;"></div>`;
+
+                let rowsHtml = "";
+                chunk.forEach((q) => {
+                    const statusObj = STATUS_OPTIONS.find(opt => opt.value === q.Status);
+                    const statusText = statusObj ? statusObj.label : q.Status;
+                    rowsHtml += `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 12px 8px; font-family: Tahoma, Arial, sans-serif; text-align: right; color: #444;">${q.Question}</td>
+                            <td style="padding: 12px 8px; font-family: Tahoma, Arial, sans-serif; text-align: right; color: #444;">${statusText}</td>
+                        </tr>
+                    `;
+                });
+
+                const tableHtml = `
+                    <table style="width: 100%; border-collapse: collapse; font-family: Tahoma, Arial, sans-serif; text-align: right;" dir="rtl">
+                        <thead>
+                            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #ddd;">
+                                <th style="padding: 12px 8px; text-align: right; color: #333;">السؤال</th>
+                                <th style="padding: 12px 8px; text-align: right; color: #333;">الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = headerHtml + tableHtml;
+                document.body.appendChild(container);
+
+                const canvas = await html2canvas(container, {
+                    scale: 1.5,
+                    useCORS: true,
+                });
+                document.body.removeChild(container);
+
+                const imgData = canvas.toDataURL("image/jpeg", 0.75);
+                const heightCalc = (canvas.height * pdfWidth) / canvas.width;
+
+                if (i > 0) pdf.addPage();
+                pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, heightCalc);
+            }
+
             pdf.save("unanswered_questions_report.pdf");
         } catch (error) {
             console.error("Error generating PDF", error);

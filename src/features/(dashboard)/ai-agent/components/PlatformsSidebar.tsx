@@ -2,6 +2,7 @@
 "use client";
 
 import { cn } from "@/src/lib/utils";
+import { usePathname } from "next/navigation";
 
 interface PlatformsSidebarProps {
   activePlatform: string;
@@ -9,6 +10,8 @@ interface PlatformsSidebarProps {
 }
 
 export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarProps) {
+  const pathname = usePathname();
+  const isMessagesRoute = pathname === "/admin/mosa3edy/messages";
   const standardPlatforms = [
     {
       id: "whatsapp",
@@ -41,7 +44,11 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
     iconPath: "/icons/dashboard/trash.svg"
   };
 
-  const allPlatforms = [...standardPlatforms, ...productPlatforms, deletedPlatform];
+  const allPlatforms = [
+    ...standardPlatforms,
+    ...(isMessagesRoute ? productPlatforms : []),
+    ...(isMessagesRoute ? [deletedPlatform] : [])
+  ];
 
   const renderButton = (platform: typeof deletedPlatform, isMobile: boolean) => {
     const isActive = activePlatform === platform.id;
@@ -105,18 +112,22 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
           {standardPlatforms.map((platform) => renderButton(platform, false))}
         </div>
 
-        <h3 className="font-bold mt-6">
-          محادثات المنتجات والخدمات
-        </h3>
-        <div className="space-y-2 mt-4">
-          {productPlatforms.map((platform) => renderButton(platform, false))}
-        </div>
+        {isMessagesRoute && (
+          <>
+            <h3 className="font-bold mt-6">
+              محادثات المنتجات والخدمات
+            </h3>
+            <div className="space-y-2 mt-4">
+              {productPlatforms.map((platform) => renderButton(platform, false))}
+            </div>
 
-        <div className="border-t border-gray-100 mt-6 pt-6">
-          <div className="space-y-2">
-            {renderButton(deletedPlatform, false)}
-          </div>
-        </div>
+            <div className="border-t border-gray-100 mt-6 pt-6">
+              <div className="space-y-2">
+                {renderButton(deletedPlatform, false)}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
