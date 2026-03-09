@@ -1,0 +1,215 @@
+"use client";
+
+import { useState, useRef, useEffect, useCallback } from "react";
+import { MessageCircle, X, Send, Loader2, Bot } from "lucide-react";
+import { useAuthStore } from "@/src/stores/auth-store";
+import axios from "axios";
+
+const WEBHOOK_URL = "https://auto.mosaady.com/webhook/50a13617-dcab-4703-9b18-f7109d348abe";
+
+interface ChatMessage {
+    id: number;
+    text: string;
+    sender: "user" | "bot";
+    timestamp: Date;
+}
+
+const WELCOME_MESSAGE: ChatMessage = {
+    id: 0,
+    text: "مرحباً بك في مركز الدعم الذكي\nأنا مساعد الذكاء الاصطناعي، جاهز للإجابة على أسئلتك ومساعدتك في حل أي مشكلة بسرعة وسهولة.",
+    sender: "bot",
+    timestamp: new Date(),
+};
+
+export default function BotChat() {
+    const user = useAuthStore((state) => state.user);
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+    const isHydrated = useAuthStore((state) => state.isHydrated);
+
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+    const [inputText, setInputText] = useState("");
+    const [isSending, setIsSending] = useState(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [messages]);
+
+    useEffect(() => {
+        if (isOpen && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [isOpen]);
+
+    const handleSend = useCallback(async () => {
+        if (!inputText.trim() || isSending || !user) return;
+
+        const userMessage: ChatMessage = {
+            id: Date.now(),
+            text: inputText.trim(),
+            sender: "user",
+            timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, userMessage]);
+        setInputText("");
+        setIsSending(true);
+
+        try {
+            const response = await axios.post(WEBHOOK_URL, {
+                message: userMessage.text,
+                user_id: user.id,
+                user_name: user.fullname || `${user.first_name} ${user.last_name}`,
+            });
+
+            const botReply = response.data?.output || response.data?.message || response.data?.response || "شكراً لتواصلك معنا!";
+
+            const botMessage: ChatMessage = {
+                id: Date.now() + 1,
+                text: typeof botReply === "string" ? botReply : "شكراً لتواصلك معنا!",
+                sender: "bot",
+                timestamp: new Date(),
+            };
+
+            setMessages((prev) => [...prev, botMessage]);
+        } catch {
+            const errorMessage: ChatMessage = {
+                id: Date.now() + 1,
+                text: "عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.",
+                sender: "bot",
+                timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, errorMessage]);
+        } finally {
+            setIsSending(false);
+        }
+    }, [inputText, isSending, user]);
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+        }
+    };
+
+    if (!isHydrated || !isLoggedIn || !user) return null;
+
+    return (
+        <div className="fixed bottom-6 right-6 z-[9999] flex flex-col  gap-3">
+            {isOpen && (
+                <div
+                    className="w-[360px] max-w-[calc(100vw-32px)] rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 fade-in duration-300"
+                    style={{
+                        height: "min(520px, calc(100vh - 120px))",
+                        boxShadow: "0 12px 48px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.1)",
+                    }}
+                >
+                    <div
+                        className="px-5 py-4 flex items-center justify-between shrink-0"
+                        style={{
+                            background: "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)",
+                        }}
+                    >
+                        <div className="flex items-center gap-3" dir="rtl">
+                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                                <Bot className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h3 className="text-white font-bold text-sm leading-tight">التواصل مع الذكاء</h3>
+                                <h3 className="text-white font-bold text-sm leading-tight">الاصطناعي</h3>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors cursor-pointer"
+                        >
+                            <X className="w-4 h-4 text-white" />
+                        </button>
+
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto bg-[#f5f7fa] p-4" dir="rtl" ref={scrollRef}>
+                        <div className="flex flex-col gap-3">
+                            {messages.map((msg) => (
+                                <div
+                                    key={msg.id}
+                                    className={`flex ${msg.sender === "user" ? "justify-start" : "justify-end"}`}
+                                >
+                                    <div
+                                        className={`max-w-[80%] px-4 py-3 text-sm leading-relaxed whitespace-pre-line ${msg.sender === "user"
+                                                ? "bg-gradient-to-br from-[#395A7D] to-[#6496CD] text-white rounded-2xl rounded-tr-sm"
+                                                : "bg-white text-gray-700 rounded-2xl rounded-tl-sm border border-gray-100"
+                                            }`}
+                                        style={
+                                            msg.sender === "bot"
+                                                ? { boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }
+                                                : undefined
+                                        }
+                                    >
+                                        {msg.text}
+                                    </div>
+                                </div>
+                            ))}
+
+                            {isSending && (
+                                <div className="flex justify-end">
+                                    <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-sm border border-gray-100 flex items-center gap-2">
+                                        <div className="flex gap-1">
+                                            <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                                            <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                                            <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="bg-white px-4 py-3 border-t border-gray-100 shrink-0" dir="rtl">
+                        <div className="flex items-center gap-2">
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={inputText}
+                                onChange={(e) => setInputText(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder="اكتب رسالتك هنا ..."
+                                disabled={isSending}
+                                className="flex-1 bg-transparent text-sm text-right text-gray-700 placeholder:text-gray-400 outline-none border-none h-10"
+                            />
+                            <button
+                                onClick={handleSend}
+                                disabled={!inputText.trim() || isSending}
+                                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer ${inputText.trim()
+                                        ? "bg-[#395A7D] hover:bg-[#2c4460] text-white"
+                                        : "bg-gray-100 text-gray-400"
+                                    }`}
+                            >
+                                {isSending ? (
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : (
+                                    <Send className="w-5 h-5 -rotate-135" style={{ marginRight: "-1px" }} />
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <button
+                onClick={() => setIsOpen((prev) => !prev)}
+                className="w-14 h-14 rounded-full flex items-center justify-center text-white transition-all duration-300 hover:scale-110 cursor-pointer group"
+                style={{
+                    background: "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)",
+                    boxShadow: "0 6px 24px rgba(44,68,96,0.35)",
+                }}
+            >
+                    <Bot className="w-7 h-7 transition-transform duration-300 group-hover:scale-110" />
+            </button>
+        </div>
+    );
+}

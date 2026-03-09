@@ -416,9 +416,7 @@ export interface UnansweredQuestion {
     Status: "pending" | "reviewing" | string;
 }
 
-export interface UnansweredQuestionsResponse {
-    data: UnansweredQuestion[];
-}
+export type UnansweredQuestionsResponse = UnansweredQuestion[] | { data: UnansweredQuestion[] };
 
 export interface UnansweredQuestionPayload {
     type: "request" | "update" | "delete";

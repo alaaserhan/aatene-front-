@@ -35,7 +35,11 @@ export function UnansweredQuestionsPage() {
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
 
-    const questions: UnansweredQuestion[] = useMemo(() => response?.data || [], [response?.data]);
+    const questions: UnansweredQuestion[] = useMemo(() => {
+        if (!response) return [];
+        if (Array.isArray(response)) return response;
+        return response.data || [];
+    }, [response]);
 
     const filteredQuestions = useMemo(() => {
         let result = questions;
@@ -46,7 +50,7 @@ export function UnansweredQuestionsPage() {
 
         if (searchQuery.trim()) {
             result = result.filter((q) =>
-                q.Question.toLowerCase().includes(searchQuery.toLowerCase())
+                q.Question?.toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
 
