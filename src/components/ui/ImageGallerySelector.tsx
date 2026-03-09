@@ -7,6 +7,7 @@ import { Plus, GripHorizontal, Play } from "lucide-react";
 import { toast } from "sonner";
 import { MediaCenterModal } from "@/src/features/(dashboard)/mediaCenter/components/MediaCenterModal";
 import { MediaItem } from "@/src/features/(dashboard)/mediaCenter/api";
+import { DragHint } from "@/src/components/ui/DragHint";
 
 interface ImageGallerySelectorProps {
     accept?: string;
@@ -214,10 +215,7 @@ export function ImageGallerySelector({
             )}
 
             {showDragHint && items.length > 0 && (
-                <div className="flex items-center gap-2 text-sm text-blue-4 bg-blue-6 rounded-xs p-2.5">
-                    <img src="/icons/dashboard/orderData.svg" alt="order" className="w-4" />
-                    <span>{dragHintText}</span>
-                </div>
+                <DragHint text={dragHintText} />
             )}
 
             <div

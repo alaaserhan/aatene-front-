@@ -11,6 +11,7 @@ import { useGetCities } from "../../cities/hooks";
 import { Loader2 } from "lucide-react";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { BannerCreatePayload, BannerUpdatePayload } from "../api";
+import { MediaItem } from "../../mediaCenter/api";
 import { MediaSelectButton } from "../../mediaCenter/components/MediaSelectButton";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Label } from "@/src/components/ui/label";
@@ -45,6 +46,37 @@ function isValidUrl(urlStr: string) {
   } catch {
     return false;
   }
+}
+
+const validateMedia = (file: MediaItem, expectedWidth: number, expectedHeight: number): string | null => {
+  if (file.size && typeof file.size === 'string') {
+    const sizeStr = file.size.toUpperCase();
+    if (sizeStr.includes("MB")) {
+      const sizeNum = parseFloat(file.size);
+      if (sizeNum > 5) {
+        return "يجب ألا يتعدى حجم الصورة 5 ميغابايت.";
+      }
+    } else if (sizeStr.includes("GB")) {
+      return "يجب ألا يتعدى حجم الصورة 5 ميغابايت.";
+    }
+  } else if (typeof file.size === 'number') {
+    if ((file.size as number) > 5 * 1024 * 1024) {
+      return "يجب ألا يتعدى حجم الصورة 5 ميغابايت.";
+    }
+  }
+
+  if (file.dimensions) {
+    const dimMatch = file.dimensions.match(/(\d+)\s*[xX]\s*(\d+)/);
+    if (dimMatch) {
+      const w = parseInt(dimMatch[1], 10);
+      const h = parseInt(dimMatch[2], 10);
+      if (w !== expectedWidth || h !== expectedHeight) {
+        return `أبعاد الصورة يجب أن تكون عرض ${expectedWidth} وطول ${expectedHeight} بكسل.`;
+      }
+    }
+  }
+
+  return null;
 }
 
 export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
@@ -431,6 +463,12 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               accept="image/png,image/jpeg,image/jpg"
               primaryText="اضف ملف"
               allowedMediaTypes={["gallery"]}
+              infoText={[
+                "الأبعاد: أن تكون الصورة بعرض 1170 بكسل وطول 300 بكسل (1170 × 300).",
+                "الحجم: يجب ألا يتعدى حجم الصورة أو الفيديو 5 ميغابايت.",
+                "الجودة: أن تكون الصورة عالية الجودة وواضحة."
+              ]}
+              onValidate={(file) => validateMedia(file, 1170, 300)}
               required
             />
 
@@ -460,6 +498,12 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               accept="image/png,image/jpeg,image/jpg"
               primaryText="أضف صورة للموبايل"
               allowedMediaTypes={["gallery"]}
+              infoText={[
+                "الأبعاد: أن تكون الصورة بعرض 360 بكسل وطول 200 بكسل (360 × 200).",
+                "الحجم: يجب ألا يتعدى حجم الصورة أو الفيديو 5 ميغابايت.",
+                "الجودة: أن تكون الصورة عالية الجودة وواضحة."
+              ]}
+              onValidate={(file) => validateMedia(file, 360, 200)}
               required
             />
 

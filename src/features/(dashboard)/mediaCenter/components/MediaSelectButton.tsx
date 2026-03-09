@@ -1,12 +1,14 @@
 // src/features/(dashboard)/mediaCenter/components/MediaSelectButton.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/src/lib/utils";
+import { toast } from "sonner";
 import { MediaCenterModal } from "./MediaCenterModal";
 import { MediaItem } from "../api";
 import { InfoBox } from "@/src/components/ui/InfoBox";
+import { DragHint } from "@/src/components/ui/DragHint";
 
 interface MediaSelectButtonProps {
   label: string;
@@ -23,6 +25,9 @@ interface MediaSelectButtonProps {
   allowedMediaTypes?: string[];
   infoText?: string[];
   required?: boolean;
+  showDragHint?: boolean;
+  dragHintText?: string;
+  onValidate?: (file: MediaItem) => string | null;
 }
 
 export function MediaSelectButton({
@@ -38,33 +43,35 @@ export function MediaSelectButton({
   primaryText = "أضف أو اسحب صورة أو فيديو",
   secondaryText = "PNG, JPG, JPEG",
   allowedMediaTypes = ["gallery"],
-  infoText = [
-
-  ],
+  infoText = [],
   required,
+  showDragHint = false,
+  dragHintText = "يمكنك سحب و افلات الصورة لاعادة ترتيب الصور",
+  onValidate,
 }: MediaSelectButtonProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [preview, setPreview] = useState<string | null>(previewUrl || null);
-
-  useEffect(() => {
-    setPreview(previewUrl || null);
-  }, [previewUrl]);
 
   const handleSelect = (file: MediaItem | MediaItem[]) => {
     if (Array.isArray(file)) {
       return;
     }
 
+    if (onValidate) {
+      const errorMsg = onValidate(file);
+      if (errorMsg) {
+        toast.error(errorMsg);
+        return; // Abort selection
+      }
+    }
+
     const selectedPreviewUrl = file.src;
     const selectedFileName = file.file_name;
 
-    setPreview(selectedPreviewUrl);
     onChange(selectedFileName, selectedPreviewUrl);
     setModalOpen(false);
   };
 
   const handleRemove = () => {
-    setPreview(null);
     onChange(null, null);
   };
 
@@ -79,9 +86,13 @@ export function MediaSelectButton({
         {required && <span className="text-red-500 ms-1">*</span>}
       </label>
 
+      {showDragHint && dragHintText && (
+        <DragHint text={dragHintText} />
+      )}
+
       {infoText && infoText.length > 0 && <InfoBox texts={infoText} />}
 
-      {!preview ? (
+      {!previewUrl ? (
         <div
           onClick={handleOpenModal}
           className={cn(
@@ -106,7 +117,7 @@ export function MediaSelectButton({
           error ? "border-red-500" : "border-gray-200"
         )}>
           <img
-            src={preview}
+            src={previewUrl}
             alt="Preview"
             className="max-h-44 max-w-11/12 object-cover"
           />
@@ -115,7 +126,7 @@ export function MediaSelectButton({
             type="button"
             className="absolute top-2 left-2 p-2 bg-red-100 hover:bg-red-200 text-white rounded-lg transition-colors cursor-pointer"
           >
-            <img src="/icons/dashboard/trash.svg" alt="delete" />
+            <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="delete" />
           </button>
         </div>
       )}
