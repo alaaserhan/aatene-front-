@@ -90,7 +90,7 @@ export function Pagination({
             variant={currentPage === page ? "link" : "outline"}
             size="icon"
             onClick={() => onPageChange(page)}
-            className={` cursor-pointer`}
+            className={` cursor-pointer pt-1`}
           >
             {page}
           </Button>

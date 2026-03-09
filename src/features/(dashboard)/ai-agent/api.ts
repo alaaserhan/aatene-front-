@@ -413,7 +413,7 @@ export interface UnansweredQuestion {
     Timestamp: string;
     Chat_id: number;
     Question: string;
-    Status: "pending" | "reviewing" | string;
+    Status: "pending" | "done" | string;
 }
 
 export type UnansweredQuestionsResponse = UnansweredQuestion[] | { data: UnansweredQuestion[] };

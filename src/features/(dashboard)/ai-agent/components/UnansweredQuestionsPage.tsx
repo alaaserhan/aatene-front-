@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Loader2, Eye, Trash2, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Input } from "@/src/components/ui/input";
 import { useGetUnansweredQuestions, useDeleteUnansweredQuestion, useUpdateUnansweredQuestion } from "../hooks";
 import { UnansweredQuestion } from "../api";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { Pagination } from "@/src/components/ui/Pagination";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -15,7 +16,7 @@ const ITEMS_PER_PAGE = 10;
 
 const STATUS_OPTIONS = [
     { value: "pending", label: "تم التدريب" },
-    { value: "reviewing", label: "قيد المراجعة" },
+    { value: "done", label: "تم الانتهاء" },
 ];
 
 const FILTER_STATUS_OPTIONS = [
@@ -73,7 +74,7 @@ export function UnansweredQuestionsPage() {
         if (question.Status === newStatus) return;
         updateQuestion({
             type: "update",
-            id: question.row_number,
+            id: question.Chat_id,
             Status: newStatus,
         });
     };
@@ -85,7 +86,7 @@ export function UnansweredQuestionsPage() {
 
     const handleConfirmDelete = () => {
         if (questionToDelete) {
-            deleteQuestion(questionToDelete.row_number, {
+            deleteQuestion(questionToDelete.Chat_id, {
                 onSuccess: () => {
                     setIsDeleteConfirmOpen(false);
                     setQuestionToDelete(null);
@@ -94,9 +95,7 @@ export function UnansweredQuestionsPage() {
         }
     };
 
-    const handleViewClick = (question: UnansweredQuestion) => {
-        console.log("View question:", question);
-    };
+
 
     const exportToPDF = async () => {
         setIsExporting(true);
@@ -165,21 +164,7 @@ export function UnansweredQuestionsPage() {
         }
     };
 
-    const getPageNumbers = () => {
-        const pages: (number | string)[] = [];
-        if (totalPages <= 5) {
-            for (let i = 1; i <= totalPages; i++) pages.push(i);
-        } else {
-            pages.push(1);
-            if (currentPage > 3) pages.push("...");
-            const start = Math.max(2, currentPage - 1);
-            const end = Math.min(totalPages - 1, currentPage + 1);
-            for (let i = start; i <= end; i++) pages.push(i);
-            if (currentPage < totalPages - 2) pages.push("...");
-            pages.push(totalPages);
-        }
-        return pages;
-    };
+
 
     return (
         <div className="p-3 lg:p-5">
@@ -188,7 +173,7 @@ export function UnansweredQuestionsPage() {
                     <Mosa3edySidebar />
                 </div>
 
-                <div className="w-full space-y-4 lg:space-y-6 bg-white rounded-2xl border border-gray-200 p-4 lg:p-8 h-[calc(100vh-200px)] lg:h-[calc(100vh-124px)]">
+                <div className="w-full space-y-4 lg:space-y-6 bg-white rounded-2xl border border-gray-200 p-4 lg:p-8 min-h-[calc(100vh-200px)] lg:min-h-[calc(100vh-124px)] flex flex-col">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-gray-200 pb-4 lg:pb-6">
                         <div>
                             <h1 className="text-xl lg:text-2xl font-bold mb-1">
@@ -201,7 +186,7 @@ export function UnansweredQuestionsPage() {
                         <button
                             onClick={exportToPDF}
                             disabled={isExporting}
-                            className="flex cursor-pointer items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap disabled:opacity-50"
+                            className="flex bg-blue-5 cursor-pointer items-center gap-2 px-4 py-2 border border-blue-1 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap disabled:opacity-50"
                         >
                             {isExporting ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -282,25 +267,18 @@ export function UnansweredQuestionsPage() {
                                                                 onChange={(val: string) => handleStatusChange(question, val)}
                                                                 disabled={isUpdating}
                                                                 className={`w-fit min-w-[140px] h-9! border-none shadow-none font-medium px-3 
-                                  ${isTrained ? 'bg-[#E7F5EE] text-[#1D874F]' : 'bg-[#FFF4E5] text-[#C67A12]'}
+                                  ${isTrained ? ' text-[#1D874F]' : 'text-[#C67A12]'}
                                 `}
                                                             />
                                                         </td>
                                                         <td className="px-6 py-4">
                                                             <div className="flex items-center justify-center gap-2">
                                                                 <button
-                                                                    onClick={() => handleViewClick(question)}
-                                                                    className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-blue-3 hover:bg-blue-50 transition-colors cursor-pointer"
-                                                                    title="عرض"
-                                                                >
-                                                                    <Eye className="w-4 h-4" />
-                                                                </button>
-                                                                <button
                                                                     onClick={() => handleDeleteClick(question)}
-                                                                    className="w-9 h-9 rounded-lg border border-red-200 flex items-center justify-center text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                                                                    className="w-9 h-9 rounded-lg bg-red-2 flex items-center justify-center cursor-pointer"
                                                                     title="حذف"
                                                                 >
-                                                                    <Trash2 className="w-4 h-4" />
+                                                                    <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="delete" />
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -311,44 +289,13 @@ export function UnansweredQuestionsPage() {
                                     </table>
                                 </div>
 
-                                {totalPages > 1 && (
-                                    <div className="flex items-center justify-center gap-1 py-4 border-t border-gray-100">
-                                        <button
-                                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                                            disabled={currentPage === 1}
-                                            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                                        >
-                                            <ChevronRight className="w-4 h-4" />
-                                        </button>
-
-                                        {getPageNumbers().map((page, idx) =>
-                                            typeof page === "string" ? (
-                                                <span key={`dots-${idx}`} className="px-1 text-gray-400 text-xs">
-                                                    ......
-                                                </span>
-                                            ) : (
-                                                <button
-                                                    key={page}
-                                                    onClick={() => setCurrentPage(page)}
-                                                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors cursor-pointer ${currentPage === page
-                                                        ? "bg-blue-3 text-white"
-                                                        : "text-gray-500 hover:bg-gray-100"
-                                                        }`}
-                                                >
-                                                    {page}
-                                                </button>
-                                            ),
-                                        )}
-
-                                        <button
-                                            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                                            disabled={currentPage === totalPages}
-                                            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                                        >
-                                            <ChevronLeft className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                )}
+                                <div className="my-6">
+                                    <Pagination
+                                        totalPages={totalPages}
+                                        currentPage={currentPage}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                </div>
                             </>
                         )}
                     </div>
