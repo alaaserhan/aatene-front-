@@ -1,5 +1,5 @@
-// src/features/(dashboard)/stories/components/StoryItem.tsx
 "use client";
+
 
 import { useState } from "react";
 import { Story } from "../api";
@@ -11,6 +11,10 @@ interface StoryItemProps {
   story: Story;
   onDelete: (id: number) => void;
 }
+
+const isVideoFile = (fileName: string) => {
+  return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
+};
 
 export function StoryItem({ story, onDelete }: StoryItemProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -27,17 +31,25 @@ export function StoryItem({ story, onDelete }: StoryItemProps) {
       <div className="flex items-center justify-between py-3 hover:bg-gray-50 transition-colors rounded-lg px-2 group">
 
 
-        {/* الجزء الأيمن: الصورة والوقت */}
         <div className="flex items-center gap-4">
 
-          {/* دائرة القصة */}
+
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-4 shadow-sm shrink-0">
             {story.image ? (
-              <img
-                src={story.image}
-                alt="Story"
-                className="w-full h-full object-cover"
-              />
+              isVideoFile(story.image) ? (
+                <video
+                  src={story.image}
+                  className="w-full h-full object-cover"
+                  muted
+                  playsInline
+                />
+              ) : (
+                <img
+                  src={story.image}
+                  alt="Story"
+                  className="w-full h-full object-cover"
+                />
+              )
             ) : (
               <div
                 className="w-full h-full flex items-center justify-center p-2 text-center text-white text-[8px] font-bold break-words leading-tight"
@@ -53,15 +65,15 @@ export function StoryItem({ story, onDelete }: StoryItemProps) {
           </div>
         </div>
 
-        {/* الجزء الأيسر: زر الحذف */}
+
         <button
           onClick={(e) => {
             e.stopPropagation();
             setDeleteOpen(true);
           }}
-          className="w-10 h-10 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
+          className="w-9 h-9 bg-red-2 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
         >
-          <img src="/icons/dashboard/trash.svg" className="w-5 h-5" />
+          <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
         </button>
 
 

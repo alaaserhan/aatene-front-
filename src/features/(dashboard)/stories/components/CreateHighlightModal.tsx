@@ -1,10 +1,9 @@
-// src/features/(dashboard)/stories/components/CreateHighlightModal.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
-import { Story, Highlight } from "../api";
+import { Story, Highlight, CreateHighlightPayload } from "../api";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { Input } from "@/src/components/ui/input";
 import { toast } from "sonner";
@@ -12,12 +11,16 @@ import { cn } from "@/src/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { FormInput } from "@/src/components/ui/FormInput";
 
+const isVideoFile = (fileName: string) => {
+  return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
+};
+
 interface CreateHighlightModalProps {
   isOpen: boolean;
   onClose: () => void;
   availableStories: Story[];
   highlightToEdit?: Highlight | null;
-  onSave: (payload: any, onSuccess?: () => void) => void;
+  onSave: (payload: CreateHighlightPayload, onSuccess?: () => void) => void;
   isPending: boolean;
 }
 
@@ -35,7 +38,6 @@ export function CreateHighlightModal({
 
   useEffect(() => {
     if (isOpen) {
-      // eslint-disable-next-line
       setShowErrors(false);
       if (highlightToEdit) {
         setName(highlightToEdit.name);
@@ -102,7 +104,16 @@ export function CreateHighlightModal({
                   )}
                 >
                   {story.image ? (
-                    <img src={story.image} className="w-full h-full object-cover" alt="story" />
+                    isVideoFile(story.image) ? (
+                      <video
+                        src={story.image}
+                        className="w-full h-full object-cover"
+                        muted
+                        playsInline
+                      />
+                    ) : (
+                      <img src={story.image} className="w-full h-full object-cover" alt="story" />
+                    )
                   ) : (
                     <div
                       className="w-full h-full flex items-center justify-center p-2 text-center text-white text-xs font-bold break-words"

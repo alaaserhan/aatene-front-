@@ -47,6 +47,10 @@ const COLORS = [
     "#14B8A6", // Teal 500
 ];
 
+const isVideoFile = (fileName: string) => {
+    return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
+};
+
 export function AddStoryModal({
     isOpen,
     onClose,
@@ -108,7 +112,7 @@ export function AddStoryModal({
             onClose();
         });
     };
-
+    console.log(selectedFile);
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             {/* ✅ تم رفع z-index ليكون أعلى من ShowStoryModal */}
@@ -176,18 +180,30 @@ export function AddStoryModal({
                             <div className="w-full h-full min-h-[400px] relative group flex flex-col items-center justify-center">
                                 {selectedFile ? (
                                     <>
-                                        <img
-                                            src={selectedFile.url}
-                                            alt="Story Preview"
-                                            className="w-full h-full absolute inset-0 object-cover"
-                                        />
+                                        {isVideoFile(selectedFile.url) ? (
+                                            <video
+                                                src={selectedFile.url}
+                                                className="w-full h-full absolute inset-0 object-cover"
+                                                controls={false}
+                                                muted
+                                                playsInline
+                                                autoPlay
+                                                loop
+                                            />
+                                        ) : (
+                                            <img
+                                                src={selectedFile.url}
+                                                alt="Story Preview"
+                                                className="w-full h-full absolute inset-0 object-cover"
+                                            />
+                                        )}
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 cursor-pointer" onClick={() => setIsMediaModalOpen(true)}>
                                             <Button
                                                 variant="outline"
-                                                className="bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white/40"
+                                                className="bg-white/20 backdrop-blur-md border-white/30 text-white hover:text-white hover:bg-white/40 cursor-pointer"
                                             >
                                                 <ImageIcon className="w-4 h-4 ml-2" />
-                                                تغيير الصورة
+                                                تغيير الصورة أو الفيديو
                                             </Button>
                                         </div>
                                     </>
@@ -200,8 +216,8 @@ export function AddStoryModal({
                                             <ImageIcon className="w-10 h-10 text-gray-300" />
                                         </div>
                                         <div className="text-center">
-                                            <p className="text-gray-800 font-bold mb-1">اضغط لاختيار صورة</p>
-                                            <p className="text-white text-xs text-right">يفضّل استخدام صورة طولية (9:16)</p>
+                                            <p className="text-white text-sm font-medium mb-1">اضغط لاختيار صورة أو فيديو</p>
+                                            <p className="text-white/80 text-xs text-right mt-1">يفضّل استخدام نسبة طولية (9:16)</p>
                                         </div>
                                     </div>
                                 )}
@@ -236,7 +252,7 @@ export function AddStoryModal({
                     if (item) {
                         setSelectedFile({
                             name: item.file_name,
-                            url: item.src || item.url,
+                            url: item.url || item.src,
                         });
                     }
                     setIsMediaModalOpen(false);

@@ -353,7 +353,6 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                                     <Button
                                         onClick={handleSend}
                                         disabled={!messageText.trim() || isSending}
-                                        size="icon"
                                         className={cn(
                                             "w-10 h-10 rounded-lg shrink-0 transition-all cursor-pointer",
                                             messageText.trim() ? "bg-blue-3 hover:bg-[#2c4460] text-white" : "bg-gray-200 text-gray-2"
@@ -362,7 +361,7 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                                         {isSending ? (
                                             <Loader2 className="w-5 h-5 animate-spin" />
                                         ) : (
-                                            <Send className="w-5 h-5 -rotate-90" style={{ marginRight: "2px" }} />
+                                            <Send className="w-6 h-6 -rotate-90" />
                                         )}
                                     </Button>
                                 </div>

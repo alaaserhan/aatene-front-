@@ -1,17 +1,14 @@
-// src/features/(dashboard)/stories/components/ShowHighlightModal.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import {
     X,
     ChevronRight,
     ChevronLeft,
     MoreHorizontal,
-    Trash2,
-    PenLine
 } from "lucide-react";
-import { Story, Highlight } from "../api";
+import { Story, Highlight, CreateHighlightPayload } from "../api";
 import { cn } from "@/src/lib/utils";
 import {
     Popover,
@@ -22,13 +19,19 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { CreateHighlightModal } from "./CreateHighlightModal";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 
+const IMAGE_DURATION = 10000;
+
+const isVideoFile = (fileName: string) => {
+    return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
+};
+
 interface ShowHighlightModalProps {
     isOpen: boolean;
     onClose: () => void;
     highlight: Highlight | null;
     allStories: Story[];
     onDelete: (id: number) => void;
-    onSave: (payload: any, onSuccess?: () => void) => void;
+    onSave: (payload: CreateHighlightPayload, onSuccess?: () => void) => void;
     isPending: boolean;
 }
 
@@ -42,27 +45,94 @@ export function ShowHighlightModal({
     isPending
 }: ShowHighlightModalProps) {
     const [activeIndex, setActiveIndex] = useState(0);
+    const [progress, setProgress] = useState(0);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [storyDuration, setStoryDuration] = useState(IMAGE_DURATION);
 
-    // ✅ تحديث: استخدام القصص من الهايلايت مباشرة
     const highlightStories = highlight?.stories || [];
 
+    const rafRef = useRef<number>(0);
+    const startTimeRef = useRef<number>(0);
+    const pausedElapsedRef = useRef<number>(0);
+
+    const isPaused = isMenuOpen || isEditModalOpen;
+
+    const goToNext = useCallback(() => {
+        setActiveIndex(prev => {
+            if (prev < highlightStories.length - 1) return prev + 1;
+            onClose();
+            return prev;
+        });
+        setProgress(0);
+        setStoryDuration(IMAGE_DURATION);
+        pausedElapsedRef.current = 0;
+    }, [highlightStories.length, onClose]);
+
+    const goToPrev = useCallback(() => {
+        setActiveIndex(prev => {
+            if (prev > 0) return prev - 1;
+            return prev;
+        });
+        setProgress(0);
+        setStoryDuration(IMAGE_DURATION);
+        pausedElapsedRef.current = 0;
+    }, []);
+
+    const goToIndex = useCallback((index: number) => {
+        setActiveIndex(index);
+        setProgress(0);
+        setStoryDuration(IMAGE_DURATION);
+        pausedElapsedRef.current = 0;
+    }, []);
+
     useEffect(() => {
-        if (isOpen) setActiveIndex(0);
+        if (isOpen) {
+            setActiveIndex(0);
+            setProgress(0);
+            setStoryDuration(IMAGE_DURATION);
+            pausedElapsedRef.current = 0;
+        }
     }, [isOpen, highlight]);
+
+    useEffect(() => {
+        if (!isOpen || isPaused) {
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+            return;
+        }
+
+        startTimeRef.current = performance.now() - pausedElapsedRef.current;
+
+        const animate = (now: number) => {
+            const elapsed = now - startTimeRef.current;
+            const pct = Math.min((elapsed / storyDuration) * 100, 100);
+            setProgress(pct);
+            pausedElapsedRef.current = elapsed;
+
+            if (pct >= 100) {
+                goToNext();
+                return;
+            }
+
+            rafRef.current = requestAnimationFrame(animate);
+        };
+
+        rafRef.current = requestAnimationFrame(animate);
+
+        return () => {
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, isPaused, storyDuration, activeIndex, goToNext]);
 
     if (!highlight || highlightStories.length === 0) return null;
 
-    const handleNext = () => {
-        if (activeIndex < highlightStories.length - 1) {
-            setActiveIndex(prev => prev + 1);
-        }
-    };
-
-    const handlePrev = () => {
-        if (activeIndex > 0) {
-            setActiveIndex(prev => prev - 1);
+    const handleVideoDuration = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        const video = e.currentTarget;
+        if (video.duration && isFinite(video.duration)) {
+            setStoryDuration(video.duration * 1000);
+            pausedElapsedRef.current = 0;
+            startTimeRef.current = performance.now();
         }
     };
 
@@ -98,7 +168,7 @@ export function ShowHighlightModal({
 
                     {activeIndex > 0 && (
                         <button
-                            onClick={handlePrev}
+                            onClick={goToPrev}
                             className="absolute right-4 md:right-16 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-all backdrop-blur-sm"
                         >
                             <ChevronRight className="w-8 h-8" />
@@ -106,7 +176,7 @@ export function ShowHighlightModal({
                     )}
                     {activeIndex < highlightStories.length - 1 && (
                         <button
-                            onClick={handleNext}
+                            onClick={goToNext}
                             className="absolute left-4 md:left-16 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-all backdrop-blur-sm"
                         >
                             <ChevronLeft className="w-8 h-8" />
@@ -126,21 +196,32 @@ export function ShowHighlightModal({
                                 return (
                                     <div
                                         key={story.id}
-                                        onClick={() => !isActive && setActiveIndex(index)}
+                                        onClick={() => !isActive && goToIndex(index)}
                                         className={cn(
                                             "relative aspect-[9/16] bg-black rounded-[24px] overflow-hidden transition-all duration-500 ease-in-out shrink-0 border border-gray-800",
                                             isActive
-                                                ? `w-[400px] opacity-100 scale-100 z-20 shadow-2xl`
-                                                : `w-[320px] opacity-40 scale-90 blur-[1px] cursor-pointer hover:opacity-60`
+                                                ? "w-[400px] opacity-100 scale-100 z-20 shadow-2xl"
+                                                : "w-[320px] opacity-40 scale-90 blur-[1px] cursor-pointer hover:opacity-60"
                                         )}
                                     >
                                         <div className="w-full h-full flex items-center justify-center bg-[#1a1a1a]">
                                             {story.image ? (
-                                                <img
-                                                    src={story.image}
-                                                    alt="Story"
-                                                    className="w-full h-full object-cover"
-                                                />
+                                                isVideoFile(story.image) ? (
+                                                    <video
+                                                        src={story.image}
+                                                        className="w-full h-full object-cover"
+                                                        muted
+                                                        playsInline
+                                                        autoPlay={isActive}
+                                                        onLoadedMetadata={isActive ? handleVideoDuration : undefined}
+                                                    />
+                                                ) : (
+                                                    <img
+                                                        src={story.image}
+                                                        alt="Story"
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                )
                                             ) : (
                                                 <div
                                                     className="w-full h-full flex items-center justify-center p-8 text-center"
@@ -157,60 +238,60 @@ export function ShowHighlightModal({
                                             <>
                                                 <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/70 to-transparent pointer-events-none" />
 
-                                                <div className="absolute top-6 left-0 right-0 px-4 flex items-center justify-between z-30" dir="rtl">
-
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col text-right text-white">
-                                                            <span className="text-xs font-bold">{highlight.name}</span>
-                                                            <span className="text-xs opacity-80">{getRelativeTimeArabic(story.created_at)}</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                                                        <PopoverTrigger asChild>
-                                                            <button className="p-2 cursor-pointer bg-black/20 hover:bg-black/40 rounded-full transition-colors backdrop-blur-md">
-                                                                <MoreHorizontal className="w-6 h-6 text-white" />
-                                                            </button>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-56 p-1 bg-white/95 backdrop-blur-md rounded-xl shadow-xl ml-4 border-gray-100" align="start" side="bottom">
-                                                            <div className="flex flex-col">
-
-                                                                <button
-                                                                    onClick={handleEdit}
-                                                                    className="flex items-center cursor-pointer gap-3 p-3 hover:bg-blue-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl"
-                                                                >
-                                                                    <img src="/icons/dashboard/edit3.svg" className="w-4 h-4 " />
-                                                                    <span className="font-bold text-sm">تعديل المجموعة</span>
-                                                                </button>
-
-                                                                <div className="h-px bg-gray-100 my-1 mx-2" />
-
-                                                                <button onClick={handleDelete} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-red-50 text-red-600 rounded-lg transition-colors w-full text-right" dir="rtl">
-                                                                    <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
-                                                                    <span className="font-bold text-sm">حذف المجموعة</span>
-                                                                </button>
-                                                            </div>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </div>
-
-                                                <div className="absolute bottom-0 left-0 right-0 p-4 z-30 flex flex-col gap-4">
-                                                    <div className="h-32 bg-gradient-to-t from-black/80 to-transparent absolute bottom-0 left-0 right-0 -z-10" />
-
-                                                    <div className="flex gap-1.5 direction-ltr">
+                                                <div className="absolute top-4 left-0 right-0 px-4 z-30" dir="rtl">
+                                                    <div className="flex gap-1.5 direction-ltr mb-4">
                                                         {highlightStories.map((_, barIdx) => (
                                                             <div key={barIdx} className="h-1 flex-1 bg-white/30 rounded-full overflow-hidden backdrop-blur-sm">
                                                                 <div
-                                                                    className={cn(
-                                                                        "h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.6)] transition-all duration-300",
-                                                                        barIdx === activeIndex ? "w-full" :
-                                                                            barIdx < activeIndex ? "w-full" : "w-0"
-                                                                    )}
+                                                                    className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.6)]"
+                                                                    style={{
+                                                                        width: barIdx === activeIndex
+                                                                            ? `${progress}%`
+                                                                            : barIdx < activeIndex ? "100%" : "0%",
+                                                                        transition: barIdx === activeIndex ? "none" : "width 0.3s ease"
+                                                                    }}
                                                                 />
                                                             </div>
                                                         ))}
                                                     </div>
+
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="flex flex-col text-right text-white">
+                                                                <span className="text-xs font-bold">{highlight.name}</span>
+                                                                <span className="text-xs opacity-80">{getRelativeTimeArabic(story.created_at)}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                                                            <PopoverTrigger asChild>
+                                                                <button className="p-2 cursor-pointer bg-black/20 hover:bg-black/40 rounded-full transition-colors backdrop-blur-md">
+                                                                    <MoreHorizontal className="w-6 h-6 text-white" />
+                                                                </button>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-56 p-1 bg-white/95 backdrop-blur-md rounded-xl shadow-xl ml-4 border-gray-100" align="start" side="bottom">
+                                                                <div className="flex flex-col">
+
+                                                                    <button
+                                                                        onClick={handleEdit}
+                                                                        className="flex items-center cursor-pointer gap-3 p-3 hover:bg-blue-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl"
+                                                                    >
+                                                                        <img src="/icons/dashboard/edit3.svg" className="w-4 h-4 " />
+                                                                        <span className="font-bold text-sm">تعديل المجموعة</span>
+                                                                    </button>
+
+                                                                    <div className="h-px bg-gray-100 my-1 mx-2" />
+
+                                                                    <button onClick={handleDelete} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-red-50 text-red-600 rounded-lg transition-colors w-full text-right" dir="rtl">
+                                                                        <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
+                                                                        <span className="font-bold text-sm">حذف المجموعة</span>
+                                                                    </button>
+                                                                </div>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    </div>
                                                 </div>
+
                                             </>
                                         )}
                                     </div>

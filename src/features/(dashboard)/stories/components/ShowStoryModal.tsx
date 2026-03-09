@@ -1,18 +1,13 @@
-// src/features/(dashboard)/stories/components/ShowStoryModal.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import {
     X,
     ChevronRight,
     ChevronLeft,
     MoreHorizontal,
-    Download,
     Link as LinkIcon,
-    Trash2,
-    PenLine,
-    Loader2
 } from "lucide-react";
 import { Story, CreateStoryPayload } from "../api";
 import { MediaItem } from "@/src/features/(dashboard)/mediaCenter/api";
@@ -34,6 +29,12 @@ interface MediaPickerProps {
     allowedMediaTypes?: string[];
     multiple?: boolean;
 }
+
+const IMAGE_DURATION = 10000;
+
+const isVideoFile = (fileName: string) => {
+    return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
+};
 
 interface ShowStoryModalProps {
     isOpen: boolean;
@@ -59,27 +60,55 @@ export function ShowStoryModal({
     showActions = true
 }: ShowStoryModalProps) {
     const [activeIndex, setActiveIndex] = useState(initialIndex);
+    const [progress, setProgress] = useState(0);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isDownloading, setIsDownloading] = useState(false); // مؤشر تحميل للتنزيل
-
+    const [storyDuration, setStoryDuration] = useState(IMAGE_DURATION);
     const [dimensions, setDimensions] = useState({ width: 400, inactiveWidth: 320 });
+
+    const rafRef = useRef<number>(0);
+    const startTimeRef = useRef<number>(0);
+    const pausedElapsedRef = useRef<number>(0);
+
+    const isPaused = isMenuOpen || isEditModalOpen;
+
+    const goToNext = useCallback(() => {
+        setActiveIndex(prev => {
+            if (prev < stories.length - 1) return prev + 1;
+            onClose();
+            return prev;
+        });
+        setProgress(0);
+        setStoryDuration(IMAGE_DURATION);
+        pausedElapsedRef.current = 0;
+    }, [stories.length, onClose]);
+
+    const goToPrev = useCallback(() => {
+        setActiveIndex(prev => {
+            if (prev > 0) return prev - 1;
+            return prev;
+        });
+        setProgress(0);
+        setStoryDuration(IMAGE_DURATION);
+        pausedElapsedRef.current = 0;
+    }, []);
+
+    const goToIndex = useCallback((index: number) => {
+        setActiveIndex(index);
+        setProgress(0);
+        setStoryDuration(IMAGE_DURATION);
+        pausedElapsedRef.current = 0;
+    }, []);
 
     useEffect(() => {
         const updateDimensions = () => {
             const vh = window.innerHeight;
             const vw = window.innerWidth;
-
-            // Limit max height to 85vh or 850px
             const targetHeight = Math.min(vh * 0.85, 850);
             let activeW = targetHeight * (9 / 16);
-
-            // Limit max width to 85% of viewport width
             if (activeW > vw * 0.85) {
                 activeW = vw * 0.85;
             }
-
             setDimensions({
                 width: activeW,
                 inactiveWidth: activeW * 0.8
@@ -94,22 +123,54 @@ export function ShowStoryModal({
     }, []);
 
     useEffect(() => {
-        if (isOpen) setActiveIndex(initialIndex);
+        if (isOpen) {
+            setActiveIndex(initialIndex);
+            setProgress(0);
+            setStoryDuration(IMAGE_DURATION);
+            pausedElapsedRef.current = 0;
+        }
     }, [isOpen, initialIndex]);
+
+    useEffect(() => {
+        if (!isOpen || isPaused) {
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+            return;
+        }
+
+        startTimeRef.current = performance.now() - pausedElapsedRef.current;
+
+        const animate = (now: number) => {
+            const elapsed = now - startTimeRef.current;
+            const pct = Math.min((elapsed / storyDuration) * 100, 100);
+            setProgress(pct);
+            pausedElapsedRef.current = elapsed;
+
+            if (pct >= 100) {
+                goToNext();
+                return;
+            }
+
+            rafRef.current = requestAnimationFrame(animate);
+        };
+
+        rafRef.current = requestAnimationFrame(animate);
+
+        return () => {
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, isPaused, storyDuration, activeIndex, goToNext]);
 
     if (!stories || stories.length === 0) return null;
 
     const activeStory = stories[activeIndex];
 
-    const handleNext = () => {
-        if (activeIndex < stories.length - 1) {
-            setActiveIndex(prev => prev + 1);
-        }
-    };
-
-    const handlePrev = () => {
-        if (activeIndex > 0) {
-            setActiveIndex(prev => prev - 1);
+    const handleVideoDuration = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        const video = e.currentTarget;
+        if (video.duration && isFinite(video.duration)) {
+            setStoryDuration(video.duration * 1000);
+            pausedElapsedRef.current = 0;
+            startTimeRef.current = performance.now();
         }
     };
 
@@ -118,48 +179,6 @@ export function ShowStoryModal({
         navigator.clipboard.writeText(link);
         toast.success("تم نسخ رابط القصة");
         setIsMenuOpen(false);
-    };
-
-    // ✅ إصلاح التنزيل: استخدام Blob لعمل تنزيل محلي حقيقي
-    const handleDownload = async () => {
-        if (!activeStory.image) return;
-
-        setIsDownloading(true);
-        try {
-            // جلب بيانات الصورة كـ Blob
-            const response = await fetch(activeStory.image, {
-                mode: 'cors', // مهم للصور من دومين مختلف
-            });
-
-            if (!response.ok) throw new Error('Network response was not ok');
-
-            const blob = await response.blob();
-
-            // إنشاء رابط مؤقت في الذاكرة
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-
-            // استخراج اسم الملف أو استخدام اسم افتراضي
-            const fileName = activeStory.image.split('/').pop() || `story-${activeStory.id}.jpg`;
-            link.download = fileName;
-
-            document.body.appendChild(link);
-            link.click();
-
-            // تنظيف الذاكرة
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-
-            toast.success("تم تنزيل الصورة بنجاح");
-        } catch (error) {
-            console.error("Download failed:", error);
-            // Fallback: فتح في تبويب جديد إذا فشل التنزيل المباشر
-            window.open(activeStory.image, '_blank');
-        } finally {
-            setIsDownloading(false);
-            setIsMenuOpen(false);
-        }
     };
 
     const handleEdit = () => {
@@ -179,7 +198,6 @@ export function ShowStoryModal({
         }
     };
 
-
     const ACTIVE_WIDTH = dimensions.width;
     const INACTIVE_WIDTH = dimensions.inactiveWidth;
     const GAP = 32;
@@ -188,20 +206,20 @@ export function ShowStoryModal({
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
                 <DialogContent
-                    className="max-w-none w-screen h-screen p-0 bg-black/55 border-none flex items-center justify-center overflow-hidden z-[9990] rounded-none sm:rounded-none" // تقليل الـ z-index قليلاً للسماح للمودال الثاني بالظهور فوقه
+                    className="max-w-none w-screen h-screen p-0 bg-black/55 border-none flex items-center justify-center overflow-hidden z-[9990] rounded-none sm:rounded-none"
                 >
                     <VisuallyHidden><DialogTitle>عرض القصة</DialogTitle></VisuallyHidden>
 
                     <button
                         onClick={onClose}
-                        className="absolute cursor-pointer top-6 left-6 text-white/70 hover:text-white z-50 p-2 transition-colors bg-white/10 rounded-full cursor-pointer"
+                        className="absolute cursor-pointer top-6 left-6 text-white/70 hover:text-white z-50 p-2 transition-colors bg-white/10 rounded-full"
                     >
                         <X className="w-6 h-6" />
                     </button>
 
                     {activeIndex > 0 && (
                         <button
-                            onClick={handlePrev}
+                            onClick={goToPrev}
                             className="absolute left-4 md:left-16 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-all backdrop-blur-sm"
                         >
                             <ChevronLeft className="w-8 h-8" />
@@ -209,7 +227,7 @@ export function ShowStoryModal({
                     )}
                     {activeIndex < stories.length - 1 && (
                         <button
-                            onClick={handleNext}
+                            onClick={goToNext}
                             className="absolute right-4 md:right-16 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-all backdrop-blur-sm"
                         >
                             <ChevronRight className="w-8 h-8" />
@@ -233,22 +251,33 @@ export function ShowStoryModal({
                                 return (
                                     <div
                                         key={story.id}
-                                        onClick={() => !isActive && setActiveIndex(index)}
+                                        onClick={() => !isActive && goToIndex(index)}
                                         className={cn(
                                             "relative bg-white aspect-[9/16] rounded-[24px] overflow-hidden transition-all duration-500 ease-in-out shrink-0 border border-gray-800",
                                             isActive
-                                                ? `opacity-100 scale-100 z-20 shadow-2xl`
-                                                : `opacity-40 scale-90 blur-[1px] cursor-pointer hover:opacity-60`
+                                                ? "opacity-100 scale-100 z-20 shadow-2xl"
+                                                : "opacity-40 scale-90 blur-[1px] cursor-pointer hover:opacity-60"
                                         )}
                                         style={{ width: `${isActive ? ACTIVE_WIDTH : INACTIVE_WIDTH}px` }}
                                     >
-                                        <div className="w-full h-full flex items-center justify-center ">
+                                        <div className="w-full h-full flex items-center justify-center">
                                             {story.image ? (
-                                                <img
-                                                    src={story.image}
-                                                    alt="Story"
-                                                    className="w-full h-full object-cover"
-                                                />
+                                                isVideoFile(story.image) ? (
+                                                    <video
+                                                        src={story.image}
+                                                        className="w-full h-full object-cover"
+                                                        muted
+                                                        playsInline
+                                                        autoPlay={isActive}
+                                                        onLoadedMetadata={isActive ? handleVideoDuration : undefined}
+                                                    />
+                                                ) : (
+                                                    <img
+                                                        src={story.image}
+                                                        alt="Story"
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                )
                                             ) : (
                                                 <div
                                                     className="w-full h-full flex items-center justify-center p-8 text-center"
@@ -265,86 +294,64 @@ export function ShowStoryModal({
                                             <>
                                                 <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/70 to-transparent pointer-events-none" />
 
-                                                <div className="absolute top-6 left-0 right-0 px-4 flex items-center justify-between z-30" dir="rtl">
-
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col text-right text-white">
-                                                            <span className="text-xs opacity-80">{getRelativeTimeArabic(story.created_at)}</span>
-                                                        </div>
-                                                    </div>
-
-                                                    {showActions && (
-                                                        <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                                                            <PopoverTrigger asChild>
-                                                                <button className="p-2 bg-black/20 cursor-pointer hover:bg-black/40 rounded-full transition-colors backdrop-blur-md">
-                                                                    <MoreHorizontal className="w-6 h-6 text-white" />
-                                                                </button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-56 p-1 bg-white/95 backdrop-blur-md rounded-xl shadow-xl ml-4 border-gray-100" align="start" side="bottom">
-                                                                <div className="flex flex-col">
-
-                                                                    <button
-                                                                        onClick={handleEdit}
-                                                                        className="flex items-center cursor-pointer gap-3 p-3 hover:bg-blue-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl"
-                                                                    >
-                                                                        <img src="/icons/dashboard/edit3.svg" className="w-4 h-4 " />
-                                                                        <span className="font-bold text-sm">تعديل القصة</span>
-                                                                    </button>
-
-                                                                    {/* {story.image && (
-                                                                        <button
-                                                                            onClick={handleDownload}
-                                                                            disabled={isDownloading}
-                                                                            className="flex items-center cursor-pointer gap-3 p-3 hover:bg-green-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl"
-                                                                        >
-                                                                            {isDownloading ? (
-                                                                                <Loader2 className="w-4 h-4 text-green-600 animate-spin" />
-                                                                            ) : (
-                                                                                <Download className="w-4 h-4 text-green-600" />
-                                                                            )}
-                                                                            <span className="font-semibold text-sm">
-                                                                                {isDownloading ? "جاري التنزيل..." : "تنزيل القصة"}
-                                                                            </span>
-                                                                        </button>
-                                                                    )} */}
-
-                                                                    <button onClick={handleCopyLink} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-orange-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl">
-                                                                        <LinkIcon className="w-4 h-4 text-orange-500" />
-                                                                        <span className="font-semibold text-sm">نسخ الرابط</span>
-                                                                    </button>
-
-
-                                                                    <button onClick={handleDelete} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-red-50 text-red-600 rounded-lg transition-colors w-full text-right" dir="rtl">
-                                                                        <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
-                                                                        <span className="font-semibold text-sm">حذف القصة</span>
-                                                                    </button>
-                                                                </div>
-                                                            </PopoverContent>
-                                                        </Popover>
-                                                    )}
-                                                </div>
-
-                                                <div className="absolute bottom-0 left-0 right-0 p-4 z-30 flex flex-col gap-4">
-                                                    <div className="h-32 bg-gradient-to-t from-black/80 to-transparent absolute bottom-0 left-0 right-0 -z-10" />
-
-                                                    <div className="flex justify-end text-white px-1">
-                                                        {/* <h3 className="font-bold text-sm drop-shadow-md">اهم الاعمال</h3> */}
-                                                    </div>
-
-                                                    <div className="flex gap-1.5 direction-ltr">
+                                                <div className="absolute top-4 left-0 right-0 px-4 z-30" dir="rtl">
+                                                    <div className="flex gap-1.5 direction-ltr mb-4">
                                                         {stories.map((_, barIdx) => (
                                                             <div key={barIdx} className="h-1 flex-1 bg-white/30 rounded-full overflow-hidden backdrop-blur-sm">
                                                                 <div
-                                                                    className={cn(
-                                                                        "h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.6)] transition-all duration-300",
-                                                                        barIdx === activeIndex ? "w-full" :
-                                                                            barIdx < activeIndex ? "w-full" : "w-0"
-                                                                    )}
+                                                                    className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.6)]"
+                                                                    style={{
+                                                                        width: barIdx === activeIndex
+                                                                            ? `${progress}%`
+                                                                            : barIdx < activeIndex ? "100%" : "0%",
+                                                                        transition: barIdx === activeIndex ? "none" : "width 0.3s ease"
+                                                                    }}
                                                                 />
                                                             </div>
                                                         ))}
                                                     </div>
+
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="flex flex-col text-right text-white">
+                                                                <span className="text-xs opacity-80">{getRelativeTimeArabic(story.created_at)}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        {showActions && (
+                                                            <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                                                                <PopoverTrigger asChild>
+                                                                    <button className="p-2 bg-black/20 cursor-pointer hover:bg-black/40 rounded-full transition-colors backdrop-blur-md">
+                                                                        <MoreHorizontal className="w-6 h-6 text-white" />
+                                                                    </button>
+                                                                </PopoverTrigger>
+                                                                <PopoverContent className="w-56 p-1 bg-white/95 backdrop-blur-md rounded-xl shadow-xl ml-4 border-gray-100" align="start" side="bottom">
+                                                                    <div className="flex flex-col">
+
+                                                                        <button
+                                                                            onClick={handleEdit}
+                                                                            className="flex items-center cursor-pointer gap-3 p-3 hover:bg-blue-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl"
+                                                                        >
+                                                                            <img src="/icons/dashboard/edit3.svg" className="w-4 h-4 " />
+                                                                            <span className="font-bold text-sm">تعديل القصة</span>
+                                                                        </button>
+
+                                                                        <button onClick={handleCopyLink} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-orange-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl">
+                                                                            <LinkIcon className="w-4 h-4 text-orange-500" />
+                                                                            <span className="font-semibold text-sm">نسخ الرابط</span>
+                                                                        </button>
+
+                                                                        <button onClick={handleDelete} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-red-50 text-red-600 rounded-lg transition-colors w-full text-right" dir="rtl">
+                                                                            <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
+                                                                            <span className="font-semibold text-sm">حذف القصة</span>
+                                                                        </button>
+                                                                    </div>
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        )}
+                                                    </div>
                                                 </div>
+
                                             </>
                                         )}
                                     </div>
@@ -355,7 +362,6 @@ export function ShowStoryModal({
                 </DialogContent>
             </Dialog>
 
-            {/* مودال التعديل */}
             {activeStory && isEditModalOpen && onSave && MediaPickerComponent && (
                 <AddStoryModal
                     isOpen={isEditModalOpen}

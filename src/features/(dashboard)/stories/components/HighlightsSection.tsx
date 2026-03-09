@@ -1,5 +1,5 @@
-// src/features/(dashboard)/stories/components/HighlightsSection.tsx
 "use client";
+
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
@@ -7,6 +7,10 @@ import { Highlight, Story } from "../api";
 import { CreateHighlightModal } from "./CreateHighlightModal";
 import { ShowHighlightModal } from "./ShowHighlightModal";
 import { cn } from "@/src/lib/utils";
+
+const isVideoFile = (fileName: string) => {
+  return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
+};
 
 interface HighlightsSectionProps {
   highlights: Highlight[];
@@ -37,14 +41,13 @@ export function HighlightsSection({
     setIsShowModalOpen(true);
   };
 
-  // ✅ تحديث الدالة: القصص موجودة بالفعل داخل الهايلايت
+
   const getLastStory = (highlight: Highlight): Story | undefined => {
     if (!highlight.stories || highlight.stories.length === 0) return undefined;
-    // نأخذ آخر عنصر في المصفوفة مباشرة
     return highlight.stories[highlight.stories.length - 1];
   };
 
-  // Function to handle update from ShowHighlightModal
+
   const handleUpdateFromModal = (payload: any, onSuccess?: () => void) => {
     if (selectedHighlight) {
       onUpdateHighlight(selectedHighlight.id, payload, onSuccess);
@@ -60,7 +63,6 @@ export function HighlightsSection({
 
       <div className="flex items-start gap-0 sm:gap-2 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-200">
 
-        {/* زر إضافة جديد */}
         <div className="flex flex-col items-center gap-2 cursor-pointer group" onClick={() => setIsCreateModalOpen(true)}>
           <div className="w-18 h-18 rounded-full border-3 border-blue-4 flex items-center justify-center bg-blue-5  transition-colors">
             <Plus className="w-8 h-8 text-blue-4" />
@@ -68,7 +70,7 @@ export function HighlightsSection({
           <span className="text-sm font-medium text-gray-2">جديدة</span>
         </div>
 
-        {/* قائمة الهايلايتس */}
+
         {highlights.map((highlight) => {
           const lastStory = getLastStory(highlight);
           if (highlight.stories.length === 0) return null;
@@ -78,12 +80,21 @@ export function HighlightsSection({
               onClick={() => handleHighlightClick(highlight)}
               className="flex flex-col items-center gap-2 cursor-pointer group min-w-[80px]"
             >
-              <div className="w-18 h-18 rounded-full border-2 border-blue-4 p-1">
+              <div className="w-18 h-18 rounded-full border-2 border-blue-4">
                 <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative border border-gray-100 flex items-center justify-center">
 
                   {lastStory ? (
                     lastStory.image ? (
-                      <img src={lastStory.image} alt={highlight.name} className="w-full h-full object-cover" />
+                      isVideoFile(lastStory.image) ? (
+                        <video
+                          src={lastStory.image}
+                          className="w-full h-full object-cover"
+                          muted
+                          playsInline
+                        />
+                      ) : (
+                        <img src={lastStory.image} alt={highlight.name} className="w-full h-full object-cover" />
+                      )
                     ) : (
                       <div
                         className="w-full h-full flex items-center justify-center p-1 text-center text-white text-[10px] font-bold break-words leading-tight"
