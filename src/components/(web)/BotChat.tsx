@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, Loader2, Bot } from "lucide-react";
+import { X, Send, Loader2, Bot } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { useUIStore } from "@/src/stores/ui-store";
+import { cn } from "@/src/lib/utils";
 import axios from "axios";
 
 const WEBHOOK_URL = "https://auto.mosaady.com/webhook/50a13617-dcab-4703-9b18-f7109d348abe";
@@ -26,7 +28,10 @@ export default function BotChat() {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     const isHydrated = useAuthStore((state) => state.isHydrated);
 
-    const [isOpen, setIsOpen] = useState(false);
+    const isOpen = useUIStore((state) => state.isChatOpen);
+    const setChatOpen = useUIStore((state) => state.setChatOpen);
+    const toggleChat = useUIStore((state) => state.toggleChat);
+
     const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
     const [inputText, setInputText] = useState("");
     const [isSending, setIsSending] = useState(false);
@@ -55,7 +60,7 @@ export default function BotChat() {
             timestamp: new Date(),
         };
 
-        setMessages((prev) => [...prev, userMessage]);
+        setMessages((prev: ChatMessage[]) => [...prev, userMessage]);
         setInputText("");
         setIsSending(true);
 
@@ -75,7 +80,7 @@ export default function BotChat() {
                 timestamp: new Date(),
             };
 
-            setMessages((prev) => [...prev, botMessage]);
+            setMessages((prev: ChatMessage[]) => [...prev, botMessage]);
         } catch {
             const errorMessage: ChatMessage = {
                 id: Date.now() + 1,
@@ -83,7 +88,7 @@ export default function BotChat() {
                 sender: "bot",
                 timestamp: new Date(),
             };
-            setMessages((prev) => [...prev, errorMessage]);
+            setMessages((prev: ChatMessage[]) => [...prev, errorMessage]);
         } finally {
             setIsSending(false);
         }
@@ -99,10 +104,22 @@ export default function BotChat() {
     if (!isHydrated || !isLoggedIn || !user) return null;
 
     return (
-        <div className="fixed bottom-6 right-6 z-[9999] flex flex-col  gap-3">
+        <>
+            {/* Backdrop for mobile */}
             {isOpen && (
                 <div
-                    className="w-[360px] max-w-[calc(100vw-32px)] rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 fade-in duration-300"
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9998] md:hidden animate-in fade-in duration-300"
+                    onClick={() => setChatOpen(false)}
+                />
+            )}
+
+            {isOpen && (
+                <div
+                    className={cn(
+                        "z-[9999] w-[360px] max-w-[calc(100vw-32px)] rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 fade-in duration-300",
+                        "fixed max-md:top-1/2 max-md:left-1/2 max-md:-translate-x-1/2 max-md:-translate-y-1/2",
+                        "md:fixed md:bottom-24 md:right-6"
+                    )}
                     style={{
                         height: "min(520px, calc(100vh - 120px))",
                         boxShadow: "0 12px 48px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.1)",
@@ -119,12 +136,12 @@ export default function BotChat() {
                                 <Bot className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-white font-bold text-sm leading-tight">التواصل مع الذكاء</h3>
-                                <h3 className="text-white font-bold text-sm leading-tight">الاصطناعي</h3>
+                                <h3 className="text-white font-medium text-sm leading-tight">التواصل مع الذكاء</h3>
+                                <h3 className="text-white font-medium text-sm leading-tight">الاصطناعي</h3>
                             </div>
                         </div>
                         <button
-                            onClick={() => setIsOpen(false)}
+                            onClick={() => setChatOpen(false)}
                             className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors cursor-pointer"
                         >
                             <X className="w-4 h-4 text-white" />
@@ -134,15 +151,15 @@ export default function BotChat() {
 
                     <div className="flex-1 overflow-y-auto bg-[#f5f7fa] p-4" dir="rtl" ref={scrollRef}>
                         <div className="flex flex-col gap-3">
-                            {messages.map((msg) => (
+                            {messages.map((msg: ChatMessage) => (
                                 <div
                                     key={msg.id}
-                                    className={`flex ${msg.sender === "user" ? "justify-start" : "justify-end"}`}
+                                    className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
                                 >
                                     <div
                                         className={`max-w-[80%] px-4 py-3 text-sm leading-relaxed whitespace-pre-line ${msg.sender === "user"
-                                                ? "bg-gradient-to-br from-[#395A7D] to-[#6496CD] text-white rounded-2xl rounded-tr-sm"
-                                                : "bg-white text-gray-700 rounded-2xl rounded-tl-sm border border-gray-100"
+                                            ? "bg-gradient-to-br from-[#395A7D] to-[#6496CD] text-white rounded-2xl rounded-tl-sm"
+                                            : "bg-white text-gray-700 rounded-2xl rounded-tr-sm border border-gray-100"
                                             }`}
                                         style={
                                             msg.sender === "bot"
@@ -185,8 +202,8 @@ export default function BotChat() {
                                 onClick={handleSend}
                                 disabled={!inputText.trim() || isSending}
                                 className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer ${inputText.trim()
-                                        ? "bg-[#395A7D] hover:bg-[#2c4460] text-white"
-                                        : "bg-gray-100 text-gray-400"
+                                    ? "bg-[#395A7D] hover:bg-[#2c4460] text-white"
+                                    : "bg-gray-100 text-gray-400"
                                     }`}
                             >
                                 {isSending ? (
@@ -201,15 +218,16 @@ export default function BotChat() {
             )}
 
             <button
-                onClick={() => setIsOpen((prev) => !prev)}
-                className="w-14 h-14 rounded-full flex items-center justify-center text-white transition-all duration-300 hover:scale-110 cursor-pointer group"
+                onClick={toggleChat}
+                className="fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full flex items-center justify-center text-white transition-all duration-300 hover:scale-110 cursor-pointer group"
                 style={{
                     background: "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)",
                     boxShadow: "0 6px 24px rgba(44,68,96,0.35)",
                 }}
             >
-                    <Bot className="w-7 h-7 transition-transform duration-300 group-hover:scale-110" />
+                <Bot className="w-7 h-7 transition-transform duration-300 group-hover:scale-110" />
             </button>
-        </div>
+        </>
     );
 }
+
