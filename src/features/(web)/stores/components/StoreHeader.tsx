@@ -87,7 +87,6 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
 
     return (
         <div className="relative bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] pb-4">
-            {/* Cover Slider */}
             <div className="relative h-48 md:h-[250px] lg:h-[300px] w-full overflow-hidden group">
                 {covers.length > 0 ? (
                     <Image
