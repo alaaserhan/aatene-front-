@@ -137,7 +137,7 @@ function SearchBarContent({
           <div className="relative w-full">
             <input
               type="text"
-              className="w-full border border-blue-1 h-10 rounded-md py-2 pr-10 focus:outline-none text-right pl-4"
+              className="w-full border border-blue-1 h-10 rounded-md py-2 pr-10 focus:outline-none text-right pl-20"
               placeholder="بحث"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -146,6 +146,13 @@ function SearchBarContent({
             <div className="absolute right-0 top-0 h-10 w-10 flex items-center justify-center pointer-events-none text-blue-4">
               <Search className="w-5 h-5" />
             </div>
+            <button
+              className="absolute left-0 top-0 h-10 bg-[#3D5E83] cursor-pointer text-white px-4 rounded-l-md hover:bg-[#2D496A] transition-colors"
+              aria-label="بحث"
+              onClick={handleSearch}
+            >
+              بحث
+            </button>
           </div>
 
           {/* Tabs - Grid */}
@@ -169,7 +176,7 @@ function SearchBarContent({
 
         {/* Desktop Layout: Pill Shape */}
         <div className={cn(
-          "hidden sm:flex items-center w-full border border-blue-1 rounded-full overflow-hidden bg-white h-12",
+          "hidden sm:flex items-center w-full border border-blue-1 rounded-full overflow-hidden bg-white h-12 pl-1",
         )}>
 
           {/* Search Input Section */}
@@ -205,6 +212,15 @@ function SearchBarContent({
               </button>
             ))}
           </div>
+
+          {/* Search Button */}
+          <button
+            className="h-10 px-6 bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2D496A] transition-colors cursor-pointer rounded-full shrink-0"
+            aria-label="بحث"
+            onClick={handleSearch}
+          >
+            بحث
+          </button>
         </div>
       </div>
     );
