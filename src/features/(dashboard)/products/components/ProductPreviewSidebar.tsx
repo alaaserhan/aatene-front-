@@ -20,18 +20,10 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
 
     // تنسيق السعر الحالي
     const formattedPrice = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD", // تم التغيير لـ $ ليطابق الصورة المرفقة، يمكنك إعادتها لـ ILS
         minimumFractionDigits: 2,
     }).format(data.price || 0);
 
-    // سعر وهمي قديم (لأغراض العرض مثل التصميم)
-    const fakeOldPrice = data.price ? data.price * 1.15 : 0;
-    const formattedOldPrice = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        minimumFractionDigits: 2,
-    }).format(fakeOldPrice);
+
 
     return (
         <div className="sticky top-6">
@@ -100,10 +92,7 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
                         {/* Price */}
                         <div className="flex items-center  gap-3 mt-1">
                             <span className=" font-bold ">
-                                {formattedPrice}
-                            </span>
-                            <span className="text-gray-2 text-sm line-through decoration-gray-2">
-                                {formattedOldPrice}
+                                {formattedPrice} <span>₪</span>
                             </span>
                         </div>
                     </div>
