@@ -28,7 +28,11 @@ export const useAuthStore = create<AuthState>()(
           secure: isProduction,
           sameSite: "lax",
         });
-        Cookies.set("user_type", userData.user_type);
+        Cookies.set("user_type", userData.user_type, {
+          expires: 365,
+          secure: isProduction,
+          sameSite: "lax",
+        });
         if (userData.user_type === "admin" && userData.permissions) {
           Cookies.set("admin_permissions", JSON.stringify(userData.permissions), { expires: 365 });
         }
