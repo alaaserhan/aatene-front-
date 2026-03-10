@@ -14,7 +14,8 @@ export function toLocal(dateString: string | Date | null | undefined): Date {
     if (str.includes(" ")) {
         str = str.replace(" ", "T");
     }
-    // If it doesn't indicate timezone, assume UTC
+
+    // If it doesn't indicate timezone, assume it's UTC from the database
     if (!str.endsWith("Z") && !str.includes("+")) {
         str += "Z";
     }

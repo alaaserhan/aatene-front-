@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
+import Image from "next/image";
+import { toLocal } from "@/src/lib/date-helper";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useMyNotifications, useMyNotificationStats } from "@/src/features/(web)/notifications/hooks";
 import {
@@ -46,7 +48,7 @@ export function NotificationDropdown({ variant = "web" }: NotificationDropdownPr
                         className="rounded-lg outline-none hover:bg-white/20 relative cursor-pointer"
                         aria-label="الإشعارات"
                     >
-                        <img src="/icons/ring.svg" className="w-5 h-5" alt="notifications" />
+                        <Image src="/icons/ring.svg" width={20} height={20} className="w-5 h-5" alt="notifications" />
                         {unreadCount > 0 && (
                             <Badge
                                 className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 pt-[3px] text-[10px]"
@@ -58,7 +60,7 @@ export function NotificationDropdown({ variant = "web" }: NotificationDropdownPr
                     </Button>
                 ) : (
                     <button className="cursor-pointer relative bg-gray-4 rounded-full p-1.5" aria-label="الإشعارات">
-                        <img src="/icons/Notification.svg" alt="notifications" className="h-6 w-6" />
+                        <Image src="/icons/Notification.svg" alt="notifications" width={24} height={24} className="h-6 w-6" />
                         {unreadCount > 0 && (
                             <Badge
                                 className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 pt-[3px] text-[10px]"
@@ -102,7 +104,7 @@ export function NotificationDropdown({ variant = "web" }: NotificationDropdownPr
                                     <div className="flex w-full items-center justify-between gap-2 mb-1">
                                         <h4 className="text-sm font-medium text-blue-4 truncate">{notification.title}</h4>
                                         <span className="text-[10px] text-gray-2 whitespace-nowrap shrink-0">
-                                            {notification.created_at ? formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: ar }) : 'الآن'}
+                                            {notification.created_at ? formatDistanceToNow(toLocal(notification.created_at), { addSuffix: true, locale: ar }) : 'الآن'}
                                         </span>
                                     </div>
                                     <p className="text-xs text-gray-2 line-clamp-1">{notification.body}</p>
