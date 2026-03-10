@@ -24,6 +24,7 @@ import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteMo
 import { BlockUserModal } from "./BlockUserModal";
 import { AddMemberModal } from "./AddMemberModal";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
+import { ConversationInfoPanel } from "./ConversationInfoPanel";
 
 interface ChatWindowProps {
     conversation: Conversation;
@@ -54,6 +55,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showBlockModal, setShowBlockModal] = useState(false);
     const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+    const [showInfoPanel, setShowInfoPanel] = useState(false);
     const [mediaViewerState, setMediaViewerState] = useState<{ isOpen: boolean; media: string[]; initialIndex: number }>({
         isOpen: false,
         media: [],
@@ -213,472 +215,517 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     }
 
     return (
-        <div className="flex flex-col h-full bg-white">
-            {/* Header */}
-            <div className="p-4 bg-white border-b border-gray-100 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    {/* Back button - only visible on mobile */}
-                    <button
-                        onClick={onClose}
-                        className="md:hidden p-1 -mr-1 rounded-full hover:bg-gray-100 transition-colors"
-                    >
-                        <svg className="w-6 h-6 text-gray-600 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <div className="w-12 h-12 rounded-full bg-blue-5 text-blue-3 font-medium text-lg flex items-center justify-center overflow-hidden border border-gray-100">
+        <div className="flex h-full bg-white relative overflow-hidden">
+            <div className="flex flex-col flex-1 min-w-0">
+                {/* Header */}
+                <div className="px-2 py-3 md:p-4 bg-white border-b border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                        {/* Back button - only visible on mobile */}
+                        <button
+                            onClick={onClose}
+                            className="md:hidden p-1 -mr-1 rounded-full hover:bg-gray-100 transition-colors"
+                        >
+                            <svg className="w-6 h-6 text-gray-600 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
                         {conversation.type === "group" ? (
-                            <span>{conversation.name?.[0].toUpperCase() || "G"}</span>
-                        ) : otherParticipant?.participant_data.avatar ? (
-                            <img src={otherParticipant.participant_data.avatar} alt="" className="w-full h-full object-cover" />
-                        ) : otherParticipant?.participant_data.type === "store" ? (
-                            <Store className="w-6 h-6 text-blue-3" />
+                            <button
+                                onClick={() => setShowInfoPanel(prev => !prev)}
+                                className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity flex-1 min-w-0 text-right"
+                            >
+                                <div className="flex items-center -space-x-3 rtl:space-x-reverse shrink-0">
+                                    {conversation.participants.slice(0, 3).map((p, i) => (
+                                        <div
+                                            key={p.id}
+                                            className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white border border-gray-100 text-blue-3 font-medium text-[10px] md:text-xs flex items-center justify-center overflow-hidden"
+                                            style={{ zIndex: 3 - i }}
+                                        >
+                                            {p.participant_data.avatar ? (
+                                                <img src={p.participant_data.avatar} alt="" className="w-full h-full object-cover" />
+                                            ) : p.participant_data.type === "store" ? (
+                                                <Store className="w-4 h-4 text-blue-3" />
+                                            ) : (
+                                                <User className="w-4 h-4 text-blue-3" />
+                                            )}
+                                        </div>
+                                    ))}
+                                    {conversation.participants.length > 3 && (
+                                        <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gray-100 text-gray-2 pt-1 font-medium text-[10px] md:text-xs flex items-center justify-center border border-white" style={{ zIndex: 0 }}>
+                                            +{conversation.participants.length - 3}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-medium text-sm md:text-base truncate">{conversation.name || "مجموعة"}</h3>
+                                    <p className="text-[10px] md:text-xs text-gray-2 truncate">
+                                        {conversation.participants.length} اعضاء
+                                    </p>
+                                </div>
+                            </button>
                         ) : (
-                            <User className="w-6 h-6 text-blue-3" />
+                            <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-5 text-blue-3 font-medium text-base md:text-lg flex items-center justify-center shrink-0 overflow-hidden border border-gray-100">
+                                    {otherParticipant?.participant_data.avatar ? (
+                                        <img src={otherParticipant.participant_data.avatar} alt="" className="w-full h-full object-cover" />
+                                    ) : otherParticipant?.participant_data.type === "store" ? (
+                                        <Store className="w-5 h-5 md:w-6 md:h-6 text-blue-3" />
+                                    ) : (
+                                        <User className="w-5 h-5 md:w-6 md:h-6 text-blue-3" />
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    {otherParticipant ? (
+                                        <Link href={otherParticipant.participant_data.type === "store"
+                                            ? `/store/${otherParticipant.participant_data.slug || otherParticipant.participant_data.id}`
+                                            : `/profile/${otherParticipant.participant_data.slug || otherParticipant.participant_data.id}`}>
+                                            <h3 className="font-medium text-sm md:text-base truncate hover:underline transition-colors cursor-pointer">{otherParticipant.participant_data.name || conversation.name || "مستخدم"}</h3>
+                                        </Link>
+                                    ) : (
+                                        <h3 className="font-medium text-sm md:text-base truncate">{conversation.name || "مستخدم"}</h3>
+                                    )}
+                                    <p className="text-[10px] md:text-xs text-gray-2 truncate">
+                                        {format(new Date(conversation.updated_at), "hh:mm a", { locale: ar })}
+                                    </p>
+                                </div>
+                            </div>
                         )}
                     </div>
-                    <div>
-                        {conversation.type === "group" ? (
-                            <h3 className="font-medium text-base">{conversation.name || "مجموعة"}</h3>
-                        ) : otherParticipant ? (
-                            <Link href={otherParticipant.participant_data.type === "store"
-                                ? `/store/${otherParticipant.participant_data.slug || otherParticipant.participant_data.id}`
-                                : `/profile/${otherParticipant.participant_data.slug || otherParticipant.participant_data.id}`}>
-                                <h3 className="font-medium text-base  hover:underline transition-colors cursor-pointer">{otherParticipant.participant_data.name || conversation.name || "مستخدم"}</h3>
-                            </Link>
-                        ) : (
-                            <h3 className="font-medium text-base">{conversation.name || "مستخدم"}</h3>
-                        )}
-                        <p className="text-xs text-gray-2">
-                            {format(new Date(conversation.updated_at), "hh:mm a", { locale: ar })}
-                        </p>
-                    </div>
-                </div>
 
-                <DropdownMenu dir="rtl">
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-gray-100">
-                            <MoreVertical className="w-5 h-5 text-gray-500" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 p-2 border-gray-200">
-                        <DropdownMenuItem
-                            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
-                            onSelect={() => {
-                                onClose?.();
-                            }}
-                        >
-                            <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
-                                <CheckCircle className="w-4 h-4 text-green-600" />
-                            </div>
-                            <span className="font-medium text-gray-700">اغلاق المحادثة</span>
-                        </DropdownMenuItem>
+                    <DropdownMenu dir="rtl">
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="rounded-full hover:bg-gray-100">
+                                <MoreVertical className="w-5 h-5 text-gray-500" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56 p-2 border-gray-200">
+                            <DropdownMenuItem
+                                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
+                                onSelect={() => {
+                                    onClose?.();
+                                }}
+                            >
+                                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+                                    <CheckCircle className="w-4 h-4 text-green-600" />
+                                </div>
+                                <span className="font-medium text-gray-700">اغلاق المحادثة</span>
+                            </DropdownMenuItem>
 
-                        <div className="h-px bg-gray-100 my-1" />
+                            <div className="h-px bg-gray-100 my-1" />
 
-                        <DropdownMenuItem
-                            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
-                            onSelect={(e) => {
-                                e.preventDefault();
-                                setShowAddMemberModal(true);
-                            }}
-                        >
-                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
-                                <UserPlus className="w-4 h-4 text-gray-600" />
-                            </div>
-                            <span className="font-medium text-gray-700">اضافة عضو جديد</span>
-                        </DropdownMenuItem>
-
-                        {(conversation.can_chat !== false || isMeBlocked) && conversation.type !== "group" && (
                             <DropdownMenuItem
                                 className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
                                 onSelect={(e) => {
                                     e.preventDefault();
-                                    setShowBlockModal(true);
+                                    setShowAddMemberModal(true);
                                 }}
                             >
                                 <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
-                                    <Ban className="w-4 h-4 text-gray-600" />
+                                    <UserPlus className="w-4 h-4 text-gray-600" />
                                 </div>
-                                <span className="font-medium text-gray-700">حظر المستخدم</span>
+                                <span className="font-medium text-gray-700">اضافة عضو جديد</span>
                             </DropdownMenuItem>
-                        )}
 
-
-                        {String(conversation.owner_id) === String(user?.id) && (
-                            <>
-                                <div className="h-px bg-gray-100 my-1" />
+                            {(conversation.can_chat !== false || isMeBlocked) && conversation.type !== "group" && (
                                 <DropdownMenuItem
-                                    className="flex items-center gap-3 p-3 rounded-lg cursor-pointer group data-[highlighted]:bg-red-50 focus:bg-red-50 outline-none transition-colors"
+                                    className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
                                     onSelect={(e) => {
                                         e.preventDefault();
-                                        setShowDeleteModal(true);
+                                        setShowBlockModal(true);
                                     }}
                                 >
-                                    <div className="w-8 h-8 rounded-lg bg-red-50 group-hover:bg-red-100 flex items-center justify-center shrink-0 transition-colors">
-                                        <Trash2 className="w-4 h-4 text-red-600" />
+                                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+                                        <Ban className="w-4 h-4 text-gray-600" />
                                     </div>
-                                    <span className="font-medium text-red-600">حذف المحادثة</span>
+                                    <span className="font-medium text-gray-700">حظر المستخدم</span>
                                 </DropdownMenuItem>
-                            </>
-                        )}
+                            )}
 
 
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
+                            {String(conversation.owner_id) === String(user?.id) && (
+                                <>
+                                    <div className="h-px bg-gray-100 my-1" />
+                                    <DropdownMenuItem
+                                        className="flex items-center gap-3 p-3 rounded-lg cursor-pointer group data-[highlighted]:bg-red-50 focus:bg-red-50 outline-none transition-colors"
+                                        onSelect={(e) => {
+                                            e.preventDefault();
+                                            setShowDeleteModal(true);
+                                        }}
+                                    >
+                                        <div className="w-8 h-8 rounded-lg bg-red-50 group-hover:bg-red-100 flex items-center justify-center shrink-0 transition-colors">
+                                            <Trash2 className="w-4 h-4 text-red-600" />
+                                        </div>
+                                        <span className="font-medium text-red-600">حذف المحادثة</span>
+                                    </DropdownMenuItem>
+                                </>
+                            )}
 
-            {(() => {
-                const linkedService = messagesData?.service;
-                const linkedProduct = messagesData?.product;
 
-                if (linkedService) {
-                    return (
-                        <div className="px-4 py-3 bg-white border-b border-gray-100 shadow-sm">
-                            <div className="flex gap-4 items-center">
-                                <img
-                                    src={linkedService.image_url}
-                                    alt={linkedService.title}
-                                    className="w-14 h-14 rounded-xl object-cover shrink-0 shadow-sm border border-gray-100"
-                                    onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
-                                />
-                                <div className="min-w-0 flex-1 flex items-center justify-between gap-3">
-                                    <div className="flex flex-col gap-1 min-w-0">
-                                        <Link href={`/services/${linkedService.slug || linkedService.id}`}>
-                                            <p className="text-[15px] font-medium truncate  hover:underline transition-colors cursor-pointer">{linkedService.title}</p>
-                                        </Link>
-                                        <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedService.description}</p>
-                                    </div>
-                                    <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
-                                        <p className="text-sm text-white font-medium whitespace-nowrap">{parseFloat(linkedService.price).toFixed(2)} <span className="text-lg">₪</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    );
-                }
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
 
-                if (linkedProduct) {
-                    return (
-                        <div className="px-4 py-3 bg-white border-b border-gray-100 shadow-sm">
-                            <div className="flex gap-4 items-center">
-                                <img
-                                    src={linkedProduct.cover}
-                                    alt={linkedProduct.name}
-                                    className="w-14 h-14 rounded-xl object-cover shrink-0 shadow-sm border border-gray-100"
-                                    onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
-                                />
-                                <div className="min-w-0 flex-1 flex items-center justify-between gap-3">
-                                    <div className="flex flex-col gap-1 min-w-0">
-                                        <Link href={`/product/${linkedProduct.slug || linkedProduct.id}`}>
-                                            <p className="text-[15px] font-medium truncate  hover:underline transition-colors cursor-pointer">{linkedProduct.name}</p>
-                                        </Link>
-                                        <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedProduct.description}</p>
-                                    </div>
-                                    <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
-                                        <p className="text-sm text-white font-medium whitespace-nowrap">{parseFloat(linkedProduct.price).toFixed(2)} <span className="text-lg">₪</span></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    );
-                }
+                {(() => {
+                    const linkedService = messagesData?.service;
+                    const linkedProduct = messagesData?.product;
 
-                return null;
-            })()}
-
-            {/* Messages Area */}
-            <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 bg-[#FAFAFA]">
-                <div className="space-y-4 pb-4">
-                    {serverMessages.map((msg, index) => {
-                        const isMe = msg.sender_data.participant_type === currentParticipantType &&
-                            String(msg.sender_data.participant_id) === String(currentParticipantId);
-
+                    if (linkedService) {
                         return (
-                            <div key={msg.id || index} className={cn("flex flex-col w-full", isMe ? "items-start" : "items-end")}>
-                                <div className={cn(
-                                    "max-w-[75%] rounded-xl p-3 px-4 text-sm",
-                                    isMe ? "bg-blue-5 " : "bg-white  border border-gray-100 shadow-sm"
-                                )}>
-                                    {msg.body && <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>}
-
-                                    {msg.service && (
-                                        <div className="flex gap-2 mt-2 bg-white rounded-lg border border-gray-100 p-2">
-                                            <img
-                                                src={msg.service.image_url}
-                                                alt={msg.service.title}
-                                                className="w-16 h-16 rounded-lg object-cover shrink-0"
-                                                onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
-                                            />
-                                            <div className="min-w-0 flex-1">
-                                                <Link href={`/services/${msg.service.slug || msg.service.id}`}>
-                                                    <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.service.title}</p>
-                                                </Link>
-                                                <p className="text-xs text-gray-400 truncate">{msg.service.description}</p>
-                                                <p className="text-xs text-blue-3 font-medium mt-1">{parseFloat(msg.service.price).toFixed(2)} ₪</p>
-                                            </div>
+                            <div className="px-4 py-3 bg-white border-b border-gray-100 shadow-sm">
+                                <div className="flex gap-4 items-center">
+                                    <img
+                                        src={linkedService.image_url}
+                                        alt={linkedService.title}
+                                        className="w-14 h-14 rounded-xl object-cover shrink-0 shadow-sm border border-gray-100"
+                                        onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+                                    />
+                                    <div className="min-w-0 flex-1 flex items-center justify-between gap-3">
+                                        <div className="flex flex-col gap-1 min-w-0">
+                                            <Link href={`/services/${linkedService.slug || linkedService.id}`}>
+                                                <p className="text-[15px] font-medium truncate  hover:underline transition-colors cursor-pointer">{linkedService.title}</p>
+                                            </Link>
+                                            <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedService.description}</p>
                                         </div>
-                                    )}
-
-                                    {msg.product && (
-                                        <div className="flex gap-2 mt-2 bg-white rounded-lg border border-gray-100 p-2">
-                                            <img
-                                                src={msg.product.cover}
-                                                alt={msg.product.name}
-                                                className="w-16 h-16 rounded-lg object-cover shrink-0"
-                                                onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
-                                            />
-                                            <div className="min-w-0 flex-1">
-                                                <Link href={`/product/${msg.product.slug || msg.product.id}`}>
-                                                    <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.product.name}</p>
-                                                </Link>
-                                                <p className="text-[10px] text-gray-400 truncate">{msg.product.description}</p>
-                                                <p className="text-xs text-blue-3 font-medium mt-1">{parseFloat(msg.product.price).toFixed(2)} ₪</p>
-                                                <div className="flex items-center gap-0.5 mt-1">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <Star
-                                                            key={i}
-                                                            className={cn(
-                                                                "w-3 h-3",
-                                                                i < Math.round(parseFloat(msg.product!.review_rate || "0"))
-                                                                    ? "fill-[#FB923C] text-[#FB923C]"
-                                                                    : "fill-gray-200 text-gray-200"
-                                                            )}
-                                                        />
-                                                    ))}
-                                                    <span className="text-[10px] text-gray-400 mr-1">({msg.product.review_count})</span>
-                                                </div>
-                                            </div>
+                                        <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
+                                            <p className="text-sm text-white font-medium whitespace-nowrap">{parseFloat(linkedService.price).toFixed(2)} <span className="text-lg">₪</span></p>
                                         </div>
-                                    )}
-
-                                    {msg.files_url && msg.files_url.length > 0 && (
-                                        <div className={cn(
-                                            "grid gap-2 ",
-                                            msg.files_url.length === 1 ? "grid-cols-1" :
-                                                msg.files_url.length === 2 ? "grid-cols-2" :
-                                                    "grid-cols-3"
-                                        )}>
-                                            {msg.files_url.map((url: string, i: number) => (
-                                                <img
-                                                    key={i}
-                                                    src={url}
-                                                    alt=""
-                                                    onClick={() => setMediaViewerState({ isOpen: true, media: msg.files_url!, initialIndex: i })}
-                                                    className="rounded-lg w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
+                                    </div>
                                 </div>
-
-                                <span className="text-[10px] text-gray-400 mt-1 px-1">
-                                    {format(new Date(msg.created_at), "hh:mm a", { locale: ar })}
-                                </span>
                             </div>
                         );
-                    })}
+                    }
 
-                    {/* Pending Messages (Optimistic) */}
-                    {pendingMessages.map((msg) => (
-                        <div key={msg.id} className="flex flex-col w-full items-start">
-                            <div className={cn(
-                                "max-w-[75%] rounded-xl p-3 px-4 text-sm bg-blue-5  relative",
-                                msg.status === "failed" && "bg-red-50 border border-red-200"
-                            )}>
-                                <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>
+                    if (linkedProduct) {
+                        return (
+                            <div className="px-4 py-3 bg-white border-b border-gray-100 shadow-sm">
+                                <div className="flex gap-4 items-center">
+                                    <img
+                                        src={linkedProduct.cover}
+                                        alt={linkedProduct.name}
+                                        className="w-14 h-14 rounded-xl object-cover shrink-0 shadow-sm border border-gray-100"
+                                        onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+                                    />
+                                    <div className="min-w-0 flex-1 flex items-center justify-between gap-3">
+                                        <div className="flex flex-col gap-1 min-w-0">
+                                            <Link href={`/product/${linkedProduct.slug || linkedProduct.id}`}>
+                                                <p className="text-[15px] font-medium truncate  hover:underline transition-colors cursor-pointer">{linkedProduct.name}</p>
+                                            </Link>
+                                            <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedProduct.description}</p>
+                                        </div>
+                                        <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
+                                            <p className="text-sm text-white font-medium whitespace-nowrap">{parseFloat(linkedProduct.price).toFixed(2)} <span className="text-lg">₪</span></p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2 mt-1 px-1">
-                                <span className="text-[10px] text-gray-400">
-                                    {format(new Date(msg.created_at), "hh:mm a", { locale: ar })}
-                                </span>
-                                {msg.status === "sending" && (
-                                    <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
-                                )}
-                                {msg.status === "failed" && (
-                                    <button
-                                        onClick={() => handleRetry(msg.id, msg.body)}
-                                        className="text-[10px] text-red-500 hover:text-red-700 flex items-center gap-1"
-                                    >
-                                        <span>فشل الإرسال</span>
-                                        <span className="underline">إعادة المحاولة</span>
-                                    </button>
-                                )}
+                        );
+                    }
+
+                    return null;
+                })()}
+
+                {/* Messages Area */}
+                <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 bg-[#FAFAFA]">
+                    <div className="space-y-4 pb-4">
+                        {serverMessages.map((msg, index) => {
+                            const isMe = msg.sender_data.participant_type === currentParticipantType &&
+                                String(msg.sender_data.participant_id) === String(currentParticipantId);
+
+                            return (
+                                <div key={msg.id || index} className={cn("flex flex-col w-full", isMe ? "items-start" : "items-end")}>
+                                    <div className={cn(
+                                        "max-w-[75%] rounded-xl p-3 px-4 text-sm",
+                                        isMe ? "bg-blue-5 " : "bg-white  border border-gray-100 shadow-sm"
+                                    )}>
+                                        {msg.body && <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>}
+
+                                        {msg.service && (
+                                            <div className="flex gap-2 mt-2 bg-white rounded-lg border border-gray-100 p-2">
+                                                <img
+                                                    src={msg.service.image_url}
+                                                    alt={msg.service.title}
+                                                    className="w-16 h-16 rounded-lg object-cover shrink-0"
+                                                    onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+                                                />
+                                                <div className="min-w-0 flex-1">
+                                                    <Link href={`/services/${msg.service.slug || msg.service.id}`}>
+                                                        <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.service.title}</p>
+                                                    </Link>
+                                                    <p className="text-xs text-gray-400 truncate">{msg.service.description}</p>
+                                                    <p className="text-xs text-blue-3 font-medium mt-1">{parseFloat(msg.service.price).toFixed(2)} ₪</p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {msg.product && (
+                                            <div className="flex gap-2 mt-2 bg-white rounded-lg border border-gray-100 p-2">
+                                                <img
+                                                    src={msg.product.cover}
+                                                    alt={msg.product.name}
+                                                    className="w-16 h-16 rounded-lg object-cover shrink-0"
+                                                    onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+                                                />
+                                                <div className="min-w-0 flex-1">
+                                                    <Link href={`/product/${msg.product.slug || msg.product.id}`}>
+                                                        <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.product.name}</p>
+                                                    </Link>
+                                                    <p className="text-[10px] text-gray-400 truncate">{msg.product.description}</p>
+                                                    <p className="text-xs text-blue-3 font-medium mt-1">{parseFloat(msg.product.price).toFixed(2)} ₪</p>
+                                                    <div className="flex items-center gap-0.5 mt-1">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star
+                                                                key={i}
+                                                                className={cn(
+                                                                    "w-3 h-3",
+                                                                    i < Math.round(parseFloat(msg.product!.review_rate || "0"))
+                                                                        ? "fill-[#FB923C] text-[#FB923C]"
+                                                                        : "fill-gray-200 text-gray-200"
+                                                                )}
+                                                            />
+                                                        ))}
+                                                        <span className="text-[10px] text-gray-400 mr-1">({msg.product.review_count})</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {msg.files_url && msg.files_url.length > 0 && (
+                                            <div className={cn(
+                                                "grid gap-2 ",
+                                                msg.files_url.length === 1 ? "grid-cols-1" :
+                                                    msg.files_url.length === 2 ? "grid-cols-2" :
+                                                        "grid-cols-3"
+                                            )}>
+                                                {msg.files_url.map((url: string, i: number) => (
+                                                    <img
+                                                        key={i}
+                                                        src={url}
+                                                        alt=""
+                                                        onClick={() => setMediaViewerState({ isOpen: true, media: msg.files_url!, initialIndex: i })}
+                                                        className="rounded-lg w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <span className="text-[10px] text-gray-400 mt-1 px-1">
+                                        {format(new Date(msg.created_at), "hh:mm a", { locale: ar })}
+                                    </span>
+                                </div>
+                            );
+                        })}
+
+                        {/* Pending Messages (Optimistic) */}
+                        {pendingMessages.map((msg) => (
+                            <div key={msg.id} className="flex flex-col w-full items-start">
+                                <div className={cn(
+                                    "max-w-[75%] rounded-xl p-3 px-4 text-sm bg-blue-5  relative",
+                                    msg.status === "failed" && "bg-red-50 border border-red-200"
+                                )}>
+                                    <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>
+                                </div>
+                                <div className="flex items-center gap-2 mt-1 px-1">
+                                    <span className="text-[10px] text-gray-400">
+                                        {format(new Date(msg.created_at), "hh:mm a", { locale: ar })}
+                                    </span>
+                                    {msg.status === "sending" && (
+                                        <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
+                                    )}
+                                    {msg.status === "failed" && (
+                                        <button
+                                            onClick={() => handleRetry(msg.id, msg.body)}
+                                            className="text-[10px] text-red-500 hover:text-red-700 flex items-center gap-1"
+                                        >
+                                            <span>فشل الإرسال</span>
+                                            <span className="underline">إعادة المحاولة</span>
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-            </ScrollArea>
+                        ))}
+                    </div>
+                </ScrollArea>
 
-            {/* Selected Files Preview */}
-            {selectedFiles.length > 0 && (
-                <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 flex gap-2 overflow-x-auto">
-                    {selectedFiles.map((file, i) => (
-                        <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200 shrink-0">
-                            <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
-                            <button
-                                onClick={() => setSelectedFiles(prev => prev.filter((_, idx) => idx !== i))}
-                                className="absolute top-0 right-0 bg-red-500 text-white w-4 h-4 rounded-full text-xs flex items-center justify-center"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            )}
+                {/* Selected Files Preview */}
+                {selectedFiles.length > 0 && (
+                    <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 flex gap-2 overflow-x-auto">
+                        {selectedFiles.map((file, i) => (
+                            <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200 shrink-0">
+                                <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
+                                <button
+                                    onClick={() => setSelectedFiles(prev => prev.filter((_, idx) => idx !== i))}
+                                    className="absolute top-0 right-0 bg-red-500 text-white w-4 h-4 rounded-full text-xs flex items-center justify-center"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
-            {/* Input Area or Blocked Message */}
-            {conversation.can_chat !== false ? (
-                <div className="p-4 bg-white border-t border-gray-100 flex items-center gap-2">
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileSelect}
-                        className="hidden"
-                        multiple
-                        accept="image/*"
-                    />
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="rounded-full hover:bg-gray-100 shrink-0"
-                        onClick={() => fileInputRef.current?.click()}
-                    >
-                        <ImageIcon className="w-5 h-5 text-gray-500" />
-                    </Button>
-
-                    <div className="flex-1 flex items-center bg-gray-50 rounded-full border border-gray-200 px-4">
+                {/* Input Area or Blocked Message */}
+                {conversation.can_chat !== false ? (
+                    <div className="p-4 bg-white border-t border-gray-100 flex items-center gap-2">
                         <input
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            placeholder="نص الرسالة ..."
-                            className="border-none bg-transparent px-1 py-2 text-[15px] outline-none font-normal shadow-none focus-visible:ring-0 flex-1 text-gray-2 placeholder:text-gray-400"
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileSelect}
+                            className="hidden"
+                            multiple
+                            accept="image/*"
                         />
-                    </div>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-full hover:bg-gray-100 shrink-0"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <ImageIcon className="w-5 h-5 text-gray-500" />
+                        </Button>
 
-                    <Button
-                        onClick={handleSend}
-                        disabled={!newMessage.trim() && selectedFiles.length === 0}
-                        size="icon"
-                        className={cn(
-                            "rounded-full w-10 h-10 shrink-0 transition-all text-white",
-                            (newMessage.trim() || selectedFiles.length > 0) ? "bg-blue-3 hover:bg-blue-4" : "bg-gray-200 text-gray-400 hover:bg-gray-300"
-                        )}
-                    >
-                        <Send className="w-5 h-5 rtl:-rotate-90" />
-                    </Button>
-                </div>
-            ) : (
-                <div className="p-10 bg-white border-t border-gray-100 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <div className="relative mb-6">
-                        <div className={cn(
-                            "w-20 h-20 rounded-2xl flex items-center justify-center rotate-3 transition-transform hover:rotate-0 duration-500",
-                            isMeBlocked ? "bg-gray-100" : "bg-red-50"
-                        )}>
-                            <Ban className={cn(
-                                "w-10 h-10",
-                                isMeBlocked ? "text-gray-400" : "text-red-500"
-                            )} />
+                        <div className="flex-1 flex items-center bg-gray-50 rounded-full border border-gray-200 px-4">
+                            <input
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder="نص الرسالة ..."
+                                className="border-none bg-transparent px-1 py-2 text-[15px] outline-none font-normal shadow-none focus-visible:ring-0 flex-1 text-gray-2 placeholder:text-gray-400"
+                            />
                         </div>
-                        {!isMeBlocked && (
-                            <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-lg bg-white shadow-xl flex items-center justify-center border border-gray-50">
-                                <CheckCircle className="w-4 h-4 text-green-500" />
+
+                        <Button
+                            onClick={handleSend}
+                            disabled={!newMessage.trim() && selectedFiles.length === 0}
+                            size="icon"
+                            className={cn(
+                                "rounded-full w-10 h-10 shrink-0 transition-all text-white",
+                                (newMessage.trim() || selectedFiles.length > 0) ? "bg-blue-3 hover:bg-blue-4" : "bg-gray-200 text-gray-400 hover:bg-gray-300"
+                            )}
+                        >
+                            <Send className="w-5 h-5 rtl:-rotate-90" />
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="p-10 bg-white border-t border-gray-100 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <div className="relative mb-6">
+                            <div className={cn(
+                                "w-20 h-20 rounded-2xl flex items-center justify-center rotate-3 transition-transform hover:rotate-0 duration-500",
+                                isMeBlocked ? "bg-gray-100" : "bg-red-50"
+                            )}>
+                                <Ban className={cn(
+                                    "w-10 h-10",
+                                    isMeBlocked ? "text-gray-400" : "text-red-500"
+                                )} />
                             </div>
+                            {!isMeBlocked && (
+                                <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-lg bg-white shadow-xl flex items-center justify-center border border-gray-50">
+                                    <CheckCircle className="w-4 h-4 text-green-500" />
+                                </div>
+                            )}
+                        </div>
+
+                        <h3 className={cn(
+                            "text-xl font-bold mb-2 font-outfit",
+                            isMeBlocked ? "text-gray-600" : "text-gray-900"
+                        )}>
+                            {isMeBlocked
+                                ? 'أنت محظور'
+                                : otherParticipant?.participant_data.type === 'store'
+                                    ? 'تم حظر هذا المتجر'
+                                    : 'تم حظر هذا المستخدم'}
+                        </h3>
+
+                        {isMeBlocked ? (
+                            <p className="text-gray-2 text-[15px] mb-8 max-w-[320px] leading-relaxed">
+                                لا يمكنك إرسال رسائل أو التفاعل مع هذا الحساب في الوقت الحالي. لقد تم حظرك من قبل الطرف الآخر.
+                            </p>
+                        ) : (
+                            <>
+                                <p className="text-gray-2 text-[15px] mb-8 max-w-[320px] leading-relaxed">
+                                    لقد قمت بحظر هذا الحساب بشكل كامل. يمكنك إدارة قائمة الحظر وفك الحظر من خلال إعدادات حسابك في أي وقت.
+                                </p>
+
+                                <Button
+                                    onClick={() => {
+                                        const type = otherParticipant?.participant_data.type || 'user';
+                                        router.push(`/settings?tab=blocked&type=${type}`);
+                                    }}
+                                    className="rounded-full bg-blue-3 hover:bg-blue-4 text-white px-10 h-12 font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/20"
+                                >
+                                    انتقل إلى قائمة الحظر
+                                </Button>
+                            </>
                         )}
                     </div>
+                )}
 
-                    <h3 className={cn(
-                        "text-xl font-bold mb-2 font-outfit",
-                        isMeBlocked ? "text-gray-600" : "text-gray-900"
-                    )}>
-                        {isMeBlocked
-                            ? 'أنت محظور'
-                            : otherParticipant?.participant_data.type === 'store'
-                                ? 'تم حظر هذا المتجر'
-                                : 'تم حظر هذا المستخدم'}
-                    </h3>
+                <AddMemberModal
+                    isOpen={showAddMemberModal}
+                    onClose={() => setShowAddMemberModal(false)}
+                    conversationId={conversation.id}
+                    ignoreCookie={ignoreCookie}
+                />
 
-                    {isMeBlocked ? (
-                        <p className="text-gray-2 text-[15px] mb-8 max-w-[320px] leading-relaxed">
-                            لا يمكنك إرسال رسائل أو التفاعل مع هذا الحساب في الوقت الحالي. لقد تم حظرك من قبل الطرف الآخر.
-                        </p>
-                    ) : (
-                        <>
-                            <p className="text-gray-2 text-[15px] mb-8 max-w-[320px] leading-relaxed">
-                                لقد قمت بحظر هذا الحساب بشكل كامل. يمكنك إدارة قائمة الحظر وفك الحظر من خلال إعدادات حسابك في أي وقت.
-                            </p>
-
-                            <Button
-                                onClick={() => {
-                                    const type = otherParticipant?.participant_data.type || 'user';
-                                    router.push(`/settings?tab=blocked&type=${type}`);
-                                }}
-                                className="rounded-full bg-blue-3 hover:bg-blue-4 text-white px-10 h-12 font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/20"
-                            >
-                                انتقل إلى قائمة الحظر
-                            </Button>
-                        </>
-                    )}
-                </div>
-            )}
-
-            <AddMemberModal
-                isOpen={showAddMemberModal}
-                onClose={() => setShowAddMemberModal(false)}
-                conversationId={conversation.id}
-                ignoreCookie={ignoreCookie}
-            />
-
-            {/* Confirm Delete Modal */}
-            <ConfirmDeleteModal
-                isOpen={showDeleteModal}
-                onClose={() => setShowDeleteModal(false)}
-                onConfirm={() => {
-                    setIsDeleted(true);
-                    deleteConversation({ id: conversation.id, ignoreCookie }, {
-                        onSuccess: () => {
-                            toast.success("تم حذف المحادثة بنجاح");
-                            setShowDeleteModal(false);
-                            onClose?.();
-                        },
-                        onError: () => {
-                            setIsDeleted(false);
-                        }
-                    });
-                }}
-                title="حذف المحادثة"
-                description="هل أنت متأكد من حذف هذه المحادثة؟ لا يمكن التراجع عن هذا الإجراء."
-            />
-
-            {/* Block User Modal */}
-            <BlockUserModal
-                isOpen={showBlockModal}
-                onClose={() => setShowBlockModal(false)}
-                onConfirm={(reason) => {
-                    if (otherParticipant) {
-                        blockUser({
-                            payload: {
-                                blocked_type: otherParticipant.participant_data.type,
-                                blocked_id: otherParticipant.participant_data.id,
-                                reason: reason,
-                            },
-                            ignoreCookie
-                        }, {
+                {/* Confirm Delete Modal */}
+                <ConfirmDeleteModal
+                    isOpen={showDeleteModal}
+                    onClose={() => setShowDeleteModal(false)}
+                    onConfirm={() => {
+                        setIsDeleted(true);
+                        deleteConversation({ id: conversation.id, ignoreCookie }, {
                             onSuccess: () => {
-                                toast.success("تم حظر المستخدم بنجاح");
-                                setShowBlockModal(false);
+                                toast.success("تم حذف المحادثة بنجاح");
+                                setShowDeleteModal(false);
+                                onClose?.();
+                            },
+                            onError: () => {
+                                setIsDeleted(false);
                             }
                         });
-                    }
-                }}
-            />
-            <MediaViewer
-                isOpen={mediaViewerState.isOpen}
-                onClose={() => setMediaViewerState(prev => ({ ...prev, isOpen: false }))}
-                media={mediaViewerState.media}
-                initialIndex={mediaViewerState.initialIndex}
-            />
+                    }}
+                    title="حذف المحادثة"
+                    description="هل أنت متأكد من حذف هذه المحادثة؟ لا يمكن التراجع عن هذا الإجراء."
+                />
+
+                {/* Block User Modal */}
+                <BlockUserModal
+                    isOpen={showBlockModal}
+                    onClose={() => setShowBlockModal(false)}
+                    onConfirm={(reason) => {
+                        if (otherParticipant) {
+                            blockUser({
+                                payload: {
+                                    blocked_type: otherParticipant.participant_data.type,
+                                    blocked_id: otherParticipant.participant_data.id,
+                                    reason: reason,
+                                },
+                                ignoreCookie
+                            }, {
+                                onSuccess: () => {
+                                    toast.success("تم حظر المستخدم بنجاح");
+                                    setShowBlockModal(false);
+                                }
+                            });
+                        }
+                    }}
+                />
+                <MediaViewer
+                    isOpen={mediaViewerState.isOpen}
+                    onClose={() => setMediaViewerState(prev => ({ ...prev, isOpen: false }))}
+                    media={mediaViewerState.media}
+                    initialIndex={mediaViewerState.initialIndex}
+                />
+            </div>
+
+            {conversation.type === "group" && (
+                <ConversationInfoPanel
+                    conversation={conversation}
+                    isOpen={showInfoPanel}
+                    onClose={() => setShowInfoPanel(false)}
+                    ignoreCookie={ignoreCookie}
+                />
+            )}
         </div>
     );
 }

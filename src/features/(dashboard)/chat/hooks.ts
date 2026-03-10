@@ -135,3 +135,11 @@ export const useCreateConversation = () => {
         },
     });
 };
+
+export const useConversationFiles = (conversationId: number | string, ignoreCookie: boolean = false, enabled: boolean = true) => {
+    return useQuery({
+        queryKey: ["conversation-files", conversationId, ignoreCookie],
+        queryFn: () => api.getConversationFiles(conversationId, ignoreCookie),
+        enabled: !!conversationId && enabled,
+    });
+};

@@ -304,3 +304,31 @@ export const createConversation = async (payload: CreateConversationPayload, ign
     });
     return data;
 };
+
+export interface ConversationFile {
+    id: number;
+    conversation_id: string;
+    body: string | null;
+    files: string;
+    files_url: string[];
+    sender_id: string;
+    product_id: string | null;
+    variation_id: string | null;
+    service_id: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface GetConversationFilesResponse {
+    status: boolean;
+    message: string;
+    files: ConversationFile[];
+}
+
+export const getConversationFiles = async (conversationId: number | string, ignoreCookie: boolean = false): Promise<GetConversationFilesResponse> => {
+    const headers = getHeaders(undefined, ignoreCookie);
+    const { data } = await api.get<GetConversationFilesResponse>(`/conversations/${conversationId}/files`, {
+        headers,
+    });
+    return data;
+};
