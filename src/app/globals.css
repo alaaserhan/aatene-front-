@@ -451,6 +451,16 @@ html body[data-scroll-locked] {
   }
 
 }
+
 .font-baseline-fix {
   padding-top: 3px !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

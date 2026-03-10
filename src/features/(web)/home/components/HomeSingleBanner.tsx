@@ -31,7 +31,7 @@ export default function HomeSingleBanner({ banner }: HomeSingleBannerProps) {
                     href={linkHref}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block relative w-full h-[150px]  md:h-[250px] overflow-hidden shadow-lg group"
+                    className="block relative w-full aspect-360/150 md:aspect-1170/250 overflow-hidden shadow-lg rounded-2xl group"
                 >
                     {/* Desktop Image */}
                     <div className="hidden md:block w-full h-full relative">
@@ -39,7 +39,7 @@ export default function HomeSingleBanner({ banner }: HomeSingleBannerProps) {
                             src={desktopSrc}
                             alt={banner.title || "Banner"}
                             fill
-                            className="object-cover w-full  "
+                            className="object-cover w-full transition-transform duration-500 group-hover:scale-105"
                             onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
                         />
                     </div>
@@ -50,7 +50,7 @@ export default function HomeSingleBanner({ banner }: HomeSingleBannerProps) {
                             src={mobileSrc}
                             alt={banner.title || "Banner"}
                             fill
-                            className="object-cover w-full "
+                            className="object-cover w-full transition-transform duration-500 group-hover:scale-105"
                             onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
                         />
                     </div>

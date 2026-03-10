@@ -43,7 +43,7 @@ export default function HomeBanners({ banners }: HomeBannersProps) {
     const mobileSrc = hasMobileImage ? currentBanner.mobile_banner_url : (hasLaptopImage ? currentBanner.labtop_banner_url : null);
 
     return (
-        <div className="relative w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[450px] overflow-hidden direction-ltr" dir="ltr">
+        <div className="relative w-full aspect-360/200 md:aspect-1170/300 overflow-hidden direction-ltr" dir="ltr">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={currentIndex}
