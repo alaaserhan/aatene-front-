@@ -72,13 +72,23 @@ export default function BotChat() {
         setIsSending(true);
 
         try {
-            const response = await axios.post(WEBHOOK_URL, {
+            interface BotResponse {
+                output?: string;
+                response?: string;
+                message?: string | { text: string };
+            }
+
+            const response = await axios.post<BotResponse>(WEBHOOK_URL, {
                 message: userMessage.text,
                 user_id: user.id,
                 user_name: user.fullname || `${user.first_name} ${user.last_name}`,
             });
 
-            const botReply = response.data?.output || response.data?.message || response.data?.response || "شكراً لتواصلك معنا!";
+            const data = response.data;
+            const botReply = data.output ||
+                (typeof data.message === "string" ? data.message : data.message?.text) ||
+                data.response ||
+                "شكراً لتواصلك معنا!";
 
             const botMessage: ChatMessage = {
                 id: Date.now() + 1,
@@ -181,7 +191,7 @@ export default function BotChat() {
 
                             {isSending && (
                                 <div className="flex ">
-                                    <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-sm border border-gray-100 flex items-center gap-2">
+                                    <div className="bg-white px-4 py-3 rounded-2xl rounded-tr-sm border border-gray-100 flex items-center gap-2">
                                         <div className="flex gap-1">
                                             <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                                             <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
