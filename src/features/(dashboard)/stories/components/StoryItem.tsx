@@ -24,16 +24,12 @@ export function StoryItem({ story, onDelete }: StoryItemProps) {
     setDeleteOpen(false);
   };
 
-  const timeAgo = getRelativeTimeArabic(story.created_at);
+  const timeAgo = getRelativeTimeArabic(story.created_at);[]
 
   return (
     <>
       <div className="flex items-center justify-between py-3 hover:bg-gray-50 transition-colors rounded-lg px-2 group">
-
-
         <div className="flex items-center gap-4">
-
-
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-4 shadow-sm shrink-0">
             {story.image ? (
               isVideoFile(story.image) ? (
