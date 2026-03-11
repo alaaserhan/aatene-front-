@@ -18,6 +18,7 @@ import {
     ChevronLeft,
 } from "lucide-react";
 import Link from "next/link";
+import { useLogout } from "../../auth/hooks";
 
 interface SettingsSidebarProps {
     activeTab: SettingsTab;
@@ -110,9 +111,9 @@ export default function SettingsSidebar({
         return true;
     });
 
+    const { mutate: logout } = useLogout();
     const handleLogout = () => {
-        // TODO: Implement logout logic
-        console.log("Logout clicked");
+        logout();
     };
 
     return (

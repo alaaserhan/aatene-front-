@@ -22,7 +22,6 @@ interface FinancialFiltersProps {
     onTransactionTypeChange: (val: string) => void;
     searchQuery: string;
     onSearchQueryChange: (val: string) => void;
-    onExport: () => void;
     isLoading?: boolean;
 }
 

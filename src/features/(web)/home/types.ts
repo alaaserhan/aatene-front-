@@ -130,6 +130,8 @@ export interface ServiceStore {
   type: string;              // "products" | "services"
   logo: string | null;
   logo_url: string | null;
+  cover: string | null;
+  cover_url?: string | null;
   review_rate: string;
   review_count: string;
   open_status: string;       // "open_with_working_times" | "open_without_working_times"
@@ -147,8 +149,8 @@ export interface Service {
   slug: string;
   title: string;
   description: string;
-  images: string[];
-  images_urls: string[];
+  images?: string[];
+  images_urls?: string[];
   image: string | null;
   image_url: string | null;
   is_favorite: boolean;

@@ -11,7 +11,7 @@ interface NavIconsProps {
   currentLocale: string;
 }
 
-export function NavIcons({ userType, currentLocale }: NavIconsProps) {
+export function NavIcons({ currentLocale }: NavIconsProps) {
   const t = useScopedI18n('navbar');
 
   return (

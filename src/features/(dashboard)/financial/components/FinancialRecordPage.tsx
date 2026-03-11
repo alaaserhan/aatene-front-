@@ -72,7 +72,6 @@ export function FinancialRecordPage({ storeId }: { storeId?: number }) {
                 onTransactionTypeChange={(val) => { setTransactionType(val); setCurrentPage(1); }}
                 searchQuery={searchQuery}
                 onSearchQueryChange={(val) => { setSearchQuery(val); setCurrentPage(1); }}
-                onExport={() => console.log("Export triggered")}
                 isLoading={isFetching}
             />
 
