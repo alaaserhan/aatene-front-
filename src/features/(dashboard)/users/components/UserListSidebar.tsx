@@ -107,7 +107,7 @@ export function UserListSidebar({
                 />
               ) : (
                 <div className="w-14 h-14 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center">
-                  <UserIcon className="w-8 h-8 text-gray-300" />
+                  <UserIcon className="w-6 h-6 text-gray-300" />
                 </div>
               )}
             </div>

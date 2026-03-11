@@ -85,7 +85,11 @@ export function FavoritesUsersPage() {
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-200 flex items-center justify-center">
-                                                    <img src={user.avatar_url} className="w-full h-full object-cover" alt={user.name} />
+                                                    {user.avatar_url ? (
+                                                        <img src={user.avatar_url} className="w-full h-full object-cover" alt={user.name} />
+                                                    ) : (
+                                                        <User className="w-6 h-6 text-gray-400" />
+                                                    )}
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-medium ">{user.name}</span>

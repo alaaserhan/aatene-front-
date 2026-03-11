@@ -56,7 +56,7 @@ export default function BlockedTab() {
                     قائمة الحظر
                 </h1>
                 <p className="text-gray-400 text-sm">
-                    قم باختيار نوع الحساب الذي تريده (تاجر/مقدم خدمات/صاحب منتجات)
+                    الاشخاص الذين قمت بحظرهم
                 </p>
             </div>
 
