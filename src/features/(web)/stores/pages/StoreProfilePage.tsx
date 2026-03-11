@@ -28,10 +28,16 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
     const { data: pageData, isPending: isPendingPageData } = useStorePageData(slug);
     const authUser = useAuthStore(state => state.user);
     const queryClient = useQueryClient();
+    
+    const store = profileData?.store;
+    const isOwnStore = authUser?.id === Number(store?.owner_id);
+    console.log(isOwnStore);
+    
+    const isAdmin = authUser?.user_type === "admin";
 
     const { mutate: createStory, isPending: isCreatingStory } = useCreateStory();
     const { mutate: createHighlight, isPending: isCreatingHighlight } = useCreateHighlight();
-    const { data: storiesData } = useGetStories(profileData?.store?.id);
+    const { data: storiesData } = useGetStories(isOwnStore ? store?.id : undefined, { enabled: !!isOwnStore && !!store?.id });
 
     const [isAddStoryOpen, setIsAddStoryOpen] = useState(false);
     const [addStoryMode, setAddStoryMode] = useState<"text" | "media">("text");
@@ -45,16 +51,14 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
         );
     }
 
-    if (profileError || !profileData?.store) {
+    if (profileError || !store) {
         notFound();
+        return null;
     }
-
-    const store = profileData.store;
-    const isAdmin = authUser?.user_type === "admin";
-    const isOwnStore = authUser?.id === Number(store.owner_id);
 
 
     const handleCreateStory = (payload: CreateStoryPayload, onSuccess?: () => void) => {
+        if (!store) return;
         createStory({ payload, storeId: store.id }, {
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
@@ -65,6 +69,7 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
     };
 
     const handleCreateHighlight = (payload: { name: string; stories: number[] }, onSuccess?: () => void) => {
+        if (!store) return;
         createHighlight({ payload, storeId: store.id }, {
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
@@ -82,7 +87,7 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             <StoreHeader
-                store={store}
+                store={store!}
                 followers={pageData?.followers}
                 stories={pageData?.stories}
                 isOwnStore={isOwnStore}
@@ -93,15 +98,19 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
                         highlights={pageData?.highlights || []}
                         isOwnStore={isOwnStore}
                         isAdmin={isAdmin}
-                        storeId={store.id}
+                        storeId={store!.id}
                         onAddHighlight={() => setIsCreateHighlightOpen(true)}
                         onAddStory={handleOpenAddStory}
                     />
 
-                    {pageData && <StoreTabs store={store} pageData={pageData} />}
+                    {pageData && store && <StoreTabs store={store} pageData={pageData} />}
 
-                    <StoreFavoritesSection storeId={store.id} storeType={store.type} />
-                    <StoreProductsSection storeId={store.id} storeType={store.type} sections={pageData?.sections || []} />
+                    {store && (
+                        <>
+                            <StoreFavoritesSection storeId={store.id} storeType={store.type} />
+                            <StoreProductsSection storeId={store.id} storeType={store.type} sections={pageData?.sections || []} />
+                        </>
+                    )}
                 </div>
             </MaxWidthWrapper>
 

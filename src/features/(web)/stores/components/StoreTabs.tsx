@@ -406,9 +406,11 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                 )}
             </div>
             <div className="flex flex-col items-center gap-1">
-                <h3 className="text-[17px] font-medium text-[#4d4d4d] capitalize">
-                    {ownerName}
-                </h3>
+                <Link href={`/profile/${store.owner?.slug}`}>
+                    <h3 className="text-[17px] text-center font-medium text-[#4d4d4d] capitalize">
+                        {ownerName}
+                    </h3>
+                </Link>
                 <div className="flex items-center gap-0.5">
                     {[...Array(5)].map((_, i) => (
                         <Star

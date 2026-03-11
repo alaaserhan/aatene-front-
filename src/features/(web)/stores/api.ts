@@ -21,6 +21,7 @@ export interface Owner {
     created_at: string;
     review_rate: string;
     review_count: string;
+    slug: string;
 }
 
 export interface StoreProfile {
@@ -124,6 +125,7 @@ export interface StorePageData {
             logo_url?: string | null;
         };
     }[];
+    store: StoreProfile;
 }
 
 export interface StoreReviewUser {
