@@ -125,8 +125,8 @@ export interface ServiceStore {
   email: string | null;
   address: string | null;
   description: string | null;
-  lat: string | null;
-  lng: string | null;
+  lat: number | null;
+  lng: number | null;
   type: string;              // "products" | "services"
   logo: string | null;
   logo_url: string | null;

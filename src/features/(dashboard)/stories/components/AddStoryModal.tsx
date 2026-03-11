@@ -19,7 +19,7 @@ import { cn } from "@/src/lib/utils";
 interface MediaPickerProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onSelect: (items: MediaItem | MediaItem[]) => void;
+    onSelect: (items: any) => void;
     allowedMediaTypes?: string[];
     multiple?: boolean;
 }
@@ -47,7 +47,8 @@ const COLORS = [
     "#14B8A6", // Teal 500
 ];
 
-const isVideoFile = (fileName: string) => {
+const isVideoFile = (fileName: string, file?: File) => {
+    if (file?.type.startsWith("video/")) return true;
     return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
 };
 
@@ -67,6 +68,7 @@ export function AddStoryModal({
     const [selectedFile, setSelectedFile] = useState<{
         name: string;
         url: string;
+        file?: File;
     } | null>(null);
 
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
@@ -105,7 +107,12 @@ export function AddStoryModal({
         }
 
         const payload: CreateStoryPayload = currentMode === "media"
-            ? { image: selectedFile?.name || null, text: null, color: null }
+            ? { 
+                image: selectedFile?.file ? null : (selectedFile?.name || null), 
+                image_file: selectedFile?.file || undefined, 
+                text: null, 
+                color: null 
+            }
             : { text, color: selectedColor, image: null };
 
         onSave(payload, () => {
@@ -116,7 +123,7 @@ export function AddStoryModal({
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             {/* ✅ تم رفع z-index ليكون أعلى من ShowStoryModal */}
-            <DialogContent className="sm:max-w-[500px] bg-white p-0 gap-0 overflow-hidden rounded-lg z-[10000]" dir="rtl">
+            <DialogContent className="sm:max-w-[500px] bg-white p-0 gap-0 overflow-hidden rounded-lg z-10000" dir="rtl">
                 <DialogHeader className="p-4 border-b border-gray-100">
                     <DialogTitle className="text-lg font-bold w-full text-right">
                         {storyToEdit ? "تعديل القصة" : (currentMode === "text" ? "انشاء قصة نصية" : "انشاء قصة مصورة")}
@@ -126,7 +133,7 @@ export function AddStoryModal({
                 <div className="flex flex-col items-center justify-center p-6 bg-[#FAFAFA] min-h-[500px]">
                     <div
                         className={cn(
-                            "w-full max-w-[280px] aspect-[9/16] rounded-2xl shadow-lg overflow-hidden relative flex flex-col transition-colors duration-300",
+                            "w-full max-w-[280px] aspect-9/16 rounded-2xl shadow-lg overflow-hidden relative flex flex-col transition-colors duration-300",
                             currentMode === "text" ? "" : "bg-black"
                         )}
                         style={{
@@ -180,7 +187,7 @@ export function AddStoryModal({
                             <div className="w-full h-full min-h-[400px] relative group flex flex-col items-center justify-center">
                                 {selectedFile ? (
                                     <>
-                                        {isVideoFile(selectedFile.url) ? (
+                                        {isVideoFile(selectedFile.name, selectedFile.file) ? (
                                             <video
                                                 src={selectedFile.url}
                                                 className="w-full h-full absolute inset-0 object-cover"
@@ -247,12 +254,20 @@ export function AddStoryModal({
             <MediaPickerComponent
                 open={isMediaModalOpen}
                 onOpenChange={setIsMediaModalOpen}
-                onSelect={(items: MediaItem | MediaItem[]) => {
+                onSelect={(items: any) => {
+                    // Handle both array (MediaCenter) and single object (SimpleMediaPicker)
                     const item = Array.isArray(items) ? items[0] : items;
                     if (item) {
+                        // MediaItem from MediaCenter has file_name/url. 
+                        // Local file from SimpleMediaPicker has file_name/url/file.
+                        const name = item.file_name || item.name || "Upload";
+                        const url = item.url || item.src;
+                        const file = item.file; // Present in local upload
+
                         setSelectedFile({
-                            name: item.file_name,
-                            url: item.url || item.src,
+                            name,
+                            url,
+                            file
                         });
                     }
                     setIsMediaModalOpen(false);

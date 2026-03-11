@@ -127,6 +127,7 @@ export interface CreateStoryPayload {
     image?: string | null;
     text?: string | null;
     color?: string | null;
+    image_file?: File;
 }
 
 // 4. Highlights
@@ -334,11 +335,37 @@ export const getStory = async (id: number | string): Promise<BaseResponse & { re
 };
 
 export const createStory = async (payload: CreateStoryPayload): Promise<BaseResponse & { record: Story }> => {
+    if (payload.image_file) {
+        const formData = new FormData();
+        formData.append("image_file", payload.image_file);
+        formData.append("image", payload.image || "");
+        formData.append("text", payload.text || "");
+        formData.append("color", payload.color || "");
+
+        const { data } = await api.post<BaseResponse & { record: Story }>("/profile/stories", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        return data;
+    }
+
     const { data } = await api.post<BaseResponse & { record: Story }>("/profile/stories", payload);
     return data;
 };
 
 export const updateStory = async (id: number | string, payload: CreateStoryPayload): Promise<BaseResponse & { record: Story }> => {
+    if (payload.image_file) {
+        const formData = new FormData();
+        formData.append("image_file", payload.image_file);
+        formData.append("image", payload.image || "");
+        formData.append("text", payload.text || "");
+        formData.append("color", payload.color || "");
+
+        const { data } = await api.post<BaseResponse & { record: Story }>(`/profile/stories/${id}`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        return data;
+    }
+
     const { data } = await api.put<BaseResponse & { record: Story }>(`/profile/stories/${id}`, payload);
     return data;
 };

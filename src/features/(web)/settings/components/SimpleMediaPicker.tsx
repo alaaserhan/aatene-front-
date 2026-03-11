@@ -10,7 +10,7 @@ import { cn } from "@/src/lib/utils";
 interface SimpleMediaPickerProps {
     isOpen?: boolean;
     onClose?: () => void;
-    onSelect: (file: File) => void;
+    onSelect: (file: File | { file_name: string; url: string; file: File }) => void;
     storeId?: string; // Optional, to match signature
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
@@ -28,8 +28,12 @@ export function SimpleMediaPicker({ isOpen, onClose, onSelect, open, onOpenChang
     };
 
     const handleFile = (file: File) => {
-        if (file && file.type.startsWith("image/")) {
-            onSelect(file);
+        if (file && (file.type.startsWith("image/") || file.type.startsWith("video/"))) {
+            onSelect({
+                file_name: file.name,
+                url: URL.createObjectURL(file),
+                file: file
+            });
             handleClose();
         }
     };
@@ -82,13 +86,13 @@ export function SimpleMediaPicker({ isOpen, onClose, onSelect, open, onOpenChang
                         <p className="mb-2 text-sm text-gray-500">
                             <span className="font-semibold">اضغط للرفع</span> أو اسحب وأفلت هنا
                         </p>
-                        <p className="text-xs text-gray-500">PNG, JPG, GIT up to 10MB</p>
+                        <p className="text-xs text-gray-500">PNG, JPG, MP4 etc up to 50MB</p>
                     </div>
                     <input
                         ref={inputRef}
                         type="file"
                         className="hidden"
-                        accept="image/*"
+                        accept="image/*,video/*"
                         onChange={handleChange}
                     />
                 </div>

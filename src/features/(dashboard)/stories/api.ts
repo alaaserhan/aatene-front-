@@ -45,12 +45,14 @@ export interface CreateStoryPayload {
   image: string | null;
   text: string | null;
   color: string | null;
+  image_file?: File;
 }
 
 export interface UpdateStoryPayload {
   image: string | null;
   text: string | null;
   color: string | null;
+  image_file?: File;
 }
 
 export interface CreateHighlightPayload {
@@ -101,6 +103,20 @@ export const createStory = async ({
 }): Promise<SingleStoryResponse> => {
   const endpoint = getDynamicEndpoint("/stories");
   const headers = getHeaders(storeId);
+  
+  if (payload.image_file) {
+    const formData = new FormData();
+    formData.append("image_file", payload.image_file);
+    formData.append("image", payload.image || "");
+    formData.append("text", payload.text || "");
+    formData.append("color", payload.color || "");
+    
+    const { data } = await api.post<SingleStoryResponse>(endpoint, formData, {
+      headers: { ...headers, "Content-Type": "multipart/form-data" },
+    });
+    return data;
+  }
+
   const { data } = await api.post<SingleStoryResponse>(endpoint, payload, {
     headers,
   });
@@ -118,6 +134,20 @@ export const updateStory = async ({
 }): Promise<SingleStoryResponse> => {
   const endpoint = getDynamicEndpoint(`/stories/${id}`);
   const headers = getHeaders(storeId);
+
+  if (payload.image_file) {
+    const formData = new FormData();
+    formData.append("image_file", payload.image_file);
+    formData.append("image", payload.image || "");
+    formData.append("text", payload.text || "");
+    formData.append("color", payload.color || "");
+    
+    const { data } = await api.post<SingleStoryResponse>(endpoint, formData, {
+      headers: { ...headers, "Content-Type": "multipart/form-data" },
+    });
+    return data;
+  }
+
   const { data } = await api.post<SingleStoryResponse>(endpoint, payload, {
     headers,
   });

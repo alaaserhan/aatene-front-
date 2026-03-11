@@ -23,6 +23,10 @@ interface StoryOwner {
 
 const EMPTY_OWNERS: StoryOwner[] = [];
 
+const isVideoFile = (fileName: string) => {
+    return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
+};
+
 export default function HomeStories() {
     const router = useRouter();
     const pathname = usePathname();
@@ -175,12 +179,22 @@ export default function HomeStories() {
                                     >
                                         <div className="relative w-full h-[120px] sm:h-[170px] rounded-lg overflow-hidden pointer-events-none">
                                             {firstStory.image ? (
-                                                <Image
-                                                    src={firstStory.image}
-                                                    alt={firstStory.text || "Story"}
-                                                    fill
-                                                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                                                />
+                                                isVideoFile(firstStory.image) ? (
+                                                    <video
+                                                        src={firstStory.image}
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                        muted
+                                                        playsInline
+                                                        preload="metadata"
+                                                    />
+                                                ) : (
+                                                    <Image
+                                                        src={firstStory.image}
+                                                        alt={firstStory.text || "Story"}
+                                                        fill
+                                                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                                    />
+                                                )
                                             ) : (
                                                 <div
                                                     className="w-full h-full flex items-center justify-center p-4 text-center"
