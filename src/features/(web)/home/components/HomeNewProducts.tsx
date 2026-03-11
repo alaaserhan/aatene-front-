@@ -4,12 +4,16 @@ import React from "react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { ProductInPageData } from "@/src/features/(web)/product/types";
+import { useNewProducts } from "../hooks";
 
 interface HomeNewProductsProps {
-    products: ProductInPageData[];
+    products?: ProductInPageData[];
 }
 
-export default function HomeNewProducts({ products }: HomeNewProductsProps) {
+export default function HomeNewProducts({ products: initialProducts }: HomeNewProductsProps) {
+    const { data: response } = useNewProducts();
+    const products = initialProducts || response?.data || [];
+
     if (!products || products.length === 0) return null;
 
     return (
@@ -35,8 +39,8 @@ export default function HomeNewProducts({ products }: HomeNewProductsProps) {
                             price={product.price}
                             priceAfterDiscount={product.price_after_discount}
                             discountPercent={product.discount_present}
-                            reviewRate={product.review_rate}
-                            reviewCount={product.review_count}
+                            reviewRate={product.review_rate?.toString()}
+                            reviewCount={product.review_count?.toString()}
                             isFavorite={product.is_favorite}
                         />
                     ))}

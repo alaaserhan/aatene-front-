@@ -4,12 +4,16 @@ import React from "react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { Service } from "../types";
+import { useSpecialServices } from "../hooks";
 
 interface HomeSpecialServicesProps {
-    services: Service[];
+    services?: Service[];
 }
 
-export default function HomeSpecialServices({ services }: HomeSpecialServicesProps) {
+export default function HomeSpecialServices({ services: initialServices }: HomeSpecialServicesProps) {
+    const { data: response } = useSpecialServices();
+    const services = initialServices || response?.data || [];
+
     if (!services || services.length === 0) return null;
 
     return (

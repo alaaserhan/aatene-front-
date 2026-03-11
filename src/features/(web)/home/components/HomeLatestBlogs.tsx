@@ -4,14 +4,19 @@ import React from "react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import Link from "next/link";
 import { ChevronsLeft } from "lucide-react";
-import { Blog } from "../../blogs/types";
+import { Blog as DomainBlog } from "../../blogs/types";
 import HomeBlogCard from "./HomeBlogCard";
+import { useLatestBlogs } from "../hooks";
+import { Blog as HomeBlog } from "../types";
 
 interface HomeLatestBlogsProps {
-    blogs: Blog[];
+    blogs?: HomeBlog[];
 }
 
-export default function HomeLatestBlogs({ blogs }: HomeLatestBlogsProps) {
+export default function HomeLatestBlogs({ blogs: initialBlogs }: HomeLatestBlogsProps) {
+    const { data: response } = useLatestBlogs();
+    const blogs = initialBlogs || response?.data || [];
+
     if (!blogs || blogs.length === 0) return null;
 
     return (
@@ -30,7 +35,7 @@ export default function HomeLatestBlogs({ blogs }: HomeLatestBlogsProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {blogs.slice(0, 3).map((blog) => (
                         <div key={blog.id} className="relative">
-                            <HomeBlogCard blog={blog} />
+                            <HomeBlogCard blog={blog as unknown as DomainBlog} />
                         </div>
                     ))}
                 </div>

@@ -2,15 +2,19 @@
 
 import React, { useEffect, useState } from "react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
-import { ThisWeekOffers } from "../types";
+import { WeekOffersData, Product } from "../types";
 import Image from "next/image";
 import Link from "next/link";
+import { useWeekOffers } from "../hooks";
 
 interface HomeWeeklyOffersProps {
-    data: ThisWeekOffers | null;
+    data?: WeekOffersData | null;
 }
 
-export default function HomeWeeklyOffers({ data }: HomeWeeklyOffersProps) {
+export default function HomeWeeklyOffers({ data: initialData }: HomeWeeklyOffersProps) {
+    const { data: response } = useWeekOffers();
+    const data = initialData || response?.data || null;
+
     if (!data || !data.products || data.products.length === 0) return null;
 
     const products = data.products;
@@ -33,7 +37,7 @@ export default function HomeWeeklyOffers({ data }: HomeWeeklyOffersProps) {
 
                         {/* Left Side: Products Grid */}
                         <div className="flex-1 grid grid-cols-2 md:grid-cols-4 divide-x divide-x-reverse divide-gray-100">
-                            {displayItems.map((product) => (
+                            {displayItems.map((product: Product) => (
                                 <Link
                                     key={product.id}
                                     href={`/products/${product.slug}`}
@@ -53,7 +57,7 @@ export default function HomeWeeklyOffers({ data }: HomeWeeklyOffersProps) {
                                     </h3>
 
                                     {product.discount_present > 0 && (
-                                        <span className="inline-block bg-[#FFE3E3] text-[#EB001B] text-xs font-medium px-3 pb-0.5 rounded-full" dir="ltr">
+                                        <span className="inline-block pt-1 bg-[#FFE3E3] text-[#EB001B] text-xs font-medium px-3 pb-0.5 rounded-full" dir="ltr">
                                             -{product.discount_present}%
                                         </span>
                                     )}

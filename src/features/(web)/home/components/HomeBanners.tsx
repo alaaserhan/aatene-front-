@@ -7,20 +7,26 @@ import { ChevronRight, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Banner } from "../types";
 import { cn } from "@/src/lib/utils";
+import { useFirstBanners } from "../hooks";
 
 interface HomeBannersProps {
-    banners: Banner[];
+    banners?: Banner[]; // Keep optional for backward compatibility or initial server render if needed
 }
 
-export default function HomeBanners({ banners }: HomeBannersProps) {
+export default function HomeBanners({ banners: initialBanners }: HomeBannersProps) {
+    const { data: response } = useFirstBanners();
+    const banners = initialBanners || response?.data || [];
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const [imageError, setImageError] = useState<Record<string, boolean>>({});
 
     const handleNext = useCallback(() => {
+        if (!banners.length) return;
         setCurrentIndex((prevIndex) => (prevIndex + 1) % banners.length);
     }, [banners.length]);
 
     const handlePrev = useCallback(() => {
+        if (!banners.length) return;
         setCurrentIndex((prevIndex) => (prevIndex - 1 + banners.length) % banners.length);
     }, [banners.length]);
 
@@ -54,7 +60,7 @@ export default function HomeBanners({ banners }: HomeBannersProps) {
                     className="absolute inset-0 w-full h-full"
                 >
                     <Link
-                        href={currentBanner.url || currentBanner.link || "#"}
+                        href={currentBanner.url || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block w-full h-full"

@@ -3,15 +3,19 @@
 import Link from "next/link";
 import { ChevronsLeft } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
-import { ServiceRequest } from "../types";
 import RequestedServiceCard from "../../requested-services/components/RequestedServiceCard";
-import { RequestedService } from "../../requested-services/types";
+import { RequestedService } from "../types";
+import { RequestedService as PropsRequestedService } from "../../requested-services/types";
+import { useRequestedServices } from "../hooks";
 
 interface HomeRequestedServicesProps {
-    requests: ServiceRequest[];
+    requests?: RequestedService[];
 }
 
-export default function HomeRequestedServices({ requests }: HomeRequestedServicesProps) {
+export default function HomeRequestedServices({ requests: initialRequests }: HomeRequestedServicesProps) {
+    const { data: response } = useRequestedServices();
+    const requests = initialRequests || response?.data || [];
+
     if (!requests || requests.length === 0) return null;
 
     return (
@@ -31,7 +35,7 @@ export default function HomeRequestedServices({ requests }: HomeRequestedService
                     {requests.slice(0, 2).map((request) => (
                         <RequestedServiceCard
                             key={request.id}
-                            service={request as unknown as RequestedService}
+                            service={request as unknown as PropsRequestedService}
                         />
                     ))}
                 </div>

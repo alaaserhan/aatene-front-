@@ -6,12 +6,16 @@ import { Service } from "../types";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { ChevronsLeft } from "lucide-react";
 import Link from "next/link";
+import { usePopularServices } from "../hooks";
 
 interface HomeMostPopularServicesProps {
-    services: Service[];
+    services?: Service[];
 }
 
-export default function HomeMostPopularServices({ services }: HomeMostPopularServicesProps) {
+export default function HomeMostPopularServices({ services: initialServices }: HomeMostPopularServicesProps) {
+    const { data: response } = usePopularServices();
+    const services = initialServices || response?.data || [];
+
     if (!services || services.length === 0) return null;
 
     return (

@@ -6,12 +6,16 @@ import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { ProductInPageData } from "@/src/features/(web)/product/types";
 import { ChevronsLeft } from "lucide-react";
 import Link from "next/link";
+import { useMayLike } from "../hooks";
 
 interface HomeProductsYouMayLikeProps {
-    products: ProductInPageData[];
+    products?: ProductInPageData[];
 }
 
-export default function HomeProductsYouMayLike({ products }: HomeProductsYouMayLikeProps) {
+export default function HomeProductsYouMayLike({ products: initialProducts }: HomeProductsYouMayLikeProps) {
+    const { data: response } = useMayLike();
+    const products = initialProducts || response?.data || [];
+
     if (!products || products.length === 0) return null;
 
     return (
@@ -38,8 +42,8 @@ export default function HomeProductsYouMayLike({ products }: HomeProductsYouMayL
                             price={product.price}
                             priceAfterDiscount={product.price_after_discount}
                             discountPercent={product.discount_present}
-                            reviewRate={product.review_rate}
-                            reviewCount={product.review_count}
+                            reviewRate={product.review_rate?.toString()}
+                            reviewCount={product.review_count?.toString()}
                             isFavorite={product.is_favorite}
                         />
                     ))}

@@ -106,7 +106,7 @@ function BannerItem({ banner }: { banner: Banner }) {
     const desktopSrc = hasDesktopImage ? banner.labtop_banner_url : (hasMobileImage ? banner.mobile_banner_url : "/placeholder.png");
     const mobileSrc = hasMobileImage ? banner.mobile_banner_url : (hasDesktopImage ? banner.labtop_banner_url : "/placeholder.png");
 
-    const linkHref = banner.url || banner.link || "#";
+    const linkHref = banner.url || "#";
 
     return (
         <Link

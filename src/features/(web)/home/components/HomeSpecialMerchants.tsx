@@ -6,12 +6,16 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import { StoreInPageData } from "@/src/features/(web)/product/types";
+import { useSpecialMerchants } from "../hooks";
 
 interface HomeSpecialMerchantsProps {
-    merchants: StoreInPageData[];
+    merchants?: StoreInPageData[];
 }
 
-export default function HomeSpecialMerchants({ merchants }: HomeSpecialMerchantsProps) {
+export default function HomeSpecialMerchants({ merchants: initialMerchants }: HomeSpecialMerchantsProps) {
+    const { data: response } = useSpecialMerchants();
+    const merchants = initialMerchants || response?.data || [];
+
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const scroll = (direction: "left" | "right") => {

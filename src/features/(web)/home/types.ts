@@ -1,202 +1,364 @@
+// ============================================================
+// Aatene Home API v2 — TypeScript Response Types
+// Base URL: /pages/v2/home
+// ============================================================
 
-import { ProductInPageData, StoreInPageData } from "../product/types";
-import { Blog } from "../blogs/types";
+// ─────────────────────────────────────────────
+// SHARED / REUSABLE TYPES
+// ─────────────────────────────────────────────
 
-export interface StoryOwner {
-    id: number;
-    slug: string;
-    name: string;
-    status?: string;
-    phone?: string | null;
-    whats_app?: string | null;
-    email?: string | null;
-    address?: string | null;
-    lat?: number | null;
-    lng?: number | null;
-    logo?: string | null;
-    cover?: string | null;
-    review_rate?: string;
-    review_count?: string;
-    open_status?: string;
-    am_i_following?: boolean;
-    is_favorite?: boolean;
-    view_count?: number;
-    created_at?: string;
-    updated_at?: string;
+export interface ApiResponse<T> {
+  status: boolean;
+  message: string;
+  data: T;
 }
 
-export interface Story {
-    id: number;
-    image: string | null;
-    text: string | null;
-    color: string | null;
-    created_at: string;
-    owner_type?: string;
-    owner?: StoryOwner;
+export interface City {
+  id: number;
+  name: string;
+  is_active: boolean;
 }
+
+// ─────────────────────────────────────────────
+// BANNERS
+// ─────────────────────────────────────────────
 
 export interface Banner {
-    id: number;
-    title: string | null;
-    description: string | null;
-    city_id?: string;
-    place?: string;
-    url?: string | null;
-    start_date?: string;
-    end_date?: string;
-    is_active?: boolean;
-    priority?: string;
-    labtop_banner?: string;
-    mobile_banner?: string;
-    labtop_banner_url: string;
-    mobile_banner_url: string;
-    link?: string | null;
-    button_text?: string | null;
+  id: number;
+  title: string;
+  description: string | null;
+  city_id: string;
+  place: string;
+  url: string;
+  start_date: string;       // "YYYY-MM-DD"
+  end_date: string;         // "YYYY-MM-DD"
+  is_active: boolean;
+  priority: string;
+  labtop_banner: string;
+  mobile_banner: string;
+  labtop_banner_url: string;
+  mobile_banner_url: string;
 }
 
-export interface Offer {
-    id: number;
-    code: string;
-    type: string;
-    value: string;
-    start_date: string;
-    end_date: string;
-    store_id: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    categories: any[];
-    products: ProductInPageData[];
+// GET /pages/v2/home/banners/first
+export type FirstBannersResponse = ApiResponse<Banner[]>;
+
+// GET /pages/v2/home/banners/second
+export type SecondBannersResponse = ApiResponse<Banner[]>;
+
+// GET /pages/v2/home/banners/third
+export type ThirdBannerResponse = ApiResponse<Banner | null>;
+
+// GET /pages/v2/home/banners/fourth
+export type FourthBannerResponse = ApiResponse<Banner | null>;
+
+// GET /pages/v2/home/banners/fifth
+export type FifthBannerResponse = ApiResponse<Banner | null>;
+
+// GET /pages/v2/home/banners/sixth
+export type SixthBannerResponse = ApiResponse<Banner | null>;
+
+// ─────────────────────────────────────────────
+// PRODUCTS
+// ─────────────────────────────────────────────
+
+export interface Product {
+  id: number;
+  slug: string;
+  name: string;
+  description: string;
+  short_description: string;
+  cover: string | null;
+  shown: boolean;
+  is_favorite: boolean;
+  in_compare: boolean;
+  price: string;
+  price_after_discount: string | number;
+  discount_present: number;
+  end_date: string | null;   // "YYYY-MM-DD HH:mm:ss" or null
+  review_rate: string | number;
+  review_count: string | number;
+  views_count: number;
+  share_url: string;
 }
+
+// GET /pages/v2/home/products/new
+export type NewProductsResponse = ApiResponse<Product[]>;
+
+// GET /pages/v2/home/products/popular
+export type PopularProductsResponse = ApiResponse<Product[]>;
+
+// GET /pages/v2/home/products/selected-for-you
+export type SelectedForYouResponse = ApiResponse<Product[]>;
+
+// GET /pages/v2/home/products/may-like
+export type MayLikeResponse = ApiResponse<Product[]>;
+
+// GET /pages/v2/home/products/most-popular-single
+export type MostPopularSingleResponse = ApiResponse<Product[]>;
+
+// ─────────────────────────────────────────────
+// OFFERS
+// ─────────────────────────────────────────────
+
+// GET /pages/v2/home/offers/today
+export type TodayOffersResponse = ApiResponse<Product[]>;
+
+// GET /pages/v2/home/offers/week
+export interface WeekOffersData {
+  last_date: string;         // "YYYY-MM-DD HH:mm:ss" — offer expiry
+  products: Product[];
+}
+export type WeekOffersResponse = ApiResponse<WeekOffersData>;
+
+// ─────────────────────────────────────────────
+// SERVICES
+// ─────────────────────────────────────────────
 
 export interface ServiceStore {
-    id: number;
-    slug: string;
-    name: string;
-    status: string;
-    phone: string | null;
-    whats_app: string | null;
-    email: string | null;
-    address: string | null;
-    lat: number | null;
-    lng: number | null;
-    logo: string | null;
-    logo_url: string | null;
-    cover: string | null;
-    review_rate: string;
-    review_count: string;
-    open_status: string;
-    am_i_following: boolean;
-    is_favorite: boolean;
-    view_count: number;
-    created_at: string;
-    updated_at: string;
-    city?: {
-        id: number;
-        name: string;
-    };
+  id: number;
+  slug: string;
+  name: string;
+  status: string;            // e.g. "active"
+  phone: string | null;
+  whats_app: string | null;
+  email: string | null;
+  address: string | null;
+  description: string | null;
+  lat: string | null;
+  lng: string | null;
+  type: string;              // "products" | "services"
+  logo: string | null;
+  logo_url: string | null;
+  review_rate: string;
+  review_count: string;
+  open_status: string;       // "open_with_working_times" | "open_without_working_times"
+  am_i_following: boolean;
+  is_favorite: boolean;
+  view_count: number;
+  created_at: string;        // ISO 8601
+  updated_at: string;        // ISO 8601
+  share_url: string;
+  city: City | null;
 }
 
 export interface Service {
-    id: number;
-    slug: string;
-    title: string;
-    description: string;
-    images: string[];
-    images_urls: string[];
-    image: string | null;
-    image_url: string | null;
-    is_favorite: boolean;
-    is_compare: boolean;
-    price: string;
-    execute_type: string;
-    execute_count: string;
-    review_rate: string;
-    review_count: string;
-    status: string;
-    store: ServiceStore;
+  id: number;
+  slug: string;
+  title: string;
+  description: string;
+  images: string[];
+  images_urls: string[];
+  image: string | null;
+  image_url: string | null;
+  is_favorite: boolean;
+  is_compare: boolean;
+  price: string;
+  execute_type: string;      // e.g. "hour" | "day" | ""
+  execute_count: string;
+  review_rate: string;
+  review_count: string;
+  status: string;            // e.g. "approved"
+  store: ServiceStore;
+  share_url: string;
 }
 
-export interface ServiceRequestUser {
-    id: number;
-    slug: string;
-    first_name: string;
-    last_name: string;
-    name: string;
-    avatar: string | null;
-    avatar_url: string | null;
-    bio: string | null;
-    review_rate: string;
-    review_count: string;
-    is_following: boolean;
+// GET /pages/v2/home/services/special
+export type SpecialServicesResponse = ApiResponse<Service[]>;
+
+// GET /pages/v2/home/services/popular
+export type PopularServicesResponse = ApiResponse<Service[]>;
+
+// ─────────────────────────────────────────────
+// REQUESTED SERVICES
+// ─────────────────────────────────────────────
+
+export interface RequestedServiceUser {
+  id: number;
+  slug: string;
+  first_name: string;
+  last_name: string;
+  name: string;
+  avatar: string | null;
+  avatar_url: string | null;
+  cover: string | null;
+  cover_url: string | null;
+  bio: string | null;
+  review_rate: string;
+  review_count: string;
+  is_following: boolean;
+  share_url: string;
 }
 
-export interface ServiceRequest {
-    id: number;
-    title: string;
-    slug: string;
-    images: string[];
-    images_urls: string[];
-    status: string;
-    content: string;
-    user?: ServiceRequestUser;
-    services_follows_rules: boolean | number | null;
-    have_searched_for_services_before: boolean | number | null;
-    created_at: string;
-    updated_at: string;
+export interface RequestedService {
+  id: number;
+  title: string;
+  slug: string;
+  images: string[];
+  images_urls: string[];
+  status: string;            // e.g. "approved"
+  content: string;
+  is_favorite: boolean;
+  user: RequestedServiceUser | null;
+  last_comment: unknown | null;
+  services_follows_rules: unknown | null;
+  have_searched_for_services_before: unknown | null;
+  created_at: string;        // "YYYY-MM-DD HH:mm:ss"
+  updated_at: string;        // "YYYY-MM-DD HH:mm:ss"
+  share_url: string;
 }
 
-export interface HomeCategory {
-    id: number;
-    name: string;
-    slug: string;
-    images: string;
-    is_active: string;
-    parent_id: string | null;
-    creator_id: string;
-    updater_id: string;
-    created_at: string | null;
-    updated_at: string | null;
-    deleted_at: string | null;
-    avg_rating: string | null;
-    products_count: string;
-    sub_categories: HomeCategory[];
+// GET /pages/v2/home/services/requested
+export type RequestedServicesResponse = ApiResponse<RequestedService[]>;
+
+// ─────────────────────────────────────────────
+// STORIES
+// ─────────────────────────────────────────────
+
+export interface Story {
+  id: number;
+  image: string;
+  text: string | null;
+  color: string | null;
+  created_at: string;        // "YYYY-MM-DD HH:mm:ss"
+  owner_type: string;        // "store" | "user"
 }
 
-export interface CategoryWithProducts {
-    id: number;
-    slug: string;
-    name: string;
-    image: string | null;
-    parent_id: string;
-    products_count: string;
-    products: ProductInPageData[];
+export interface StoryOwner {
+  id: number;
+  slug: string;
+  owner_type: string;        // "user" | "store"
+  stories: Story[];
+  review_rate: string;
+  review_count: string;
+  name: string | null;
+  avatar: string | null;
+  avatar_url: string | null;
 }
 
-export interface ThisWeekOffers {
-    last_date: string;
-    products: ProductInPageData[];
+// GET /pages/v2/home/stories/owners
+export type StoryOwnersResponse = ApiResponse<StoryOwner[]>;
+
+// ─────────────────────────────────────────────
+// MERCHANTS
+// ─────────────────────────────────────────────
+
+export interface Merchant {
+  id: number;
+  slug: string;
+  name: string;
+  status: string;            // "active"
+  phone: string | null;
+  whats_app: string | null;
+  email: string | null;
+  address: string | null;
+  description: string | null;
+  lat: string | null;
+  lng: string | null;
+  type: string;              // "products" | "services"
+  logo: string | null;
+  logo_url: string | null;
+  cover: string[] | null;
+  cover_urls: string[] | null;
+  review_rate: string;
+  review_count: string;
+  open_status: string;
+  am_i_following: boolean;
+  is_favorite: boolean;
+  view_count: number;
+  created_at: string;        // ISO 8601
+  updated_at: string;        // ISO 8601
+  share_url: string;
+  city: City | null;
 }
 
-export interface HomePageResponse {
-    status: boolean;
-    message: string;
-    firstBanner: Banner[];
-    stories: Story[];
-    secBanner: Banner[];
-    specialServices: Service[];
-    thirdBanner: Banner | null;
-    specialMerchants: StoreInPageData[];
-    newProducts: ProductInPageData[];
-    mostPopularServices: Service[];
-    toDayBiggestOffers: ProductInPageData[];
-    toRatedCategories: HomeCategory[];
-    productSelectedForYou: ProductInPageData[];
-    productsYouMayLike: ProductInPageData[];
-    thisWeekBiggestOffers: ThisWeekOffers;
-    categoriesWithProducts: CategoryWithProducts[];
-    forthBanner: Banner | null;
-    fifthBanner: Banner | null;
-    sixthBanner: Banner | null;
-    mostPopularProducts: ProductInPageData[];
-    requestedServices: ServiceRequest[];
-    latestBlogs?: Blog[];
+// GET /pages/v2/home/merchants/special
+export type SpecialMerchantsResponse = ApiResponse<Merchant[]>;
+
+// ─────────────────────────────────────────────
+// CATEGORIES
+// ─────────────────────────────────────────────
+
+export interface Category {
+  id: number;
+  slug: string;
+  name: string;
+  image: string | null;
+  parent_id: string | null;
+  products_count: string;
+  services_count: string | null;
 }
+
+// GET /pages/v2/home/categories/top-rated
+export type TopRatedCategoriesResponse = ApiResponse<Category[]>;
+
+export interface CategoryWithProducts extends Category {
+  products: Product[];
+}
+
+// GET /pages/v2/home/categories/with-products
+export type CategoriesWithProductsResponse = ApiResponse<CategoryWithProducts[]>;
+
+// ─────────────────────────────────────────────
+// BLOGS
+// ─────────────────────────────────────────────
+
+export interface BlogContentSection {
+  title: string;
+  paragraph: string;
+}
+
+export interface BlogStore {
+  id: number;
+  slug: string;
+  name: string;
+  status: string;
+  phone: string | null;
+  whats_app: string | null;
+  email: string | null;
+  address: string | null;
+  description: string | null;
+  lat: string | null;
+  lng: string | null;
+  type: string;
+  logo: string | null;
+  logo_url: string | null;
+  cover: string | null;
+  cover_urls: string | null;
+  review_rate: string;
+  review_count: string;
+  open_status: string;
+  am_i_following: boolean;
+  is_favorite: boolean;
+  view_count: number;
+  created_at: string;        // ISO 8601
+  updated_at: string;        // ISO 8601
+  share_url: string;
+  city: City | null;
+}
+
+export interface Blog {
+  id: number;
+  thumbnail: string;
+  thumbnail_url: string;
+  title: string;
+  slug: string;
+  category: string;
+  description: string;
+  content: BlogContentSection[];
+  store_id: string;
+  store: BlogStore | null;
+  user_id: string | null;
+  user: unknown | null;
+  review_rate: string;
+  review_count: string;
+  favorites_count: number;
+  owner_type: string;        // "store" | "user"
+  created_at: string;        // "YYYY-MM-DD HH:mm:ss"
+  updated_at: string;        // "YYYY-MM-DD HH:mm:ss"
+  is_favorite: boolean;
+  share_url: string;
+}
+
+// GET /pages/v2/home/blog/latest
+export type LatestBlogsResponse = ApiResponse<Blog[]>;

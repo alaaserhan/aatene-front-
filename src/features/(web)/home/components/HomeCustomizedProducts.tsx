@@ -4,12 +4,16 @@ import React from "react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { ProductInPageData } from "@/src/features/(web)/product/types";
+import { useMostPopularSingle } from "../hooks";
 
 interface HomeCustomizedProductsProps {
-    products: ProductInPageData[];
+    products?: ProductInPageData[];
 }
 
-export default function HomeCustomizedProducts({ products }: HomeCustomizedProductsProps) {
+export default function HomeCustomizedProducts({ products: initialProducts }: HomeCustomizedProductsProps) {
+    const { data: response } = useMostPopularSingle();
+    const products = initialProducts || response?.data || [];
+
     if (!products || products.length === 0) return null;
 
     return (
@@ -37,10 +41,10 @@ export default function HomeCustomizedProducts({ products }: HomeCustomizedProdu
                             slug={product.slug}
                             cover={product.cover || "/placeholder.png"}
                             price={product.price}
-                            priceAfterDiscount={product.price_after_discount}
-                            discountPercent={product.discount_present}
-                            reviewRate={product.review_rate}
-                            reviewCount={product.review_count}
+                            priceAfterDiscount={product?.price_after_discount }
+                            discountPercent={product?.discount_present}
+                            reviewRate={product.review_rate?.toString()}
+                            reviewCount={product.review_count?.toString()}
                             isFavorite={product.is_favorite}
                         />
                     ))}
