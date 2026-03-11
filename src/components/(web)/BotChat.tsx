@@ -82,13 +82,30 @@ export default function BotChat() {
                 message: userMessage.text,
                 user_id: user.id,
                 user_name: user.fullname || `${user.first_name} ${user.last_name}`,
+            }, {
+                validateStatus: (status) => status >= 200 && status < 300
             });
 
             const data = response.data;
-            const botReply = data.output ||
-                (typeof data.message === "string" ? data.message : data.message?.text) ||
-                data.response ||
-                "شكراً لتواصلك معنا!";
+            let botReply = "";
+
+            if (response.status === 202 && data.output) {
+                try {
+                    const outputJson = JSON.parse(data.output);
+                    if (outputJson.route === "WAITING" && outputJson.reason) {
+                        botReply = outputJson.reason;
+                    }
+                } catch {
+                    // Fallback if parsing fails
+                }
+            }
+
+            if (!botReply) {
+                botReply = data.output ||
+                    (typeof data.message === "string" ? data.message : data.message?.text) ||
+                    data.response ||
+                    "شكراً لتواصلك معنا!";
+            }
 
             const botMessage: ChatMessage = {
                 id: Date.now() + 1,

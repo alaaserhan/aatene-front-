@@ -96,7 +96,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                         className="object-cover transition-all duration-700"
                     />
                 ) : (
-                    <div className="w-full h-full bg-blue-1" />
+                    <div className="w-full h-full" />
                 )}
                 <div className="absolute inset-0 bg-black/10 pointer-events-none" />
 

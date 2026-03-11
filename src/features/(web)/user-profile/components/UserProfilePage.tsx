@@ -52,7 +52,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
 
     return (
         <div className="relative mb-8 bg-white shadow-sm border-b border-gray-100 pb-2 md:pb-6">
-            <div className="relative h-44 md:h-[200px] lg:h-[250px] overflow-hidden w-full">
+            <div className="relative h-44 md:h-[200px] lg:h-[250px] overflow-hidden w-full ">
                 {
                     user.cover_url ? (
                         <Image
@@ -62,7 +62,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                             className="object-cover"
                         />
                     ) : (
-                        <div className="w-full h-full bg-blue-1">
+                        <div className="w-full h-full">
 
                         </div>
                     )

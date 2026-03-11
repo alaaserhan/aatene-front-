@@ -163,7 +163,7 @@ export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCoo
                                                 >
                                                     <button
                                                         onClick={() => setMediaViewerState({ isOpen: true, media: imageFiles, initialIndex: i })}
-                                                        className="w-full h-full hover:opacity-80 transition-opacity"
+                                                        className="w-full cursor-pointer h-full hover:opacity-80 transition-opacity"
                                                     >
                                                         <img
                                                             src={url}
@@ -173,7 +173,7 @@ export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCoo
                                                         />
                                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all" />
                                                     </button>
-                                                    <a
+                                                    {/* <a
                                                         href={url}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
@@ -182,7 +182,7 @@ export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCoo
                                                         className="absolute top-1 right-1 lg:top-1.5 lg:right-1.5 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-md opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                                     >
                                                         <Download className="w-3.5 h-3.5" />
-                                                    </a>
+                                                    </a> */}
                                                 </div>
                                             ))}
                                         </div>
