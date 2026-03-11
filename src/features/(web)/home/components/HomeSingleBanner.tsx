@@ -22,7 +22,7 @@ export default function HomeSingleBanner({ banner }: HomeSingleBannerProps) {
     const mobileSrc = hasMobileImage ? banner.mobile_banner_url : (hasDesktopImage ? banner.labtop_banner_url : "/placeholder.png");
 
     // Fallback link if none provided
-    const linkHref = banner.url || banner.link || "#";
+    const linkHref = banner.url || "#";
 
     return (
         <section className="py-8 container">
