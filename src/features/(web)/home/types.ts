@@ -141,7 +141,7 @@ export interface ServiceStore {
   created_at: string;        // ISO 8601
   updated_at: string;        // ISO 8601
   share_url: string;
-  city: City | null;
+  city?: City;
 }
 
 export interface Service {
