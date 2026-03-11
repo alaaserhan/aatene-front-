@@ -157,12 +157,12 @@ export const useCreateStory = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (payload: CreateStoryPayload) => createStory(payload),
-        onSuccess: () => { // Response structure might vary based on method, just toast success
-            toast.success("Story created successfully");
+        onSuccess: (data) => {
+            toast.success(data.message || "Story created successfully");
         },
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.stories.all });
-            qc.invalidateQueries({ queryKey: QK.highlights.all }); // Stories might affect highlights? Maybe not directly but good practice if linked
+            qc.invalidateQueries({ queryKey: QK.highlights.all });
         },
     });
 };
@@ -172,8 +172,8 @@ export const useUpdateStory = () => {
     return useMutation({
         mutationFn: (variables: { id: string | number; payload: CreateStoryPayload }) =>
             updateStory(variables.id, variables.payload),
-        onSuccess: () => {
-            toast.success("Story updated successfully");
+        onSuccess: (data) => {
+            toast.success(data.message || "Story updated successfully");
         },
         onSettled: (_data, _error, variables) => {
             qc.invalidateQueries({ queryKey: QK.stories.all });
@@ -187,8 +187,8 @@ export const useDeleteStory = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (id: string | number) => deleteStory(id),
-        onSuccess: () => {
-            toast.success("Story deleted successfully");
+        onSuccess: (data) => {
+            toast.success(data.message || "Story deleted successfully");
         },
         onSettled: (_data, _error, id) => {
             qc.invalidateQueries({ queryKey: QK.stories.all });
@@ -275,7 +275,7 @@ export const useUpdateAvatar = () => {
     return useMutation({
         mutationFn: (avatar: File) => updateAvatar(avatar),
         onSuccess: (data) => {
-            toast.success("Avatar updated successfully");
+            toast.success(data.message || "Avatar updated successfully");
             if (data?.data?.avatar) {
                 useAuthStore.getState().updateUser({ avatar: data.data.avatar });
             }
@@ -367,8 +367,8 @@ export const useConvertToMerchant = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: convertToMerchant,
-        onSuccess: () => {
-            toast.success("Account converted to merchant successfully");
+        onSuccess: (data) => {
+            toast.success(data.message || "Account converted to merchant successfully");
             useAuthStore.getState().updateUser({ user_type: "merchant" });
         },
         onSettled: () => {

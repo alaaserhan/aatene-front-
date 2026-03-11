@@ -15,11 +15,11 @@ export interface ProductCardProps {
     name: string;
     slug?: string;
     cover: string;
-    price: string;
-    priceAfterDiscount?: string;
+    price: string | number;
+    priceAfterDiscount?: string | number;
     discountPercent?: number;
-    reviewRate?: string;
-    reviewCount?: string;
+    reviewRate?: string | number;
+    reviewCount?: string | number;
     isFavorite?: boolean;
     onFavoriteClick?: (id: number | string) => void;
     onClick?: () => void;
@@ -44,8 +44,8 @@ const ProductCard = memo(({
 }: ProductCardProps) => {
     const [imgSrc, setImgSrc] = useState(cover || "/placeholder.png");
     const displayPrice = priceAfterDiscount || price;
-    const hasDiscount = priceAfterDiscount && priceAfterDiscount !== price;
-    const rating = parseFloat(reviewRate || "0");
+    const hasDiscount = !!priceAfterDiscount && String(priceAfterDiscount) !== String(price);
+    const rating = typeof reviewRate === 'number' ? reviewRate : parseFloat(reviewRate || "0");
     const router = useRouter();
     const qc = useQueryClient();
     const [localIsFavorite, setLocalIsFavorite] = useState(isFavorite);
@@ -132,11 +132,11 @@ const ProductCard = memo(({
                 {/* Price */}
                 <div className="flex items-baseline gap-2 justify-start">
                     <span className=" font-medium ">
-                        {parseFloat(displayPrice).toFixed(2)} <span className="text-xl font-medium">₪</span>
+                        {parseFloat(String(displayPrice)).toFixed(2)} <span className="text-xl font-medium">₪</span>
                     </span>
                     {hasDiscount && (
                         <span className="font-medium text-gray-400 line-through">
-                            {parseFloat(price).toFixed(2)} <span className="text-xl font-medium">₪</span>
+                            {parseFloat(String(price)).toFixed(2)} <span className="text-xl font-medium">₪</span>
                         </span>
                     )}
                 </div>
