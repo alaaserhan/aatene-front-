@@ -24,7 +24,6 @@ export function Pagination({
   className,
   ...props
 }: PaginationProps) {
-    console.log(totalPages,currentPage);
     
   const isFirstPage = currentPage === 1;
   const isLastPage = currentPage === totalPages;

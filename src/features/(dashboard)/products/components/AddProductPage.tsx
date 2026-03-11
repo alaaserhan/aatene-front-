@@ -231,7 +231,6 @@ export function AddProductPage() {
 
       setLastGeneratedInput({ title, description, short_description });
 
-      console.log("AI Response:", data);
 
       setFormData((prev) => {
         const newStep1 = { ...prev.step1, ...currentStep1Data };

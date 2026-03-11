@@ -119,7 +119,6 @@ export function AddStoryModal({
             onClose();
         });
     };
-    console.log(selectedFile);
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             {/* ✅ تم رفع z-index ليكون أعلى من ShowStoryModal */}

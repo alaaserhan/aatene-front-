@@ -16,13 +16,6 @@ import {
 import { useGetStores } from "../../stores/hooks";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/src/components/ui/dropdown-menu";
-import { Input } from "@/src/components/ui/input";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { StoreEmptyState } from "@/src/components/(dashboard)/StoreEmptyState";
 
@@ -35,9 +28,7 @@ interface SectionsPageProps {
 export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
     const [isMounted, setIsMounted] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
-    console.log(paramStoreId);
 
-    // 1. تحديد storeId بناءً على الباراميترز أو الكوكيز
     const [activeStoreId, setActiveStoreId] = useState<string | number | null>(() => {
         if (paramStoreId) return paramStoreId;
         if (typeof window !== "undefined") {
@@ -46,23 +37,29 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
         return null;
     });
 
-    useEffect(() => {
-        setIsMounted(true);
-        const userType = Cookies.get("user_type");
-        setIsAdmin(userType === "admin");
-
+    const [prevParamStoreId, setPrevParamStoreId] = useState(paramStoreId);
+    if (paramStoreId !== prevParamStoreId) {
+        setPrevParamStoreId(paramStoreId);
         if (paramStoreId) {
             setActiveStoreId(paramStoreId);
         }
-    }, [paramStoreId]);
+    }
 
-    // --- Admin Store Selection Logic ---
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsMounted(true);
+            const userType = Cookies.get("user_type");
+            setIsAdmin(userType === "admin");
+        }, 0);
+        return () => clearTimeout(timer);
+    }, []);
+
     const { data: storesData, isLoading: isLoadingStores } = useGetStores(
         new URLSearchParams({ page: "1", per_page: "100" }),
         { enabled: isAdmin && isMounted }
     );
 
-    const storesList = storesData?.data || [];
+    const storesList = useMemo(() => storesData?.data || [], [storesData?.data]);
     const selectedStore = storesList.find(s => s.id === Number(activeStoreId));
 
     const [storeSearch, setStoreSearch] = useState("");

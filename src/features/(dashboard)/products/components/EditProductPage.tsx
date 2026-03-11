@@ -203,7 +203,6 @@ export function EditProductPage({ productId }: EditProductPageProps) {
 
       setLastGeneratedInput({ title, description, short_description });
 
-      console.log("AI Response:", data);
 
       setFormData((prev) => {
         if (!prev) return null;

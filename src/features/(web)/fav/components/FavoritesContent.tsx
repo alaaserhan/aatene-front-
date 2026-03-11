@@ -218,14 +218,6 @@ export default function FavoritesContent({
                                 reviewRate={item.favs?.review_rate}
                                 reviewCount={item.favs?.review_count}
                                 isFavorite={item.favs?.is_favorite ?? true}
-                                onFavoriteClick={(id) => {
-                                    // Handle remove from favorites
-                                    console.log("Remove from favorites:", id);
-                                }}
-                                onClick={() => {
-                                    // Navigate to product page
-                                    console.log("Navigate to:", item.favs?.slug);
-                                }}
                                 type={item.favs_type as any || "product"}
                             />
                         ))}

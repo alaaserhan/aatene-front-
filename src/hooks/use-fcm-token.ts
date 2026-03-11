@@ -56,7 +56,6 @@ const useFCMToken = () => {
                     const token = await getFCMToken();
                     if (token) {
                         setFcmToken(token);
-                        console.log("FCM Token:", token);
                     }
                 }
             } catch (error) {

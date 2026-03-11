@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import { Banner } from "../types";
 
 interface HomeSingleBannerProps {

@@ -31,7 +31,6 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
     
     const store = profileData?.store;
     const isOwnStore = authUser?.id === Number(store?.owner_id);
-    console.log(isOwnStore);
     
     const isAdmin = authUser?.user_type === "admin";
 

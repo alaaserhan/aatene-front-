@@ -10,15 +10,7 @@ interface StoresYouMayLikeProps {
 }
 
 export default function StoresYouMayLike({ stores }: StoresYouMayLikeProps) {
-    const handleFollowClick = useCallback((storeId: number) => {
-        // Implementation for follow
-        console.log("Follow store:", storeId);
-    }, []);
 
-    const handleVisitClick = useCallback((storeSlug: string) => {
-        // Implementation for visit
-        console.log("Visit store:", storeSlug);
-    }, []);
 
     const transformedStores = useMemo(() => {
         if (!stores) return [];
@@ -36,7 +28,7 @@ export default function StoresYouMayLike({ stores }: StoresYouMayLikeProps) {
         <div className="mt-16 mb-8">
             {/* Header */}
             <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">متاجر قد تنال اعجابك</h2>
+                <h2 className="text-2xl font-bold mb-2">متاجر قد تنال اعجابك</h2>
                 <p className="text-gray-500 text-sm">أفضل المنتجات مبيعاً من بائعين موثوق بهم | ممول</p>
             </div>
 
@@ -47,8 +39,6 @@ export default function StoresYouMayLike({ stores }: StoresYouMayLikeProps) {
                         key={store.id}
                         store={store}
                         isFollowing={stores[index].am_i_following}
-                        onFollowClick={handleFollowClick}
-                        onVisitClick={handleVisitClick}
                     />
                 ))}
             </div>
