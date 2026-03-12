@@ -11,7 +11,7 @@ import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ReportStatus } from "../api";
 
-type ReportType = "store" | "product" | "service";
+type ReportType = "store" | "requested_service" | "product" | "service" | "general";
 
 const filterOptions = [
     { label: "الكل", value: "" },
@@ -39,6 +39,28 @@ export function AllReportsPage() {
     const totalRecords = data?.recordsFiltered || 0;
     const totalPages = Math.ceil(totalRecords / 10);
 
+    const getReportTitle = (type: ReportType) => {
+        switch (type) {
+            case "store": return "بلاغات المتاجر";
+            case "requested_service": return "بلاغات التجار";
+            case "product": return "بلاغات المنتجات";
+            case "service": return "بلاغات الخدمات";
+            case "general": return "بلاغات اخرى";
+            default: return "البلاغات";
+        }
+    };
+
+    const getReportSubtitle = (type: ReportType) => {
+        switch (type) {
+            case "store": return "بلاغات مقدمة من الزبائن";
+            case "requested_service": return "بلاغات تخص الخدمات الغير موجوده";
+            case "product": return "بلاغات المنتجات";
+            case "service": return "بلاغات الخدمات";
+            case "general": return "بلاغات ومشاكل تقنية أو أخرى عامة";
+            default: return "بلاغات مقدمة من الزبائن ضد (تاجر، منتج، متجر, خدمة)";
+        }
+    };
+
     return (
         <div className="flex flex-col gap-0">
             <ReportsTabs className="px-6 bg-white" />
@@ -47,11 +69,11 @@ export function AllReportsPage() {
                 <div className="bg-white rounded-lg border border-gray-200 overflow-visible">
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 border-b border-gray-100 gap-4">
                         <div className="flex flex-col">
-                            <h2 className="text-lg font-bold">بلاغات الزبائن ( {totalRecords} )</h2>
-                            <span className="text-xs text-gray-2 flex items-center gap-1 mt-1">
+                            <h2 className="text-lg font-bold">{getReportTitle(currentType)} ( {totalRecords} )</h2>
+                            {/* <span className="text-xs text-gray-2 flex items-center gap-1 mt-1">
                                 <Smile className="w-4 h-4 text-gray-2" />
-                                بلاغات مقدمة من الزبائن ضد (تاجر، منتج، متجر, خدمة)
-                            </span>
+                                {getReportSubtitle(currentType)}
+                            </span> */}
                         </div>
 
                         <div className="flex items-center gap-3">

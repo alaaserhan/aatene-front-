@@ -4,7 +4,7 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { cn } from "@/src/lib/utils";
 
-type ReportType = "store" | "requested_service" | "product" | "service";
+type ReportType = "store" | "requested_service" | "product" | "service" | "general";
 
 interface Tab {
     label: string;
@@ -16,6 +16,7 @@ const TABS: Tab[] = [
     { label: "بلاغات التجار", value: "requested_service" },
     { label: "بلاغات المنتجات", value: "product" },
     { label: "بلاغات الخدمات", value: "service" },
+    { label: "بلاغات اخرى", value: "general" },
 ];
 
 interface ReportsTabsProps {

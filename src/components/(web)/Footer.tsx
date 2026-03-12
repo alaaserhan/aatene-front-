@@ -4,6 +4,7 @@ import { Facebook, Twitter, Instagram, Youtube, Ghost, Music2 } from "lucide-rea
 import Link from "next/link";
 import Image from "next/image";
 import { useSettingsStore } from "@/src/stores/settings-store";
+import { Label } from "recharts";
 
 const Footer = () => {
 
@@ -16,7 +17,7 @@ const Footer = () => {
         { label: "منتجات", href: `/search?type=products` },
         { label: "متاجر", href: `/search?type=stores` },
         { label: "خدمات", href: `/search?type=services` },
-        { label: "المدونات", href: `/blogs` }
+        { label: "المستخدمين", href: `/search?type=users` }, { label: "المدونات", href: `/blogs` }
       ]
     },
     {
@@ -114,22 +115,22 @@ const Footer = () => {
             <h4 className="font-bold text-base mb-4  text-center sm:text-right">احصل على التطبيق</h4>
             <div className="flex md:flex-col flex-row justify-center sm:justify-start gap-3 md:gap-0">
               <a href="#" className="">
-                 <Image
-                 width={120}
-                 height={40}
-                    src="/Group.svg"
-                    alt="Google Play Store"
-                    className="h-12"
-                  />
+                <Image
+                  width={120}
+                  height={40}
+                  src="/Group.svg"
+                  alt="Google Play Store"
+                  className="h-12"
+                />
               </a>
               <a href="#" className=" ">
-                  <Image
-                    src="/apple.svg"
-                    alt="Apple App Store"
-                    width={120}
-                    height={40}
-                    className="h-12"
-                  />
+                <Image
+                  src="/apple.svg"
+                  alt="Apple App Store"
+                  width={120}
+                  height={40}
+                  className="h-12"
+                />
               </a>
             </div>
           </div>
