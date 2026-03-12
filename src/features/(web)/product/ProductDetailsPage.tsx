@@ -57,6 +57,8 @@ export default function ProductDetailsPage() {
                 <CrossSellsSection
                     crossSells={product.crossSells}
                     crossSellsPrice={product.cross_sells_price}
+                    crossSellsName={product.cross_sells_name || undefined}
+                    crossSellsDescription={product.cross_sells_description || undefined}
                 />
             )}
 

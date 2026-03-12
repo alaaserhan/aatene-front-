@@ -11,10 +11,6 @@ export default function NotificationPromptPopup() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        // لا تُظهر الـ popup إذا:
-        // 1. المتصفح لا يدعم الإشعارات
-        // 2. المستخدم قبل أو رفض الإشعارات مسبقاً
-        // 3. سبق وظهرت له هذه النافذة
         if (typeof window === "undefined") return;
         if (!("Notification" in window)) return;
         if (Notification.permission !== "default") return;
@@ -22,34 +18,59 @@ export default function NotificationPromptPopup() {
 
         const timer = setTimeout(() => {
             setVisible(true);
-        }, 15000); // 15 ثانية
+        }, 15000);
 
         return () => clearTimeout(timer);
     }, []);
 
     const handleEnable = async () => {
         setLoading(true);
+        const finalize = (permission?: NotificationPermission) => {
+            if (permission && permission !== "default") {
+                localStorage.setItem(STORAGE_KEY, "true");
+                setVisible(false);
+            }
+            setLoading(false);
+        };
+
+        const watcher = window.setInterval(() => {
+            if (Notification.permission !== "default") {
+                window.clearInterval(watcher);
+                finalize(Notification.permission);
+            }
+        }, 300);
+
+        const watcherTimeout = window.setTimeout(() => {
+            window.clearInterval(watcher);
+            if (Notification.permission === "default") {
+                setLoading(false);
+            }
+        }, 3000);
+
         try {
-            const permission = await Notification.requestPermission();
+            const permission = Notification.permission === "granted"
+                ? "granted"
+                : await Notification.requestPermission();
+
             if (permission === "granted") {
-                // سجّل الـ service worker وجيب الـ FCM token
                 if ("serviceWorker" in navigator) {
                     await navigator.serviceWorker.register("/firebase-messaging-sw.js").catch(() => {});
                 }
                 await getFCMToken().catch(() => {});
             }
+
+            window.clearInterval(watcher);
+            window.clearTimeout(watcherTimeout);
+            finalize(permission);
         } catch {
             // تجاهل الخطأ
-        } finally {
+            window.clearInterval(watcher);
+            window.clearTimeout(watcherTimeout);
             setLoading(false);
-            localStorage.setItem(STORAGE_KEY, "true");
-            setVisible(false);
         }
     };
 
     const handleLater = () => {
-        // لا نحفظ في localStorage حتى يمكن إعادة العرض في جلسة قادمة
-        // لكن نمنع الظهور مرة أخرى في نفس الجلسة
         sessionStorage.setItem(STORAGE_KEY, "true");
         setVisible(false);
     };
@@ -62,23 +83,35 @@ export default function NotificationPromptPopup() {
     if (!visible) return null;
 
     return (
-        <div
-            dir="rtl"
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-[calc(100%-2rem)] max-w-sm"
-            style={{ animation: "slideUp 0.4s ease" }}
-        >
-            <style>{`
-                @keyframes slideUp {
-                    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-                    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-                }
-            `}</style>
+        <>
+            {/* Backdrop with blur */}
+            <div
+                className="fixed inset-0 z-[9998] bg-black/30 backdrop-blur-sm"
+                onClick={handleClose}
+            />
 
-            <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-5 relative">
+            {/* Card centered on screen - same design as before */}
+            <div
+                dir="rtl"
+                className="fixed inset-0 z-[9999] flex items-center justify-center px-4"
+            >
+                <div
+                    className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-5 relative w-full max-w-sm"
+                    style={{ animation: "scaleIn 0.35s ease" }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <style>{`
+                        @keyframes scaleIn {
+                            from { opacity: 0; transform: scale(0.93); }
+                            to   { opacity: 1; transform: scale(1); }
+                        }
+                    `}</style>
+
                 {/* زر الإغلاق */}
                 <button
                     onClick={handleClose}
-                    className="absolute top-3 left-3 text-gray-400 hover:text-gray-600 transition-colors"
+                    disabled={loading}
+                    className="absolute top-3 left-3 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-30"
                     aria-label="إغلاق"
                 >
                     <X className="w-4 h-4" />
@@ -116,18 +149,31 @@ export default function NotificationPromptPopup() {
                     <button
                         onClick={handleEnable}
                         disabled={loading}
-                        className="flex-1 bg-blue-500 hover:bg-blue-600 disabled:opacity-60 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
+                        className="flex-1 bg-blue-500 hover:bg-blue-600 disabled:opacity-70 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5"
                     >
-                        {loading ? "جارٍ التفعيل..." : "🔔 فعّل الإشعارات"}
+                        {loading ? (
+                            <>
+                                <svg className="animate-spin w-4 h-4 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                </svg>
+                                جارٍ التفعيل...
+                            </>
+                        ) : (
+                            <>🔔 فعّل الإشعارات</>
+                        )}
                     </button>
-                    <button
-                        onClick={handleLater}
-                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium py-2.5 rounded-xl transition-colors"
-                    >
-                        لاحقاً
-                    </button>
+                    {!loading && (
+                        <button
+                            onClick={handleLater}
+                            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium py-2.5 rounded-xl transition-colors"
+                        >
+                            لاحقاً
+                        </button>
+                    )}
+                </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

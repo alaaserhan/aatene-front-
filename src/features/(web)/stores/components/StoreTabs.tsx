@@ -51,8 +51,8 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
     const tabs: { key: TabKey; label: string }[] = [
         { key: "overview", label: "نظره عامة" },
         { key: "reviews", label: "تقييمات المتجر" },
-        { key: "discounts", label: "تخفيضات" },
-        { key: "offers", label: "عروض" },
+        { key: "discounts", label: "عروض" },
+        { key: "offers", label: "تخفيضات" },
     ];
 
     const offersProducts = pageData?.offers || [];
@@ -94,12 +94,12 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
                 )}
                 {activeTab === "discounts" && (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300" dir="rtl">
-                        <OffersGrid products={offersProducts} emptyMessage="لا توجد تخفيضات حالياً" />
+                        <OffersGrid products={offersProducts} emptyMessage="لا توجد عروض حالياً" />
                     </div>
                 )}
                 {activeTab === "offers" && (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300" dir="rtl">
-                        <OffersGrid products={couponsProducts} emptyMessage="لا توجد عروض حالياً" useProductCard />
+                        <OffersGrid products={couponsProducts} emptyMessage="لا توجد تخفيضات حالياً" useProductCard />
                     </div>
                 )}
             </div>
@@ -187,10 +187,7 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                         {name}
                     </h3>
                 </Link>
-                <div
-                    className="text-gray-2 text-sm mb-2 line-clamp-2 leading-relaxed h-[40px] sm:h-[43px] "
-
-                >
+                <div className="text-gray-2 text-sm mb-2 line-clamp-2 leading-relaxed h-[40px] sm:h-[43px]">
                     {desc}
                 </div>
                 <div className="flex items-baseline gap-1.5 justify-center">

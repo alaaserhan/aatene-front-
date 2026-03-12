@@ -30,8 +30,8 @@ import {
 } from "@/src/components/ui/popover";
 import { Calendar } from "@/src/components/ui/calendar"; // تأكد من وجود هذا المكون أو قم بتثبيته عبر shadcn
 import { Stepper } from "@/src/components/ui/Stepper";
-import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
-import { MediaItem } from "../../mediaCenter/api"; interface AddProductStep4Props {
+
+interface AddProductStep4Props {
     previousData: Step1FormData;
     initialData?: Step4FormData;
     onSave: (data: Step4FormData) => Promise<void>;
@@ -70,8 +70,6 @@ export function AddProductStep4({
         cross_sells_due_date: initialData?.cross_sells_due_date || "",
         cross_sells_name: initialData?.cross_sells_name || "",
         cross_sells_description: initialData?.cross_sells_description || "",
-        cross_sells_image: initialData?.cross_sells_image || "",
-        cross_sells_image_preview: initialData?.cross_sells_image_preview || "",
         hasDiscount: initialData?.hasDiscount || false,
     });
 
@@ -85,8 +83,6 @@ export function AddProductStep4({
                 cross_sells_due_date: initialData.cross_sells_due_date || "",
                 cross_sells_name: initialData.cross_sells_name || "",
                 cross_sells_description: initialData.cross_sells_description || "",
-                cross_sells_image: initialData.cross_sells_image || "",
-                cross_sells_image_preview: initialData.cross_sells_image_preview || "",
                 hasDiscount: initialData.hasDiscount || false,
             });
             if (initialData.crossSells && initialData.crossSells.length > 0) {
@@ -149,7 +145,7 @@ export function AddProductStep4({
         }
     };
 
-    const handleApplyDiscount = (price: number, date: Date, name: string, description: string, image: string, imagePreview: string) => {
+    const handleApplyDiscount = (price: number, date: Date, name: string, description: string) => {
         setFormData({
             ...formData,
             hasDiscount: true,
@@ -157,8 +153,6 @@ export function AddProductStep4({
             cross_sells_due_date: format(date, "yyyy-MM-dd"),
             cross_sells_name: name,
             cross_sells_description: description,
-            cross_sells_image: image,
-            cross_sells_image_preview: imagePreview,
         });
         setIsDiscountModalOpen(false);
         toast.success("تم تطبيق الخصم بنجاح");
@@ -365,8 +359,6 @@ export function AddProductStep4({
                 initialDate={formData.cross_sells_due_date}
                 initialName={formData.cross_sells_name}
                 initialDescription={formData.cross_sells_description}
-                initialImage={formData.cross_sells_image}
-                initialImagePreview={formData.cross_sells_image_preview}
             />
         </div>
     );
@@ -377,14 +369,12 @@ export function AddProductStep4({
 interface DiscountModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onConfirm: (price: number, date: Date, name: string, description: string, image: string, imagePreview: string) => void;
+    onConfirm: (price: number, date: Date, name: string, description: string) => void;
     selectedProducts: RelatedProduct[];
     initialPrice?: number;
     initialDate?: string;
     initialName?: string;
     initialDescription?: string;
-    initialImage?: string;
-    initialImagePreview?: string;
 }
 
 function DiscountModal({
@@ -395,30 +385,24 @@ function DiscountModal({
     initialPrice,
     initialDate,
     initialName,
-    initialDescription,
-    initialImage,
-    initialImagePreview
+    initialDescription
 }: DiscountModalProps) {
     const [price, setPrice] = useState<string>(initialPrice ? String(initialPrice) : "");
     const [date, setDate] = useState<Date | undefined>(initialDate ? new Date(initialDate) : undefined);
     const [name, setName] = useState<string>(initialName || "");
     const [description, setDescription] = useState<string>(initialDescription || "");
-    const [image, setImage] = useState<string>(initialImage || "");
-    const [imagePreview, setImagePreview] = useState<string>(initialImagePreview || "");
-    const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
     const [errors, setErrors] = useState<{
         price?: string;
         date?: string;
         name?: string;
         description?: string;
-        image?: string;
     }>({});
 
     const totalOriginalPrice = selectedProducts.reduce((sum, p) => sum + Number(p.price), 0);
 
     const handleConfirm = () => {
         const numPrice = Number(price);
-        const newErrors: { price?: string; date?: string; name?: string; description?: string; image?: string } = {};
+        const newErrors: { price?: string; date?: string; name?: string; description?: string } = {};
 
         if (!numPrice || numPrice <= 0) {
             newErrors.price = "يرجى إدخال سعر خصم صحيح";
@@ -434,9 +418,6 @@ function DiscountModal({
         if (!description.trim()) {
             newErrors.description = "يرجى إدخال وصف العرض";
         }
-        if (!image.trim()) {
-            newErrors.image = "يرجى اختيار صورة للعرض";
-        }
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -444,7 +425,7 @@ function DiscountModal({
         }
 
         if (!date) return;
-        onConfirm(numPrice, date, name, description, image, imagePreview);
+        onConfirm(numPrice, date, name, description);
     };
 
     return (
@@ -570,60 +551,49 @@ function DiscountModal({
                             />
                         </div>
 
-                        {/* Image Selection */}
+                        {/* معاينة العرض */}
                         <div className="space-y-2 col-span-2">
                             <label className="text-sm font-medium mb-2 block">
-                                صورة العرض
-                                <span className="text-red-500 mr-1">*</span>
+                                معاينة العرض
                             </label>
-                            {imagePreview ? (
-                                <div className="relative w-32 h-32 rounded-md overflow-hidden border border-gray-200">
-                                    <img src={imagePreview} alt="عرض" className="w-full h-full object-cover" />
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setImage("");
-                                            setImagePreview("");
-                                        }}
-                                        className="absolute cursor-pointer top-1 left-1 bg-red-50 p-1.5 rounded-full shadow-sm hover:bg-red-50 text-red-500"
-                                    >
-                                        <img src="/icons/dashboard/trash.svg" alt="trash" className="w-4 h-4" />
-                                    </button>
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                    {selectedProducts.map((product, idx) => (
+                                        <div key={product.id} className="flex items-center gap-2">
+                                            <div className="flex flex-col items-center gap-1">
+                                                <div className="w-12 h-12 rounded-md overflow-hidden bg-white border border-gray-200">
+                                                    {product.cover_url ? (
+                                                        <img src={product.cover_url} alt={product.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                                            <ImageIcon className="w-3 h-3" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <p className="text-[10px] text-center text-gray-600 line-clamp-1 max-w-[48px]">{product.name}</p>
+                                            </div>
+                                            {idx < selectedProducts.length - 1 && (
+                                                <span className="text-gray-400 font-bold text-sm">+</span>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {selectedProducts.length > 0 && (
+                                        <>
+                                            <span className="text-gray-400 font-bold text-sm mx-2">=</span>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-lg font-bold text-green-600">{Number(price || 0).toFixed(2)}</span>
+                                                <span className="text-sm text-gray-500">₪</span>
+                                                <span className="text-xs text-red-400 line-through mr-2">{totalOriginalPrice.toFixed(2)} ₪</span>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
-                            ) : (
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => setIsMediaModalOpen(true)}
-                                    className="w-full h-24 border-dashed border-2 flex flex-col items-center justify-center gap-2 text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                                >
-                                    <ImageIcon className="w-6 h-6" />
-                                    <span>اختر صورة</span>
-                                </Button>
-                            )}
-                            {errors.image && <p className="text-xs text-red-500 mt-1">{errors.image}</p>}
+                            </div>
                         </div>
 
                     </div>
                 </div>
 
-                <MediaCenterModal
-                    open={isMediaModalOpen}
-                    onOpenChange={setIsMediaModalOpen}
-                    multiple={false}
-                    allowedMediaTypes={["gallery"]}
-                    onSelect={(file: MediaItem | MediaItem[]) => {
-                        const selectedImage = Array.isArray(file) ? file[0] : file;
-                        if (selectedImage?.file_name) {
-                            setImage(selectedImage.file_name);
-                            setImagePreview(selectedImage.url || selectedImage.src || "");
-                            if (errors.image) setErrors({ ...errors, image: undefined });
-                        }
-                        setIsMediaModalOpen(false);
-                    }}
-                />
-
-                {/* Footer matching image style */}
                 <DialogFooter className="p-4 bg-whit shadow-2xl border-gray-100 border-t flex flex-row-reverse items-center justify-between w-full">
 
                     <div className="text-sm font-bold  flex-1 ">

@@ -175,9 +175,11 @@ export function AddProductPage() {
 
       status: isAdmin ? "active" : "not-active",
       tags: updatedFormData.step2!.tags,
-      crossSells: data.crossSells,
-      cross_sells_price: data.cross_sells_price,
-      cross_sells_due_date: data.cross_sells_due_date,
+  crossSells: [...new Set(data.crossSells || [])],
+  cross_sells_price: data.cross_sells_price || undefined,
+  cross_sells_due_date: data.cross_sells_due_date || undefined,
+  cross_sells_name: data.cross_sells_name || undefined,
+  cross_sells_description: data.cross_sells_description || undefined,
     };
 
     if (updatedFormData.step3!.hasVariations && updatedFormData.step3!.variations.length > 0) {

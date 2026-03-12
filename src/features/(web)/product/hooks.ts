@@ -31,10 +31,10 @@ export const useGetProductBySlug = (slug: string) => {
   });
 };
 
-export const useGetProductPageDataBySlug = (slug: string) => {
+export const useGetProductPageDataBySlug = (slug: string, cityId?: number | null) => {
   return useApiQuery({
-    queryKey: ["productPageData", slug],
-    queryFn: () => getProductPageDataBySlug(slug),
+    queryKey: ["productPageData", slug, cityId ?? "default"],
+    queryFn: () => getProductPageDataBySlug(slug, cityId),
     enabled: !!slug,
   });
 };

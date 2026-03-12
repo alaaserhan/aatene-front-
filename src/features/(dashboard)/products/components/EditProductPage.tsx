@@ -143,8 +143,6 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             cross_sells_due_date: product.cross_sells_due_date || "",
             cross_sells_name: product.cross_sells_name || "",
             cross_sells_description: product.cross_sells_description || "",
-            cross_sells_image: product.cross_sells_image || "",
-            cross_sells_image_preview: product.cross_sells_image_url || "",
             hasDiscount: Number(product.cross_sells_price) > 0,
           },
         };
@@ -295,12 +293,11 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       price: updatedFormData.step1!.price,
       status: product?.status || "active",
       tags: updatedFormData.step2!.tags,
-      crossSells: data.crossSells,
-      cross_sells_price: data.cross_sells_price,
-      cross_sells_due_date: data.cross_sells_due_date,
-      cross_sells_name: data.cross_sells_name,
-      cross_sells_description: data.cross_sells_description,
-      cross_sells_image: data.cross_sells_image,
+      crossSells: [...new Set(data.crossSells || [])],
+      cross_sells_price: data.cross_sells_price || undefined,
+      cross_sells_due_date: data.cross_sells_due_date || undefined,
+      cross_sells_name: data.cross_sells_name || undefined,
+      cross_sells_description: data.cross_sells_description || undefined,
     };
 
     if (updatedFormData.step3!.hasVariations && updatedFormData.step3!.variations.length > 0) {

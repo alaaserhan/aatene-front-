@@ -193,6 +193,8 @@ export interface Product {
   review_count: string;
   price: string;
   cross_sells_price: string;
+  cross_sells_name?: string | null;
+  cross_sells_description?: string | null;
   view_count: number;
   is_favorite: boolean;
   in_compare: boolean;

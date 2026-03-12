@@ -45,8 +45,10 @@ export const getProductBySlug = async (slug: string): Promise<ProductDetailsResp
   return data;
 };
 
-export const getProductPageDataBySlug = async (slug: string): Promise<ProductPageDataResponse> => {
-  const { data } = await api.get<ProductPageDataResponse>(`/products/search/${slug}/pageData`);
+export const getProductPageDataBySlug = async (slug: string, cityId?: number | null): Promise<ProductPageDataResponse> => {
+  const { data } = await api.get<ProductPageDataResponse>(`/products/search/${slug}/pageData`, {
+    params: cityId ? { city_id: cityId } : undefined,
+  });
   return data;
 };
 

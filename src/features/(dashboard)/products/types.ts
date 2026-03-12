@@ -57,8 +57,6 @@ export interface Step4FormData {
   hasDiscount: boolean;
   cross_sells_name?: string;
   cross_sells_description?: string;
-  cross_sells_image?: string;
-  cross_sells_image_preview?: string;
 }
 
 export interface CompleteProductFormData {
