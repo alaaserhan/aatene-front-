@@ -29,8 +29,9 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
         if (!attributes || Object.keys(selectedVariations).length !== attributes.length) return null;
 
         return product.variations.find(v => {
-            if (!v.attributeOptions) return false;
-            return v.attributeOptions.every(opt => {
+            const options = v.attribute_options || v.attributeOptions;
+            if (!options) return false;
+            return options.every(opt => {
                 const selectedVal = selectedVariations[String(opt.attribute_id)];
                 return selectedVal && selectedVal === String(opt.option_id);
             });
@@ -314,8 +315,9 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                         // Try to find the matching variation immediately
                                         if (product.variations && attributes && Object.keys(newSelections).length === attributes.length) {
                                             const matchedVar = product.variations.find(v => {
-                                                if (!v.attributeOptions) return false;
-                                                return v.attributeOptions.every(opt => {
+                                                const options = v.attribute_options || v.attributeOptions;
+                                                if (!options) return false;
+                                                return options.every(opt => {
                                                     const selectedVal = newSelections[String(opt.attribute_id)];
                                                     return selectedVal && selectedVal === String(opt.option_id);
                                                 });

@@ -30,7 +30,8 @@ export interface Variation {
   id: number;
   price: number | string;
   image: string | null;
-  attributeOptions: VariationOption[];
+  attributeOptions?: VariationOption[];
+  attribute_options?: VariationOption[];
 }
 
 export interface Tag {

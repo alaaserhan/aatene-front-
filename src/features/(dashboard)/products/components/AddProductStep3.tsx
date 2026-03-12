@@ -588,7 +588,7 @@ export function AddProductStep3({
                 open={isMediaModalOpen}
                 onOpenChange={setIsMediaModalOpen}
                 onSelect={handleImageSelect}
-                multiple={true}
+                multiple={false}
                 allowedMediaTypes={["gallery"]}
             />
 

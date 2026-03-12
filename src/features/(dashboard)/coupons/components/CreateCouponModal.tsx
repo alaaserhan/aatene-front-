@@ -225,6 +225,7 @@ export function CreateCouponModal({
 }: CreateCouponModalProps) {
     const [currentStep, setCurrentStep] = useState<StepId>(1);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+    const [showStep2Error, setShowStep2Error] = useState(false);
 
     const { mutate: createCoupon, isPending: isCreating } = useCreateCoupon();
     const { mutate: updateCoupon, isPending: isUpdating } = useUpdateCoupon();
@@ -293,21 +294,24 @@ export function CreateCouponModal({
     useEffect(() => {
         if (couponDetails?.record && isOpen && couponToEdit) {
             const record = couponDetails.record;
-            setFormData((prev) => ({
-                ...prev,
-                code: record.code,
-                type: (record.type as "value" | "percentage") || "percentage",
-                value: record.value,
-                start_date: record.start_date?.split(" ")[0] || "",
-                end_date: record.end_date?.split(" ")[0] || "",
-                // Handle mixed types (number or object)
-                sections: record.sections?.map(c =>
-                    typeof c === 'object' ? { id: String(c.id), name: c.name } : { id: String(c), name: '' }
-                ) || [],
-                products: record.products?.map(p =>
-                    typeof p === 'object' ? { id: String(p.id), name: p.name } : { id: String(p), name: '' }
-                ) || [],
-            }));
+            const timer = setTimeout(() => {
+                setFormData((prev) => ({
+                    ...prev,
+                    code: record.code,
+                    type: (record.type as "value" | "percentage") || "percentage",
+                    value: record.value,
+                    start_date: record.start_date?.split(" ")[0] || "",
+                    end_date: record.end_date?.split(" ")[0] || "",
+                    // Handle mixed types (number or object)
+                    sections: record.sections?.map(c =>
+                        typeof c === 'object' ? { id: String(c.id), name: c.name } : { id: String(c), name: '' }
+                    ) || [],
+                    products: record.products?.map(p =>
+                        typeof p === 'object' ? { id: String(p.id), name: p.name } : { id: String(p), name: '' }
+                    ) || [],
+                }));
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [couponDetails, isOpen, couponToEdit]);
 
@@ -318,10 +322,18 @@ export function CreateCouponModal({
 
     const handleProductsSave = (selectedProducts: { id: string; name: string }[]) => {
         updateFormData({ products: selectedProducts });
+        if (selectedProducts.length > 0 || formData.sections.length > 0) {
+            setShowStep2Error(false);
+        }
     };
 
     const removeProduct = (id: string) => {
-        updateFormData({ products: formData.products.filter(p => p.id !== id) });
+        const remaining = formData.products.filter(p => p.id !== id);
+        updateFormData({ products: remaining });
+        if (remaining.length === 0 && formData.sections.length === 0) {
+            // Keep error hidden until next submit attempt if desired, 
+            // or show immediately if they just cleared everything.
+        }
     };
 
     // --- Validation Logic ---
@@ -344,11 +356,7 @@ export function CreateCouponModal({
     };
 
     const isStep2Valid = () => {
-        // Validation logic for step 2 if any. 
-        // e.g. must select at least one category or product?
-        // User didn't specify strict rules, but usually coupons need scope.
-        // Letting it be optional for now unless required.
-        return true;
+        return formData.sections.length > 0 || formData.products.length > 0;
     };
 
     const canProceed = () => {
@@ -363,7 +371,10 @@ export function CreateCouponModal({
     };
 
     const handleSubmit = () => {
-        if (!isStep2Valid()) return;
+        if (!isStep2Valid()) {
+            setShowStep2Error(true);
+            return;
+        }
 
         const payload: CouponPayload = {
             code: formData.code,
@@ -490,15 +501,20 @@ export function CreateCouponModal({
                     placeholder="اختر..."
                     searchPlaceholder="ابحث عن قسم..."
                     selectedItems={formData.sections}
-                    onChange={(items) => updateFormData({ sections: items })}
+                    onChange={(items) => {
+                        updateFormData({ sections: items });
+                        if (items.length > 0 || formData.products.length > 0) {
+                            setShowStep2Error(false);
+                        }
+                    }}
                     useInfiniteHook={useInfiniteSections as unknown as Parameters<typeof InfiniteMultiSelect>[0]["useInfiniteHook"]}
                     extraParams={{}}
-                    required
                 />
+
 
                 <div className="space-y-2">
                     <label className="block text-sm font-medium">
-                        منتجات <span className="text-red-500">*</span>
+                        منتجات
                     </label>
 
                     {formData.products.length > 0 && (
@@ -527,6 +543,12 @@ export function CreateCouponModal({
                         </div>
                     </div>
                 </div>
+
+                {showStep2Error && !isStep2Valid() && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-sm text-red-600 text-sm">
+                        يجب اختيار قسم واحد أو منتج واحد على الأقل للمتابعة
+                    </div>
+                )}
 
                 <ProductsSelectionModal
                     isOpen={isProductModalOpen}
