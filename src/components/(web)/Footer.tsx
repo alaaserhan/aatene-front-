@@ -23,7 +23,7 @@ const Footer = () => {
     {
       title: "عن المنصة",
       links: [
-        { label: "معلومات عنا", href: `/about` },
+        { label: "من نحن", href: `/about` },
         { label: "قواعد السلامة", href: `/safety-rules` },
         { label: "شروط الاستخدام", href: `/terms-of-use` },
         { label: "سياسة الخصوصية", href: `/privacy-policy` },

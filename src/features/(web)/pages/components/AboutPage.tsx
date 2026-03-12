@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Music2 } from "lucide-react";
 import { useState } from "react";
 import { useGetAboutUs } from "@/src/features/(web)/pages/hooks";
 import { useSendContact } from "@/src/features/(web)/pages/hooks";
+import { useSettingsStore } from "@/src/stores/settings-store";
 
 // ─── Fallback static data (used when API returns nothing) ──────────────────
 
@@ -41,6 +42,7 @@ const FALLBACK_VISION_CARDS = [
 export default function AboutPage() {
     const { data: response, isLoading, isError } = useGetAboutUs();
     const { mutate: sendContactMsg, isPending: isSending } = useSendContact();
+    const { settings } = useSettingsStore();
     const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
 
     const handleContactSubmit = (e: React.FormEvent) => {
@@ -200,16 +202,16 @@ export default function AboutPage() {
                                     <p className="text-base md:text-[20px] text-gray-2 leading-[1.8] mb-4 font-medium">
                                         في قلب الناصرة، بين شوارعها القديمة وأحلام شبابها وبناتها، انطلقت فكرة أعطيني.
                                         نحن مجموعة شباب وصبايا من الناصرة، كبرنا وسط تحديات السوق المحلي، وشفنا كيف التجار
-                                        الصغار ومزوّدي الخدمات عم بواجهوا صعوبة يوصلوا لزبائنهم... وشفنا كمان الزبون، اللي
-                                        دائمًا بيدوّر على خدمة موثوقة أو منتج مضمون، ومش دائمًا بلاقيهم بسهولة.
+                                        الصغار ومزوّدي الخدمات عم بواجهوا صعوبة يوصلوا لزبائنهم… وشفنا كمان الزبون، اللي
+                                        دايمًا بيدوّر على خدمة موثوقة أو منتج مضمون، ومش دايمًا بلاقيهم بسهولة.
                                     </p>
                                     <p className="text-base md:text-[20px] text-gray-2 leading-[1.8] mb-4 font-medium">
                                         من هون، انطلقت الفكرة: ليش ما يكون في منصة وحدة بتجمع الكل؟ مكان رقمي بيقرب التاجر من
-                                        الزبون، وبيسهل على الناس كل شي... بخطوة وحدة.
+                                        الزبون، وبيسهل على الناس كل شي… بخطوة وحدة.
                                     </p>
                                     <p className="text-base md:text-[20px] text-gray-2 leading-[1.8] mb-8 font-medium">
                                         اشتغلنا سنة كاملة، ليل ونهار، جمعنا الخبرة، وبنينا منصة أعطيني من الصفر. اشتغلنا على كل
-                                        تفصيلة من تصميم سهل وبسيط، لخدمة عملاء واضحة، لضمان الشفافية والثقة.
+                                        تفصيلة: من تصميم سهل وبسيط، لخدمة عملاء واضحة، لضمان الشفافية والثقة.
                                     </p>
                                 </>
                             )}
@@ -218,7 +220,7 @@ export default function AboutPage() {
                         <div className="w-full md:w-[45%] shrink-0 flex justify-center md:justify-end">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                                src="/about/Group 4.png"
+                                src={aboutUsImageUrl || "/about/Group 4.png"}
                                 alt="Nazareth city"
                                 className="w-full max-w-[461px] h-auto object-contain"
                             />
@@ -423,7 +425,7 @@ export default function AboutPage() {
                             </p>
                         </div>
                         <div className="flex md:flex-col gap-4 items-center shrink-0">
-                            <a href="#" className="hover:opacity-80 transition-opacity">
+                            <a href={settings?.facebook || "#"} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
                                 <Image
                                     src="/about/fb.svg"
                                     alt="Facebook"
@@ -437,7 +439,7 @@ export default function AboutPage() {
                                     }}
                                 />
                             </a>
-                            <a href="#" className="hover:opacity-80 transition-opacity">
+                            <a href={settings?.instagram || "#"} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
                                 <Image
                                     src="/about/insta.svg"
                                     alt="Instagram"
@@ -451,19 +453,20 @@ export default function AboutPage() {
                                     }}
                                 />
                             </a>
-                            <a href="#" className="hover:opacity-80 transition-opacity">
-                                <Image
-                                    src="/about/X.png"
-                                    alt="X"
-                                    width={50}
-                                    height={50}
-                                    className="object-contain"
+                            <a href={settings?.tiktok || "#"} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+                                <div
                                     style={{
                                         width: "49.98px",
                                         height: "49.7px",
-
+                                        borderRadius: "50%",
+                                        backgroundColor: "#3D5E83",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
                                     }}
-                                />
+                                >
+                                    <Music2 className="w-4 h-4 text-white" />
+                                </div>
                             </a>
                         </div>
                     </div>
@@ -483,7 +486,7 @@ export default function AboutPage() {
                                         value={contactForm.name}
                                         onChange={(e) => setContactForm((prev) => ({ ...prev, name: e.target.value }))}
                                         required
-                                        className="w-full border-b border-gray-4 py-3 text-right bg-transparent outline-none focus:border-blue-4 transition-colors text-sm"
+                                        className="w-full border-b border-gray-300 py-3 text-right bg-transparent outline-none focus:border-blue-4 transition-colors text-sm"
                                     />
                                 </div>
                                 <div>
@@ -493,7 +496,7 @@ export default function AboutPage() {
                                         value={contactForm.email}
                                         onChange={(e) => setContactForm((prev) => ({ ...prev, email: e.target.value }))}
                                         required
-                                        className="w-full border-b border-gray-4 py-3 text-right bg-transparent outline-none focus:border-blue-4 transition-colors text-sm"
+                                        className="w-full border-b border-gray-300 py-3 text-right bg-transparent outline-none focus:border-blue-4 transition-colors text-sm"
                                     />
                                 </div>
                             </div>
@@ -504,7 +507,7 @@ export default function AboutPage() {
                                     value={contactForm.message}
                                     onChange={(e) => setContactForm((prev) => ({ ...prev, message: e.target.value }))}
                                     required
-                                    className="w-full border-b border-gray-4 py-3 text-right bg-transparent outline-none focus:border-blue-4 transition-colors resize-none text-sm"
+                                    className="w-full border-b border-gray-300 py-3 text-right bg-transparent outline-none focus:border-blue-4 transition-colors resize-none text-sm"
                                 />
                             </div>
                             <button

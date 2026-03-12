@@ -2,6 +2,7 @@ import Footer from "@/src/components/(web)/Footer";
 import Navbar from "@/src/components/(web)/Navbar";
 import NewsletterFooter from "@/src/components/(web)/NewsletterFooter";
 import BotChat from "@/src/components/(web)/BotChat";
+import NotificationPromptPopup from "@/src/components/(web)/NotificationPromptPopup";
 import React from "react";
 
 export default function WebLayout({
@@ -18,6 +19,7 @@ export default function WebLayout({
       </main>
       <Footer />
       <BotChat />
+      <NotificationPromptPopup />
     </div>
   );
 }
