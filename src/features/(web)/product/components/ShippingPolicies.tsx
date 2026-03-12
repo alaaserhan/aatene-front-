@@ -14,12 +14,12 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
     return (
         <div className="mt-8 flex flex-col gap-6">
             {/* Title */}
-            <h2 className="text-lg font-medium">
+            {/* <h2 className="text-lg font-medium">
                 تفاصيل الشحن والسياسات
-            </h2>
+            </h2> */}
 
             {/* Info Row */}
-            <div className="flex flex-wrap items-center justify-between gap-6 md:gap-12 text-gray-2">
+            <div className="flex flex-wrap items-center justify-between gap-6 md:gap-12 text-gray-2 text-sm">
                 {/* Delivery Time */}
                 <div className="flex items-center gap-3">
                     <div className="w-11 h-11 rounded-md bg-gray-50 flex items-center justify-center">

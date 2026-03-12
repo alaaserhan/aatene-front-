@@ -425,7 +425,11 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                 })()}
 
                 {/* Messages Area */}
-                <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 bg-[#FAFAFA]">
+                <ScrollArea 
+                    ref={scrollAreaRef} 
+                    className="flex-1 p-4 bg-auto bg-repeat bg-center bg-[#FAFAFA]"
+                    style={{ backgroundImage: "url('/chat frame.svg')" }}
+                >
                     <div className="space-y-4 pb-4">
                         {serverMessages.map((msg, index) => {
                             const isMe = msg.sender_data.participant_type === currentParticipantType &&

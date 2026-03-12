@@ -23,6 +23,13 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [showMenu, setShowMenu] = useState(false);
     const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
+    const [isFavorite, setIsFavorite] = useState(product.is_favorite);
+    const [prevProductIsFavorite, setPrevProductIsFavorite] = useState(product.is_favorite);
+
+    if (product.is_favorite !== prevProductIsFavorite) {
+        setPrevProductIsFavorite(product.is_favorite);
+        setIsFavorite(product.is_favorite);
+    }
 
     const selectedVariation = useMemo(() => {
         if (!product.variations || product.variations.length === 0) return null;
@@ -241,9 +248,10 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                             <FavoriteButton
                                 id={product.id}
                                 type="product"
-                                isFavorite={product.is_favorite}
+                                isFavorite={isFavorite}
                                 className="w-8 h-8 rounded-full"
                                 iconClassName="w-5 h-5"
+                                onSuccess={() => setIsFavorite((prev) => !prev)}
                             />
                             {/* More menu (share/report) */}
                             <div className="relative">

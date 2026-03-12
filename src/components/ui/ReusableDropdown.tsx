@@ -96,13 +96,13 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
   };
 
   return (
-    <div className={cn("w-full", className)} ref={dropdownRef}>
+    <div className={cn("w-full", className)} ref={dropdownRef} >
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild disabled={disabled}>
           <button
             type="button"
             className={cn(
-              "w-full flex items-center gap-2 px-4 h-10 border rounded-sm bg-white hover:bg-gray-50 transition-colors cursor-pointer justify-between focus:outline-none",
+              "w-full flex items-center gap-2  px-4 h-10 border rounded-sm bg-white hover:bg-gray-50 transition-colors cursor-pointer justify-between focus:outline-none",
               disabled && "opacity-50 cursor-not-allowed bg-gray-100",
               error ? "border-red-500" : "border-gray-200"
             )}
