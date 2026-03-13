@@ -74,6 +74,13 @@ export interface ShippingCity {
   is_active: boolean;
 }
 
+export interface ShippingPrice {
+  id: number;
+  city_id: string;
+  days: string;
+  price: string;
+}
+
 export interface ShippingDetails {
   id: number;
   city_id: string;
@@ -86,7 +93,7 @@ export interface ShippingCompany {
   id: number;
   name: string;
   phone: string;
-  prices: unknown[];
+  prices: ShippingPrice[];
 }
 
 export interface ProductInPageData {
@@ -139,8 +146,9 @@ export interface StoreInPageData {
 export interface ProductPageDataResponse {
   status: boolean;
   message: string;
-  shippingCompany: ShippingCompany;
-  shippingDetails: ShippingDetails;
+  allShippingCompanies?: ShippingCompany[];
+  shippingCompany?: ShippingCompany | null;
+  shippingDetails?: ShippingDetails | null;
   productsChooseForYou: ProductInPageData[];
   storesYouMayLike: StoreInPageData[];
   similar: unknown[];

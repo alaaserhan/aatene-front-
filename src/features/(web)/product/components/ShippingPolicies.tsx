@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Calendar, Truck, Package, Pencil, Phone, Building2, Search } from "lucide-react";
+import { Pencil, Phone, Building2, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/dialog";
-import { Product, Store, ShippingCompany, ShippingDetails } from "../types";
+import { Product, Store, ShippingCompany, ShippingDetails, ShippingPrice } from "../types";
 import { useGetCities } from "@/src/features/(web)/settings/hooks";
 
 interface ShippingPoliciesProps {
@@ -11,9 +11,10 @@ interface ShippingPoliciesProps {
     store: Store;
     shippingCompany?: ShippingCompany | null;
     shippingDetails?: ShippingDetails | null;
+    allShippingCompanies?: ShippingCompany[] | null;
 }
 
-export default function ShippingPolicies({ product, store, shippingCompany, shippingDetails }: ShippingPoliciesProps) {
+export default function ShippingPolicies({ product, store, shippingCompany, shippingDetails, allShippingCompanies }: ShippingPoliciesProps) {
     const { data: citiesData } = useGetCities();
     const [isCityModalOpen, setIsCityModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -29,25 +30,74 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                     setSelectedCityId(parsed.id);
                     setSelectedCityName(parsed.name);
                     return;
-                } catch {
-                    // ignore malformed storage
-                }
+                } catch {}
             }
         }
         if (shippingDetails?.city?.id) {
             setSelectedCityId(Number(shippingDetails.city.id));
             setSelectedCityName(shippingDetails.city.name);
         }
-    }, [shippingDetails]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); 
+
+    const [prevCityId, setPrevCityId] = useState<string | number | undefined>(shippingDetails?.city?.id);
+    if (shippingDetails?.city?.id !== prevCityId) {
+        setPrevCityId(shippingDetails?.city?.id);
+        setSelectedCityId(Number(shippingDetails?.city?.id));
+        setSelectedCityName(shippingDetails?.city?.name || "الناصرة");
+    }
 
     const filteredCities = useMemo(() => {
-        const cities = citiesData?.cities || [];
+        let cities = citiesData?.cities || [];
+        
+        if (allShippingCompanies && allShippingCompanies.length > 0) {
+            const validCityIds = new Set<string>();
+            allShippingCompanies.forEach((company) => {
+                company.prices.forEach((price) => {
+                    validCityIds.add(String(price.city_id));
+                });
+            });
+            cities = cities.filter((city) => validCityIds.has(String(city.id)));
+        }
+
         return cities.filter((city) => {
             if (!city.is_active) return false;
             if (!searchQuery.trim()) return true;
             return city.name.toLowerCase().includes(searchQuery.trim().toLowerCase());
         });
-    }, [citiesData?.cities, searchQuery]);
+    }, [citiesData?.cities, searchQuery, allShippingCompanies]);
+
+    const { activeCompany, activeDetails } = useMemo(() => {
+        let activeC = shippingCompany;
+        let activeD = shippingDetails;
+
+        if (allShippingCompanies && selectedCityId) {
+            let foundCompany: ShippingCompany | null = null;
+            let foundPrice: ShippingPrice | null = null;
+
+            for (const company of allShippingCompanies) {
+                const priceMatch = company.prices.find((p) => p.city_id === String(selectedCityId));
+                if (priceMatch) {
+                    foundCompany = company;
+                    foundPrice = priceMatch;
+                    break;
+                }
+            }
+
+            if (foundCompany && foundPrice) {
+                activeC = foundCompany;
+                activeD = {
+                    id: foundPrice.id,
+                    city_id: foundPrice.city_id,
+                    city: { id: selectedCityId, name: selectedCityName, is_active: true },
+                    days: foundPrice.days,
+                    price: foundPrice.price
+                };
+            }
+        }
+
+        return { activeCompany: activeC, activeDetails: activeD };
+    }, [allShippingCompanies, selectedCityId, shippingCompany, shippingDetails, selectedCityName]);
 
     const handleApplyCity = () => {
         const city = citiesData?.cities?.find((c) => c.id === selectedCityId);
@@ -75,7 +125,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                         <img src="/icons/dashboard/calender.svg" alt="calendar" width={24} height={24} />
                     </div>
                     <span className="font-medium ">
-                        يتم التوصيل خلال {shippingDetails?.days || "1-4"} أيام
+                        يتم التوصيل خلال {activeDetails?.days || "1-4"} أيام
                     </span>
                 </div>
 
@@ -85,7 +135,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                         <img src="/icons/car.svg" alt="calendar" width={24} height={24} />
                     </div>
                     <span className="font-medium ">
-                        {(!shippingCompany || shippingDetails?.price === "0") ? "توصيل مجاني" : `توصيل: ${shippingDetails?.price} ج.م`}
+                        {(!activeCompany || activeDetails?.price === "0") ? "توصيل مجاني" : `توصيل: ${activeDetails?.price} ج.م`}
                     </span>
                 </div>
 
@@ -108,22 +158,22 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
             </div>
 
             {/* Delivery Company Card */}
-            {(shippingCompany || store) && (
+            {(activeCompany || store) && (
                 <div className="flex items-center justify-between flex-wrap gap-4 border border-gray-200 rounded-md p-3 px-4">
                     <div className="flex items-center gap-3">
                         <div className="w-11 h-11 rounded-md bg-blue-4 flex items-center justify-center">
                             <Building2 className="w-5 h-5 text-white" />
                         </div>
                         <span className="font-bold text-gray-700 text-lg">
-                            {shippingCompany?.name || "شركة مرسال للتوصيل"}
+                            {activeCompany?.name || "شركة مرسال للتوصيل"}
                         </span>
                     </div>
 
                     <a
-                        href={`tel:${shippingCompany?.phone || store.phone}`}
+                        href={`tel:${activeCompany?.phone || store.phone}`}
                         className="flex items-center gap-3 bg-[#EFF6FF] text-blue-4 px-6 py-2 rounded-full text-sm font-bold border border-blue-4 transition-colors hover:bg-blue-100"
                     >
-                        <span dir="ltr">{(shippingCompany?.phone || store.phone || "").replace(/(\d{3})(\d{3})(\d{3})(\d+)/, "$1 *** *** ***")}</span>
+                        <span dir="ltr">{(activeCompany?.phone || store.phone || "").replace(/(\d{3})(\d{3})(\d{3})(\d+)/, "$1 *** *** ***")}</span>
                         <Phone className="w-4 h-4 fill-current" />
                     </a>
                 </div>

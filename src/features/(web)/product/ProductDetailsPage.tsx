@@ -47,6 +47,7 @@ export default function ProductDetailsPage() {
                 store={store}
                 shippingCompany={pageData?.shippingCompany}
                 shippingDetails={pageData?.shippingDetails}
+                allShippingCompanies={pageData?.allShippingCompanies}
             />
 
             {/* Component 3: Store Info Bar */}
