@@ -19,6 +19,7 @@ import { Label } from "@/src/components/ui/label";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { Attribute, AttributeOptionPayload } from "../api";
 import { useDeleteAttributeOption } from "../hooks";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface OptionWithId {
   id?: number;
@@ -56,6 +57,9 @@ export function AttributeModal({
   const [options, setOptions] = useState<OptionWithId[]>([]);
   const [optionInput, setOptionInput] = useState("");
   const [deletingOptionId, setDeletingOptionId] = useState<number | null>(null);
+
+  const user = useAuthStore((state) => state.user);
+  const isMerchant = user?.user_type === "merchant";
 
   const deleteOptionMutation = useDeleteAttributeOption();
 
@@ -196,6 +200,7 @@ export function AttributeModal({
                       label={opt.title}
                       onRemove={() => handleRemoveOption(opt.title)}
                       disabled={deletingOptionId === opt.id}
+                      showRemoveButton={!isMerchant}
                     />
                   ))}
                 </div>

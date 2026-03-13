@@ -137,6 +137,13 @@ export function AddProductStep1({
     { label: "انشاء منتج جديد" },
   ];
 
+  const isCategoryInvalid = 
+    formData.category_id !== 0 && 
+    !isCategoriesLoading && 
+    !selectedCategory && 
+    !categorySearchQuery && 
+    !debouncedCategorySearch;
+
   // Sync with initialData if it changes (e.g. from AI)
   useEffect(() => {
     if (initialData) {
@@ -163,7 +170,10 @@ export function AddProductStep1({
       hasChanges = true;
     }
 
-    if (errors.category_id && formData.category_id) {
+    if (errors.category_id === "الفئة مطلوبة" && formData.category_id) {
+      delete newErrors.category_id;
+      hasChanges = true;
+    } else if (errors.category_id === "الفئة المحددة غير موجودة، يرجى اختيار فئة أخرى" && selectedCategory) {
       delete newErrors.category_id;
       hasChanges = true;
     }
@@ -185,7 +195,7 @@ export function AddProductStep1({
     if (hasChanges) {
       setErrors(newErrors);
     }
-  }, [formData, errors]);
+  }, [formData, errors, selectedCategory]);
   // --------------------------------------------------
 
   const validate = () => {
@@ -205,6 +215,8 @@ export function AddProductStep1({
 
     if (!formData.category_id) {
       newErrors.category_id = "الفئة مطلوبة";
+    } else if (!selectedCategory && !categorySearchQuery && !debouncedCategorySearch) {
+      newErrors.category_id = "الفئة المحددة غير موجودة، يرجى اختيار فئة أخرى";
     }
 
     if (formData.price < 0) {
@@ -384,7 +396,7 @@ export function AddProductStep1({
                       placeholder={
                         isCategoriesLoading ? "جاري التحميل..." : "ابحث عن اسم الفئة"
                       }
-                      error={errors.category_id}
+                      error={errors.category_id || (isCategoryInvalid ? "الفئة المحددة غير موجودة، يرجى اختيار فئة أخرى" : undefined)}
                       className="h-11"
                       onSearch={(val) => setCategorySearchQuery(val)} // تفعيل البحث
                       searchPlaceholder="ابحث عن الفئة..."

@@ -293,7 +293,7 @@ function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: Product
                 {hasDiscount && (
                     <div className="flex items-center gap-1">
                         <span className="text-sm text-red-500 line-through">{price.toFixed(0)} ₪</span>
-                        <span className="bg-emerald-500 text-white text-xs font-medium px-3 py-0.5 rounded-full">
+                        <span className="bg-emerald-500 text-white text-xs font-medium px-3  py-0.5 rounded-full">
                             {item.discount_present}% off
                         </span>
                     </div>

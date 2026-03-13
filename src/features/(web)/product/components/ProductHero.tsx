@@ -210,7 +210,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                         )}
 
                         {hasDiscount && product.discount_present && product.discount_present > 0 && (
-                            <div className="bg-gradient-to-t from-[rgba(20,97,70,0.3)] to-[rgba(0,255,166,0.3)]  text-xs font-medium px-3 py-1 rounded-full">
+                            <div className="bg-gradient-to-t pb-0.5 from-[rgba(20,97,70,0.3)] to-[rgba(0,255,166,0.3)]  text-xs font-medium px-3 py-1 rounded-full">
                                 {product.discount_present}% off
                             </div>
                         )}
