@@ -13,6 +13,8 @@ import {
     Instagram,
     Youtube,
     User,
+    ChevronLeft,
+    ChevronRight,
 } from "lucide-react";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../hooks";
 import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
@@ -109,7 +111,7 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
 
 function OffersGrid({ products, emptyMessage, useProductCard }: { products: ProductInPageData[], emptyMessage: string, useProductCard?: boolean }) {
     const [page, setPage] = useState(1);
-    const PER_PAGE = 8;
+    const PER_PAGE = useProductCard ? 8 : 5;
     const totalPages = Math.ceil(products.length / PER_PAGE);
     const displayedProducts = products.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
@@ -122,10 +124,10 @@ function OffersGrid({ products, emptyMessage, useProductCard }: { products: Prod
     }
 
     return (
-        <div className="space-y-8">
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                {displayedProducts.map(p => (
-                    useProductCard ? (
+        <div className="space-y-6">
+            {useProductCard ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    {displayedProducts.map(p => (
                         <ProductCard
                             key={p.id}
                             id={p.id}
@@ -140,11 +142,20 @@ function OffersGrid({ products, emptyMessage, useProductCard }: { products: Prod
                             isFavorite={p.is_favorite}
                             type="product"
                         />
-                    ) : (
-                        <OfferCard key={p.id} product={p} />
-                    )
-                ))}
-            </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="flex flex-col">
+                    {displayedProducts.map((p, idx) => (
+                        <div key={p.id}>
+                            <OfferCard product={p} />
+                            {idx < displayedProducts.length - 1 && (
+                                <hr className="border-t border-gray-200 my-6" />
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
             {totalPages > 1 && (
                 <div className="mt-8 flex justify-center">
                     <Pagination
@@ -159,6 +170,8 @@ function OffersGrid({ products, emptyMessage, useProductCard }: { products: Prod
 }
 
 function OfferCard({ product }: { product: ProductInPageData }) {
+    const crossSellProducts = product.crossSells || [];
+    const hasCrossSells = crossSellProducts.length > 0;
     const imageUrl = product.cross_sells_image_url || product.cover || "/placeholder.png";
     const name = product.cross_sells_name || product.name || "اسم العرض";
     const desc = product.cross_sells_description || product.short_description || product.name || "";
@@ -171,35 +184,159 @@ function OfferCard({ product }: { product: ProductInPageData }) {
     const mainPrice = product.cross_sells_original_price || fallbackMainPrice;
     const oldPrice = product.cross_sells_price || fallbackOldPrice;
 
+    // Pagination for cross-sell products (max 3 per page)
+    const PAGE_SIZE = 3;
+    const totalPages = Math.ceil(crossSellProducts.length / PAGE_SIZE);
+    const [page, setPage] = useState(0);
+    const visibleProducts = crossSellProducts.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+    const originalTotal = hasCrossSells
+        ? crossSellProducts.reduce((sum, p) => sum + parseFloat(p.price || "0"), 0)
+        : null;
+    const savings = originalTotal !== null ? originalTotal - parseFloat(mainPrice) : null;
+
     return (
-        <div className="flex flex-col cursor-pointer group relative bg-white overflow-hidden text-right rounded-lg">
-            <Link href={`/product/${product.slug}`} className="relative w-full aspect-square rounded-xl overflow-hidden bg-gray-100 block mb-3">
-                <Image
-                    src={imageUrl}
-                    alt={name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-            </Link>
-            <div className="pt-2 flex flex-col items-center text-center">
-                <Link href={`/product/${product.slug}`} className="block w-full">
-                    <h3 className="font-medium text-lg mb-1 line-clamp-1 group-hover:text-blue-3 transition-colors text-center w-full">
-                        {name}
-                    </h3>
+        <div className="group">
+            
+            {(name || desc) && (
+                <Link href={`/product/${product.slug}`} className="block">
+                    <div className="pb-3 text-center" dir="rtl">
+                        <h3 className="font-semibold text-gray-800 text-base group-hover:text-blue-3 transition-colors line-clamp-1">
+                            {name}
+                        </h3>
+                        {desc && desc !== name && (
+                            <p className="text-sm text-gray-500 mt-0.5 line-clamp-2">{desc}</p>
+                        )}
+                    </div>
                 </Link>
-                <div className="text-gray-2 text-sm mb-2 line-clamp-2 leading-relaxed h-[40px] sm:h-[43px]">
-                    {desc}
-                </div>
-                <div className="flex items-baseline gap-1.5 justify-center">
-                    <span className="text-green-600 font-medium text-base sm:text-lg flex items-center gap-1">
-                        {parseFloat(mainPrice).toFixed(2)} <span className="font-medium text-base sm:text-lg">₪</span>
-                    </span>
-                    {oldPrice && parseFloat(mainPrice) !== parseFloat(oldPrice) && (
-                        <span className="text-gray-400 text-sm flex items-center gap-1">
-                            بدلاً من <span className="text-red-400 line-through mr-1">{parseFloat(oldPrice).toFixed(2)} <span className="text-base">₪</span></span>
-                        </span>
-                    )}
-                </div>
+            )}
+
+        
+            <div className="py-4">
+                {hasCrossSells ? (
+                    <div className="flex flex-col items-center gap-2">
+                      
+                        <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 w-full justify-center">
+                            
+                            {totalPages > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.preventDefault(); setPage((p) => Math.min(totalPages - 1, p + 1)); }}
+                                    disabled={page === totalPages - 1}
+                                    className="shrink-0 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-sm transition-all"
+                                    aria-label="التالي"
+                                >
+                                    <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+                                </button>
+                            )}
+
+                            {/* المنتجات */}
+                            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-4 flex-wrap justify-center flex-1">
+                                {visibleProducts.map((item, index) => (
+                                    <div key={item.id} className="flex items-center gap-1.5 sm:gap-2 md:gap-4">
+                                        <div className="flex flex-col items-center gap-1 sm:gap-1.5 w-[95px] sm:w-[130px] md:w-[180px]">
+                                            <div className="w-full aspect-square rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm">
+                                                <Image
+                                                    src={item.cover || "/placeholder.png"}
+                                                    alt={item.name}
+                                                    width={180}
+                                                    height={180}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <p className="text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight">
+                                                {item.name}
+                                            </p>
+                                        </div>
+                                        {index < visibleProducts.length - 1 && (
+                                            <span className="text-base sm:text-xl md:text-2xl font-bold text-gray-400">+</span>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                          
+                            {totalPages > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.preventDefault(); setPage((p) => Math.max(0, p - 1)); }}
+                                    disabled={page === 0}
+                                    className="shrink-0 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-sm transition-all"
+                                    aria-label="السابق"
+                                >
+                                    <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Dots */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center gap-1.5">
+                                {Array.from({ length: totalPages }).map((_, i) => (
+                                    <button
+                                        key={i}
+                                        type="button"
+                                        onClick={(e) => { e.preventDefault(); setPage(i); }}
+                                        className={`rounded-full transition-all ${i === page
+                                            ? "w-4 h-2 bg-blue-400"
+                                            : "w-2 h-2 bg-gray-300 hover:bg-gray-400"
+                                        }`}
+                                        aria-label={`صفحة ${i + 1}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
+                      
+                        <div className="flex items-center gap-4 md:gap-6 justify-center">
+                            <span className="text-2xl md:text-3xl font-bold text-gray-400">=</span>
+                            <div className="flex flex-col items-center gap-0.5">
+                                <span className="text-xl md:text-2xl font-bold text-[#128F3C]">
+                                    {parseFloat(mainPrice).toFixed(2)} <span className="text-base font-medium">₪</span>
+                                </span>
+                                <span className="text-xs text-gray-500">بدلاً من</span>
+                                <span className="text-sm text-[#E36161] line-through">
+                                    {(originalTotal ?? parseFloat(oldPrice || mainPrice)).toFixed(2)} ₪
+                                </span>
+                                {savings !== null && savings > 0 && (
+                                    <span className="mt-1 text-xs font-semibold bg-green-100 text-green-700 px-2.5 py-0.5 rounded-full">
+                                        وفّر {savings.toFixed(2)} ₪
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                ) : (
+                    
+                    <Link href={`/product/${product.slug}`} className="block">
+                        <div className="flex flex-col-reverse sm:flex-row items-center gap-4">
+                            <div className="relative w-full sm:w-[160px] aspect-square rounded-xl overflow-hidden bg-gray-100 shrink-0">
+                                <Image
+                                    src={imageUrl}
+                                    alt={name}
+                                    fill
+                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2 text-center sm:text-right flex-1" dir="rtl">
+                                <div className="flex items-baseline gap-2 justify-center sm:justify-start flex-wrap">
+                                    <span className="text-xl md:text-2xl font-bold text-[#128F3C]">
+                                        {parseFloat(mainPrice).toFixed(2)} <span className="text-base font-medium">₪</span>
+                                    </span>
+                                    {oldPrice && parseFloat(mainPrice) !== parseFloat(oldPrice) && (
+                                        <>
+                                            <span className="text-xs text-gray-500">بدلاً من</span>
+                                            <span className="text-sm text-[#E36161] line-through">
+                                                {parseFloat(oldPrice).toFixed(2)} ₪
+                                            </span>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </Link>
+                )}
             </div>
         </div>
     );

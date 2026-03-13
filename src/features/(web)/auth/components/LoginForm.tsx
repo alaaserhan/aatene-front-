@@ -17,7 +17,6 @@ import { Separator } from "@/src/components/ui/separator";
 import { useLogin } from "../hooks";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
-import { getFCMToken } from "@/src/lib/firebase";
 
 const loginSchema = z.object({
   login: z.string().min(1, "البريد الإلكتروني أو الهاتف مطلوب"),
@@ -42,10 +41,7 @@ export function LoginForm() {
   const { mutate: loginMutation, isPending } = useLogin();
 
   const onSubmit = async (data: LoginFormData) => {
-    let device_token = await getFCMToken();
-    if (!device_token) {
-      device_token = generateFallbackToken();
-    }
+    const device_token = generateFallbackToken();
     loginMutation({ ...data, device_token });
   };
 

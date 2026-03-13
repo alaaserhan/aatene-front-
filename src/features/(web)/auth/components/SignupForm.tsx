@@ -73,6 +73,13 @@ export function SignupForm() {
     const formattedPhone = `${countryCode}${data.phone.startsWith('0') ? data.phone.slice(1) : data.phone}`;
 
     signupMutation({ ...credentials, phone: formattedPhone }, {
+      onSuccess: () => {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("new_user_registered", "true");
+          localStorage.removeItem("notification_prompt_dismissed");
+          localStorage.setItem("notifications_enabled", "false");
+        }
+      },
       onError: (error) => {
         form.clearErrors();
         if (error instanceof AxiosError) {

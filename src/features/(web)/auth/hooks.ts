@@ -16,7 +16,7 @@ import { useAuthStore } from "@/src/stores/auth-store"; // Import the store
 import { toast } from "sonner"; // For specific success/error messages if needed
 import { useLanguage } from "@/src/hooks/use-language"; // Import language hook
 
-import { getFCMToken, deleteFCMToken } from "@/src/lib/firebase";
+import { deleteFCMToken } from "@/src/lib/firebase";
 
 // --- Login Hook ---
 export const useLogin = () => {
@@ -26,10 +26,7 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: async (credentials: import("./types").LoginCredentials) => {
-      let device_token = credentials.device_token || await getFCMToken();
-      if (!device_token) {
-        device_token = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
-      }
+      const device_token = credentials.device_token || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
       return loginUser({ ...credentials, device_token, device_name: "Web" });
     },
     onSuccess: (data) => {
@@ -53,12 +50,20 @@ export const useRegister = () => {
 
   return useMutation({
     mutationFn: async (userData: import("./types").RegisterData) => {
-      const device_token = await getFCMToken();
+      const device_token = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
       return registerUser({ ...userData, device_token, device_name: "Web" });
     },
     onSuccess: (data) => {
       // 1. Log the user in immediately after registration
       loginToStore(data.token, data.user);
+      
+      
+      if (typeof window !== "undefined") {
+        localStorage.setItem("new_user_registered", "true");
+        localStorage.removeItem("notification_prompt_dismissed");
+        localStorage.setItem("notifications_enabled", "false");
+      }
+
       // 2. Redirect to dashboard or home page
       router.push(`/${lang}/`);
       toast.success(data.message || "Registration successful!");

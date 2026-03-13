@@ -110,6 +110,7 @@ export interface ProductInPageData {
   cross_sells_description?: string | null;
   cross_sells_image_url?: string | null;
   cross_sells_original_price?: string | null;
+  crossSells?: Product[];
 }
 
 export interface StoreInPageData {

@@ -45,13 +45,16 @@ const useFCMToken = () => {
         const retrieveToken = async () => {
             try {
                 if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-                    // Request permission if not granted
-                    if (Notification.permission === "default") {
-                        const permission = await Notification.requestPermission();
-                        setNotificationPermissionStatus(permission);
-                        if (permission !== "granted") return;
+                    const notificationsEnabled = localStorage.getItem("notifications_enabled") === "true";
+                    if (!notificationsEnabled) {
+                        setNotificationPermissionStatus(Notification.permission);
+                        return;
                     }
-                    setNotificationPermissionStatus(Notification.permission);
+                    if (Notification.permission !== "granted") {
+                        setNotificationPermissionStatus(Notification.permission);
+                        return;
+                    }
+                    setNotificationPermissionStatus("granted");
 
                     const token = await getFCMToken();
                     if (token) {
@@ -71,6 +74,10 @@ const useFCMToken = () => {
 
     useEffect(() => {
         if (typeof window !== "undefined" && "serviceWorker" in navigator && messaging) {
+            const notificationsEnabled = localStorage.getItem("notifications_enabled") === "true";
+            if (!notificationsEnabled || Notification.permission !== "granted") {
+                return;
+            }
             const unsubscribe = onMessage(messaging, (payload: MessagePayload) => {
                 playNotificationSound();
 

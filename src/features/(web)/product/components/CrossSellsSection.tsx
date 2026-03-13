@@ -11,57 +11,62 @@ interface CrossSellsSectionProps {
     crossSellsDescription?: string;
 }
 
-export default function CrossSellsSection({ 
-    crossSells, 
-    crossSellsPrice, 
-    crossSellsName, 
-    crossSellsDescription 
+export default function CrossSellsSection({
+    crossSells,
+    crossSellsPrice,
+    crossSellsName,
+    crossSellsDescription
 }: CrossSellsSectionProps) {
-    // Calculate original total price
     const originalTotal = crossSells.reduce((sum, p) => sum + parseFloat(p.price || "0"), 0);
-    const pageSize = 3;
-    const totalPages = Math.ceil(crossSells.length / pageSize);
+    const PAGE_SIZE = 3;
+    const totalPages = Math.ceil(crossSells.length / PAGE_SIZE);
     const [page, setPage] = useState(0);
-    const visibleProducts = crossSells.slice(page * pageSize, (page + 1) * pageSize);
+    const visibleProducts = crossSells.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
     if (crossSells.length === 0 || !crossSellsPrice || parseFloat(crossSellsPrice) <= 0) {
         return null;
     }
 
+    const savings = originalTotal - parseFloat(crossSellsPrice);
+
     return (
         <div className="my-10 md:my-20">
             {/* العنوان والوصف */}
             {(crossSellsName || crossSellsDescription) && (
-                <div className="text-center mb-6">
+                <div className="text-center mb-5 md:mb-8">
                     {crossSellsName && (
-                        <h3 className="text-xl font-bold text-gray-800 mb-2">{crossSellsName}</h3>
+                        <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-1">{crossSellsName}</h3>
                     )}
                     {crossSellsDescription && (
-                        <p className="text-gray-600">{crossSellsDescription}</p>
+                        <p className="text-sm md:text-base text-gray-600">{crossSellsDescription}</p>
                     )}
                 </div>
             )}
 
-            <div className="flex flex-col-reverse md:flex-row items-center justify-center gap-6">
-                {/* Products Row */}
-                <div className="flex items-center gap-3">
+         
+            <div className="flex flex-col items-center gap-4 md:gap-6">
+
+               
+                <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 w-full justify-center">
+                   
                     {totalPages > 1 && (
                         <button
                             type="button"
-                            onClick={() => setPage((p) => Math.max(0, p - 1))}
-                            disabled={page === 0}
-                            className="p-2 rounded-full border border-gray-200 hover:bg-gray-100 disabled:opacity-30"
-                            aria-label="السابق"
+                            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                            disabled={page === totalPages - 1}
+                            className="shrink-0 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-sm transition-all"
+                            aria-label="التالي"
                         >
-                            <ChevronRight className="w-4 h-4" />
+                            <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
                         </button>
                     )}
-                    <div className="flex items-center gap-4 flex-wrap justify-center">
+
+                    {/* المنتجات */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 md:gap-4 flex-wrap justify-center flex-1">
                         {visibleProducts.map((product, index) => (
-                            <div key={product.id} className="flex items-center gap-4">
-                                {/* Product Card */}
-                                <div className="flex flex-col items-center gap-2 w-[180px]">
-                                    <div className="w-full aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                            <div key={product.id} className="flex items-center gap-1.5 sm:gap-2 md:gap-4">
+                                <div className="flex flex-col items-center gap-1 sm:gap-1.5 w-[95px] sm:w-[130px] md:w-[180px]">
+                                    <div className="w-full aspect-square rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm">
                                         <img
                                             src={product.cover || "/placeholder.png"}
                                             alt={product.name}
@@ -72,68 +77,68 @@ export default function CrossSellsSection({
                                             }}
                                         />
                                     </div>
-                                    <p className="text-sm text-gray-700 text-center line-clamp-2 font-medium">
+                                    <p className="text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight">
                                         {product.name}
                                     </p>
                                 </div>
-
-                                {/* Plus sign between products */}
                                 {index < visibleProducts.length - 1 && (
-                                    <div className="text-2xl font-medium">+</div>
+                                    <span className="text-base sm:text-xl md:text-2xl font-bold text-gray-400">+</span>
                                 )}
                             </div>
                         ))}
                     </div>
+
+                   
                     {totalPages > 1 && (
                         <button
                             type="button"
-                            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                            disabled={page === totalPages - 1}
-                            className="p-2 rounded-full border border-gray-200 hover:bg-gray-100 disabled:opacity-30"
-                            aria-label="التالي"
+                            onClick={() => setPage((p) => Math.max(0, p - 1))}
+                            disabled={page === 0}
+                            className="shrink-0 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-sm transition-all"
+                            aria-label="السابق"
                         >
-                            <ChevronLeft className="w-4 h-4" />
+                            <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
                         </button>
                     )}
                 </div>
-                <div>
-                    <p className="text-2xl font-medium">=</p>
-                </div>
-                {/* Price Section (left side in RTL) */}
-                <div className="flex flex-col gap-1 shrink-0">
-                    <span className="text-2xl font-medium text-[#128F3C]">
-                        {parseFloat(crossSellsPrice).toFixed(2)} ₪
-                    </span>
-                    <span className="font-medium"> بدلاً من</span>
-                    <span className="text-sm text-[#E36161] line-through">
-                        {originalTotal.toFixed(1)} ₪
-                    </span>
+
+                {/* Dots indicator */}
+                {totalPages > 1 && (
+                    <div className="flex items-center gap-1.5">
+                        {Array.from({ length: totalPages }).map((_, i) => (
+                            <button
+                                key={i}
+                                type="button"
+                                onClick={() => setPage(i)}
+                                className={`rounded-full transition-all ${i === page
+                                    ? "w-4 h-2 bg-blue-400"
+                                    : "w-2 h-2 bg-gray-300 hover:bg-gray-400"
+                                }`}
+                                aria-label={`صفحة ${i + 1}`}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {/* = والسعر */}
+                <div className="flex items-center gap-4 md:gap-6 justify-center">
+                    <span className="text-2xl md:text-3xl font-bold text-gray-400">=</span>
+                    <div className="flex flex-col items-center gap-1">
+                        <span className="text-xl md:text-2xl font-bold text-[#128F3C]">
+                            {parseFloat(crossSellsPrice).toFixed(2)} <span className="text-base font-medium">₪</span>
+                        </span>
+                        <span className="text-xs text-gray-500">بدلاً من</span>
+                        <span className="text-sm text-[#E36161] line-through">
+                            {originalTotal.toFixed(2)} ₪
+                        </span>
+                        {savings > 0 && (
+                            <span className="mt-1 text-xs font-semibold bg-green-100 text-green-700 px-2.5 py-0.5 rounded-full">
+                                وفّر {savings.toFixed(2)} ₪
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
-
-            {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-4">
-                    <button
-                        type="button"
-                        onClick={() => setPage((p) => Math.max(0, p - 1))}
-                        disabled={page === 0}
-                        className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"
-                    >
-                        <ChevronRight className="w-4 h-4" />
-                    </button>
-                    <span className="text-xs text-gray-500">
-                        {page + 1} / {totalPages}
-                    </span>
-                    <button
-                        type="button"
-                        onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                        disabled={page === totalPages - 1}
-                        className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"
-                    >
-                        <ChevronLeft className="w-4 h-4" />
-                    </button>
-                </div>
-            )}
         </div>
     );
 }
