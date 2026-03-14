@@ -194,6 +194,7 @@ export default function HomeStories() {
                                                         alt={firstStory.text || "Story"}
                                                         fill
                                                         className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                                        sizes="(max-width: 640px) 95px, 140px"
                                                     />
                                                 )
                                             ) : (
