@@ -9,10 +9,19 @@ import {
     useSixthBanner,
 } from "../hooks";
 
-const HomeBanners = React.lazy(() => import("./HomeBanners"));
+import HomeBanners from "./HomeBanners";
+import HomeStories from "./HomeStories";
+import HomeSpecialServices from "./HomeSpecialServices";
+import {
+    BannerSkeleton,
+    StoriesSkeleton,
+    ServicesGridSkeleton,
+    MultiBannersSkeleton,
+    SingleBannerSkeleton,
+    HomeSectionSkeleton,
+} from "./HomeSkeletons";
+
 const HomeMultiBanners = React.lazy(() => import("./HomeMultiBanners"));
-const HomeStories = React.lazy(() => import("./HomeStories"));
-const HomeSpecialServices = React.lazy(() => import("./HomeSpecialServices"));
 const HomeSpecialMerchants = React.lazy(() => import("./HomeSpecialMerchants"));
 const HomeNewProducts = React.lazy(() => import("./HomeNewProducts"));
 const HomeMostPopularServices = React.lazy(() => import("./HomeMostPopularServices"));
@@ -25,12 +34,6 @@ const HomeWeeklyOffers = React.lazy(() => import("./HomeWeeklyOffers"));
 const HomeLatestBlogs = React.lazy(() => import("./HomeLatestBlogs"));
 const HomeSingleBanner = React.lazy(() => import("./HomeSingleBanner"));
 
-const SectionFallback = () => (
-    <div className="w-full h-64 bg-gray-50 flex items-center justify-center animate-pulse my-4 rounded-xl">
-        <div className="w-8 h-8 rounded-full border-2 border-gray-300 border-t-blue-600 animate-spin"></div>
-    </div>
-);
-
 export default function HomePage() {
     const { data: secondBannersRes } = useSecondBanners();
     const { data: thirdBannerRes } = useThirdBanner();
@@ -40,85 +43,95 @@ export default function HomePage() {
 
     return (
         <div className="min-h-screen">
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<BannerSkeleton />}>
                 <HomeBanners />
             </Suspense>
 
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<StoriesSkeleton />}>
                 <HomeStories />
             </Suspense>
 
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<ServicesGridSkeleton />}>
                 <HomeSpecialServices />
             </Suspense>
 
-            {secondBannersRes?.data && secondBannersRes.data.length > 0 && (
-                <Suspense fallback={<SectionFallback />}>
+            {secondBannersRes?.data && secondBannersRes.data.length > 0 ? (
+                <Suspense fallback={<MultiBannersSkeleton />}>
                     <HomeMultiBanners banners={secondBannersRes.data} />
                 </Suspense>
-            )}
+            ) : secondBannersRes === undefined ? (
+                <MultiBannersSkeleton />
+            ) : null}
 
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<HomeSectionSkeleton />}>
                 <HomeSpecialMerchants />
             </Suspense>
 
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<HomeSectionSkeleton />}>
                 <HomeCategoriesWithProducts />
             </Suspense>
 
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<ServicesGridSkeleton />}>
                 <HomeNewProducts />
             </Suspense>
 
-            {thirdBannerRes?.data && (
-                <Suspense fallback={<SectionFallback />}>
+            {thirdBannerRes?.data ? (
+                <Suspense fallback={<SingleBannerSkeleton />}>
                     <HomeSingleBanner banner={thirdBannerRes.data} />
                 </Suspense>
+            ) : thirdBannerRes === undefined && (
+                <SingleBannerSkeleton />
             )}
 
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<ServicesGridSkeleton />}>
                 <HomeMostPopularServices />
             </Suspense>
 
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<ServicesGridSkeleton />}>
                 <HomeTodayOffers />
             </Suspense>
 
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<ServicesGridSkeleton />}>
                 <HomeWeeklyOffers />
             </Suspense>
 
-            {fourthBannerRes?.data && (
-                <Suspense fallback={<SectionFallback />}>
+            {fourthBannerRes?.data ? (
+                <Suspense fallback={<SingleBannerSkeleton />}>
                     <HomeSingleBanner banner={fourthBannerRes.data} />
                 </Suspense>
+            ) : fourthBannerRes === undefined && (
+                <SingleBannerSkeleton />
             )}
 
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<ServicesGridSkeleton />}>
                 <HomeCustomizedProducts />
             </Suspense>
 
-            {fifthBannerRes?.data && (
-                <Suspense fallback={<SectionFallback />}>
+            {fifthBannerRes?.data ? (
+                <Suspense fallback={<SingleBannerSkeleton />}>
                     <HomeSingleBanner banner={fifthBannerRes.data} />
                 </Suspense>
+            ) : fifthBannerRes === undefined && (
+                <SingleBannerSkeleton />
             )}
 
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<ServicesGridSkeleton />}>
                 <HomeProductsYouMayLike />
             </Suspense>
 
-            {sixthBannerRes?.data && (
-                <Suspense fallback={<SectionFallback />}>
+            {sixthBannerRes?.data ? (
+                <Suspense fallback={<SingleBannerSkeleton />}>
                     <HomeSingleBanner banner={sixthBannerRes.data} />
                 </Suspense>
+            ) : sixthBannerRes === undefined && (
+                <SingleBannerSkeleton />
             )}
 
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<ServicesGridSkeleton />}>
                 <HomeRequestedServices />
             </Suspense>
 
-            <Suspense fallback={<SectionFallback />}>
+            <Suspense fallback={<HomeSectionSkeleton />}>
                 <HomeLatestBlogs />
             </Suspense>
         </div>

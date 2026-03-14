@@ -8,13 +8,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Banner } from "../types";
 import { cn } from "@/src/lib/utils";
 import { useFirstBanners } from "../hooks";
+import { BannerSkeleton } from "./HomeSkeletons";
 
 interface HomeBannersProps {
     banners?: Banner[]; // Keep optional for backward compatibility or initial server render if needed
 }
 
 export default function HomeBanners({ banners: initialBanners }: HomeBannersProps) {
-    const { data: response } = useFirstBanners();
+    const { data: response, isLoading } = useFirstBanners();
     const banners = initialBanners || response?.data || [];
 
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -36,6 +37,7 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
         return () => clearInterval(interval);
     }, [banners.length, handleNext]);
 
+    if (isLoading && !initialBanners) return <BannerSkeleton />;
     if (!banners || banners.length === 0) return null;
 
     const currentBanner = banners[currentIndex];
