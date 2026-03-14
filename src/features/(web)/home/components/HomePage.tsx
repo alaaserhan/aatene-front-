@@ -9,6 +9,7 @@ import {
     useSixthBanner,
 } from "../hooks";
 
+import dynamic from "next/dynamic";
 import {
     Banner,
     StoryOwner,
@@ -27,18 +28,18 @@ import {
     HomeSectionSkeleton,
 } from "./HomeSkeletons";
 
-const HomeMultiBanners = React.lazy(() => import("./HomeMultiBanners"));
-const HomeSpecialMerchants = React.lazy(() => import("./HomeSpecialMerchants"));
-const HomeNewProducts = React.lazy(() => import("./HomeNewProducts"));
-const HomeMostPopularServices = React.lazy(() => import("./HomeMostPopularServices"));
-const HomeTodayOffers = React.lazy(() => import("./HomeTodayOffers"));
-const HomeRequestedServices = React.lazy(() => import("./HomeRequestedServices"));
-const HomeCustomizedProducts = React.lazy(() => import("./HomeCustomizedProducts"));
-const HomeProductsYouMayLike = React.lazy(() => import("./HomeProductsYouMayLike"));
-const HomeCategoriesWithProducts = React.lazy(() => import("./HomeCategoriesWithProducts"));
-const HomeWeeklyOffers = React.lazy(() => import("./HomeWeeklyOffers"));
-const HomeLatestBlogs = React.lazy(() => import("./HomeLatestBlogs"));
-const HomeSingleBanner = React.lazy(() => import("./HomeSingleBanner"));
+const HomeMultiBanners = dynamic(() => import("./HomeMultiBanners"));
+const HomeSpecialMerchants = dynamic(() => import("./HomeSpecialMerchants"));
+const HomeNewProducts = dynamic(() => import("./HomeNewProducts"));
+const HomeMostPopularServices = dynamic(() => import("./HomeMostPopularServices"));
+const HomeTodayOffers = dynamic(() => import("./HomeTodayOffers"));
+const HomeRequestedServices = dynamic(() => import("./HomeRequestedServices"));
+const HomeCustomizedProducts = dynamic(() => import("./HomeCustomizedProducts"));
+const HomeProductsYouMayLike = dynamic(() => import("./HomeProductsYouMayLike"));
+const HomeCategoriesWithProducts = dynamic(() => import("./HomeCategoriesWithProducts"));
+const HomeWeeklyOffers = dynamic(() => import("./HomeWeeklyOffers"));
+const HomeLatestBlogs = dynamic(() => import("./HomeLatestBlogs"));
+const HomeSingleBanner = dynamic(() => import("./HomeSingleBanner"));
 
 interface HomePageProps {
     initialData?: {
