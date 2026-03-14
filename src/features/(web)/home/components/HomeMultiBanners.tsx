@@ -123,6 +123,7 @@ function BannerItem({ banner }: { banner: Banner }) {
                     fill
                     className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                     onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
+                    sizes="(max-width: 768px) 50vw, 370px"
                 />
             </div>
 
@@ -134,6 +135,7 @@ function BannerItem({ banner }: { banner: Banner }) {
                     fill
                     className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                     onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
+                    sizes="85vw"
                 />
             </div>
         </Link>
