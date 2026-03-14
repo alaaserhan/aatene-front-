@@ -234,20 +234,20 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                             <div className="flex items-center gap-1.5 sm:gap-2 md:gap-4 flex-wrap justify-center flex-1">
                                 {visibleProducts.map((item, index) => (
                                     <div key={item.id} className="flex items-center gap-1.5 sm:gap-2 md:gap-4">
-                                        <div className="flex flex-col items-center gap-1 sm:gap-1.5 w-[95px] sm:w-[130px] md:w-[180px]">
+                                        <Link href={`/product/${item.slug}`} className="flex flex-col items-center gap-1 sm:gap-1.5 w-[95px] sm:w-[130px] md:w-[180px] group/item">
                                             <div className="w-full aspect-square rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm">
                                                 <Image
                                                     src={item.cover || "/placeholder.png"}
                                                     alt={item.name}
                                                     width={180}
                                                     height={180}
-                                                    className="w-full h-full object-cover"
+                                                    className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
                                                 />
                                             </div>
-                                            <p className="text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight">
+                                            <p className="text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight group-hover/item:text-blue-3 transition-colors">
                                                 {item.name}
                                             </p>
-                                        </div>
+                                        </Link>
                                         {index < visibleProducts.length - 1 && (
                                             <span className="text-base sm:text-xl md:text-2xl font-bold text-gray-400">+</span>
                                         )}

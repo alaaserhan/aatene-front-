@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
@@ -32,65 +31,46 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
     };
 
     return (
-        <div className="flex flex-col lg:flex-row gap-4 last:mb-0 ">
-            {/* Category Banner Card (Right Side in RTL) */}
-            <div className="w-full lg:w-[280px] shrink-0 h-[380px] lg:h-auto relative rounded overflow-hidden group">
-                <Image
-                    src={category.image || "/placeholder.png"}
-                    alt={category.name}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
-
-                {/* Content */}
-                <div className="absolute inset-0 p-6 flex flex-col justify-end text-white">
-                    <h3 className="text-2xl md:text-3xl font-bold leading-tight mb-2 text-right">
-                        {category.name}
-                    </h3>
-                </div>
-
-                {/* Navigation Buttons - Positioned at top left (LTR logic for RTL layout) */}
-                <div className="absolute top-4 right-4 flex gap-2" dir="ltr">
-                    <button
-                        onClick={() => scroll("left")}
-                        className="w-8 h-8 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center hover:bg-white/50 transition-colors cursor-pointer text-white"
+        <section className="py-2 mb-8 last:mb-0" dir="rtl">
+            {/* Header Row: Title & Action Buttons */}
+            <div className="flex items-center justify-between mb-4 md:mb-6">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+                    {category.name}
+                </h2>
+                
+                <div className="flex items-center gap-3 md:gap-4">
+                    <Link
+                        href={`/${lang}/search?type=products&category_id=${category.id}`}
+                        className="inline-flex items-center justify-center p-1.5 px-3 md:p-2 md:px-4 rounded-full bg-[#3D5E83] text-white text-xs md:text-sm font-medium hover:bg-[#2c4461] transition-colors gap-1"
                     >
-                        <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button
-                        onClick={() => scroll("right")} // In RTL, "right" moves content to right (scrolling left visually? No, wait. scrollLeft increases -> moves right)
-                        // Actually, in RTL: scrollLeft = 0 is rightmost. Negative values or increasing positive? 
-                        // It depends on browser/CSS. Standard scrollTo usually works logically.
-                        // Let's assume standard behavior: scrollLeft changes position.
-                        className="w-8 h-8 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center hover:bg-white/50 transition-colors cursor-pointer text-white"
-                    >
-                        <ChevronRight className="w-5 h-5" />
-                    </button>
+                        عرض الكل
+                        <ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    </Link>
                 </div>
             </div>
 
-            {/* Products Slider (Left Side in RTL) */}
-            <div className="flex-1 min-w-0 flex flex-col bg-white border border-gray-200 rounded p-2">
-                <div className="flex items-center justify-end mb-4 border-b border-gray-200 py-2 pb-3">
-                    {/* "Show All" Link */}
-                    <Link
-                        href={`/${lang}/search?type=products&category_id=${category.id}`}
-                        className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
-                    >
-                        <span>عرض الكل</span>
-                        <ChevronLeft className="w-4 h-4" />
-                    </Link>
-                </div>
+            {/* Products Slider */}
+            <div className="relative group/nav bg-white border border-gray-100 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+                {/* Navigation Arrows for Slider (visible on hover) */}
+                <button
+                    onClick={() => scroll("right")}
+                    className="absolute top-1/2 -right-4 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-100 flex items-center justify-center hover:bg-gray-50 transition-all opacity-0 group-hover/nav:opacity-100 cursor-pointer text-gray-700 z-10"
+                >
+                    <ChevronRight className="w-5 h-5" />
+                </button>
+                <button
+                    onClick={() => scroll("left")}
+                    className="absolute top-1/2 -left-4 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-100 flex items-center justify-center hover:bg-gray-50 transition-all opacity-0 group-hover/nav:opacity-100 cursor-pointer text-gray-700 z-10"
+                >
+                    <ChevronLeft className="w-5 h-5" />
+                </button>
 
                 <div
                     ref={scrollContainerRef}
-                    className="flex overflow-x-auto gap-4  scroll-smooth scrollbar-hide pb-4 -mx-2 px-2"
-                    dir="rtl"
+                    className="flex overflow-x-auto gap-3 md:gap-4 scroll-smooth scrollbar-hide pb-2"
                 >
                     {category.products.map((product) => (
-                        <div key={product.id} className="min-w-[180px] md:min-w-[220px] max-w-[220px]">
+                        <div key={product.id} className="min-w-[160px] md:min-w-[200px] lg:min-w-[220px] max-w-[220px] shrink-0">
                             <ProductCard
                                 id={product.id}
                                 name={product.name}
@@ -107,6 +87,6 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
                     ))}
                 </div>
             </div>
-        </div>
+        </section>
     );
 }

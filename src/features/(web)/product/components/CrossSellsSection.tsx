@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Product } from "../api";
+import Link from "next/link";
 
 interface CrossSellsSectionProps {
     crossSells: Product[];
@@ -65,22 +66,22 @@ export default function CrossSellsSection({
                     <div className="flex items-center gap-1.5 sm:gap-2 md:gap-4 flex-wrap justify-center flex-1">
                         {visibleProducts.map((product, index) => (
                             <div key={product.id} className="flex items-center gap-1.5 sm:gap-2 md:gap-4">
-                                <div className="flex flex-col items-center gap-1 sm:gap-1.5 w-[95px] sm:w-[130px] md:w-[180px]">
+                                <Link href={`/product/${product.slug}`} className="flex flex-col items-center gap-1 sm:gap-1.5 w-[95px] sm:w-[130px] md:w-[180px] group/item">
                                     <div className="w-full aspect-square rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm">
                                         <img
                                             src={product.cover || "/placeholder.png"}
                                             alt={product.name}
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
                                             onError={(e) => {
                                                 e.currentTarget.src = "/placeholder.png";
                                                 e.currentTarget.onerror = null;
                                             }}
                                         />
                                     </div>
-                                    <p className="text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight">
+                                    <p className="text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight group-hover/item:text-blue-3 transition-colors">
                                         {product.name}
                                     </p>
-                                </div>
+                                </Link>
                                 {index < visibleProducts.length - 1 && (
                                     <span className="text-base sm:text-xl md:text-2xl font-bold text-gray-400">+</span>
                                 )}

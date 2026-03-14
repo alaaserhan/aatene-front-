@@ -5,15 +5,17 @@ import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { Service } from "../types";
 import { useSpecialServices } from "../hooks";
+import { ServicesGridSkeleton } from "./HomeSkeletons";
 
 interface HomeSpecialServicesProps {
     services?: Service[];
 }
 
 export default function HomeSpecialServices({ services: initialServices }: HomeSpecialServicesProps) {
-    const { data: response } = useSpecialServices();
+    const { data: response, isLoading } = useSpecialServices();
     const services = initialServices || response?.data || [];
 
+    if (isLoading && !initialServices) return <ServicesGridSkeleton />;
     if (!services || services.length === 0) return null;
 
     return (

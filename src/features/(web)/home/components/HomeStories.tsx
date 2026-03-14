@@ -8,6 +8,7 @@ import { Story } from "../types";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useStoryOwners } from "../hooks";
+import { StoriesSkeleton } from "./HomeSkeletons";
 
 interface StoryOwner {
     id: number;
@@ -115,7 +116,7 @@ export default function HomeStories() {
         }
     };
 
-    if (isLoading) return null;
+    if (isLoading) return <StoriesSkeleton />;
     if (!owners || owners.length === 0) return null;
 
     return (
@@ -172,7 +173,7 @@ export default function HomeStories() {
                                 return (
                                     <div
                                         key={owner.id}
-                                        className="shrink-0 w-[95px] sm:w-[140px] cursor-pointer h-fit bg-white rounded-xl shadow-sm z-[20] select-none group"
+                                        className="shrink-0 w-[95px] sm:w-[140px] cursor-pointer h-fit bg-white rounded-xl shadow-sm z-20 select-none group"
                                         onClick={() => {
                                             if (!hasDragged) handleSelectOwner(index);
                                         }}
