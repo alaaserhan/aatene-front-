@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
         hostname: 'aatene.dev',
       },
       {
+        protocol: 'http',
+        hostname: 'backend.aatene.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'backend.aatene.com',
+      },
+      {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },

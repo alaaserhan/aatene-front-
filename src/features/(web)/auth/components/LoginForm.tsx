@@ -72,7 +72,7 @@ export function LoginForm() {
   const handleGoogleLogin = () => {
     setIsGoogleLoading(true);
     const returnUrl = window.location.origin + window.location.pathname;
-    window.location.href = `https://aatene.dev/auth/google?return_url=${returnUrl}`;
+    window.location.href = `https://backend.aatene.com/auth/google?return_url=${returnUrl}`;
   };
 
   const onSubmit = async (data: LoginFormData) => {
