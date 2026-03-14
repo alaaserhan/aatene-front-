@@ -44,7 +44,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
     if (shippingDetails?.city?.id !== prevCityId) {
         setPrevCityId(shippingDetails?.city?.id);
         setSelectedCityId(Number(shippingDetails?.city?.id));
-        setSelectedCityName(shippingDetails?.city?.name || "الناصرة");
+        setSelectedCityName(shippingDetails?.city?.name || "");
     }
 
     const filteredCities = useMemo(() => {
