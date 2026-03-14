@@ -28,13 +28,17 @@ const isVideoFile = (fileName: string) => {
     return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
 };
 
-export default function HomeStories() {
+interface HomeStoriesProps {
+    initialOwners?: StoryOwner[];
+}
+
+export default function HomeStories({ initialOwners }: HomeStoriesProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
     const { data: ownersRes, isLoading } = useStoryOwners();
-    const owners: StoryOwner[] = ownersRes?.data || EMPTY_OWNERS;
+    const owners: StoryOwner[] = initialOwners || ownersRes?.data || EMPTY_OWNERS;
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
