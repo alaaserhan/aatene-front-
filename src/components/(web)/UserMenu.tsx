@@ -152,11 +152,18 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
           {/* User Details */}
           <div className="space-y-2">
-            <Link href={`/${lang}/report/inquiry`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
+            <Link href={`/${lang}/report`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
               <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
                 <Headset size={16} />
               </div>
-              <span dir="ltr" className="font-medium">استعلام عن شكوى</span>
+              <span className="font-medium">بوابة الشكاوى والاقتراحات</span>
+            </Link>
+
+             <Link href={`/requested-services/my`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
+              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <MessageSquarePlus size={16} />
+              </div>
+              <span className="font-medium">طلباتي</span>
             </Link>
 
             <Link href={`/${lang}/settings`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
@@ -292,11 +299,11 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
           {/* User Info Section */}
           <div className="px-6 py-4 space-y-3 border-b border-gray-100">
-            <Link href={`/${lang}/report/inquiry`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
+            <Link href={`/${lang}/report`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
               <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
                 <Headset size={16} />
               </div>
-              <span dir="ltr" className="font-medium">استعلام عن شكوى</span>
+              <span className="font-medium">بوابة الشكاوى والاقتراحات</span>
             </Link>
 
             <Link href={`/requested-services/my`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>

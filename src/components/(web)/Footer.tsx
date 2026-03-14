@@ -40,8 +40,9 @@ const Footer = () => {
     {
       title: "الدعم والمساعدة",
       links: [
+        { label: "بوابة الشكاوى والاقتراحات", href: `/report` },
         { label: "الأسئلة الشائعة", href: `/faq` },
-        { label: "اتصل بنا", href: `/contact-us` }
+        { label: "اتصل بنا", href: `/contact-us` },
       ]
     },
   ];

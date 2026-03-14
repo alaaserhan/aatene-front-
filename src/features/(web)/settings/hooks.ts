@@ -274,10 +274,20 @@ export const useUpdateAvatar = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (avatar: File) => updateAvatar(avatar),
-        onSuccess: (data) => {
+        onSuccess: (data, variables) => {
             toast.success(data.message || "Avatar updated successfully");
+            
+            const newAvatarUrl = URL.createObjectURL(variables);
+            
             if (data?.data?.avatar) {
-                useAuthStore.getState().updateUser({ avatar: data.data.avatar });
+                useAuthStore.getState().updateUser({ 
+                    avatar: data.data.avatar,
+                    avatar_url: newAvatarUrl
+                });
+            } else {
+                useAuthStore.getState().updateUser({ 
+                    avatar_url: newAvatarUrl
+                });
             }
         },
         onSettled: () => {
