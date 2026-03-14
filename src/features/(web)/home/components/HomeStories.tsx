@@ -5,9 +5,11 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import { Story } from "../types";
-import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
+const ShowStoryModal = dynamic(() => import("@/src/features/(dashboard)/stories/components/ShowStoryModal").then(mod => mod.ShowStoryModal), { ssr: false });
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useStoryOwners } from "../hooks";
+import { StoriesSkeleton } from "./HomeSkeletons";
+import dynamic from "next/dynamic";
 
 interface StoryOwner {
     id: number;
@@ -27,13 +29,17 @@ const isVideoFile = (fileName: string) => {
     return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
 };
 
-export default function HomeStories() {
+interface HomeStoriesProps {
+    initialOwners?: StoryOwner[];
+}
+
+export default function HomeStories({ initialOwners }: HomeStoriesProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
     const { data: ownersRes, isLoading } = useStoryOwners();
-    const owners: StoryOwner[] = ownersRes?.data || EMPTY_OWNERS;
+    const owners: StoryOwner[] = initialOwners || ownersRes?.data || EMPTY_OWNERS;
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -115,7 +121,7 @@ export default function HomeStories() {
         }
     };
 
-    if (isLoading) return null;
+    if (isLoading) return <StoriesSkeleton />;
     if (!owners || owners.length === 0) return null;
 
     return (
@@ -172,7 +178,7 @@ export default function HomeStories() {
                                 return (
                                     <div
                                         key={owner.id}
-                                        className="shrink-0 w-[95px] sm:w-[140px] cursor-pointer h-fit bg-white rounded-xl shadow-sm z-[20] select-none group"
+                                        className="shrink-0 w-[95px] sm:w-[140px] cursor-pointer h-fit bg-white rounded-xl shadow-sm z-20 select-none group"
                                         onClick={() => {
                                             if (!hasDragged) handleSelectOwner(index);
                                         }}
@@ -193,6 +199,7 @@ export default function HomeStories() {
                                                         alt={firstStory.text || "Story"}
                                                         fill
                                                         className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                                        sizes="(max-width: 640px) 95px, 140px"
                                                     />
                                                 )
                                             ) : (

@@ -108,6 +108,7 @@ const pingAr = localFont({
     },
   ],
   variable: "--font-ping-ar",
+  display: "swap",
   fallback: ["sans-serif"],
 });
 
