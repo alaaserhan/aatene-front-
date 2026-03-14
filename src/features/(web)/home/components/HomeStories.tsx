@@ -5,10 +5,11 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import { Story } from "../types";
-import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
+const ShowStoryModal = dynamic(() => import("@/src/features/(dashboard)/stories/components/ShowStoryModal").then(mod => mod.ShowStoryModal), { ssr: false });
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useStoryOwners } from "../hooks";
 import { StoriesSkeleton } from "./HomeSkeletons";
+import dynamic from "next/dynamic";
 
 interface StoryOwner {
     id: number;
