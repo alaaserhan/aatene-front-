@@ -9,6 +9,12 @@ import {
     useSixthBanner,
 } from "../hooks";
 
+import {
+    Banner,
+    StoryOwner,
+    Service
+} from "../types";
+
 import HomeBanners from "./HomeBanners";
 import HomeStories from "./HomeStories";
 import HomeSpecialServices from "./HomeSpecialServices";
@@ -34,7 +40,15 @@ const HomeWeeklyOffers = React.lazy(() => import("./HomeWeeklyOffers"));
 const HomeLatestBlogs = React.lazy(() => import("./HomeLatestBlogs"));
 const HomeSingleBanner = React.lazy(() => import("./HomeSingleBanner"));
 
-export default function HomePage() {
+interface HomePageProps {
+    initialData?: {
+        banners?: Banner[];
+        stories?: StoryOwner[];
+        specialServices?: Service[];
+    };
+}
+
+export default function HomePage({ initialData }: HomePageProps) {
     const { data: secondBannersRes } = useSecondBanners();
     const { data: thirdBannerRes } = useThirdBanner();
     const { data: fourthBannerRes } = useFourthBanner();
@@ -44,15 +58,15 @@ export default function HomePage() {
     return (
         <div className="min-h-screen">
             <Suspense fallback={<BannerSkeleton />}>
-                <HomeBanners />
+                <HomeBanners banners={initialData?.banners} />
             </Suspense>
 
             <Suspense fallback={<StoriesSkeleton />}>
-                <HomeStories />
+                <HomeStories initialOwners={initialData?.stories} />
             </Suspense>
 
             <Suspense fallback={<ServicesGridSkeleton />}>
-                <HomeSpecialServices />
+                <HomeSpecialServices services={initialData?.specialServices} />
             </Suspense>
 
             {secondBannersRes?.data && secondBannersRes.data.length > 0 ? (
