@@ -2,6 +2,31 @@ import { NextRequest, NextResponse } from "next/server";
 
 const PREVIEW_COOKIE = "coming_soon_preview";
 
+function getBaseUrl(request: NextRequest): string {
+  // Try environment variable first (most reliable for production)
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
+  }
+
+  // Use forwarded headers set by reverse proxy (Nginx, Caddy, etc.)
+  const forwardedProto =
+    request.headers.get("x-forwarded-proto") ??
+    request.headers.get("x-forwarded-scheme");
+  const forwardedHost =
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+
+  if (forwardedProto && forwardedHost) {
+    // x-forwarded-proto may contain a comma-separated list; take the first
+    const proto = forwardedProto.split(",")[0].trim();
+    const host = forwardedHost.split(",")[0].trim();
+    return `${proto}://${host}`;
+  }
+
+  // Fallback to request.url (works fine in development)
+  const { protocol, host } = new URL(request.url);
+  return `${protocol}//${host}`;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get("secret");
@@ -15,7 +40,8 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const response = NextResponse.redirect(new URL(redirect, request.url));
+  const baseUrl = getBaseUrl(request);
+  const response = NextResponse.redirect(new URL(redirect, baseUrl));
   response.cookies.set(PREVIEW_COOKIE, "1", {
     path: "/",
     httpOnly: true,
