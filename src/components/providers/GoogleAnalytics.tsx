@@ -26,12 +26,12 @@ export const GoogleAnalytics = () => {
         <>
             <Script
                 id="google-analytics-external"
-                strategy="afterInteractive"
+                strategy="lazyOnload"
                 src="https://www.googletagmanager.com/gtag/js?id=G-38DS6YHG9H"
             />
             <Script
                 id="google-analytics-internal"
-                strategy="afterInteractive"
+                strategy="lazyOnload"
                 dangerouslySetInnerHTML={{
                     __html: `
                         window.dataLayer = window.dataLayer || [];
