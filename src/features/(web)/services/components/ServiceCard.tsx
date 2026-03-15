@@ -63,7 +63,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
             <CompareCheckbox id={service.id} type="service" />
 
             {/* Service Image */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
+            <div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100">
                 {
                     serviceImage ? (
                         <Image
@@ -104,7 +104,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
             {/* Content Section */}
             <div className="p-4 flex flex-col flex-1">
                 {/* Service Title */}
-                <h3 className="font-semibold text-base text-right mb-2 leading-snug line-clamp-2 min-h-[2.5rem] group-hover:text-[#3D5E83] transition-colors">
+                <h3 className="font-semibold text-base text-right mb-2 leading-snug line-clamp-2 min-h-10 group-hover:text-[#3D5E83] transition-colors">
                     {service.title}
                 </h3>
 
@@ -117,7 +117,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                 </div>
 
                 {/* Separator - Subtle Glassmorphic line */}
-                <div className="h-[1px] bg-gray-200 w-full mb-2" />
+                <div className="h-px bg-gray-200 w-full mb-2" />
 
                 {/* Provider Info */}
                 <div className="flex items-center gap-2">

@@ -32,7 +32,7 @@ export const ServicesGridSkeleton = () => (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-6">
                 {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="flex flex-col gap-4">
-                        <div className="aspect-[4/3] w-full bg-gray-100 animate-pulse rounded-2xl" />
+                        <div className="aspect-4/3 w-full bg-gray-100 animate-pulse rounded-2xl" />
                         <div className="space-y-2">
                              <div className="h-4 w-full bg-gray-100 animate-pulse rounded" />
                              <div className="h-4 w-2/3 bg-gray-100 animate-pulse rounded" />
