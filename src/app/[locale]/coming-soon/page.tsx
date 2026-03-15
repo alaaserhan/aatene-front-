@@ -11,6 +11,7 @@ export default function ComingSoonPage() {
             width={1440}
             height={589}
             priority
+            fetchPriority="high"
             className="mx-auto h-auto w-full"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1024px"
           />

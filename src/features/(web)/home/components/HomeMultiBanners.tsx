@@ -10,9 +10,10 @@ import { cn } from "@/src/lib/utils";
 
 interface HomeMultiBannersProps {
     banners: Banner[];
+    isMobile?: boolean;
 }
 
-export default function HomeMultiBanners({ banners }: HomeMultiBannersProps) {
+export default function HomeMultiBanners({ banners, isMobile }: HomeMultiBannersProps) {
     const scrollRef = React.useRef<HTMLDivElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
@@ -88,7 +89,7 @@ export default function HomeMultiBanners({ banners }: HomeMultiBannersProps) {
                             key={banner.id || index}
                             className="w-[85vw] sm:w-[50vw] md:w-[calc(33.333%-11px)] shrink-0 snap-center"
                         >
-                            <BannerItem banner={banner} />
+                            <BannerItem banner={banner} isMobile={isMobile} />
                         </div>
                     ))}
                 </div>
@@ -97,7 +98,7 @@ export default function HomeMultiBanners({ banners }: HomeMultiBannersProps) {
     );
 }
 
-function BannerItem({ banner }: { banner: Banner }) {
+function BannerItem({ banner, isMobile }: { banner: Banner; isMobile?: boolean }) {
     const [imageError, setImageError] = useState({ desktop: false, mobile: false });
 
     const hasDesktopImage = banner.labtop_banner_url && !imageError.desktop;
@@ -115,29 +116,32 @@ function BannerItem({ banner }: { banner: Banner }) {
             rel="noopener noreferrer"
             className="block relative w-full aspect-360/200 md:aspect-370/200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group shrink-0"
         >
-            {/* Desktop Image */}
-            <div className="hidden md:block w-full h-full relative">
-                <Image
-                    src={desktopSrc}
-                    alt={banner.title || "Banner"}
-                    fill
-                    className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-                    onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
-                    sizes="(max-width: 768px) 50vw, 370px"
-                />
-            </div>
-
-            {/* Mobile Image */}
-            <div className="block md:hidden w-full h-full relative">
-                <Image
-                    src={mobileSrc}
-                    alt={banner.title || "Banner"}
-                    fill
-                    className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-                    onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
-                    sizes="85vw"
-                />
-            </div>
+            {/* Art Direction: Render ONLY the appropriate image based on device detection */}
+            {!isMobile ? (
+                /* Desktop Image */
+                <div className="hidden md:block w-full h-full relative">
+                    <Image
+                        src={desktopSrc}
+                        alt={banner.title || "Banner"}
+                        fill
+                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                        onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
+                        sizes="(max-width: 768px) 50vw, 370px"
+                    />
+                </div>
+            ) : (
+                /* Mobile Image */
+                <div className="block md:hidden w-full h-full relative">
+                    <Image
+                        src={mobileSrc}
+                        alt={banner.title || "Banner"}
+                        fill
+                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                        onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
+                        sizes="85vw"
+                    />
+                </div>
+            )}
         </Link>
     );
 }
