@@ -63,20 +63,20 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
             <CompareCheckbox id={service.id} type="service" />
 
             {/* Service Image */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden">
+            <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
                 {
                     serviceImage ? (
                         <Image
                             src={serviceImage}
-                            alt={service.title}
+                            alt={service.title && !service.title.startsWith("http") ? service.title : "Service Image"}
                             fill
                             className="object-cover transition-transform duration-700 group-hover:scale-110"
-                            onError={(e) => {
-                                e.currentTarget.src = "/placeholder.png";
-                            }}
+                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 300px"
                         />
                     ) : (
-                        <div className="w-full h-full bg-blue-1" />
+                        <div className="w-full h-full bg-blue-1 flex items-center justify-center">
+                            <Image src="/placeholder.png" alt="Placeholder" width={100} height={100} className="opacity-20" />
+                        </div>
                     )
                 }
 
