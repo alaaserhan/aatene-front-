@@ -1,15 +1,4 @@
-"use client";
-
 import React, { Suspense } from "react";
-import {
-    useSecondBanners,
-    useThirdBanner,
-    useFourthBanner,
-    useFifthBanner,
-    useSixthBanner,
-} from "../hooks";
-
-import dynamic from "next/dynamic";
 import {
     Banner,
     StoryOwner,
@@ -27,6 +16,7 @@ import {
     SingleBannerSkeleton,
     HomeSectionSkeleton,
 } from "./HomeSkeletons";
+import dynamic from "next/dynamic";
 
 const HomeMultiBanners = dynamic(() => import("./HomeMultiBanners"));
 const HomeSpecialMerchants = dynamic(() => import("./HomeSpecialMerchants"));
@@ -42,40 +32,47 @@ const HomeLatestBlogs = dynamic(() => import("./HomeLatestBlogs"));
 const HomeSingleBanner = dynamic(() => import("./HomeSingleBanner"));
 
 interface HomePageProps {
+    isMobile?: boolean;
     initialData?: {
         banners?: Banner[];
         stories?: StoryOwner[];
         specialServices?: Service[];
+        secondBanners?: Banner[];
+        thirdBanner?: Banner | null;
+        fourthBanner?: Banner | null;
+        fifthBanner?: Banner | null;
+        sixthBanner?: Banner | null;
     };
 }
 
-export default function HomePage({ initialData }: HomePageProps) {
-    const { data: secondBannersRes } = useSecondBanners();
-    const { data: thirdBannerRes } = useThirdBanner();
-    const { data: fourthBannerRes } = useFourthBanner();
-    const { data: fifthBannerRes } = useFifthBanner();
-    const { data: sixthBannerRes } = useSixthBanner();
+export default function HomePage({ initialData, isMobile }: HomePageProps) {
+    const banners = initialData?.banners;
+    const stories = initialData?.stories;
+    const specialServices = initialData?.specialServices;
+    const secondBannersData = initialData?.secondBanners;
+    const thirdBannerData = initialData?.thirdBanner;
+    const fourthBannerData = initialData?.fourthBanner;
+    const fifthBannerData = initialData?.fifthBanner;
+    const sixthBannerData = initialData?.sixthBanner;
 
     return (
         <div className="min-h-screen">
             <Suspense fallback={<BannerSkeleton />}>
-                <HomeBanners banners={initialData?.banners} />
+                <HomeBanners banners={banners} isMobile={isMobile} />
             </Suspense>
 
             <Suspense fallback={<StoriesSkeleton />}>
-                <HomeStories initialOwners={initialData?.stories} />
+                <HomeStories initialOwners={stories} />
             </Suspense>
 
             <Suspense fallback={<ServicesGridSkeleton />}>
-                <HomeSpecialServices services={initialData?.specialServices} />
+                <HomeSpecialServices services={specialServices} />
             </Suspense>
 
-            {secondBannersRes?.data && secondBannersRes.data.length > 0 ? (
+            {secondBannersData && secondBannersData.length > 0 ? (
                 <Suspense fallback={<MultiBannersSkeleton />}>
-                    <HomeMultiBanners banners={secondBannersRes.data} />
+                    <HomeMultiBanners banners={secondBannersData} />
                 </Suspense>
-            ) : secondBannersRes === undefined ? (
-                <MultiBannersSkeleton />
             ) : null}
 
             <Suspense fallback={<HomeSectionSkeleton />}>
@@ -90,13 +87,11 @@ export default function HomePage({ initialData }: HomePageProps) {
                 <HomeNewProducts />
             </Suspense>
 
-            {thirdBannerRes?.data ? (
+            {thirdBannerData ? (
                 <Suspense fallback={<SingleBannerSkeleton />}>
-                    <HomeSingleBanner banner={thirdBannerRes.data} />
+                    <HomeSingleBanner banner={thirdBannerData} />
                 </Suspense>
-            ) : thirdBannerRes === undefined && (
-                <SingleBannerSkeleton />
-            )}
+            ) : null}
 
             <Suspense fallback={<ServicesGridSkeleton />}>
                 <HomeMostPopularServices />
@@ -110,37 +105,31 @@ export default function HomePage({ initialData }: HomePageProps) {
                 <HomeWeeklyOffers />
             </Suspense>
 
-            {fourthBannerRes?.data ? (
+            {fourthBannerData ? (
                 <Suspense fallback={<SingleBannerSkeleton />}>
-                    <HomeSingleBanner banner={fourthBannerRes.data} />
+                    <HomeSingleBanner banner={fourthBannerData} />
                 </Suspense>
-            ) : fourthBannerRes === undefined && (
-                <SingleBannerSkeleton />
-            )}
+            ) : null}
 
             <Suspense fallback={<ServicesGridSkeleton />}>
                 <HomeCustomizedProducts />
             </Suspense>
 
-            {fifthBannerRes?.data ? (
+            {fifthBannerData ? (
                 <Suspense fallback={<SingleBannerSkeleton />}>
-                    <HomeSingleBanner banner={fifthBannerRes.data} />
+                    <HomeSingleBanner banner={fifthBannerData} />
                 </Suspense>
-            ) : fifthBannerRes === undefined && (
-                <SingleBannerSkeleton />
-            )}
+            ) : null}
 
             <Suspense fallback={<ServicesGridSkeleton />}>
                 <HomeProductsYouMayLike />
             </Suspense>
 
-            {sixthBannerRes?.data ? (
+            {sixthBannerData ? (
                 <Suspense fallback={<SingleBannerSkeleton />}>
-                    <HomeSingleBanner banner={sixthBannerRes.data} />
+                    <HomeSingleBanner banner={sixthBannerData} />
                 </Suspense>
-            ) : sixthBannerRes === undefined && (
-                <SingleBannerSkeleton />
-            )}
+            ) : null}
 
             <Suspense fallback={<ServicesGridSkeleton />}>
                 <HomeRequestedServices />
