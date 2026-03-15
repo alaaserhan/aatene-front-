@@ -11,6 +11,8 @@ import { NotificationDropdown } from "@/src/components/shared/NotificationDropdo
 import useFCMToken from "@/src/hooks/use-fcm-token";
 import { useSettingsStore } from "@/src/stores/settings-store";
 
+import Image from "next/image";
+
 const Navbar = () => {
   const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
   const lang = useLanguage();
@@ -26,9 +28,23 @@ const Navbar = () => {
         <div className="flex items-center justify-between gap-6">
           <Link href={`/${lang}`} className="flex items-center gap-4">
             {settings?.logo_url ? (
-              <img src={settings.logo_url} className="h-10 w-auto object-contain" alt={settings?.name || "logo"} />
+              <Image 
+                src={settings.logo_url} 
+                className="h-10 w-auto object-contain" 
+                alt={settings?.name || "logo"} 
+                width={150}
+                height={40}
+                priority
+              />
             ) : (
-              <img src="/black.svg" className="h-10" alt="logo" />
+              <Image 
+                src="/black.svg" 
+                className="h-10 w-auto object-contain" 
+                alt="logo" 
+                width={150}
+                height={40}
+                priority
+              />
             )}
           </Link>
 
@@ -57,24 +73,24 @@ const NavIcons = () => {
 
       <Link href={`/${lang}/compare`} className="flex items-center">
         <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="المقارنات">
-          <img src="/icons/Compare.svg" alt="" className="h-6 w-6" />
+          <Image src="/icons/Compare.svg" alt="" width={24} height={24} className="h-6 w-6" />
         </button>
       </Link>
       {/* {userType === "admin" && (
         <Link href={`/${lang}/admin/stores`} className="flex items-center">
           <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="المتاجر">
-            <img src="/icons/shop.svg" alt="" className="h-6 w-6" />
+            <Image src="/icons/shop.svg" alt="" width={24} height={24} className="h-6 w-6" />
           </button>
         </Link>
       )} */}
       <Link href={`/${lang}/favourites`} className="flex items-center">
         <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="المفضلة">
-          <img src="/icons/heart.svg" alt="Favorites" className="h-6 w-6" />
+          <Image src="/icons/heart.svg" alt="Favorites" width={24} height={24} className="h-6 w-6" />
         </button>
       </Link>
       <Link href={`/${lang}/chat`} className="flex items-center">
         <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="الرسائل">
-          <img src="/icons/chat.svg" alt="Messages" className="h-6 w-6" />
+          <Image src="/icons/chat.svg" alt="Messages" width={24} height={24} className="h-6 w-6" />
         </button>
       </Link>
     </div>
