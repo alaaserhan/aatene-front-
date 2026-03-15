@@ -12,9 +12,10 @@ import { BannerSkeleton } from "./HomeSkeletons";
 
 interface HomeBannersProps {
     banners?: Banner[]; // Keep optional for backward compatibility or initial server render if needed
+    isMobile?: boolean;
 }
 
-export default function HomeBanners({ banners: initialBanners }: HomeBannersProps) {
+export default function HomeBanners({ banners: initialBanners, isMobile }: HomeBannersProps) {
     const { data: response, isLoading } = useFirstBanners();
     const banners = initialBanners || response?.data || [];
 
@@ -68,43 +69,48 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
                             rel="noopener noreferrer"
                             className="block w-full h-full"
                         >
-                            {/* Desktop Image */}
-                            <div className="hidden md:block w-full h-full relative">
-                                {desktopSrc ? (
-                                    <Image
-                                        src={desktopSrc}
-                                        alt={currentBanner.title || "Banner"}
-                                        fill
-                                        className="object-cover w-full h-full"
-                                        priority={currentIndex === 0}
-                                        onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-desktop`]: true }))}
-                                        sizes="(max-width: 768px) 100vw, 1170px"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                                        No Image Available
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Mobile Image */}
-                            <div className="block md:hidden w-full h-full relative">
-                                {mobileSrc ? (
-                                    <Image
-                                        src={mobileSrc}
-                                        alt={currentBanner.title || "Banner"}
-                                        fill
-                                        className="object-cover w-full h-full"
-                                        priority={currentIndex === 0}
-                                        onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-mobile`]: true }))}
-                                        sizes="100vw"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                                        No Image Available
-                                    </div>
-                                )}
-                            </div>
+                            {/* Art Direction: Render ONLY the appropriate image based on device detection */}
+                            {!isMobile ? (
+                                /* Desktop Image */
+                                <div className="hidden md:block w-full h-full relative">
+                                    {desktopSrc ? (
+                                        <Image
+                                            src={desktopSrc}
+                                            alt={currentBanner.title && !currentBanner.title.startsWith("http") ? currentBanner.title : "Aatene Banner"}
+                                            fill
+                                            className="object-cover w-full h-full"
+                                            priority={currentIndex === 0}
+                                            fetchPriority={currentIndex === 0 ? "high" : "auto"}
+                                            onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-desktop`]: true }))}
+                                            sizes="(max-width: 768px) 100vw, 1170px"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                                            No Image Available
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                /* Mobile Image */
+                                <div className="block md:hidden w-full h-full relative">
+                                    {mobileSrc ? (
+                                        <Image
+                                            src={mobileSrc}
+                                            alt={currentBanner.title && !currentBanner.title.startsWith("http") ? currentBanner.title : "Aatene Banner"}
+                                            fill
+                                            className="object-cover w-full h-full"
+                                            priority={currentIndex === 0}
+                                            fetchPriority={currentIndex === 0 ? "high" : "auto"}
+                                            onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-mobile`]: true }))}
+                                            sizes="100vw"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                                            No Image Available
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </Link>
                     </m.div>
                 </AnimatePresence>
