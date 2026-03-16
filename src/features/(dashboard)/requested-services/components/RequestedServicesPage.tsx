@@ -7,7 +7,8 @@ import { useGetReports } from "../../reports/hooks";
 import {
   Eye,
   Search,
-  Loader2
+  Loader2,
+  User
 } from "lucide-react";
 import Link from "next/link";
 
@@ -199,7 +200,6 @@ function RequestedServicesPageContent() {
         };
         const reqId = report.requested_service?.id || "-";
         const userFullName = report.user?.fullname || report.user?.first_name || "غير محدد";
-        const userAvatar = report.user?.avatar_url || "/default-avatar.png";
 
         return (
           <tr key={`report-${report.id}`} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50">
@@ -208,12 +208,16 @@ function RequestedServicesPageContent() {
             </td>
             <td className="px-6 py-4">
               <div className="flex items-center justify-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-200 shrink-0">
-                  <img
-                    src={userAvatar}
-                    alt={userFullName}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-200 shrink-0 flex items-center justify-center">
+                  {report.user?.avatar_url ? (
+                    <img
+                      src={report.user.avatar_url}
+                      alt={userFullName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-6 h-6 text-gray-400" />
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium line-clamp-1">
@@ -241,12 +245,16 @@ function RequestedServicesPageContent() {
       const ownerCell = (
         <td className="px-6 py-4">
           <div className="flex items-center justify-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-200 shrink-0">
-              <img
-                src={item.user?.avatar_url || "/default-avatar.png"}
-                alt={item.user?.first_name}
-                className="w-full h-full object-cover"
-              />
+            <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-200 shrink-0 flex items-center justify-center">
+              {item.user?.avatar_url ? (
+                <img
+                  src={item.user.avatar_url}
+                  alt={item.user?.first_name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="w-6 h-6 text-gray-400" />
+              )}
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-medium line-clamp-1">

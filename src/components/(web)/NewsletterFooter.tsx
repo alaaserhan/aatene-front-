@@ -1,7 +1,6 @@
 "use client";
 
 import { Mail, Loader2 } from "lucide-react";
-import MaxWidthWrapper from "./MaxWidthWrapper";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -25,10 +24,6 @@ const NewsletterFooter = () => {
             toast.success(data?.message || "تم الاشتراك بنجاح");
             setEmail("");
         },
-        onError: (error: unknown) => {
-            const err = error as { response?: { data?: { message?: string } } };
-            toast.error(err?.response?.data?.message || "حدث خطأ أثناء الاشتراك");
-        }
     });
 
     const handleSubscribe = () => {
@@ -71,7 +66,7 @@ const NewsletterFooter = () => {
                             <button
                                 onClick={handleSubscribe}
                                 disabled={isPending}
-                                className="bg-linear-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text font-bold text-lg transition disabled:opacity-50 w-full flex items-center justify-center gap-2 cursor-pointer"
+                                className="bg-linear-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text font-semibold pt-0.5 transition disabled:opacity-50 w-full flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 {isPending && <Loader2 className="w-5 h-5 animate-spin text-blue-500" />}
                                 {isPending ? "جاري الاشتراك..." : "اشترك الآن"}

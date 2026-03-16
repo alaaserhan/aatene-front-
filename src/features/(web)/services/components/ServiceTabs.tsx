@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { Service, ServiceBoardQuestion } from "../api";
-import { Loader2, Plus, Minus, Search, Flag, ChevronLeft, ChevronDown } from "lucide-react";
+import { Loader2, Plus, Minus, Search, Flag, ChevronLeft, ChevronDown, User } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/dialog";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { useAuthStore } from "@/src/stores/auth-store";
@@ -410,8 +410,12 @@ function ServiceQASection({ service }: { service: Service }) {
                     </DialogHeader>
                     <div className="p-6">
                         <div className=" relative bg-white overflow-hidden p-[1px]">
-                            <div className="absolute top-4 right-4 w-10 h-10 rounded-full border border-gray-100 overflow-hidden shadow-sm bg-gray-100 shrink-0 z-10">
-                                <Image src={authUser?.avatar_url || "/default-avatar.png"} alt="user" fill className="object-cover" />
+                            <div className="absolute top-4 right-4 w-10 h-10 rounded-full border border-gray-100 overflow-hidden shadow-sm bg-gray-100 shrink-0 z-10 flex items-center justify-center">
+                                {authUser?.avatar_url ? (
+                                    <Image src={authUser.avatar_url} alt="user" fill className="object-cover" />
+                                ) : (
+                                    <User className="w-6 h-6 text-gray-400" />
+                                )}
                             </div>
                             <textarea
                                 value={content}
@@ -480,8 +484,12 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
                     </p>
                     <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full border border-gray-100 overflow-hidden shrink-0">
-                                <Image src={firstAnswer.user?.avatar_url || "/default-avatar.png"} alt={firstAnswer.user?.name || ""} width={28} height={28} className="w-full h-full object-cover" />
+                            <div className="w-7 h-7 rounded-full border border-gray-100 overflow-hidden shadow-sm bg-gray-100 shrink-0 flex items-center justify-center">
+                                {firstAnswer.user?.avatar_url ? (
+                                    <Image src={firstAnswer.user.avatar_url} alt={firstAnswer.user?.name || ""} width={28} height={28} className="w-full h-full object-cover" />
+                                ) : (
+                                    <User className="w-4 h-4 text-gray-400" />
+                                )}
                             </div>
                             <span className="text-sm font-medium ">{firstAnswer.user?.name}</span>
                         </div>
@@ -623,8 +631,12 @@ function ServiceQAAnswersModal({ isOpen, onClose, question }: { isOpen: boolean,
                                     </p>
                                     <div className="flex items-center justify-between flex-wrap gap-4">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-7 h-7 rounded-full border border-gray-100 overflow-hidden shrink-0">
-                                                <Image src={ans.user?.avatar_url || "/default-avatar.png"} alt={ans.user?.name || ""} width={28} height={28} className="w-full h-full object-cover" />
+                                            <div className="w-7 h-7 rounded-full border border-gray-100 overflow-hidden shadow-sm bg-gray-100 shrink-0 flex items-center justify-center">
+                                                {ans.user?.avatar_url ? (
+                                                    <Image src={ans.user.avatar_url} alt={ans.user?.name || ""} width={28} height={28} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <User className="w-4 h-4 text-gray-400" />
+                                                )}
                                             </div>
                                             <span className="text-sm font-medium ">{ans.user?.name}</span>
                                         </div>
