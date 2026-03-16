@@ -2,18 +2,30 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const TikTokPixel = () => {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
+    const [shouldLoad, setShouldLoad] = useState(false);
+
     useEffect(() => {
+        const timer = setTimeout(() => {
+            setShouldLoad(true);
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
+        if (!shouldLoad) return;
         type WindowWithTTQ = Window & typeof globalThis & { ttq?: { page: () => void } };
         if (typeof window !== "undefined" && (window as WindowWithTTQ).ttq) {
             (window as WindowWithTTQ).ttq?.page();
         }
-    }, [pathname, searchParams]);
+    }, [pathname, searchParams, shouldLoad]);
+
+    if (!shouldLoad) return null;
 
     return (
         <Script
