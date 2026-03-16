@@ -59,9 +59,10 @@ export const SingleBannerSkeleton = () => (
 
 export const MultiBannersSkeleton = () => (
     <MaxWidthWrapper className="my-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="aspect-video md:aspect-570/250 bg-gray-100 animate-pulse rounded-2xl" />
-            <div className="aspect-video md:aspect-570/250 bg-gray-100 animate-pulse rounded-2xl" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+             {[1, 2, 3].map((i) => (
+                <div key={i} className="aspect-video md:aspect-570/250 bg-gray-100 animate-pulse rounded-2xl" />
+             ))}
         </div>
     </MaxWidthWrapper>
 );
