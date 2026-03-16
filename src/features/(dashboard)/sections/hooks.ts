@@ -25,6 +25,18 @@ export const useGetSections = (
   });
 };
 
+/** جلب الأقسام للأدمن بدون اشتراط store_id (يرجع كل الأقسام) */
+export const useGetAllSectionsAdmin = (
+  params: URLSearchParams,
+  options?: Partial<UseQueryOptions<SectionsResponse, Error>>
+) => {
+  return useQuery({
+    queryKey: ["sections", "admin-all", params.toString()],
+    queryFn: () => api.getSections(params, undefined),
+    ...options,
+  });
+};
+
 export const useInfiniteSections = (params?: URLSearchParams) => {
   const storeId = Cookies.get("current_store_id") || "";
 
