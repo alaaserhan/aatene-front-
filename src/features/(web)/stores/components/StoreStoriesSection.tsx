@@ -87,7 +87,7 @@ export default function StoreStoriesSection({
                     </button>
                 )}
 
-                {isAdmin && onAddStory && (
+                {/* {isAdmin && onAddStory && (
                     <DropdownMenu dir="rtl">
                         <DropdownMenuTrigger asChild>
                             <button className="shrink-0 flex flex-col items-center gap-1.5 cursor-pointer group outline-none">
@@ -126,7 +126,7 @@ export default function StoreStoriesSection({
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                )}
+                )} */}
 
                 {filteredHighlights.map((highlight) => {
                     const lastStory = getLastStory(highlight);
