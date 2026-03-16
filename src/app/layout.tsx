@@ -59,28 +59,10 @@ export const metadata: Metadata = {
   },
 };
 
+// ⚡ CRITICAL OPTIMIZATION: تحميل 3 أوزان فقط بدل 9
+// يوفر ~200KB ويقلل render blocking
 const pingAr = localFont({
   src: [
-    {
-      path: "./fonts/PingAR+LT-Hairline.otf",
-      weight: "100",
-      style: "normal",
-    },
-    {
-      path: "./fonts/PingAR+LT-Thin.otf",
-      weight: "200",
-      style: "normal",
-    },
-    {
-      path: "./fonts/PingAR+LT-ExtraLight.otf",
-      weight: "200",
-      style: "normal",
-    },
-    {
-      path: "./fonts/PingAR+LT-Light.otf",
-      weight: "300",
-      style: "normal",
-    },
     {
       path: "./fonts/PingAR+LT-Regular.otf",
       weight: "400",
@@ -96,20 +78,12 @@ const pingAr = localFont({
       weight: "700",
       style: "normal",
     },
-    {
-      path: "./fonts/PingAR+LT-Heavy.otf",
-      weight: "800",
-      style: "normal",
-    },
-    {
-      path: "./fonts/PingAR+LT-Black.otf",
-      weight: "900",
-      style: "normal",
-    },
   ],
   variable: "--font-ping-ar",
-  display: "swap",
-  fallback: ["sans-serif"],
+  display: "swap", // ✅ يمنع FOIT - يظهر النص فوراً
+  fallback: ["Tahoma", "Arial", "sans-serif"],
+  preload: true,
+  adjustFontFallback: "Arial", // يقلل layout shift
 });
 
 export default function RootLayout({
@@ -119,17 +93,27 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
-      dir="ltr"
+      lang="ar"
+      dir="rtl"
       className={pingAr.variable}
       suppressHydrationWarning
     >
+      <head>
+        {/* ⚡ DNS Prefetch للباك اند */}
+        <link rel="preconnect" href="https://backend.aatene.com" />
+        <link rel="dns-prefetch" href="https://backend.aatene.com" />
+        
+        {/* ⚡ Preconnect لـ Third-party (بس اللي ضروري) */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://connect.facebook.net" />
+      </head>
       <body className="font-sans antialiased">
         <Suspense fallback={null}>
           <MetaPixel />
           <GoogleAnalytics />
           <TikTokPixel />
         </Suspense>
+        
         <QueryProvider>
           <Suspense fallback={null}>
             <AuthHydrator />
@@ -137,6 +121,7 @@ export default function RootLayout({
           </Suspense>
           {children}
         </QueryProvider>
+        
         <Toaster richColors dir="rtl" position="top-right" />
       </body>
     </html>

@@ -73,7 +73,8 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
                                     fill
                                     className="object-cover w-full h-full"
                                     priority={currentIndex === 0}
-                                    fetchPriority={currentIndex === 0 ? "high" : "auto"}
+                                    loading={currentIndex === 0 ? "eager" : "lazy"}
+                                    fetchPriority={currentIndex === 0 ? "high" : "low"}
                                     onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-desktop`]: true }))}
                                     sizes="(max-width: 768px) 100vw, 1170px"
                                 />
@@ -91,7 +92,8 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
                                     fill
                                     className="object-cover w-full h-full"
                                     priority={currentIndex === 0}
-                                    fetchPriority={currentIndex === 0 ? "high" : "auto"}
+                                    loading={currentIndex === 0 ? "eager" : "lazy"}
+                                    fetchPriority={currentIndex === 0 ? "high" : "low"}
                                     onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-mobile`]: true }))}
                                     sizes="100vw"
                                 />
