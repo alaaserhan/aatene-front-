@@ -12,7 +12,7 @@ export const StoriesSkeleton = () => (
         <MaxWidthWrapper className="relative w-full">
             <div className="flex gap-2 sm:gap-4 overflow-hidden">
                 <div className="rounded-2xl w-[130px] min-w-[130px] sm:w-[240px] sm:min-w-[240px] h-[170px] sm:h-[220px] bg-gray-200 animate-pulse shrink-0" />
-                <div className="flex gap-3 sm:gap-4 flex-1">
+                <div className="flex gap-2 sm:gap-4 py-2 flex-1">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
                         <div key={i} className="shrink-0 w-[95px] sm:w-[140px] h-[145px] sm:h-[200px] bg-gray-100 animate-pulse rounded-xl" />
                     ))}
@@ -32,7 +32,7 @@ export const ServicesGridSkeleton = () => (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-6">
                 {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="flex flex-col gap-4">
-                        <div className="aspect-4/3 w-full bg-gray-100 animate-pulse rounded-2xl" />
+                        <div className="aspect-square w-full bg-gray-100 animate-pulse rounded-2xl" />
                         <div className="space-y-2">
                              <div className="h-4 w-full bg-gray-100 animate-pulse rounded" />
                              <div className="h-4 w-2/3 bg-gray-100 animate-pulse rounded" />
