@@ -19,6 +19,7 @@ import { Button } from "@/src/components/ui/button";
 
 export function StoreGuard({ children }: { children: ReactNode }) {
     const user = useAuthStore((s) => s.user);
+    const isHydrated = useAuthStore((s) => s.isHydrated);
     const [isReady, setIsReady] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const router = useRouter();
@@ -26,6 +27,8 @@ export function StoreGuard({ children }: { children: ReactNode }) {
     const params = useParams();
 
     useEffect(() => {
+        if (!isHydrated) return;
+
         const initializeStore = async () => {
             const isMerchant = user?.user_type === "merchant";
             if (!isMerchant) {
@@ -90,7 +93,7 @@ export function StoreGuard({ children }: { children: ReactNode }) {
         };
 
         initializeStore();
-    }, [user, pathname, router, params]);
+    }, [user, isHydrated, pathname, router, params]);
 
     if (!isReady) {
         return (
