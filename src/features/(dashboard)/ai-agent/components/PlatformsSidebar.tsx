@@ -28,6 +28,16 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
       label: "انستجرام",
       iconPath: "/icons/dashboard/insta.svg"
     },
+    {
+      id: "website",
+      label: "الموقع",
+      iconPath: "/icons/dashboard/website.svg"
+    },
+    {
+      id: "mobile",
+      label: "الموبايل",
+      iconPath: "/icons/dashboard/mobile.svg"
+    }
   ];
 
   const productPlatforms = [

@@ -161,7 +161,7 @@ function StandardChatList({
   onSelectChat: (id: string) => void;
   needsHuman: boolean;
 }) {
-  const isApiPlatform = ["whatsapp", "instagram", "messenger"].includes(platform);
+  const isApiPlatform = ["whatsapp", "instagram", "messenger", "website", "mobile"].includes(platform);
   const { data, isLoading } = useGetPlatformUsersInfo({
     platform: (isApiPlatform ? platform : "whatsapp") as PlatformType,
     limit: 50,
