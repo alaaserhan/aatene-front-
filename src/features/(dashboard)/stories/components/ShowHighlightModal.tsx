@@ -9,7 +9,7 @@ import {
     MoreHorizontal,
 } from "lucide-react";
 import { Story, Highlight, CreateHighlightPayload } from "../api";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 import {
     Popover,
     PopoverContent,
@@ -20,10 +20,6 @@ import { CreateHighlightModal } from "./CreateHighlightModal";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 
 const IMAGE_DURATION = 10000;
-
-const isVideoFile = (fileName: string) => {
-    return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
-};
 
 interface ShowHighlightModalProps {
     isOpen: boolean;
@@ -51,10 +47,12 @@ export function ShowHighlightModal({
     const [storyDuration, setStoryDuration] = useState(IMAGE_DURATION);
 
     const highlightStories = highlight?.stories || [];
+    const activeStory = highlightStories?.[activeIndex];
 
     const rafRef = useRef<number>(0);
     const startTimeRef = useRef<number>(0);
     const pausedElapsedRef = useRef<number>(0);
+    const videoRef = useRef<HTMLVideoElement>(null);
 
     const isPaused = isMenuOpen || isEditModalOpen;
 
@@ -124,6 +122,13 @@ export function ShowHighlightModal({
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, isPaused, storyDuration, activeIndex, goToNext]);
+
+    useEffect(() => {
+        if (isOpen && activeStory?.image && isVideoFile(activeStory.image) && videoRef.current) {
+            videoRef.current.currentTime = 0;
+            videoRef.current.play().catch(err => console.log("Video play error:", err));
+        }
+    }, [activeIndex, isOpen, activeStory?.image]);
 
     if (!highlight || highlightStories.length === 0) return null;
 
@@ -208,11 +213,13 @@ export function ShowHighlightModal({
                                             {story.image ? (
                                                 isVideoFile(story.image) ? (
                                                     <video
+                                                        ref={isActive ? videoRef : null}
                                                         src={story.image}
                                                         className="w-full h-full object-cover"
                                                         muted
                                                         playsInline
                                                         autoPlay={isActive}
+                                                        preload="metadata"
                                                         onLoadedMetadata={isActive ? handleVideoDuration : undefined}
                                                     />
                                                 ) : (

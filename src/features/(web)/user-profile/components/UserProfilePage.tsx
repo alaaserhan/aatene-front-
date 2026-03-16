@@ -7,7 +7,7 @@ import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, UserMinus, User a
 import { useUserProfile, useUserProfilePageData, useUserFavProducts, useUserProducts } from "../hooks";
 import { useParams, useRouter, notFound } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useFollowUserOrStore, useUnfollowUserOrStore, useCreateHighlight, useGetStories } from "@/src/features/(web)/settings/hooks";
 import { useQueryClient } from "@tanstack/react-query";
@@ -278,12 +278,22 @@ function HighlightsSection({ highlights, isOwnProfile, onAddHighlight }: {
                                     {lastStory ? (
                                         lastStory.image ? (
                                             <div className="relative w-full h-full">
-                                                <Image
-                                                    src={lastStory.image}
-                                                    alt={highlight.name}
-                                                    fill
-                                                    className="object-cover"
-                                                />
+                                                {isVideoFile(lastStory.image) ? (
+                                                    <video
+                                                        src={lastStory.image}
+                                                        className="w-full h-full object-cover"
+                                                        muted
+                                                        playsInline
+                                                        preload="metadata"
+                                                    />
+                                                ) : (
+                                                    <Image
+                                                        src={lastStory.image}
+                                                        alt={highlight.name}
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                )}
                                             </div>
                                         ) : (
                                             <div
