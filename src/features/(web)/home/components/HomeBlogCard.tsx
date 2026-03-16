@@ -4,15 +4,17 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Blog } from "../../blogs/types";
-import { format } from "date-fns";
-import { arSA } from "date-fns/locale";
 
 interface HomeBlogCardProps {
     blog: Blog;
 }
 
 export default function HomeBlogCard({ blog }: HomeBlogCardProps) {
-    const formattedDate = format(new Date(blog.created_at), "dd MMMM yyyy", { locale: arSA });
+    const formattedDate = new Intl.DateTimeFormat("ar-SA", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+    }).format(new Date(blog.created_at));
 
     return (
         <Link href={`/blogs/${blog.slug}`} className="block group">

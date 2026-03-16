@@ -3,11 +3,12 @@ import * as api from "./api";
 
 const staleTime = 5 * 60 * 1000; // 5 minutes
 
-export const useFirstBanners = () => {
+export const useFirstBanners = (options?: { enabled?: boolean }) => {
     return useApiQuery({
         queryKey: ["homeFirstBanners"],
         queryFn: api.getFirstBanners,
         staleTime,
+        ...options,
     });
 };
 
@@ -115,11 +116,12 @@ export const useSpecialServices = () => {
     });
 };
 
-export const usePopularServices = () => {
+export const usePopularServices = (options?: { enabled?: boolean }) => {
     return useApiQuery({
         queryKey: ["homePopularServices"],
         queryFn: api.getPopularServices,
         staleTime,
+        ...options,
     });
 };
 
