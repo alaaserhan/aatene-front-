@@ -11,10 +11,22 @@ export const GoogleAnalytics = () => {
     const [shouldLoad, setShouldLoad] = useState(false);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setShouldLoad(true);
-        }, 2000);
-        return () => clearTimeout(timer);
+        // ⚡ تأجيل التحميل لحد ما اليوزر يعمل interaction
+        const load = () => setShouldLoad(true);
+        
+        // بيحمل على أول interaction أو بعد 3 ثواني (بدل 2)
+        window.addEventListener("mousemove", load, { once: true });
+        window.addEventListener("touchstart", load, { once: true });
+        window.addEventListener("scroll", load, { once: true, passive: true });
+        
+        const timer = setTimeout(load, 3000); // زيادة من 2 لـ 3 ثواني
+        
+        return () => {
+            window.removeEventListener("mousemove", load);
+            window.removeEventListener("touchstart", load);
+            window.removeEventListener("scroll", load);
+            clearTimeout(timer);
+        };
     }, []);
 
     useEffect(() => {
