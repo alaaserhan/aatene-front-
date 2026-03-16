@@ -170,10 +170,11 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
 
             {/* Description */}
             <div className="mb-8">
-              <h4 className="text-lg font-bold  mb-3">تفاصيل الطلب</h4>
-              <div className="text-gray-2 leading-relaxed whitespace-pre-wrap text-base">
-                {service.content}
-              </div>
+              <h4 className="font-semibold  mb-3">تفاصيل الطلب</h4>
+              <div
+                className="text-gray-2 leading-relaxed whitespace-pre-wrap text-sm"
+                dangerouslySetInnerHTML={{ __html: service.content }}
+              />
             </div>
 
             {/* Attachments Section */}

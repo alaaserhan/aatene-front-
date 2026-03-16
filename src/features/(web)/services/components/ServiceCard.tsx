@@ -21,7 +21,6 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
     const router = useRouter();
     const qc = useQueryClient();
 
-    const [localIsFavorite, setLocalIsFavorite] = useState(service.is_favorite);
 
     const price = parseFloat(service.price || "0");
     const cityName = service.store?.city?.name || "فلسطين";
@@ -88,9 +87,8 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                     <FavoriteButton
                         id={service.id}
                         type="service"
-                        isFavorite={localIsFavorite}
+                        isFavorite={service.is_favorite}
                         onSuccess={() => {
-                            setLocalIsFavorite(!localIsFavorite);
                             qc.invalidateQueries();
                             router.refresh();
                             onFavoriteClick?.(service.id);

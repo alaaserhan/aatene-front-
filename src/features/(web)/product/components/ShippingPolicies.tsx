@@ -54,7 +54,9 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
             const validCityIds = new Set<string>();
             allShippingCompanies.forEach((company) => {
                 company.prices.forEach((price) => {
-                    validCityIds.add(String(price.city_id));
+                    if (price.city_id) {
+                        validCityIds.add(String(price.city_id));
+                    }
                 });
             });
             cities = cities.filter((city) => validCityIds.has(String(city.id)));
@@ -76,7 +78,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
             let foundPrice: ShippingPrice | null = null;
 
             for (const company of allShippingCompanies) {
-                const priceMatch = company.prices.find((p) => p.city_id === String(selectedCityId));
+                const priceMatch = company.prices.find((p) => Number(p.city_id) === Number(selectedCityId));
                 if (priceMatch) {
                     foundCompany = company;
                     foundPrice = priceMatch;
@@ -88,10 +90,10 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                 activeC = foundCompany;
                 activeD = {
                     id: foundPrice.id,
-                    city_id: foundPrice.city_id,
+                    city_id: String(foundPrice.city_id),
                     city: { id: selectedCityId, name: selectedCityName, is_active: true },
-                    days: foundPrice.days,
-                    price: foundPrice.price
+                    days: String(foundPrice.days),
+                    price: String(foundPrice.price)
                 };
             }
         }
@@ -135,7 +137,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                         <img src="/icons/car.svg" alt="calendar" width={24} height={24} />
                     </div>
                     <span className="font-medium ">
-                        {(!activeCompany || activeDetails?.price === "0") ? "توصيل مجاني" : `توصيل: ${activeDetails?.price} ج.م`}
+                        {(!activeCompany || String(activeDetails?.price) === "0") ? "توصيل مجاني" : `توصيل: ${activeDetails?.price} ج.م`}
                     </span>
                 </div>
 
