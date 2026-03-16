@@ -12,11 +12,18 @@ export const MetaPixel = () => {
     const [shouldLoad, setShouldLoad] = useState(false);
 
     useEffect(() => {
-        // Ultra-defer script initialization to improve TBT
-        const timer = setTimeout(() => {
-            setShouldLoad(true);
-        }, 2000);
-        return () => clearTimeout(timer);
+        // Ultra-defer script initialization: after interaction OR fallback timer
+        const load = () => setShouldLoad(true);
+
+        window.addEventListener("mousemove", load, { once: true });
+        window.addEventListener("touchstart", load, { once: true });
+
+        const timer = setTimeout(load, 2000);
+        return () => {
+            window.removeEventListener("mousemove", load);
+            window.removeEventListener("touchstart", load);
+            clearTimeout(timer);
+        };
     }, []);
 
     useEffect(() => {
