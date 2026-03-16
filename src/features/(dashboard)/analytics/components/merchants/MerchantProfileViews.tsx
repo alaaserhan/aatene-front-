@@ -1,7 +1,7 @@
 // src/features/(dashboard)/analytics/components/merchants/MerchantProfileViews.tsx
 "use client";
 
-import { Loader2, Eye } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { useGetMerchantAnalyticsOverview } from "../../hooks";
 
@@ -79,7 +79,7 @@ export function MerchantProfileViews() {
                                             textAlign: "right"
                                         }}
                                         cursor={{ stroke: '#e5e7eb', strokeWidth: 1 }}
-                                        formatter={(value: number) => [`العدد : ${value} `]}
+                                        formatter={(value: string | number | readonly (string | number)[] | undefined) => `العدد : ${value} `}
                                     />
                                     <Line
                                         type="linear"
