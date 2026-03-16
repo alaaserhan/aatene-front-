@@ -264,9 +264,9 @@ export function CreateCouponModal({
 
             if (couponToEdit) {
                 setFormData({
-                    code: couponToEdit.code,
+                    code: String(couponToEdit.code || ""),
                     type: couponToEdit.type as "value" | "percentage",
-                    value: couponToEdit.value,
+                    value: String(couponToEdit.value || ""),
                     start_date: couponToEdit.start_date?.split(" ")[0] || "",
                     end_date: couponToEdit.end_date?.split(" ")[0] || "",
 
@@ -297,9 +297,9 @@ export function CreateCouponModal({
             const timer = setTimeout(() => {
                 setFormData((prev) => ({
                     ...prev,
-                    code: record.code,
+                    code: String(record.code || ""),
                     type: (record.type as "value" | "percentage") || "percentage",
-                    value: record.value,
+                    value: String(record.value || ""),
                     start_date: record.start_date?.split(" ")[0] || "",
                     end_date: record.end_date?.split(" ")[0] || "",
                     // Handle mixed types (number or object)
@@ -347,8 +347,8 @@ export function CreateCouponModal({
     }, [formData.start_date, formData.end_date]);
 
     const isStep1Valid = () => {
-        if (!formData.code.trim()) return false;
-        if (!formData.value.trim()) return false;
+        if (!String(formData.code || "").trim()) return false;
+        if (!String(formData.value || "").trim()) return false;
         if (!formData.start_date) return false;
         if (!formData.end_date) return false;
         if (dateError) return false;

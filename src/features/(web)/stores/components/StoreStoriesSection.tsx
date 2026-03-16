@@ -6,6 +6,7 @@ import { Plus, Type, Image as ImageIcon } from "lucide-react";
 import { Story } from "@/src/features/(dashboard)/stories/api";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { StoreHighlight } from "../api";
+import { isVideoFile } from "@/src/lib/utils";
 import api from "@/src/lib/axios";
 import {
     DropdownMenu,
@@ -87,7 +88,7 @@ export default function StoreStoriesSection({
                     </button>
                 )}
 
-                {isAdmin && onAddStory && (
+                {/* {isAdmin && onAddStory && (
                     <DropdownMenu dir="rtl">
                         <DropdownMenuTrigger asChild>
                             <button className="shrink-0 flex flex-col items-center gap-1.5 cursor-pointer group outline-none">
@@ -126,7 +127,7 @@ export default function StoreStoriesSection({
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                )}
+                )} */}
 
                 {filteredHighlights.map((highlight) => {
                     const lastStory = getLastStory(highlight);
@@ -141,12 +142,22 @@ export default function StoreStoriesSection({
                                     {lastStory ? (
                                         lastStory.image ? (
                                             <div className="relative w-full h-full">
-                                                <Image
-                                                    src={lastStory.image}
-                                                    alt={highlight.name}
-                                                    fill
-                                                    className="object-cover"
-                                                />
+                                                {isVideoFile(lastStory.image) ? (
+                                                    <video
+                                                        src={lastStory.image}
+                                                        className="w-full h-full object-cover"
+                                                        muted
+                                                        playsInline
+                                                        preload="metadata"
+                                                    />
+                                                ) : (
+                                                    <Image
+                                                        src={lastStory.image}
+                                                        alt={highlight.name}
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                )}
                                             </div>
                                         ) : (
                                             <div

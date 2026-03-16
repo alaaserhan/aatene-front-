@@ -3,11 +3,12 @@
 import { memo, useState } from "react";
 import { Store } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
-import { ArrowRight, UserPlus, Store as StoreIcon } from "lucide-react";
+import { ArrowRight, UserPlus, Store as StoreIcon, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-import { useFollowUserOrStore } from "@/src/features/(web)/settings/hooks";
+import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface StoreCardProps {
     store: Store;
@@ -27,7 +28,11 @@ const StoreCard = memo(({
     const [imgSrc, setImgSrc] = useState(store.logo_url || "/placeholder.png");
     const rating = parseFloat(store.review_rate || "0");
     const [followed, setFollowed] = useState(isFollowing || store.am_i_following);
-    const { mutate: follow, isPending } = useFollowUserOrStore();
+    const queryClient = useQueryClient();
+    const { mutate: follow, isPending: isFollowPending } = useFollowUserOrStore();
+    const { mutate: unfollow, isPending: isUnfollowPending } = useUnfollowUserOrStore();
+
+    const isPending = isFollowPending || isUnfollowPending;
 
     const router = useRouter();
 
@@ -76,7 +81,7 @@ const StoreCard = memo(({
 
                 {/* Description */}
                 <p className="text-gray-2 text-sm mb-4 line-clamp-2 flex-1">
-                    {store.address || "متجر إلكتروني متخصص في أحدث صيحات الموضة والأزياء العصرية للشباب والشابات"}
+                    {store.description || "متجر إلكتروني متخصص في أحدث صيحات الموضة والأزياء العصرية للشباب والشابات"}
                 </p>
 
                 {/* Features Row */}
@@ -105,20 +110,43 @@ const StoreCard = memo(({
                 {/* Action Buttons */}
                 <div className="mt-auto flex flex-col gap-2">
                     {followed ? (
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (onVisitClick) {
-                                    onVisitClick(store.slug);
-                                } else {
-                                    router.push(`/store/${store.slug}`);
-                                }
-                            }}
-                            className="w-full py-3 px-4 rounded-lg text-sm bg-gray-50 text-blue-4 font-medium flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors cursor-pointer"
-                        >
-                            <ArrowRight className="w-4 h-4" />
-                            <span>زيارة المتجر</span>
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                disabled={isPending}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    unfollow(
+                                        { followed_type: "store", followed_id: store.id },
+                                        {
+                                            onSuccess: () => {
+                                                setFollowed(false);
+                                                onFollowClick?.(store.id);
+                                                queryClient.invalidateQueries({ queryKey: ["stores", "search"] });
+                                                queryClient.invalidateQueries({ queryKey: ["storeProfile", store.slug] });
+                                                queryClient.invalidateQueries({ queryKey: ["storePageData", store.slug] });
+                                            },
+                                        }
+                                    );
+                                }}
+                                className="flex-1 py-3 px-4 rounded-lg text-sm bg-gray-100 text-gray-700 font-medium flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors cursor-pointer disabled:opacity-50"
+                            >
+                                <span>{isPending ? "جاري الإلغاء..." : "إلغاء المتابعة"}</span>
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (onVisitClick) {
+                                        onVisitClick(store.slug);
+                                    } else {
+                                        router.push(`/store/${store.slug}`);
+                                    }
+                                }}
+                                className="w-12 py-3 rounded-lg bg-gray-50 text-blue-4 flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer"
+                                title="زيارة المتجر"
+                            >
+                                <ArrowLeft className="w-4 h-4" />
+                            </button>
+                        </div>
                     ) : (
                         <button
                             disabled={isPending}
@@ -130,6 +158,9 @@ const StoreCard = memo(({
                                         onSuccess: () => {
                                             setFollowed(true);
                                             onFollowClick?.(store.id);
+                                            queryClient.invalidateQueries({ queryKey: ["stores", "search"] });
+                                            queryClient.invalidateQueries({ queryKey: ["storeProfile", store.slug] });
+                                            queryClient.invalidateQueries({ queryKey: ["storePageData", store.slug] });
                                         },
                                     }
                                 );

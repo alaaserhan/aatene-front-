@@ -72,102 +72,72 @@ export default function HomePage({ initialData }: HomePageProps) {
 
             <LazySection fallback={<MultiBannersSkeleton />}>
                 {secondBannersData && secondBannersData.length > 0 ? (
-                    <Suspense fallback={<MultiBannersSkeleton />}>
-                        <HomeMultiBanners banners={secondBannersData} />
-                    </Suspense>
+                    <HomeMultiBanners banners={secondBannersData} />
                 ) : null}
             </LazySection>
 
             <LazySection fallback={<HomeSectionSkeleton />}>
-                <Suspense fallback={<HomeSectionSkeleton />}>
-                    <HomeSpecialMerchants />
-                </Suspense>
+                <HomeSpecialMerchants />
             </LazySection>
 
             <LazySection fallback={<HomeSectionSkeleton />}>
-                <Suspense fallback={<HomeSectionSkeleton />}>
-                    <HomeCategoriesWithProducts />
-                </Suspense>
+                <HomeCategoriesWithProducts />
             </LazySection>
 
             <LazySection fallback={<ServicesGridSkeleton />}>
-                <Suspense fallback={<ServicesGridSkeleton />}>
-                    <HomeNewProducts />
-                </Suspense>
+                <HomeNewProducts />
             </LazySection>
 
             {thirdBannerData ? (
                 <LazySection fallback={<SingleBannerSkeleton />}>
-                    <Suspense fallback={<SingleBannerSkeleton />}>
-                        <HomeSingleBanner banner={thirdBannerData} />
-                    </Suspense>
+                    <HomeSingleBanner banner={thirdBannerData} />
                 </LazySection>
             ) : null}
 
             <LazySection fallback={<ServicesGridSkeleton />}>
-                <Suspense fallback={<ServicesGridSkeleton />}>
-                    <HomeMostPopularServices />
-                </Suspense>
+                <HomeMostPopularServices />
             </LazySection>
 
             <LazySection fallback={<ServicesGridSkeleton />}>
-                <Suspense fallback={<ServicesGridSkeleton />}>
-                    <HomeTodayOffers />
-                </Suspense>
+                <HomeTodayOffers />
             </LazySection>
 
             <LazySection fallback={<ServicesGridSkeleton />}>
-                <Suspense fallback={<ServicesGridSkeleton />}>
-                    <HomeWeeklyOffers />
-                </Suspense>
+                <HomeWeeklyOffers />
             </LazySection>
 
             {fourthBannerData ? (
                 <LazySection fallback={<SingleBannerSkeleton />}>
-                    <Suspense fallback={<SingleBannerSkeleton />}>
-                        <HomeSingleBanner banner={fourthBannerData} />
-                    </Suspense>
+                    <HomeSingleBanner banner={fourthBannerData} />
                 </LazySection>
             ) : null}
 
             <LazySection fallback={<ServicesGridSkeleton />}>
-                <Suspense fallback={<ServicesGridSkeleton />}>
-                    <HomeCustomizedProducts />
-                </Suspense>
+                <HomeCustomizedProducts />
             </LazySection>
 
             {fifthBannerData ? (
                 <LazySection fallback={<SingleBannerSkeleton />}>
-                    <Suspense fallback={<SingleBannerSkeleton />}>
-                        <HomeSingleBanner banner={fifthBannerData} />
-                    </Suspense>
+                    <HomeSingleBanner banner={fifthBannerData} />
                 </LazySection>
             ) : null}
 
             <LazySection fallback={<ServicesGridSkeleton />}>
-                <Suspense fallback={<ServicesGridSkeleton />}>
-                    <HomeProductsYouMayLike />
-                </Suspense>
+                <HomeProductsYouMayLike />
             </LazySection>
 
             {sixthBannerData ? (
                 <LazySection fallback={<SingleBannerSkeleton />}>
-                    <Suspense fallback={<SingleBannerSkeleton />}>
-                        <HomeSingleBanner banner={sixthBannerData} />
-                    </Suspense>
+                    <HomeSingleBanner banner={sixthBannerData} />
                 </LazySection>
             ) : null}
 
             <LazySection fallback={<ServicesGridSkeleton />}>
-                <Suspense fallback={<ServicesGridSkeleton />}>
-                    <HomeRequestedServices />
-                </Suspense>
+                <HomeRequestedServices />
             </LazySection>
 
             <LazySection fallback={<HomeSectionSkeleton />}>
-                <Suspense fallback={<HomeSectionSkeleton />}>
-                    <HomeLatestBlogs />
-                </Suspense>
+                <HomeLatestBlogs />
             </LazySection>
         </div>
     );
