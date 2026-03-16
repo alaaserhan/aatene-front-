@@ -66,7 +66,7 @@ export function ProductsAnalytics() {
                                     <XAxis dataKey="name" hide />
                                     <Tooltip
                                         cursor={{ fill: 'transparent' }}
-                                        formatter={(value: number) => [`العدد : ${value} `]}
+                                        formatter={(value: string | number | readonly (string | number)[] | undefined) => `العدد : ${value} `}
                                         contentStyle={{ borderRadius: "8px", border: "none", fontSize: "12px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }}
                                     />
                                     <Bar
