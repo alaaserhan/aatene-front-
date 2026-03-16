@@ -19,6 +19,10 @@ export default async function LangLayout({
   const dir = locale === "ar" || locale === "he" ? "rtl" : "ltr";
   return (
     <I18nProviderClient locale={locale}>
+      <head>
+        <link rel="preconnect" href="https://backend.aatene.com" />
+        <link rel="dns-prefetch" href="https://backend.aatene.com" />
+      </head>
       <div dir={dir}>{children}</div>
     </I18nProviderClient>
   );
