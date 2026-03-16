@@ -295,6 +295,7 @@ export interface Store {
     updated_at: string;
     location_cities: City[];
     service_cities: City[];
+    description: string;
 }
 
 export interface StoresSearchResponse extends GenericPaginationResponse {
