@@ -64,21 +64,34 @@ export const useAuthStore = create<AuthState>()(
 
         try {
           const token = Cookies.get("token");
-          if (token) {
-            set({ isLoggedIn: true });
-          } else {
-            set({ isLoggedIn: false, user: null });
-          }
+          set({
+            isLoggedIn: !!token,
+            user: token ? get().user : null,
+            isHydrated: true,
+          });
         } catch (e) {
           console.error(e);
+          set({ isHydrated: true });
         }
-        set({ isHydrated: true });
       },
     }),
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ user: state.user }),
+      partialize: (state) => ({ 
+        user: state.user,
+        isLoggedIn: state.isLoggedIn 
+      }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          const token = Cookies.get("token");
+          if (!token) {
+            state.isLoggedIn = false;
+            state.user = null;
+          }
+          state.isHydrated = true;
+        }
+      },
     }
   )
 );
