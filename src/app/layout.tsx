@@ -59,8 +59,6 @@ export const metadata: Metadata = {
   },
 };
 
-// ⚡ CRITICAL OPTIMIZATION: تحميل 3 أوزان فقط بدل 9
-// يوفر ~200KB ويقلل render blocking
 const pingAr = localFont({
   src: [
     {
@@ -80,10 +78,10 @@ const pingAr = localFont({
     },
   ],
   variable: "--font-ping-ar",
-  display: "swap", // ✅ يمنع FOIT - يظهر النص فوراً
+  display: "swap", 
   fallback: ["Tahoma", "Arial", "sans-serif"],
   preload: true,
-  adjustFontFallback: "Arial", // يقلل layout shift
+  adjustFontFallback: "Arial", 
 });
 
 export default function RootLayout({
@@ -99,11 +97,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* ⚡ DNS Prefetch للباك اند */}
         <link rel="preconnect" href="https://backend.aatene.com" />
         <link rel="dns-prefetch" href="https://backend.aatene.com" />
         
-        {/* ⚡ Preconnect لـ Third-party (بس اللي ضروري) */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://connect.facebook.net" />
       </head>
