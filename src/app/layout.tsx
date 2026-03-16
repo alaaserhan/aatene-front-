@@ -131,8 +131,10 @@ export default function RootLayout({
           <TikTokPixel />
         </Suspense>
         <QueryProvider>
-          <AuthHydrator />
-          <SettingsHydrator />
+          <Suspense fallback={null}>
+            <AuthHydrator />
+            <SettingsHydrator />
+          </Suspense>
           {children}
         </QueryProvider>
         <Toaster richColors dir="rtl" position="top-right" />

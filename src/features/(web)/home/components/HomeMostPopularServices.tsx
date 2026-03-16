@@ -7,15 +7,19 @@ import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { ChevronsLeft } from "lucide-react";
 import Link from "next/link";
 import { usePopularServices } from "../hooks";
+import { ServicesGridSkeleton } from "./HomeSkeletons";
 
 interface HomeMostPopularServicesProps {
     services?: Service[];
 }
 
 export default function HomeMostPopularServices({ services: initialServices }: HomeMostPopularServicesProps) {
-    const { data: response } = usePopularServices();
+    const { data: response, isLoading } = usePopularServices({
+        enabled: !initialServices,
+    });
     const services = initialServices || response?.data || [];
 
+    if (isLoading && !initialServices) return <ServicesGridSkeleton />;
     if (!services || services.length === 0) return null;
 
     return (

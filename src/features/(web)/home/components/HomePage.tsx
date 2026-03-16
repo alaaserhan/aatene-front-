@@ -46,7 +46,7 @@ interface HomePageProps {
     };
 }
 
-export default function HomePage({ initialData, isMobile }: HomePageProps) {
+export default function HomePage({ initialData }: HomePageProps) {
     const banners = initialData?.banners;
     const stories = initialData?.stories;
     const specialServices = initialData?.specialServices;
@@ -59,7 +59,7 @@ export default function HomePage({ initialData, isMobile }: HomePageProps) {
     return (
         <div className="min-h-screen">
             <Suspense fallback={<BannerSkeleton />}>
-                <HomeBanners banners={banners} isMobile={isMobile} />
+                <HomeBanners banners={banners} />
             </Suspense>
 
             <Suspense fallback={<StoriesSkeleton />}>

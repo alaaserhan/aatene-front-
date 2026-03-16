@@ -1,9 +1,8 @@
 import Footer from "@/src/components/(web)/Footer";
 import Navbar from "@/src/components/(web)/Navbar";
 import NewsletterFooter from "@/src/components/(web)/NewsletterFooter";
-import BotChat from "@/src/components/(web)/BotChat";
-import NotificationPromptPopup from "@/src/components/(web)/NotificationPromptPopup";
 import React from "react";
+import WebDynamicWidgets from "@/src/components/(web)/WebDynamicWidgets";
 
 export default function WebLayout({
   children,
@@ -18,8 +17,7 @@ export default function WebLayout({
         <NewsletterFooter />
       </main>
       <Footer />
-      <BotChat />
-      <NotificationPromptPopup />
+      <WebDynamicWidgets />
     </div>
   );
 }
