@@ -6,19 +6,17 @@ import { useRouter } from "next/navigation";
 import { StoreProfile } from "../api";
 import { cn } from "@/src/lib/utils";
 import {
-    Heart,
     MessageCircle,
     Star,
     ChevronLeft,
     ChevronRight,
     UserPlus,
-    Loader2,
     User as UserIcon,
     StoreIcon,
     PenLine
 } from "lucide-react";
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
-import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
+import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { Story } from "@/src/features/(dashboard)/stories/api";
@@ -51,9 +49,6 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
-    const { mutate: addFav, isPending: isAddingFav } = useAddToFavorites();
-    const { mutate: removeFav, isPending: isRemovingFav } = useRemoveFromFavorites();
-    const [isFav, setIsFav] = useState(store.is_favorite);
     const covers = store.cover_urls || [];
 
     const [avatarStoryOpen, setAvatarStoryOpen] = useState(false);
@@ -292,39 +287,19 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                     <span>دردش</span>
                                 </button>
 
-                                <button
-                                    disabled={isAddingFav || isRemovingFav}
-                                    onClick={() => {
-                                        if (isFav) {
-                                            removeFav(
-                                                { favs_type: "store", favs_id: store.id },
-                                                {
-                                                    onSuccess: () => {
-                                                        setIsFav(false);
-                                                        queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
-                                                    },
-                                                }
-                                            );
-                                        } else {
-                                            addFav(
-                                                { favs_type: "store", favs_id: String(store.id) },
-                                                {
-                                                    onSuccess: () => {
-                                                        setIsFav(true);
-                                                        queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
-                                                    },
-                                                }
-                                            );
-                                        }
-                                    }}
-                                    className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
-                                >
-                                    {(isAddingFav || isRemovingFav) ? (
-                                        <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
-                                    ) : (
-                                        <Heart className={cn("w-4 h-4", isFav ? "fill-red-500 text-red-500" : "text-gray-500")} />
-                                    )}
-                                </button>
+                                <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
+                                    <FavoriteButton
+                                        id={store.id}
+                                        type="store"
+                                        isFavorite={store.is_favorite}
+                                        onSuccess={() => {
+                                            queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
+                                            queryClient.invalidateQueries({ queryKey: ["storePageData"] });
+                                        }}
+                                        className="w-full h-full"
+                                        iconClassName="w-4 h-4"
+                                    />
+                                </div>
                             </div>
                         </div>
 

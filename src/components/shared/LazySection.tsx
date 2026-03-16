@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { cn } from "@/src/lib/utils";
 
 interface LazySectionProps {
     children: React.ReactNode;
     fallback?: React.ReactNode;
     threshold?: number;
     rootMargin?: string;
+    className?: string;
 }
 
 export default function LazySection({
@@ -14,6 +16,7 @@ export default function LazySection({
     fallback = null,
     threshold = 0.01,
     rootMargin = "200px",
+    className,
 }: LazySectionProps) {
     const [isInView, setIsInView] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -46,12 +49,15 @@ export default function LazySection({
     }, [isInView, threshold, rootMargin]);
 
     return (
-        <div ref={containerRef} className="w-full min-h-[100px]">
-            {isInView ? (
-                <>{children}</>
-            ) : (
-                <>{fallback}</>
+        <div
+            ref={containerRef}
+            className={cn(
+                "w-full",
+                !isInView && !fallback && "min-h-[30px]",
+                className
             )}
+        >
+            {isInView ? <>{children}</> : <>{fallback}</>}
         </div>
     );
 }
