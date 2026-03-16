@@ -126,7 +126,7 @@ export default function HomeStories({ initialOwners }: HomeStoriesProps) {
 
     return (
         <>
-            <section className="py-8 bg-white" dir="rtl">
+            <section className="py-8 bg-white min-h-[300px] sm:min-h-[380px]" dir="rtl">
                 <MaxWidthWrapper className="relative w-full">
                     <div className="flex gap-2 sm:gap-4">
                         <div
