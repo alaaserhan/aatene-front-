@@ -16,6 +16,10 @@ import { headers } from "next/headers";
 
 export const metadata: Metadata = generatePageMetadata("home");
 
+// ⚡ ISR - Incremental Static Regeneration
+// الصفحة بتتعمل rebuild كل 5 دقائق
+export const revalidate = 300; // 5 minutes
+
 export async function generateStaticParams() {
   return [{ locale: "ar" }, { locale: "en" }, { locale: "he" }];
 }

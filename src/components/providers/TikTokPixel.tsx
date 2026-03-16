@@ -11,10 +11,21 @@ export const TikTokPixel = () => {
     const [shouldLoad, setShouldLoad] = useState(false);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setShouldLoad(true);
-        }, 2000);
-        return () => clearTimeout(timer);
+        // ⚡ تأجيل التحميل لحد ما اليوزر يعمل interaction
+        const load = () => setShouldLoad(true);
+        
+        window.addEventListener("mousemove", load, { once: true });
+        window.addEventListener("touchstart", load, { once: true });
+        window.addEventListener("scroll", load, { once: true, passive: true });
+        
+        const timer = setTimeout(load, 3000);
+        
+        return () => {
+            window.removeEventListener("mousemove", load);
+            window.removeEventListener("touchstart", load);
+            window.removeEventListener("scroll", load);
+            clearTimeout(timer);
+        };
     }, []);
 
     useEffect(() => {
