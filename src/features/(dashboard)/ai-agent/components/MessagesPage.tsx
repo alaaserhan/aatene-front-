@@ -28,6 +28,8 @@ export function MessagesPage() {
             case "api4_whatsapp": return "رسائل واتساب";
             case "messenger": return "رسائل ماسنجر";
             case "instagram": return "رسائل انستجرام";
+            case "website": return "رسائل الموقع";
+            case "mobile": return "رسائل الموبايل";
             case "deleted_chats": return "المحادثات المحذوفة";
             default: return "الرسائل";
         }
