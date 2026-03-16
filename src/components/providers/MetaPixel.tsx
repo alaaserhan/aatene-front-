@@ -2,19 +2,32 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 export const MetaPixel = () => {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
+    const [shouldLoad, setShouldLoad] = useState(false);
+
     useEffect(() => {
+        // Ultra-defer script initialization to improve TBT
+        const timer = setTimeout(() => {
+            setShouldLoad(true);
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
+        if (!shouldLoad) return;
         type WindowWithFB = Window & typeof globalThis & { fbq?: (...args: unknown[]) => void };
         if (typeof window !== "undefined" && (window as WindowWithFB).fbq) {
             (window as WindowWithFB).fbq?.("track", "PageView");
         }
-    }, [pathname, searchParams]);
+    }, [pathname, searchParams, shouldLoad]);
+
+    if (!shouldLoad) return null;
 
     return (
         <>
