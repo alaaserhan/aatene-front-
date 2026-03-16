@@ -14,10 +14,9 @@ export function AuthHydrator() {
   useEffect(() => {
     // لو الـ store معملوش مزامنة قبل كدا...
     if (!isHydrated) {
-      //... اعمل مزامنة
       hydrate();
     }
-  }, [isHydrated, hydrate]); // ⭐️ بيشتغل بس لو القيم دي اتغيرت
+  }, []); // ⭐️ بيشتغل مرة واحدة بس عند التحميل
 
   return null; // الكومبوننت ده مبيظهرش أي حاجة
 }
