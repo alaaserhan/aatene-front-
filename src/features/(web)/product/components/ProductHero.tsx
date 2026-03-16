@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send } from "lucide-react";
 import { Product, Store, Attribute, AttributeOption } from "../api";
@@ -89,6 +89,16 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
     const handleAddToCompare = () => {
         addToCompare(product.id);
     };
+
+    // Synchronize gallery index when variation image changes
+    useEffect(() => {
+        if (selectedVariation?.image) {
+            const index = allMedia.findIndex(item => item.url === selectedVariation.image);
+            if (index !== -1) {
+                setSelectedIndex(index);
+            }
+        }
+    }, [selectedVariation?.image, allMedia]);
 
     return (
         <div className="flex flex-col gap-5">
@@ -319,25 +329,6 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                             [attr.id]: val,
                                         };
                                         setSelectedVariations(newSelections);
-
-                                        // Try to find the matching variation immediately
-                                        if (product.variations && attributes && Object.keys(newSelections).length === attributes.length) {
-                                            const matchedVar = product.variations.find(v => {
-                                                const options = v.attribute_options || v.attributeOptions;
-                                                if (!options) return false;
-                                                return options.every(opt => {
-                                                    const selectedVal = newSelections[String(opt.attribute_id)];
-                                                    return selectedVal && selectedVal === String(opt.option_id);
-                                                });
-                                            });
-
-                                            if (matchedVar?.image) {
-                                                // Find the index of this image in the current allMedia array or wait for next render where it's prepended
-                                                // But if it's prepended, it will be at index 0
-                                                const existingIdx = allMedia.findIndex(m => m.url === matchedVar.image);
-                                                setSelectedIndex(existingIdx !== -1 ? existingIdx : 0);
-                                            }
-                                        }
                                     }}
                                 />
                             ))}
