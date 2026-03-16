@@ -51,6 +51,7 @@ export function DashboardUserMenu() {
     const lang = useLanguage();
 
 
+    const [isOpen, setIsOpen] = useState(false);
     const [storeSearch, setStoreSearch] = useState("");
     const [currentStoreId, setCurrentStoreId] = useState<string | null>(() => {
         if (typeof window !== 'undefined') {
@@ -145,6 +146,8 @@ export function DashboardUserMenu() {
     return (
         <DropdownMenu
             dir="rtl"
+            open={isOpen}
+            onOpenChange={setIsOpen}
         >
             <DropdownMenuTrigger asChild>
                 <Button
@@ -209,12 +212,12 @@ export function DashboardUserMenu() {
                     <div className="bg-white">
                         <div className=" space-y-1 p-2">
                             {isSegmentAllowedForRole(storeRole || undefined, "coins") && (
-                                <MenuItem href={`/${lang}/admin/coins`} icon={Coins} label="النقاط" />
+                                <MenuItem href={`/${lang}/admin/coins/buy`} icon={Coins} label="النقاط" onClick={() => setIsOpen(false)} />
                             )}
                             {isSegmentAllowedForRole(storeRole || undefined, "financial-record") && (
-                                <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label="السجل المالي" />
+                                <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label="السجل المالي" onClick={() => setIsOpen(false)} />
                             )}
-                            <MenuItem href={`/${lang}`} icon={Store} label="العودة للمنصة" />
+                            <MenuItem href={`/${lang}`} icon={Store} label="العودة للمنصة" onClick={() => setIsOpen(false)} />
 
                             <button
                                 onClick={() => logout()}
@@ -292,6 +295,7 @@ export function DashboardUserMenu() {
                     <div className="px-2 py-2">
                         <Link
                             href={`/${lang}/admin/settings`}
+                            onClick={() => setIsOpen(false)}
                             className="flex items-center justify-between gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer text-gray-2"
                         >
                             <div className="flex items-center gap-2">
@@ -307,6 +311,7 @@ export function DashboardUserMenu() {
 
                         <Link
                             href={`/${lang}`}
+                            onClick={() => setIsOpen(false)}
                             className="flex items-center justify-between gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors group cursor-pointer text-gray-2"
                         >
                             <div className="flex items-center gap-2">
@@ -334,10 +339,11 @@ export function DashboardUserMenu() {
     );
 }
 
-function MenuItem({ href, icon: Icon, label }: { href: string; icon: React.ElementType; label: string }) {
+function MenuItem({ href, icon: Icon, label, onClick }: { href: string; icon: React.ElementType; label: string; onClick?: () => void }) {
     return (
         <Link
             href={href}
+            onClick={onClick}
             className="flex items-center gap-2 w-full px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors group"
         >
             <Icon className="w-5 h-5 text-gray-2 group-hover:text-blue-4" strokeWidth={1.5} />
