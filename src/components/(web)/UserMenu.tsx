@@ -5,12 +5,12 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import { LogOut, User, Store, Crown, Shield, ChevronRight, ChevronLeft, ChevronDown, Settings, Headset, MessageSquarePlus } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { toast } from "sonner";
-import api from "@/src/lib/axios";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useLogout } from "@/src/features/(web)/auth/hooks";
 import { useConvertToMerchant } from "@/src/features/(web)/settings/hooks";
 import { Button } from "../ui/button";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 interface UserMenuProps {
   isMobile?: boolean;
@@ -23,14 +23,22 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const lang = useLanguage();
+  const router = useRouter();
   const { mutate: logoutMutation } = useLogout();
   const { mutate: convertToMerchant, isPending: isLoading } = useConvertToMerchant();
 
   const handleTheClientClick = () => {
     convertToMerchant(undefined, {
       onSuccess: () => {
+        Cookies.set("user_type", "merchant", {
+          expires: 365,
+          sameSite: "lax",
+        });
+
         setIsOpen(false);
         onClose?.();
+
+        router.push(`/${lang}/admin/home`);
       }
     });
   };
