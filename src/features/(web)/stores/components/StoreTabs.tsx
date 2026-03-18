@@ -96,7 +96,7 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
                 )}
                 {activeTab === "discounts" && (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300" dir="rtl">
-                        <OffersGrid products={offersProducts} emptyMessage="لا توجد عروض حالياً" />
+                        <OffersGrid products={offersProducts} emptyMessage="لا توجد عروض حالياً" perPage={3} enablePagination />
                     </div>
                 )}
                 {activeTab === "offers" && (
@@ -109,11 +109,23 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
     );
 }
 
-function OffersGrid({ products, emptyMessage, useProductCard }: { products: ProductInPageData[], emptyMessage: string, useProductCard?: boolean }) {
+function OffersGrid({
+    products,
+    emptyMessage,
+    useProductCard,
+    perPage,
+    enablePagination
+}: {
+    products: ProductInPageData[];
+    emptyMessage: string;
+    useProductCard?: boolean;
+    perPage?: number;
+    enablePagination?: boolean;
+}) {
     const [page, setPage] = useState(1);
-    const PER_PAGE = useProductCard ? 8 : 5;
+    const PER_PAGE = perPage ?? (useProductCard ? 8 : 5);
     const totalPages = Math.ceil(products.length / PER_PAGE);
-    const displayedProducts = products.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+    const displayedProducts = enablePagination ? products.slice((page - 1) * PER_PAGE, page * PER_PAGE) : products;
 
     if (products.length === 0) {
         return (
@@ -156,7 +168,7 @@ function OffersGrid({ products, emptyMessage, useProductCard }: { products: Prod
                     ))}
                 </div>
             )}
-            {totalPages > 1 && (
+            {enablePagination && totalPages > 1 && (
                 <div className="mt-8 flex justify-center">
                     <Pagination
                         currentPage={page}
@@ -289,43 +301,6 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                             </div>
                         </div>
 
-                        {/* Pagination بنفس تصميم الموقع */}
-                        {totalPages > 1 && (
-                            <div className="flex items-center justify-center gap-1 mt-2">
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.preventDefault(); setPage((p) => Math.min(totalPages - 1, p + 1)); }}
-                                    disabled={page === totalPages - 1}
-                                    className="inline-flex items-center justify-center w-9 h-9 rounded-md border bg-gray-200 border-input shadow-xs hover:bg-gray-300 disabled:pointer-events-none disabled:opacity-50 cursor-pointer transition-all"
-                                    aria-label="التالي"
-                                >
-                                    <ChevronRight className="h-4 w-4" />
-                                </button>
-                                {Array.from({ length: totalPages }).map((_, i) => (
-                                    <button
-                                        key={i}
-                                        type="button"
-                                        onClick={(e) => { e.preventDefault(); setPage(i); }}
-                                        className={`inline-flex items-center justify-center w-9 h-9 rounded-md text-sm font-medium cursor-pointer transition-all ${
-                                            i === page
-                                                ? "bg-blue-3 text-white"
-                                                : "border bg-gray-200 border-input shadow-xs hover:bg-gray-300"
-                                        }`}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                ))}
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.preventDefault(); setPage((p) => Math.max(0, p - 1)); }}
-                                    disabled={page === 0}
-                                    className="inline-flex items-center justify-center w-9 h-9 rounded-md border bg-gray-200 border-input shadow-xs hover:bg-gray-300 disabled:pointer-events-none disabled:opacity-50 cursor-pointer transition-all"
-                                    aria-label="السابق"
-                                >
-                                    <ChevronLeft className="h-4 w-4" />
-                                </button>
-                            </div>
-                        )}
                     </div>
 
                 ) : (
