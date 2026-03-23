@@ -58,7 +58,7 @@ const NewsletterFooter = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="اكتب بريدك الالكتروني"
-                                className="rounded-full bg-white placeholder:text-gray-400 px-4 py-3 text-black text-sm pr-10 focus:outline-none w-full border border-transparent focus:border-blue-3 transition-colors"
+                                className="rounded-full bg-white placeholder:text-gray-400 px-4 py-3 text-black/80 text-sm pr-10 focus:outline-none w-full border border-transparent focus:border-blue-3 transition-colors text-right placeholder:text-center"
                             />
                             <Mail className="absolute right-3.5 text-gray-400 w-5 h-5" />
                         </div>
@@ -66,7 +66,7 @@ const NewsletterFooter = () => {
                             <button
                                 onClick={handleSubscribe}
                                 disabled={isPending}
-                                className="bg-linear-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text font-semibold pt-0.5 transition disabled:opacity-50 w-full flex items-center justify-center gap-2 cursor-pointer"
+                                className="bg-linear-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text font-semibold pt-1 transition disabled:opacity-50 w-full flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 {isPending && <Loader2 className="w-5 h-5 animate-spin text-blue-500" />}
                                 {isPending ? "جاري الاشتراك..." : "اشترك الآن"}

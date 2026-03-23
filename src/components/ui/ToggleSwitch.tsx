@@ -16,7 +16,7 @@ export function ToggleSwitch({ enabled, onChange, disabled = false }: ToggleSwit
       onClick={() => !disabled && onChange(!enabled)}
       disabled={disabled}
       className={cn(
-        "relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-blue-3 focus:ring-offset-2",
+        "relative inline-flex h-6 w-12 items-center rounded-full transition-colors focus:outline-none ",
         "cursor-pointer",
         enabled ? "bg-green-500" : "bg-gray-300",
         disabled && "opacity-50 cursor-not-allowed"
@@ -26,11 +26,11 @@ export function ToggleSwitch({ enabled, onChange, disabled = false }: ToggleSwit
     >
       <span
         className={cn(
-          "inline-block h-5 w-5 transform rounded-full bg-white transition-transform",
+          "inline-block h-4.5 w-4.5 transform rounded-full bg-white transition-transform",
           // --- هذا هو الإصلاح ---
           // LTR (Default): 
           // enabled = right (x-8), disabled = left (x-1)
-          enabled ? "-translate-x-8" : "-translate-x-1",
+          enabled ? "-translate-x-6.5" : "-translate-x-1",
 
         )}
       />
