@@ -20,6 +20,7 @@ import { FormInput } from "@/src/components/ui/FormInput";
 import { Card, CardContent, CardDescription, CardTitle } from "@/src/components/ui/card";
 import { Separator } from "@/src/components/ui/separator";
 import { useLogin } from "../hooks";
+import { getFCMToken } from "@/src/lib/firebase";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 
@@ -76,7 +77,17 @@ export function LoginForm() {
   };
 
   const onSubmit = async (data: LoginFormData) => {
-    const device_token = generateFallbackToken();
+    let device_token = generateFallbackToken();
+    try {
+      const fcmToken = await getFCMToken();
+      if (fcmToken) {
+        device_token = fcmToken;
+        console.log("[Login] Using real FCM token for device_token");
+      }
+    } catch (error) {
+      console.warn("[Login] Could not get FCM token, using fallback", error);
+    }
+    
     loginMutation({ ...data, device_token });
   };
 

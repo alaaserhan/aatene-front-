@@ -8,14 +8,14 @@ import { ChatWindow } from "./ChatWindow";
 import { ChatEmptyState } from "./ChatEmptyState";
 import { CreateGroupModal } from "./CreateGroupModal";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
-import { messaging } from "@/src/lib/firebase";
+import { initMessaging, getFCMToken } from "@/src/lib/firebase";
 import { onMessage, MessagePayload } from "firebase/messaging";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
-import { getFCMToken } from "@/src/lib/firebase";
+import { isDuplicateMessage } from "@/src/lib/fcm-dedup";
 
 let notificationAudio: HTMLAudioElement | null = null;
 let audioUnlocked = false;
@@ -211,7 +211,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         }
 
         const checkToken = async () => {
-            if (typeof window !== "undefined" && messaging) {
+            if (typeof window !== "undefined") {
                 try {
                     await getFCMToken();
                 } catch { }
@@ -221,35 +221,48 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     }, []);
 
     useEffect(() => {
-        if (typeof window !== "undefined" && messaging) {
-            const unsubscribe = onMessage(messaging, (payload: MessagePayload) => {
+        if (typeof window === "undefined") return;
+
+        let unsubscribe: (() => void) | null = null;
+
+        initMessaging().then((msg) => {
+            if (!msg) return;
+            unsubscribe = onMessage(msg, (payload: MessagePayload) => {
+                if (isDuplicateMessage(payload)) return;
                 playNotificationSound();
 
+                const title = payload.notification?.title || payload.data?.title || "New Notification";
+                const body = payload.notification?.body || payload.data?.body;
 
-                toast.info(payload.notification?.title || "New Notification", {
-                    description: payload.notification?.body,
-                });
+                toast.info(title, { description: body });
 
                 refetch();
                 queryClient.invalidateQueries({ queryKey: ["conversations"] });
                 queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });
                 queryClient.invalidateQueries({ queryKey: ["total-unread"] });
             });
-            return () => unsubscribe();
-        }
+        });
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
     }, [refetch, queryClient, router]);
 
     useEffect(() => {
         if (typeof window !== "undefined" && "serviceWorker" in navigator) {
             const handler = (event: MessageEvent) => {
                 if (event.data && event.data.type === 'FCM_MESSAGE_RECEIVED') {
-                    // We don't need to play sound here if it's considered background by the service worker,
-                    // but we can query invalidate. 
-                    const conversationId = event.data.payload?.data?.conversation_id;
-
-                    toast.info(event.data.payload?.notification?.title || "New Notification", {
-                        description: event.data.payload?.notification?.body,
-                    });
+                    const swPayload = event.data.payload || {};
+                    if (isDuplicateMessage(swPayload)) {
+                        refetch();
+                        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+                        queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });
+                        queryClient.invalidateQueries({ queryKey: ["total-unread"] });
+                        return;
+                    }
+                    const swTitle = swPayload.notification?.title || swPayload.data?.title || "New Notification";
+                    const swBody = swPayload.notification?.body || swPayload.data?.body;
+                    toast.info(swTitle, { description: swBody });
 
                     refetch();
                     queryClient.invalidateQueries({ queryKey: ["conversations"] });
