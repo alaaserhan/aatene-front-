@@ -70,25 +70,24 @@ export function ShowStoryModal({
     const isPaused = isMenuOpen || isEditModalOpen;
 
     const goToNext = useCallback(() => {
-        setActiveIndex(prev => {
-            if (prev < stories.length - 1) return prev + 1;
+        if (activeIndex < stories.length - 1) {
+            setActiveIndex(prev => prev + 1);
+            setProgress(0);
+            setStoryDuration(IMAGE_DURATION);
+            pausedElapsedRef.current = 0;
+        } else {
             onClose();
-            return prev;
-        });
-        setProgress(0);
-        setStoryDuration(IMAGE_DURATION);
-        pausedElapsedRef.current = 0;
-    }, [stories.length, onClose]);
+        }
+    }, [activeIndex, stories.length, onClose]);
 
     const goToPrev = useCallback(() => {
-        setActiveIndex(prev => {
-            if (prev > 0) return prev - 1;
-            return prev;
-        });
-        setProgress(0);
-        setStoryDuration(IMAGE_DURATION);
-        pausedElapsedRef.current = 0;
-    }, []);
+        if (activeIndex > 0) {
+            setActiveIndex(prev => prev - 1);
+            setProgress(0);
+            setStoryDuration(IMAGE_DURATION);
+            pausedElapsedRef.current = 0;
+        }
+    }, [activeIndex]);
 
     const goToIndex = useCallback((index: number) => {
         setActiveIndex(index);
@@ -224,28 +223,29 @@ export function ShowStoryModal({
                     {activeIndex > 0 && (
                         <button
                             onClick={goToPrev}
-                            className="absolute left-4 md:left-16 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-all backdrop-blur-sm"
+                            className="absolute right-4 md:right-16 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-all backdrop-blur-sm"
                         >
-                            <ChevronLeft className="w-8 h-8" />
+                            <ChevronRight className="w-8 h-8" />
                         </button>
                     )}
                     {activeIndex < stories.length - 1 && (
                         <button
                             onClick={goToNext}
-                            className="absolute right-4 md:right-16 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-all backdrop-blur-sm"
+                            className="absolute left-4 md:left-16 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-3 transition-all backdrop-blur-sm"
                         >
-                            <ChevronRight className="w-8 h-8" />
+                            <ChevronLeft className="w-8 h-8" />
                         </button>
                     )}
 
                     <div
                         className="relative w-full h-full flex items-center overflow-hidden"
                         onClick={onClose}
+                        dir="rtl"
                     >
                         <div
-                            className="flex items-center gap-8 absolute left-1/2 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
+                            className="flex items-center gap-8 absolute right-1/2 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
                             style={{
-                                transform: `translateX(calc(-${ACTIVE_WIDTH / 2}px - (${activeIndex} * ${INACTIVE_WIDTH + GAP}px)))`,
+                                transform: `translateX(calc(${ACTIVE_WIDTH / 2}px - (${activeIndex} * ${INACTIVE_WIDTH + GAP}px)))`,
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
@@ -301,7 +301,7 @@ export function ShowStoryModal({
                                                 <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/70 to-transparent pointer-events-none" />
 
                                                 <div className="absolute top-4 left-0 right-0 px-4 z-30" dir="rtl">
-                                                    <div className="flex gap-1.5 direction-ltr mb-4">
+                                                    <div className="flex gap-1.5 mb-4">
                                                         {stories.map((_, barIdx) => (
                                                             <div key={barIdx} className="h-1 flex-1 bg-white/30 rounded-full overflow-hidden backdrop-blur-sm">
                                                                 <div
