@@ -1,12 +1,12 @@
-// src/hooks/use-fcm-token.ts
 "use client";
 
 import { useEffect, useState } from "react";
-import { getFCMToken, messaging } from "@/src/lib/firebase";
+import { getFCMToken, initMessaging } from "@/src/lib/firebase";
 import { onMessage, MessagePayload } from "firebase/messaging";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { isDuplicateMessage } from "@/src/lib/fcm-dedup";
 
 let notificationAudio: HTMLAudioElement | null = null;
 let audioUnlocked = false;
@@ -45,11 +45,12 @@ const useFCMToken = () => {
         const retrieveToken = async () => {
             try {
                 if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-                    const notificationsEnabled = localStorage.getItem("notifications_enabled") === "true";
-                    if (!notificationsEnabled) {
-                        setNotificationPermissionStatus(Notification.permission);
-                        return;
+                    if (Notification.permission === "default") {
+                        // Don't auto-prompt here if we don't want to annoy users.
+                        // But since we removed the prompt, maybe we should just request it?
+                        // Let's just wait for them to click something, or let getFCMToken handle it.
                     }
+                    
                     if (Notification.permission !== "granted") {
                         setNotificationPermissionStatus(Notification.permission);
                         return;
@@ -57,12 +58,13 @@ const useFCMToken = () => {
                     setNotificationPermissionStatus("granted");
 
                     const token = await getFCMToken();
+                    console.log("[FCM Hook] Token result:", token ? "received" : "null");
                     if (token) {
                         setFcmToken(token);
                     }
                 }
             } catch (error) {
-                console.error("Error retrieving FCM token:", error);
+                console.error("[FCM Hook] Error retrieving token:", error);
             }
         };
 
@@ -73,30 +75,52 @@ const useFCMToken = () => {
     const router = useRouter();
 
     useEffect(() => {
-        if (typeof window !== "undefined" && "serviceWorker" in navigator && messaging) {
-            const notificationsEnabled = localStorage.getItem("notifications_enabled") === "true";
-            if (!notificationsEnabled || Notification.permission !== "granted") {
+        if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+
+        if (Notification.permission !== "granted") return;
+
+        let unsubscribe: (() => void) | null = null;
+
+        initMessaging().then((msg) => {
+            if (!msg) {
+                console.warn("[FCM Hook] Cannot subscribe to foreground messages: messaging not available");
                 return;
             }
-            const unsubscribe = onMessage(messaging, (payload: MessagePayload) => {
+            console.log("[FCM Hook] Subscribing to foreground messages");
+            unsubscribe = onMessage(msg, (payload: MessagePayload) => {
+                console.log("[FCM Hook] Foreground message received:", payload);
+                if (isDuplicateMessage(payload)) {
+                    console.log("[FCM Hook] Duplicate foreground message, skipping");
+                    return;
+                }
                 playNotificationSound();
 
-                // const conversationId = payload.data?.conversation_id;
+                const title = payload.notification?.title || payload.data?.title || "New Notification";
+                const body = payload.notification?.body || payload.data?.body;
 
-                toast.info(payload.notification?.title || "New Notification", {
-                    description: payload.notification?.body,
-                });
+                toast.info(title, { description: body });
                 queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
                 queryClient.invalidateQueries({ queryKey: ["myNotificationStats"] });
             });
-            return () => unsubscribe();
-        }
+        });
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
     }, [queryClient, router]);
 
     useEffect(() => {
         if (typeof window !== "undefined" && "serviceWorker" in navigator) {
             const handler = (event: MessageEvent) => {
                 if (event.data && event.data.type === 'FCM_MESSAGE_RECEIVED') {
+                    const swPayload = event.data.payload || {};
+                    console.log("[FCM Hook] SW message received:", swPayload);
+                    if (isDuplicateMessage(swPayload)) {
+                        console.log("[FCM Hook] Duplicate SW message, skipping toast");
+                        queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
+                        queryClient.invalidateQueries({ queryKey: ["myNotificationStats"] });
+                        return;
+                    }
                     queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
                     queryClient.invalidateQueries({ queryKey: ["myNotificationStats"] });
                 }
