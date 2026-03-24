@@ -34,6 +34,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
         created_at: s.created_at,
     }));
     const router = useRouter();
+    const [isChatLoading, setIsChatLoading] = useState(false);
     const queryClient = useQueryClient();
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
@@ -192,11 +193,19 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                     </button>
 
                                     <button
-                                        onClick={() => router.push(`/chat?type=user&id=${user.id}`)}
-                                        className="flex items-center min-w-[100px] justify-center cursor-pointer gap-2 border border-[#456A8E] text-[#456A8E] bg-white px-4 md:px-8 py-2 rounded-full font-medium hover:bg-blue-50 transition-colors text-sm flex-1 md:flex-none"
+                                        disabled={isChatLoading}
+                                        onClick={() => {
+                                            setIsChatLoading(true);
+                                            router.push(`/chat?type=user&id=${user.id}`);
+                                        }}
+                                        className="flex items-center min-w-[100px] justify-center cursor-pointer gap-2 border border-[#456A8E] text-[#456A8E] bg-white px-4 md:px-8 py-2 rounded-full font-medium hover:bg-blue-50 transition-colors text-sm flex-1 md:flex-none disabled:opacity-50"
                                     >
-                                        <MessageSquare className="w-4 h-4" />
-                                        دردش
+                                        {isChatLoading ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <MessageSquare className="w-4 h-4" />
+                                        )}
+                                        <span>دردش</span>
                                     </button>
                                 </>
                             )}
