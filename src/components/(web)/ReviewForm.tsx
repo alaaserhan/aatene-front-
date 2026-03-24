@@ -115,25 +115,36 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
                     </div>
 
                     <div className="flex items-start gap-2 flex-wrap">
-                        {images.map((file, i) => (
-                            <div
-                                key={i}
-                                className="relative w-[100px] h-[100px] rounded-[15px] overflow-hidden border border-dashed border-gray-300"
-                            >
-                                <Image
-                                    src={URL.createObjectURL(file)}
-                                    alt=""
-                                    fill
-                                    className="object-cover"
-                                />
-                                <button
-                                    onClick={() => removeImage(i)}
-                                    className="absolute cursor-pointer top-1 right-1 bg-red-500 text-white rounded-full p-0.5"
+                        {images.map((file, i) => {
+                            const isVideo = file.type.startsWith("video/");
+                            return (
+                                <div
+                                    key={i}
+                                    className="relative w-[100px] h-[100px] rounded-[15px] overflow-hidden border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center"
                                 >
-                                    <X size={12} />
-                                </button>
-                            </div>
-                        ))}
+                                    {isVideo ? (
+                                        <video
+                                            src={URL.createObjectURL(file)}
+                                            className="object-cover w-full h-full"
+                                            controls={false}
+                                        />
+                                    ) : (
+                                        <Image
+                                            src={URL.createObjectURL(file)}
+                                            alt=""
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    )}
+                                    <button
+                                        onClick={() => removeImage(i)}
+                                        className="absolute cursor-pointer top-1 right-1 bg-red-500 text-white rounded-full p-0.5 z-10"
+                                    >
+                                        <X size={12} />
+                                    </button>
+                                </div>
+                            );
+                        })}
                         <button
                             onClick={() => fileInputRef.current?.click()}
                             className="w-[100px] h-[100px] rounded-[15px] border border-dashed border-blue-3 bg-[rgba(166,166,166,0.3)] flex items-center justify-center cursor-pointer"
@@ -145,7 +156,7 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
                         <input
                             ref={fileInputRef}
                             type="file"
-                            accept="image/*"
+                            accept="image/*,video/*"
                             multiple
                             onChange={handleFileChange}
                             className="hidden"

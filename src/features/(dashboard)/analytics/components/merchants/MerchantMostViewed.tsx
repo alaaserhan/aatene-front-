@@ -23,7 +23,7 @@ interface RawItem {
     title?: string;
     name?: string;
     images_urls?: string[];
-    cover_url?: string | null;
+    cover?: string | null;
     views_count?: string | number;
     view_count?: number;
     slug: string;
@@ -47,7 +47,7 @@ export function MerchantMostViewed() {
         return {
             id: typedItem.id,
             name: isServiceStore ? typedItem.title : typedItem.name,
-            cover_url: isServiceStore ? (typedItem.images_urls?.[0]) : (typedItem.cover_url || undefined),
+            cover_url: isServiceStore ? (typedItem.images_urls?.[0]) : (typedItem.cover || undefined),
             views_count: typedItem.views_count || typedItem.view_count || 0,
             slug: typedItem.slug
         };
