@@ -142,7 +142,7 @@ export function SourcesCard({ usersPerPlatform = [] }: SourcesCardProps) {
             case 'instagram': return { name: 'الانستجرام', icon: <img src="/icons/dashboard/instagram2.svg" className="w-4 h-4" alt="" /> };
             case 'messenger': return { name: 'الماسنجر', icon: <img src="/icons/dashboard/messenger.svg" className="w-4 h-4" alt="" /> };
             case 'website': return { name: 'الموقع', icon: <img src="/logo-sm.svg" className="w-4 h-4" alt="" /> };
-            case 'mobile': return { name: 'الموبايل', icon: <img src="/icons/dashboard/mobile.svg" className="w-4 h-4" alt="" /> };
+            case 'mobile': return { name: 'الموبايل', icon: <img src="/logo-sm.svg" className="w-4 h-4" alt="" /> };
             default: return { name: platformName, icon: <Globe className="w-4 h-4 text-gray-2" />, color: 'text-gray-2' };
         }
     };
