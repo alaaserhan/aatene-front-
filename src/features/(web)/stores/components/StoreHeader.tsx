@@ -13,7 +13,8 @@ import {
     UserPlus,
     User as UserIcon,
     StoreIcon,
-    PenLine
+    PenLine,
+    Loader2
 } from "lucide-react";
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
@@ -47,6 +48,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     const router = useRouter();
     const queryClient = useQueryClient();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isChatLoading, setIsChatLoading] = useState(false);
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
     const covers = store.cover_urls || [];
@@ -280,10 +282,18 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                 </button>
 
                                 <button
-                                    onClick={() => router.push(`/chat?type=store&id=${store.id}`)}
-                                    className="h-10 px-6 rounded-full text-sm border border-blue-4 text-blue-4 font-medium flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors cursor-pointer"
+                                    disabled={isChatLoading}
+                                    onClick={() => {
+                                        setIsChatLoading(true);
+                                        router.push(`/chat?type=store&id=${store.id}`);
+                                    }}
+                                    className="h-10 px-6 rounded-full text-sm border border-blue-4 text-blue-4 font-medium flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors cursor-pointer disabled:opacity-50"
                                 >
-                                    <MessageCircle className="w-4 h-4" />
+                                    {isChatLoading ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <MessageCircle className="w-4 h-4" />
+                                    )}
                                     <span>دردش</span>
                                 </button>
 
