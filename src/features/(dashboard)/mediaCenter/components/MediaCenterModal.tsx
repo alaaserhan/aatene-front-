@@ -181,14 +181,11 @@ export function MediaCenterModal({
         <div className="flex flex-col gap-4 border-b border-gray-200 bg-white">
           <div className="border-b border-gray-200 p-4">
             <div className="flex items-center justify-between">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleClose}
-                className="h-10 w-10 p-0 border-gray-200 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-3">
+                <h1 className="text-base lg:text-lg font-bold ">
+                  مركز الوسائط
+                </h1>
+              </div>
 
               <div className="flex-1 hidden md:block md:max-w-md lg:max-w-xl mx-4">
                 <div className="relative">
@@ -209,12 +206,15 @@ export function MediaCenterModal({
                   )}
                 </div>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClose}
+                className="h-10 w-10 p-0 border-gray-200 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </Button>
 
-              <div className="flex items-center gap-3">
-                <h1 className="text-base lg:text-lg font-bold ">
-                  مركز الوسائط
-                </h1>
-              </div>
             </div>
 
             <div className="block md:hidden w-full mt-3">
