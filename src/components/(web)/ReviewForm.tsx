@@ -40,12 +40,20 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
         }));
 
         const handleSafeSubmit = async () => {
-            if (!content.trim()) return;
+            const trimmedContent = content.trim();
+            const isReply = !!parentId;
+
+            // Validation: 
+            // For a regular review: must have either content or a rating > 0.
+            // For a reply: must have content (since rating is not interactive/hidden).
+            if (!isReply && !trimmedContent && rate === 0) return;
+            if (isReply && !trimmedContent) return;
+
             try {
                 // If it's a reply, the rating UI is hidden. We send a default rating (5) 
                 // to satisfy backend validation that requires a rate >= 1.
-                const effectiveRate = parentId ? (rate || 5) : rate;
-                await Promise.resolve(onSubmit({ content, rate: effectiveRate, images, parent_id: parentId }));
+                const effectiveRate = isReply ? (rate || 5) : rate;
+                await Promise.resolve(onSubmit({ content: trimmedContent, rate: effectiveRate, images, parent_id: parentId }));
                 setContent("");
                 setRate(0);
                 setImages([]);
