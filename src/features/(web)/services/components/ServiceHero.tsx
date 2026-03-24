@@ -40,6 +40,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
 
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [showMenu, setShowMenu] = useState(false);
+    const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
     const [selectedExtras, setSelectedExtras] = useState<number[]>([]);
     const [selectedSpecialty, setSelectedSpecialty] = useState<string>("");
     const [isReportOpen, setIsReportOpen] = useState(false);
@@ -319,9 +320,19 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                         {service.store?.phone && (
                             <a
                                 href={`tel:${service.store.phone}`}
+                                onClick={(e) => {
+                                    if (!isPhoneRevealed) {
+                                        e.preventDefault();
+                                        setIsPhoneRevealed(true);
+                                    }
+                                }}
                                 className="flex items-center justify-center gap-2 bg-blue-3 text-white h-11 rounded-full font-medium hover:opacity-90 transition-opacity"
                             >
-                                <span dir="ltr">{service.store.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** ***")}</span>
+                                <span dir="ltr">
+                                    {isPhoneRevealed 
+                                        ? service.store.phone 
+                                        : service.store.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** ***")}
+                                </span>
                                 <Phone className="w-5 h-5" />
                             </a>
                         )}
