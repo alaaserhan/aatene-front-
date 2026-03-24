@@ -22,6 +22,7 @@ interface ProductHeroProps {
 export default function ProductHero({ product, store, attributes }: ProductHeroProps) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [showMenu, setShowMenu] = useState(false);
+    const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
     const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
     const [isFavorite, setIsFavorite] = useState(product.is_favorite);
     const [prevProductIsFavorite, setPrevProductIsFavorite] = useState(product.is_favorite);
@@ -341,9 +342,19 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                         {store.phone && (
                             <a
                                 href={`tel:${store.phone}`}
+                                onClick={(e) => {
+                                    if (!isPhoneRevealed) {
+                                        e.preventDefault();
+                                        setIsPhoneRevealed(true);
+                                    }
+                                }}
                                 className="flex items-center justify-center gap-2 bg-blue-3 text-white h-11 rounded-full font-medium hover:opacity-90 transition-opacity"
                             >
-                                <span dir="ltr">{store.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** ***")}</span>
+                                <span dir="ltr">
+                                    {isPhoneRevealed 
+                                        ? store.phone 
+                                        : store.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** ***")}
+                                </span>
                                 <Phone className="w-5 h-5" />
                             </a>
                         )}
