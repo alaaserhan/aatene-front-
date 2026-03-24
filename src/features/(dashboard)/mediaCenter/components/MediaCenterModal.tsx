@@ -239,17 +239,6 @@ export function MediaCenterModal({
           </div>
 
           <div className="flex flex-col lg:flex-row justify-between gap-4 px-4 pb-4">
-            <div className="flex justify-center lg:justify-start">
-              <Button
-                onClick={() => setShowUploadArea(!showUploadArea)}
-                className="w-full max-w-xs lg:w-auto h-9 font-medium cursor-pointer"
-                style={{ backgroundColor: "var(--blue-3)" }}
-              >
-                <Upload className="ml-2 h-4 w-4" />
-                {showUploadArea ? "إخفاء منطقة الرفع" : "رفع ملف"}
-              </Button>
-            </div>
-
             <div className="flex-1 lg:flex-none overflow-hidden">
               <ScrollArea className="w-full max-w-full">
                 <div className="flex gap-2 pb-1 w-max ">
@@ -278,11 +267,22 @@ export function MediaCenterModal({
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>
             </div>
+            <div className="flex justify-center lg:justify-start">
+              <Button
+                onClick={() => setShowUploadArea(!showUploadArea)}
+                className="w-full max-w-xs lg:w-auto h-9 font-medium cursor-pointer"
+                style={{ backgroundColor: "var(--blue-3)" }}
+              >
+                <Upload className="ml-2 h-4 w-4" />
+                {showUploadArea ? "إخفاء منطقة الرفع" : "رفع ملف"}
+              </Button>
+            </div>
+
           </div>
         </div>
 
         <div className="flex flex-col h-[calc(90vh-130px)] justify-between overflow-hidden">
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1" dir="rtl">
             {showUploadArea && (
               <div className="p-4">
                 <MediaUploadArea
