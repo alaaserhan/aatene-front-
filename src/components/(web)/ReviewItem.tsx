@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronDown, ChevronUp, Flag, User } from "lucide-react";
+import { ChevronDown, ChevronUp, Flag, User, PlayCircle } from "lucide-react";
 import { StarRating } from "@/src/components/ui/StarRating";
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
@@ -94,14 +94,26 @@ export function ReviewItem({
 
                 {review.images && review.images.length > 0 && (
                     <div className="flex gap-2 ">
-                        {review.images.map((img, i) => (
-                            <div key={i}
-                                onClick={() => onOpenMedia?.(review.images || [], i)}
-                                className="relative w-[80px] h-[80px] rounded-lg overflow-hidden border border-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
-                            >
-                                <Image src={img} alt="" fill className="object-contain" />
-                            </div>
-                        ))}
+                        {review.images.map((img, i) => {
+                            const isVideo = img.split('?')[0].match(/\.(mp4|webm|ogg|mov)$/i);
+                            return (
+                                <div key={i}
+                                    onClick={() => onOpenMedia?.(review.images || [], i)}
+                                    className="relative w-[80px] h-[80px] rounded-lg overflow-hidden border border-gray-100 cursor-pointer hover:opacity-90 transition-opacity bg-black/5 flex items-center justify-center group"
+                                >
+                                    {isVideo ? (
+                                        <>
+                                            <video src={img} className="object-cover w-full h-full" />
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors pointer-events-none">
+                                                <PlayCircle className="text-white w-8 h-8 opacity-80" />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <Image src={img} alt="" fill className="object-contain" />
+                                    )}
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
 
