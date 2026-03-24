@@ -16,6 +16,7 @@ interface PhoneNumberInputProps extends React.InputHTMLAttributes<HTMLInputEleme
     roundedFull?: boolean;
     height?: string;
     rounded?: string;
+    disableCountryCode?: boolean;
 }
 
 const COUNTRY_RULES: Record<string, { min: number; max: number; name: string }> = {
@@ -42,6 +43,7 @@ const PhoneNumberInput = React.forwardRef<
             roundedFull,
             height,
             rounded,
+            disableCountryCode = true,
             ...props
         },
         ref
@@ -96,19 +98,22 @@ const PhoneNumberInput = React.forwardRef<
                     >
                         <button
                             type="button"
-                            onClick={() => setIsOpen(!isOpen)}
+                            onClick={() => !disableCountryCode && setIsOpen(!isOpen)}
                             className={cn(
-                                "h-full pl-3 pr-2 flex items-center justify-center gap-2 bg-transparent text-sm focus:outline-none font-sans text-gray-700 min-w-[80px] hover:bg-gray-100 transition-colors cursor-pointer",
+                                "h-full pl-3 pr-2 flex items-center justify-center gap-2 bg-transparent text-sm focus:outline-none font-sans text-gray-700 min-w-[80px] transition-colors",
+                                !disableCountryCode ? "hover:bg-gray-100 cursor-pointer" : "cursor-default",
                                 leftRounded
                             )}
                         >
                             <span dir="ltr" className="font-medium">{countryCode}</span>
-                            <ChevronDown
-                                className={cn(
-                                    "w-3.5 h-3.5 text-gray-400 transition-transform duration-200",
-                                    isOpen && "rotate-180"
-                                )}
-                            />
+                            {!disableCountryCode && (
+                                <ChevronDown
+                                    className={cn(
+                                        "w-3.5 h-3.5 text-gray-400 transition-transform duration-200",
+                                        isOpen && "rotate-180"
+                                    )}
+                                />
+                            )}
                         </button>
 
                         {isOpen && (
