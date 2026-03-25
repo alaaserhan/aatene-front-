@@ -13,6 +13,7 @@ import {
     getStorePageData,
     getStoreProducts,
     getStoreServices,
+    getStoreWhoFavorited,
 } from "./api";
 
 export const useAddStoreReview = () => {
@@ -81,5 +82,13 @@ export const useStoreServices = (storeId: number, sectionId: number | null, page
         queryKey: ["storeServices", storeId, sectionId, page, name],
         queryFn: () => getStoreServices({ store_id: storeId, section_id: sectionId, page, name }),
         enabled: !!storeId,
+    });
+};
+
+export const useStoreWhoFavorited = (slug: string, enabled: boolean = true) => {
+    return useApiQuery({
+        queryKey: ["storeWhoFavorited", slug],
+        queryFn: () => getStoreWhoFavorited(slug),
+        enabled: !!slug && enabled,
     });
 };

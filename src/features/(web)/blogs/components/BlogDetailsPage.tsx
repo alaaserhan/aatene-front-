@@ -462,7 +462,7 @@ export default function BlogDetailsPage() {
                                     <Facebook size={15} />
                                 </button>
                                 <button onClick={() => handleShare("whatsapp")} className="w-[27px] h-[27px] cursor-pointer flex items-center justify-center border border-[#3c5d80] rounded text-[#3c5d80] hover:bg-[#3c5d80] hover:text-white transition-colors">
-                                    <WhatsAppIcon className="w-[15px] h-[15px]" />
+                                    <img src="/icons/dashboard/whatsapp.svg" alt="whatsapp" className="w-[15px] h-[15px]" />
                                 </button>
                                 <div className="relative">
                                     <button onClick={() => handleShare("link")} className="w-[27px] h-[27px] cursor-pointer flex items-center justify-center border border-[#3c5d80] rounded text-[#3c5d80] hover:bg-[#3c5d80] hover:text-white transition-colors">

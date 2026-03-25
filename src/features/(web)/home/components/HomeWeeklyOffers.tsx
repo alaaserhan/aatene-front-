@@ -40,7 +40,7 @@ export default function HomeWeeklyOffers({ data: initialData }: HomeWeeklyOffers
                             {displayItems.map((product: Product) => (
                                 <Link
                                     key={product.id}
-                                    href={`/products/${product.slug}`}
+                                    href={`/product/${product.slug}`}
                                     className="p-4 flex flex-col items-center group hover:bg-gray-50 transition-colors"
                                 >
                                     <div className="relative w-full aspect-square mb-4 overflow-hidden rounded-lg">

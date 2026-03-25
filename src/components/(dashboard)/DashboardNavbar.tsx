@@ -54,6 +54,8 @@ import useFCMToken from "@/src/hooks/use-fcm-token";
 import { useSettingsStore } from "@/src/stores/settings-store";
 import { isSegmentAllowedForRole, isSegmentAllowedForAdmin, MerchantRole } from "@/src/config/role-permissions";
 import { useGetStoreBalance } from "@/src/features/(dashboard)/coins/hooks";
+import { useTotalUnreadCount } from "@/src/features/(dashboard)/chat/hooks";
+import { Badge } from "@/src/components/ui/badge";
 
 const MerchantNavbarPoints = ({ storeId }: { storeId?: string | number | null }) => {
   const { data, isLoading } = useGetStoreBalance(undefined, storeId || undefined);
@@ -161,6 +163,9 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     window.addEventListener("store-info-updated", handleStoreUpdate);
     return () => window.removeEventListener("store-info-updated", handleStoreUpdate);
   }, []);
+
+  const { data: unreadData } = useTotalUnreadCount(isMerchant ? (activeStoreId || undefined) : undefined);
+  const unreadCount = unreadData?.unread_conversations_count || 0;
 
   const getSegmentFromHref = (href: string): string => {
     const clean = href.split("?")[0].split("/").filter(Boolean);
@@ -393,12 +398,20 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-lg hover:bg-white/20 relative"
+              className="rounded-lg hover:bg-white/20 relative cursor-pointer"
               aria-label="الرسائل"
               asChild
             >
               <Link href={`/admin/chat`}>
                 <img src="/icons/dashboard/chat3.svg" className="w-5 h-5" alt="chat" />
+                {unreadCount > 0 && (
+                  <Badge
+                    className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 pt-[3px] text-[10px]"
+                    variant="destructive"
+                  >
+                    {unreadCount}
+                  </Badge>
+                )}
               </Link>
             </Button>
 
