@@ -67,7 +67,7 @@ import { Badge } from "@/src/components/ui/badge";
 
 const NavIcons = () => {
   const lang = useLanguage();
-  const { data: unreadData } = useTotalUnreadCount();
+  const { data: unreadData } = useTotalUnreadCount(undefined, true);
   const unreadCount = unreadData?.unread_conversations_count || 0;
 
   useFCMToken();
