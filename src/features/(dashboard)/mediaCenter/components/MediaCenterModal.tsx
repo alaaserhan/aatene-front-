@@ -102,7 +102,7 @@ export function MediaCenterModal({
     return p;
   }, [searchQuery, activeType]);
 
-  const { data: mediaData, isLoading, error } = useGetMediaList(params);
+  const { data: mediaData, isLoading, error } = useGetMediaList(params, open);
   const mediaItems = mediaData?.data || [];
 
   const uploadMutation = useUploadMedia();
