@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Search, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useGetFollowers, useGetFollowings, useRemoveFollower, useUnfollowUserOrStore } from "../../hooks";
 import { FollowerItem, FollowingItem, FollowableEntity } from "../../api";
 import { cn } from "@/src/lib/utils";
@@ -10,6 +11,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/src/components/ui/avatar"
 export default function FollowingsTab() {
     const [activeTab, setActiveTab] = useState<"followings" | "followers">("followings");
     const [searchQuery, setSearchQuery] = useState("");
+    const router = useRouter();
 
     const { data: followingsData, isLoading: isLoadingFollowings } = useGetFollowings();
     const { data: followersData, isLoading: isLoadingFollowers } = useGetFollowers();
@@ -48,6 +50,24 @@ export default function FollowingsTab() {
     };
 
     const isPending = activeTab === "followings" ? isUnfollowing : isRemoving;
+
+    const handleNavigation = (item: FollowingItem | FollowerItem) => {
+        const type = activeTab === "followings"
+            ? (item as FollowingItem).followed_type
+            : ((item as FollowerItem).follower_type);
+
+        const target = activeTab === "followings"
+            ? (item as FollowingItem).followed
+            : ((item as FollowerItem).follower || (item as FollowerItem).user || (item as unknown as FollowableEntity));
+
+        const slug = target.slug || target.id;
+
+        if (type === "store") {
+            router.push(`/store/${slug}`);
+        } else if (type === "user") {
+            router.push(`/profile/${slug}`);
+        }
+    };
 
     return (
         <div className="rounded-xl p-4 md:p-6 border border-gray-200 bg-white">
@@ -122,8 +142,11 @@ export default function FollowingsTab() {
                         return (
                             <div key={index} className="flex items-center justify-between group">
                                 {/* User Info */}
-                                <div className="flex items-center gap-3">
-                                    <Avatar className="h-12 w-12 border-2 border-gray-50">
+                                <div
+                                    className="flex items-center gap-3 cursor-pointer group/item"
+                                    onClick={() => handleNavigation(item)}
+                                >
+                                    <Avatar className="h-12 w-12 border-2 border-gray-50 group-hover/item:border-blue-100 transition-colors">
                                         <AvatarImage
                                             src={avatar}
                                             alt={name}
@@ -134,7 +157,7 @@ export default function FollowingsTab() {
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="text-right">
-                                        <h3 className="font-semibold text-sm text-[#3D3D3D]">
+                                        <h3 className="font-semibold text-sm text-[#3D3D3D] group-hover/item:text-blue-3 transition-colors">
                                             {name}
                                         </h3>
                                         <p className="text-xs text-gray-400">
@@ -149,7 +172,7 @@ export default function FollowingsTab() {
                                     disabled={isPending}
                                     className="bg-[#3D5E83] text-white px-6 py-2 rounded-full cursor-pointer text-xs font-medium hover:bg-[#324d6d] transition-colors disabled:opacity-50"
                                 >
-                                    {activeTab === "followings" ? "إلغاء المتابعة" : "إزالة"}
+                                    {activeTab === "followings" ? "إلغاء المتابعة" : "إزالة المتابع"}
                                 </button>
                             </div>
                         );

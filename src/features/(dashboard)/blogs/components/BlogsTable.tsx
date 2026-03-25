@@ -65,7 +65,7 @@ export function BlogsTable({
 
                 <td className="px-6 py-4 text-center">
                   <div className="flex items-center justify-center gap-1 bg-yellow-50 px-2 py-0.5 rounded-full w-fit mx-auto border border-yellow-100">
-                    <span className="text-xs font-bold text-gray-700">{blog.review_rate}</span>
+                    <span className="text-xs pt-1 font-bold text-gray-700">{blog.review_rate}</span>
                     <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                   </div>
                 </td>

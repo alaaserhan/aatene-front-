@@ -136,13 +136,16 @@ export function FollowersTable({
             return (
               <tr key={`${item.id}-${index}`} className="group hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-none">
                 <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
+                  <Link
+                    href={item.type === "store" ? `/store/${item.slug}` : `/profile/${item.slug}`}
+                    className="flex items-center gap-3 w-fit hover:opacity-80 transition-opacity"
+                  >
                     <Avatar className="w-10 h-10 border border-gray-100">
                       <AvatarImage src={item.image} alt={item.name} />
                       <AvatarFallback>{item.name?.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <span className="text-sm font-medium text-gray-700">{item.name}</span>
-                  </div>
+                  </Link>
                 </td>
 
                 <td className="px-6 py-4 text-center">

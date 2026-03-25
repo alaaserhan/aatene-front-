@@ -53,9 +53,27 @@ import Cookies from "js-cookie";
 import useFCMToken from "@/src/hooks/use-fcm-token";
 import { useSettingsStore } from "@/src/stores/settings-store";
 import { isSegmentAllowedForRole, isSegmentAllowedForAdmin, MerchantRole } from "@/src/config/role-permissions";
+import { useGetStoreBalance } from "@/src/features/(dashboard)/coins/hooks";
 
+const MerchantNavbarPoints = ({ storeId }: { storeId?: string | number | null }) => {
+  const { data, isLoading } = useGetStoreBalance(undefined, storeId || undefined);
+  const [mounted, setMounted] = React.useState(false);
 
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
+  if (!mounted) return <div className="hidden md:block w-24 h-9 animate-pulse bg-gray-100 rounded-full mx-2"></div>;
+
+  return (
+    <Link href="/admin/coins/buy" className="hidden md:flex items-center gap-1.5 px-2  rounded-full transition-colors min-h-9 cursor-pointer">
+      <img src="/icons/dashboard/coins.svg" alt="coins" className="w-8 h-8 object-contain drop-shadow-sm" />
+      <span className="font-semibold pt-1 text-sm whitespace-nowrap">
+        {isLoading ? "..." : (data?.balance || 0)} نقطة
+      </span>
+    </Link>
+  );
+};
 interface NavItem {
   label: string;
   icon: LucideIcon | React.ReactNode;
@@ -360,6 +378,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            {isMerchant && <MerchantNavbarPoints storeId={activeStoreId} />}
+
             {/* <Button
               variant="ghost"
               size="icon"

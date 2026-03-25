@@ -62,7 +62,7 @@ const allTabs: TabItem[] = [
     {
         id: "merchant",
         label: "كن تاجر",
-        description: "حمل التطبيق الخاص بالتجار و اعرض منتجاتك",
+        description: "حمل التطبيق الخاص بالتجار و افتح متجرك",
         icon: <Store className="w-5 h-5" />,
     },
     {

@@ -4,11 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as api from "./api";
 import { toast } from "sonner";
 
-// 1. Hook for Store Balance
 export function useGetStoreBalance(params?: URLSearchParams, storeId?: number | string) {
     return useQuery({
         queryKey: ["coins", "balance", params?.toString(), storeId],
         queryFn: () => api.getStoreBalance(params, storeId),
+        staleTime: Infinity,
     });
 }
 

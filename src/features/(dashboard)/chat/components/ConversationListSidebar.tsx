@@ -8,6 +8,8 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import Cookies from "js-cookie";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { User, Store } from "lucide-react";
+import { format } from "date-fns";
+import { arSA } from "date-fns/locale";
 
 interface ConversationListSidebarProps {
     conversations: Conversation[];
@@ -70,11 +72,11 @@ export function ConversationListSidebar({
         const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
         if (diffDays === 0) {
-            return date.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" });
+            return format(date, "hh:mm a", { locale: arSA });
         } else if (diffDays < 7) {
             return `${diffDays} يوم`;
         } else {
-            return date.toLocaleDateString("ar-EG", { month: "numeric", day: "numeric" });
+            return date.toLocaleDateString("en-US", { month: "numeric", day: "numeric" });
         }
     };
 
@@ -203,11 +205,11 @@ export function ConversationListSidebar({
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
                                 <p className="text-sm font-medium truncate">{displayName}</p>
-                                <span className="text-xs text-gray-400 whitespace-nowrap">{time}</span>
+                                <span className="text-xs text-gray-2 whitespace-nowrap">{time}</span>
                             </div>
 
                             <div className="flex items-center justify-between gap-2 mt-1.5">
-                                <p className="text-xs text-gray-2 truncate flex-1 leading-relaxed">
+                                <p className="text-xs text-gray-1 truncate flex-1 leading-relaxed">
                                     {lastMessage?.body || "لا توجد رسائل"}
                                 </p>
                                 {conversation.unread_messages_count > 0 && (

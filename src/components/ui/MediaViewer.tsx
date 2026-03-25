@@ -1,7 +1,6 @@
 "use client";
 
 import { X, ChevronRight, ChevronLeft } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -80,21 +79,20 @@ export function MediaViewer({
 
                 {/* Media */}
                 <div className="relative w-full max-w-5xl h-full max-h-[85vh] flex items-center justify-center">
-                    {/* Simplified: Assuming standard image URLs for now. 
-                        In real app, might need to distinguish video vs image.
-                        For now, `Image` from next/image for optimized, or `img` if external unchecked.
-                        Using `img` for broad compatibility with external URLs without configuring `next.config.js` patterns every time.
-                        Actually, codebase uses next/image extensively. I'll use `img` for safety within this generic component 
-                        unless I know domains. 
-                        Let's use a standard `img` to avoid domain config issues with arbitrary URLs, 
-                        styled to fit contain.
-                    */}
                     <div className="relative w-full h-full flex items-center justify-center">
-                        <img
-                            src={currentMedia}
-                            alt={`Media ${currentIndex + 1}`}
-                            className="max-w-full max-h-full object-contain select-none"
-                        />
+                        {currentMedia.split('?')[0].match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                            <video
+                                src={currentMedia}
+                                controls
+                                className="max-w-full max-h-full object-contain select-none outline-none"
+                            />
+                        ) : (
+                            <img
+                                src={currentMedia}
+                                alt={`Media ${currentIndex + 1}`}
+                                className="max-w-full max-h-full object-contain select-none"
+                            />
+                        )}
                     </div>
                 </div>
 

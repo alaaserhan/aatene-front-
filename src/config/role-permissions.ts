@@ -26,6 +26,7 @@ export function isSegmentAllowedForRole(
     if (!role) return true;
 
     const allowed = ROLE_ALLOWED_SEGMENTS[role];
+    if (!allowed) return true;
     if (allowed === "all") return true;
 
     return allowed.has(segment);
