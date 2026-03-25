@@ -62,8 +62,13 @@ const Navbar = () => {
   );
 };
 
+import { useTotalUnreadCount } from "@/src/features/(dashboard)/chat/hooks";
+import { Badge } from "@/src/components/ui/badge";
+
 const NavIcons = () => {
   const lang = useLanguage();
+  const { data: unreadData } = useTotalUnreadCount();
+  const unreadCount = unreadData?.unread_conversations_count || 0;
 
   useFCMToken();
 
@@ -89,8 +94,16 @@ const NavIcons = () => {
         </button>
       </Link>
       <Link href={`/${lang}/chat`} className="flex items-center">
-        <button className="cursor-pointer bg-gray-4 rounded-full p-1.5" aria-label="الرسائل">
+        <button className="cursor-pointer relative bg-gray-4 rounded-full p-1.5" aria-label="الرسائل">
           <Image src="/icons/chat.svg" alt="Messages" width={24} height={24} className="h-6 w-6" />
+          {unreadCount > 0 && (
+            <Badge
+              className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 pt-[3px] text-[10px]"
+              variant="destructive"
+            >
+              {unreadCount}
+            </Badge>
+          )}
         </button>
       </Link>
     </div>
