@@ -236,3 +236,56 @@ export const getStoreServices = async (params: { store_id: number; section_id?: 
     const { data } = await api.get(`/services/search`, { params });
     return data;
 };
+
+export interface WhoFavoritedFavorite {
+    id: number;
+    favs_type: string;
+    favs_id: string;
+    favs: {
+        id: number;
+        slug: string;
+        name: string;
+        description: string;
+        short_description: string;
+        cover: string | null;
+        shown: boolean;
+        is_favorite: boolean;
+        in_compare: boolean;
+        price: string;
+        price_after_discount: string | null;
+        discount_present: number;
+        end_date: string | null;
+        review_rate: number | string;
+        review_count: number | string;
+        views_count: number;
+        share_url: string;
+    };
+}
+
+export interface WhoFavoritedUser {
+    id: number;
+    slug: string;
+    first_name: string;
+    last_name: string;
+    name: string;
+    avatar: string | null;
+    avatar_url: string | null;
+    review_rate: string;
+    review_count: string;
+    followers_count: string;
+    followings_count: string;
+    favorites_count: string;
+    favorites: WhoFavoritedFavorite[];
+    am_following?: boolean;
+}
+
+export interface GetWhoFavoritedResponse {
+    status: boolean;
+    message: string;
+    users: WhoFavoritedUser[];
+}
+
+export const getStoreWhoFavorited = async (slug: string): Promise<GetWhoFavoritedResponse> => {
+    const { data } = await api.get<GetWhoFavoritedResponse>(`/stores/${slug}/who-favorited`);
+    return data;
+};
