@@ -27,11 +27,12 @@ const QK = {
     ["mediaCenter", "list", paramsString] as const,
 };
 
-export const useGetMediaList = (params: URLSearchParams) => {
+export const useGetMediaList = (params: URLSearchParams, enabled: boolean = true) => {
   const key = QK.list(params.toString());
   return useQuery({
     queryKey: key,
     queryFn: () => getMediaList(params),
+    enabled,
   });
 };
 

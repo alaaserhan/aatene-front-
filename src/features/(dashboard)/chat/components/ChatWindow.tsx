@@ -25,6 +25,7 @@ import { BlockUserModal } from "./BlockUserModal";
 import { AddMemberModal } from "./AddMemberModal";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ConversationInfoPanel } from "./ConversationInfoPanel";
+import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 
 interface ChatWindowProps {
     conversation: Conversation;
@@ -238,16 +239,21 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                     {conversation.participants.slice(0, 3).map((p, i) => (
                                         <div
                                             key={p.id}
-                                            className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white border border-gray-100 text-blue-3 font-medium text-[10px] md:text-xs flex items-center justify-center overflow-hidden"
+                                            className="w-8 h-8 md:w-9 md:h-9"
                                             style={{ zIndex: 3 - i }}
                                         >
-                                            {p.participant_data.avatar ? (
-                                                <img src={p.participant_data.avatar} alt="" className="w-full h-full object-cover" />
-                                            ) : p.participant_data.type === "store" ? (
-                                                <Store className="w-4 h-4 text-blue-3" />
-                                            ) : (
-                                                <User className="w-4 h-4 text-blue-3" />
-                                            )}
+                                            <Avatar className="w-full h-full border border-gray-100">
+                                                {p.participant_data.avatar ? (
+                                                    <AvatarImage src={p.participant_data.avatar} alt="" className="object-cover" />
+                                                ) : null}
+                                                <AvatarFallback className="bg-white text-blue-3">
+                                                    {p.participant_data.type === "store" ? (
+                                                        <Store className="w-4 h-4" />
+                                                    ) : (
+                                                        <User className="w-4 h-4" />
+                                                    )}
+                                                </AvatarFallback>
+                                            </Avatar>
                                         </div>
                                     ))}
                                     {conversation.participants.length > 3 && (
@@ -265,15 +271,18 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             </button>
                         ) : (
                             <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-5 text-blue-3 font-medium text-base md:text-lg flex items-center justify-center shrink-0 overflow-hidden border border-gray-100">
+                                <Avatar className="w-10 h-10 md:w-12 md:h-12 border border-gray-100">
                                     {otherParticipant?.participant_data.avatar ? (
-                                        <img src={otherParticipant.participant_data.avatar} alt="" className="w-full h-full object-cover" />
-                                    ) : otherParticipant?.participant_data.type === "store" ? (
-                                        <Store className="w-5 h-5 md:w-6 md:h-6 text-blue-3" />
-                                    ) : (
-                                        <User className="w-5 h-5 md:w-6 md:h-6 text-blue-3" />
-                                    )}
-                                </div>
+                                        <AvatarImage src={otherParticipant.participant_data.avatar} alt="" className="object-cover" />
+                                    ) : null}
+                                    <AvatarFallback className="bg-blue-5 text-blue-3">
+                                        {otherParticipant?.participant_data.type === "store" ? (
+                                            <Store className="w-5 h-5 md:w-6 md:h-6" />
+                                        ) : (
+                                            <User className="w-5 h-5 md:w-6 md:h-6" />
+                                        )}
+                                    </AvatarFallback>
+                                </Avatar>
                                 <div className="flex-1 min-w-0">
                                     {otherParticipant ? (
                                         <Link href={otherParticipant.participant_data.type === "store"

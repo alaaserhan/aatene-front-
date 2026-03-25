@@ -48,7 +48,6 @@ function StatCard({ title, value, icon: Icon, variant, isLoading }: StatCardProp
                         <span className={`text-2xl font-bold ${style.text}`}>
                             {value}
                         </span>
-                        {variant === "blue" && <span className="text-xl text-blue-4">$</span>}
                     </div>
                 )}
             </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Conversation } from "../api";
+import { Conversation, Message } from "../api";
 import { cn } from "@/src/lib/utils";
 import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarList";
 import { useAuthStore } from "@/src/stores/auth-store";
@@ -62,6 +62,15 @@ export function ConversationListSidebar({
     const getAvatar = (conversation: Conversation) => {
         const otherParticipant = getOtherParticipant(conversation);
         return otherParticipant?.participant_data?.avatar || null;
+    };
+
+    const getMessagePreview = (message: Message | null) => {
+        if (!message) return "لا توجد رسائل";
+        if (message.body && message.body.trim()) return message.body;
+        if (message.files_url && message.files_url.length > 0) return "صورة";
+        if (message.product) return "منتج: " + message.product.name;
+        if (message.service) return "خدمة: " + message.service.title;
+        return "رسالة جديدة";
     };
 
 
@@ -210,7 +219,7 @@ export function ConversationListSidebar({
 
                             <div className="flex items-center justify-between gap-2 mt-1.5">
                                 <p className="text-xs text-gray-1 truncate flex-1 leading-relaxed">
-                                    {lastMessage?.body || "لا توجد رسائل"}
+                                    {getMessagePreview(lastMessage)}
                                 </p>
                                 {conversation.unread_messages_count > 0 && (
                                     <span className="bg-red-600 font-baseline-fix text-white text-[10px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full font-medium shrink-0 px-1">
