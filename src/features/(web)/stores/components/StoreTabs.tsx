@@ -358,9 +358,9 @@ function ShortcutButton({
 
     const renderIcon = () => {
         if (typeof Icon === "string") {
-            return <img src={Icon} alt="" className="w-4.5 h-4.5 object-contain" />;
+            return <img src={Icon} alt="" className="w-4 h-4 object-contain" />;
         }
-        return <Icon className="w-4.5 h-4.5" />;
+        return <Icon className="w-5 h-5" />;
     };
 
     if (onClick) {
@@ -394,19 +394,19 @@ function StoreShortcuts({ store }: { store: StoreProfile }) {
             //     show: true
             // },
             {
-                icon: Facebook,
+                icon: "/icons/dashboard/facebook4.svg",
                 href: store.facebook || undefined,
                 title: "فيسبوك",
                 show: !!store.facebook
             },
             {
-                icon: Instagram,
+                icon: "/icons/dashboard/insta3.svg",
                 href: store.instagram || undefined,
                 title: "انستجرام",
                 show: !!store.instagram
             },
             {
-                icon: TiktokIcon,
+                icon: "/icons/dashboard/tictok2.svg",
                 href: store.tiktok || undefined,
                 title: "تيك توك",
                 show: !!store.tiktok
@@ -418,7 +418,7 @@ function StoreShortcuts({ store }: { store: StoreProfile }) {
                 show: !!store.youtube
             },
             {
-                icon: WhatsAppIcon,
+                icon: "/icons/dashboard/whatsapp5.svg",
                 href: store.whats_app ? `https://wa.me/${store.whats_app}` : undefined,
                 title: "واتساب",
                 show: !!store.whats_app

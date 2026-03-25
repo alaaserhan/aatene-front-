@@ -50,6 +50,7 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
     // Fallback if one is missing but other exists
     const desktopSrc = hasLaptopImage ? currentBanner.labtop_banner_url : (hasMobileImage ? currentBanner.mobile_banner_url : null);
     const mobileSrc = hasMobileImage ? currentBanner.mobile_banner_url : (hasLaptopImage ? currentBanner.labtop_banner_url : null);
+    console.log(desktopSrc, mobileSrc);
 
     return (
             <div className="relative w-full aspect-360/200 md:aspect-1170/300 overflow-hidden direction-ltr" dir="ltr">
