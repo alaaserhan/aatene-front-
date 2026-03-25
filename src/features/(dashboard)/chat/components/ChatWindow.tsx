@@ -16,7 +16,7 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import Cookies from "js-cookie";
 import { cn } from "@/src/lib/utils";
 import { format } from "date-fns";
-import { ar } from "date-fns/locale";
+import { ar, arSA } from "date-fns/locale";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -429,6 +429,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                     ref={scrollAreaRef} 
                     className="flex-1 p-4 bg-auto bg-repeat bg-center bg-[#FAFAFA]"
                     style={{ backgroundImage: "url('/chat frame.svg')" }}
+                    dir="rtl"
                 >
                     <div className="space-y-4 pb-4">
                         {serverMessages.map((msg, index) => {
@@ -513,8 +514,8 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                         )}
                                     </div>
 
-                                    <span className="text-[10px] text-gray-400 mt-1 px-1">
-                                        {format(new Date(msg.created_at), "hh:mm a", { locale: ar })}
+                                    <span className="text-[10px] text-gray-2 mt-1 px-1">
+                                        {format(new Date(msg.created_at), "hh:mm a", { locale: arSA })}
                                     </span>
                                 </div>
                             );
@@ -530,8 +531,8 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                     <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>
                                 </div>
                                 <div className="flex items-center gap-2 mt-1 px-1">
-                                    <span className="text-[10px] text-gray-400">
-                                        {format(new Date(msg.created_at), "hh:mm a", { locale: ar })}
+                                    <span className="text-[10px] text-gray-2">
+                                        {format(new Date(msg.created_at), "hh:mm a", { locale: arSA })}
                                     </span>
                                     {msg.status === "sending" && (
                                         <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
@@ -603,8 +604,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             disabled={!newMessage.trim() && selectedFiles.length === 0}
                             size="icon"
                             className={cn(
-                                "rounded-full w-10 h-10 shrink-0 transition-all text-white",
-                                (newMessage.trim() || selectedFiles.length > 0) ? "bg-blue-3 hover:bg-blue-4" : "bg-gray-200 text-gray-400 hover:bg-gray-300"
+                                "rounded-full w-10 h-10 shrink-0 transition-all text-white bg-blue-3 hover:bg-blue-4"
                             )}
                         >
                             <Send className="w-5 h-5 rtl:-rotate-90" />

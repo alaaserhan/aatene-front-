@@ -50,13 +50,13 @@ export default function ReportPortalPage() {
                     <div className="relative w-48 h-48 mb-8 transform group-hover:scale-105 transition-transform duration-300">
                         <Image
                             src="/report2.svg"
-                            alt="شكوى أو إفتراح"
+                            alt="شكوى أو إقتراح"
                             fill
                             className="object-contain"
                         />
                     </div>
                     <h2 className="text-xl font-bold transition-colors">
-                        شكوى أو إفتراح
+                        شكوى أو إقتراح
                     </h2>
                 </div>
             </div>

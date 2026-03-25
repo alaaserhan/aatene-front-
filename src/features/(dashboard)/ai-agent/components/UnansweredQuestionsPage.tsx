@@ -11,6 +11,7 @@ import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteMo
 import { Pagination } from "@/src/components/ui/Pagination";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { formatDateTime } from "@/src/lib/date-helper";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -38,8 +39,8 @@ export function UnansweredQuestionsPage() {
 
     const questions: UnansweredQuestion[] = useMemo(() => {
         if (!response) return [];
-        if (Array.isArray(response)) return response;
-        return response.data || [];
+        const data = Array.isArray(response) ? response : (response.data || []);
+        return [...data].reverse();
     }, [response]);
 
     const filteredQuestions = useMemo(() => {
@@ -130,6 +131,7 @@ export function UnansweredQuestionsPage() {
                     rowsHtml += `
                         <tr style="border-bottom: 1px solid #eee;">
                             <td style="padding: 12px 8px; font-family: Tahoma, Arial, sans-serif; text-align: right; color: #444;">${q.Question}</td>
+                            <td style="padding: 12px 8px; font-family: Tahoma, Arial, sans-serif; text-align: right; color: #444;">${formatDateTime(q.Timestamp)}</td>
                             <td style="padding: 12px 8px; font-family: Tahoma, Arial, sans-serif; text-align: right; color: #444;">${statusText}</td>
                         </tr>
                     `;
@@ -139,8 +141,9 @@ export function UnansweredQuestionsPage() {
                     <table style="width: 100%; border-collapse: collapse; font-family: Tahoma, Arial, sans-serif; text-align: right;" dir="rtl">
                         <thead>
                             <tr style="background-color: #f8f9fa; border-bottom: 2px solid #ddd;">
-                                <th style="padding: 12px 8px; text-align: right; color: #333;">السؤال</th>
-                                <th style="padding: 12px 8px; text-align: right; color: #333;">الحالة</th>
+                                <th style="padding: 12px 8px; text-align: right; color: #333 text-align: right;">السؤال</th>
+                                <th style="padding: 12px 8px; text-align: right; color: #333 text-align: right;">التاريخ</th>
+                                <th style="padding: 12px 8px; text-align: right; color: #333 text-align: right;">الحالة</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -250,6 +253,9 @@ export function UnansweredQuestionsPage() {
                                                 <th className="text-right px-6 py-4 font-semibold text-gray-600 whitespace-nowrap min-w-[300px]">
                                                     السؤال
                                                 </th>
+                                                <th className="text-right px-6 py-4 font-semibold text-gray-600 whitespace-nowrap">
+                                                    تاريخ السؤال
+                                                </th>
                                                 <th className="text-right px-6 py-4 font-semibold text-gray-600 whitespace-nowrap min-w-[200px]">
                                                     الحالة
                                                 </th>
@@ -268,6 +274,9 @@ export function UnansweredQuestionsPage() {
                                                     >
                                                         <td className="px-6 py-4 font-medium text-gray-800">
                                                             {question.Question}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
+                                                            {formatDateTime(question.Timestamp)}
                                                         </td>
                                                         <td className="px-6 py-4">
                                                             <ReusableDropdown

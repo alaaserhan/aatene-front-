@@ -46,11 +46,29 @@ export function MerchantFollowersAnalytics() {
     const step = Math.ceil(maxValue / 4);
 
     // 2. تحويل البيانات للرسم البياني المتراكم (Stacked)
+    const dayMapping: Record<string, string> = {
+        "Monday": "الاثنين",
+        "Tuesday": "الثلاثاء",
+        "Wednesday": "الأربعاء",
+        "Thursday": "الخميس",
+        "Friday": "الجمعة",
+        "Saturday": "السبت",
+        "Sunday": "الأحد",
+        "Mon": "الاثنين",
+        "Tue": "الثلاثاء",
+        "Wed": "الأربعاء",
+        "Thu": "الخميس",
+        "Fri": "الجمعة",
+        "Sat": "السبت",
+        "Sun": "الأحد",
+    };
+
     const chartData = data?.followers
         ? Object.entries(data.followers).map(([key, value]) => {
             const val = Number(value);
+            const translatedName = dayMapping[key] || key;
             return {
-                name: key,
+                name: translatedName,
                 total: val,
                 part1: Math.min(val, step),
                 part2: Math.max(0, Math.min(val - step, step)),

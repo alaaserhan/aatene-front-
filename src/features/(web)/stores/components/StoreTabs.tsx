@@ -345,7 +345,7 @@ function ShortcutButton({
     title,
     className
 }: {
-    icon: React.ElementType;
+    icon: React.ElementType | string;
     href?: string;
     onClick?: () => void;
     title?: string;
@@ -356,17 +356,24 @@ function ShortcutButton({
         className
     );
 
+    const renderIcon = () => {
+        if (typeof Icon === "string") {
+            return <img src={Icon} alt="" className="w-4 h-4 object-contain" />;
+        }
+        return <Icon className="w-5 h-5" />;
+    };
+
     if (onClick) {
         return (
             <button onClick={onClick} className={commonClasses} title={title}>
-                <Icon className="w-4.5 h-4.5" />
+                {renderIcon()}
             </button>
         );
     }
 
     return (
         <a href={href} target="_blank" rel="noopener noreferrer" className={commonClasses} title={title}>
-            <Icon className="w-4.5 h-4.5" />
+            {renderIcon()}
         </a>
     );
 }
@@ -374,7 +381,7 @@ function ShortcutButton({
 function StoreShortcuts({ store }: { store: StoreProfile }) {
 
     const shortcuts: {
-        icon: React.ElementType;
+        icon: React.ElementType | string;
         href?: string;
         onClick?: () => void;
         title: string;
@@ -387,19 +394,19 @@ function StoreShortcuts({ store }: { store: StoreProfile }) {
             //     show: true
             // },
             {
-                icon: Facebook,
+                icon: "/icons/dashboard/facebook4.svg",
                 href: store.facebook || undefined,
                 title: "فيسبوك",
                 show: !!store.facebook
             },
             {
-                icon: Instagram,
+                icon: "/icons/dashboard/insta3.svg",
                 href: store.instagram || undefined,
                 title: "انستجرام",
                 show: !!store.instagram
             },
             {
-                icon: TiktokIcon,
+                icon: "/icons/dashboard/tictok2.svg",
                 href: store.tiktok || undefined,
                 title: "تيك توك",
                 show: !!store.tiktok
@@ -411,7 +418,7 @@ function StoreShortcuts({ store }: { store: StoreProfile }) {
                 show: !!store.youtube
             },
             {
-                icon: WhatsAppIcon,
+                icon: "/icons/dashboard/whatsapp5.svg",
                 href: store.whats_app ? `https://wa.me/${store.whats_app}` : undefined,
                 title: "واتساب",
                 show: !!store.whats_app

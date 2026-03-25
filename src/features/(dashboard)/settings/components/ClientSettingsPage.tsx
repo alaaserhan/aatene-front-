@@ -320,7 +320,6 @@ export function ClientSettingsPage() {
           type="single"
           collapsible
           className="space-y-3"
-          defaultValue="basic-info"
         >
           {settingsItems.map((item) => (
             <AccordionItem

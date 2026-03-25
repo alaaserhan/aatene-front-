@@ -20,6 +20,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
     const [selectedCityName, setSelectedCityName] = useState("الناصرة");
+    const [tempSelectedCityId, setTempSelectedCityId] = useState<number | null>(null);
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -102,8 +103,9 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
     }, [allShippingCompanies, selectedCityId, shippingCompany, shippingDetails, selectedCityName]);
 
     const handleApplyCity = () => {
-        const city = citiesData?.cities?.find((c) => c.id === selectedCityId);
+        const city = citiesData?.cities?.find((c) => c.id === tempSelectedCityId);
         if (city) {
+            setSelectedCityId(city.id);
             setSelectedCityName(city.name);
             if (typeof window !== "undefined") {
                 localStorage.setItem("selected_delivery_city", JSON.stringify({ id: city.id, name: city.name }));
@@ -147,10 +149,10 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                         <img src="/icons/box.svg" alt="calendar" width={30} height={30} />
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="font-medium ">التوصيل إلى: <span className="underline decoration-blue-3 underline-offset-4 cursor-pointer" onClick={() => setIsCityModalOpen(true)}>{selectedCityName}</span></span>
+                        <span className="font-medium ">التوصيل إلى: <span className="underline decoration-blue-3 underline-offset-4 cursor-pointer" onClick={() => { setTempSelectedCityId(selectedCityId); setIsCityModalOpen(true); }}>{selectedCityName}</span></span>
                         <button
                             className="text-blue-3 hover:opacity-80 transition-opacity"
-                            onClick={() => setIsCityModalOpen(true)}
+                            onClick={() => { setTempSelectedCityId(selectedCityId); setIsCityModalOpen(true); }}
                             aria-label="تعديل مدينة التوصيل"
                         >
                             <Pencil className="w-3 h-3" />
@@ -181,7 +183,10 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                 </div>
             )}
 
-            <Dialog open={isCityModalOpen} onOpenChange={setIsCityModalOpen}>
+            <Dialog open={isCityModalOpen} onOpenChange={(open) => {
+                if (open) setTempSelectedCityId(selectedCityId);
+                setIsCityModalOpen(open);
+            }}>
                 <DialogContent className="sm:max-w-[520px]" dir="rtl">
                     <DialogHeader>
                         <DialogTitle className="text-lg font-bold">اختر المدينة التي تريد التوصيل إليها</DialogTitle>
@@ -208,8 +213,8 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                                     <input
                                         type="radio"
                                         name="shipping-city"
-                                        checked={selectedCityId === city.id}
-                                        onChange={() => setSelectedCityId(city.id)}
+                                        checked={tempSelectedCityId === city.id}
+                                        onChange={() => setTempSelectedCityId(city.id)}
                                         className="accent-blue-4"
                                     />
                                     <span className="text-sm font-medium text-gray-700">{city.name}</span>
@@ -229,7 +234,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                                 type="button"
                                 onClick={handleApplyCity}
                                 className="px-6 py-2 text-sm rounded-md bg-blue-3 text-white hover:bg-blue-4"
-                                disabled={!selectedCityId}
+                                disabled={!tempSelectedCityId}
                             >
                                 تأكيد
                             </button>
