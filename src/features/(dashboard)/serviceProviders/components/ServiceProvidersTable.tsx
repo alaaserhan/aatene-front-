@@ -1,15 +1,7 @@
 // src/features/(dashboard)/stores/components/ServiceProvidersTable.tsx
 "use client";
 
-import { useState } from "react";
-import { Eye, Pencil, Trash2, Loader2, MoreHorizontal } from "lucide-react";
-import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/src/components/ui/dropdown-menu";
+import { Eye, Loader2 } from "lucide-react";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Store } from "../../stores/api";
@@ -21,7 +13,6 @@ interface ServiceProvidersTableProps {
     currentPage: number;
     totalPages: number;
     onPageChange: (page: number) => void;
-    onToggleStatus: (store: Store) => void;
     onEdit: (store: Store) => void;
     onDelete: (store: Store) => void;
     onShow: (store: Store) => void;
@@ -35,7 +26,7 @@ export function ServiceProvidersTable({
     onPageChange,
     onEdit,
     onDelete,
-    onShow
+    onShow,
 }: ServiceProvidersTableProps) {
 
     if (isLoading) {
