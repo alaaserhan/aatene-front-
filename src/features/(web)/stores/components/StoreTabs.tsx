@@ -15,6 +15,7 @@ import {
     User,
     ChevronLeft,
     ChevronRight,
+    X,
 } from "lucide-react";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../hooks";
 import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
@@ -45,6 +46,117 @@ type TabKey = "overview" | "reviews" | "discounts" | "offers";
 interface StoreTabsProps {
     store: StoreProfile;
     pageData?: StorePageData;
+}
+
+const WEEK_DAYS: { key: string; label: string }[] = [
+    { key: "saturday", label: "السبت" },
+    { key: "sunday", label: "الأحد" },
+    { key: "monday", label: "الأثنين" },
+    { key: "tuesday", label: "الثلاثاء" },
+    { key: "wednesday", label: "الأربعاء" },
+    { key: "thursday", label: "الخميس" },
+    { key: "friday", label: "الجمعة" },
+];
+
+type WorkingPopupState =
+    | "schedule_open"
+    | "schedule_closed"
+    | "open_without_hours"
+    | "temporary_closed"
+    | "closed";
+
+function timeToMinutes(time?: string): number | null {
+    if (!time) return null;
+    const [h, m] = time.split(":").map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return null;
+    return h * 60 + m;
+}
+
+function formatTime(time: string) {
+    if (!time) return "";
+    const [hoursStr, minutesStr] = time.split(":");
+    let hours = parseInt(hoursStr, 10);
+    const minutes = parseInt(minutesStr, 10);
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours || 12;
+    const minutesDisplay = minutes > 0 ? `:${minutes.toString().padStart(2, "0")}` : ":00";
+    return `${hours}${minutesDisplay}${ampm}`;
+}
+
+function resolveWorkingState(store: StoreProfile) {
+    const openStatus = store.open_status;
+    const todayIdx = new Date().getDay();
+    const dayValue = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][todayIdx];
+    const todayWorkingTime = store.workingtimes?.find((wt) => wt.day === dayValue);
+
+    if (openStatus === "open_without_working_times") {
+        return {
+            popupState: "open_without_hours" as WorkingPopupState,
+            label: "مفتوح",
+            color: "text-green-600",
+            sub: "بدون ساعات عمل محددة",
+            isOpenNow: true,
+            todayWorkingTime,
+            dayValue,
+        };
+    }
+
+    if (openStatus === "temporary_closed") {
+        return {
+            popupState: "temporary_closed" as WorkingPopupState,
+            label: "مغلق مؤقتاً",
+            color: "text-amber-600",
+            sub: "",
+            isOpenNow: false,
+            todayWorkingTime,
+            dayValue,
+        };
+    }
+
+    if (openStatus === "closed") {
+        return {
+            popupState: "closed" as WorkingPopupState,
+            label: "مغلق نهائياً",
+            color: "text-red-600",
+            sub: "",
+            isOpenNow: false,
+            todayWorkingTime,
+            dayValue,
+        };
+    }
+
+    // open_with_working_times
+    let isOpenNow = false;
+    let sub = "لا توجد ساعات متاحة لليوم";
+    if (todayWorkingTime) {
+        if (todayWorkingTime.open_always) {
+            isOpenNow = true;
+            sub = "مفتوح 24 ساعة";
+        } else if (todayWorkingTime.closed_always) {
+            isOpenNow = false;
+            sub = "عطلة اليوم";
+        } else {
+            const fromMinutes = timeToMinutes(todayWorkingTime.from);
+            const toMinutes = timeToMinutes(todayWorkingTime.to);
+            const now = new Date();
+            const nowMinutes = now.getHours() * 60 + now.getMinutes();
+            if (fromMinutes !== null && toMinutes !== null) {
+                isOpenNow = nowMinutes >= fromMinutes && nowMinutes <= toMinutes;
+                sub = `${formatTime(todayWorkingTime.from)} - ${formatTime(todayWorkingTime.to)}`;
+            }
+        }
+    }
+
+    return {
+        popupState: (isOpenNow ? "schedule_open" : "schedule_closed") as WorkingPopupState,
+        label: isOpenNow ? "مفتوح الآن" : "مغلق الآن",
+        color: isOpenNow ? "text-green-600" : "text-red-500",
+        sub,
+        isOpenNow,
+        todayWorkingTime,
+        dayValue,
+    };
 }
 
 export default function StoreTabs({ store, pageData }: StoreTabsProps) {
@@ -448,33 +560,8 @@ function StoreShortcuts({ store }: { store: StoreProfile }) {
 }
 
 function OverviewTab({ store }: { store: StoreProfile }) {
-    // Calculate current day working hours
-    const today = new Date().getDay();
-    const dayValue = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][today];
-    const workingTime = store.workingtimes?.find((wt) => wt.day === dayValue);
-
-    const formatTime = (time: string) => {
-        if (!time) return "";
-        const [hoursStr, minutesStr] = time.split(":");
-        let hours = parseInt(hoursStr, 10);
-        const minutes = parseInt(minutesStr, 10);
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12;
-        hours = hours || 12;
-        const minutesDisplay = minutes > 0 ? `:${minutes.toString().padStart(2, '0')}` : '';
-        return `${hours}${minutesDisplay}${ampm}`;
-    };
-
-    let workingHours = "غير متوفر";
-    if (workingTime) {
-        if (workingTime.open_always) {
-            workingHours = "مفتوح 24 ساعة";
-        } else if (workingTime.closed_always) {
-            workingHours = "";
-        } else {
-            workingHours = `${formatTime(workingTime.from)} - ${formatTime(workingTime.to)}`;
-        }
-    }
+    const [isWorkingPopupOpen, setIsWorkingPopupOpen] = useState(false);
+    const workingState = resolveWorkingState(store);
 
     // Member since
     const memberSince = store.owner?.created_at
@@ -482,40 +569,255 @@ function OverviewTab({ store }: { store: StoreProfile }) {
         : "غير متوفر";
 
     return (
-        <div className="flex flex-col lg:flex-row gap-6" dir="rtl">
-            {/* Right Side: Store Owner Card */}
-            <div className="w-full lg:w-[280px] shrink-0 order-1 lg:order-2">
-                <StoreShortcuts store={store} />
-                <StoreOwnerCard store={store} />
-            </div>
+        <>
+            <div className="flex flex-col lg:flex-row gap-6" dir="rtl">
+                {/* Right Side: Store Owner Card */}
+                <div className="w-full lg:w-[280px] shrink-0 order-1 lg:order-2">
+                    <StoreShortcuts store={store} />
+                    <StoreOwnerCard store={store} />
+                </div>
 
-            {/* Left Side: Description + Stats */}
-            <div className="grid grid-cols-12 md:grid-cols-8 gap-6 w-full">
-                {/* Stats Row */}
-                <div className="flex flex-row md:justify-start justify-center md:flex-col gap-6 col-span-12 md:col-span-1">
-                    <StoreStatItem
-                        icon={<img src="/icons/clock.svg" alt="" className="w-6 h-6" />}
-                        label="مواعيد العمل"
-                        value={store.open_status === "open" ? "مفتوح الآن" : "مغلق"}
-                        sub={workingHours}
-                        color={store.open_status === "open" ? "text-green-600" : "text-red-500"}
-                    />
-                    <StoreStatItem
-                        icon={<img src="/icons/heart2.svg" alt="" className="w-6 h-6" />}
-                        label="مشاركه"
-                        value={String(store.followers_count || 0)}
-                    />
-                    <StoreStatItem
-                        icon={<img src="/icons/member.svg" alt="" className="w-6 h-6" />}
-                        label="عضو منذ"
-                        value={String(memberSince)}
+                {/* Left Side: Description + Stats */}
+                <div className="grid grid-cols-12 md:grid-cols-8 gap-6 w-full">
+                    {/* Stats Row */}
+                    <div className="flex flex-row md:justify-start justify-center md:flex-col gap-6 col-span-12 md:col-span-1">
+                        <StoreStatItem
+                            icon={<img src="/icons/clock.svg" alt="" className="w-6 h-6" />}
+                            label="مواعيد العمل"
+                            value={workingState.label}
+                            sub={workingState.sub}
+                            color={workingState.color}
+                            onClick={() => setIsWorkingPopupOpen(true)}
+                        />
+                        <StoreStatItem
+                            icon={<img src="/icons/heart2.svg" alt="" className="w-6 h-6" />}
+                            label="مشاركه"
+                            value={String(store.followers_count || 0)}
+                        />
+                        <StoreStatItem
+                            icon={<img src="/icons/member.svg" alt="" className="w-6 h-6" />}
+                            label="عضو منذ"
+                            value={String(memberSince)}
+                        />
+                    </div>
+                    {/* Description */}
+                    <div
+                        className="prose prose-lg max-w-none leading-relaxed font-sans text-sm col-span-12 md:col-span-7"
+                        dangerouslySetInnerHTML={{ __html: store.description || "<p>لا يوجد وصف</p>" }}
                     />
                 </div>
-                {/* Description */}
-                <div
-                    className="prose prose-lg max-w-none leading-relaxed font-sans text-sm col-span-12 md:col-span-7"
-                    dangerouslySetInnerHTML={{ __html: store.description || "<p>لا يوجد وصف</p>" }}
-                />
+            </div>
+
+            <WorkingStatusModal
+                isOpen={isWorkingPopupOpen}
+                onClose={() => setIsWorkingPopupOpen(false)}
+                store={store}
+            />
+        </>
+    );
+}
+
+function WorkingStatusModal({
+    isOpen,
+    onClose,
+    store,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    store: StoreProfile;
+}) {
+    if (!isOpen) return null;
+    const state = resolveWorkingState(store);
+    const currentDay = state.dayValue;
+    const isScheduleModal = state.popupState === "schedule_open" || state.popupState === "schedule_closed";
+
+    const config = {
+        schedule_open: {
+            image: "/popup/1.svg",
+            title: "المتجر يعمل",
+            titleClass: "text-[#45C332]",
+            cardHeight: "h-[680px]",
+            imageClass: "w-[130px]",
+        },
+        schedule_closed: {
+            image: "/popup/2.svg",
+            title: "المتجر مغلق حالياً",
+            titleClass: "text-[#C72D2D]",
+            cardHeight: "h-[680px]",
+            // 2.svg appears visually smaller, so we render it larger.
+            imageClass: "w-[165px]",
+        },
+        open_without_hours: {
+            image: "/popup/3.svg",
+            title: "المتجر مفتوح بدون ساعات عمل معينة",
+            titleClass: "text-[#3A5C84]",
+            cardHeight: "h-[350px]",
+            imageClass: "w-[180px]",
+        },
+        temporary_closed: {
+            image: "/popup/4.svg",
+            title: "المتجر مغلق مؤقتاً",
+            titleClass: "text-[#E5B500]",
+            cardHeight: "h-[350px]",
+            imageClass: "w-[180px]",
+        },
+        closed: {
+            image: "/popup/5.svg",
+            title: "المتجر مغلق بشكل دائم",
+            titleClass: "text-[#DF2E2E]",
+            cardHeight: "h-[310px]",
+            imageClass: "w-[180px]",
+        },
+    }[state.popupState];
+
+    return (
+        <div className="fixed inset-0 z-[100] bg-black/40 p-3 sm:p-5 flex items-center justify-center overflow-y-auto">
+            <div
+                dir="rtl"
+                className={cn(
+                    "relative w-[min(92vw,780px)] rounded-[15px] bg-white px-5 pt-[30px] pb-5 overflow-hidden",
+                    "hidden sm:block",
+                    config.cardHeight
+                )}
+            >
+                {/* زر الإغلاق */}
+                <div className="sticky top-0 z-20 flex justify-start" dir="ltr">
+                    <button
+                        onClick={onClose}
+                        className="text-[#1F1F1F] hover:opacity-60 cursor-pointer"
+                        aria-label="إغلاق"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+                </div>
+
+                {/* الصورة + العنوان + الوصف */}
+                <div className="flex flex-col items-center text-center pt-1 pb-2">
+                    <img
+                        src={config.image}
+                        alt=""
+                        className={cn(
+                            "object-contain",
+                            config.imageClass
+                        )}
+                    />
+                    <h3 className={cn("mt-3 text-[28px] sm:text-[30px] leading-tight font-bold", config.titleClass)}>
+                        {config.title}
+                    </h3>
+                    <p className="mt-2 text-[#6B6B6B] text-[12px] sm:text-[13px] leading-[1.5] max-w-[560px]">
+                        ان كنت متابع لهذا المتجر ومفعل الاشعارات سيتم <br />
+                        اعلامك بكل الأنشطة الخاصة به
+                    </p>
+                </div>
+
+                {/* جدول مواعيد الأسبوع */}
+                {isScheduleModal && (
+                    <div>
+                        {WEEK_DAYS.map((d) => {
+                            const wt = store.workingtimes?.find((x) => x.day === d.key);
+                            const isDayClosed = !wt || wt.closed_always;
+                            const timeText = wt
+                                ? wt.open_always
+                                    ? "24 ساعة"
+                                    : wt.closed_always
+                                        ? "عطلة"
+                                        : `من ${formatTime(wt.from)} حتى ${formatTime(wt.to)}`
+                                : "عطلة";
+                            const isToday = d.key === currentDay;
+                            return (
+                                <div key={d.key} className="flex items-center gap-2 sm:gap-3 py-1.5 border-b border-[#EFEFEF] last:border-b-0">
+                                    {/* دائرة + خط timeline — أقصى اليمين */}
+                                    <div className="flex flex-col items-center shrink-0">
+                                        <div className={cn("w-1 flex-1 min-h-[14px]", isToday ? "bg-[#D0D0D0]" : "bg-[#E5E5E5]")} />
+                                        <div className={cn(
+                                            "w-4 h-4 rounded-full border-2",
+                                            isToday
+                                                ? (state.isOpenNow
+                                                    ? "bg-[#45C332] border-[#45C332]"
+                                                    : "bg-[#C72D2D] border-[#C72D2D]")
+                                                : "bg-[#D0D0D0] border-[#D0D0D0]"
+                                        )} />
+                                    </div>
+
+                                    {/* اسم اليوم + الوقت */}
+                                    <div className="flex-1 text-right">
+                                        <p className="text-[14px] sm:text-[16px] font-semibold text-[#2F2F2F] leading-tight">{d.label}</p>
+                                        <p className="text-[11px] sm:text-[12px] text-[#888] mt-0.5">{timeText}</p>
+                                    </div>
+
+                                    {/* حالة اليوم */}
+                                    <span className={cn(
+                                        "shrink-0 text-[12px] sm:text-[13px] font-medium",
+                                        isDayClosed ? "text-[#C64141]" : "text-[#45A24A]"
+                                    )}>
+                                        {isDayClosed ? "لا يعمل" : "يعمل"}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+
+            {/* Mobile fallback */}
+            <div
+                dir="rtl"
+                className="sm:hidden relative w-[min(92vw,780px)] rounded-[15px] bg-white px-4 pt-4 pb-4 overflow-y-auto max-h-[95vh]"
+            >
+                <div className="sticky top-0 z-20 flex justify-start" dir="ltr">
+                    <button
+                        onClick={onClose}
+                        className="text-[#1F1F1F] hover:opacity-60 cursor-pointer"
+                        aria-label="إغلاق"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+                </div>
+                <div className="flex flex-col items-center text-center pt-1 pb-3">
+                    <img src={config.image} alt="" className={cn("object-contain", config.imageClass)} />
+                    <h3 className={cn("mt-4 text-[26px] leading-tight font-bold", config.titleClass)}>{config.title}</h3>
+                    <p className="mt-2 text-[#6B6B6B] text-[13px] leading-relaxed max-w-[560px]">
+                        ان كنت متابع لهذا المتجر ومفعل الاشعارات سيتم
+                        <br />
+                        اعلامك بكل الأنشطة الخاصة به
+                    </p>
+                </div>
+                {isScheduleModal && (
+                    <div>
+                        {WEEK_DAYS.map((d) => {
+                            const wt = store.workingtimes?.find((x) => x.day === d.key);
+                            const isDayClosed = !wt || wt.closed_always;
+                            const timeText = wt
+                                ? wt.open_always
+                                    ? "24 ساعة"
+                                    : wt.closed_always
+                                        ? "عطلة"
+                                        : `من ${formatTime(wt.from)} حتى ${formatTime(wt.to)}`
+                                : "عطلة";
+                            const isToday = d.key === currentDay;
+                            return (
+                                <div key={d.key} className="flex items-center gap-2 py-2 border-b border-[#EFEFEF] last:border-b-0">
+                                    <div className="flex flex-col items-center shrink-0">
+                                        <div className="w-1 flex-1 min-h-[12px] bg-[#E5E5E5]" />
+                                        <div className={cn(
+                                            "w-3.5 h-3.5 rounded-full border-2",
+                                            isToday
+                                                ? (state.isOpenNow ? "bg-[#45C332] border-[#45C332]" : "bg-[#C72D2D] border-[#C72D2D]")
+                                                : "bg-[#D0D0D0] border-[#D0D0D0]"
+                                        )} />
+                                    </div>
+                                    <div className="flex-1 text-right">
+                                        <p className="text-[15px] font-semibold text-[#2F2F2F] leading-tight">{d.label}</p>
+                                        <p className="text-[12px] text-[#888] mt-0.5">{timeText}</p>
+                                    </div>
+                                    <span className={cn("shrink-0 text-[13px] font-medium", isDayClosed ? "text-[#C64141]" : "text-[#45A24A]")}>
+                                        {isDayClosed ? "لا يعمل" : "يعمل"}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -586,22 +888,30 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
 
 
 
-function StoreStatItem({ icon, label, value, sub, color }: {
+function StoreStatItem({ icon, label, value, sub, color, onClick }: {
     icon: React.ReactNode;
     label: string;
     value: string;
     sub?: string;
     color?: string;
+    onClick?: () => void;
 }) {
+    const Wrapper: React.ElementType = onClick ? "button" : "div";
     return (
-        <div className="flex flex-col items-center text-center gap-1 min-w-[80px]">
+        <Wrapper
+            onClick={onClick}
+            className={cn(
+                "flex flex-col items-center text-center gap-1 min-w-[80px]",
+                onClick && "cursor-pointer hover:opacity-85 transition-opacity"
+            )}
+        >
             <div className="w-10 h-10  flex items-center justify-center">
                 {icon}
             </div>
             <span className="text-xs text-gray-500">{label}</span>
             <span className={cn("text-sm font-medium", color || "text-gray-2")}>{value}</span>
             {sub && <span className="text-[11px] text-gray-400">{sub}</span>}
-        </div>
+        </Wrapper>
     );
 }
 
