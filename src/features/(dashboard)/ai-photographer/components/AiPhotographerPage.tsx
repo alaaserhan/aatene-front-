@@ -158,20 +158,12 @@ export function AiPhotographerPage() {
       <div className="w-full max-w-[1280px] h-auto bg-white rounded-[16px] px-4 sm:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6 flex flex-col gap-6 shadow-sm border border-[#E4E9F2]">
 
         {/* Top Header */}
-        <div className="flex items-center justify-between w-full border-b border-[#F1F5F9] pb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex items-center gap-2.5 px-3 py-1.5 border border-[#E4E9F2] bg-[#F8FAFC] rounded-full">
-              <span className="text-[#3B70AF] font-bold text-[14px]">1340 رصيد</span>
-              <img src="/ai/coins.svg" alt="coins" className="w-[16px] h-[16px]" />
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
+        <div className="flex items-center w-full border-b border-[#F1F5F9] pb-4">
+          <div className="flex items-center gap-3">
             <Link href="/admin" className="p-2 hover:bg-gray-50 rounded-full transition-colors text-gray-400">
               <ArrowRight className="w-5 h-5" />
             </Link>
-            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#3B70AF]">
-              <span className="font-bold text-lg">A</span>
-            </div>
+            <img src="/ai/Logo.svg" alt="AI Logo" className="w-9 h-9" />
             <h1 className="text-[20px] font-bold text-[#0F172A]">المصور المحترف</h1>
           </div>
         </div>
