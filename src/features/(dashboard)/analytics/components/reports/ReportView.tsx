@@ -195,7 +195,7 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: (data as ServicesAnalyticsResponse)?.servicesGrowthChart || [],
                 topListName: "الخدمات الأعلى تقييماً",
                 topListItems: (data as ServicesAnalyticsResponse)?.topRatedServices?.map((item: AnalyticsService, i: number) => ({
-                    id: item.id, title: item.title, subtitle: "عدد التقييمات", image: item.images_urls[0], rank: i + 1, badgeText: `${item.execute_count || 0} تقييم`, badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.title, subtitle: "التقيم", image: item.images_urls[0], rank: i + 1, badgeText: `${item.review_rate || 0} `, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
                 bottomListName: "الخدمات الاعلي عدد بلاغات",
                 bottomListItems: (data as ServicesAnalyticsResponse)?.mostReportedServices?.map((item: AnalyticsService, i: number) => ({
@@ -224,7 +224,7 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: (data as UsersAnalyticsResponse)?.customersGrowthChart || [],
                 topListName: "العملاء الأكثر تفاعلاً",
                 topListItems: (data as UsersAnalyticsResponse)?.mostActiveCustomers?.map((item: AnalyticsUser, i: number) => ({
-                    id: item.id, title: item.full_name, subtitle: "عدد التقيمات", image: item.avatar, rank: i + 1, badgeText: String(item.id), badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.full_name, subtitle: "عدد التقيمات", image: item.avatar, rank: i + 1, badgeText: String(item.review_count), badgeColor: "bg-green-100 text-green-700"
                 })) || []
             };
             break;
@@ -249,7 +249,7 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: (data as MerchantsAnalyticsResponse)?.merchantsGrowthChart || [],
                 topListName: "التجار الاعلي تقييم",
                 topListItems: (data as MerchantsAnalyticsResponse)?.topMerchantsByStores?.map((item: AnalyticsMerchant, i: number) => ({
-                    id: item.id, title: item.name || "غير معروف", subtitle: "عدد التقييمات", image: item.avatar_url, rank: i + 1, badgeText: "150 تقييم", badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.name || "غير معروف", subtitle: "التقيم", image: item.avatar_url, rank: i + 1, badgeText: `${item.review_rate || 0} `, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
                 bottomListName: "التجار الاعلي عدد بلاغات",
                 bottomListItems: (data as MerchantsAnalyticsResponse)?.topMerchantsByReports?.map((item: AnalyticsMerchant, i: number) => ({
@@ -279,7 +279,7 @@ export function ReportView({ type }: ReportViewProps) {
                 chartData: (data as StoresAnalyticsResponse)?.storesGrowthChart || [],
                 topListName: "المتاجر الأعلى تقييماً",
                 topListItems: (data as StoresAnalyticsResponse)?.topRatedStores?.map((item: AnalyticsStore, i: number) => ({
-                    id: item.id, title: item.name, subtitle: "عدد التقييمات", image: item.cover_url, rank: i + 1, badgeText: `${item.review_count || 0} تقييم`, badgeColor: "bg-green-100 text-green-700"
+                    id: item.id, title: item.name, subtitle: "التقيم", image: item.cover_url, rank: i + 1, badgeText: `${item.review_rate || 0} `, badgeColor: "bg-green-100 text-green-700"
                 })) || [],
                 bottomListName: "المتاجر الاعلي عدد بلاغات",
                 bottomListItems: (data as StoresAnalyticsResponse)?.topReportedStores?.map((item: AnalyticsStore, i: number) => ({
