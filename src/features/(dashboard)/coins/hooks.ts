@@ -9,6 +9,7 @@ export function useGetStoreBalance(params?: URLSearchParams, storeId?: number | 
         queryKey: ["coins", "balance", params?.toString(), storeId],
         queryFn: () => api.getStoreBalance(params, storeId),
         staleTime: Infinity,
+        enabled: !!storeId,
     });
 }
 
@@ -17,6 +18,7 @@ export function useGetCoinsPackages(storeId?: number | string) {
     return useQuery({
         queryKey: ["coins", "packages", storeId],
         queryFn: () => api.getCoinsPackages(storeId),
+        enabled: !!storeId,
     });
 }
 
@@ -26,6 +28,7 @@ export function useGetCoinsTransactions(params?: URLSearchParams, storeId?: numb
         queryKey: ["coins", "transactions", params?.toString(), storeId],
         queryFn: () => api.getCoinsTransactions(params, storeId),
         placeholderData: (previousData) => previousData,
+        enabled: !!storeId,
     });
 }
 
@@ -52,6 +55,7 @@ export function useGetCoinsGrowth(period: string = "all_time", storeId?: number 
     return useQuery({
         queryKey: ["coins", "growth", period, storeId],
         queryFn: () => api.getCoinsGrowth(period, storeId),
+        enabled: !!storeId,
     });
 }
 
@@ -60,5 +64,6 @@ export function useGetCoinsGeneral(storeId?: number | string) {
     return useQuery({
         queryKey: ["coins", "general", storeId],
         queryFn: () => api.getCoinsGeneral(storeId),
+        enabled: !!storeId,
     });
 }
