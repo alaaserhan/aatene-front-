@@ -120,6 +120,8 @@ export const useBlockUser = () => {
         },
         onSettled: (_data, _error, variables) => {
             qc.invalidateQueries({ queryKey: QK.blocks.list(variables.blocked_type) });
+            qc.invalidateQueries({ queryKey: ["conversations"] });
+            qc.invalidateQueries({ queryKey: ["conversation-messages"] });
         },
     });
 };
@@ -133,6 +135,8 @@ export const useUnblockUser = () => {
         },
         onSettled: (_data, _error, variables) => {
             qc.invalidateQueries({ queryKey: QK.blocks.list(variables.blocked_type) });
+            qc.invalidateQueries({ queryKey: ["conversations"] });
+            qc.invalidateQueries({ queryKey: ["conversation-messages"] });
         },
     });
 };
