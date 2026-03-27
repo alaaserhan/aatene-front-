@@ -141,17 +141,6 @@ export function BuyPointsPageContent() {
                             })}
                         </div>
                     </div>
-
-                    {/* 2. Custom Amount Input */}
-                    <div>
-                        <Label className="text-base font-medium mb-3 block text-gray-700">أو اكتب عدد العملات الذهبية</Label>
-                        <Input
-                            type="number"
-                            placeholder="0"
-                            disabled
-                            className="bg-white border-gray-200 h-11"
-                        />
-                    </div>
                 </div>
 
                 {/* PART 2: Balance & Payment (Sidebar) */}
