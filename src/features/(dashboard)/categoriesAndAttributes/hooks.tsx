@@ -100,6 +100,25 @@ export function useInfiniteCategoryOptions(params: URLSearchParams) {
   });
 }
 
+export function useInfiniteCategories(params: URLSearchParams) {
+  return useInfiniteQuery({
+    queryKey: ["categories", "infinite", params.toString()],
+    queryFn: ({ pageParam = 1 }) => {
+      const newParams = new URLSearchParams(params);
+      newParams.set("page", String(pageParam));
+      return api.getCategories(newParams);
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      const returnedCount = lastPage.data?.length || 0;
+      const perPage = Number(params.get("per_page") || 10);
+
+      if (returnedCount < perPage) return undefined;
+      return allPages.length + 1;
+    },
+    initialPageParam: 1,
+  });
+}
+
 export function useGetSingleCategory(id?: string | number) {
   return useQuery({
     queryKey: CategoryQK.single(id ?? ""),
