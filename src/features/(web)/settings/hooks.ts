@@ -402,6 +402,11 @@ export const useFollowUserOrStore = () => {
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.follows.followings() });
             qc.invalidateQueries({ queryKey: QK.account.profile });
+            qc.invalidateQueries({ queryKey: ["userProfile"] });
+            qc.invalidateQueries({ queryKey: ["storeProfile"] });
+            qc.invalidateQueries({ queryKey: ["storePageData"] });
+            qc.invalidateQueries({ queryKey: ["stores"] });
+            qc.invalidateQueries({ queryKey: ["storeWhoFavorited"] });
         },
     });
 };
@@ -416,6 +421,11 @@ export const useUnfollowUserOrStore = () => {
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.follows.followings() });
             qc.invalidateQueries({ queryKey: QK.account.profile });
+            qc.invalidateQueries({ queryKey: ["userProfile"] });
+            qc.invalidateQueries({ queryKey: ["storeProfile"] });
+            qc.invalidateQueries({ queryKey: ["storePageData"] });
+            qc.invalidateQueries({ queryKey: ["stores"] });
+            qc.invalidateQueries({ queryKey: ["storeWhoFavorited"] });
         },
     });
 };
