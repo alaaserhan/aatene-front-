@@ -11,6 +11,10 @@ import {
 import { FavoriteItem } from "../api";
 import EmptyFavorites from "./EmptyFavorites";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
+import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
+import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
+import { Store } from "@/src/features/(web)/searchAndFilter/api";
+import { Service } from "@/src/features/(web)/services/api";
 import { Search, CheckSquare, Plus } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { cn } from "@/src/lib/utils";
@@ -205,22 +209,30 @@ export default function FavoritesContent({
             {favoritesList && favoritesList.length > 0 && !isLoadingListItems && (
                 <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                        {favoritesList.map((item) => (
-                            <ProductCard
-                                key={item.id}
-                                id={item.favs?.id || item.id}
-                                name={item.favs?.name || "اسم المنتج"}
-                                slug={item.favs?.slug}
-                                cover={item.favs?.cover || ""}
-                                price={item.favs?.price || "0"}
-                                priceAfterDiscount={item.favs?.price_after_discount}
-                                discountPercent={item.favs?.discount_present}
-                                reviewRate={item.favs?.review_rate}
-                                reviewCount={item.favs?.review_count}
-                                isFavorite={item.favs?.is_favorite ?? true}
-                                type={item.favs_type as any || "product"}
-                            />
-                        ))}
+                        {favoritesList.map((item) => {
+                            if (item.favs_type === "store") {
+                                return <StoreCard key={item.id} store={item.favs as unknown as Store} />;
+                            }
+                            if (item.favs_type === "service") {
+                                return <ServiceCard key={item.id} service={item.favs as unknown as Service} />;
+                            }
+                            return (
+                                <ProductCard
+                                    key={item.id}
+                                    id={item.favs?.id || item.id}
+                                    name={item.favs?.name || "اسم المنتج"}
+                                    slug={item.favs?.slug}
+                                    cover={item.favs?.cover || ""}
+                                    price={item.favs?.price || "0"}
+                                    priceAfterDiscount={item.favs?.price_after_discount}
+                                    discountPercent={item.favs?.discount_present}
+                                    reviewRate={item.favs?.review_rate}
+                                    reviewCount={item.favs?.review_count}
+                                    isFavorite={item.favs?.is_favorite ?? true}
+                                    type={item.favs_type as any || "product"}
+                                />
+                            );
+                        })}
                     </div>
 
                     {/* Pagination */}
