@@ -166,7 +166,7 @@ export function DashboardUserMenu() {
                             {user?.fullname || "المستخدم"}
                         </span>
                         <span className="text-[10px] px-2 py-0.5 rounded-full mt-0.5 border border-blue-3 text-blue-3">
-                            {isAdmin ? "ادمن" : "تاجر"}
+                            {isAdmin ? "ادمن" : (activeStore?.name || "تاجر")}
                         </span>
                     </div>
                     <ChevronDown className="w-4 h-4 text-blue-3 hidden lg:block" />
