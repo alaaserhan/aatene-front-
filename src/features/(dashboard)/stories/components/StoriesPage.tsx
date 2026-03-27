@@ -40,7 +40,7 @@ export function StoriesPage() {
   const isHighlightPending = isCreatingHighlight || isUpdatingHighlight;
 
   const breadcrumbItems = [
-    { label: "الرئيسية", href: "/admin" },
+    { label: "الرئيسية", href: "/admin/home" },
     { label: "القصص" },
   ];
 

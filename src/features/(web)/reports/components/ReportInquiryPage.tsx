@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useGetReportStats, useGetReports, useGetReportTypes } from "../hooks";
 import { GetReportsParams } from "../api";
 import { Eye, Loader2, Search } from "lucide-react";
+import { formatDateTime } from "@/src/lib/date-helper";
 import ReportDetailsModal from "./ReportDetailsModal";
+import ReportResponsesModal from "./ReportResponsesModal";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 
 const statusMap: Record<string, { label: string; bg: string; border: string; text: string }> = {
@@ -26,6 +28,7 @@ export default function ReportInquiryPage() {
     const [filters, setFilters] = useState<GetReportsParams>({});
     const [searchValue, setSearchValue] = useState("");
     const [selectedUuid, setSelectedUuid] = useState<string | null>(null);
+    const [selectedResponsesUuid, setSelectedResponsesUuid] = useState<string | null>(null);
 
     const { data: statsData, isLoading: statsLoading } = useGetReportStats();
     const { data: reportsData, isLoading: reportsLoading } = useGetReports(filters);
@@ -131,7 +134,7 @@ export default function ReportInquiryPage() {
                                 onChange={(e) => setSearchValue(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                                 placeholder="اكتب هنا"
-                                className="w-full h-full px-4 ps-10 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-[#3d5e83] transition-colors placeholder:text-[#bdc4cd]"
+                                className="w-full h-full px-4 ps-10 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-blue-3 transition-colors placeholder:text-[#bdc4cd]"
                             />
                         </div>
                     </div>
@@ -209,26 +212,37 @@ export default function ReportInquiryPage() {
                                         <div className="flex flex-wrap items-center gap-6 text-base">
                                             <div className="flex items-center gap-2">
                                                 <span className=" text-[#626262]">رقم الشكوي :</span>
-                                                <span className=" font-medium text-[#3d5e83] text-sm ">{report.uuid}</span>
+                                                <span className=" font-medium text-blue-3 text-sm ">{report.uuid}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <span className=" text-[#626262]">الفئة :</span>
-                                                <span className=" font-medium text-[#3d5e83] text-sm">{report.report_type?.name || "—"}</span>
+                                                <span className=" font-medium text-blue-3 text-sm">{report.report_type?.name || "—"}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <span className=" text-[#626262]">التاريخ :</span>
-                                                <span className=" font-medium text-[#3d5e83] text-sm ">
-                                                    {report.created_at ? new Date(report.created_at).toLocaleDateString("en-CA") : "—"}
+                                                <span className=" font-medium text-blue-3 text-sm ">
+                                                    {formatDateTime(report.created_at)}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Left Section: Button */}
-                                    <div className="shrink-0">
+                                    <div className="shrink-0 flex items-center gap-2 mt-4 md:mt-0 w-full md:w-auto">
+                                        <button
+                                            onClick={() => setSelectedResponsesUuid(report.uuid)}
+                                            className="flex flex-1 md:flex-none items-center justify-center gap-2 px-4 py-2 rounded-sm text-blue-3 border border-blue-5 text-sm font-medium cursor-pointer transition-opacity hover:opacity-90 bg-blue-1"
+                                        >
+                                            <span>الردود</span>
+                                            {report.responses && report.responses.length > 0 && (
+                                                <span className="bg-blue-3 pt-0.5 text-white  rounded-full text-[10px] w-5 h-5 flex items-center justify-center">
+                                                    {report.responses.length}
+                                                </span>
+                                            )}
+                                        </button>
                                         <button
                                             onClick={() => setSelectedUuid(report.uuid)}
-                                            className="flex items-center justify-center gap-2 px-4 py-2 rounded-sm text-white text-sm font-medium cursor-pointer transition-opacity hover:opacity-90 w-full md:w-auto "
+                                            className="flex flex-1 md:flex-none items-center justify-center gap-2 px-4 py-2 rounded-sm text-white text-sm font-medium cursor-pointer transition-opacity hover:opacity-90"
                                             style={{ backgroundColor: '#3d5e83' }}
                                         >
                                             <span>عرض التفاصيل</span>
@@ -248,6 +262,15 @@ export default function ReportInquiryPage() {
                     isOpen={!!selectedUuid}
                     onClose={() => setSelectedUuid(null)}
                     uuid={selectedUuid}
+                />
+            )}
+
+            {/* Responses Modal */}
+            {selectedResponsesUuid && (
+                <ReportResponsesModal
+                    isOpen={!!selectedResponsesUuid}
+                    onClose={() => setSelectedResponsesUuid(null)}
+                    uuid={selectedResponsesUuid}
                 />
             )}
         </div>

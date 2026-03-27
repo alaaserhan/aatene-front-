@@ -112,19 +112,19 @@ export function EditRequestedServicePage({ id }: EditRequestedServicePageProps) 
   }
 
   const breadcrumbItems = [
-    { label: "الرئيسية", href: "/admin" },
+    { label: "الرئيسية", href: "/admin/home" },
     { label: "طلبات الخدمات غير الموجودة", href: "/admin/requested-services" },
     { label: "تعديل الخدمة" },
   ];
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 p-6">
 
+      <Breadcrumb items={breadcrumbItems} />
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold ">تعديل الخدمة</h1>
       </div>
-      <Breadcrumb items={breadcrumbItems} />
 
       {/* Main Form Container */}
       <div className="bg-white rounded-lg p-8 border border-gray-200 flex flex-col gap-8 w-full ">

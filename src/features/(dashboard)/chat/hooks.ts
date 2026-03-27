@@ -78,7 +78,7 @@ export const useBlockUser = () => {
             api.blockUser(payload, ignoreCookie),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QK.conversations });
-            // Invalidate other related queries if any
+            queryClient.invalidateQueries({ queryKey: ["blocked-users"] });
         },
     });
 };

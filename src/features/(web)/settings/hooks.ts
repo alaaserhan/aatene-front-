@@ -120,6 +120,8 @@ export const useBlockUser = () => {
         },
         onSettled: (_data, _error, variables) => {
             qc.invalidateQueries({ queryKey: QK.blocks.list(variables.blocked_type) });
+            qc.invalidateQueries({ queryKey: ["conversations"] });
+            qc.invalidateQueries({ queryKey: ["conversation-messages"] });
         },
     });
 };
@@ -133,6 +135,8 @@ export const useUnblockUser = () => {
         },
         onSettled: (_data, _error, variables) => {
             qc.invalidateQueries({ queryKey: QK.blocks.list(variables.blocked_type) });
+            qc.invalidateQueries({ queryKey: ["conversations"] });
+            qc.invalidateQueries({ queryKey: ["conversation-messages"] });
         },
     });
 };
@@ -398,6 +402,11 @@ export const useFollowUserOrStore = () => {
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.follows.followings() });
             qc.invalidateQueries({ queryKey: QK.account.profile });
+            qc.invalidateQueries({ queryKey: ["userProfile"] });
+            qc.invalidateQueries({ queryKey: ["storeProfile"] });
+            qc.invalidateQueries({ queryKey: ["storePageData"] });
+            qc.invalidateQueries({ queryKey: ["stores"] });
+            qc.invalidateQueries({ queryKey: ["storeWhoFavorited"] });
         },
     });
 };
@@ -412,6 +421,11 @@ export const useUnfollowUserOrStore = () => {
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.follows.followings() });
             qc.invalidateQueries({ queryKey: QK.account.profile });
+            qc.invalidateQueries({ queryKey: ["userProfile"] });
+            qc.invalidateQueries({ queryKey: ["storeProfile"] });
+            qc.invalidateQueries({ queryKey: ["storePageData"] });
+            qc.invalidateQueries({ queryKey: ["stores"] });
+            qc.invalidateQueries({ queryKey: ["storeWhoFavorited"] });
         },
     });
 };
