@@ -19,7 +19,8 @@ export interface Category {
     name: string;
     image: string | null;
     parent_id: string | null;
-    products_count: string;
+    products_count: string | number;
+    services_count?: string | number;
 }
 
 export interface Tag {
