@@ -91,7 +91,7 @@ export function BuyPointsPageContent() {
             <div className="my-2">
                 <Breadcrumb
                     items={[
-                        { label: "الرئيسية", href: "/admin" },
+                        { label: "الرئيسية", href: "/admin/home" },
                         { label: "شراء عملات ذهبية" }
                     ]}
                 />

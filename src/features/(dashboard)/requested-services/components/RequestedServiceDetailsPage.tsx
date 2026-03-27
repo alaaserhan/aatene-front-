@@ -87,7 +87,7 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
   }
 
   const breadcrumbItems = [
-    { label: "الرئيسية", href: "/admin" },
+    { label: "الرئيسية", href: "/admin/home" },
     { label: "طلبات الخدمات غير الموجودة", href: "/admin/requested-services" },
     { label: "تفاصيل طلب الخدمة" },
   ];
