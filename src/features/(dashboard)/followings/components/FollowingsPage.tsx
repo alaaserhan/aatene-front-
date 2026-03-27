@@ -117,7 +117,7 @@ export function FollowingsPage() {
     }
 
     const breadcrumbItems = [
-        { label: "الرئيسية", href: "/" },
+        { label: "الرئيسية", href: "/admin/home" },
         { label: "المتابعين" },
     ];
 

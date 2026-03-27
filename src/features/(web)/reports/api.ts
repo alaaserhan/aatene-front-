@@ -115,6 +115,24 @@ export interface ReportBoardAnswer {
     content: string;
 }
 
+export interface ReportResponseItem {
+    id: number;
+    admin: {
+        id: number;
+        slug: string;
+        fullname: string;
+        avatar: string | null;
+        avatar_url: string | null;
+        cover: string | null;
+        cover_url: string | null;
+        email: string;
+        phone: string;
+    } | null;
+    response_text: string;
+    response_files: string[];
+    created_at: string;
+}
+
 export interface ReportRecord {
     id: number;
     uuid: string;
@@ -135,6 +153,7 @@ export interface ReportRecord {
     content: string;
     response_text: string | null;
     responded_at: string | null;
+    responses?: ReportResponseItem[];
     created_at: string;
     updated_at: string;
 }

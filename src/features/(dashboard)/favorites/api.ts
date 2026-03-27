@@ -30,9 +30,11 @@ export interface UsersWithFavoritesResponse {
 export interface FavoriteItemDetails {
   id: number;
   name: string;
-  description: string;
-  cover: string;
-  price: string;
+  description?: string;
+  image: string;
+  image_url: string;
+  cover?: string;
+  price?: string;
   gallery_urls: string[];
 }
 
