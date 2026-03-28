@@ -464,3 +464,15 @@ html body[data-scroll-locked] {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Hide numeric inputs spin buttons */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: none;
+}

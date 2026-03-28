@@ -16,23 +16,22 @@ import {
     UserSearchParams,
 } from "@/src/features/(web)/searchAndFilter/api";
 
-// Query Keys
 const QK = {
     products: {
         search: (params: ProductSearchParams) => ["products", "search", params] as const,
-        page: ["products", "search-page"] as const,
+        page: (categoryId?: number) => ["products", "search-page", categoryId] as const,
     },
     services: {
         search: (params: ServiceSearchParams) => ["services", "search", params] as const,
-        page: ["services", "search-page"] as const,
+        page: (categoryId?: number) => ["services", "search-page", categoryId] as const,
     },
     stores: {
         search: (params: StoreSearchParams) => ["stores", "search", params] as const,
-        page: ["stores", "search-page"] as const,
+        page: (categoryId?: number) => ["stores", "search-page", categoryId] as const,
     },
     users: {
         search: (params: UserSearchParams) => ["users", "search", params] as const,
-        page: ["users", "search-page"] as const,
+        page: (categoryId?: number) => ["users", "search-page", categoryId] as const,
     },
 };
 
@@ -46,10 +45,10 @@ export const useSearchProducts = (params: ProductSearchParams, enabled: boolean 
     });
 };
 
-export const useProductsSearchPage = (enabled: boolean = true) => {
+export const useProductsSearchPage = (enabled: boolean = true, categoryId?: number) => {
     return useQuery({
-        queryKey: QK.products.page,
-        queryFn: getProductsSearchPageData,
+        queryKey: QK.products.page(categoryId),
+        queryFn: () => getProductsSearchPageData(categoryId),
         staleTime: 1000 * 60 * 10, // 10 minutes
         enabled,
     });
@@ -65,10 +64,10 @@ export const useSearchServices = (params: ServiceSearchParams, enabled: boolean 
     });
 };
 
-export const useServicesSearchPage = (enabled: boolean = true) => {
+export const useServicesSearchPage = (enabled: boolean = true, categoryId?: number) => {
     return useQuery({
-        queryKey: QK.services.page,
-        queryFn: getServicesSearchPageData,
+        queryKey: QK.services.page(categoryId),
+        queryFn: () => getServicesSearchPageData(categoryId),
         staleTime: 1000 * 60 * 10,
         enabled,
     });
@@ -84,10 +83,10 @@ export const useSearchStores = (params: StoreSearchParams, enabled: boolean = tr
     });
 };
 
-export const useStoresSearchPage = (enabled: boolean = true) => {
+export const useStoresSearchPage = (enabled: boolean = true, categoryId?: number) => {
     return useQuery({
-        queryKey: QK.stores.page,
-        queryFn: getStoresSearchPageData,
+        queryKey: QK.stores.page(categoryId),
+        queryFn: () => getStoresSearchPageData(categoryId),
         staleTime: 1000 * 60 * 10,
         enabled,
     });
@@ -103,10 +102,10 @@ export const useSearchUsers = (params: UserSearchParams, enabled: boolean = true
     });
 };
 
-export const useUsersSearchPage = (enabled: boolean = true) => {
+export const useUsersSearchPage = (enabled: boolean = true, categoryId?: number) => {
     return useQuery({
-        queryKey: QK.users.page,
-        queryFn: getUsersSearchPageData,
+        queryKey: QK.users.page(categoryId),
+        queryFn: () => getUsersSearchPageData(categoryId),
         staleTime: 1000 * 60 * 10,
         enabled,
     });

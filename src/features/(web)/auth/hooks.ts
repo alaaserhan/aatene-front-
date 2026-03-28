@@ -17,6 +17,7 @@ import { toast } from "sonner"; // For specific success/error messages if needed
 import { useLanguage } from "@/src/hooks/use-language"; // Import language hook
 
 import { deleteFCMToken } from "@/src/lib/firebase";
+import { setLoggingOut } from "@/src/lib/axios";
 
 // --- Login Hook ---
 export const useLogin = () => {
@@ -77,24 +78,24 @@ export const useRegister = () => {
 export const useLogout = () => {
   const lang = useLanguage();
   const queryClient = useQueryClient();
-  const logoutFromStore = useAuthStore((state) => state.logout); // Get logout function
+  const logoutFromStore = useAuthStore((state) => state.logout);
 
   return useMutation({
     mutationFn: async () => {
+      setLoggingOut(true);
+      queryClient.cancelQueries();
       await deleteFCMToken();
       return logoutUser();
     },
     onSuccess: (data) => {
-      logoutFromStore();
-      queryClient.cancelQueries();
       queryClient.clear();
+      logoutFromStore();
       toast.success(data.message || "Logout successful!");
       window.location.href = `/${lang}/login`;
     },
     onError: () => {
-      logoutFromStore();
-      queryClient.cancelQueries();
       queryClient.clear();
+      logoutFromStore();
       window.location.href = `/${lang}/login`;
     },
   });

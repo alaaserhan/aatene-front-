@@ -18,6 +18,8 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
+import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
 
 export default function ProductViewPage() {
     const params = useParams();
@@ -63,8 +65,42 @@ export default function ProductViewPage() {
     const { data: storeData } = useGetSingleStore(storeId, { enabled: !!storeId });
     const store = storeData?.record;
 
+    const queryClient = useQueryClient();
     const { mutate: updateStatus, isPending: isUpdating } = useUpdateProductStatus();
     const { mutate: updateShown, isPending: isUpdatingShown } = useUpdateProductShown();
+
+    const { mutate: followUser } = useFollowUser();
+    const { mutate: unfollowUser } = useUnfollowUser();
+
+    const handleFollowClick = () => {
+        if (!store?.owner?.id) return;
+        
+        if (store.owner.am_i_following) {
+            unfollowUser(
+                {
+                    payload: { followed_type: "user", followed_id: store.owner.id },
+                    storeId: Cookies.get("current_store_id") || undefined,
+                },
+                {
+                    onSuccess: () => {
+                        queryClient.invalidateQueries({ queryKey: ["singleStore", storeId] });
+                    },
+                }
+            );
+        } else {
+            followUser(
+                {
+                    payload: { followed_type: "user", followed_id: store.owner.id },
+                    storeId: Cookies.get("current_store_id") || undefined,
+                },
+                {
+                    onSuccess: () => {
+                        queryClient.invalidateQueries({ queryKey: ["singleStore", storeId] });
+                    },
+                }
+            );
+        }
+    };
 
     const handleApprove = () => {
         updateStatus(
@@ -322,6 +358,8 @@ export default function ProductViewPage() {
                                         store={store}
                                         isOwner={!isAdmin && !!storeId && String(storeId) === Cookies.get("current_store_id")}
                                         isAdmin={isAdmin}
+                                        isFollowing={store.owner?.am_i_following}
+                                        onFollow={handleFollowClick}
                                     />
                                 </div>
                             )}
