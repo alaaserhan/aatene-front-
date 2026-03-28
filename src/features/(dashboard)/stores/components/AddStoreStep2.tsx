@@ -18,7 +18,6 @@ import { Input } from "@/src/components/ui/input";
 import { Step2FormData } from "../types";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { useGetUsers } from "../../users/hooks";
-import { useGetCurrencies } from "../../currencies/hooks";
 import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { OptionTag } from "@/src/components/ui/OptionTag";
@@ -67,7 +66,7 @@ export function AddStoreStep2({
       : [],
     address: initialData?.address || "",
     owner_id: initialData?.owner_id || (!isAdmin && currentUserId ? currentUserId : 0),
-    currency_id: initialData?.currency_id || 0,
+    currency_id: initialData?.currency_id || 1,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -117,16 +116,6 @@ export function AddStoreStep2({
 
   // ------------------------------
 
-  const { data: currenciesData, isLoading: isCurrenciesLoading } =
-    useGetCurrencies(new URLSearchParams("status=active&per_page=100"));
-
-  const currencyOptions = currenciesData?.data
-    ? currenciesData.data.map((currency) => ({
-      label: `${currency.name} (${currency.code})`,
-      value: String(currency.id),
-    }))
-    : [];
-
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
 
@@ -170,10 +159,6 @@ export function AddStoreStep2({
 
     if (isAdmin && !formData.owner_id) {
       newErrors.owner_id = "يجب اختيار مالك المتجر";
-    }
-
-    if (!formData.currency_id) {
-      newErrors.currency_id = "يجب اختيار العملة";
     }
 
     if (storeType === "services") {
@@ -442,27 +427,6 @@ export function AddStoreStep2({
                       value={formData.owner_id}
                     />
                   )}
-
-                  <div className="flex flex-col gap-2">
-                    <Label className="text-sm font-medium">العملة <span className="text-red-500">*</span></Label>
-                    <ReusableDropdown
-                      options={currencyOptions}
-                      value={formData.currency_id ? String(formData.currency_id) : ""}
-                      onChange={(value) => {
-                        setFormData({
-                          ...formData,
-                          currency_id: value ? Number(value) : 0,
-                        });
-                        if (errors.currency_id) setErrors({ ...errors, currency_id: "" });
-                      }}
-                      placeholder={
-                        isCurrenciesLoading ? "جاري التحميل..." : "اختر العملة"
-                      }
-                      error={errors.currency_id}
-                      className="h-11"
-                      dropdownPosition="top"
-                    />
-                  </div>
                 </div>
               </div>
             </div>
