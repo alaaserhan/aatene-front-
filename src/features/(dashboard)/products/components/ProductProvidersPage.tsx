@@ -1,9 +1,9 @@
 // src/features/(dashboard)/products/components/ProductProvidersPage.tsx
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Filter, Plus, ChevronRight } from "lucide-react";
+import { Search, Filter, Plus } from "lucide-react";
 import Link from "next/link";
 import { useGetStores, useDeleteStore } from "../../stores/hooks";
 import { Store } from "../../stores/api";
@@ -15,8 +15,6 @@ import { useGetProducts, useUpdateProductStatus, useUpdateProductShown, useDelet
 import { MerchantProductStatus, Product } from "../api";
 import { ProductTable } from "./ProductTable";
 import { ProductEmptyState } from "./ProductEmptyState";
-import { useGetAllSectionsAdmin } from "../../sections/hooks";
-import { cn } from "@/src/lib/utils";
 
 const statusFilterOptions = [
     { label: "الكل", value: "all" },
@@ -30,38 +28,15 @@ const productStatusTabs: { key: MerchantProductStatus; label: string; activeClas
     { key: "rejected", label: "مرفوض", activeClass: "border-red-500 text-red-500", activeTextClass: "text-red-500", badgeClass: "bg-red-500" },
 ];
 
-// ── مكوّن عرض كل المنتجات مع sections sidebar ──
+// ── مكوّن عرض كل المنتجات (بدون شريط أقسام جانبي) ──
 function AllProductsSection() {
     const router = useRouter();
-    const detailsRef = useRef<HTMLDivElement>(null);
 
     const [activeStatus, setActiveStatus] = useState<MerchantProductStatus>("active");
-    const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [productToDelete, setProductToDelete] = useState<number | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    // جلب كل الأقسام (أدمن بدون store_id → كل أقسام جميع المتاجر)
-    const sectionsQueryParams = useMemo(() => {
-        const p = new URLSearchParams();
-        p.set("per_page", "200");
-        p.set("status", "active");
-        return p;
-    }, []);
-    const { data: sectionsData } = useGetAllSectionsAdmin(sectionsQueryParams, { staleTime: 60_000 });
-    const sections = useMemo(() => sectionsData?.data || [], [sectionsData?.data]);
-
-    // عدد كل المنتجات (لـ sidebar "جميع المنتجات")
-    const totalCountParams = useMemo(() => {
-        const p = new URLSearchParams();
-        p.set("per_page", "1");
-        if (searchQuery) p.set("name", searchQuery);
-        return p;
-    }, [searchQuery]);
-    const { data: totalCountData } = useGetProducts(totalCountParams);
-    const totalProductsCount = totalCountData?.recordsFiltered ?? 0;
 
     const productsQueryParams = useMemo(() => {
         const params = new URLSearchParams();
@@ -69,9 +44,8 @@ function AllProductsSection() {
         params.set("per_page", "10");
         params.set("status", activeStatus);
         if (searchQuery) params.set("name", searchQuery);
-        if (selectedSectionId) params.set("section_id", selectedSectionId);
         return params;
-    }, [activeStatus, searchQuery, currentPage, selectedSectionId]);
+    }, [activeStatus, searchQuery, currentPage]);
 
     const { data: productsData, isLoading } = useGetProducts(productsQueryParams, {
         staleTime: 0,
@@ -81,9 +55,9 @@ function AllProductsSection() {
     const products = productsData?.data || [];
     const totalPages = Math.ceil((productsData?.recordsFiltered || 0) / 10);
 
-    const activeCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "active"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); if (selectedSectionId) p.set("section_id", selectedSectionId); return p; }, [searchQuery, selectedSectionId]);
-    const notActiveCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "not-active"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); if (selectedSectionId) p.set("section_id", selectedSectionId); return p; }, [searchQuery, selectedSectionId]);
-    const rejectedCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "rejected"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); if (selectedSectionId) p.set("section_id", selectedSectionId); return p; }, [searchQuery, selectedSectionId]);
+    const activeCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "active"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); return p; }, [searchQuery]);
+    const notActiveCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "not-active"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); return p; }, [searchQuery]);
+    const rejectedCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "rejected"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); return p; }, [searchQuery]);
 
     const { data: activeCountData } = useGetProducts(activeCountParams);
     const { data: notActiveCountData } = useGetProducts(notActiveCountParams);
@@ -113,15 +87,6 @@ function AllProductsSection() {
     const handleEditClick = (product: Product) => { router.push(`/admin/products/${product.id}/edit`); };
     const handleViewClick = (product: Product) => { router.push(`/admin/products/${product.id}/view?from=${encodeURIComponent("/admin/productProviders")}`); };
 
-    const handleSectionClick = (sectionId: string | null) => {
-        setSelectedSectionId(sectionId);
-        setCurrentPage(1);
-        if (window.innerWidth < 1024) {
-            setIsSidebarOpen(false);
-            detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-    };
-
     return (
         <>
             {/* Search */}
@@ -137,76 +102,7 @@ function AllProductsSection() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-6 items-start">
-
-                {/* Sections sidebar — يظهر فقط إن وُجدت أقسام */}
-                {sections.length > 0 && (
-                    <div className="col-span-12 lg:col-span-3">
-                        {/* زر التبديل — يظهر فقط على الهاتف */}
-                        <button
-                            onClick={() => setIsSidebarOpen(v => !v)}
-                            className="lg:hidden w-full flex items-center justify-between px-4 py-3 bg-white rounded-lg border border-gray-200 mb-2 cursor-pointer"
-                        >
-                            <span className="font-medium text-sm text-gray-700">
-                                {selectedSectionId
-                                    ? sections.find(s => String(s.id) === selectedSectionId)?.name ?? "الأقسام"
-                                    : "جميع المنتجات"}
-                            </span>
-                            <ChevronRight className={cn("w-4 h-4 text-gray-400 transition-transform duration-200", isSidebarOpen ? "-rotate-90" : "rotate-90")} />
-                        </button>
-
-                        {/* قائمة الأقسام — دائمة على الشاشات الكبيرة، تُفتح/تُغلق على الهاتف */}
-                        {/* على الهاتف: تظهر فقط عند isSidebarOpen | على lg+: دائماً مرئية */}
-                        <div className={cn(
-                            "bg-white rounded-lg border border-gray-200 overflow-hidden",
-                            "lg:!block",
-                            isSidebarOpen ? "block" : "hidden"
-                        )}>
-                            {/* جميع المنتجات */}
-                            <button
-                                onClick={() => handleSectionClick(null)}
-                                className={cn(
-                                    "w-full flex items-center justify-between px-3 py-3 transition-colors cursor-pointer",
-                                    !selectedSectionId ? "bg-blue-5 text-blue-3 font-medium" : "text-gray-600 hover:bg-gray-50"
-                                )}
-                            >
-                                <span className="flex-1 text-right text-sm mx-2">
-                                    جميع المنتجات
-                                    <span className={cn("mr-1 text-sm font-medium", !selectedSectionId ? "text-blue-3" : "text-gray-400")}>
-                                        ({totalProductsCount})
-                                    </span>
-                                </span>
-                                <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", !selectedSectionId ? "text-blue-3" : "text-gray-400")} />
-                            </button>
-
-                            {sections.map((section) => {
-                                const isActive = selectedSectionId === String(section.id);
-                                return (
-                                    <button
-                                        key={section.id}
-                                        onClick={() => handleSectionClick(String(section.id))}
-                                        className={cn(
-                                            "w-full flex items-center justify-between px-3 py-3 border-t border-gray-100 transition-colors cursor-pointer",
-                                            isActive ? "bg-blue-5 text-blue-3 font-medium" : "text-gray-600 hover:bg-gray-50"
-                                        )}
-                                    >
-                                        <span className="flex-1 text-right text-sm mx-2">{section.name}</span>
-                                        <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", isActive ? "text-blue-3" : "text-gray-400")} />
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
-
-                {/* Main content */}
-                <div
-                    ref={detailsRef}
-                    className={cn(
-                        "col-span-12 bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col",
-                        sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"
-                    )}
-                >
+            <div className="col-span-12 bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
                     {/* Status tabs */}
                     <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
                         {productStatusTabs.map((tab) => (
@@ -244,7 +140,6 @@ function AllProductsSection() {
                             activeStatus={activeStatus}
                         />
                     )}
-                </div>
             </div>
 
             <ConfirmDeleteModal

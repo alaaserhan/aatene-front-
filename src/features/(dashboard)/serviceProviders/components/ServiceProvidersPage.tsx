@@ -1,10 +1,10 @@
 // src/features/(dashboard)/stores/pages/ServiceProvidersPage.tsx
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Filter, ChevronRight } from "lucide-react";
+import { Plus, Search, Filter } from "lucide-react";
 import { useGetStores, useDeleteStore } from "../../stores/hooks";
 import { Store } from "../../stores/api";
 import { ServiceProvidersTable } from "./ServiceProvidersTable";
@@ -35,12 +35,9 @@ const serviceStatusTabs: {
 
 function AllServicesSection() {
     const router = useRouter();
-    const detailsRef = useRef<HTMLDivElement>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [activeStatus, setActiveStatus] = useState<ServiceStatus>("approved");
-    const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
@@ -50,72 +47,40 @@ function AllServicesSection() {
         params.set("per_page", "10");
         params.set("status", activeStatus);
         if (searchQuery) params.set("search", searchQuery);
-        if (selectedSectionId) params.set("section_id", selectedSectionId);
         return params;
-    }, [activeStatus, searchQuery, currentPage, selectedSectionId]);
-
-    const allServicesCountParams = useMemo(() => {
-        const params = new URLSearchParams();
-        params.set("per_page", "1");
-        if (searchQuery) params.set("search", searchQuery);
-        if (selectedSectionId) params.set("section_id", selectedSectionId);
-        return params;
-    }, [searchQuery, selectedSectionId]);
+    }, [activeStatus, searchQuery, currentPage]);
 
     const approvedCountParams = useMemo(() => {
         const params = new URLSearchParams();
         params.set("status", "approved");
         params.set("per_page", "1");
         if (searchQuery) params.set("search", searchQuery);
-        if (selectedSectionId) params.set("section_id", selectedSectionId);
         return params;
-    }, [searchQuery, selectedSectionId]);
+    }, [searchQuery]);
 
     const pendingCountParams = useMemo(() => {
         const params = new URLSearchParams();
         params.set("status", "pending");
         params.set("per_page", "1");
         if (searchQuery) params.set("search", searchQuery);
-        if (selectedSectionId) params.set("section_id", selectedSectionId);
         return params;
-    }, [searchQuery, selectedSectionId]);
+    }, [searchQuery]);
 
     const rejectedCountParams = useMemo(() => {
         const params = new URLSearchParams();
         params.set("status", "rejected");
         params.set("per_page", "1");
         if (searchQuery) params.set("search", searchQuery);
-        if (selectedSectionId) params.set("section_id", selectedSectionId);
-        return params;
-    }, [searchQuery, selectedSectionId]);
-
-    const sectionsFromServicesParams = useMemo(() => {
-        const params = new URLSearchParams();
-        params.set("per_page", "500");
-        if (searchQuery) params.set("search", searchQuery);
         return params;
     }, [searchQuery]);
 
     const { data: servicesData, isLoading } = useGetServices(servicesQueryParams);
-    const { data: allServicesCountData } = useGetServices(allServicesCountParams);
     const { data: approvedData } = useGetServices(approvedCountParams);
     const { data: pendingData } = useGetServices(pendingCountParams);
     const { data: rejectedData } = useGetServices(rejectedCountParams);
-    const { data: sectionsFromServicesData } = useGetServices(sectionsFromServicesParams);
 
     const services = servicesData?.data || [];
     const totalPages = Math.ceil((servicesData?.recordsFiltered || 0) / 10);
-    const totalServicesCount = allServicesCountData?.recordsFiltered ?? 0;
-
-    const sections = useMemo(() => {
-        const map = new Map<number, { id: number; name: string }>();
-        (sectionsFromServicesData?.data || []).forEach((service) => {
-            const section = service.section;
-            if (!section?.id) return;
-            map.set(section.id, { id: section.id, name: section.name });
-        });
-        return Array.from(map.values());
-    }, [sectionsFromServicesData?.data]);
 
     const { mutate: deleteService } = useDeleteService();
     const { mutate: updateShown } = useUpdateServiceShown();
@@ -143,15 +108,6 @@ function AllServicesSection() {
         updateShown({ id: service.id, shown: !service.shown, storeId: service.store_id });
     };
 
-    const handleSectionClick = (sectionId: string | null) => {
-        setSelectedSectionId(sectionId);
-        setCurrentPage(1);
-        if (window.innerWidth < 1024) {
-            setIsSidebarOpen(false);
-            detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-    };
-
     return (
         <>
             <div className="mb-4">
@@ -169,69 +125,7 @@ function AllServicesSection() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-6 items-start">
-                {sections.length > 0 && (
-                    <div className="col-span-12 lg:col-span-3">
-                        <button
-                            onClick={() => setIsSidebarOpen((v) => !v)}
-                            className="lg:hidden w-full flex items-center justify-between px-4 py-3 bg-white rounded-lg border border-gray-200 mb-2 cursor-pointer"
-                        >
-                            <span className="font-medium text-sm text-gray-700">
-                                {selectedSectionId
-                                    ? sections.find((s) => String(s.id) === selectedSectionId)?.name ?? "الأقسام"
-                                    : "جميع الخدمات"}
-                            </span>
-                            <ChevronRight className={cn("w-4 h-4 text-gray-400 transition-transform duration-200", isSidebarOpen ? "-rotate-90" : "rotate-90")} />
-                        </button>
-
-                        <div className={cn(
-                            "bg-white rounded-lg border border-gray-200 overflow-hidden",
-                            "lg:!block",
-                            isSidebarOpen ? "block" : "hidden"
-                        )}>
-                            <button
-                                onClick={() => handleSectionClick(null)}
-                                className={cn(
-                                    "w-full flex items-center justify-between px-3 py-3 transition-colors cursor-pointer",
-                                    !selectedSectionId ? "bg-blue-5 text-blue-3 font-medium" : "text-gray-600 hover:bg-gray-50"
-                                )}
-                            >
-                                <span className="flex-1 text-right text-sm mx-2">
-                                    جميع الخدمات
-                                    <span className={cn("mr-1 text-sm font-medium", !selectedSectionId ? "text-blue-3" : "text-gray-400")}>
-                                        ({totalServicesCount})
-                                    </span>
-                                </span>
-                                <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", !selectedSectionId ? "text-blue-3" : "text-gray-400")} />
-                            </button>
-
-                            {sections.map((section) => {
-                                const isActive = selectedSectionId === String(section.id);
-                                return (
-                                    <button
-                                        key={section.id}
-                                        onClick={() => handleSectionClick(String(section.id))}
-                                        className={cn(
-                                            "w-full flex items-center justify-between px-3 py-3 border-t border-gray-100 transition-colors cursor-pointer",
-                                            isActive ? "bg-blue-5 text-blue-3 font-medium" : "text-gray-600 hover:bg-gray-50"
-                                        )}
-                                    >
-                                        <span className="flex-1 text-right text-sm mx-2">{section.name}</span>
-                                        <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", isActive ? "text-blue-3" : "text-gray-400")} />
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
-
-                <div
-                    ref={detailsRef}
-                    className={cn(
-                        "col-span-12 bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col",
-                        sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"
-                    )}
-                >
+            <div className="col-span-12 bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
                     <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
                         {serviceStatusTabs.map((tab) => (
                             <button
@@ -266,7 +160,6 @@ function AllServicesSection() {
                         onReview={(service) => router.push(`/admin/serviceProviders/services/details/${service.id}/${service.store_id}`)}
                         activeStatus={activeStatus}
                     />
-                </div>
             </div>
 
             <ConfirmDeleteModal
