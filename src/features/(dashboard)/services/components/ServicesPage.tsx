@@ -282,7 +282,6 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                 !showGuide ? (
                     /* الوضع العادي: Avatar card كما هو */
                     <>
-                        <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
                         <header className="p-4 pb-0">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-4">
                                 <div className="flex items-center gap-4">
