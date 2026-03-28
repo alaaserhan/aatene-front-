@@ -7,26 +7,30 @@ import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { formatDate } from "@/src/lib/date-helper";
 
-function displayViews(store: Store): number {
-  const raw = store.view_count ?? store.views_count;
-  if (raw === null || raw === undefined || raw === "") return 0;
-  const n = Number(raw);
+function coerceToCount(value: unknown): number {
+  if (value == null || value === "") return 0;
+  const n = Number(value);
   return Number.isFinite(n) ? n : 0;
+}
+
+function coerceToOptionalCount(value: unknown): number | null {
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function displayViews(store: Store): number {
+  return coerceToCount(store.view_count ?? store.views_count);
 }
 
 function displayFollowers(store: Store): number {
-  const raw = store.followers_count;
-  if (raw === null || raw === undefined || raw === "") return 0;
-  const n = Number(raw);
-  return Number.isFinite(n) ? n : 0;
+  return coerceToCount(store.followers_count);
 }
 
 function displayFavorites(store: Store): number | null {
-  const raw =
-    store.favorites_count ?? store.favorite_count ?? store.favourites_count;
-  if (raw === null || raw === undefined || raw === "") return null;
-  const n = Number(raw);
-  return Number.isFinite(n) ? n : null;
+  return coerceToOptionalCount(
+    store.favorites_count ?? store.favorite_count ?? store.favourites_count
+  );
 }
 
 interface StoresAdminTableProps {
