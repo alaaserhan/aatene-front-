@@ -12,6 +12,7 @@ import {
     XCircle,
     PauseCircle,
 } from "lucide-react";
+import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
 import { useGetService, useUpdateServiceStatus, useUpdateServiceShown } from "../hooks";
 import { useGetReportTypes } from "@/src/features/(dashboard)/reports/hooks";
 import { useGetSingleStore } from "../../stores/hooks";
@@ -136,6 +137,39 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
         });
     };
 
+    const { mutate: followUser } = useFollowUser();
+    const { mutate: unfollowUser } = useUnfollowUser();
+
+    const handleFollowClick = () => {
+        if (!store) return;
+        
+        if (store.am_i_following) {
+            unfollowUser(
+                {
+                    payload: { followed_type: "user", followed_id: store.owner?.id },
+                    storeId: currentStoreId || undefined,
+                },
+                {
+                    onSuccess: () => {
+                        queryClient.invalidateQueries({ queryKey: ["singleStore", storeId] });
+                    },
+                }
+            );
+        } else {
+            followUser(
+                {
+                    payload: { followed_type: "user", followed_id: store.owner?.id },
+                    storeId: currentStoreId || undefined,
+                },
+                {
+                    onSuccess: () => {
+                        queryClient.invalidateQueries({ queryKey: ["singleStore", storeId] });
+                    },
+                }
+            );
+        }
+    };
+
     if (isLoading) return <div className="flex h-screen items-center justify-center">جاري التحميل...</div>;
     if (!service) return <div className="flex h-screen items-center justify-center">الخدمة غير موجودة</div>;
 
@@ -153,7 +187,11 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
         <div className="flex flex-col pb-10">
             {/* Header Area */}
             <div>
-                <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
+                {
+                    !isMerchant && (
+                        <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
+                    )
+                }
 
                 {/* ✅ تم قبول الخدمه */}
                 {isOwner && !alertDismissed && currentStatus === "approved" && (
@@ -318,7 +356,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                             {/* Provider Info Card */}
                             {store && (
                                 <div className="mb-6">
-                                    <ProviderInfoCard store={store} />
+                                    <ProviderInfoCard store={store} isAdmin={true} isFollowing={store.owner?.am_i_following} onFollow={handleFollowClick} />
                                 </div>
                             )}
 
