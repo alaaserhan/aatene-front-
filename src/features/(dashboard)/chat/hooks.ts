@@ -110,10 +110,10 @@ export const useAddParticipant = () => {
     });
 };
 
-export const usePreviousParticipants = (ignoreCookie: boolean = false) => {
+export const usePreviousParticipants = (ignoreCookie: boolean = false, name?: string) => {
     return useInfiniteQuery({
-        queryKey: ["previous-participants", ignoreCookie],
-        queryFn: ({ pageParam = 1 }) => api.getPreviousParticipants(pageParam, 15, ignoreCookie),
+        queryKey: ["previous-participants", ignoreCookie, name],
+        queryFn: ({ pageParam = 1 }) => api.getPreviousParticipants(pageParam, 15, ignoreCookie, name),
         initialPageParam: 1,
         getNextPageParam: (lastPage: api.GetPreviousParticipantsResponse, allPages: api.GetPreviousParticipantsResponse[]) => {
             const currentTotal = allPages.reduce((sum: number, page: api.GetPreviousParticipantsResponse) => sum + page.participants.length, 0);

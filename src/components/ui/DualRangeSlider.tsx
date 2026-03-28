@@ -109,7 +109,7 @@ export function DualRangeSlider({
                 >
                     {/* Label below thumb */}
                     <div className="absolute top-6 left-1/2 -translate-x-1/2 text-xs font-semibold text-blue-4">
-                        ${localValue[0]}
+                        ₪{localValue[0]}
                     </div>
                 </div>
 
@@ -122,7 +122,7 @@ export function DualRangeSlider({
                 >
                     {/* Label below thumb */}
                     <div className="absolute top-6 left-1/2 -translate-x-1/2 text-xs font-semibold text-blue-4">
-                        ${localValue[1]}
+                        ₪{localValue[1]}
                     </div>
                 </div>
             </div>

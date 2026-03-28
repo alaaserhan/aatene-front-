@@ -13,12 +13,14 @@ import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { cn } from "@/src/lib/utils";
 import { toast } from "sonner";
 import Image from "next/image";
+import Cookies from "js-cookie";
 
 export function BuyPointsPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { data: packagesData, isLoading: isLoadingPackages } = useGetCoinsPackages();
-    const { data: balanceData, isLoading: isLoadingBalance } = useGetStoreBalance();
+    const storeId = Cookies.get("current_store_id");
+    const { data: packagesData, isLoading: isLoadingPackages } = useGetCoinsPackages(storeId);
+    const { data: balanceData, isLoading: isLoadingBalance } = useGetStoreBalance(undefined, storeId);
     const { mutate: purchasePackage, isPending: isPurchasing } = usePurchaseCoinsPackage();
 
     // State

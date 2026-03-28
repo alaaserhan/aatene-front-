@@ -64,8 +64,10 @@ export interface ProductsSearchPageResponse extends BaseResponse {
     attributes?: Attribute[]; // Inferred
 }
 
-export const getProductsSearchPageData = async (): Promise<ProductsSearchPageResponse> => {
-    const { data } = await api.get<ProductsSearchPageResponse>("/products/search-page");
+export const getProductsSearchPageData = async (categoryId?: number): Promise<ProductsSearchPageResponse> => {
+    const { data } = await api.get<ProductsSearchPageResponse>("/products/search-page", {
+        params: categoryId ? { category_id: categoryId } : undefined,
+    });
     return data;
 };
 
@@ -120,14 +122,17 @@ export const searchProducts = async (params: ProductSearchParams): Promise<Produ
 // Search Page
 export interface ServicesSearchPageResponse extends BaseResponse {
     // Assuming structure based on description: "filter options including categories, tags, cities, and price range"
+    category: Category | null;
     categories: Category[];
     cities: City[];
     tags: Tag[];
     price_range: PriceRange;
 }
 
-export const getServicesSearchPageData = async (): Promise<ServicesSearchPageResponse> => {
-    const { data } = await api.get<ServicesSearchPageResponse>("/services/search-page");
+export const getServicesSearchPageData = async (categoryId?: number): Promise<ServicesSearchPageResponse> => {
+    const { data } = await api.get<ServicesSearchPageResponse>("/services/search-page", {
+        params: categoryId ? { category_id: categoryId } : undefined,
+    });
     return data;
 };
 
@@ -207,13 +212,16 @@ export const searchServices = async (params: ServiceSearchParams): Promise<Servi
 
 // Search Page
 export interface UsersSearchPageResponse extends BaseResponse {
+    category?: Category | null;
     cities: City[];
     // Assuming tags are included based on "Returns cities and tags"
     tags?: Tag[];
 }
 
-export const getUsersSearchPageData = async (): Promise<UsersSearchPageResponse> => {
-    const { data } = await api.get<UsersSearchPageResponse>("/users/search-page");
+export const getUsersSearchPageData = async (categoryId?: number): Promise<UsersSearchPageResponse> => {
+    const { data } = await api.get<UsersSearchPageResponse>("/users/search-page", {
+        params: categoryId ? { category_id: categoryId } : undefined,
+    });
     return data;
 };
 
@@ -258,14 +266,17 @@ export const searchUsers = async (params: UserSearchParams): Promise<UsersSearch
 
 // Search Page
 export interface StoresSearchPageResponse extends BaseResponse {
+    category?: Category | null;
     categories: Category[];
     cities: City[];
     tags?: Tag[];
     // Assuming rating statistics might be structured differently, keeping it loose for now or adding if known
 }
 
-export const getStoresSearchPageData = async (): Promise<StoresSearchPageResponse> => {
-    const { data } = await api.get<StoresSearchPageResponse>("/stores/search-page");
+export const getStoresSearchPageData = async (categoryId?: number): Promise<StoresSearchPageResponse> => {
+    const { data } = await api.get<StoresSearchPageResponse>("/stores/search-page", {
+        params: categoryId ? { category_id: categoryId } : undefined,
+    });
     return data;
 };
 

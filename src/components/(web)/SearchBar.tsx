@@ -54,9 +54,9 @@ function SearchBarContent({
 
   const handleTypeSelect = (newType: SearchType) => {
     setSelectedType(newType);
-    const params = new URLSearchParams(searchParams.toString());
+    setSearchQuery("");
+    const params = new URLSearchParams();
     params.set("type", newType);
-    params.delete("compare");
     router.push(`/${currentLocale}/search?${params.toString()}`);
   };
 

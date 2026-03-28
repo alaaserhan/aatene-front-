@@ -31,6 +31,7 @@ export interface Owner {
   avatar_url: string | null;
   created_at: string;
   last_login_at: string;
+  am_i_following: boolean;
 }
 
 export interface Currency {
