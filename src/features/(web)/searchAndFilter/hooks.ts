@@ -20,7 +20,7 @@ import {
 export const useGetProductsSearchPageData = () => {
     return useQuery({
         queryKey: ["products-search-page"],
-        queryFn: getProductsSearchPageData,
+        queryFn: () => getProductsSearchPageData(),
     });
 };
 
@@ -38,7 +38,7 @@ export const useSearchProducts = (params: ProductSearchParams, enabled: boolean 
 export const useGetServicesSearchPageData = () => {
     return useQuery({
         queryKey: ["services-search-page"],
-        queryFn: getServicesSearchPageData,
+        queryFn: () => getServicesSearchPageData(),
     });
 };
 
@@ -56,7 +56,7 @@ export const useSearchServices = (params: ServiceSearchParams, enabled: boolean 
 export const useGetUsersSearchPageData = () => {
     return useQuery({
         queryKey: ["users-search-page"],
-        queryFn: getUsersSearchPageData,
+        queryFn: () => getUsersSearchPageData(),
     });
 };
 
@@ -73,7 +73,7 @@ export const useSearchUsers = (params: UserSearchParams) => {
 export const useGetStoresSearchPageData = () => {
     return useQuery({
         queryKey: ["stores-search-page"],
-        queryFn: getStoresSearchPageData,
+        queryFn: () => getStoresSearchPageData(),
     });
 };
 
