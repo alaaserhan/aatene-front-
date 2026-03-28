@@ -3,7 +3,7 @@ import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import { User } from "../../(web)/auth/types";
 import { MerchantRole } from "@/src/config/role-permissions";
 
-export type StoreStatus = "active" | "not-active";
+export type StoreStatus = "active" | "not-active" | "rejected";
 export type StoreType = "products" | "services";
 export type OpenStatus =
   | "open_without_working_times"
@@ -136,6 +136,8 @@ export interface Store {
   review_rate: string;
   reviews_count: number | null;
   followers_count: number | null;
+  /** بعض استجابات الـ API تستخدم views_count بدل view_count */
+  views_count?: string | number | null;
   view_count?: number;
   am_i_following: boolean;
   is_favorite: boolean;
@@ -176,6 +178,12 @@ export interface Store {
   rejected_services_count?: number;
   rejected_products_count?: number;
   role_in_store?: MerchantRole;
+  reject_reason?: string | null;
+  rejected_at?: string | null;
+  favorites_count?: number | null;
+  /** بدائل محتملة من الـ backend */
+  favorite_count?: string | number | null;
+  favourites_count?: string | number | null;
 }
 
 
@@ -232,9 +240,55 @@ export type StoreUpdatePayload = Partial<StoreCreatePayload>;
 
 export interface UpdateStatusPayload {
   status: StoreStatus;
+  reject_reason?: string | null;
 }
 
 // ============== API Functions ==============
+
+function toFiniteNumber(value: unknown): number | undefined {
+  if (value === null || value === undefined || value === "") return undefined;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+/** أول قيمة رقمية صالحة من عدة مفاتيح محتملة في JSON (حسب ما يعيده الـ backend). */
+function pickNumericField(row: Store, keys: readonly string[]): number | undefined {
+  const r = row as Store & Record<string, unknown>;
+  for (const k of keys) {
+    const v = toFiniteNumber(r[k]);
+    if (v !== undefined) return v;
+  }
+  return undefined;
+}
+
+const STORE_LIST_VIEW_KEYS = ["view_count", "views_count", "views"] as const;
+const STORE_LIST_FOLLOWERS_KEYS = [
+  "followers_count",
+  "followers",
+  "follower_count",
+  "follow_count",
+] as const;
+const STORE_LIST_FAVORITES_KEYS = [
+  "favorites_count",
+  "favorite_count",
+  "favourites_count",
+  "fav_count",
+  "total_favorites",
+] as const;
+
+/** يوحّد أسماء الحقول بين استجابات الـ API (مثل views_count مقابل view_count). */
+function normalizeStoreListRow(item: Store): Store {
+  const view = pickNumericField(item, STORE_LIST_VIEW_KEYS);
+  const followers = pickNumericField(item, STORE_LIST_FOLLOWERS_KEYS);
+  const fav = pickNumericField(item, STORE_LIST_FAVORITES_KEYS);
+
+  return {
+    ...item,
+    ...(view !== undefined ? { view_count: view } : {}),
+    ...(followers !== undefined ? { followers_count: followers } : {}),
+    ...(fav !== undefined ? { favorites_count: fav } : {}),
+  };
+}
 
 export const getStores = async (
   params: URLSearchParams
@@ -243,7 +297,10 @@ export const getStores = async (
   const { data } = await api.get<PaginatedStoresResponse>(
     `${endpoint}?${params.toString()}`
   );
-  return data;
+  return {
+    ...data,
+    data: (data.data ?? []).map((row) => normalizeStoreListRow(row)),
+  };
 };
 
 export const getSingleStore = async (

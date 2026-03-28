@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Loader2, Minus, Plus } from "lucide-react";
 import { useGetSingleStore, useDeleteStore, useUpdateStoreStatus } from "../hooks";
 import { Button } from "@/src/components/ui/button";
@@ -25,6 +25,11 @@ const statusOptions = [
 
 export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageProps) {
   const router = useRouter();
+  const routeParams = useParams<{ locale?: string; type?: string }>();
+  const storesBasePath =
+    typeof routeParams.locale === "string" && typeof routeParams.type === "string"
+      ? `/${routeParams.locale}/${routeParams.type}/stores`
+      : "/admin/stores";
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
   const [managersExpanded, setManagersExpanded] = useState(true);
@@ -55,7 +60,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
         if (onDeleteSuccess) {
           onDeleteSuccess();
         } else {
-          router.push("/admin/stores");
+          router.push(storesBasePath);
         }
       },
       onError: () => {

@@ -1,213 +1,181 @@
 // src/features/(dashboard)/stores/components/StoresPage.tsx
 "use client";
 
-import { useState, useMemo, useRef } from "react";
-import { useInfiniteGetStores } from "../hooks";
-import { Store } from "../api";
-import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarList";
-import { StoreEmptyState } from "./StoreEmptyState";
-import { StoreDetailsPage } from "./StoreDetailsPage";
-import { cn } from "@/src/lib/utils";
+import { useState, useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
+import { useGetStores, useUpdateStoreStatus } from "../hooks";
+import { Store, StoreStatus } from "../api";
+import { StoresAdminTable } from "./StoresAdminTable";
+import { StoreEmptyState } from "./StoreEmptyState";
+import { Input } from "@/src/components/ui/input";
 
-const statusFilterOptions = [
-    { label: "الكل", value: "all" },
-    { label: "مفعل", value: "active" },
-    { label: "غير مفعل", value: "not-active" },
+const storeStatusTabs: {
+  key: StoreStatus;
+  label: string;
+  activeClass: string;
+  badgeClass: string;
+}[] = [
+  { key: "active", label: "تمت الموافقة عليه", activeClass: "border-emerald-500 text-emerald-500", badgeClass: "bg-emerald-500" },
+  { key: "not-active", label: "قيد المراجعة", activeClass: "border-amber-400 text-amber-400", badgeClass: "bg-amber-400" },
+  { key: "rejected", label: "مرفوض", activeClass: "border-red-500 text-red-500", badgeClass: "bg-red-500" },
 ];
 
 export function StoresPage() {
-    const [selectedStoreId, setSelectedStoreId] = useState<number | null>(() => {
-        if (typeof window !== "undefined") {
-            const params = new URLSearchParams(window.location.search);
-            const storeIdStr = params.get("storeId");
-            return storeIdStr ? Number(storeIdStr) : null;
-        }
-        return null;
-    });
-    const [searchQuery, setSearchQuery] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
+  const router = useRouter();
+  const { locale, type } = useParams<{ locale: string; type: string }>();
 
-    const updateSelectedStore = (id: number | null) => {
-        setSelectedStoreId(id);
-        const url = new URL(window.location.href);
-        if (id) {
-            url.searchParams.set("storeId", id.toString());
-        } else {
-            url.searchParams.delete("storeId");
-        }
-        window.history.replaceState({}, '', url.toString());
-    };
+  const [statusTab, setStatusTab] = useState<StoreStatus>("active");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-    const detailsRef = useRef<HTMLDivElement>(null);
+  const listParams = useMemo(() => {
+    const p = new URLSearchParams();
+    p.set("page", String(currentPage));
+    p.set("per_page", "10");
+    p.set("status", statusTab);
+    if (searchQuery.trim()) p.set("name", searchQuery.trim());
+    return p;
+  }, [currentPage, statusTab, searchQuery]);
 
-    const queryParams = useMemo(() => {
-        const params = new URLSearchParams();
-        params.set("per_page", "10");
+  const { data, isLoading } = useGetStores(listParams);
+  const stores = data?.data ?? [];
+  const totalPages = Math.max(1, Math.ceil((data?.recordsFiltered ?? 0) / 10));
 
-        if (searchQuery) {
-            params.set("name", searchQuery);
-        }
+  const activeCountParams = useMemo(() => {
+    const p = new URLSearchParams();
+    p.set("status", "active");
+    p.set("per_page", "1");
+    if (searchQuery.trim()) p.set("name", searchQuery.trim());
+    return p;
+  }, [searchQuery]);
+  const pendingCountParams = useMemo(() => {
+    const p = new URLSearchParams();
+    p.set("status", "not-active");
+    p.set("per_page", "1");
+    if (searchQuery.trim()) p.set("name", searchQuery.trim());
+    return p;
+  }, [searchQuery]);
+  const rejectedCountParams = useMemo(() => {
+    const p = new URLSearchParams();
+    p.set("status", "rejected");
+    p.set("per_page", "1");
+    if (searchQuery.trim()) p.set("name", searchQuery.trim());
+    return p;
+  }, [searchQuery]);
 
-        if (statusFilter !== "all") {
-            params.set("status", statusFilter);
-        }
+  const { data: activeCountData } = useGetStores(activeCountParams, { staleTime: 30_000 });
+  const { data: pendingCountData } = useGetStores(pendingCountParams, { staleTime: 30_000 });
+  const { data: rejectedCountData } = useGetStores(rejectedCountParams, { staleTime: 30_000 });
 
-        return params;
-    }, [searchQuery, statusFilter]);
+  const getTabCount = (key: StoreStatus) => {
+    if (key === "active") return activeCountData?.recordsFiltered ?? 0;
+    if (key === "not-active") return pendingCountData?.recordsFiltered ?? 0;
+    return rejectedCountData?.recordsFiltered ?? 0;
+  };
 
-    const {
-        data,
-        isLoading,
-        isError,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage
-    } = useInfiniteGetStores(queryParams);
+  const totalStoresAcrossTabs =
+    (activeCountData?.recordsFiltered ?? 0) +
+    (pendingCountData?.recordsFiltered ?? 0) +
+    (rejectedCountData?.recordsFiltered ?? 0);
 
-    const allStores = useMemo(() => {
-        return data?.pages.flatMap((page) => page.data) || [];
-    }, [data]);
+  const isTrueEmpty =
+    activeCountData !== undefined &&
+    pendingCountData !== undefined &&
+    rejectedCountData !== undefined &&
+    totalStoresAcrossTabs === 0 &&
+    !searchQuery.trim();
 
-    const isTrueEmpty = !isLoading && !isError && allStores.length === 0 && !searchQuery && statusFilter === "all";
+  const { mutate: updateStatus } = useUpdateStoreStatus();
 
-    const handleStoreClick = (store: Store) => {
-        updateSelectedStore(store.id);
-        if (window.innerWidth < 1024) {
-            detailsRef.current?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-            });
-        }
-    };
+  const handleToggleStatus = (store: Store) => {
+    if (store.status === "rejected") return;
+    const next: StoreStatus = store.status === "active" ? "not-active" : "active";
+    updateStatus({ id: store.id, payload: { status: next } });
+  };
 
-    const handleSearchChange = (query: string) => {
-        setSearchQuery(query);
-        updateSelectedStore(null);
-    };
+  const openDetails = (store: Store) => {
+    if (locale && type) {
+      router.push(`/${locale}/${type}/stores/${store.id}`);
+    } else {
+      router.push(`/admin/stores/${store.id}`);
+    }
+  };
 
-    const handleFilterChange = (value: string) => {
-        setStatusFilter(value);
-        updateSelectedStore(null);
-    };
-
-    const renderStoreItem = (store: Store) => {
-        const isSelected = selectedStoreId === store.id;
-        const isActive = store.status === "active";
-
-        return (
-            <div
-                key={store.id}
-                onClick={() => handleStoreClick(store)}
-                className={cn(
-                    "flex items-center justify-between p-4 cursor-pointer transition-colors border-b border-gray-50 last:border-0",
-                    isSelected ? "bg-blue-5" : "hover:bg-gray-50"
-                )}
-            >
-                <div className="flex items-center gap-3">
-                    <div className="shrink-0 w-12 h-12 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
-                        {
-                            store.logo_url ? (
-                                <Image
-                                    src={store.logo_url}
-                                    alt={store.name}
-                                    width={48}
-                                    height={48}
-                                    className="w-full h-full object-cover"
-                                    unoptimized
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                    <span className="text-sm text-gray-2">
-                                        {store.name.charAt(0).toUpperCase()}
-                                    </span>
-                                </div>
-                            )
-                        }
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-semibold truncate max-w-[120px] sm:max-w-[150px]">
-                            {store.name}
-                        </span>
-                        <span className="text-xs text-gray-2">
-                            {store.type === 'products' ? 'متجر منتجات' : 'متجر خدمات'}
-                        </span>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3 shrink-0">
-                    <div className="flex items-center gap-1.5">
-                        <div className={cn("w-2 h-2 rounded-full", isActive ? "bg-green-500" : "bg-red-500")} />
-                        <span className={cn("text-xs font-medium", isActive ? "text-green-600" : "text-red-600")}>
-                            {isActive ? "مفعل" : "غير مفعل"}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    return (
-        <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)] flex flex-col">
-            <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
-                <div className="flex items-center justify-between h-16 px-6">
-                    <h1 className="text-blue-4 font-semibold">إدارة المتاجر</h1>
-                    <Link
-                        href="/admin/stores/add"
-                        className="flex items-center gap-2 px-4 py-2 bg-[#3A5779] rounded-xs text-white text-sm font-semibold cursor-pointer hover:bg-[#2d4460] transition-colors"
-                    >
-                        <Plus className="w-5 h-5" />
-                        إضافة متجر
-                    </Link>
-                </div>
-            </header>
-
-            <main className="flex-1 p-6 min-h-[calc(100vh-145px)]">
-                {isTrueEmpty ? (
-                    <StoreEmptyState />
-                ) : (
-                    <div className="grid grid-cols-12 gap-4 h-full">
-                        <div className="col-span-12 lg:col-span-4 h-full order-1 lg:order-1">
-                            <GenericSidebarList
-                                data={allStores}
-                                isLoading={isLoading}
-                                isError={isError}
-                                searchQuery={searchQuery}
-                                onSearchChange={handleSearchChange}
-                                filterValue={statusFilter}
-                                onFilterChange={handleFilterChange}
-                                filterOptions={statusFilterOptions}
-                                renderItem={renderStoreItem}
-                                emptyText="لا توجد متاجر مطابقة للبحث"
-                                selectedId={selectedStoreId}
-                                onLoadMore={fetchNextPage}
-                                hasNextPage={hasNextPage}
-                                isFetchingNextPage={isFetchingNextPage}
-                            />
-                        </div>
-
-                        <div className="col-span-12 lg:col-span-8 h-full order-2 lg:order-2" ref={detailsRef}>
-                            {!selectedStoreId ? (
-                                <div className="bg-white rounded-lg border border-gray-200 h-full flex items-center justify-center">
-                                    <div className="text-center p-6">
-                                        <div className="h-44 mx-auto mb-2 flex items-center justify-center">
-                                            <Image src="/icons/dashboard/noStore.svg" className="h-44" alt="placeholder" width={176} height={176} unoptimized />
-                                        </div>
-                                        <h3 className="text-xl font-bold">لم يتم اختيار متجر</h3>
-                                        <p className="text-gray-3 text-sm mt-1">
-                                            قم بتحديد متجر لمشاهدة تفاصيله هنا
-                                        </p>
-                                    </div>
-                                </div>
-                            ) : (
-                                <StoreDetailsPage storeId={selectedStoreId} onDeleteSuccess={() => updateSelectedStore(null)} />
-                            )}
-                        </div>
-                    </div>
-                )}
-            </main>
+  return (
+    <div className="bg-gray-50 min-h-full flex flex-col">
+      <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
+        <div className="flex items-center justify-between h-16 px-6">
+          <h1 className="text-blue-4 font-semibold">إدارة المتاجر</h1>
+          <Link
+            href="/admin/stores/add"
+            className="flex items-center gap-2 px-4 py-2 bg-[#3A5779] rounded-xs text-white text-sm font-semibold cursor-pointer hover:bg-[#2d4460] transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            إضافة متجر
+          </Link>
         </div>
-    );
+      </header>
+
+      <main className="flex-1 p-6 space-y-4">
+        {isTrueEmpty ? (
+          <StoreEmptyState />
+        ) : (
+          <>
+            <div className="bg-white rounded-lg border border-gray-200 px-4 pt-3 pb-0 overflow-x-auto">
+              <div className="flex items-center gap-6 min-w-min">
+                {storeStatusTabs.map((tab) => (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => {
+                      setStatusTab(tab.key);
+                      setCurrentPage(1);
+                    }}
+                    className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 shrink-0 ${
+                      statusTab === tab.key ? tab.activeClass : "border-transparent text-gray-2 hover:text-gray-600"
+                    }`}
+                  >
+                    <span className="font-bold text-sm whitespace-nowrap">{tab.label}</span>
+                    <span
+                      className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-xs font-bold text-white ${
+                        statusTab === tab.key ? tab.badgeClass : "bg-gray-2"
+                      }`}
+                    >
+                      {getTabCount(tab.key)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
+              <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Input
+                placeholder="ابحث باسم المتجر أو الوصف أو الإيميل..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="pr-10 h-12 border-none shadow-none focus-visible:ring-0"
+              />
+            </div>
+
+            <StoresAdminTable
+              stores={stores}
+              isLoading={isLoading}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              listStatus={statusTab}
+              onToggleStatus={handleToggleStatus}
+              onViewDetails={openDetails}
+            />
+          </>
+        )}
+      </main>
+    </div>
+  );
 }
