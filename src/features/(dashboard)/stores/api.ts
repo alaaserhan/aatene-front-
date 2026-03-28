@@ -135,7 +135,8 @@ export interface Store {
   address: string | null;
   review_rate: string;
   reviews_count: number | null;
-  followers_count: number | null;
+  /** قد يعيد الـ API نصاً؛ يُطبَّع عند العرض */
+  followers_count?: number | string | null;
   /** بعض استجابات الـ API تستخدم views_count بدل view_count */
   views_count?: string | number | null;
   view_count?: number;
