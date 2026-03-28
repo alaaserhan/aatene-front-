@@ -39,7 +39,7 @@ export function FinancialRecordPage({ storeId }: { storeId?: number }) {
     const totalPages = Math.ceil(totalRecords / 5);
 
     const breadcrumbItems = [
-        { label: "الرئيسية", href: "/admin" },
+        { label: "الرئيسية", href: "/admin/home" },
         { label: "فواتير والسجل المالي" },
     ];
 

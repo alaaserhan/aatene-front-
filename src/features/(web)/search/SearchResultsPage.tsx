@@ -19,6 +19,7 @@ import {
 import { SlidersHorizontal, Tag as TagIcon } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { CompareFloatingBar } from "../compares/components/CompareFloatingBar";
+import { Category, City, Tag, Attribute } from "@/src/features/(web)/searchAndFilter/api";
 
 export type SearchType = "products" | "services" | "stores" | "users";
 
@@ -82,13 +83,13 @@ function SearchContent({ type }: { type: SearchType }) {
     const TAGS_LIMIT = 20;
 
     // Fetch filter options based on type
-    const { data: productsPageData } = useProductsSearchPage(type === "products");
-    const { data: servicesPageData } = useServicesSearchPage(type === "services");
-    const { data: storesPageData } = useStoresSearchPage(type === "stores");
-    const { data: usersPageData } = useUsersSearchPage(type === "users");
+    const { data: productsPageData } = useProductsSearchPage(type === "products", filters.category_id);
+    const { data: servicesPageData } = useServicesSearchPage(type === "services", filters.category_id);
+    const { data: storesPageData } = useStoresSearchPage(type === "stores", filters.category_id);
+    const { data: usersPageData } = useUsersSearchPage(type === "users", filters.category_id);
 
     // Current filter data based on type
-    const filterData = useMemo(() => {
+    const filterData: { categories: Category[], cities: City[], tags: Tag[], attributes: Attribute[] } = useMemo(() => {
         switch (type) {
             case "products":
                 return {

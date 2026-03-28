@@ -13,12 +13,14 @@ import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { cn } from "@/src/lib/utils";
 import { toast } from "sonner";
 import Image from "next/image";
+import Cookies from "js-cookie";
 
 export function BuyPointsPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { data: packagesData, isLoading: isLoadingPackages } = useGetCoinsPackages();
-    const { data: balanceData, isLoading: isLoadingBalance } = useGetStoreBalance();
+    const storeId = Cookies.get("current_store_id");
+    const { data: packagesData, isLoading: isLoadingPackages } = useGetCoinsPackages(storeId);
+    const { data: balanceData, isLoading: isLoadingBalance } = useGetStoreBalance(undefined, storeId);
     const { mutate: purchasePackage, isPending: isPurchasing } = usePurchaseCoinsPackage();
 
     // State
@@ -91,7 +93,7 @@ export function BuyPointsPageContent() {
             <div className="my-2">
                 <Breadcrumb
                     items={[
-                        { label: "الرئيسية", href: "/admin" },
+                        { label: "الرئيسية", href: "/admin/home" },
                         { label: "شراء عملات ذهبية" }
                     ]}
                 />
@@ -140,17 +142,6 @@ export function BuyPointsPageContent() {
                                 )
                             })}
                         </div>
-                    </div>
-
-                    {/* 2. Custom Amount Input */}
-                    <div>
-                        <Label className="text-base font-medium mb-3 block text-gray-700">أو اكتب عدد العملات الذهبية</Label>
-                        <Input
-                            type="number"
-                            placeholder="0"
-                            disabled
-                            className="bg-white border-gray-200 h-11"
-                        />
                     </div>
                 </div>
 

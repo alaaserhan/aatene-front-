@@ -30,7 +30,7 @@ export function UserFavoritesPage({ userId }: UserFavoritesPageProps) {
     };
 
     const breadcrumbItems = [
-        { label: "الرئيسية", href: "/admin" },
+        { label: "الرئيسية", href: "/admin/home" },
         { label: "إدارة المفضلة", href: "/admin/favorites" },
         { label: "تفاصيل المفضلة" },
     ];

@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
+import { formatDateTime } from "@/src/lib/date-helper";
 import {
   User,
   Hash,
@@ -238,7 +238,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
                 <span>تاريخ الشكوى</span>
               </div>
               <div className="font-medium sm:w-3/4" >
-                {format(new Date(report.created_at), "yyyy-MM-dd HH:mm:ss")}
+                {formatDateTime(report.created_at)}
               </div>
             </div>
 
@@ -325,7 +325,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
                         <span className="font-medium text-sm text-gray-700">{resp.admin?.fullname}</span>
                       </div>
                       <span className="text-xs text-gray-500">
-                        {format(new Date(resp.created_at), "yyyy-MM-dd HH:mm")}
+                        {formatDateTime(resp.created_at)}
                       </span>
                     </div>
 

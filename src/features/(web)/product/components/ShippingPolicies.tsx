@@ -139,7 +139,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                         <img src="/icons/car.svg" alt="calendar" width={24} height={24} />
                     </div>
                     <span className="font-medium ">
-                        {(!activeCompany || String(activeDetails?.price) === "0") ? "توصيل مجاني" : `توصيل: ${activeDetails?.price} ج.م`}
+                        {(!activeCompany || String(activeDetails?.price) === "0") ? "توصيل مجاني" : `توصيل: ${activeDetails?.price} ₪ `}
                     </span>
                 </div>
 

@@ -70,6 +70,7 @@ export interface AnalyticsUser {
     email: string;
     phone: string | null;
     user_type: string;
+    review_count: number | string;
 }
 
 export interface AnalyticsReportType {
@@ -168,6 +169,7 @@ export interface AnalyticsService {
     views_count: string;
     created_at: string;
     images_urls: string[];
+    review_rate: number | string;
 }
 
 export interface ServicesAnalyticsResponse extends BaseResponse {
@@ -216,6 +218,7 @@ export interface AnalyticsMerchant {
     canceled_orders_count: number;
     store_reports_count: number | string;
     created_at: string;
+    review_rate: number | string;
 }
 
 export interface MerchantsAnalyticsResponse extends BaseResponse {

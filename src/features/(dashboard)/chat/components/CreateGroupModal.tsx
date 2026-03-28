@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
     Dialog,
     DialogContent,
@@ -24,8 +24,18 @@ interface CreateGroupModalProps {
 export function CreateGroupModal({ isOpen, onClose, onSuccess, ignoreCookie }: CreateGroupModalProps) {
     const [groupName, setGroupName] = useState("");
     const [selectedParticipants, setSelectedParticipants] = useState<Set<string>>(new Set());
+    const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
-    const { data: participantsData, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = usePreviousParticipants(ignoreCookie);
+    // Debounce search term
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    const { data: participantsData, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = usePreviousParticipants(ignoreCookie, debouncedSearchTerm);
     const { mutate: createConversation, isPending: isCreating } = useCreateConversation();
 
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -97,6 +107,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess, ignoreCookie }: C
 
     const handleClose = () => {
         setGroupName("");
+        setSearchTerm("");
         setSelectedParticipants(new Set());
         onClose();
     };
@@ -128,6 +139,17 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess, ignoreCookie }: C
                             المستخدمين
                             <span className="text-red-500">*</span>
                         </label>
+
+                        <div className="mb-2">
+                            <FormInput
+                                placeholder="بحث عن مستخدم..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="text-right focus-visible:ring-blue-3"
+                                dir="rtl"
+                            />
+                        </div>
+
                         <div className="h-[300px] border border-gray-200 rounded-lg overflow-y-auto" dir="rtl" onScroll={handleScroll}>
                             {isLoading ? (
                                 <div className="p-4 text-center text-gray-500">جاري التحميل...</div>

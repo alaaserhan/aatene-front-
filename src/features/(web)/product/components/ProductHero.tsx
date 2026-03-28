@@ -10,7 +10,8 @@ import { cn } from "@/src/lib/utils";
 import Cookies from "js-cookie";
 
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { ReportAbuse } from "../../reports/components/ReportAbuse";
+import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
+import { ShareModal } from "@/src/components/ui/ShareModal";
 import Link from "next/link";
 
 interface ProductHeroProps {
@@ -26,6 +27,8 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
     const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
     const [isFavorite, setIsFavorite] = useState(product.is_favorite);
     const [prevProductIsFavorite, setPrevProductIsFavorite] = useState(product.is_favorite);
+    const [isReportOpen, setIsReportOpen] = useState(false);
+    const [isShareOpen, setIsShareOpen] = useState(false);
 
     if (product.is_favorite !== prevProductIsFavorite) {
         setPrevProductIsFavorite(product.is_favorite);
@@ -274,7 +277,13 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                 </button>
                                 {showMenu && (
                                     <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[160px] z-30">
-                                        <button className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                        <button
+                                            onClick={() => {
+                                                setIsShareOpen(true);
+                                                setShowMenu(false);
+                                            }}
+                                            className="flex cursor-pointer items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                        >
                                             <Share2 className="w-4 h-4" />
                                             مشاركة المنتج
                                         </button>
@@ -287,19 +296,27 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                                 ابلاغ عن المنتج
                                             </button>
                                         ) : (
-                                            <ReportAbuse type="product" id={product.id}>
-                                                <button
-                                                    onClick={() => setShowMenu(false)}
-                                                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                                >
-                                                    <Flag className="w-4 h-4" />
-                                                    ابلاغ عن المنتج
-                                                </button>
-                                            </ReportAbuse>
+                                            <button
+                                                onClick={() => {
+                                                    setIsReportOpen(true);
+                                                    setShowMenu(false);
+                                                }}
+                                                className="flex cursor-pointer items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                            >
+                                                <Flag className="w-4 h-4" />
+                                                ابلاغ عن المنتج
+                                            </button>
                                         )}
                                     </div>
                                 )}
                             </div>
+
+                            <ReportAbuseModal
+                                isOpen={isReportOpen}
+                                onClose={() => setIsReportOpen(false)}
+                                type="product"
+                                id={product.id}
+                            />
                         </div>
                     </div>
 
@@ -382,6 +399,14 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
 
 
             </div>
+
+            <ShareModal
+                isOpen={isShareOpen}
+                onClose={() => setIsShareOpen(false)}
+                shareUrl={typeof window !== "undefined" ? window.location.href : ""}
+                title={product.name}
+                description="قم بمشاركة هذا المنتج مع أصدقائك"
+            />
         </div>
     );
 }

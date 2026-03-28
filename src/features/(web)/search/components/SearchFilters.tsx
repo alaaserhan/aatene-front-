@@ -204,7 +204,7 @@ export default function SearchFilters({
                                                         : "text-gray-600 hover:text-[#3D5E83]"
                                                 )}
                                             >
-                                                {parent.name} <span className="text-gray-400 font-normal">({parent.products_count})</span>
+                                                {parent.name} <span className="text-gray-400 font-normal">({type === "services" ? parent.services_count : parent.products_count})</span>
                                             </button>
                                         </div>
 
@@ -221,7 +221,7 @@ export default function SearchFilters({
                                                                 : "text-gray-500 hover:text-[#3D5E83]"
                                                         )}
                                                     >
-                                                        {child.name} <span className="text-gray-400">({child.products_count})</span>
+                                                        {child.name} <span className="text-gray-400">({type === "services" ? child.services_count : child.products_count})</span>
                                                     </button>
                                                 ))}
                                             </div>

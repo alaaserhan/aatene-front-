@@ -22,7 +22,7 @@ export function AddStoreStep1() {
     };
 
     const breadcrumbItems = [
-        { label: "الرئيسية", href: "/admin" },
+        { label: "الرئيسية", href: "/admin/home" },
         { label: "المتاجر", href: "/admin/stores" },
         { label: "إضافة متجر" },
     ];
