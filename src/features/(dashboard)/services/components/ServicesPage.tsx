@@ -179,7 +179,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     };
 
     const breadcrumbItems = [
-        { label: " مقدمي الخدمات", href: "/admin/serviceProviders" },
+        { label: " مقدمي الخدمات", href: userType === "merchant" ? undefined : "/admin/serviceProviders" },
         { label: `${store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "..."}` },
     ];
 
