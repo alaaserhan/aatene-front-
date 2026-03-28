@@ -81,11 +81,11 @@ export function AiPhotographerPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     setUploadedFile(file);
     setUploadedPreview(URL.createObjectURL(file));
     setGeneratedImage(null);
-    
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -120,7 +120,7 @@ export function AiPhotographerPage() {
 
       // 2. Send request to our AI Photographer API
       const form = new FormData();
-      form.append("image_url", imageUrl); 
+      form.append("image_url", imageUrl);
       form.append("image_urls", JSON.stringify([imageUrl]));
       form.append("preset_setting", preset);
       if (lighting) form.append("lighting_style", lighting);
@@ -322,7 +322,7 @@ export function AiPhotographerPage() {
               />
 
               {uploadedPreview ? (
-                <div 
+                <div
                   className="relative w-[180px] h-[180px] rounded-[16px] overflow-hidden group/item cursor-pointer z-10 shadow-sm"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -425,8 +425,8 @@ export function AiPhotographerPage() {
 
                   <div className="pt-4 flex items-center justify-center gap-3">
                     <div className="flex gap-2">
-                       <button className="text-[#94A3B8] hover:text-[#64748B] transition-colors"><ThumbsDown className="w-5 h-5" /></button>
-                       <button className="text-[#94A3B8] hover:text-[#3B70AF] transition-colors"><ThumbsUp className="w-5 h-5" /></button>
+                      <button className="text-[#94A3B8] hover:text-[#64748B] transition-colors"><ThumbsDown className="w-5 h-5" /></button>
+                      <button className="text-[#94A3B8] hover:text-[#3B70AF] transition-colors"><ThumbsUp className="w-5 h-5" /></button>
                     </div>
                     <p className="text-[12.5px] font-medium text-[#94A3B8]">تقييمك يساعد الذكاء الاصطناعي علي فهمك لاعطائك نتائج أفضل</p>
                   </div>
