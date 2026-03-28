@@ -11,7 +11,7 @@ import { Tooltip } from "@/src/components/ui/Tooltip";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { HelpCircle } from "lucide-react";
 import { Step1ServiceData } from "../types";
-import { useGetCategories } from "../../categoriesAndAttributes/hooks";
+import { useInfiniteCategories } from "../../categoriesAndAttributes/hooks";
 import { useGetSections, useCreateSection } from "../../sections/hooks"; // استيراد هوك الأقسام
 import { Stepper } from "@/src/components/ui/Stepper";
 import { ServicePreviewSidebar } from "./ServicePreviewSidebar";
@@ -19,6 +19,7 @@ import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { useGetSingleStore } from "../../stores/hooks";
 import { toast } from "sonner";
 import { SectionModal, SectionFormData } from "../../sections/components/SectionModal";
+import { useDebounce } from "@/src/hooks/use-debounce";
 
 interface AddServiceStep1Props {
   initialData?: Step1ServiceData;
@@ -64,6 +65,9 @@ export function AddServiceStep1({
   });
 
   const [specialtyInput, setSpecialtyInput] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
+  const debouncedCategorySearch = useDebounce(categorySearch, 500);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
 
@@ -72,23 +76,30 @@ export function AddServiceStep1({
   // --- Fetch Categories ---
   const categoriesQueryParams = useMemo(() => {
     const params = new URLSearchParams();
-    params.set("per_page", "1000");
+    params.set("per_page", "20");
     params.set("type", "service");
     params.set("only_parent", "true");
+    if (debouncedCategorySearch) {
+      params.set("name", debouncedCategorySearch);
+    }
     return params;
-  }, []);
+  }, [debouncedCategorySearch]);
 
-  const { data: categoriesData, isLoading: isCategoriesLoading } =
-    useGetCategories(categoriesQueryParams);
+  const {
+    data: categoriesInfiniteData,
+    isLoading: isCategoriesLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage
+  } = useInfiniteCategories(categoriesQueryParams);
 
   const categoryOptions = useMemo(() => {
-    return (
-      categoriesData?.data?.map((cat) => ({
-        value: String(cat.id),
-        label: cat.name,
-      })) || []
-    );
-  }, [categoriesData]);
+    const allCategories = categoriesInfiniteData?.pages.flatMap(page => page.data || []) || [];
+    return allCategories.map((cat) => ({
+      value: String(cat.id),
+      label: cat.name,
+    }));
+  }, [categoriesInfiniteData]);
 
   // --- Fetch Sections ---
   const sectionsQueryParams = useMemo(() => {
@@ -114,8 +125,9 @@ export function AddServiceStep1({
   }, [sectionsData]);
 
   const selectedCategoryName = useMemo(() => {
-    return categoriesData?.data?.find(c => String(c.id) === String(formData.category_id))?.name || "تصنيف غير محدد";
-  }, [categoriesData, formData.category_id]);
+    const allCategories = categoriesInfiniteData?.pages.flatMap(page => page.data || []) || [];
+    return allCategories.find(c => String(c.id) === String(formData.category_id))?.name || "تصنيف غير محدد";
+  }, [categoriesInfiniteData, formData.category_id]);
 
   useEffect(() => {
     const newErrors = { ...errors };
@@ -290,6 +302,12 @@ export function AddServiceStep1({
                     placeholder={isCategoriesLoading ? "جاري التحميل..." : "اختر التصنيف"}
                     error={errors.category_id}
                     className="h-12"
+                    onSearch={setCategorySearch}
+                    searchPlaceholder="بحث عن تصنيف..."
+                    onReachEnd={() => {
+                      if (hasNextPage) fetchNextPage();
+                    }}
+                    isLoadingMore={isFetchingNextPage}
                   />
                 </div>
 

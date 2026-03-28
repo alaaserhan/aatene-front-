@@ -7,6 +7,7 @@ import {
 } from "@/src/components/ui/dialog";
 import { useGetSingleReport } from "../hooks";
 import { Loader2 } from "lucide-react";
+import { formatDateTime } from "@/src/lib/date-helper";
 
 interface ReportDetailsModalProps {
     isOpen: boolean;
@@ -64,13 +65,13 @@ export default function ReportDetailsModal({ isOpen, onClose, uuid }: ReportDeta
                             <div className="flex items-center justify-between py-4 border-b border-gray-200">
                                 <span className="font-medium  text-sm md:text-base">تاريخ التقديم</span>
                                 <span className="font-medium text-blue-4 text-sm ">
-                                    {report.created_at ? new Date(report.created_at).toLocaleDateString("en-CA") : "—"}
+                                    {formatDateTime(report.created_at)}
                                 </span>
                             </div>
 
                             {/* Title / Report Type */}
                             <div className="flex items-center justify-between py-4 border-b border-gray-200">
-                                <span className="font-medium  text-sm md:text-base">العنوان</span>
+                                <span className="font-medium  text-sm md:text-base">النوع</span>
                                 <span className="text-[#444] text-sm">
                                     {report.report_type?.name || "—"}
                                 </span>

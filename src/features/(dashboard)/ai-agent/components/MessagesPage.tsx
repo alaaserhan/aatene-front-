@@ -26,7 +26,6 @@ export function MessagesPage() {
         switch (id) {
             case "whatsapp": return "رسائل واتساب";
             case "api4_whatsapp": return "رسائل واتساب";
-            case "messenger": return "رسائل ماسنجر";
             case "instagram": return "رسائل انستجرام";
             case "website": return "رسائل الموقع";
             case "mobile": return "رسائل الموبايل";

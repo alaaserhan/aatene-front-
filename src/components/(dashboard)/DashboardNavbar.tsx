@@ -385,7 +385,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            {isMerchant && <MerchantNavbarPoints storeId={activeStoreId} />}
+            {isMerchant && activeStoreId && <MerchantNavbarPoints storeId={activeStoreId} />}
 
             {/* <Button
               variant="ghost"

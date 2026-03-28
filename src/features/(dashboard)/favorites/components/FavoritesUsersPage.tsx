@@ -1,16 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Search, User } from "lucide-react";
+import { Eye, Loader2, Search, User } from "lucide-react";
 import { useGetUsersWithFavorites } from "../hooks";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { Input } from "@/src/components/ui/input";
+import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 
 const ITEMS_PER_PAGE = 10;
 
 export function FavoritesUsersPage() {
+    const params = useParams();
+    const type = params?.type as string || "admin";
     const searchParams = useSearchParams();
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
@@ -23,11 +26,16 @@ export function FavoritesUsersPage() {
     const { data: usersData, isLoading } = useGetUsersWithFavorites(queryParams);
 
     const totalPages = Math.ceil((usersData?.total || 0) / ITEMS_PER_PAGE);
+    const breadcrumbItems = [
+        { label: "الرئيسية", href: "/admin/home" },
+        { label: "إدارة المفضلة", href: "/admin/favorites" },
+    ];
 
     return (
         <div className="flex flex-col gap-6 p-6 ">
             <div className="flex flex-col gap-2">
-                <h1 className="text-2xl font-bold ">إدارة المفضلة</h1>
+                <Breadcrumb items={breadcrumbItems} />
+                <h1 className="text-2xl font-bold  mt-2">إدارة المفضلة</h1>
                 <p className="text-gray-2 text-sm">
                     تابع تفضيلات المستخدمين، وقم بمراجعة وتنظيم المنتجات والمتاجر المضافة إلى المفضلة.
                 </p>
@@ -60,12 +68,13 @@ export function FavoritesUsersPage() {
                                 <th className="px-6 py-4 text-center text-xs font-medium">عدد المنتجات المفضلة</th>
                                 <th className="px-6 py-4 text-center text-xs font-medium">عدد المتاجر المفضلة</th>
                                 <th className="px-6 py-4 text-center text-xs font-medium">عدد الخدمات المفضلة</th>
+                                <th className="px-6 py-4 text-center text-xs font-medium">العمليات</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={5} className="py-20 text-center">
+                                    <td colSpan={6} className="py-20 text-center">
                                         <div className="flex justify-center items-center gap-2 text-gray-2">
                                             <Loader2 className="w-6 h-6 animate-spin" />
                                             <span>جاري التحميل...</span>
@@ -74,7 +83,7 @@ export function FavoritesUsersPage() {
                                 </tr>
                             ) : usersData?.users.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="py-20 text-center text-gray-2">
+                                    <td colSpan={6} className="py-20 text-center text-gray-2">
                                         لا يوجد مستخدمين
                                     </td>
                                 </tr>
@@ -107,7 +116,7 @@ export function FavoritesUsersPage() {
                                         {/* Products Count - Clickable */}
                                         <td className="px-6 py-4 text-center">
                                             <Link
-                                                href={`/admin/favorites/${user.id}?type=product`}
+                                                href={`/${type}/favorites/${user.id}?type=product`}
                                                 className="text-sm font-medium hover:text-blue-800 transition-colors"
                                             >
                                                 {user.favs_count.products}
@@ -117,7 +126,7 @@ export function FavoritesUsersPage() {
                                         {/* Stores Count - Clickable */}
                                         <td className="px-6 py-4 text-center">
                                             <Link
-                                                href={`/admin/favorites/${user.id}?type=store`}
+                                                href={`/${type}/favorites/${user.id}?type=store`}
                                                 className="text-sm font-medium hover:text-blue-800 transition-colors"
                                             >
                                                 {user.favs_count.stores}
@@ -127,10 +136,21 @@ export function FavoritesUsersPage() {
                                         {/* Services Count - Clickable */}
                                         <td className="px-6 py-4 text-center">
                                             <Link
-                                                href={`/admin/favorites/${user.id}?type=service`}
+                                                href={`/${type}/favorites/${user.id}?type=service`}
                                                 className="text-sm font-medium hover:text-blue-800 transition-colors"
                                             >
                                                 {user.favs_count.services}
+                                            </Link>
+                                        </td>
+
+                                        {/* Actions */}
+                                        <td className="px-6 py-4 text-center">
+                                            <Link
+                                                href={`/${type}/favorites/${user.id}`}
+                                                className="inline-flex items-center justify-center w-8 h-8 rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
+                                                title="عرض التفاصيل"
+                                            >
+                                                <Eye className="w-4 h-4" />
                                             </Link>
                                         </td>
                                     </tr>

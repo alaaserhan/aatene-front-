@@ -8,6 +8,11 @@ import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { ErrorResponse } from "../types";
 
+export let isLoggingOut = false;
+export function setLoggingOut(value: boolean) {
+  isLoggingOut = value;
+}
+
 // --- (1) إنشاء الـ Axios Instance ---
 const api: AxiosInstance = axios.create({
   baseURL:
@@ -63,8 +68,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
-    // Check if error is due to cancellation (e.g. on logout)
-    if (axios.isCancel(error) || error.message === "Canceled") {
+    if (axios.isCancel(error) || error.message === "Canceled" || isLoggingOut) {
       return Promise.reject(error);
     }
 

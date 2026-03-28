@@ -67,7 +67,7 @@ export function AddStoreStep7({
   const steps = barSteps;
 
   const breadcrumbItems = [
-    { label: "الرئيسية", href: "/admin" },
+    { label: "الرئيسية", href: "/admin/home" },
     { label: "المتاجر", href: "/admin/stores" },
     { label: "إضافة متجر" },
   ];

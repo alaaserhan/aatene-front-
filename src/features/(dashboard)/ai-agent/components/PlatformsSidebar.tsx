@@ -19,11 +19,6 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
       iconPath: "/icons/dashboard/whatsapp4.svg"
     },
     {
-      id: "messenger",
-      label: "ماسنجر",
-      iconPath: "/icons/dashboard/facebook.svg"
-    },
-    {
       id: "instagram",
       label: "انستجرام",
       iconPath: "/icons/dashboard/insta.svg"

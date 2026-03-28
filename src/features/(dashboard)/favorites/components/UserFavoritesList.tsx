@@ -3,8 +3,8 @@
 
 import { useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Loader2, Search, Trash2, Calendar } from "lucide-react";
-import { format } from "date-fns";
+import { Loader2, Search, Calendar } from "lucide-react";
+import { formatDate } from "@/src/lib/date-helper";
 import { toast } from "sonner";
 
 import {
@@ -100,14 +100,14 @@ export function UserFavoritesList({ userId }: UserFavoritesListProps) {
                 {items.length > 0 && !isLoadingItems && (
                     <Button
                         onClick={() => setIsDeleteTypeModalOpen(true)}
-                        className="bg-red-2 hover:bg-[#FECDD3] text-[#F43F5E] border-none h-10 w-10 p-0 flex items-center justify-center rounded-xs transition-colors"
+                        className="bg-red-2 hover:bg-[#FECDD3] rounded-sm text-[#F43F5E] border-none h-8 w-8 p-0 flex items-center justify-center transition-colors"
                         disabled={isDeletingType}
                         title={`حذف جميع ${getTitleByType()}`}
                     >
                         {isDeletingType ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
-                            <img src="/icons/dashboard/trash.svg" alt="حذف" className="w-5 h-5" />
+                            <img src="/icons/dashboard/trash.svg" alt="حذف" className="w-4 h-4" />
                         )}
                     </Button>
                 )}
@@ -184,8 +184,8 @@ export function UserFavoritesList({ userId }: UserFavoritesListProps) {
 
                                 {/* Image */}
                                 <div className="w-12 h-12 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-100">
-                                    {fav.item?.cover ? (
-                                        <img src={fav.item.gallery_urls[0]} alt={fav.item.name} className="w-full h-full object-cover" />
+                                    {fav.item ? (
+                                        <img src={fav.item.gallery_urls[0] || fav.item.image_url} alt={fav.item.name} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-gray-300 text-[10px]">No Img</div>
                                     )}
@@ -196,7 +196,7 @@ export function UserFavoritesList({ userId }: UserFavoritesListProps) {
                                     <h4 className="text-sm font-medium  line-clamp-1">{fav.item?.name}</h4>
                                     <div className="flex items-center gap-2 text-xs text-gray-2">
                                         <Calendar className="w-3 h-3" />
-                                        <span>{format(new Date(fav.created_at), "yyyy-MM-dd")}</span>
+                                        <span className="pt-1">{formatDate(fav.created_at, "yyyy-MM-dd")}</span>
                                     </div>
                                 </div>
                             </div>

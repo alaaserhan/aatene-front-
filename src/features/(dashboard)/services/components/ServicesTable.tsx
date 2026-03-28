@@ -180,13 +180,15 @@ export function ServicesTable({
                                 <td className="px-6 py-4">
                                     <div className="flex items-center justify-center gap-2">
                                         {/* Share Button (Cyan/Blue bg) */}
-                                        <button
-                                            onClick={() => handleShareClick(service)} // ✅ استخدام الدالة الجديدة
-                                            className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
-                                            title="مشاركة"
-                                        >
-                                            <Share2 className="w-4 h-4" />
-                                        </button>
+                                        {activeStatus !== "pending" && activeStatus !== "rejected" && (
+                                            <button
+                                                onClick={() => handleShareClick(service)} // ✅ استخدام الدالة الجديدة
+                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
+                                                title="مشاركة"
+                                            >
+                                                <Share2 className="w-4 h-4" />
+                                            </button>
+                                        )}
 
                                         {/* More Actions (Grey bg) */}
                                         <DropdownMenu dir="rtl">

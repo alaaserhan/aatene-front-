@@ -186,14 +186,16 @@ export function ProductTable({
                                 <td className="px-6 py-4">
                                     <div className="flex items-center justify-center gap-2">
                                         {/* Share */}
-                                        <button
-                                            type="button"
-                                            onClick={() => handleShareClick(product)}
-                                            className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
-                                            title="مشاركة"
-                                        >
-                                            <Share2 className="w-4 h-4" />
-                                        </button>
+                                        {activeStatus !== "not-active" && activeStatus !== "rejected" && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleShareClick(product)}
+                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
+                                                title="مشاركة"
+                                            >
+                                                <Share2 className="w-4 h-4" />
+                                            </button>
+                                        )}
 
                                         {/* More */}
                                         <DropdownMenu dir="rtl">
