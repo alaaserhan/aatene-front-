@@ -461,11 +461,12 @@ export function CreateCouponModal({
                     label="قيمة / نسبة الخصم"
                     required
                     type="number"
+                    className="pl-8 text-right"
                     value={formData.value}
                     onChange={(e) => updateFormData({ value: e.target.value })}
                     placeholder={formData.type === "percentage" ? "20" : "100"}
                 />
-                <div className="absolute left-3 top-[38px] text-gray-2">
+                <div className="absolute left-3 top-[40px] text-gray-2">
                     {formData.type === "percentage" ? "%" : ""}
                 </div>
             </div>

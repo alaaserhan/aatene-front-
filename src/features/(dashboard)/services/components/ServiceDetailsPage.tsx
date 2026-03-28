@@ -141,12 +141,12 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     const { mutate: unfollowUser } = useUnfollowUser();
 
     const handleFollowClick = () => {
-        if (!store) return;
+        if (!store?.owner?.id) return;
         
-        if (store.am_i_following) {
+        if (store.owner.am_i_following) {
             unfollowUser(
                 {
-                    payload: { followed_type: "user", followed_id: store.owner?.id },
+                    payload: { followed_type: "user", followed_id: store.owner.id },
                     storeId: currentStoreId || undefined,
                 },
                 {
@@ -158,7 +158,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
         } else {
             followUser(
                 {
-                    payload: { followed_type: "user", followed_id: store.owner?.id },
+                    payload: { followed_type: "user", followed_id: store.owner.id },
                     storeId: currentStoreId || undefined,
                 },
                 {
