@@ -8,6 +8,7 @@ import { Plus, Search } from "lucide-react";
 import { useGetStores, useUpdateStoreStatus } from "../hooks";
 import { Store, StoreStatus } from "../api";
 import { StoresAdminTable } from "./StoresAdminTable";
+import { StoresTypeSidebar, StoreTypeFilter } from "./StoresTypeSidebar";
 import { StoreEmptyState } from "./StoreEmptyState";
 import { Input } from "@/src/components/ui/input";
 
@@ -27,6 +28,7 @@ export function StoresPage() {
   const { locale, type } = useParams<{ locale: string; type: string }>();
 
   const [statusTab, setStatusTab] = useState<StoreStatus>("active");
+  const [typeFilter, setTypeFilter] = useState<StoreTypeFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -35,9 +37,11 @@ export function StoresPage() {
     p.set("page", String(currentPage));
     p.set("per_page", "10");
     p.set("status", statusTab);
+    if (typeFilter === "products") p.set("type", "products");
+    if (typeFilter === "services") p.set("type", "services");
     if (searchQuery.trim()) p.set("name", searchQuery.trim());
     return p;
-  }, [currentPage, statusTab, searchQuery]);
+  }, [currentPage, statusTab, searchQuery, typeFilter]);
 
   const { data, isLoading } = useGetStores(listParams);
   const stores = data?.data ?? [];
@@ -47,23 +51,62 @@ export function StoresPage() {
     const p = new URLSearchParams();
     p.set("status", "active");
     p.set("per_page", "1");
+    if (typeFilter === "products") p.set("type", "products");
+    if (typeFilter === "services") p.set("type", "services");
     if (searchQuery.trim()) p.set("name", searchQuery.trim());
     return p;
-  }, [searchQuery]);
+  }, [searchQuery, typeFilter]);
   const pendingCountParams = useMemo(() => {
     const p = new URLSearchParams();
     p.set("status", "not-active");
     p.set("per_page", "1");
+    if (typeFilter === "products") p.set("type", "products");
+    if (typeFilter === "services") p.set("type", "services");
     if (searchQuery.trim()) p.set("name", searchQuery.trim());
     return p;
-  }, [searchQuery]);
+  }, [searchQuery, typeFilter]);
   const rejectedCountParams = useMemo(() => {
     const p = new URLSearchParams();
     p.set("status", "rejected");
     p.set("per_page", "1");
+    if (typeFilter === "products") p.set("type", "products");
+    if (typeFilter === "services") p.set("type", "services");
+    if (searchQuery.trim()) p.set("name", searchQuery.trim());
+    return p;
+  }, [searchQuery, typeFilter]);
+
+  const sidebarAllCountParams = useMemo(() => {
+    const p = new URLSearchParams();
+    p.set("per_page", "1");
     if (searchQuery.trim()) p.set("name", searchQuery.trim());
     return p;
   }, [searchQuery]);
+  const sidebarProductsCountParams = useMemo(() => {
+    const p = new URLSearchParams();
+    p.set("per_page", "1");
+    p.set("type", "products");
+    if (searchQuery.trim()) p.set("name", searchQuery.trim());
+    return p;
+  }, [searchQuery]);
+  const sidebarServicesCountParams = useMemo(() => {
+    const p = new URLSearchParams();
+    p.set("per_page", "1");
+    p.set("type", "services");
+    if (searchQuery.trim()) p.set("name", searchQuery.trim());
+    return p;
+  }, [searchQuery]);
+
+  const { data: sidebarAllCountData } = useGetStores(sidebarAllCountParams, {
+    staleTime: 30_000,
+  });
+  const { data: sidebarProductsCountData } = useGetStores(
+    sidebarProductsCountParams,
+    { staleTime: 30_000 }
+  );
+  const { data: sidebarServicesCountData } = useGetStores(
+    sidebarServicesCountParams,
+    { staleTime: 30_000 }
+  );
 
   const { data: activeCountData } = useGetStores(activeCountParams, { staleTime: 30_000 });
   const { data: pendingCountData } = useGetStores(pendingCountParams, { staleTime: 30_000 });
@@ -122,7 +165,20 @@ export function StoresPage() {
         {isTrueEmpty ? (
           <StoreEmptyState />
         ) : (
-          <>
+          <div className="flex flex-col lg:flex-row gap-4 items-start">
+            <aside className="w-full lg:w-72 shrink-0 order-1 lg:order-none">
+              <StoresTypeSidebar
+                totalCount={sidebarAllCountData?.recordsFiltered ?? 0}
+                productsCount={sidebarProductsCountData?.recordsFiltered ?? 0}
+                servicesCount={sidebarServicesCountData?.recordsFiltered ?? 0}
+                selected={typeFilter}
+                onSelect={(v) => {
+                  setTypeFilter(v);
+                  setCurrentPage(1);
+                }}
+              />
+            </aside>
+            <div className="flex-1 min-w-0 space-y-4 w-full order-2 lg:order-none">
             <div className="bg-white rounded-lg border border-gray-200 px-4 pt-3 pb-0 overflow-x-auto">
               <div className="flex items-center gap-6 min-w-min">
                 {storeStatusTabs.map((tab) => (
@@ -173,7 +229,8 @@ export function StoresPage() {
               onToggleStatus={handleToggleStatus}
               onViewDetails={openDetails}
             />
-          </>
+            </div>
+          </div>
         )}
       </main>
     </div>
