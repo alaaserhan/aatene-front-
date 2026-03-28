@@ -45,12 +45,14 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [activeImage, setActiveImage] = useState<string>("");
     const [isAdmin, setIsAdmin] = useState(false); // ✅ حالة الأدمن
+    const [isMerchant, setIsMerchant] = useState(false); // ✅ حالة التاجر
     const [currentStoreId, setCurrentStoreId] = useState<number | null>(null);
 
     // التحقق من صلاحية الأدمن عند التحميل
     useEffect(() => {
         const userType = Cookies.get("user_type");
         setIsAdmin(userType === "admin");
+        setIsMerchant(userType === "merchant");
         const storeIdCookie = Cookies.get("current_store_id");
         if (storeIdCookie) {
             setCurrentStoreId(Number(storeIdCookie));
@@ -142,7 +144,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     const isShown = (service as unknown as { shown?: boolean })?.shown;
 
     const breadcrumbItems = [
-        { label: "مقدمي الخدمات", href: "/admin/serviceProviders" },
+        { label: "مقدمي الخدمات", href: isMerchant ? undefined : "/admin/serviceProviders" },
         { label: store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "تفاصيل المتجر", href: `/admin/serviceProviders/${storeId}` },
         { label: service.title, href: `/admin/serviceProviders/services/${storeId}/${service.id}` },
     ];
