@@ -278,10 +278,10 @@ function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: Product
                 </p>
             </div>
 
-            {/* Description */}
-            <div className="flex-1 text-right text-xs text-black leading-relaxed line-clamp-6">
-                {item.description || item.short_description || "لا يوجد وصف"}
-            </div>
+            <div
+                className="flex-1 text-right text-xs text-black leading-relaxed line-clamp-6"
+                dangerouslySetInnerHTML={{ __html: item.description || item.short_description || "لا يوجد وصف" }}
+            />
 
 
 
@@ -373,10 +373,10 @@ function ServiceCompareRow({ item, onRemove, onToggleFavorite }: { item: Service
                 </p>
             </div>
 
-            {/* Description */}
-            <div className="flex-1 text-right text-xs text-black leading-relaxed line-clamp-6">
-                {item.description || "لا يوجد وصف"}
-            </div>
+            <div
+                className="flex-1 text-right text-xs text-black leading-relaxed line-clamp-6"
+                dangerouslySetInnerHTML={{ __html: item.description || "لا يوجد وصف" }}
+            />
 
             {/* Price */}
             <div className="flex-1 flex flex-col items-center justify-center gap-1">

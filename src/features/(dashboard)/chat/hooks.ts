@@ -106,6 +106,7 @@ export const useAddParticipant = () => {
             api.addParticipant(conversationId, payload, ignoreCookie),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QK.conversations });
+            queryClient.invalidateQueries({ queryKey: ["previous-participants"] });
         },
     });
 };
@@ -132,6 +133,7 @@ export const useCreateConversation = () => {
             api.createConversation(payload, ignoreCookie),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QK.conversations });
+            queryClient.invalidateQueries({ queryKey: ["previous-participants"] });
         },
     });
 };
