@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { I18nProviderClient } from "@/src/i18n/provider";
 import { setStaticParamsLocale } from "next-international/server";
+import WebDynamicWidgets from "@/src/components/(web)/WebDynamicWidgets";
 
 export async function generateStaticParams() {
   return [{ locale: "ar" }, { locale: "en" }, { locale: "he" }];
@@ -24,6 +25,7 @@ export default async function LangLayout({
         <link rel="dns-prefetch" href="https://backend.aatene.com" />
       </head>
       <div dir={dir}>{children}</div>
+      <WebDynamicWidgets />
     </I18nProviderClient>
   );
 }
