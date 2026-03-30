@@ -23,7 +23,11 @@ export const getUserFavProducts = async (params: { fav_by_id: number; page?: num
 
 // Add User Review
 export const addUserReview = async (userId: number, data: FormData): Promise<{ status: boolean; message: string }> => {
-    const response = await api.post(`/reviews/user/${userId}`, data);
+    const response = await api.post(`/reviews/user/${userId}`, data, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
     return response.data;
 };
 
