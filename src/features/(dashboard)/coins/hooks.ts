@@ -1,3 +1,10 @@
+// ============================================================
+// ⚠️  نظام شراء العملات الذهبية (Coins) - معطّل مؤقتاً
+// لإعادة تفعيله: احذف /* COINS_DISABLED_START و COINS_DISABLED_END */
+// ============================================================
+
+/* COINS_DISABLED_START
+
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -15,7 +22,6 @@ export function useGetStoreBalance(params?: URLSearchParams, storeId?: number | 
     });
 }
 
-// 2. Hook for Coins Packages (NEW)
 export function useGetCoinsPackages(storeId?: number | string) {
     const currentStoreId = storeId || Cookies.get("current_store_id");
     return useQuery({
@@ -25,7 +31,6 @@ export function useGetCoinsPackages(storeId?: number | string) {
     });
 }
 
-// 3. Hook for Transactions List
 export function useGetCoinsTransactions(params?: URLSearchParams, storeId?: number | string) {
     const currentStoreId = storeId || Cookies.get("current_store_id");
     return useQuery({
@@ -36,15 +41,11 @@ export function useGetCoinsTransactions(params?: URLSearchParams, storeId?: numb
     });
 }
 
-// 4. Hook for Purchasing Package
 export function usePurchaseCoinsPackage() {
     const queryClient = useQueryClient();
-
     return useMutation({
         mutationFn: (body: api.PurchasePackageRequest) => api.purchaseCoinsPackage(body),
         onSuccess: (data) => {
-
-            // Invalidate queries to refresh balance and transaction history
             queryClient.invalidateQueries({ queryKey: ["coins", "balance"] });
             queryClient.invalidateQueries({ queryKey: ["coins", "transactions"] });
         },
@@ -54,7 +55,6 @@ export function usePurchaseCoinsPackage() {
     });
 }
 
-// 5. Hook for Coins Growth (NEW)
 export function useGetCoinsGrowth(period: string = "all_time", storeId?: number | string) {
     const currentStoreId = storeId || Cookies.get("current_store_id");
     return useQuery({
@@ -64,7 +64,6 @@ export function useGetCoinsGrowth(period: string = "all_time", storeId?: number 
     });
 }
 
-// 6. Hook for General Coins Stats (NEW)
 export function useGetCoinsGeneral(storeId?: number | string) {
     const currentStoreId = storeId || Cookies.get("current_store_id");
     return useQuery({
@@ -73,3 +72,5 @@ export function useGetCoinsGeneral(storeId?: number | string) {
         enabled: !!currentStoreId,
     });
 }
+
+COINS_DISABLED_END */

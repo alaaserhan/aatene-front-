@@ -5,16 +5,15 @@ const ALWAYS_ALLOWED = new Set(["home", "stores", "403"]);
 const ROLE_ALLOWED_SEGMENTS: Record<MerchantRole, Set<string> | "all"> = {
     general: "all",
     owner: "all",
-    social: new Set(["chat", "stories", "blogs", "following", "coins", "ai-photographer"]),
+    social: new Set(["chat", "stories", "blogs", "following", /* "coins", */]),
     sales: new Set([
         "products",
         "serviceProviders",
         "sections",
         "categories",
         "coupons",
-        "financial-record",
-        "coins",
-        "ai-photographer",
+        // "financial-record", // ⚠️ COINS_DISABLED - مرتبط بنظام coins
+        // "coins", // ⚠️ معطّل مؤقتاً - نظام شراء العملات الذهبية
     ]),
 };
 
@@ -41,7 +40,7 @@ const ADMIN_PERMISSION_TO_SEGMENTS: Record<string, string[]> = {
     "cities": ["cities"],
     "categories": ["categories"],
     "banners": ["banners"],
-    "mosaedy": ["mosa3edy", "ai-photographer"],
+    "mosaedy": ["mosa3edy"],
     "requested-serviceses": ["requested-services"],
     "blogs": ["blogs"],
     "favs": ["favorites"],

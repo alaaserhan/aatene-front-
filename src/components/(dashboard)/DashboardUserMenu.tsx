@@ -211,12 +211,14 @@ export function DashboardUserMenu() {
                 {isMerchant && (
                     <div className="bg-white">
                         <div className=" space-y-1 p-2">
-                            {isSegmentAllowedForRole(storeRole || undefined, "coins") && (
+                            {/* ⚠️ رابط شراء العملات الذهبية - معطّل مؤقتاً */}
+                            {/* {isSegmentAllowedForRole(storeRole || undefined, "coins") && (
                                 <MenuItem href={`/${lang}/admin/coins/buy`} icon={Coins} label="النقاط" onClick={() => setIsOpen(false)} />
-                            )}
-                            {isSegmentAllowedForRole(storeRole || undefined, "financial-record") && (
+                            )} */}
+                            {/* ⚠️ السجل المالي مرتبط بنظام coins - معطّل مؤقتاً */}
+                            {/* {isSegmentAllowedForRole(storeRole || undefined, "financial-record") && (
                                 <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label="السجل المالي" onClick={() => setIsOpen(false)} />
-                            )}
+                            )} */}
                             <MenuItem href={`/${lang}`} icon={Store} label="العودة للمنصة" onClick={() => setIsOpen(false)} />
 
                             <button

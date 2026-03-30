@@ -1,3 +1,10 @@
+// ============================================================
+// ⚠️  نظام شراء العملات الذهبية (Coins) - معطّل مؤقتاً
+// لإعادة تفعيله: احذف /* COINS_DISABLED_START و COINS_DISABLED_END */
+// ============================================================
+
+/* COINS_DISABLED_START
+
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import Cookies from "js-cookie";
@@ -70,13 +77,10 @@ const getHeaders = (storeId?: number | string) => {
 // --- API Functions ---
 
 // 1. Get Store Balance
-// Note: Ensure the URL is correct on the backend as it might conflict with packages list if they share the same path.
 export const getStoreBalance = async (
     params?: URLSearchParams,
     storeId?: number | string
 ): Promise<StoreBalanceResponse> => {
-    // Assuming a different endpoint or query param based on your previous request logic, 
-    // or you might need to update this URL if it was incorrect previously.
     const endpoint = getDynamicEndpoint("/coins/balance");
     const headers = getHeaders(storeId);
     const queryString = params ? `?${params.toString()}` : "";
@@ -86,7 +90,7 @@ export const getStoreBalance = async (
     return data;
 };
 
-// 2. Get Coins Packages (NEW)
+// 2. Get Coins Packages
 export const getCoinsPackages = async (
     storeId?: number | string
 ): Promise<CoinsPackagesResponse> => {
@@ -125,7 +129,7 @@ export const purchaseCoinsPackage = async (
     return data;
 };
 
-// 5. Get Coins Growth (NEW)
+// 5. Get Coins Growth
 export interface CoinsGrowthResponse extends BaseResponse {
     period: string;
     growth_chart: {
@@ -147,7 +151,7 @@ export const getCoinsGrowth = async (
     return data;
 };
 
-// 6. Get General Coins Stats (NEW)
+// 6. Get General Coins Stats
 export interface CoinsGeneralResponse extends BaseResponse {
     total_bought_coins: number;
     total_spent_coins: number;
@@ -164,3 +168,5 @@ export const getCoinsGeneral = async (
     });
     return data;
 };
+
+COINS_DISABLED_END */
