@@ -309,7 +309,11 @@ export const getSingleStore = async (
 ): Promise<SingleStoreResponse> => {
   const endpoint = getDynamicEndpoint(`/stores/${id}`);
   const { data } = await api.get<SingleStoreResponse>(endpoint);
-  return data;
+  if (!data.record) return data;
+  return {
+    ...data,
+    record: normalizeStoreListRow(data.record),
+  };
 };
 
 export const createStore = async (
