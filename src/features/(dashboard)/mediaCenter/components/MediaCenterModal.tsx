@@ -323,7 +323,7 @@ export function MediaCenterModal({
                 className="cursor-pointer"
                 style={{ backgroundColor: "var(--blue-3)" }}
               >
-                إدراج
+                نشر
               </Button>
             </div>
           )}

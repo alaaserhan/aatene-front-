@@ -8,6 +8,22 @@ import Image from "next/image";
 import { toLocal } from "@/src/lib/date-helper";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useMyNotifications, useMyNotificationStats } from "@/src/features/(web)/notifications/hooks";
+
+// تنظيف body الإشعار من JSON أو HTML
+function cleanNotificationBody(body: string): string {
+    if (!body) return "";
+    // إذا كان JSON، نحاول استخراج رسالة منه
+    try {
+        const parsed = JSON.parse(body);
+        if (typeof parsed === "object" && parsed !== null) {
+            return parsed.message || parsed.body || parsed.text || parsed.title || JSON.stringify(parsed);
+        }
+        return String(parsed);
+    } catch {
+        // ليس JSON، نزيل HTML tags إن وجدت
+        return body.replace(/<[^>]*>/g, "").trim();
+    }
+}
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -27,7 +43,7 @@ export function NotificationDropdown({ variant = "web" }: NotificationDropdownPr
     const [open, setOpen] = useState(false);
     const router = useRouter();
     const lang = useLanguage();
-    const { data: notificationsData } = useMyNotifications(1, 4);
+    const { data: notificationsData } = useMyNotifications(1, 3);
     const notifications = notificationsData?.notifications || [];
 
     const { data: statsData } = useMyNotificationStats();
@@ -107,7 +123,7 @@ export function NotificationDropdown({ variant = "web" }: NotificationDropdownPr
                                             {notification.created_at ? formatDistanceToNow(toLocal(notification.created_at), { addSuffix: true, locale: ar }) : 'الآن'}
                                         </span>
                                     </div>
-                                    <p className="text-xs text-gray-2 line-clamp-1">{notification.body}</p>
+                                    <p className="text-xs text-gray-2 line-clamp-1">{cleanNotificationBody(notification.body)}</p>
                                 </DropdownMenuItem>
                             ))}
                             <div className="p-2 pt-0 w-full mt-2">

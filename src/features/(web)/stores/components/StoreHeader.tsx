@@ -94,16 +94,16 @@ function FollowerCard({
                         onClick={() => onFollowToggle(user)}
                         disabled={isPending}
                         className={cn(
-                            "h-8 px-5 rounded-full text-sm font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 min-w-[100px]",
+                            "h-8 px-5 rounded-full text-sm font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 min-w-[130px]",
                             user.am_following
-                                ? "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                ? "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-500 hover:border hover:border-red-300"
                                 : "bg-blue-4 text-white hover:bg-blue-3"
                         )}
                     >
                         {isPending ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                         ) : user.am_following ? (
-                            "متابَع"
+                            "إلغاء المتابعة"
                         ) : (
                             "متابعة"
                         )}
@@ -169,11 +169,29 @@ function WhoFavoritedSection({
 
     const handleFollowToggle = (user: WhoFavoritedUser) => {
         setPendingUserId(user.id);
+
+        // قراءة الحالة الحقيقية من الـ cache قبل أي تعديل
+        const currentCache = queryClient.getQueryData<any>(["storeWhoFavorited", slug]);
+        const currentUser = currentCache?.users?.find((u: WhoFavoritedUser) => u.id === user.id);
+        const isCurrentlyFollowing = currentUser ? currentUser.am_following : user.am_following;
+
+        // Optimistic update: flip am_following immediately in cache
+        queryClient.setQueryData(["storeWhoFavorited", slug], (old: any) => {
+            if (!old) return old;
+            return {
+                ...old,
+                users: old.users.map((u: WhoFavoritedUser) =>
+                    u.id === user.id ? { ...u, am_following: !isCurrentlyFollowing } : u
+                ),
+            };
+        });
+
         const onDone = () => {
             setPendingUserId(null);
             queryClient.invalidateQueries({ queryKey: ["storeWhoFavorited", slug] });
         };
-        if (user.am_following) {
+
+        if (isCurrentlyFollowing) {
             unfollow(
                 { followed_type: "user", followed_id: user.id },
                 { onSettled: onDone }

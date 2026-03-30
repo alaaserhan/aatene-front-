@@ -8,7 +8,7 @@ import {
     DialogTitle,
 } from "@/src/components/ui/dialog";
 import { Input } from "@/src/components/ui/input";
-import { Copy, Facebook, Twitter, Instagram } from "lucide-react";
+import { Copy, Facebook, Instagram } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/src/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -38,15 +38,6 @@ export function ShareModal({
     };
 
     const socialLinks = [
-        {
-            name: "Twitter",
-            icon: Twitter,
-            color: "text-[#1DA1F2]",
-            bgColor: "bg-[#1DA1F2]/10",
-            href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-                shareUrl
-            )}`,
-        },
         {
             name: "Facebook",
             icon: Facebook,

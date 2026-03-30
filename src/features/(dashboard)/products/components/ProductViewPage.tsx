@@ -302,6 +302,7 @@ export default function ProductViewPage() {
                                     {raw.name}
                                 </h1>
                                 <div className="flex gap-4 text-gray-2">
+                                    {!isAdmin && (
                                     <button
                                         onClick={() => setIsShareModalOpen(true)}
                                         className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer hover:text-blue-600"
@@ -309,6 +310,7 @@ export default function ProductViewPage() {
                                         <Share2 className="w-4 h-4" />
                                         <span className="text-sm font-medium">مشاركة المنتج</span>
                                     </button>
+                                    )}
                                     <button
                                         onClick={() => {
                                           const currentViewUrl = `/admin/products/${id}/view${fromUrl ? `?from=${encodeURIComponent(decodeURIComponent(fromUrl))}` : ""}`;
