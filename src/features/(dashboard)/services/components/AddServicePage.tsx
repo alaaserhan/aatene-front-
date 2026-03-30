@@ -56,6 +56,7 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
   const handleStep1Next = (data: Step1ServiceData) => {
     setFormData({ ...formData, step1: data });
     setCurrentStep(2);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const handleStep1Cancel = () => router.push("/admin/serviceProviders");
 
@@ -63,22 +64,25 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
   const handleStep2Next = (data: Step2ServiceData) => {
     setFormData({ ...formData, step2: data });
     setCurrentStep(3);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const handleStep2Back = () => setCurrentStep(1);
+  const handleStep2Back = () => { setCurrentStep(1); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   // Step 3
   const handleStep3Next = (data: Step3ServiceData) => {
     setFormData({ ...formData, step3: data });
     setCurrentStep(4);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const handleStep3Back = () => setCurrentStep(2);
+  const handleStep3Back = () => { setCurrentStep(2); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   // Step 4
   const handleStep4Next = (data: Step4ServiceData) => {
     setFormData({ ...formData, step4: data });
     setCurrentStep(5); // Go to review step
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const handleStep4Back = () => setCurrentStep(3);
+  const handleStep4Back = () => { setCurrentStep(3); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   // Step 5 (Final Submit)
   const handleStep5Submit = async (data: Step5ServiceData) => {

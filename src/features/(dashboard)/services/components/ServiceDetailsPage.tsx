@@ -306,6 +306,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     {service.title}
                                 </h1>
                                 <div className="flex gap-4 text-gray-2">
+                                    {!isAdmin && (
                                     <button
                                         onClick={() => setIsShareModalOpen(true)}
                                         className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer hover:text-blue-600"
@@ -313,6 +314,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                         <Share2 className="w-4 h-4" />
                                         <span className="text-sm font-medium">مشاركة الخدمة</span>
                                     </button>
+                                    )}
                                     <button className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer" onClick={() => router.push(`/admin/serviceProviders/services/edit/${serviceId}/${storeId}`)}>
                                         <Pen className="w-4 h-4" />
                                         <span className="text-sm font-medium">تعديل الخدمة</span>

@@ -525,10 +525,14 @@ function DiscountModal({
                                 required
                                 value={name}
                                 onChange={(e) => {
-                                    setName(e.target.value);
+                                    const val = e.target.value.replace(/[0-9٠-٩]/g, "");
+                                    setName(val);
                                     if (errors.name) setErrors({ ...errors, name: undefined });
                                 }}
-                                placeholder="ادخل اسم العرض"
+                                onKeyDown={(e) => {
+                                    if (/^[0-9٠-٩]$/.test(e.key)) e.preventDefault();
+                                }}
+                                placeholder="ادخل اسم العرض (حروف فقط)"
                                 error={errors.name}
                                 className="h-10 px-4 font-medium bg-white shadow-none focus:ring-0"
                             />
@@ -542,10 +546,14 @@ function DiscountModal({
                                 required
                                 value={description}
                                 onChange={(e) => {
-                                    setDescription(e.target.value);
+                                    const val = e.target.value.replace(/[0-9٠-٩]/g, "");
+                                    setDescription(val);
                                     if (errors.description) setErrors({ ...errors, description: undefined });
                                 }}
-                                placeholder="ادخل وصف العرض"
+                                onKeyDown={(e) => {
+                                    if (/^[0-9٠-٩]$/.test(e.key)) e.preventDefault();
+                                }}
+                                placeholder="ادخل وصف العرض (حروف فقط)"
                                 error={errors.description}
                                 className="h-10 px-4 font-medium bg-white shadow-none focus:ring-0"
                             />

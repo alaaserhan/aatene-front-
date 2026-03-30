@@ -86,6 +86,7 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
                 </div>
 
                 <div className="flex gap-2  w-full md:w-auto">
+                    {!isAdmin && (
                     <Button
                         onClick={onFollow}
                         className={cn(
@@ -106,6 +107,7 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
                             </>
                         )}
                     </Button>
+                    )}
 
                     {data.id && !isOwner && !isAdmin ? (
                         <ReportAbuse type="store" id={data.id}>

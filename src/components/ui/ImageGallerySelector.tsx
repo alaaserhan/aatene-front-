@@ -338,9 +338,9 @@ export function ImageGallerySelector({
                 onOpenChange={setIsModalOpen}
                 onSelect={handleAdd}
                 accept={accept}
-                multiple={items.length === 0 && mainImageAllowedMediaTypes ? false : maxFiles > 1}
+                multiple={maxFiles > 1}
                 allowedMediaTypes={items.length === 0 && mainImageAllowedMediaTypes ? mainImageAllowedMediaTypes : allowedMediaTypes}
-                selectionLimit={items.length === 0 && mainImageAllowedMediaTypes ? 1 : maxFiles - items.length}
+                selectionLimit={maxFiles - items.length}
             />
         </div>
     );
