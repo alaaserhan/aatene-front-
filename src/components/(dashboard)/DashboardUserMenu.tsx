@@ -128,7 +128,7 @@ export function DashboardUserMenu() {
         }
     };
 
-    // --- Admin Menu Items ---
+    // --- Admin Menu Items ----
     const adminMenuItems = [
         { label: "الشكاوى", desc: "متابعة الشكاوى", icon: Frown, href: "/admin/all-reports" },
         { label: "الإشعارات", desc: "ادارة و متابعة الاشعارات", icon: Bell, href: "/admin/settings" },
