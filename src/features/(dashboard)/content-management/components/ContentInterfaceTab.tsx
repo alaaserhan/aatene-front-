@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, useFieldArray, Control, Controller, UseFormRegister, UseFormWatch, UseFormSetValue, FieldArrayPath, UseFormTrigger, FieldValues, Path, PathValue } from "react-hook-form";
+import { useForm, useFieldArray, Control, Controller, UseFormRegister, UseFormWatch, UseFormSetValue, FieldArrayPath, UseFormTrigger, FieldValues, Path, PathValue, FieldErrors } from "react-hook-form";
 import { Loader2, Plus, GripHorizontal } from "lucide-react";
 import Image from "next/image";
 import {
@@ -250,8 +250,7 @@ const DynamicListSection = ({
     label: string;
     watch: UseFormWatch<ContentInterfaceData>;
     setValue: UseFormSetValue<ContentInterfaceData>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    errors: any;
+    errors: FieldErrors<ContentInterfaceData>;
     trigger: UseFormTrigger<ContentInterfaceData>;
 }) => {
     const { fields, append, remove, update } = useFieldArray({
