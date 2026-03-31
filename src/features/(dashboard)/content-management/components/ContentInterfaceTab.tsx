@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, useFieldArray, Control, Controller, UseFormRegister, UseFormWatch, UseFormSetValue, FieldArrayPath, UseFormTrigger } from "react-hook-form";
+import { useForm, useFieldArray, Control, Controller, UseFormRegister, UseFormWatch, UseFormSetValue, FieldArrayPath, UseFormTrigger, FieldValues, Path, PathValue } from "react-hook-form";
 import { Loader2, Plus, GripHorizontal } from "lucide-react";
 import Image from "next/image";
 import {
@@ -53,28 +53,27 @@ const SectionCard = ({
 
 
 
-const ImageField = ({
+const ImageField = <TFieldValues extends FieldValues>({
     control,
     name,
     label,
     setValue,
     watch
 }: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    control: Control<any>;
+    control: Control<TFieldValues>;
     name: string;
     label?: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setValue: UseFormSetValue<any>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    watch: UseFormWatch<any>;
+    setValue: UseFormSetValue<TFieldValues>;
+    watch: UseFormWatch<TFieldValues>;
 }) => {
-    const imageUrl = watch(`${name}.image_url` as any);
+    const imageUrlPath = (name ? `${name}.image_url` : "image_url") as Path<TFieldValues>;
+    const imagePath = (name ? `${name}.image` : "image") as Path<TFieldValues>;
+    const imageUrl = watch(imageUrlPath);
 
     return (
         <Controller
             control={control}
-            name={`${name}.image` as any}
+            name={imagePath}
             render={({ field: { value, onChange } }) => (
                 <ImageGallerySelector
                     label={label}
@@ -87,7 +86,7 @@ const ImageField = ({
                         const src = urls[0] || null;
 
                         onChange(fileName);
-                        setValue(`${name}.image_url` as any, src, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+                        setValue(imageUrlPath, src as PathValue<TFieldValues, Path<TFieldValues>>, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
                     }}
                 />
             )}
