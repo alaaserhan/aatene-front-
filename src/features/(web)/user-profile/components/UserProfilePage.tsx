@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { UserProfile, UserStory, UserFollower, UserProfilePageData } from "../types";
 import Image from "next/image";
-import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, UserMinus, User as UserIcon } from "lucide-react";
+import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, UserMinus, User as UserIcon, MoreHorizontal, Share2 } from "lucide-react";
 import { useUserProfile, useUserProfilePageData, useUserFavProducts, useUserProducts } from "../hooks";
 import { useParams, useRouter, notFound } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
@@ -16,6 +16,7 @@ import { CreateHighlightModal } from "@/src/features/(dashboard)/stories/compone
 import { Story } from "@/src/features/(dashboard)/stories/api";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { Pagination } from "@/src/components/ui/Pagination";
+import { ShareModal } from "@/src/components/ui/ShareModal";
 
 function UserHeader({ user, isOwnProfile, followers, stories }: {
     user: UserProfile;
@@ -25,6 +26,8 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
 }) {
     const [avatarStoryOpen, setAvatarStoryOpen] = useState(false);
     const hasStories = stories && stories.length > 0;
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [showMoreMenu, setShowMoreMenu] = useState(false);
 
     const mappedAvatarStories: Story[] = stories.map(s => ({
         id: s.id,
@@ -207,6 +210,30 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                         )}
                                         <span>دردش</span>
                                     </button>
+
+                                    {/* زر الـ 3 نقاط */}
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setShowMoreMenu(v => !v)}
+                                            className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer"
+                                        >
+                                            <MoreHorizontal className="w-4 h-4 text-gray-500" />
+                                        </button>
+                                        {showMoreMenu && (
+                                            <>
+                                                <div className="fixed inset-0 z-10" onClick={() => setShowMoreMenu(false)} />
+                                                <div className="absolute left-0 top-12 z-20 bg-white rounded-xl shadow-lg border border-gray-100 min-w-[150px] py-1 overflow-hidden">
+                                                    <button
+                                                        onClick={() => { setShowMoreMenu(false); setShowShareModal(true); }}
+                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                                                    >
+                                                        <Share2 className="w-4 h-4 text-gray-500" />
+                                                        مشاركة
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
                                 </>
                             )}
                         </div>
@@ -223,6 +250,13 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                     showActions={false}
                 />
             )}
+
+            <ShareModal
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                shareUrl={typeof window !== "undefined" ? window.location.href : `https://aatene.com/profile/${user.slug}`}
+                title="مشاركة الملف الشخصي"
+            />
         </div >
     );
 }
