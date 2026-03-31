@@ -19,6 +19,9 @@ import {
     X,
     Lock,
     ShoppingBag,
+    MoreHorizontal,
+    Share2,
+    Flag,
 } from "lucide-react";
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
@@ -26,6 +29,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { Story } from "@/src/features/(dashboard)/stories/api";
 import { useStoreWhoFavorited } from "../hooks";
+import { ShareModal } from "@/src/components/ui/ShareModal";
+import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 
 interface StoreHeaderProps {
     store: StoreProfile;
@@ -95,14 +100,14 @@ function FollowerCard({
                         disabled={isPending}
                         className={cn(
                             "h-8 px-5 rounded-full text-sm font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 min-w-[130px]",
-                            user.am_following
-                                ? "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-500 hover:border hover:border-red-300"
+                            user.am_i_following
+                                ? "bg-gray-100 text-gray-600 hover:bg-gray-200"
                                 : "bg-blue-4 text-white hover:bg-blue-3"
                         )}
                     >
                         {isPending ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : user.am_following ? (
+                        ) : user.am_i_following ? (
                             "إلغاء المتابعة"
                         ) : (
                             "متابعة"
@@ -173,15 +178,15 @@ function WhoFavoritedSection({
         // قراءة الحالة الحقيقية من الـ cache قبل أي تعديل
         const currentCache = queryClient.getQueryData<any>(["storeWhoFavorited", slug]);
         const currentUser = currentCache?.users?.find((u: WhoFavoritedUser) => u.id === user.id);
-        const isCurrentlyFollowing = currentUser ? currentUser.am_following : user.am_following;
+        const isCurrentlyFollowing = currentUser ? currentUser.am_i_following : user.am_i_following;
 
-        // Optimistic update: flip am_following immediately in cache
+        // Optimistic update: flip am_i_following immediately in cache
         queryClient.setQueryData(["storeWhoFavorited", slug], (old: any) => {
             if (!old) return old;
             return {
                 ...old,
                 users: old.users.map((u: WhoFavoritedUser) =>
-                    u.id === user.id ? { ...u, am_following: !isCurrentlyFollowing } : u
+                    u.id === user.id ? { ...u, am_i_following: !isCurrentlyFollowing } : u
                 ),
             };
         });
@@ -255,6 +260,9 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isChatLoading, setIsChatLoading] = useState(false);
     const [showWhoFavorited, setShowWhoFavorited] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [showMoreMenu, setShowMoreMenu] = useState(false);
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
     const covers = store.cover_urls || [];
@@ -510,6 +518,37 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                             iconClassName="w-4 h-4"
                                         />
                                     </div>
+
+                                    {/* زر الـ 3 نقاط */}
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setShowMoreMenu(v => !v)}
+                                            className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer"
+                                        >
+                                            <MoreHorizontal className="w-4 h-4 text-gray-500" />
+                                        </button>
+                                        {showMoreMenu && (
+                                            <>
+                                                <div className="fixed inset-0 z-10" onClick={() => setShowMoreMenu(false)} />
+                                                <div className="absolute left-0 top-12 z-20 bg-white rounded-xl shadow-lg border border-gray-100 min-w-[150px] py-1 overflow-hidden">
+                                                    <button
+                                                        onClick={() => { setShowMoreMenu(false); setShowShareModal(true); }}
+                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                                                    >
+                                                        <Share2 className="w-4 h-4 text-gray-500" />
+                                                        مشاركة
+                                                    </button>
+                                                    <button
+                                                        onClick={() => { setShowMoreMenu(false); setShowReportModal(true); }}
+                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                                                    >
+                                                        <Flag className="w-4 h-4 text-red-500" />
+                                                        إبلاغ
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -536,6 +575,20 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                     onClose={() => setShowWhoFavorited(false)}
                 />
             )}
+
+            <ShareModal
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                shareUrl={typeof window !== "undefined" ? window.location.href : `https://aatene.com/store/${store.slug}`}
+                title="مشاركة المتجر"
+            />
+
+            <ReportAbuseModal
+                isOpen={showReportModal}
+                onClose={() => setShowReportModal(false)}
+                type="store"
+                id={store.id}
+            />
         </>
     );
 }

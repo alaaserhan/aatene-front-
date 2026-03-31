@@ -277,6 +277,7 @@ export interface WhoFavoritedUser {
     favorites_count: string;
     favorites: WhoFavoritedFavorite[];
     am_following?: boolean;
+    am_i_following?: boolean;
 }
 
 export interface GetWhoFavoritedResponse {
