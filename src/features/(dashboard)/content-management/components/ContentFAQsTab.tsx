@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, useFieldArray, Control, UseFormSetValue } from "react-hook-form";
+import { useForm, useFieldArray, Control, UseFormSetValue, FieldArrayPath } from "react-hook-form";
 import { Loader2, Plus, PlayCircle } from "lucide-react";
 import Image from "next/image";
 import {
@@ -10,7 +10,8 @@ import {
 } from "../hook";
 import {
     FAQsData,
-    FAQItem
+    FAQItem,
+    FAQSection
 } from "../api";
 
 import { cn } from "@/src/lib/utils";
@@ -254,10 +255,9 @@ const FAQSectionManager = ({
     sectionIndex: number;
     setValue: UseFormSetValue<FAQsData>;
 }) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { fields, append, remove, update } = useFieldArray({
         control,
-        name: `faq_sections.${sectionIndex}.faqs` as any
+        name: `faq_sections.${sectionIndex}.faqs` as FieldArrayPath<FAQsData>
     });
 
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -387,13 +387,11 @@ export function ContentFAQsTab() {
         if (editingSectionIndex !== null) {
             // Update existing section title
             const updatedSections = [...sectionFields];
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (updatedSections[editingSectionIndex] as any).title = newSectionName;
-            setValue("faq_sections", updatedSections as any);
+            (updatedSections[editingSectionIndex] as FAQSection).title = newSectionName;
+            setValue("faq_sections", updatedSections as FAQSection[]);
         } else {
             // Add new section
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            appendSection({ title: newSectionName, faqs: [] } as any);
+            appendSection({ title: newSectionName, faqs: [] } as FAQSection);
             setActiveSection(sectionFields.length); // Switch to new section
         }
 
@@ -403,8 +401,7 @@ export function ContentFAQsTab() {
     };
 
     const handleEditSectionClick = (index: number) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setNewSectionName((sectionFields[index] as any).title);
+        setNewSectionName((sectionFields[index] as FAQSection).title);
         setEditingSectionIndex(index);
         setIsAddSectionOpen(true);
     };
@@ -440,8 +437,7 @@ export function ContentFAQsTab() {
                                     : "bg-white border-transparent text-gray-2 hover:bg-gray-50"
                             )}
                         >
-                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                            {(field as any).title}
+                            {(field as FAQSection).title}
                         </button>
                     ))}
 
@@ -462,14 +458,11 @@ export function ContentFAQsTab() {
                     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                         <div className="mb-6 pb-6 border-b border-gray-100 flex items-start justify-between">
                             <div>
-                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                 <h2 className="text-2xl font-medium">
-                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                    {(sectionFields[activeSection] as any).title}
+                                    {(sectionFields[activeSection] as FAQSection).title}
                                 </h2>
                                 <p className="text-gray-2 text-sm mt-1">
-                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                                    إدارة الأسئلة الشائعة في قسم {(sectionFields[activeSection] as any).title}
+                                    إدارة الأسئلة الشائعة في قسم {(sectionFields[activeSection] as FAQSection).title}
                                 </p>
                             </div>
 
