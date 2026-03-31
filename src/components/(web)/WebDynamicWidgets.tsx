@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-const BotChat = dynamic(() => import("@/src/components/(web)/BotChat"), { ssr: false });
+const BotChat = dynamic(() => import("@/src/features/(web)/bot-chat/components/BotChat"), { ssr: false });
 export default function WebDynamicWidgets() {
     return (
         <>
