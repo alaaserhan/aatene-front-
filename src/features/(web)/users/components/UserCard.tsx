@@ -77,6 +77,7 @@ export default function UserCard({ user, className }: UserCardProps) {
                     <div className="flex items-center gap-1.5">
                         <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
                         <span className="font-medium  pt-0.5" >{rating}</span>
+                        <span className="text-gray-400 pt-0.5">({user.review_count || 0})</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                         <MapPin className="w-4 h-4 text-emerald-500" />

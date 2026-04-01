@@ -6,7 +6,7 @@ import { useState, useMemo } from "react";
 import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Check, Clock4 } from "lucide-react";
 import { Service } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
-import { useAddServiceToCompare } from "@/src/features/(web)/compares/hooks";
+import { useAddServiceToCompare, useRemoveServiceFromCompare } from "@/src/features/(web)/compares/hooks";
 import { cn } from "@/src/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
@@ -45,10 +45,12 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
     const [selectedSpecialty, setSelectedSpecialty] = useState<string>("");
     const [isReportOpen, setIsReportOpen] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
+    const [isInCompare, setIsInCompare] = useState(service.is_compare);
 
     const router = useRouter();
     const qc = useQueryClient();
     const { mutate: addToCompare } = useAddServiceToCompare();
+    const { mutate: removeFromCompare } = useRemoveServiceFromCompare();
 
     const currentMedia = allMedia[selectedIndex] || allMedia[0];
     const rating = parseFloat(service.review_rate || "0");
@@ -346,10 +348,11 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                         </button>
 
                         {/* Compare Link */}
-                        {!service.is_compare && (
+                        {!isInCompare ? (
                             <button
                                 onClick={() => addToCompare(service.id, {
                                     onSuccess: () => {
+                                        setIsInCompare(true);
                                         qc.invalidateQueries({ queryKey: ["service", service.slug] });
                                         qc.invalidateQueries({ queryKey: ["service", service.id] });
                                     }
@@ -357,6 +360,19 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                                 className="text-blue-4 text-sm font-medium underline underline-offset-4 cursor-pointer"
                             >
                                 أضف الى المقارنة
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => removeFromCompare(service.id, {
+                                    onSuccess: () => {
+                                        setIsInCompare(false);
+                                        qc.invalidateQueries({ queryKey: ["service", service.slug] });
+                                        qc.invalidateQueries({ queryKey: ["service", service.id] });
+                                    }
+                                })}
+                                className="text-red-500 text-sm font-medium underline underline-offset-4 cursor-pointer"
+                            >
+                                إزالة من المقارنة
                             </button>
                         )}
                     </div>

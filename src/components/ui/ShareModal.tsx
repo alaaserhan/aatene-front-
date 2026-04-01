@@ -8,7 +8,7 @@ import {
     DialogTitle,
 } from "@/src/components/ui/dialog";
 import { Input } from "@/src/components/ui/input";
-import { Copy, Facebook, Instagram } from "lucide-react";
+import { Copy, Facebook } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/src/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -46,13 +46,6 @@ export function ShareModal({
             href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
                 shareUrl
             )}`,
-        },
-        {
-            name: "Instagram",
-            icon: Instagram,
-            color: "text-[#E1306C]",
-            bgColor: "bg-[#E1306C]/10",
-            href: "#",
         },
         {
             name: "WhatsApp",

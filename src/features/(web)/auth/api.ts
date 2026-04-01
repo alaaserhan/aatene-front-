@@ -54,7 +54,7 @@ export const loginUser = async (
 ): Promise<AuthResponse> => {
   const formData = createFormData<LoginCredentials>(credentials);
   const { data } = await api.post<AuthResponse>("/auth/login", formData, {
-    headers: { "Content-Type": "multipart/form-data" }, // Important for FormData
+    headers: { "Content-Type": "multipart/form-data" },
   });
   return data;
 };

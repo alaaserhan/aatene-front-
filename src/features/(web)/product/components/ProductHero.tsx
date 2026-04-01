@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send } from "lucide-react";
 import { Product, Store, Attribute, AttributeOption } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
-import { useAddProductToCompare } from "@/src/features/(web)/compares/hooks";
+import { useAddProductToCompare, useRemoveProductFromCompare } from "@/src/features/(web)/compares/hooks";
 import { cn } from "@/src/lib/utils";
 import Cookies from "js-cookie";
 
@@ -29,6 +29,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
     const [prevProductIsFavorite, setPrevProductIsFavorite] = useState(product.is_favorite);
     const [isReportOpen, setIsReportOpen] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
+    const [isInCompare, setIsInCompare] = useState(product.in_compare);
 
     if (product.is_favorite !== prevProductIsFavorite) {
         setPrevProductIsFavorite(product.is_favorite);
@@ -75,6 +76,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
     const isProductOwner = !!currentStoreId && !!product.store_id && Number(currentStoreId) === product.store_id;
 
     const { mutate: addToCompare } = useAddProductToCompare();
+    const { mutate: removeFromCompare } = useRemoveProductFromCompare();
     const router = useRouter();
 
     const currentMedia = allMedia[selectedIndex] || allMedia[0];
@@ -92,6 +94,12 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
 
     const handleAddToCompare = () => {
         addToCompare(product.id);
+        setIsInCompare(true);
+    };
+
+    const handleRemoveFromCompare = () => {
+        removeFromCompare(product.id);
+        setIsInCompare(false);
     };
 
     // Synchronize gallery index when variation image changes
@@ -386,12 +394,19 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                         </button>
 
                         {/* Compare Link */}
-                        {!product.in_compare && (
+                        {!isInCompare ? (
                             <button
                                 onClick={handleAddToCompare}
                                 className="text-blue-4 text-sm font-medium underline underline-offset-4 cursor-pointer"
                             >
                                 أضف هذا المنتج للمقارنة
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleRemoveFromCompare}
+                                className="text-red-500 text-sm font-medium underline underline-offset-4 cursor-pointer"
+                            >
+                                إزالة من المقارنة
                             </button>
                         )}
                     </div>

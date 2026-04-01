@@ -151,7 +151,8 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                             {/* Rating */}
                             <div className="flex items-center gap-1 text-xs">
                                 <Star className="w-3 h-3 fill-[#FFC220] text-[#FFC220]" />
-                                <span className="whitespace-nowrap pt-1">( {service.store?.review_count || 0} مراجعة )</span>
+                                <span className="font-medium text-[#FB923C] pt-1">{parseFloat(service.review_rate || "0").toFixed(1)}</span>
+                                <span className="whitespace-nowrap pt-1 text-gray-400">({service.review_count || 0})</span>
                             </div>
 
 
