@@ -591,7 +591,7 @@ function OverviewTab({ store }: { store: StoreProfile }) {
                         />
                         <StoreStatItem
                             icon={<img src="/icons/heart2.svg" alt="" className="w-6 h-6" />}
-                            label="مشاركه"
+                            label="متابعون"
                             value={String(store.followers_count || 0)}
                         />
                         <StoreStatItem
@@ -942,6 +942,7 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
     };
 
     const handleSubmit = (formData: { content: string; rate: number; images: File[]; parent_id?: number | null }) => {
+        const savedScrollY = window.scrollY;
         return new Promise<void>((resolve, reject) => {
             addReview(
                 { slug, payload: { content: formData.content, rate: String(formData.rate), images: formData.images, parent_id: formData.parent_id } },
@@ -952,6 +953,10 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
                         if (formData.parent_id) {
                             setExpandedReplies((prev) => new Set(prev).add(formData.parent_id!));
                         }
+                        // Restore scroll position after query invalidation re-renders the list
+                        requestAnimationFrame(() => {
+                            window.scrollTo({ top: savedScrollY, behavior: "instant" });
+                        });
                         resolve();
                     },
                     onError: () => reject(),

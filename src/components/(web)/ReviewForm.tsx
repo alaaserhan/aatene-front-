@@ -5,6 +5,7 @@ import Image from "next/image";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { InteractiveStarRating } from "@/src/components/ui/StarRating";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { toast } from "sonner";
 
 interface ReviewFormProps {
     onSubmit: (data: { content: string; rate: number; images: File[]; parent_id?: number | null }) => Promise<void> | void;
@@ -43,11 +44,23 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
             const trimmedContent = content.trim();
             const isReply = !!parentId;
 
-            // Validation: 
-            // For a regular review: must have either content or a rating > 0.
-            // For a reply: must have content (since rating is not interactive/hidden).
-            if (!isReply && !trimmedContent && rate === 0) return;
-            if (isReply && !trimmedContent) return;
+            // Validation for replies: must have content
+            if (isReply && !trimmedContent) {
+                toast.error("يرجى كتابة الرد قبل الإرسال");
+                return;
+            }
+
+            // Validation for reviews: must have content AND stars
+            if (!isReply) {
+                if (!trimmedContent) {
+                    toast.error("يرجى كتابة مراجعتك قبل الإرسال");
+                    return;
+                }
+                if (rate === 0) {
+                    toast.error("يرجى اختيار تقييم النجوم");
+                    return;
+                }
+            }
 
             try {
                 // If it's a reply, the rating UI is hidden. We send a default rating (5) 

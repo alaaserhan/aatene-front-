@@ -140,9 +140,13 @@ function FollowerCard({
                             </Link>
                         ))}
                         {remainingCount > 0 && (
-                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-amber-400/80 shrink-0 flex items-center justify-center">
+                            <Link
+                                href={`/profile/${user.slug}`}
+                                className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-amber-400/80 shrink-0 flex items-center justify-center hover:bg-amber-500/80 transition-colors"
+                                title="عرض الملف الشخصي"
+                            >
                                 <span className="text-white font-bold text-lg">+{remainingCount}</span>
-                            </div>
+                            </Link>
                         )}
                     </div>
                 ) : (
@@ -445,9 +449,6 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
 
                             <div className="flex flex-col items-center lg:items-start gap-1 py-2 lg:mt-20">
                                 <h1 className="text-xl lg:text-2xl font-medium ">{store.name}</h1>
-                                {store.description && (
-                                    <p className="text-gray-500 text-sm max-w-lg leading-relaxed">{store.description}</p>
-                                )}
                                 {store.address && (
                                     <p className="text-gray-400 text-xs mt-1">{store.address}</p>
                                 )}

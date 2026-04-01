@@ -122,17 +122,17 @@ export function SignupForm() {
           if (responseData?.errors && Object.keys(responseData.errors).length > 0) {
             Object.entries(responseData.errors).forEach(([field, messages]) => {
               if (Array.isArray(messages) && messages.length > 0) {
+                // نضع الخطأ على الحقل فقط - الـ toast يتكفل به الـ axios interceptor تلقائياً
                 form.setError(field as keyof SignupFormData, {
                   type: "manual",
                   message: messages[0],
                 });
-                toast.error(messages[0]);
               }
             });
           } else if (responseData?.message) {
-            toast.error(responseData.message);
             form.setError("root", { message: responseData.message });
           }
+          // لا نعرض toast هنا - الـ axios interceptor يعرضه مرة واحدة تلقائياً
         } else {
           toast.error("حدث خطأ ما، يرجى المحاولة مرة أخرى");
         }
@@ -310,7 +310,7 @@ export function SignupForm() {
                     <div className="space-y-1 leading-none">
                       <FormLabel className="text-xs text-gray-2 cursor-pointer mx-2">
                         لقد قرأت و وافقت على
-                        <Link href="/privacy-policy" className="underline hover:text-primary">
+                        <Link href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
                           سياسة الخصوصية
                         </Link>
                       </FormLabel>

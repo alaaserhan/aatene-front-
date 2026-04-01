@@ -183,10 +183,36 @@ function SearchContent({ type }: { type: SearchType }) {
         };
     }, [query, filters, page]);
 
+    // Services & Stores use review_rate_min instead of review_rate
+    const servicesParamsObj = useMemo(() => {
+        return {
+            search: query || undefined,
+            category_id: filters.category_id,
+            city_id: filters.city_id,
+            tags: filters.tags,
+            min_price: filters.min_price,
+            max_price: filters.max_price,
+            review_rate_min: filters.review_rate,
+            page,
+            per_page: PER_PAGE,
+        };
+    }, [query, filters, page]);
+
+    const storesParamsObj = useMemo(() => {
+        return {
+            category_id: filters.category_id,
+            city_id: filters.city_id,
+            tags: filters.tags,
+            review_rate_min: filters.review_rate,
+            page,
+            per_page: PER_PAGE,
+        };
+    }, [filters, page]);
+
     // Fetch results based on type
     const { data: productsData, isLoading: isLoadingProducts } = useSearchProducts(searchParamsObj, type === "products");
-    const { data: servicesData, isLoading: isLoadingServices } = useSearchServices(searchParamsObj, type === "services");
-    const { data: storesData, isLoading: isLoadingStores } = useSearchStores(searchParamsObj, type === "stores");
+    const { data: servicesData, isLoading: isLoadingServices } = useSearchServices(servicesParamsObj, type === "services");
+    const { data: storesData, isLoading: isLoadingStores } = useSearchStores(storesParamsObj, type === "stores");
     const { data: usersData, isLoading: isLoadingUsers } = useSearchUsers(searchParamsObj, type === "users");
 
     // Current results based on type

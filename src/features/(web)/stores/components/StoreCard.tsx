@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo, useState, useEffect } from "react";
 import { Store } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
 import { ArrowRight, UserPlus, Store as StoreIcon, ArrowLeft } from "lucide-react";
@@ -28,6 +28,12 @@ const StoreCard = memo(({
     const [imgSrc, setImgSrc] = useState(store.logo_url || "/placeholder.png");
     const rating = parseFloat(store.review_rate || "0");
     const [followed, setFollowed] = useState(isFollowing || store.am_i_following);
+
+    // Sync local state when parent re-renders with updated props
+    useEffect(() => {
+        setFollowed(isFollowing || store.am_i_following);
+    }, [isFollowing, store.am_i_following]);
+
     const queryClient = useQueryClient();
     const { mutate: follow, isPending: isFollowPending } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowPending } = useUnfollowUserOrStore();
@@ -90,6 +96,7 @@ const StoreCard = memo(({
                     <div className="flex items-center gap-1">
                         <Image src="/icons/star.svg" alt="star" width={15} height={15} />
                         <span className="font-medium text-gray-2 pt-1">{rating.toFixed(1)}</span>
+                        <span className="text-xs text-gray-400 pt-1">({store.review_count || 0})</span>
                     </div>
 
                     {/* Fast Delivery */}

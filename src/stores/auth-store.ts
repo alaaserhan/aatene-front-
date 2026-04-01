@@ -55,7 +55,17 @@ export const useAuthStore = create<AuthState>()(
       updateUser: (userData) => {
         const currentUser = get().user;
         if (currentUser) {
-          set({ user: { ...currentUser, ...userData } });
+          const updated = { ...currentUser, ...userData };
+          // Sync user_type cookie when it changes
+          if (userData.user_type && userData.user_type !== currentUser.user_type) {
+            const isProduction = process.env.NODE_ENV === "production";
+            Cookies.set("user_type", userData.user_type, {
+              expires: 365,
+              secure: isProduction,
+              sameSite: "lax",
+            });
+          }
+          set({ user: updated });
         }
       },
 

@@ -12,6 +12,7 @@ export const useConversations = (storeId?: number | string, ignoreCookie: boolea
         queryKey: [...QK.conversations, storeId, ignoreCookie],
         queryFn: () => api.getConversations(storeId, ignoreCookie),
         enabled,
+        staleTime: 30 * 1000, // 30 ثانية — لا يُعيد الجلب عند كل focus
     });
 };
 
@@ -51,6 +52,8 @@ export const useConversationMessages = (conversationId: number | string, ignoreC
         queryKey: ["conversation-messages", conversationId, ignoreCookie],
         queryFn: () => api.getConversationMessages(conversationId, ignoreCookie),
         enabled: !!conversationId && enabled,
+        staleTime: 10 * 1000, // 10 ثواني — يُقلل إعادة الجلب عند كل تفاعل
+        refetchOnWindowFocus: false, // لا يُعيد الجلب عند العودة للتاب
     });
 };
 

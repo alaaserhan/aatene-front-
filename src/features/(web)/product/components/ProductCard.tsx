@@ -36,6 +36,7 @@ const ProductCard = memo(({
     priceAfterDiscount,
     discountPercent,
     reviewRate,
+    reviewCount,
     isFavorite = false,
     onFavoriteClick,
     onClick,
@@ -46,6 +47,7 @@ const ProductCard = memo(({
     const displayPrice = priceAfterDiscount || price;
     const hasDiscount = !!priceAfterDiscount && String(priceAfterDiscount) !== String(price);
     const rating = typeof reviewRate === 'number' ? reviewRate : parseFloat(reviewRate || "0");
+    const count = typeof reviewCount === 'number' ? reviewCount : parseInt(String(reviewCount || "0"), 10);
     const router = useRouter();
     const qc = useQueryClient();
     const [localIsFavorite, setLocalIsFavorite] = useState(isFavorite);
@@ -125,6 +127,9 @@ const ProductCard = memo(({
                         ))}
                         <span className="text-xs font-medium text-[#FB923C] pt-1 mx-1.5">
                             {rating.toFixed(1)}
+                        </span>
+                        <span className="text-xs text-gray-400 pt-1">
+                            ({count})
                         </span>
                     </div>
                 </div>

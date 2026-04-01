@@ -38,7 +38,8 @@ export const useLogin = () => {
       toast.success(data.message || "Login successful!");
     },
     onError: () => {
-      // Axios interceptor already shows a toast for API errors
+      // الـ axios interceptor يعرض رسالة الباك تلقائياً
+      // الباك هو المسؤول عن إرسال رسالة عامة آمنة
     },
   });
 };

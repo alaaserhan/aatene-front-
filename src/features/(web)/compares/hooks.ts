@@ -48,14 +48,24 @@ export const useAddServiceToCompare = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: addServiceToCompare,
+        onMutate: async (serviceId: number) => {
+            await qc.cancelQueries({ queryKey: COMPARE_QK.services.list });
+            const previous = qc.getQueryData(COMPARE_QK.services.list);
+            qc.setQueryData(COMPARE_QK.services.list, (old: { services: { id: number }[]; total: number } | undefined) => {
+                if (!old) return { services: [{ id: serviceId }], total: 1 };
+                return { ...old, services: [...old.services, { id: serviceId }], total: old.total + 1 };
+            });
+            return { previous };
+        },
+        onError: (_err, _id, context) => {
+            if (context?.previous) qc.setQueryData(COMPARE_QK.services.list, context.previous);
+        },
         onSuccess: (data) => {
             toast.success(data.message || "Added to comparison list");
+        },
+        onSettled: () => {
             qc.invalidateQueries({ queryKey: COMPARE_QK.services.list });
             qc.invalidateQueries({ queryKey: COMPARE_QK.services.count });
-        },
-        onError: (error: Error) => {
-            const apiError = error as { response?: { data?: { message?: string } } };
-            toast.error(apiError.response?.data?.message || "Operation failed");
         },
     });
 };
@@ -64,14 +74,24 @@ export const useRemoveServiceFromCompare = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: removeServiceFromCompare,
+        onMutate: async (serviceId: number) => {
+            await qc.cancelQueries({ queryKey: COMPARE_QK.services.list });
+            const previous = qc.getQueryData(COMPARE_QK.services.list);
+            qc.setQueryData(COMPARE_QK.services.list, (old: { services: { id: number }[]; total: number } | undefined) => {
+                if (!old) return old;
+                return { ...old, services: old.services.filter((s) => s.id !== serviceId), total: Math.max(0, old.total - 1) };
+            });
+            return { previous };
+        },
+        onError: (_err, _id, context) => {
+            if (context?.previous) qc.setQueryData(COMPARE_QK.services.list, context.previous);
+        },
         onSuccess: (data) => {
             toast.success(data.message || "Removed from comparison list");
+        },
+        onSettled: () => {
             qc.invalidateQueries({ queryKey: COMPARE_QK.services.list });
             qc.invalidateQueries({ queryKey: COMPARE_QK.services.count });
-        },
-        onError: (error: Error) => {
-            const apiError = error as { response?: { data?: { message?: string } } };
-            toast.error(apiError.response?.data?.message || "Operation failed");
         },
     });
 };
@@ -114,14 +134,24 @@ export const useAddProductToCompare = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: addProductToCompare,
+        onMutate: async (productId: number) => {
+            await qc.cancelQueries({ queryKey: COMPARE_QK.products.list });
+            const previous = qc.getQueryData(COMPARE_QK.products.list);
+            qc.setQueryData(COMPARE_QK.products.list, (old: { compares: { id: number }[]; total: number } | undefined) => {
+                if (!old) return { compares: [{ id: productId }], total: 1 };
+                return { ...old, compares: [...old.compares, { id: productId }], total: old.total + 1 };
+            });
+            return { previous };
+        },
+        onError: (_err, _id, context) => {
+            if (context?.previous) qc.setQueryData(COMPARE_QK.products.list, context.previous);
+        },
         onSuccess: (data) => {
             toast.success(data.message || "Added to comparison list");
+        },
+        onSettled: () => {
             qc.invalidateQueries({ queryKey: COMPARE_QK.products.list });
             qc.invalidateQueries({ queryKey: COMPARE_QK.products.count });
-        },
-        onError: (error: Error) => {
-            const apiError = error as { response?: { data?: { message?: string } } };
-            toast.error(apiError.response?.data?.message || "Operation failed");
         },
     });
 };
@@ -130,14 +160,24 @@ export const useRemoveProductFromCompare = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: removeProductFromCompare,
+        onMutate: async (productId: number) => {
+            await qc.cancelQueries({ queryKey: COMPARE_QK.products.list });
+            const previous = qc.getQueryData(COMPARE_QK.products.list);
+            qc.setQueryData(COMPARE_QK.products.list, (old: { compares: { id: number }[]; total: number } | undefined) => {
+                if (!old) return old;
+                return { ...old, compares: old.compares.filter((p) => p.id !== productId), total: Math.max(0, old.total - 1) };
+            });
+            return { previous };
+        },
+        onError: (_err, _id, context) => {
+            if (context?.previous) qc.setQueryData(COMPARE_QK.products.list, context.previous);
+        },
         onSuccess: (data) => {
             toast.success(data.message || "Removed from comparison list");
+        },
+        onSettled: () => {
             qc.invalidateQueries({ queryKey: COMPARE_QK.products.list });
             qc.invalidateQueries({ queryKey: COMPARE_QK.products.count });
-        },
-        onError: (error: Error) => {
-            const apiError = error as { response?: { data?: { message?: string } } };
-            toast.error(apiError.response?.data?.message || "Operation failed");
         },
     });
 };

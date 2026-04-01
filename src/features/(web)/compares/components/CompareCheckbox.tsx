@@ -78,7 +78,9 @@ export function CompareCheckbox({ id, type, className }: CompareCheckboxProps) {
                     </svg>
                 )}
             </div>
-            <span className="text-sm font-medium text-blue-3 whitespace-nowrap select-none">اضف للمقارنة</span>
+            <span className="text-sm font-medium text-blue-3 whitespace-nowrap select-none">
+                {isInCompare ? "إزالة من المقارنة" : "اضف للمقارنة"}
+            </span>
         </div>
     );
 }
