@@ -340,13 +340,30 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                     className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
                                     onSelect={(e) => {
                                         e.preventDefault();
-                                        setShowBlockModal(true);
+                                        if (!isMeBlocked && conversation.can_chat === false) {
+                                            // Already blocked by me → unblock directly
+                                            if (otherParticipant) {
+                                                blockUser({
+                                                    payload: {
+                                                        blocked_type: otherParticipant.participant_data.type,
+                                                        blocked_id: otherParticipant.participant_data.id,
+                                                    },
+                                                    ignoreCookie
+                                                }, {
+                                                    onSuccess: () => toast.success("تم إلغاء الحظر بنجاح")
+                                                });
+                                            }
+                                        } else {
+                                            setShowBlockModal(true);
+                                        }
                                     }}
                                 >
                                     <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
                                         <Ban className="w-4 h-4 text-gray-600" />
                                     </div>
-                                    <span className="font-medium text-gray-700">حظر المستخدم</span>
+                                    <span className="font-medium text-gray-700">
+                                        {!isMeBlocked && conversation.can_chat === false ? "إلغاء الحظر" : "حظر المستخدم"}
+                                    </span>
                                 </DropdownMenuItem>
                             )}
 
@@ -445,8 +462,31 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             const isMe = msg.sender_data.participant_type === currentParticipantType &&
                                 String(msg.sender_data.participant_id) === String(currentParticipantId);
 
+                            // Find sender name from participants list (for group chat)
+                            const senderParticipant = conversation.type === "group" && !isMe
+                                ? conversation.participants.find(
+                                    p => p.participant_data.type === msg.sender_data.participant_type &&
+                                        String(p.participant_data.id) === String(msg.sender_data.participant_id)
+                                )
+                                : null;
+                            const senderName = senderParticipant?.participant_data.name;
+                            const senderAvatar = senderParticipant?.participant_data.avatar;
+
                             return (
                                 <div key={msg.id || index} className={cn("flex flex-col w-full", isMe ? "items-start" : "items-end")}>
+                                    {/* Sender name & avatar for group messages */}
+                                    {conversation.type === "group" && !isMe && senderName && (
+                                        <div className="flex items-center gap-1.5 mb-1 px-1">
+                                            <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-200 shrink-0">
+                                                {senderAvatar ? (
+                                                    <img src={senderAvatar} alt="" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <User className="w-3 h-3 m-auto mt-1 text-gray-400" />
+                                                )}
+                                            </div>
+                                            <span className="text-xs font-medium text-blue-4">{senderName}</span>
+                                        </div>
+                                    )}
                                     <div className={cn(
                                         "max-w-[75%] rounded-xl p-3 px-4 text-sm",
                                         isMe ? "bg-blue-5 " : "bg-white  border border-gray-100 shadow-sm"
@@ -643,7 +683,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             isMeBlocked ? "text-gray-600" : "text-gray-900"
                         )}>
                             {isMeBlocked
-                                ? 'أنت محظور'
+                                ? 'لا يمكنك إرسال رسائل'
                                 : otherParticipant?.participant_data.type === 'store'
                                     ? 'تم حظر هذا المتجر'
                                     : 'تم حظر هذا المستخدم'}
@@ -656,17 +696,28 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                         ) : (
                             <>
                                 <p className="text-gray-2 text-[15px] mb-8 max-w-[320px] leading-relaxed">
-                                    لقد قمت بحظر هذا الحساب بشكل كامل. يمكنك إدارة قائمة الحظر وفك الحظر من خلال إعدادات حسابك في أي وقت.
+                                    لقد قمت بحظر هذا الحساب. يمكنك إلغاء الحظر للتواصل معه مجدداً.
                                 </p>
 
                                 <Button
                                     onClick={() => {
-                                        const type = otherParticipant?.participant_data.type || 'user';
-                                        router.push(`/settings?tab=blocked&type=${type}`);
+                                        if (otherParticipant) {
+                                            blockUser({
+                                                payload: {
+                                                    blocked_type: otherParticipant.participant_data.type,
+                                                    blocked_id: otherParticipant.participant_data.id,
+                                                },
+                                                ignoreCookie
+                                            }, {
+                                                onSuccess: () => {
+                                                    toast.success("تم إلغاء الحظر بنجاح");
+                                                }
+                                            });
+                                        }
                                     }}
                                     className="rounded-full bg-blue-3 hover:bg-blue-4 text-white px-10 h-12 font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/20"
                                 >
-                                    انتقل إلى قائمة الحظر
+                                    إلغاء الحظر
                                 </Button>
                             </>
                         )}
