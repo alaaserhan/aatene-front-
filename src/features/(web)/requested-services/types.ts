@@ -69,9 +69,12 @@ export interface CreateRequestedServiceResponse {
 }
 
 export interface RequestedServiceCommentUser {
+    id?: number;
+    slug?: string;
     name: string;
     email: string;
     avatar: string;
+    avatar_url?: string;
 }
 
 export interface RequestedServiceComment {

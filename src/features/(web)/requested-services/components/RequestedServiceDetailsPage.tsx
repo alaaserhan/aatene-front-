@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useRequestedServiceBySlug, useRequestedServiceComments, useAddRequestedServiceComment } from "../hooks";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
-import { Loader2, Flag, User, Play } from "lucide-react";
+import { Loader2, Flag, Play, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -23,25 +23,29 @@ function CommentCard({
         <div className="bg-blue-5 rounded-lg p-5 flex flex-col gap-4 relative transition-all hover:bg-gray-50 hover:border-blue-100">
             <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3 text-right">
-                    <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-100 bg-white">
-                        {comment.user.avatar ? (
+                    <Link
+                        href={comment.user.slug ? `/profile/${comment.user.slug}` : comment.user.id ? `/profile/${comment.user.id}` : `/profile`}
+                        className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-100 bg-gray-100 hover:opacity-80 transition-opacity flex items-center justify-center text-gray-400"
+                    >
+                        {(comment.user.avatar_url && comment.user.avatar_url.trim()) || (comment.user.avatar && comment.user.avatar.trim()) ? (
                             <Image
-                                src={comment.user.avatar}
+                                src={comment.user.avatar_url || comment.user.avatar}
                                 alt={comment.user.name}
                                 width={40}
                                 height={40}
                                 className="object-cover w-full h-full"
                             />
                         ) : (
-                            <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
-                                <User className="w-5 h-5" />
-                            </div>
+                            <User className="w-5 h-5" />
                         )}
-                    </div>
+                    </Link>
                     <div className="flex flex-col ">
-                        <p className="text-blue-4 text-sm font-medium">
+                        <Link
+                            href={comment.user.slug ? `/profile/${comment.user.slug}` : comment.user.id ? `/profile/${comment.user.id}` : `/profile`}
+                            className="text-blue-4 text-sm font-medium hover:underline transition-colors"
+                        >
                             {comment.user.name}
-                        </p>
+                        </Link>
                         {comment.created_at && (
                             <p className="text-gray-2 text-xs  mt-1">
                                 {getRelativeTimeArabic(comment.created_at)}
@@ -112,8 +116,8 @@ function AddCommentForm({ slug }: { slug: string | number }) {
         <div className="border border-gray-200 rounded-xl px-5 py-4">
             <div className="bg-blue-5 rounded-xl p-5 flex flex-col gap-3">
                 <div className="flex gap-3 items-start">
-                    <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
-                        {user?.avatar_url ? (
+                    <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400">
+                        {(user?.avatar_url && user.avatar_url.trim()) ? (
                             <Image
                                 src={user.avatar_url}
                                 alt="user"
@@ -122,9 +126,7 @@ function AddCommentForm({ slug }: { slug: string | number }) {
                                 className="object-cover w-full h-full"
                             />
                         ) : (
-                            <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
-                                <User className="w-6 h-6" />
-                            </div>
+                            <User className="w-6 h-6" />
                         )}
                     </div>
                     <div className="flex-1">
@@ -237,19 +239,17 @@ export default function RequestedServiceDetailsPage() {
                     <div className="bg-[#EBEFF24D]  rounded-xl p-4 ">
                         {/* Author Header */}
                         <div className="flex items-center gap-4 pb-6 ">
-                            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200">
-                                {service.user?.avatar_url ? (
+                            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400">
+                                {(service.user?.avatar_url && service.user.avatar_url.trim()) ? (
                                     <Image
                                         src={service.user.avatar_url}
-                                        alt={`${service.user.first_name || ""} ${service.user.last_name || ""}`}
+                                        alt={`${service.user?.first_name || ""} ${service.user?.last_name || ""}`}
                                         width={56}
                                         height={56}
                                         className="object-cover w-full h-full"
                                     />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                        <User className="w-7 h-7" />
-                                    </div>
+                                    <User className="w-7 h-7" />
                                 )}
                             </div>
                             <div className="flex flex-col gap-1 items-start">
