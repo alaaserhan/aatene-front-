@@ -247,7 +247,17 @@ export default function AddEditRequestedServicePage({
                                 htmlFor="policy"
                                 className="text-xs md:text-sm font-normal cursor-pointer select-none"
                             >
-                                تأكدت من أن محتوى طلبي واضح ولا يخالف سياسات المنصة.
+                                تأكدت من أن محتوى طلبي واضح ولا يخالف{" "}
+                                <a
+                                    href="/terms-of-use"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-4 underline underline-offset-2 hover:text-blue-3 transition-colors"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    سياسات المنصة
+                                </a>
+                                .
                             </Label>
                         </div>
                         {errors.services_follows_rules && (
