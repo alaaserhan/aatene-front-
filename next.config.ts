@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'aatene.dev',
+        protocol: 'http',
+        hostname: 'localhost',
       },
       {
         protocol: 'http',
@@ -18,9 +18,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'aatene.dev',
+      },
+      {
+        protocol: 'https',
         hostname: 'images.unsplash.com',
       },
-       {
+      {
         protocol: 'https',
         hostname: 'placehold.co',
       },

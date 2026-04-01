@@ -37,11 +37,13 @@ export default function FavoritesContent({
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editListData, setEditListData] = useState<any>(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Reset selected list and pagination when type changes
     useEffect(() => {
         setSelectedListId(null);
         setCurrentPage(1);
+        setSearchQuery("");
     }, [selectedType]);
 
     // Reset pagination when list changes
@@ -83,6 +85,13 @@ export default function FavoritesContent({
     const favoritesList = currentData?.favorites || [];
     const totalItems = currentData?.total || 0;
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+    // Client-side search filtering
+    const filteredFavorites = searchQuery.trim()
+        ? favoritesList.filter((item) =>
+            item.favs?.name?.toLowerCase().includes(searchQuery.trim().toLowerCase())
+        )
+        : favoritesList;
 
     // Handle list badge click
     const handleListClick = (listId: number | null) => {
@@ -136,6 +145,8 @@ export default function FavoritesContent({
                     <input
                         type="text"
                         placeholder="بحث"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full px-6 py-2.5 border border-[#E5E7EB] rounded-full focus:outline-none focus:ring-0 "
                     />
                     <div className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#3D5E83] rounded-full p-2 cursor-pointer hover:bg-[#2D496A] transition-colors">
@@ -201,15 +212,15 @@ export default function FavoritesContent({
             )}
 
             {/* Empty State */}
-            {(!favoritesList || favoritesList.length === 0) && !isLoadingListItems && (
+            {(!filteredFavorites || filteredFavorites.length === 0) && !isLoadingListItems && (
                 <EmptyFavorites />
             )}
 
             {/* Products Grid */}
-            {favoritesList && favoritesList.length > 0 && !isLoadingListItems && (
+            {filteredFavorites && filteredFavorites.length > 0 && !isLoadingListItems && (
                 <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                        {favoritesList.map((item) => {
+                        {filteredFavorites.map((item) => {
                             if (item.favs_type === "store") {
                                 return <StoreCard key={item.id} store={item.favs as unknown as Store} />;
                             }

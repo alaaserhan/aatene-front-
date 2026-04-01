@@ -7,7 +7,7 @@ import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarL
 import { useAuthStore } from "@/src/stores/auth-store";
 import Cookies from "js-cookie";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
-import { User, Store } from "lucide-react";
+import { User, Store, Users } from "lucide-react";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
 
@@ -197,18 +197,38 @@ export function ConversationListSidebar({
                         )}
                     >
                         <div className="shrink-0 relative">
-                            <Avatar className="w-14 h-14 border border-gray-100">
-                                {avatarUrl ? (
-                                    <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
-                                ) : null}
-                                <AvatarFallback className="bg-blue-5 text-blue-3 font-medium text-lg">
-                                    {getOtherParticipant(conversation)?.participant_data.type === "store" ? (
-                                        <Store className="w-6 h-6" />
-                                    ) : (
-                                        <User className="w-6 h-6" />
-                                    )}
-                                </AvatarFallback>
-                            </Avatar>
+                            {conversation.type === "group" ? (
+                                // Group: show stacked avatars or group icon
+                                <div className="w-14 h-14 rounded-full bg-blue-4 flex items-center justify-center border-2 border-blue-3 relative">
+                                    <div className="flex items-center -space-x-2 rtl:space-x-reverse">
+                                        {conversation.participants.slice(0, 2).map((p, i) => (
+                                            <div key={p.id} className="w-6 h-6 rounded-full border border-white overflow-hidden bg-blue-5" style={{ zIndex: 2 - i }}>
+                                                {p.participant_data.avatar ? (
+                                                    <img src={p.participant_data.avatar} alt="" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <User className="w-3 h-3 m-auto mt-1.5 text-blue-3" />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-blue-3 flex items-center justify-center border border-white">
+                                        <Users className="w-2.5 h-2.5 text-white" />
+                                    </div>
+                                </div>
+                            ) : (
+                                <Avatar className="w-14 h-14 border border-gray-100">
+                                    {avatarUrl ? (
+                                        <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
+                                    ) : null}
+                                    <AvatarFallback className="bg-blue-5 text-blue-3 font-medium text-lg">
+                                        {getOtherParticipant(conversation)?.participant_data.type === "store" ? (
+                                            <Store className="w-6 h-6" />
+                                        ) : (
+                                            <User className="w-6 h-6" />
+                                        )}
+                                    </AvatarFallback>
+                                </Avatar>
+                            )}
                         </div>
 
                         <div className="flex-1 min-w-0">
