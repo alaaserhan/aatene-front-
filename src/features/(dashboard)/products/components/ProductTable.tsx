@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { formatDate } from "@/src/lib/date-helper";
-import { MoreHorizontal, Share2, Eye, Pencil, Trash2, Loader2 } from "lucide-react";
+import { MoreHorizontal, Eye, Pencil, Trash2, Loader2 } from "lucide-react";
 import { Product, MerchantProductStatus } from "../api";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import {
@@ -13,7 +13,6 @@ import {
     DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import { Pagination } from "@/src/components/ui/Pagination";
-import { ShareModal } from "@/src/components/ui/ShareModal";
 
 interface ProductTableProps {
     products: Product[];
@@ -42,14 +41,6 @@ export function ProductTable({
     onView,
     activeStatus,
 }: ProductTableProps) {
-    const [shareModalOpen, setShareModalOpen] = useState(false);
-    const [selectedProductForShare, setSelectedProductForShare] = useState<Product | null>(null);
-
-    const handleShareClick = (product: Product) => {
-        setSelectedProductForShare(product);
-        setShareModalOpen(true);
-    };
-
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
@@ -185,15 +176,15 @@ export function ProductTable({
                                 {/* Actions */}
                                 <td className="px-6 py-4">
                                     <div className="flex items-center justify-center gap-2">
-                                        {/* Share */}
+                                        {/* View - بدلاً من زر المشاركة */}
                                         {activeStatus !== "not-active" && activeStatus !== "rejected" && (
                                             <button
                                                 type="button"
-                                                onClick={() => handleShareClick(product)}
+                                                onClick={(e) => { e.stopPropagation(); onView(product); }}
                                                 className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
-                                                title="مشاركة"
+                                                title="مشاهدة"
                                             >
-                                                <Share2 className="w-4 h-4" />
+                                                <Eye className="w-4 h-4" />
                                             </button>
                                         )}
 
@@ -205,13 +196,6 @@ export function ProductTable({
                                                 </button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-40 border-gray-100 shadow-lg bg-white">
-                                                <DropdownMenuItem
-                                                    className="cursor-pointer gap-2 text-blue-3 focus:text-blue-4 focus:bg-blue-50"
-                                                    onClick={(e) => { e.stopPropagation(); onView(product); }}
-                                                >
-                                                    <Eye className="w-4 h-4" />
-                                                    <span>مشاهدة</span>
-                                                </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     className="cursor-pointer gap-2 text-blue-3 focus:text-blue-4 focus:bg-blue-50"
                                                     onClick={(e) => { e.stopPropagation(); onEdit(product); }}
@@ -244,16 +228,6 @@ export function ProductTable({
                         onPageChange={onPageChange}
                     />
                 </div>
-            )}
-
-            {selectedProductForShare && (
-                <ShareModal
-                    isOpen={shareModalOpen}
-                    onClose={() => setShareModalOpen(false)}
-                    shareUrl={`${window.location.origin}/product/${selectedProductForShare.slug}`}
-                    title="شارك هذا المنتج"
-                    description="إذا أعجبك هذا المنتج، شاركه مع أصدقائك."
-                />
             )}
         </div>
     );
