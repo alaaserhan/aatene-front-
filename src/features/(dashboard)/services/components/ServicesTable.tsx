@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Trash2, Loader2, MoreHorizontal, Share2, Eye } from "lucide-react";
+import { Pencil, Trash2, Loader2, MoreHorizontal, Eye } from "lucide-react";
 import { Service } from "../api";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import {
@@ -12,7 +12,6 @@ import {
     DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import { Pagination } from "@/src/components/ui/Pagination";
-import { ShareModal } from "@/src/components/ui/ShareModal"; // ✅ استيراد المكون
 
 interface ServicesTableProps {
     services: Service[];
@@ -39,16 +38,6 @@ export function ServicesTable({
     onDelete,
     activeStatus = "approved",
 }: ServicesTableProps) {
-
-    // ✅ تعريف الـ State للمودال
-    const [shareModalOpen, setShareModalOpen] = useState(false);
-    const [selectedServiceForShare, setSelectedServiceForShare] = useState<Service | null>(null);
-
-    // ✅ دالة فتح المودال عند الضغط على زر المشاركة
-    const handleShareClick = (service: Service) => {
-        setSelectedServiceForShare(service);
-        setShareModalOpen(true);
-    };
 
     if (isLoading) {
         return (
@@ -179,14 +168,14 @@ export function ServicesTable({
                                 {/* Actions */}
                                 <td className="px-6 py-4">
                                     <div className="flex items-center justify-center gap-2">
-                                        {/* Share Button (Cyan/Blue bg) */}
+                                        {/* View - بدلاً من زر المشاركة */}
                                         {activeStatus !== "pending" && activeStatus !== "rejected" && (
                                             <button
-                                                onClick={() => handleShareClick(service)} // ✅ استخدام الدالة الجديدة
+                                                onClick={() => onReview(service)}
                                                 className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
-                                                title="مشاركة"
+                                                title="مشاهدة"
                                             >
-                                                <Share2 className="w-4 h-4" />
+                                                <Eye className="w-4 h-4" />
                                             </button>
                                         )}
 
@@ -198,13 +187,6 @@ export function ServicesTable({
                                                 </button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-40 border-gray-100 shadow-lg bg-white">
-                                                <DropdownMenuItem
-                                                    className="cursor-pointer gap-2 text-blue-3 focus:text-blue-4 focus:bg-blue-50"
-                                                    onClick={() => onReview(service)}
-                                                >
-                                                    <Eye className="w-4 h-4" />
-                                                    <span>مشاهدة</span>
-                                                </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     className="cursor-pointer gap-2 text-blue-3 focus:text-blue-4 focus:bg-blue-50"
                                                     onClick={() => onEdit(service)}
@@ -237,17 +219,6 @@ export function ServicesTable({
                         onPageChange={onPageChange}
                     />
                 </div>
-            )}
-
-            {/* ✅ إضافة مكون المشاركة */}
-            {selectedServiceForShare && (
-                <ShareModal
-                    isOpen={shareModalOpen}
-                    onClose={() => setShareModalOpen(false)}
-                    shareUrl={`${window.location.origin}/services/${selectedServiceForShare.slug}`}
-                    title="شارك هذه الخدمة"
-                    description="هل أعجبتك هذه الخدمة؟ شاركها الآن مع أصدقائك."
-                />
             )}
         </div>
     );
