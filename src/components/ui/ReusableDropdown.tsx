@@ -37,6 +37,7 @@ interface ReusableDropdownProps {
   // New Props for Add New
   onAddNew?: () => void;
   addNewLabel?: string;
+  triggerClassName?: string;
 }
 
 export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>(({
@@ -56,6 +57,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
   searchPlaceholder = "بحث...",
   onAddNew,
   addNewLabel = "إضافة جديد",
+  triggerClassName,
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [triggerWidth, setTriggerWidth] = useState<number | undefined>(undefined);
@@ -102,9 +104,10 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
           <button
             type="button"
             className={cn(
-              "w-full flex items-center gap-2  px-4 h-10 border rounded-sm bg-white hover:bg-gray-50 transition-colors cursor-pointer justify-between focus:outline-none",
+              "w-full flex items-center gap-2 px-4 h-10 border rounded-sm bg-white hover:bg-gray-50 transition-colors cursor-pointer justify-between focus:outline-none",
               disabled && "opacity-50 cursor-not-allowed bg-gray-100",
-              error ? "border-red-500" : "border-gray-200"
+              error ? "border-red-500" : "border-gray-200",
+              triggerClassName
             )}
           >
             <div className="flex items-center gap-2 overflow-hidden">
@@ -131,7 +134,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
 
         <PopoverContent
           className="p-0 border-gray-200 rounded-lg shadow-xl"
-          style={{ width: triggerWidth }}
+          style={{ width: triggerWidth ? Math.max(triggerWidth, 180) : 180 }}
           side={dropdownPosition}
           sideOffset={4}
           align="start"
