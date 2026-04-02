@@ -30,6 +30,7 @@ export interface VariationRow {
   attributeValues: Record<string, string>;
   price: number;
   images: string[];
+  imageFileName: string;  // file_name للباكند (مسار نسبي)
   image_previews: string[];
   enabled: boolean;
 }
