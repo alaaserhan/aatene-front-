@@ -176,17 +176,15 @@ export function ProductTable({
                                 {/* Actions */}
                                 <td className="px-6 py-4">
                                     <div className="flex items-center justify-center gap-2">
-                                        {/* View - بدلاً من زر المشاركة */}
-                                        {activeStatus !== "not-active" && activeStatus !== "rejected" && (
-                                            <button
-                                                type="button"
-                                                onClick={(e) => { e.stopPropagation(); onView(product); }}
-                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
-                                                title="مشاهدة"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                            </button>
-                                        )}
+                                        {/* View */}
+                                        <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); onView(product); }}
+                                            className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
+                                            title="مشاهدة"
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                        </button>
 
                                         {/* More */}
                                         <DropdownMenu dir="rtl">
