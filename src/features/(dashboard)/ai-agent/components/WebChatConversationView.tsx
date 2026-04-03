@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Loader2, Send, Headset, CheckCircle, Bot, User } from "lucide-react";
-import { useGetWebConversationMessages, useWebAdminReply, useWebResolveConversation, useWebMarkTyping } from "../hooks";
+import { useGetWebConversationMessages, useWebAdminReply, useWebResolveConversation, useWebMarkTyping, useGetWebConversations } from "../hooks";
 import { WebMessage } from "../api";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
@@ -27,6 +27,12 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         conversationId,
         per_page: 100,
     });
+
+    const { data: convsData } = useGetWebConversations();
+    const conversation = useMemo(() => 
+        convsData?.data?.find(c => c.id === conversationId),
+        [convsData, conversationId]
+    );
 
     const { mutate: sendReply, isPending: isSending } = useWebAdminReply();
     const { mutate: resolveConversation, isPending: isResolving } = useWebResolveConversation();
@@ -142,17 +148,19 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <Button
-                        size="sm"
-                        onClick={() => resolveConversation(conversationId)}
-                        disabled={isResolving}
-                        className="bg-[#1DC355] hover:bg-green-700 text-white gap-2 font-bold h-9"
-                    >
-                        {isResolving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                        تم الحل
-                    </Button>
-                </div>
+                {!conversation?.resolved_at && (
+                    <div className="flex items-center gap-2">
+                        <Button
+                            size="sm"
+                            onClick={() => resolveConversation(conversationId)}
+                            disabled={isResolving}
+                            className="bg-[#1DC355] hover:bg-green-700 text-white gap-2 font-bold h-9"
+                        >
+                            {isResolving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                            تم الحل
+                        </Button>
+                    </div>
+                )}
             </div>
 
             <div className="flex-1 min-h-0 px-4 pb-4">
@@ -237,12 +245,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                                                 </div>
 
                                                 <div
-                                                    className={cn(
-                                                        "p-4 rounded-2xl rounded-tr-none text-sm leading-relaxed",
-                                                        isAdmin
-                                                            ? "bg-linear-to-br from-[#2563EB] to-[#3B82F6] text-white"
-                                                            : "bg-linear-to-br from-[#395A7D] to-[#6496CD] text-white"
-                                                    )}
+                                                    className="p-4 rounded-2xl rounded-tr-none text-sm leading-relaxed bg-linear-to-br from-[#395A7D] to-[#6496CD] text-white"
                                                     dir="rtl"
                                                 >
                                                     {text}
@@ -271,33 +274,39 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                         )}
                     </div>
 
-                    <div className="p-4 pt-2 bg-[#F5F5F5] shrink-0">
-                        <div className="relative flex items-center gap-2 bg-white rounded-md p-2 pr-4">
-                            <Input
-                                value={messageText}
-                                onChange={handleInputChange}
-                                onKeyDown={handleKeyDown}
-                                placeholder="اكتب رسالتك هنا ..."
-                                className="border-none shadow-none bg-transparent focus-visible:ring-0 flex-1 h-10 text-right text-gray-700 placeholder:text-gray-2"
-                                disabled={isSending}
-                            />
+                    {!conversation?.resolved_at ? (
+                        <div className="p-4 pt-2 bg-[#F5F5F5] shrink-0">
+                            <div className="relative flex items-center gap-2 bg-white rounded-md p-2 pr-4">
+                                <Input
+                                    value={messageText}
+                                    onChange={handleInputChange}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder="اكتب رسالتك هنا ..."
+                                    className="border-none shadow-none bg-transparent focus-visible:ring-0 flex-1 h-10 text-right text-gray-700 placeholder:text-gray-2"
+                                    disabled={isSending}
+                                />
 
-                            <Button
-                                onClick={handleSend}
-                                disabled={!messageText.trim() || isSending}
-                                className={cn(
-                                    "w-10 h-10 rounded-lg shrink-0 transition-all cursor-pointer",
-                                    messageText.trim() ? "bg-blue-3 hover:bg-[#2c4460] text-white" : "bg-gray-200 text-gray-2"
-                                )}
-                            >
-                                {isSending ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : (
-                                    <Send className="w-6 h-6 -rotate-90" />
-                                )}
-                            </Button>
+                                <Button
+                                    onClick={handleSend}
+                                    disabled={!messageText.trim() || isSending}
+                                    className={cn(
+                                        "w-10 h-10 rounded-lg shrink-0 transition-all cursor-pointer",
+                                        messageText.trim() ? "bg-blue-3 hover:bg-[#2c4460] text-white" : "bg-gray-200 text-gray-2"
+                                    )}
+                                >
+                                    {isSending ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : (
+                                        <Send className="w-6 h-6 -rotate-90" />
+                                    )}
+                                </Button>
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="p-3 bg-[#F5F5F5] text-center text-xs text-green-600 font-bold shrink-0">
+                            تم حل هذه المحادثة بنجاح
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
