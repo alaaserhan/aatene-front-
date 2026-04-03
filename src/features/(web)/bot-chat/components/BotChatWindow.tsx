@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { X, Send, Loader2, Bot, Star, RefreshCw, LogOut, MessageSquarePlus, Sparkles, User, Headset } from "lucide-react";
+import { X, Send, Loader2, Bot, Star, LogOut, MessageSquarePlus, Sparkles, User, Headset } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/src/lib/utils";
 import {
@@ -53,7 +53,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
     const {
         data: messagesData,
-        refetch: refetchMessages,
         isLoading: isLoadingMessages,
     } = useConversationMessages(conversationId, true);
 
@@ -304,7 +303,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     ) : (
                         allMessages.map((msg: ConversationMessage) => {
                             const isUser = msg.sender_type === "user";
-                            const isSupport = msg.sender_type === "bot" || msg.sender_type === "admin";
 
                             return (
                                 <div
@@ -372,10 +370,10 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                             </div>
                             <div className="bg-white px-3 py-1.5 rounded-2xl rounded-tl-none text-xs text-gray-500 flex items-center gap-1.5 border border-gray-50 shadow-xs">
                                 <span>{typingUser} يكتب</span>
-                                <span className="flex gap-0.5">
-                                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
-                                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
-                                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                                <span className="flex gap-1 items-center">
+                                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
                                 </span>
                             </div>
                         </div>
@@ -413,13 +411,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 </div>
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={() => refetchMessages()}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all cursor-pointer"
-                    >
-                        <RefreshCw className="w-3.5 h-3.5" />
-                        <span>تحديث</span>
-                    </button>
-                    <button
                         onClick={handleEndConversation}
                         disabled={endConversationMutation.isPending}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 hover:bg-red-100 text-red-600 transition-all cursor-pointer disabled:opacity-50"
@@ -442,7 +433,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     return (
         <div
             className={cn(
-                "z-[9999] w-[360px] max-w-[calc(100vw-32px)] rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 fade-in duration-300",
+                "z-9999 w-[360px] max-w-[calc(100vw-32px)] rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 fade-in duration-300",
                 "fixed max-md:top-1/2 max-md:left-1/2 max-md:-translate-x-1/2 max-md:-translate-y-1/2",
                 "md:fixed md:bottom-24 md:right-6"
             )}
