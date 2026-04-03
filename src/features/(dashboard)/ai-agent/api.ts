@@ -1,6 +1,7 @@
 // src/features/(dashboard)/ai-agent/api.ts
 import axios, { InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
+import mainApi from "@/src/lib/axios";
 
 const BASE_URL_5000 = "https://api1.mosaady.com/api";
 const BASE_URL_5002 = "https://api2.mosaady.com/api";
@@ -374,6 +375,148 @@ export const uploadDriveFile = async (file: File): Promise<UploadResponse> => {
 
 export const deleteDriveFile = async (fileId: string): Promise<DeleteFileResponse> => {
     const { data } = await api5005.delete<DeleteFileResponse>(`/delete/${fileId}`);
+    return data;
+};
+
+export type WebConversationState = "active" | "waiting" | "with_human" | "awaiting_rating" | "resolved";
+
+export interface WebConversationUser {
+    id: number;
+    name: string;
+}
+
+export interface WebConversation {
+    id: number;
+    user_id: number;
+    platform: string;
+    state: WebConversationState;
+    needs_human: boolean;
+    user: WebConversationUser;
+    last_message_at: string;
+    closed_at: string | null;
+    resolved_at: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface WebConversationsResponse {
+    status: boolean;
+    message: string;
+    total: number;
+    data: WebConversation[];
+}
+
+export interface WebMessageSender {
+    id: number;
+    full_name: string;
+}
+
+export interface WebMessage {
+    id: number;
+    conversation_id: number;
+    sender_type: "user" | "admin" | "bot";
+    sender_id: string;
+    message_text: string;
+    meta: unknown[];
+    created_at: string;
+    updated_at: string;
+    sender: WebMessageSender;
+}
+
+export interface WebMessagesResponse {
+    status: boolean;
+    message: string;
+    total: number;
+    data: WebMessage[];
+}
+
+export interface WebReplyResponse {
+    status: boolean;
+    message: string;
+    data: WebMessage;
+}
+
+export interface WebResolveResponse {
+    status: boolean;
+    message: string;
+    data: WebConversation;
+}
+
+export interface WebTypingResponse {
+    status: boolean;
+    message: string;
+    data: null;
+}
+
+export interface WebMissedQuestion {
+    id: number;
+    question: string;
+    conversation_id: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface WebMissedQuestionsResponse {
+    status: boolean;
+    message: string;
+    data: WebMissedQuestion[];
+}
+
+export interface GetWebConversationsParams {
+    state?: WebConversationState;
+}
+
+export interface GetWebMessagesParams {
+    conversationId: number;
+    page?: number;
+    per_page?: number;
+}
+
+const WEB_ADMIN_BASE = "/ai-support/admin";
+
+export const getWebConversations = async (params?: GetWebConversationsParams): Promise<WebConversationsResponse> => {
+    const queryParams = new URLSearchParams();
+    if (params?.state) queryParams.set("state", params.state);
+    const qs = queryParams.toString();
+    const { data } = await mainApi.get<WebConversationsResponse>(`${WEB_ADMIN_BASE}/conversations${qs ? `?${qs}` : ""}`);
+    return data;
+};
+
+export const getWebConversationMessages = async (params: GetWebMessagesParams): Promise<WebMessagesResponse> => {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.set("page", String(params.page));
+    if (params.per_page) queryParams.set("per_page", String(params.per_page));
+    const qs = queryParams.toString();
+    const { data } = await mainApi.get<WebMessagesResponse>(
+        `${WEB_ADMIN_BASE}/conversations/${params.conversationId}/messages${qs ? `?${qs}` : ""}`
+    );
+    return data;
+};
+
+export const webAdminReply = async (conversationId: number, messageText: string): Promise<WebReplyResponse> => {
+    const { data } = await mainApi.post<WebReplyResponse>(
+        `${WEB_ADMIN_BASE}/conversations/${conversationId}/reply`,
+        { message_text: messageText }
+    );
+    return data;
+};
+
+export const webResolveConversation = async (conversationId: number): Promise<WebResolveResponse> => {
+    const { data } = await mainApi.patch<WebResolveResponse>(
+        `${WEB_ADMIN_BASE}/conversations/${conversationId}/resolve`
+    );
+    return data;
+};
+
+export const webMarkTyping = async (conversationId: number): Promise<WebTypingResponse> => {
+    const { data } = await mainApi.post<WebTypingResponse>(
+        `${WEB_ADMIN_BASE}/conversations/${conversationId}/typing`
+    );
+    return data;
+};
+
+export const getWebMissedQuestions = async (): Promise<WebMissedQuestionsResponse> => {
+    const { data } = await mainApi.get<WebMissedQuestionsResponse>(`${WEB_ADMIN_BASE}/missed-questions`);
     return data;
 };
 

@@ -39,10 +39,11 @@ export const endConversation = async (conversationId: number): Promise<EndConver
     return data;
 };
 
-export const submitRating = async (conversationId: number, rate: number, comment: string): Promise<SubmitRatingResponse> => {
-    const { data } = await api.post<SubmitRatingResponse>(`${BASE}/${conversationId}/review`, {
-        rate,
-        comment,
-    });
+export async function submitRating(conversationId: number, rate: number, comment: string): Promise<SubmitRatingResponse> {
+    const { data } = await api.post(`${BASE}/${conversationId}/rating`, { rate, comment });
     return data;
+}
+
+export async function sendTypingIndicator(conversationId: number): Promise<void> {
+    await api.post(`${BASE}/${conversationId}/typing`);
 };

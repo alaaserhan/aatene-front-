@@ -1,4 +1,3 @@
-// src/features/(dashboard)/ai-agent/pages/MessagesPage.tsx
 "use client";
 
 import { useState } from "react";
@@ -8,6 +7,8 @@ import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
 import { ChatListSidebar } from "../components/ChatListSidebar";
 import { ChatEmptyState } from "../components/ChatEmptyState";
 import { ChatConversationView } from "../components/ChatConversationView";
+import { WebChatConversationView } from "../components/WebChatConversationView";
+import { WebConversationState } from "../api";
 import { Switch } from "@/src/components/ui/switch";
 import { Label } from "@/src/components/ui/label";
 import { ArrowRight } from "lucide-react";
@@ -21,6 +22,9 @@ export function MessagesPage() {
     const selectedChatId = searchParams.get("chatId");
 
     const [showNeedsHuman, setShowNeedsHuman] = useState(false);
+
+    const isWebsite = activePlatform === "website";
+    const webStateParam = searchParams.get("state") as WebConversationState | null;
 
     const getPlatformTitle = (id: string) => {
         switch (id) {
@@ -38,6 +42,7 @@ export function MessagesPage() {
         const params = new URLSearchParams(searchParams.toString());
         params.set("platform", id);
         params.delete("chatId");
+        params.delete("state");
         router.push(`${pathname}?${params.toString()}`);
     };
 
@@ -49,6 +54,17 @@ export function MessagesPage() {
 
     const handleBackToList = () => {
         const params = new URLSearchParams(searchParams.toString());
+        params.delete("chatId");
+        router.push(`${pathname}?${params.toString()}`);
+    };
+
+    const handleWebStateFilter = (state?: WebConversationState) => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (state) {
+            params.set("state", state);
+        } else {
+            params.delete("state");
+        }
         params.delete("chatId");
         router.push(`${pathname}?${params.toString()}`);
     };
@@ -83,25 +99,27 @@ export function MessagesPage() {
                             </h1>
                         </div>
 
-                        <div className="flex items-center gap-2 lg:gap-3 bg-gray-50 px-3 lg:px-4 py-2 rounded-lg border border-gray-100">
-                            <Switch
-                                id="human-filter"
-                                checked={showNeedsHuman}
-                                onCheckedChange={(checked) => {
-                                    setShowNeedsHuman(checked);
-                                    if (checked) {
-                                        const params = new URLSearchParams(searchParams.toString());
-                                        params.delete("chatId");
-                                        router.push(`${pathname}?${params.toString()}`);
-                                    }
-                                }}
-                                dir="ltr"
-                                className="data-[state=checked]:bg-[#D97706]"
-                            />
-                            <Label htmlFor="human-filter" className="text-xs lg:text-sm font-medium text-gray-2 cursor-pointer select-none whitespace-nowrap">
-                                يحتاج تدخل بشري
-                            </Label>
-                        </div>
+                        {!isWebsite && (
+                            <div className="flex items-center gap-2 lg:gap-3 bg-gray-50 px-3 lg:px-4 py-2 rounded-lg border border-gray-100">
+                                <Switch
+                                    id="human-filter"
+                                    checked={showNeedsHuman}
+                                    onCheckedChange={(checked) => {
+                                        setShowNeedsHuman(checked);
+                                        if (checked) {
+                                            const params = new URLSearchParams(searchParams.toString());
+                                            params.delete("chatId");
+                                            router.push(`${pathname}?${params.toString()}`);
+                                        }
+                                    }}
+                                    dir="ltr"
+                                    className="data-[state=checked]:bg-[#D97706]"
+                                />
+                                <Label htmlFor="human-filter" className="text-xs lg:text-sm font-medium text-gray-2 cursor-pointer select-none whitespace-nowrap">
+                                    يحتاج تدخل بشري
+                                </Label>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex flex-1 overflow-hidden">
@@ -115,6 +133,8 @@ export function MessagesPage() {
                                 selectedChatId={selectedChatId}
                                 onSelectChat={handleChatSelect}
                                 needsHuman={showNeedsHuman}
+                                webStateFilter={webStateParam || undefined}
+                                onWebStateFilter={handleWebStateFilter}
                             />
                         </div>
 
@@ -123,7 +143,11 @@ export function MessagesPage() {
                             ${selectedChatId ? 'flex' : 'hidden lg:flex'}
                         `}>
                             {selectedChatId ? (
-                                <ChatConversationView chatId={selectedChatId} platform={activePlatform} />
+                                isWebsite ? (
+                                    <WebChatConversationView conversationId={Number(selectedChatId)} />
+                                ) : (
+                                    <ChatConversationView chatId={selectedChatId} platform={activePlatform} />
+                                )
                             ) : (
                                 <div className="p-4 h-full">
                                     <ChatEmptyState />

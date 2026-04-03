@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { X, Send, Loader2, Bot, Star, RefreshCw, LogOut, MessageSquarePlus, Sparkles } from "lucide-react";
+import { X, Send, Loader2, Bot, Star, RefreshCw, LogOut, MessageSquarePlus, Sparkles, User, Headset } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useUIStore } from "@/src/stores/ui-store";
 import { usePathname } from "next/navigation";
@@ -14,8 +14,11 @@ import {
     useConversationMessages,
     useEndConversation,
     useSubmitRating,
+    useBotChatTyping,
 } from "@/src/features/(web)/bot-chat/hooks";
 import type { ConversationMessage } from "@/src/features/(web)/bot-chat/types";
+import { useEchoChannel } from "@/src/hooks/use-echo-channel";
+import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 
 type ChatView = "chat" | "rating";
 
@@ -35,6 +38,12 @@ export default function BotChat() {
     const [hoverRating, setHoverRating] = useState(0);
     const [ratingComment, setRatingComment] = useState("");
 
+    const [typingUser, setTypingUser] = useState<string | null>(null);
+    const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const lastTypingSentRef = useRef<number>(0);
+
+    const [realtimeMessages, setRealtimeMessages] = useState<ConversationMessage[]>([]);
+
     const scrollRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -47,6 +56,7 @@ export default function BotChat() {
     const sendMessageMutation = useSendMessage();
     const endConversationMutation = useEndConversation();
     const submitRatingMutation = useSubmitRating();
+    const { mutate: sendTyping } = useBotChatTyping();
 
     const {
         data: messagesData,
@@ -54,7 +64,55 @@ export default function BotChat() {
         isLoading: isLoadingMessages,
     } = useConversationMessages(conversationId, isOpen && !!conversationId);
 
-    const messages = useMemo(() => messagesData?.data ?? [], [messagesData]);
+    const apiMessages = useMemo(() => messagesData?.data ?? [], [messagesData]);
+
+    // Merge API and Realtime messages with deduplication
+    const allMessages = useMemo(() => {
+        const apiIds = new Set(apiMessages.map((m) => m.id));
+        const filtered = realtimeMessages.filter((rtMsg) => !apiIds.has(rtMsg.id));
+        return [...apiMessages, ...filtered].sort((a, b) => 
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
+    }, [apiMessages, realtimeMessages]);
+
+    // Pusher Events
+    const handleNewMessage = useCallback((data: Record<string, unknown>) => {
+        const msg = (data.message || data) as ConversationMessage;
+        if (!msg?.id) return;
+        // Don't append if it's from the current user (handled by optimistic updates)
+        if (msg.sender_type === "user") return;
+
+        setRealtimeMessages((prev) => {
+            if (prev.some((m) => m.id === msg.id)) return prev;
+            return [...prev, msg];
+        });
+    }, []);
+
+    const handleTypingIndicator = useCallback((data: Record<string, unknown>) => {
+        const userData = data.user as { full_name?: string } | undefined;
+        const name = userData?.full_name || "الدعم";
+        setTypingUser(name);
+
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+            setTypingUser(null);
+        }, 3000);
+    }, []);
+
+    const handleStateChanged = useCallback(() => {
+        queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
+    }, [queryClient]);
+
+    const echoEvents = useMemo(() => [
+        { event: ".message.created", callback: handleNewMessage },
+        { event: ".typing.indicator", callback: handleTypingIndicator },
+        { event: ".state.changed", callback: handleStateChanged },
+    ], [handleNewMessage, handleTypingIndicator, handleStateChanged]);
+
+    useEchoChannel(
+        conversationId ? `conversation.${conversationId}` : null,
+        echoEvents
+    );
 
     useEffect(() => {
         setChatOpen(false);
@@ -64,7 +122,7 @@ export default function BotChat() {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [messages]);
+    }, [allMessages, typingUser]);
 
     useEffect(() => {
         if (isOpen) {
@@ -76,8 +134,17 @@ export default function BotChat() {
             setRating(0);
             setRatingComment("");
             setChatView("chat");
+            setRealtimeMessages([]);
         }
     }, [isOpen, queryClient]);
+
+    const handleTyping = useCallback(() => {
+        if (!conversationId) return;
+        const now = Date.now();
+        if (now - lastTypingSentRef.current < 500) return;
+        lastTypingSentRef.current = now;
+        sendTyping(conversationId);
+    }, [conversationId, sendTyping]);
 
     const handleSend = useCallback(async () => {
         if (!inputText.trim() || sendMessageMutation.isPending || !conversationId) return;
@@ -90,6 +157,13 @@ export default function BotChat() {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             handleSend();
+        }
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInputText(e.target.value);
+        if (e.target.value.trim()) {
+            handleTyping();
         }
     };
 
@@ -241,18 +315,22 @@ export default function BotChat() {
         <>
             <div className="flex-1 overflow-y-auto bg-[#f5f7fa] p-4" dir="rtl" ref={scrollRef}>
                 <div className="flex flex-col gap-3">
-                    {isLoadingMessages ? (
+                    {isLoadingMessages && allMessages.length === 0 ? (
                         <div className="flex items-center justify-center py-8">
                             <Loader2 className="w-6 h-6 animate-spin text-[#4a7ab5]" />
                         </div>
-                    ) : messages.length === 0 ? (
+                    ) : allMessages.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-8 text-gray-400">
                             <Bot className="w-10 h-10 mb-2 opacity-40" />
                             <p className="text-sm">ابدأ بإرسال رسالتك الأولى</p>
                         </div>
                     ) : (
-                        messages.map((msg: ConversationMessage) => {
+                        allMessages.map((msg: ConversationMessage) => {
                             const isUser = msg.sender_type === "user";
+                            const isBot = msg.sender_type === "bot";
+                            const isAdmin = msg.sender_type === "admin";
+                            const isSupport = isBot || isAdmin;
+
                             return (
                                 <div
                                     key={msg.id}
@@ -261,36 +339,71 @@ export default function BotChat() {
                                         isUser ? "items-start" : "items-end"
                                     )}
                                 >
-                                    <div
-                                        className={cn(
-                                            "max-w-[80%] px-4 py-3 text-sm leading-relaxed whitespace-pre-line relative group transition-all duration-300",
-                                            isUser
-                                                ? "bg-gradient-to-br from-[#395A7D] to-[#6496CD] text-white rounded-2xl rounded-tr-sm"
-                                                : "bg-white text-gray-700 rounded-2xl rounded-tl-sm border border-gray-100"
-                                        )}
-                                        style={!isUser ? { boxShadow: "0 1px 4px rgba(0,0,0,0.06)" } : undefined}
-                                    >
-                                        {msg.message_text}
-                                        
-                                        {isUser && msg.status && msg.status !== "sent" && (
-                                            <div className="absolute -bottom-5 right-0 flex items-center gap-1.5 px-1 whitespace-nowrap">
-                                                {msg.status === "sending" ? (
-                                                    <div className="flex items-center gap-1 text-[10px] text-gray-400 animate-pulse">
-                                                        <Loader2 className="w-2.5 h-2.5 animate-spin" />
-                                                        <span>جاري الإرسال...</span>
-                                                    </div>
-                                                ) : msg.status === "error" ? (
-                                                    <div className="flex items-center gap-1 text-[10px] text-red-500">
-                                                        <X className="w-2.5 h-2.5" />
-                                                        <span>فشل الإرسال</span>
-                                                    </div>
-                                                ) : null}
+                                    <div className={cn(
+                                        "flex gap-2 items-end",
+                                        isUser ? "flex-row" : "flex-row-reverse"
+                                    )}>
+                                        <div className={cn(
+                                            "w-7 h-7 rounded-full flex items-center justify-center shrink-0 border border-gray-100",
+                                            isUser ? "bg-gray-200" : "bg-white"
+                                        )}>
+                                            {isUser ? <User className="w-4 h-4 text-gray-500" /> : <Bot className="w-4 h-4 text-[#4a7ab5]" />}
+                                        </div>
+
+                                        <div
+                                            className={cn(
+                                                "max-w-[240px] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line relative group transition-all duration-300",
+                                                isUser
+                                                    ? "bg-linear-to-br from-[#395A7D] to-[#6496CD] text-white rounded-2xl rounded-tr-sm"
+                                                    : "bg-white text-gray-700 rounded-2xl rounded-tl-sm border border-gray-100"
+                                            )}
+                                            style={!isUser ? { boxShadow: "0 1px 4px rgba(0,0,0,0.06)" } : undefined}
+                                        >
+                                            {msg.message_text}
+                                            
+                                            <div className={cn(
+                                                "text-[10px] mt-1 opacity-50",
+                                                isUser ? "text-right" : "text-left"
+                                            )}>
+                                                {getRelativeTimeArabic(msg.created_at)}
                                             </div>
-                                        )}
+
+                                            {isUser && msg.status && msg.status !== "sent" && (
+                                                <div className="absolute -bottom-5 right-0 flex items-center gap-1.5 px-1 whitespace-nowrap">
+                                                    {msg.status === "sending" ? (
+                                                        <div className="flex items-center gap-1 text-[10px] text-gray-400 animate-pulse">
+                                                            <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                                                            <span>جاري الإرسال...</span>
+                                                        </div>
+                                                    ) : msg.status === "error" ? (
+                                                        <div className="flex items-center gap-1 text-[10px] text-red-500">
+                                                            <X className="w-2.5 h-2.5" />
+                                                            <span>فشل الإرسال</span>
+                                                        </div>
+                                                    ) : null}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             );
                         })
+                    )}
+
+                    {typingUser && (
+                        <div className="flex items-center gap-2 mt-2 px-1 animate-in fade-in duration-300">
+                            <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center border border-gray-100">
+                                <Headset className="w-4 h-4 text-[#4a7ab5]" />
+                            </div>
+                            <div className="bg-white px-3 py-1.5 rounded-2xl rounded-tl-none text-xs text-gray-500 flex items-center gap-1.5 border border-gray-50 shadow-xs">
+                                <span>{typingUser} يكتب</span>
+                                <span className="flex gap-0.5">
+                                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                                </span>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>
@@ -301,14 +414,14 @@ export default function BotChat() {
                         ref={inputRef}
                         type="text"
                         value={inputText}
-                        onChange={(e) => setInputText(e.target.value)}
+                        onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
                         placeholder="اكتب رسالتك هنا ..."
                         className="flex-1 bg-transparent text-sm text-right text-gray-700 placeholder:text-gray-400 outline-none border-none h-10"
                     />
                     <button
                         onClick={handleSend}
-                        disabled={!inputText.trim()}
+                        disabled={!inputText.trim() || sendMessageMutation.isPending}
                         className={cn(
                             "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer",
                             inputText.trim()
@@ -316,7 +429,11 @@ export default function BotChat() {
                                 : "bg-gray-100 text-gray-400"
                         )}
                     >
-                        <Send className="w-5 h-5 -rotate-135" style={{ marginRight: "-1px" }} />
+                        {sendMessageMutation.isPending ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                            <Send className="w-5 h-5 -rotate-135" style={{ marginRight: "-1px" }} />
+                        )}
                     </button>
                 </div>
                 <div className="flex items-center gap-2">

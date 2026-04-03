@@ -7,9 +7,8 @@ import { Loader2, Send, Headset, CheckCircle, Shirt, Wrench, RefreshCw } from "l
 import { useGetAgentUser, useSendMessage, useResolveConversation, useDeleteConversation, useRestoreConversation, useGetApi4MessageHistory } from "../hooks";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import { formatDistanceToNow } from "date-fns";
-import { arSA } from "date-fns/locale";
 import { cn } from "@/src/lib/utils";
+import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
@@ -244,7 +243,7 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                                                     </span>
                                                 </div>
                                                 <span className="text-xs text-blue-3 font-medium" dir="ltr">
-                                                    {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true, locale: arSA })}
+                                                    {getRelativeTimeArabic(msg.created_at)}
                                                 </span>
                                             </div>
                                         </div>
@@ -267,7 +266,7 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                                                 {/* Name & Time: Show ONLY if NOT a sequence */}
                                                 {!isSequence && (
                                                     <div className="flex items-center gap-2 text-xs px-1 mb-1">
-                                                        <span className="text-gray-2">{formatDistanceToNow(new Date(msg.created_at), { addSuffix: true, locale: arSA })}</span>
+                                                        <span className="text-gray-2">{getRelativeTimeArabic(msg.created_at)}</span>
                                                         <span>|</span>
                                                         <span className="font-medium text-gray-700">{userName}</span>
                                                     </div>
@@ -303,7 +302,7 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                                                             {isBot ? "موظف الذكاء الاصطناعي" : "الموظف"}
                                                         </span>
                                                         <span>|</span>
-                                                        <span className="text-gray-2">{formatDistanceToNow(new Date(msg.created_at), { addSuffix: true, locale: arSA })}</span>
+                                                        <span className="text-gray-2">{getRelativeTimeArabic(msg.created_at)}</span>
                                                     </div>
                                                 )}
 
