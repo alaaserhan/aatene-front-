@@ -1,7 +1,7 @@
 // src/features/(dashboard)/ai-agent/components/ChatConversationView.tsx
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Send, Headset, CheckCircle, Shirt, Wrench, RefreshCw } from "lucide-react";
 import { useGetAgentUser, useSendMessage, useResolveConversation, useDeleteConversation, useRestoreConversation, useGetApi4MessageHistory } from "../hooks";
@@ -11,6 +11,7 @@ import { cn } from "@/src/lib/utils";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { useEchoChannel } from "@/src/hooks/use-echo-channel";
 
 interface ChatConversationViewProps {
     chatId: string;
@@ -21,9 +22,12 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
     const router = useRouter();
     const scrollRef = useRef<HTMLDivElement>(null);
     const [messageText, setMessageText] = useState("");
+    const [typingUser, setTypingUser] = useState<string | null>(null);
+    const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+
 
     const isApi4 = platform === "api4_whatsapp";
     const { data: userData, isLoading: isUserLoading, refetch: refetchUser } = useGetAgentUser(chatId, !isApi4);
@@ -56,7 +60,31 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [messages, isLoading]);
+    }, [messages, isLoading, typingUser]);
+
+    const handleNewMessage = useCallback(() => {
+        refetch();
+    }, [refetch]);
+
+    const handleTypingIndicator = useCallback((data: Record<string, unknown>) => {
+        const name = (data.user as { full_name?: string })?.full_name || userName;
+        setTypingUser(name);
+
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+            setTypingUser(null);
+        }, 3000);
+    }, [userName]);
+
+    const echoEvents = useMemo(() => [
+        { event: ".message.created", callback: handleNewMessage },
+        { event: ".typing.indicator", callback: handleTypingIndicator },
+    ], [handleNewMessage, handleTypingIndicator]);
+
+    useEchoChannel(
+        chatId ? `conversation.${chatId}` : null,
+        echoEvents
+    );
 
     const handleSend = () => {
         if (!messageText.trim()) return;
@@ -323,7 +351,7 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
 
                                                     {/* Bubble */}
                                                     <div
-                                                        className="bg-gradient-to-br from-[#395A7D] to-[#6496CD] p-4 rounded-2xl rounded-tr-none text-white text-sm leading-relaxed"
+                                                        className="bg-linear-to-br from-[#395A7D] to-[#6496CD] p-4 rounded-2xl rounded-tr-none text-white text-sm leading-relaxed"
                                                         dir="rtl"
                                                     >
                                                         {text}
@@ -334,6 +362,23 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                                     </div>
                                 );
                             })}
+
+                            {typingUser && (
+                                <div className="flex flex-col gap-1 mt-4 mr-auto max-w-[85%]" dir="ltr">
+                                    <div className="flex gap-3 items-start">
+                                        <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0 flex items-center justify-center mt-1 border border-blue-200 overflow-hidden">
+                                            <img src="/icons/dashboard/user.svg" className="w-8 h-8 object-cover" alt="User" />
+                                        </div>
+                                        <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-none text-sm text-gray-500 flex items-center gap-1.5 shadow-sm border border-gray-100">
+                                            <span className="flex gap-1 items-center">
+                                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* --- Input Area --- */}
