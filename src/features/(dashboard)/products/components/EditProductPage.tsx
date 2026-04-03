@@ -92,6 +92,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             attributeValues: attributeValues,
             price: Number(v.price) || 0,
             images: v.image ? [v.image] : [],
+            imageFileName: v.image || "",
             image_previews: v.image ? [v.image] : [],
             enabled: true,
           };
