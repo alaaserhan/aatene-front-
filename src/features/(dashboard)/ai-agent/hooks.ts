@@ -284,15 +284,75 @@ export function useUpdateUnansweredQuestion() {
 }
 
 export function useDeleteUnansweredQuestion() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: api.deleteUnansweredQuestion,
-    onSuccess: () => {
-      toast.success("تم حذف السؤال بنجاح");
-      queryClient.invalidateQueries({ queryKey: ["unanswered-questions"] });
-    },
-    onError: (error: AxiosError<{ error: string }>) => {
-      toast.error(error.response?.data?.error || "فشل حذف السؤال");
-    },
-  });
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: api.deleteUnansweredQuestion,
+        onSuccess: () => {
+            toast.success("تم حذف السؤال بنجاح");
+            queryClient.invalidateQueries({ queryKey: ["unanswered-questions"] });
+        },
+        onError: (error: AxiosError<{ error: string }>) => {
+            toast.error(error.response?.data?.error || "فشل حذف السؤال");
+        },
+    });
+}
+
+export function useGetWebConversations(params?: api.GetWebConversationsParams) {
+    return useQuery({
+        queryKey: ["web-conversations", params?.state],
+        queryFn: () => api.getWebConversations(params),
+        refetchInterval: 30000,
+    });
+}
+
+export function useGetWebConversationMessages(params: api.GetWebMessagesParams) {
+    return useQuery({
+        queryKey: ["web-conversation-messages", params.conversationId, params.page, params.per_page],
+        queryFn: () => api.getWebConversationMessages(params),
+        enabled: !!params.conversationId,
+    });
+}
+
+export function useWebAdminReply() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ conversationId, messageText }: { conversationId: number; messageText: string }) =>
+            api.webAdminReply(conversationId, messageText),
+        onSuccess: (_data, variables) => {
+            toast.success("تم إرسال الرسالة بنجاح");
+            queryClient.invalidateQueries({ queryKey: ["web-conversation-messages", variables.conversationId] });
+            queryClient.invalidateQueries({ queryKey: ["web-conversations"] });
+        },
+        onError: (error: AxiosError<{ message: string }>) => {
+            toast.error(error.response?.data?.message || "فشل إرسال الرسالة");
+        },
+    });
+}
+
+export function useWebResolveConversation() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: api.webResolveConversation,
+        onSuccess: (data) => {
+            toast.success(data.message || "تم إنهاء المحادثة بنجاح");
+            queryClient.invalidateQueries({ queryKey: ["web-conversations"] });
+            queryClient.invalidateQueries({ queryKey: ["web-conversation-messages"] });
+        },
+        onError: (error: AxiosError<{ message: string }>) => {
+            toast.error(error.response?.data?.message || "فشل في تحديث حالة المحادثة");
+        },
+    });
+}
+
+export function useWebMarkTyping() {
+    return useMutation({
+        mutationFn: api.webMarkTyping,
+    });
+}
+
+export function useGetWebMissedQuestions() {
+    return useQuery({
+        queryKey: ["web-missed-questions"],
+        queryFn: api.getWebMissedQuestions,
+    });
 }

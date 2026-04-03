@@ -139,3 +139,10 @@ export const useSubmitRating = () => {
         },
     });
 };
+
+export const useBotChatTyping = () => {
+    return useMutation({
+        mutationFn: (conversationId: number) =>
+            import("./api").then((api) => api.sendTypingIndicator(conversationId)),
+    });
+};
