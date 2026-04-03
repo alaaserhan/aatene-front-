@@ -14,7 +14,7 @@ export interface Conversation {
 export interface ConversationMessage {
     id: number;
     conversation_id: number;
-    sender_type: "user" | "bot" | "agent";
+    sender_type: "user" | "bot" | "agent" | "admin";
     sender_id: string;
     message_text: string;
     meta: unknown[];
