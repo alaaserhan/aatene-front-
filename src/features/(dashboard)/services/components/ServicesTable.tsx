@@ -168,16 +168,14 @@ export function ServicesTable({
                                 {/* Actions */}
                                 <td className="px-6 py-4">
                                     <div className="flex items-center justify-center gap-2">
-                                        {/* View - بدلاً من زر المشاركة */}
-                                        {activeStatus !== "pending" && activeStatus !== "rejected" && (
-                                            <button
-                                                onClick={() => onReview(service)}
-                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
-                                                title="مشاهدة"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                            </button>
-                                        )}
+                                        {/* View */}
+                                        <button
+                                            onClick={() => onReview(service)}
+                                            className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"
+                                            title="مشاهدة"
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                        </button>
 
                                         {/* More Actions (Grey bg) */}
                                         <DropdownMenu dir="rtl">
