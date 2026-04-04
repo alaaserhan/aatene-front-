@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { Loader2, Send, Headset, CheckCircle, Bot, User } from "lucide-react";
+import { Loader2, Send, Headset, CheckCircle, Bot, User, Star } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useGetWebConversationMessages, useWebAdminReply, useWebResolveConversation, useWebMarkTyping, useGetWebConversations } from "../hooks";
 import { WebMessage } from "../api";
@@ -281,39 +281,69 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                         )}
                     </div>
 
-                    {!conversation?.resolved_at ? (
-                        <div className="p-4 pt-2 bg-[#F5F5F5] shrink-0">
-                            <div className="relative flex items-center gap-2 bg-white rounded-md p-2 pr-4">
-                                <Input
-                                    value={messageText}
-                                    onChange={handleInputChange}
-                                    onKeyDown={handleKeyDown}
-                                    placeholder="اكتب رسالتك هنا ..."
-                                    className="border-none shadow-none bg-transparent focus-visible:ring-0 flex-1 h-10 text-right text-gray-700 placeholder:text-gray-2"
-                                    disabled={isSending}
-                                />
+                    {(() => {
+                        if (conversation?.resolved_at) {
+                            return (
+                                <div className="p-10 bg-white border-t border-gray-100 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                    <div className="relative mb-6">
+                                        <div className="w-20 h-16 rounded-2xl bg-green-50 flex items-center justify-center rotate-3 transition-transform hover:rotate-0 duration-500">
+                                            <CheckCircle className="w-10 h-10 text-green-500" />
+                                        </div>
+                                    </div>
+                                    <h3 className="text-xl font-bold mb-2 text-gray-900 font-outfit">تم حل هذه المحادثة بنجاح</h3>
+                                    <p className="text-gray-2 text-[15px] max-w-[320px] leading-relaxed">
+                                        لقد تم إغلاق هذه المحادثة. يمكنك مراجعة سجل الرسائل .
+                                    </p>
+                                </div>
+                            );
+                        }
 
-                                <Button
-                                    onClick={handleSend}
-                                    disabled={!messageText.trim() || isSending}
-                                    className={cn(
-                                        "w-10 h-10 rounded-lg shrink-0 transition-all cursor-pointer",
-                                        messageText.trim() ? "bg-blue-3 hover:bg-[#2c4460] text-white" : "bg-gray-200 text-gray-2"
-                                    )}
-                                >
-                                    {isSending ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <Send className="w-6 h-6 -rotate-90" />
-                                    )}
-                                </Button>
+                        if (conversation?.state === "awaiting_rating") {
+                            return (
+                                <div className="p-10 bg-white border-t border-gray-100 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                    <div className="relative mb-6">
+                                        <div className="w-20 h-18 rounded-2xl bg-blue-50 flex items-center justify-center rotate-3 transition-transform hover:rotate-0 duration-500">
+                                            <Star className="w-10 h-10 text-blue-3 fill-blue-3" />
+                                        </div>
+                                    </div>
+                                    <h3 className="text-xl font-bold mb-2 text-gray-900 font-outfit">بانتظار تقييم العميل</h3>
+                                    <p className="text-gray-2 text-[15px] max-w-[320px] leading-relaxed">
+                                        هذه المحادثة مغلقة حالياً وبانتظار أن يقوم العميل بتقييم الخدمة. لا يمكنك إرسال رسائل جديدة في الوقت الحالي.
+                                    </p>
+                                </div>
+                            );
+                        }
+
+                        return (
+                            <div className="p-4 pt-2 bg-[#F5F5F5] shrink-0">
+                                <div className="relative flex items-center gap-2 bg-white rounded-md p-2 pr-4">
+                                    <Input
+                                        value={messageText}
+                                        onChange={handleInputChange}
+                                        onKeyDown={handleKeyDown}
+                                        placeholder="اكتب رسالتك هنا ..."
+                                        className="border-none shadow-none bg-transparent focus-visible:ring-0 flex-1 h-10 text-right text-gray-700 placeholder:text-gray-2"
+                                        disabled={isSending}
+                                    />
+
+                                    <Button
+                                        onClick={handleSend}
+                                        disabled={!messageText.trim() || isSending}
+                                        className={cn(
+                                            "w-10 h-10 rounded-lg shrink-0 transition-all cursor-pointer",
+                                            messageText.trim() ? "bg-blue-3 hover:bg-[#2c4460] text-white" : "bg-gray-200 text-gray-2"
+                                        )}
+                                    >
+                                        {isSending ? (
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                        ) : (
+                                            <Send className="w-6 h-6 -rotate-90" />
+                                        )}
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                    ) : (
-                        <div className="p-3 bg-[#F5F5F5] text-center text-xs text-green-600 font-bold shrink-0">
-                            تم حل هذه المحادثة بنجاح
-                        </div>
-                    )}
+                        );
+                    })()}
                 </div>
             </div>
         </div>

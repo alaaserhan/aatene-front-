@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { X, Send, Loader2, Bot, Star, LogOut, MessageSquarePlus, Sparkles, User, Headset } from "lucide-react";
+import { X, Send, Loader2, Bot, Star, LogOut, MessageSquarePlus, Sparkles, User, Headset, AlertCircle } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/src/lib/utils";
@@ -31,7 +31,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
     const [ratingComment, setRatingComment] = useState("");
-
+    const [showEndConfirm, setShowEndConfirm] = useState(false);
     const [typingUser, setTypingUser] = useState<string | null>(null);
     const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastTypingSentRef = useRef<number>(0);
@@ -157,7 +157,12 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         if (!conversationId) return;
         setRating(0);
         setRatingComment("");
-        endConversationMutation.mutate(conversationId);
+        endConversationMutation.mutate(conversationId, {
+            onSuccess: () => {
+                setShowEndConfirm(false);
+                setChatView("rating");
+            }
+        });
     };
 
     const handleSubmitRating = () => {
@@ -291,6 +296,45 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         </div>
     );
 
+    const renderEndConfirmView = () => (
+        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-linear-to-b from-white to-[#f8fafc]">
+            <div className="flex flex-col items-center w-full animate-in zoom-in-95 fade-in duration-300">
+                <div
+                    className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center mb-6 rotate-3 shadow-lg shadow-red-500/10"
+                >
+                    <AlertCircle className="w-10 h-10 text-red-500" />
+                </div>
+                
+                <h3 className="text-xl font-bold text-gray-900 mb-2 font-outfit">إنهاء المحادثة؟</h3>
+                <p className="text-sm text-gray-500 text-center mb-10 leading-relaxed max-w-[240px]">
+                    هل أنت متأكد من رغبتك في إنهاء المحادثة الحالية؟ سيتم تحويلك لتقييم الخدمة.
+                </p>
+
+                <div className="flex flex-col gap-3 w-full">
+                    <button
+                        onClick={handleEndConversation}
+                        disabled={endConversationMutation.isPending}
+                        className="w-full cursor-pointer flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-red-500/20"
+                        style={{ background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)" }}
+                    >
+                        {endConversationMutation.isPending ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                            <span>نعم، إنهاء المحادثة</span>
+                        )}
+                    </button>
+                    
+                    <button
+                        onClick={() => setShowEndConfirm(false)}
+                        className="w-full cursor-pointer px-6 py-3.5 rounded-2xl text-gray-600 text-sm font-bold hover:bg-gray-50 transition-all border border-gray-100"
+                    >
+                        تراجع للمحادثة
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+
     const renderChatMessages = () => (
         <>
             <div className="flex-1 overflow-y-auto bg-[#f5f7fa] p-4" dir="rtl" ref={scrollRef}>
@@ -335,7 +379,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
                                         <div
                                             className={cn(
-                                                "max-w-[240px] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line relative group transition-all duration-300",
+                                                "max-w-[240px] px-4 py-2.5 text-base md:text-sm leading-relaxed whitespace-pre-line relative group transition-all duration-300",
                                                 isUser
                                                     ? "bg-linear-to-br from-[#395A7D] to-[#6496CD] text-white rounded-2xl rounded-tr-sm"
                                                     : "bg-white text-gray-700 rounded-2xl rounded-tl-sm border border-gray-100"
@@ -392,8 +436,8 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 </div>
             </div>
 
-            <div className="bg-white px-4 py-3 border-t border-gray-100 shrink-0" dir="rtl">
-                <div className="flex items-center gap-2 mb-2">
+            <div className="bg-white px-4 py-3 md:py-3 border-t border-gray-100 shrink-0" dir="rtl">
+                <div className="flex items-center gap-2">
                     <input
                         ref={inputRef}
                         type="text"
@@ -401,13 +445,13 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
                         placeholder="اكتب رسالتك هنا ..."
-                        className="flex-1 bg-transparent text-sm text-right text-gray-700 placeholder:text-gray-400 outline-none border-none h-10"
+                        className="flex-1 bg-transparent text-base md:text-sm text-right text-gray-700 placeholder:text-gray-400 outline-none border-none h-12 md:h-10"
                     />
                     <button
                         onClick={handleSend}
                         disabled={!inputText.trim() || sendMessageMutation.isPending}
                         className={cn(
-                            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer",
+                            "w-12 h-12 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer",
                             inputText.trim()
                                 ? "bg-[#395A7D] hover:bg-[#2c4460] text-white shadow-md"
                                 : "bg-gray-100 text-gray-400"
@@ -416,22 +460,8 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                         {sendMessageMutation.isPending ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
-                            <Send className="w-5 h-5 -rotate-135" style={{ marginRight: "-1px" }} />
+                            <Send className="w-5 h-5 rtl:-rotate-90" style={{ marginRight: "-1px" }} />
                         )}
-                    </button>
-                </div>
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={handleEndConversation}
-                        disabled={endConversationMutation.isPending}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-50 hover:bg-red-100 text-red-600 transition-all cursor-pointer disabled:opacity-50"
-                    >
-                        {endConversationMutation.isPending ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                            <LogOut className="w-3.5 h-3.5" />
-                        )}
-                        <span>إنهاء المحادثة</span>
                     </button>
                 </div>
             </div>
@@ -459,32 +489,49 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     background: "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)",
                 }}
             >
+                <div className="flex items-center gap-3 shrink-0">
+                    <button
+                        onClick={onClose}
+                        className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors cursor-pointer"
+                    >
+                        <X className="w-4 h-4 text-white" />
+                    </button>
+                    {hasActiveConversation && (
+                        <button
+                            onClick={() => setShowEndConfirm(prev => !prev)}
+                            className={cn(
+                                "w-8 h-8 cursor-pointer rounded-full flex items-center justify-center transition-all cursor-pointer",
+                                showEndConfirm ? "bg-white/10 text-white" : "bg-white/15 hover:bg-white/25 text-white"
+                            )}
+                            title="إنهاء المحادثة"
+                        >
+                            <LogOut className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
+
                 <div className="flex items-center gap-3" dir="rtl">
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                        <Bot className="w-6 h-6 text-white" />
-                    </div>
                     <div>
-                        <h3 className="text-white font-medium text-sm leading-tight">الدعم الذكي</h3>
+                        <h3 className="text-white font-medium text-sm leading-tight text-left">الدعم الذكي</h3>
                         {hasActiveConversation && (
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                            <div className="flex items-center gap-1.5 mt-0.5 justify-end">
                                 <span className="text-white/70 text-[11px]">متصل</span>
+                                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                             </div>
                         )}
                     </div>
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                        <Bot className="w-6 h-6 text-white" />
+                    </div>
                 </div>
-                <button
-                    onClick={onClose}
-                    className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors cursor-pointer"
-                >
-                    <X className="w-4 h-4 text-white" />
-                </button>
             </div>
 
             {isLoadingConv ? (
                 <div className="flex-1 flex items-center justify-center bg-[#f5f7fa]">
                     <Loader2 className="w-8 h-8 animate-spin text-[#4a7ab5]" />
                 </div>
+            ) : showEndConfirm ? (
+                renderEndConfirmView()
             ) : isAwaitingRating || chatView === "rating" ? (
                 renderRatingView()
             ) : hasActiveConversation ? (
