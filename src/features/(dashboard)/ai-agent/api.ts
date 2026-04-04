@@ -549,44 +549,46 @@ export const updateInstruction = async (
     return data;
 };
 
-const UNANSWERED_WEBHOOK_URL = "https://auto.mosaady.com/webhook/7d7327ec-08a9-4dc2-8402-88521262c437";
-
-export interface UnansweredQuestion {
-    row_number: number;
-    Timestamp: string;
-    Chat_id: number;
-    Question: string;
-    Status: "pending" | "done" | string;
+export interface AdminMissedQuestion {
+    id: number;
+    conversation_id: number;
+    user_id: number;
+    question: string;
+    admin_notes: string | null;
+    status: string;
+    priority: string;
+    resolved_by_admin_id: number | null;
+    resolved_at: string | null;
+    created_at: string;
+    updated_at: string;
 }
 
-export type UnansweredQuestionsResponse = UnansweredQuestion[] | { data: UnansweredQuestion[] };
-
-export interface UnansweredQuestionPayload {
-    type: "request" | "update" | "delete";
-    id?: number;
-    Question?: string;
-    Status?: string;
+export interface AdminMissedQuestionsResponse {
+    status: boolean;
+    message: string;
+    total: number;
+    data: AdminMissedQuestion[];
 }
 
-export const getUnansweredQuestions = async (): Promise<UnansweredQuestionsResponse> => {
-    const { data } = await axios.post<UnansweredQuestionsResponse>(UNANSWERED_WEBHOOK_URL, {
-        type: "request",
-    });
+export interface AdminMissedQuestionSingleResponse {
+    status: boolean;
+    message: string;
+    data: AdminMissedQuestion;
+}
+
+export const getAdminMissedQuestions = async (): Promise<AdminMissedQuestionsResponse> => {
+    const { data } = await mainApi.get<AdminMissedQuestionsResponse>(`${WEB_ADMIN_BASE}/missed-questions`);
     return data;
 };
 
-export const updateUnansweredQuestion = async (payload: UnansweredQuestionPayload): Promise<UnansweredQuestionsResponse> => {
-    const { data } = await axios.post<UnansweredQuestionsResponse>(UNANSWERED_WEBHOOK_URL, {
-        ...payload,
-        type: "update",
-    });
+export const getAdminMissedQuestion = async (id: number): Promise<AdminMissedQuestionSingleResponse> => {
+    const { data } = await mainApi.get<AdminMissedQuestionSingleResponse>(`${WEB_ADMIN_BASE}/missed-questions/${id}`);
     return data;
 };
 
-export const deleteUnansweredQuestion = async (id: number): Promise<UnansweredQuestionsResponse> => {
-    const { data } = await axios.post<UnansweredQuestionsResponse>(UNANSWERED_WEBHOOK_URL, {
-        type: "delete",
-        id,
+export const reviewAdminMissedQuestion = async (id: number, adminNotes: string): Promise<AdminMissedQuestionSingleResponse> => {
+    const { data } = await mainApi.post<AdminMissedQuestionSingleResponse>(`${WEB_ADMIN_BASE}/missed-questions/${id}/reviewed`, {
+        admin_notes: adminNotes,
     });
     return data;
 };
