@@ -1,23 +1,23 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, MessageSquare, CheckCircle, PlusCircle, FileText, MessageCircleMoreIcon } from "lucide-react";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Input } from "@/src/components/ui/input";
-import { useGetUnansweredQuestions, useDeleteUnansweredQuestion, useUpdateUnansweredQuestion } from "../hooks";
-import { UnansweredQuestion } from "../api";
-import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { useGetAdminMissedQuestions, useReviewAdminMissedQuestion } from "../hooks";
+import { AdminMissedQuestion } from "../api";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { formatDateTime } from "@/src/lib/date-helper";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/dialog";
 
 const ITEMS_PER_PAGE = 10;
 
 const STATUS_OPTIONS = [
-    { value: "pending", label: "تم التدريب" },
-    { value: "done", label: "تم الانتهاء" },
+    { value: "pending", label: "قيد المراجعة" },
+    { value: "added_to_kb", label: "تم الرد" },
 ];
 
 const FILTER_STATUS_OPTIONS = [
@@ -26,33 +26,33 @@ const FILTER_STATUS_OPTIONS = [
 ];
 
 export function UnansweredQuestionsPage() {
-    const { data: response, isLoading } = useGetUnansweredQuestions();
-    const { mutate: deleteQuestion } = useDeleteUnansweredQuestion();
-    const { mutate: updateQuestion, isPending: isUpdating } = useUpdateUnansweredQuestion();
+    const { data: response, isLoading } = useGetAdminMissedQuestions();
+    const { mutate: reviewQuestion, isPending: isReviewing } = useReviewAdminMissedQuestion();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
-    const [questionToDelete, setQuestionToDelete] = useState<UnansweredQuestion | null>(null);
-    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    
+    const [isAnswerModalOpen, setIsAnswerModalOpen] = useState(false);
+    const [questionToAnswer, setQuestionToAnswer] = useState<AdminMissedQuestion | null>(null);
+    const [adminNotes, setAdminNotes] = useState("");
     const [isExporting, setIsExporting] = useState(false);
 
-    const questions: UnansweredQuestion[] = useMemo(() => {
-        if (!response) return [];
-        const data = Array.isArray(response) ? response : (response.data || []);
-        return [...data].reverse();
+    const questions: AdminMissedQuestion[] = useMemo(() => {
+        if (!response?.data) return [];
+        return response.data;
     }, [response]);
 
     const filteredQuestions = useMemo(() => {
         let result = questions;
 
         if (statusFilter !== "all") {
-            result = result.filter(q => q.Status === statusFilter);
+            result = result.filter(q => q.status === statusFilter);
         }
 
         if (searchQuery.trim()) {
             result = result.filter((q) =>
-                q.Question?.toLowerCase().includes(searchQuery.toLowerCase())
+                q.question?.toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
 
@@ -71,32 +71,29 @@ export function UnansweredQuestionsPage() {
         setCurrentPage(1);
     };
 
-    const handleStatusChange = (question: UnansweredQuestion, newStatus: string) => {
-        if (question.Status === newStatus) return;
-        updateQuestion({
-            type: "update",
-            id: question.row_number,
-            Status: newStatus,
-        });
+    const handleOpenAnswerModal = (question: AdminMissedQuestion) => {
+        setQuestionToAnswer(question);
+        setAdminNotes(question.admin_notes || "");
+        setIsAnswerModalOpen(true);
     };
 
-    const handleDeleteClick = (question: UnansweredQuestion) => {
-        setQuestionToDelete(question);
-        setIsDeleteConfirmOpen(true);
+    const handleCloseModal = () => {
+        setIsAnswerModalOpen(false);
+        setQuestionToAnswer(null);
+        setAdminNotes("");
     };
 
-    const handleConfirmDelete = () => {
-        if (questionToDelete) {
-            deleteQuestion(questionToDelete.row_number, {
+    const handleSubmitAnswer = () => {
+        if (!questionToAnswer) return;
+        reviewQuestion(
+            { id: questionToAnswer.id, adminNotes: adminNotes },
+            {
                 onSuccess: () => {
-                    setIsDeleteConfirmOpen(false);
-                    setQuestionToDelete(null);
-                },
-            });
-        }
+                    handleCloseModal();
+                }
+            }
+        );
     };
-
-
 
     const exportToPDF = async () => {
         setIsExporting(true);
@@ -126,12 +123,12 @@ export function UnansweredQuestionsPage() {
 
                 let rowsHtml = "";
                 chunk.forEach((q) => {
-                    const statusObj = STATUS_OPTIONS.find(opt => opt.value === q.Status);
-                    const statusText = statusObj ? statusObj.label : q.Status;
+                    const statusObj = STATUS_OPTIONS.find(opt => opt.value === q.status);
+                    const statusText = statusObj ? statusObj.label : q.status;
                     rowsHtml += `
                         <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 12px 8px; font-family: Tahoma, Arial, sans-serif; text-align: right; color: #444;">${q.Question}</td>
-                            <td style="padding: 12px 8px; font-family: Tahoma, Arial, sans-serif; text-align: right; color: #444;">${formatDateTime(q.Timestamp)}</td>
+                            <td style="padding: 12px 8px; font-family: Tahoma, Arial, sans-serif; text-align: right; color: #444;">${q.question}</td>
+                            <td style="padding: 12px 8px; font-family: Tahoma, Arial, sans-serif; text-align: right; color: #444;">${formatDateTime(q.created_at)}</td>
                             <td style="padding: 12px 8px; font-family: Tahoma, Arial, sans-serif; text-align: right; color: #444;">${statusText}</td>
                         </tr>
                     `;
@@ -141,9 +138,9 @@ export function UnansweredQuestionsPage() {
                     <table style="width: 100%; border-collapse: collapse; font-family: Tahoma, Arial, sans-serif; text-align: right;" dir="rtl">
                         <thead>
                             <tr style="background-color: #f8f9fa; border-bottom: 2px solid #ddd;">
-                                <th style="padding: 12px 8px; text-align: right; color: #333 text-align: right;">السؤال</th>
-                                <th style="padding: 12px 8px; text-align: right; color: #333 text-align: right;">التاريخ</th>
-                                <th style="padding: 12px 8px; text-align: right; color: #333 text-align: right;">الحالة</th>
+                                <th style="padding: 12px 8px; text-align: right; color: #333">السؤال</th>
+                                <th style="padding: 12px 8px; text-align: right; color: #333">التاريخ</th>
+                                <th style="padding: 12px 8px; text-align: right; color: #333">الحالة</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -175,8 +172,6 @@ export function UnansweredQuestionsPage() {
             setIsExporting(false);
         }
     };
-
-
 
     return (
         <div className="p-3 lg:p-5">
@@ -256,7 +251,7 @@ export function UnansweredQuestionsPage() {
                                                 <th className="text-right px-6 py-4 font-semibold text-gray-600 whitespace-nowrap">
                                                     تاريخ السؤال
                                                 </th>
-                                                <th className="text-right px-6 py-4 font-semibold text-gray-600 whitespace-nowrap min-w-[200px]">
+                                                <th className="text-right px-6 py-4 font-semibold text-gray-600 whitespace-nowrap min-w-[120px]">
                                                     الحالة
                                                 </th>
                                                 <th className="text-center px-6 py-4 font-semibold text-gray-600 whitespace-nowrap w-[150px]">
@@ -266,38 +261,55 @@ export function UnansweredQuestionsPage() {
                                         </thead>
                                         <tbody>
                                             {paginatedQuestions.map((question) => {
-                                                const isTrained = question.Status === "pending";
+                                                const isPending = question.status === "pending";
                                                 return (
                                                     <tr
-                                                        key={question.row_number}
+                                                        key={question.id}
                                                         className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors"
                                                     >
                                                         <td className="px-6 py-4 font-medium text-gray-800">
-                                                            {question.Question}
+                                                            {question.question}
+                                                            {question.admin_notes && (
+                                                                <p title={question.admin_notes} className="text-xs text-gray-500 mt-2 flex items-start gap-1 p-2 bg-gray-50 rounded-lg border border-gray-100">
+                                                                    <MessageCircleMoreIcon className="w-4 h-4 inline mt-0.5 shrink-0 text-blue-3" />
+                                                                    <span className="line-clamp-2 leading-relaxed">{question.admin_notes}</span>
+                                                                </p>
+                                                            )}
                                                         </td>
                                                         <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
-                                                            {formatDateTime(question.Timestamp)}
+                                                            {formatDateTime(question.created_at)}
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <ReusableDropdown
-                                                                options={STATUS_OPTIONS}
-                                                                value={question.Status}
-                                                                onChange={(val: string) => handleStatusChange(question, val)}
-                                                                disabled={isUpdating}
-                                                                className={`w-fit min-w-[140px] h-9! border-none shadow-none font-medium px-3 
-                                  ${isTrained ? ' text-[#1D874F]' : 'text-[#C67A12]'}
-                                `}
-                                                            />
+                                                            {isPending ? (
+                                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-[#fef9c3] text-[#a16207]">
+                                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                                    قيد المراجعة
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-[#ecfdf5] text-[#059669]">
+                                                                    <CheckCircle className="w-3.5 h-3.5" />
+                                                                    تم الرد
+                                                                </span>
+                                                            )}
                                                         </td>
                                                         <td className="px-6 py-4">
                                                             <div className="flex items-center justify-center gap-2">
-                                                                <button
-                                                                    onClick={() => handleDeleteClick(question)}
-                                                                    className="w-9 h-9 rounded-lg bg-red-2 flex items-center justify-center cursor-pointer"
-                                                                    title="حذف"
-                                                                >
-                                                                    <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="delete" />
-                                                                </button>
+                                                                {isPending ? (
+                                                                    <button
+                                                                        onClick={() => handleOpenAnswerModal(question)}
+                                                                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-blue-3 text-white hover:opacity-90 transition-all cursor-pointer shadow-sm active:scale-95"
+                                                                    >
+                                                                        <MessageSquare className="w-3.5 h-3.5" />
+                                                                        إضافة رد
+                                                                    </button>
+                                                                ) : (
+                                                                    <button
+                                                                        onClick={() => handleOpenAnswerModal(question)}
+                                                                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all cursor-pointer active:scale-95"
+                                                                    >
+                                                                        تعديل الرد
+                                                                    </button>
+                                                                )}
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -320,15 +332,56 @@ export function UnansweredQuestionsPage() {
                 </div>
             </div>
 
-            <ConfirmDeleteModal
-                isOpen={isDeleteConfirmOpen}
-                onClose={() => setIsDeleteConfirmOpen(false)}
-                onConfirm={handleConfirmDelete}
-                title="هل أنت متأكد من حذف السؤال؟"
-                description="لا يمكن استرجاع السؤال بعد حذفه نهائياً."
-                confirmText="نعم، حذف"
-                cancelText="إلغاء"
-            />
+            <Dialog open={isAnswerModalOpen} onOpenChange={setIsAnswerModalOpen}>
+                <DialogContent className="sm:max-w-[500px]" dir="rtl">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-bold flex items-center gap-2 text-right">
+                            <PlusCircle className="w-5 h-5 text-blue-3" />
+                            إضافة رد وتدريب البوت
+                        </DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="py-4 flex flex-col gap-4">
+                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                            <span className="text-xs text-gray-500 font-medium mb-1 block">السؤال الفائت:</span>
+                            <p className=" font-medium text-sm leading-relaxed">
+                                {questionToAnswer?.question}
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-semibold ">ملاحظات الإدارة / إجابة السؤال</label>
+                            <textarea
+                                value={adminNotes}
+                                onChange={(e) => setAdminNotes(e.target.value)}
+                                placeholder="اكتب الإجابة هنا ليتم إضافتها لقاعدة معرفة البوت..."
+                                className="w-full min-h-[150px] rounded-xl border border-gray-200 p-4 text-sm  outline-none resize-y transition-all"
+                            />
+                        </div>
+                    </div>
+
+                    <DialogFooter className="sm:justify-end gap-2">
+                        <button
+                            onClick={handleSubmitAnswer}
+                            disabled={!adminNotes.trim() || isReviewing}
+                            className="bg-blue-3 hover:opacity-90 text-white px-8 py-2.5 rounded-sm text-sm font-bold transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-md active:scale-95"
+                        >
+                            {isReviewing ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                                <span>حفظ الرد واعتماد</span>
+                            )}
+                        </button>
+                        <button
+                            onClick={handleCloseModal}
+                            disabled={isReviewing}
+                            className="bg-white border border-gray-200  hover:bg-gray-50 px-6 py-2.5 rounded-sm text-sm font-bold transition-all cursor-pointer"
+                        >
+                            إلغاء
+                        </button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
