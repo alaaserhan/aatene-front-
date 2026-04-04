@@ -262,39 +262,33 @@ export function useUpdateInstruction() {
   });
 }
 
-export function useGetUnansweredQuestions() {
+export function useGetAdminMissedQuestions() {
   return useQuery({
-    queryKey: ["unanswered-questions"],
-    queryFn: api.getUnansweredQuestions,
+    queryKey: ["admin-missed-questions"],
+    queryFn: api.getAdminMissedQuestions,
   });
 }
 
-export function useUpdateUnansweredQuestion() {
+export function useGetAdminMissedQuestion(id: number) {
+  return useQuery({
+    queryKey: ["admin-missed-questions", id],
+    queryFn: () => api.getAdminMissedQuestion(id),
+    enabled: !!id,
+  });
+}
+
+export function useReviewAdminMissedQuestion() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: api.updateUnansweredQuestion,
+    mutationFn: ({ id, adminNotes }: { id: number; adminNotes: string }) => api.reviewAdminMissedQuestion(id, adminNotes),
     onSuccess: () => {
-      toast.success("تم تحديث السؤال بنجاح");
-      queryClient.invalidateQueries({ queryKey: ["unanswered-questions"] });
+      toast.success("تم الرد على السؤال بنجاح");
+      queryClient.invalidateQueries({ queryKey: ["admin-missed-questions"] });
     },
-    onError: (error: AxiosError<{ error: string }>) => {
-      toast.error(error.response?.data?.error || "فشل تحديث السؤال");
+    onError: (error: AxiosError<{ message: string }>) => {
+      toast.error(error.response?.data?.message || "فشل الرد على السؤال");
     },
   });
-}
-
-export function useDeleteUnansweredQuestion() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: api.deleteUnansweredQuestion,
-        onSuccess: () => {
-            toast.success("تم حذف السؤال بنجاح");
-            queryClient.invalidateQueries({ queryKey: ["unanswered-questions"] });
-        },
-        onError: (error: AxiosError<{ error: string }>) => {
-            toast.error(error.response?.data?.error || "فشل حذف السؤال");
-        },
-    });
 }
 
 export function useGetWebConversations(params?: api.GetWebConversationsParams) {
