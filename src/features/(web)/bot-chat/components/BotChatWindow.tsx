@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { X, Send, Loader2, Bot, Star, LogOut, MessageSquarePlus, Sparkles, User, Headset } from "lucide-react";
+import { useAuthStore } from "@/src/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/src/lib/utils";
 import {
@@ -15,7 +16,7 @@ import {
 } from "@/src/features/(web)/bot-chat/hooks";
 import type { ConversationMessage } from "@/src/features/(web)/bot-chat/types";
 import { useEchoChannel } from "@/src/hooks/use-echo-channel";
-import { getRelativeTimeArabic } from "@/src/lib/date-helper";
+import { formatTimeOnly } from "@/src/lib/date-helper";
 
 type ChatView = "chat" | "rating";
 
@@ -24,6 +25,7 @@ interface BotChatWindowProps {
 }
 
 export default function BotChatWindow({ onClose }: BotChatWindowProps) {
+    const user = useAuthStore((state) => state.user);
     const [inputText, setInputText] = useState("");
     const [chatView, setChatView] = useState<ChatView>("chat");
     const [rating, setRating] = useState(0);
@@ -78,7 +80,9 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     }, []);
 
     const handleTypingIndicator = useCallback((data: Record<string, unknown>) => {
-        const userData = data.user as { full_name?: string } | undefined;
+        const userData = data.user as { id: number; full_name?: string } | undefined;
+        if (!userData || userData.id === user?.id) return;
+
         const name = userData?.full_name || "الدعم";
         setTypingUser(name);
 
@@ -86,7 +90,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         typingTimeoutRef.current = setTimeout(() => {
             setTypingUser(null);
         }, 3000);
-    }, []);
+    }, [user?.id]);
 
     const handleStateChanged = useCallback(() => {
         queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
@@ -320,7 +324,13 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                                             "w-7 h-7 rounded-full flex items-center justify-center shrink-0 border border-gray-100",
                                             isUser ? "bg-gray-200" : "bg-white"
                                         )}>
-                                            {isUser ? <User className="w-4 h-4 text-gray-500" /> : <Bot className="w-4 h-4 text-[#4a7ab5]" />}
+                                            {isUser ? (
+                                                <User className="w-4 h-4 text-gray-500" />
+                                            ) : msg.sender_type === "admin" ? (
+                                                <Headset className="w-4 h-4 text-[#4a7ab5]" />
+                                            ) : (
+                                                <Bot className="w-4 h-4 text-[#4a7ab5]" />
+                                            )}
                                         </div>
 
                                         <div
@@ -338,7 +348,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                                                 "text-[10px] mt-1 opacity-50",
                                                 isUser ? "text-right" : "text-left"
                                             )}>
-                                                {getRelativeTimeArabic(msg.created_at)}
+                                                {formatTimeOnly(msg.created_at)}
                                             </div>
 
                                             {isUser && msg.status && msg.status !== "sent" && (
@@ -364,17 +374,18 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     )}
 
                     {typingUser && (
-                        <div className="flex items-center gap-2 mt-2 px-1 animate-in fade-in duration-300">
-                            <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center border border-gray-100">
-                                <Headset className="w-4 h-4 text-[#4a7ab5]" />
-                            </div>
-                            <div className="bg-white px-3 py-1.5 rounded-2xl rounded-tl-none text-xs text-gray-500 flex items-center gap-1.5 border border-gray-50 shadow-xs">
-                                <span>{typingUser} يكتب</span>
-                                <span className="flex gap-1 items-center">
-                                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
-                                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
-                                    <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
-                                </span>
+                        <div className="flex flex-col gap-1 mt-4 mr-auto max-w-[85%] animate-in fade-in duration-300 w-fit" dir="ltr">
+                            <div className="flex gap-3 items-start">
+                                <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shrink-0 border border-gray-100">
+                                    <Headset className="w-4 h-4 text-[#4a7ab5]" />
+                                </div>
+                                <div className="bg-white px-3 py-1.5 rounded-2xl rounded-tl-none text-xs text-gray-500 flex items-center gap-1.5 border border-gray-50 shadow-xs">
+                                    <span className="flex gap-1 items-center">
+                                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     )}
