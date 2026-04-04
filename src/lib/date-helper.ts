@@ -89,13 +89,25 @@ export function getRelativeTimeArabic(dateString: string | Date | null | undefin
     return `منذ ${diffInYears} سنة`;
 }
 
+export function formatTimeOnly(dateString: string | Date | null | undefined): string {
+    if (!dateString) return "-";
+    const date = toLocal(dateString);
+    if (isNaN(date.getTime())) return "-";
+    return date.toLocaleTimeString("ar-EG", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+        numberingSystem: "latn",
+    });
+}
+
 export function formatDateArabic(dateString: string | Date | null | undefined): string {
     if (!dateString) return "-";
     const date = toLocal(dateString);
     if (isNaN(date.getTime())) return "-";
-    return date.toLocaleDateString('ar-EG', {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
+    return date.toLocaleDateString("ar-EG", {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
     });
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Loader2, Send, Headset, CheckCircle, Bot, User } from "lucide-react";
+import { useAuthStore } from "@/src/stores/auth-store";
 import { useGetWebConversationMessages, useWebAdminReply, useWebResolveConversation, useWebMarkTyping, useGetWebConversations } from "../hooks";
 import { WebMessage } from "../api";
 import { Button } from "@/src/components/ui/button";
@@ -15,6 +16,7 @@ interface WebChatConversationViewProps {
 }
 
 export function WebChatConversationView({ conversationId }: WebChatConversationViewProps) {
+    const user = useAuthStore((state) => state.user);
     const scrollRef = useRef<HTMLDivElement>(null);
     const [messageText, setMessageText] = useState("");
     const [typingUser, setTypingUser] = useState<string | null>(null);
@@ -43,7 +45,9 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
     const allMessages = useMemo(() => {
         const apiIds = new Set(apiMessages.map((m) => m.id));
         const filtered = realtimeMessages.filter((rtMsg) => !apiIds.has(rtMsg.id));
-        return [...apiMessages, ...filtered];
+        return [...apiMessages, ...filtered].sort((a, b) => 
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
     }, [apiMessages, realtimeMessages]);
 
     const handleNewMessage = useCallback((data: Record<string, unknown>) => {
@@ -58,7 +62,9 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
     }, []);
 
     const handleTypingIndicator = useCallback((data: Record<string, unknown>) => {
-        const userData = data.user as { full_name?: string } | undefined;
+        const userData = data.user as { id: number; full_name?: string } | undefined;
+        if (!userData || userData.id === user?.id) return;
+
         const name = userData?.full_name || "المستخدم";
         setTypingUser(name);
 
@@ -66,7 +72,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         typingTimeoutRef.current = setTimeout(() => {
             setTypingUser(null);
         }, 3000);
-    }, []);
+    }, [user?.id]);
 
     const echoEvents = useMemo(() => [
         { event: ".message.created", callback: handleNewMessage },
@@ -258,17 +264,18 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                         })}
 
                         {typingUser && (
-                            <div className="flex items-center gap-2 mt-4 px-2 animate-in fade-in duration-300">
-                                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center border border-blue-200">
-                                    <User className="w-4 h-4 text-blue-3" />
-                                </div>
-                                <div className="bg-white px-4 py-2.5 rounded-2xl rounded-tl-none text-sm text-gray-500 flex items-center gap-1.5">
-                                    <span>{typingUser} يكتب</span>
-                                    <span className="flex gap-0.5">
-                                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
-                                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
-                                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
-                                    </span>
+                            <div className="flex flex-col gap-1 mt-4 mr-auto max-w-[85%] animate-in fade-in duration-300 w-fit" dir="ltr">
+                                <div className="flex gap-3 items-start">
+                                    <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0 flex items-center justify-center mt-1 border border-blue-200 overflow-hidden">
+                                        <User className="w-4 h-4 text-blue-3" />
+                                    </div>
+                                    <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-none text-sm text-gray-500 flex items-center gap-1.5 shadow-sm border border-gray-100">
+                                        <span className="flex gap-1 items-center">
+                                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         )}
