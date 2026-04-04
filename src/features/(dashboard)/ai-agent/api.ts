@@ -378,7 +378,7 @@ export const deleteDriveFile = async (fileId: string): Promise<DeleteFileRespons
     return data;
 };
 
-export type WebConversationState = "active" | "waiting" | "with_human" | "awaiting_rating" | "resolved";
+export type WebConversationState = "active" | "waiting" | "with_agent" | "awaiting_rating" | "resolved";
 
 export interface WebConversationUser {
     id: number;

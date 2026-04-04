@@ -75,7 +75,7 @@ function UserCard({
 const STATE_LABELS: Record<WebConversationState, string> = {
   active: "نشط",
   waiting: "بانتظار",
-  with_human: "مع موظف",
+  with_agent: "مع المساعد",
   awaiting_rating: "بانتظار تقييم",
   resolved: "تم الحل",
 };
@@ -83,7 +83,7 @@ const STATE_LABELS: Record<WebConversationState, string> = {
 const STATE_COLORS: Record<WebConversationState, string> = {
   active: "bg-green-100 text-green-700 border-green-200",
   waiting: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  with_human: "bg-blue-100 text-blue-700 border-blue-200",
+  with_agent: "bg-blue-100 text-blue-700 border-blue-200",
   awaiting_rating: "bg-purple-100 text-purple-700 border-purple-200",
   resolved: "bg-gray-100 text-gray-600 border-gray-200",
 };
@@ -91,7 +91,7 @@ const STATE_COLORS: Record<WebConversationState, string> = {
 const STATE_ACTIVE_COLORS: Record<WebConversationState, string> = {
   active: "bg-green-500 text-white border-green-500",
   waiting: "bg-yellow-500 text-white border-yellow-500",
-  with_human: "bg-blue-500 text-white border-blue-500",
+  with_agent: "bg-blue-500 text-white border-blue-500",
   awaiting_rating: "bg-purple-500 text-white border-purple-500",
   resolved: "bg-gray-500 text-white border-gray-500",
 };
@@ -167,7 +167,7 @@ function WebsiteChatList({
 
   useEchoChannel("admin.conversations", adminEvents);
 
-  const filterStates: WebConversationState[] = ["active", "waiting", "with_human", "awaiting_rating", "resolved"];
+  const filterStates: WebConversationState[] = ["active", "waiting", "with_agent", "awaiting_rating", "resolved"];
 
   if (isLoading) {
     return (
