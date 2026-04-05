@@ -278,19 +278,14 @@ export const useUpdateAvatar = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: (avatar: File) => updateAvatar(avatar),
-        onSuccess: (data, variables) => {
+        onSuccess: (data) => {
             toast.success(data.message || "Avatar updated successfully");
             
-            const newAvatarUrl = URL.createObjectURL(variables);
-            
+            // Use the real URL from the server (not a blob URL that expires on refresh)
             if (data?.data?.avatar) {
                 useAuthStore.getState().updateUser({ 
                     avatar: data.data.avatar,
-                    avatar_url: newAvatarUrl
-                });
-            } else {
-                useAuthStore.getState().updateUser({ 
-                    avatar_url: newAvatarUrl
+                    avatar_url: data.data.avatar,
                 });
             }
         },

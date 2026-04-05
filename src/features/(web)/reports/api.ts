@@ -7,6 +7,7 @@ import { BaseResponse } from "../settings/api";
 export interface ReportType {
     id: number;
     name: string;
+    category: string;
     is_active: boolean;
 }
 
@@ -23,6 +24,7 @@ export interface CreateReportPayload {
     service_id?: number | null;
     service_board_question_id?: number | null;
     service_board_answer_id?: number | null;
+    user_id?: number | null;
     content: string;
 }
 

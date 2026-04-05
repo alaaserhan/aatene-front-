@@ -9,7 +9,7 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 interface ReportAbuseModalProps {
     isOpen: boolean;
     onClose: () => void;
-    type: "store" | "product" | "service" | "requested_service" | "comment" | "service_board_question" | "service_board_answer";
+    type: "store" | "product" | "service" | "requested_service" | "comment" | "service_board_question" | "service_board_answer" | "user";
     id: number; // Using number as ID directly
 }
 
@@ -22,7 +22,23 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
     const { data: typesData, isLoading: typesLoading } = useGetReportTypes();
     const { mutate: createReport, isPending } = useCreateReport();
 
-    const reportTypes = typesData?.report_types?.filter((t) => t.is_active) || [];
+    const TYPE_TO_CATEGORY: Record<string, string> = {
+        store: "merchant",
+        product: "product",
+        service: "service",
+        requested_service: "service",
+        comment: "customer",
+        service_board_question: "service",
+        service_board_answer: "service",
+        user: "customer",
+    };
+
+    const category = TYPE_TO_CATEGORY[type];
+    const reportTypes = typesData?.report_types?.filter((t) => {
+        if (!t.is_active) return false;
+        if (category) return t.category === category;
+        return true;
+    }) || [];
     const selectedTypeName = reportTypes.find((t) => t.id === selectedTypeId)?.name || "";
 
     useEffect(() => {
@@ -72,6 +88,9 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                 break;
             case "service_board_answer":
                 payload.service_board_answer_id = id;
+                break;
+            case "user":
+                payload.user_id = id;
                 break;
         }
 

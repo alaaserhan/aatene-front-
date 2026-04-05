@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useConversationMessages, useSendMessage, useMarkMessageAsSeen, useBlockUser, useDeleteConversation } from "../hooks";
 import { Conversation } from "../api";
-import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon, Star, User, Store, X } from "lucide-react";
+import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon, Star, User, Store, X, FileText, Download } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import {
@@ -26,6 +26,22 @@ import { AddMemberModal } from "./AddMemberModal";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ConversationInfoPanel } from "./ConversationInfoPanel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
+
+// Helper to check if a URL is an image or video
+function isImageOrVideoUrl(url: string): boolean {
+    const ext = url.split("?")[0].split(".").pop()?.toLowerCase() || "";
+    return ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "mp4", "webm", "ogg", "mov"].includes(ext);
+}
+
+function getFileNameFromUrl(url: string): string {
+    const parts = url.split("/");
+    const rawName = decodeURIComponent(parts[parts.length - 1] || "file");
+    if (rawName.length > 40) {
+        const ext = rawName.includes(".") ? rawName.split(".").pop() : "";
+        return rawName.slice(0, 30) + "..." + (ext ? `.${ext}` : "");
+    }
+    return rawName;
+}
 
 interface ChatWindowProps {
     conversation: Conversation;
@@ -545,20 +561,35 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
 
                                         {msg.files_url && msg.files_url.length > 0 && (
                                             <div className={cn(
-                                                "grid gap-2 ",
-                                                msg.files_url.length === 1 ? "grid-cols-1" :
-                                                    msg.files_url.length === 2 ? "grid-cols-2" :
-                                                        "grid-cols-3"
+                                                "grid gap-2 mt-1",
+                                                msg.files_url.filter(u => isImageOrVideoUrl(u)).length > 0 && "grid-cols-" + Math.min(msg.files_url.filter(u => isImageOrVideoUrl(u)).length, 3)
                                             )}>
-                                                {msg.files_url.map((url: string, i: number) => (
-                                                    <img
-                                                        key={i}
-                                                        src={url}
-                                                        alt=""
-                                                        onClick={() => setMediaViewerState({ isOpen: true, media: msg.files_url!, initialIndex: i })}
-                                                        className="rounded-lg w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                                    />
-                                                ))}
+                                                {msg.files_url.map((url: string, i: number) => {
+                                                    if (isImageOrVideoUrl(url)) {
+                                                        return (
+                                                            <img
+                                                                key={i}
+                                                                src={url}
+                                                                alt=""
+                                                                onClick={() => setMediaViewerState({ isOpen: true, media: msg.files_url!.filter(u => isImageOrVideoUrl(u)), initialIndex: msg.files_url!.filter(u => isImageOrVideoUrl(u)).indexOf(url) })}
+                                                                className="rounded-lg w-full h-24 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                                            />
+                                                        );
+                                                    }
+                                                    return (
+                                                        <a
+                                                            key={i}
+                                                            href={url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors text-xs text-blue-600 hover:underline w-full"
+                                                        >
+                                                            <FileText className="w-4 h-4 shrink-0 text-gray-500" />
+                                                            <span className="truncate">{getFileNameFromUrl(url)}</span>
+                                                            <Download className="w-3 h-3 shrink-0 text-gray-400 ml-auto" />
+                                                        </a>
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>
