@@ -2,21 +2,35 @@
 
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useEffect } from "react";
+import { getAccount } from "@/src/features/(web)/settings/api";
 
 /**
  * كومبوننت بيعمل مزامنة للـ Auth Store مع الكوكيز
- * بيشتغل مرة واحدة بس أول ما الصفحة تفتح
+ * ويُحدِّث بيانات المستخدم (avatar_url وغيرها) من الـ API عند كل تحميل
  */
 export function AuthHydrator() {
-  // بناخد الدالة والحالة من الـ store
-  const { isHydrated, hydrate } = useAuthStore();
+  const { isHydrated, hydrate, isLoggedIn } = useAuthStore();
 
   useEffect(() => {
-    // لو الـ store معملوش مزامنة قبل كدا...
     if (!isHydrated) {
       hydrate();
     }
-  }, []); // ⭐️ بيشتغل مرة واحدة بس عند التحميل
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return null; // الكومبوننت ده مبيظهرش أي حاجة
+  // بعد الـ hydration، لو المستخدم مسجل دخول نُحدِّث بياناته من الـ API
+  useEffect(() => {
+    if (isHydrated && isLoggedIn) {
+      getAccount()
+        .then((data) => {
+          if (data?.user) {
+            useAuthStore.getState().updateUser(data.user);
+          }
+        })
+        .catch(() => {
+          // silent fail - لو فشل الطلب نستمر بالبيانات المحلية
+        });
+    }
+  }, [isHydrated, isLoggedIn]);
+
+  return null;
 }

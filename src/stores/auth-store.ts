@@ -55,7 +55,15 @@ export const useAuthStore = create<AuthState>()(
       updateUser: (userData) => {
         const currentUser = get().user;
         if (currentUser) {
-          const updated = { ...currentUser, ...userData };
+          // ProfileResource returns "avatar" with full URL; UserMenu reads "avatar_url".
+          // Keep both fields in sync so neither source causes a missing avatar.
+          const syncedData = { ...userData };
+          if (syncedData.avatar && !syncedData.avatar_url) {
+            syncedData.avatar_url = syncedData.avatar as string;
+          } else if (syncedData.avatar_url && !syncedData.avatar) {
+            syncedData.avatar = syncedData.avatar_url as string;
+          }
+          const updated = { ...currentUser, ...syncedData };
           // Sync user_type cookie when it changes
           if (userData.user_type && userData.user_type !== currentUser.user_type) {
             const isProduction = process.env.NODE_ENV === "production";
