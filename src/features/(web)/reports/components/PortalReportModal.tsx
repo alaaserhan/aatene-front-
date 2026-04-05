@@ -9,9 +9,10 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 interface PortalReportModalProps {
     isOpen: boolean;
     onClose: () => void;
+    category?: string;
 }
 
-export function PortalReportModal({ isOpen, onClose }: PortalReportModalProps) {
+export function PortalReportModal({ isOpen, onClose, category }: PortalReportModalProps) {
     const [step, setStep] = useState(1);
     const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null);
     const [subject, setSubject] = useState("");
@@ -20,7 +21,11 @@ export function PortalReportModal({ isOpen, onClose }: PortalReportModalProps) {
     const { data: typesData, isLoading: typesLoading } = useGetReportTypes();
     const { mutate: createReport, isPending } = useCreateReport();
 
-    const reportTypes = typesData?.report_types?.filter((t) => t.is_active) || [];
+    const reportTypes = typesData?.report_types?.filter((t) => {
+        if (!t.is_active) return false;
+        if (category) return t.category === category;
+        return true;
+    }) || [];
 
     useEffect(() => {
         if (!isOpen) {

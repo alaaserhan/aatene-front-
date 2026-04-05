@@ -12,6 +12,16 @@ interface CreateReportPageProps {
     id: string;
 }
 
+// Map report type (entity type) to report_type category
+const TYPE_TO_CATEGORY: Record<string, string> = {
+    store: "merchant",
+    product: "product",
+    service: "service",
+    requested_service: "service",
+    comment: "customer",
+    user: "customer",
+};
+
 export default function CreateReportPage({ type, id }: CreateReportPageProps) {
     const lang = useLanguage();
     const router = useRouter();
@@ -23,7 +33,12 @@ export default function CreateReportPage({ type, id }: CreateReportPageProps) {
     const { data: typesData, isLoading: typesLoading } = useGetReportTypes();
     const { mutate: createReport, isPending } = useCreateReport();
 
-    const reportTypes = typesData?.report_types?.filter((t) => t.is_active) || [];
+    const category = TYPE_TO_CATEGORY[type] || undefined;
+    const reportTypes = typesData?.report_types?.filter((t) => {
+        if (!t.is_active) return false;
+        if (category) return t.category === category;
+        return true;
+    }) || [];
 
     const handleNext = () => {
         if (selectedTypeId) {
@@ -56,6 +71,9 @@ export default function CreateReportPage({ type, id }: CreateReportPageProps) {
                 break;
             case "comment":
                 payload.comment_id = numericId;
+                break;
+            case "user":
+                payload.user_id = numericId;
                 break;
         }
 

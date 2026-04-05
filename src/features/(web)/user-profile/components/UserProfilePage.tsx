@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { UserProfile, UserStory, UserFollower, UserProfilePageData } from "../types";
 import Image from "next/image";
-import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, UserMinus, User as UserIcon, MoreHorizontal, Share2 } from "lucide-react";
+import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, UserMinus, User as UserIcon, MoreHorizontal, Share2, Flag } from "lucide-react";
 import { useUserProfile, useUserProfilePageData, useUserFavProducts, useUserProducts } from "../hooks";
 import { useParams, useRouter, notFound } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
@@ -17,6 +17,8 @@ import { Story } from "@/src/features/(dashboard)/stories/api";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ShareModal } from "@/src/components/ui/ShareModal";
+import { useLanguage } from "@/src/hooks/use-language";
+import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 
 function UserHeader({ user, isOwnProfile, followers, stories }: {
     user: UserProfile;
@@ -27,6 +29,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
     const [avatarStoryOpen, setAvatarStoryOpen] = useState(false);
     const hasStories = stories && stories.length > 0;
     const [showShareModal, setShowShareModal] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
     const [showMoreMenu, setShowMoreMenu] = useState(false);
 
     const mappedAvatarStories: Story[] = stories.map(s => ({
@@ -37,6 +40,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
         created_at: s.created_at,
     }));
     const router = useRouter();
+    const lang = useLanguage();
     const [isChatLoading, setIsChatLoading] = useState(false);
     const queryClient = useQueryClient();
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
@@ -230,6 +234,13 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                                         <Share2 className="w-4 h-4 text-gray-500" />
                                                         مشاركة
                                                     </button>
+                                                    <button
+                                                        onClick={() => { setShowMoreMenu(false); setShowReportModal(true); }}
+                                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                                    >
+                                                        <Flag className="w-4 h-4 text-red-500" />
+                                                        إبلاغ
+                                                    </button>
                                                 </div>
                                             </>
                                         )}
@@ -256,6 +267,13 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                 onClose={() => setShowShareModal(false)}
                 shareUrl={typeof window !== "undefined" ? window.location.href : `https://aatene.com/profile/${user.slug}`}
                 title="مشاركة الملف الشخصي"
+            />
+
+            <ReportAbuseModal
+                isOpen={showReportModal}
+                onClose={() => setShowReportModal(false)}
+                type="user"
+                id={user.id}
             />
         </div >
     );
