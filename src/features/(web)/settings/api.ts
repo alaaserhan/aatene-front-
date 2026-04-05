@@ -408,11 +408,11 @@ export const getAccount = async (): Promise<AccountResponse> => {
     return data;
 };
 
-export const updateAvatar = async (avatar: File): Promise<BaseResponse & { data: { avatar: string } }> => {
+export const updateAvatar = async (avatar: File): Promise<BaseResponse & { data: { avatar_url: string; avatar?: string } }> => {
     const formData = new FormData();
     formData.append("avatar", avatar);
     // Use POST as typically usually used for file uploads, prompt says POST.
-    const { data } = await api.post<BaseResponse & { data: { avatar: string } }>("/auth/account/update_avatar", formData, {
+    const { data } = await api.post<BaseResponse & { data: { avatar_url: string; avatar?: string } }>("/auth/account/update_avatar", formData, {
         headers: { "Content-Type": "multipart/form-data" },
     });
     return data;

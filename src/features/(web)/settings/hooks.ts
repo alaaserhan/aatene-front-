@@ -281,11 +281,12 @@ export const useUpdateAvatar = () => {
         onSuccess: (data) => {
             toast.success(data.message || "Avatar updated successfully");
             
-            // Use the real URL from the server (not a blob URL that expires on refresh)
-            if (data?.data?.avatar) {
+            // API returns { data: { avatar_url: "..." } }
+            const newAvatarUrl = data?.data?.avatar_url || data?.data?.avatar;
+            if (newAvatarUrl) {
                 useAuthStore.getState().updateUser({ 
-                    avatar: data.data.avatar,
-                    avatar_url: data.data.avatar,
+                    avatar_url: newAvatarUrl,
+                    avatar: newAvatarUrl,
                 });
             }
         },
