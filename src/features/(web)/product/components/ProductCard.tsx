@@ -70,7 +70,7 @@ const ProductCard = memo(({
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                     onError={() => {
-                        setImgSrc("https://placehold.co/300x400/f3f4f6/9ca3af?text=No+Image");
+                        setImgSrc("/placeholder.png");
                     }}
                 />
 
