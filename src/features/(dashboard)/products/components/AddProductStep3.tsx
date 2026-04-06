@@ -282,7 +282,8 @@ export function AddProductStep3({
                     if (!row.attributeValues[attrId]) isValid = false;
                 });
                 if (row.price <= 0) isValid = false;
-                if (!row.imageFileName && row.images.length === 0) missingImage = true;
+                // الصورة مطلوبة: يجب أن يكون هناك images للعرض AND imageFileName للإرسال
+                if (row.images.length === 0 || !row.imageFileName) missingImage = true;
             });
 
             if (missingImage) {
@@ -521,6 +522,7 @@ export function AddProductStep3({
                                                                                 onClick={(e) => {
                                                                                     e.stopPropagation();
                                                                                     updateVariationRow(row.id, "images", []);
+                                                                                    updateVariationRow(row.id, "imageFileName", "");
                                                                                 }}
                                                                                 className="absolute -top-1.5 -left-1.5 w-4 h-4 bg-[#E0E7ED] text-[#3A5779] rounded-full flex items-center justify-center cursor-pointer hover:bg-white z-10 shadow-sm border border-[#D5E1EA]"
                                                                             >
