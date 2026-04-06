@@ -21,7 +21,6 @@ export const useMyNotificationStats = (enabled = true) => {
         queryFn: () => getMyNotificationStats(),
         enabled: enabled && isLoggedIn,
         refetchInterval: 60 * 1000, // كل دقيقة كـ fallback لو FCM لم يصل
-        staleTime: 30 * 1000,       // 30 ثانية
     });
 };
 

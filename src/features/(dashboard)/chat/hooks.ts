@@ -29,7 +29,6 @@ export const useTotalUnreadCount = (storeId?: number | string, ignoreCookie: boo
         queryKey: ["total-unread", storeId, ignoreCookie],
         queryFn: () => api.getTotalUnreadCount(storeId, ignoreCookie),
         refetchInterval: 60 * 1000, // كل دقيقة كـ fallback لو FCM لم يصل
-        staleTime: 30 * 1000,       // 30 ثانية
     });
 };
 
