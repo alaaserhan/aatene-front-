@@ -161,7 +161,9 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     return () => window.removeEventListener("store-info-updated", handleStoreUpdate);
   }, []);
 
-  const { data: unreadData } = useTotalUnreadCount(isMerchant ? (activeStoreId || undefined) : undefined);
+  const { data: unreadData } = useTotalUnreadCount(
+    isMerchant ? (Cookies.get("current_store_id") || undefined) : undefined
+  );
   const unreadCount = unreadData?.unread_conversations_count || 0;
 
   const getSegmentFromHref = (href: string): string => {
