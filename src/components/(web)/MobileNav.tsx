@@ -11,8 +11,10 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
 import { useMyNotificationStats } from "@/src/features/(web)/notifications/hooks";
+import { useTotalUnreadCount } from "@/src/features/(dashboard)/chat/hooks";
 import { Badge } from "@/src/components/ui/badge";
 import { useSettingsStore } from "@/src/stores/settings-store";
+import Cookies from "js-cookie";
 
 const menuVariants: Variants = {
   closed: {
@@ -52,6 +54,10 @@ export default function MobileNav() {
 
   const { data: statsData } = useMyNotificationStats(!!user);
   const unreadCount = statsData?.unseen || 0;
+  const isMerchant = user?.user_type === "merchant";
+  const chatStoreId = isMerchant ? (Cookies.get("current_store_id") || undefined) : undefined;
+  const { data: chatData } = useTotalUnreadCount(chatStoreId, !chatStoreId);
+  const chatUnreadCount = chatData?.unread_conversations_count || 0;
   const { settings } = useSettingsStore();
 
   const toggleMobileMenu = () => {
@@ -150,8 +156,16 @@ export default function MobileNav() {
                             onClick={() => setMobileMenuOpen(false)}
                           >
                             <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
+                              <div className="relative w-10 h-10 rounded-lg bg-gray-4 flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-200">
                                 <img src="/icons/chat.svg" alt="Messages" className="h-7 w-7" />
+                                {chatUnreadCount > 0 && (
+                                  <Badge
+                                    className="absolute bg-red-600 font-baseline-fix -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                                    variant="destructive"
+                                  >
+                                    {chatUnreadCount}
+                                  </Badge>
+                                )}
                               </div>
                               <span className="font-medium">الرسائل</span>
                             </div>

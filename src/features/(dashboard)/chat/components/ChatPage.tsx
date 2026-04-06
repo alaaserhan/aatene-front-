@@ -58,8 +58,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const authUser = useAuthStore(state => state.user);
 
     const isDashboard = context === "dashboard";
-    const ignoreCookie = !isDashboard;
-    const storeId = isDashboard ? Cookies.get("current_store_id") : undefined;
+    const storeId = Cookies.get("current_store_id") || undefined;
+    const ignoreCookie = !storeId;
 
     const { data, isLoading, isError, refetch } = useConversations(storeId, ignoreCookie);
     const { data: unreadData } = useTotalUnreadCount(storeId, ignoreCookie);

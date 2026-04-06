@@ -8,9 +8,10 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { SearchBar } from "./SearchBar";
 import { NotificationDropdown } from "@/src/components/shared/NotificationDropdown";
-import useFCMToken from "@/src/hooks/use-fcm-token";
 import { useSettingsStore } from "@/src/stores/settings-store";
-
+import { useTotalUnreadCount } from "@/src/features/(dashboard)/chat/hooks";
+import { Badge } from "@/src/components/ui/badge";
+import Cookies from "js-cookie";
 import Image from "next/image";
 
 const Navbar = () => {
@@ -62,15 +63,13 @@ const Navbar = () => {
   );
 };
 
-import { useTotalUnreadCount } from "@/src/features/(dashboard)/chat/hooks";
-import { Badge } from "@/src/components/ui/badge";
-
 const NavIcons = () => {
   const lang = useLanguage();
-  const { data: unreadData } = useTotalUnreadCount(undefined, true);
+  const user = useAuthStore((state) => state.user);
+  const isMerchant = user?.user_type === "merchant";
+  const storeId = isMerchant ? (Cookies.get("current_store_id") || undefined) : undefined;
+  const { data: unreadData } = useTotalUnreadCount(storeId, !storeId);
   const unreadCount = unreadData?.unread_conversations_count || 0;
-
-  useFCMToken();
 
   return (
     <div className="flex items-center gap-4 text-gray-2">
