@@ -1,17 +1,21 @@
-// src/features/(dashboard)/ai-agent/components/ChatListSidebar.tsx
 "use client";
 
+import { useMemo } from "react";
 import { Loader2, User, Store } from "lucide-react";
-import { useGetPlatformUsersInfo, useGetApi4Users, useGetDeletedUsers } from "../hooks";
-import { PlatformType } from "../api";
+import { useGetPlatformUsersInfo, useGetApi4Users, useGetDeletedUsers, useGetWebConversations } from "../hooks";
+import { PlatformType, WebConversation, WebConversationState } from "../api";
 import { cn } from "@/src/lib/utils";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
+import { useEchoChannel } from "@/src/hooks/use-echo-channel";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ChatListSidebarProps {
   platform: string;
   selectedChatId: string | null;
   onSelectChat: (chatId: string) => void;
   needsHuman: boolean;
+  webStateFilter?: WebConversationState;
+  onWebStateFilter?: (state?: WebConversationState) => void;
 }
 
 function UserCard({
@@ -26,7 +30,7 @@ function UserCard({
   onClick: () => void;
   name: string;
   time: string;
-  lastMessage: string;
+  lastMessage?: string;
   type?: string;
 }) {
   return (
@@ -64,6 +68,168 @@ function UserCard({
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+const STATE_LABELS: Record<WebConversationState, string> = {
+  active: "نشط",
+  waiting: "بانتظار",
+  with_agent: "مع المساعد",
+  awaiting_rating: "بانتظار تقييم",
+  resolved: "تم الحل",
+};
+
+const STATE_COLORS: Record<WebConversationState, string> = {
+  active: "bg-green-100 text-green-700 border-green-200",
+  waiting: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  with_agent: "bg-blue-100 text-blue-700 border-blue-200",
+  awaiting_rating: "bg-purple-100 text-purple-700 border-purple-200",
+  resolved: "bg-gray-100 text-gray-600 border-gray-200",
+};
+
+const STATE_ACTIVE_COLORS: Record<WebConversationState, string> = {
+  active: "bg-green-500 text-white border-green-500",
+  waiting: "bg-yellow-500 text-white border-yellow-500",
+  with_agent: "bg-blue-500 text-white border-blue-500",
+  awaiting_rating: "bg-purple-500 text-white border-purple-500",
+  resolved: "bg-gray-500 text-white border-gray-500",
+};
+
+function StateBadge({
+  state,
+  isActive,
+  onClick,
+  className,
+}: {
+  state: WebConversationState;
+  isActive: boolean;
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-200 cursor-pointer whitespace-nowrap",
+        isActive ? STATE_ACTIVE_COLORS[state] : STATE_COLORS[state],
+        className
+      )}
+    >
+      {STATE_LABELS[state]}
+    </button>
+  );
+}
+
+function ConversationStateBadgeInline({ state }: { state: WebConversationState }) {
+  return (
+    <span
+      className={cn(
+        "px-2 py-0.5 rounded-full text-[10px] font-medium border",
+        STATE_COLORS[state]
+      )}
+    >
+      {STATE_LABELS[state]}
+    </span>
+  );
+}
+
+function WebsiteChatList({
+  selectedChatId,
+  onSelectChat,
+  stateFilter,
+  onStateFilter,
+}: {
+  selectedChatId: string | null;
+  onSelectChat: (id: string) => void;
+  stateFilter?: WebConversationState;
+  onStateFilter?: (state?: WebConversationState) => void;
+}) {
+  const queryClient = useQueryClient();
+  const { data, isLoading } = useGetWebConversations(
+    stateFilter ? { state: stateFilter } : undefined
+  );
+
+  const adminEvents = useMemo(() => [
+    {
+      event: ".conversation.started",
+      callback: () => {
+        queryClient.invalidateQueries({ queryKey: ["web-conversations"] });
+      },
+    },
+    {
+      event: ".state.changed",
+      callback: () => {
+        queryClient.invalidateQueries({ queryKey: ["web-conversations"] });
+      },
+    },
+  ], [queryClient]);
+
+  useEchoChannel("admin.conversations", adminEvents);
+
+  const filterStates: WebConversationState[] = ["active", "waiting", "with_agent", "awaiting_rating", "resolved"];
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="p-3 border-b border-gray-100">
+          <div className="flex flex-wrap gap-1.5">
+            {filterStates.map((s) => (
+              <StateBadge
+                key={s}
+                state={s}
+                isActive={stateFilter === s}
+                onClick={() => onStateFilter?.(stateFilter === s ? undefined : s)}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center justify-center flex-1">
+          <Loader2 className="w-8 h-8 text-blue-3 animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  const conversations: WebConversation[] = data?.data || [];
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="p-3 border-b border-gray-100">
+        <div className="flex flex-wrap gap-1.5">
+          {filterStates.map((s) => (
+            <StateBadge
+              key={s}
+              state={s}
+              isActive={stateFilter === s}
+              onClick={() => onStateFilter?.(stateFilter === s ? undefined : s)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {conversations.length === 0 ? (
+        <div className="flex flex-col items-center justify-center flex-1 text-gray-2">
+          <p>لا توجد محادثات</p>
+        </div>
+      ) : (
+        <div className="flex flex-col flex-1 overflow-y-auto p-2">
+          {conversations.map((conv) => (
+            <div key={conv.id} className="relative">
+              <UserCard
+                isSelected={selectedChatId === String(conv.id)}
+                onClick={() => onSelectChat(String(conv.id))}
+                name={conv.user?.name || "مستخدم"}
+                time={conv.last_message_at}
+                // lastMessage={`محادثة #${conv.id}`}
+              />
+              <div className="absolute bottom-2 left-2">
+                <ConversationStateBadgeInline state={conv.state} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -161,7 +327,7 @@ function StandardChatList({
   onSelectChat: (id: string) => void;
   needsHuman: boolean;
 }) {
-  const isApiPlatform = ["whatsapp", "instagram", "messenger", "website", "mobile"].includes(platform);
+  const isApiPlatform = ["whatsapp", "instagram", "messenger"].includes(platform);
   const { data, isLoading } = useGetPlatformUsersInfo({
     platform: (isApiPlatform ? platform : "whatsapp") as PlatformType,
     limit: 50,
@@ -206,7 +372,18 @@ function StandardChatList({
   );
 }
 
-export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsHuman }: ChatListSidebarProps) {
+export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsHuman, webStateFilter, onWebStateFilter }: ChatListSidebarProps) {
+  if (platform === "website") {
+    return (
+      <WebsiteChatList
+        selectedChatId={selectedChatId}
+        onSelectChat={onSelectChat}
+        stateFilter={webStateFilter}
+        onStateFilter={onWebStateFilter}
+      />
+    );
+  }
+
   if (platform === "api4_whatsapp") {
     return <Api4ChatList selectedChatId={selectedChatId} onSelectChat={onSelectChat} />;
   }

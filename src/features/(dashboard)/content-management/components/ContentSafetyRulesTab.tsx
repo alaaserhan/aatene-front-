@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, useFieldArray, Control, Controller, UseFormRegister, UseFormWatch, UseFormSetValue, FieldArrayPath, UseFormTrigger } from "react-hook-form";
+import { useForm, useFieldArray, Control, Controller, UseFormRegister, UseFormWatch, UseFormSetValue, FieldArrayPath, UseFormTrigger, FieldValues, Path, PathValue, FieldErrors } from "react-hook-form";
 import { Loader2, Plus, GripHorizontal } from "lucide-react";
 import Image from "next/image";
 import {
@@ -53,30 +53,27 @@ const SectionCard = ({
 );
 
 // Helper for Image Field with Controller
-const ImageField = ({
+const ImageField = <TFieldValues extends FieldValues>({
     control,
     name,
     label,
     setValue,
     watch
 }: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    control: Control<any>;
+    control: Control<TFieldValues>;
     name: string;
     label?: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setValue: UseFormSetValue<any>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    watch: UseFormWatch<any>;
+    setValue: UseFormSetValue<TFieldValues>;
+    watch: UseFormWatch<TFieldValues>;
 }) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const imageUrl = watch(`${name}.image_url` as any);
+    const imageUrlPath = (name ? `${name}.image_url` : "image_url") as Path<TFieldValues>;
+    const imagePath = (name ? `${name}.image` : "image") as Path<TFieldValues>;
+    const imageUrl = watch(imageUrlPath);
 
     return (
         <Controller
             control={control}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            name={`${name}.image` as any}
+            name={imagePath}
             render={({ field: { value, onChange } }) => (
                 <ImageGallerySelector
                     label={label}
@@ -89,8 +86,7 @@ const ImageField = ({
                         const src = urls[0] || null;
 
                         onChange(fileName);
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        setValue(`${name}.image_url` as any, src, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+                        setValue(imageUrlPath, src as PathValue<TFieldValues, Path<TFieldValues>>, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
                     }}
                 />
             )}
@@ -385,8 +381,7 @@ const DynamicListSection = ({
     label: string;
     watch: UseFormWatch<SafetyRulesData>;
     setValue: UseFormSetValue<SafetyRulesData>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    errors: any;
+    errors: FieldErrors<SafetyRulesData>;
     trigger: UseFormTrigger<SafetyRulesData>;
     type?: "simple" | "complex";
 }) => {
@@ -400,7 +395,7 @@ const DynamicListSection = ({
 
     const watchedValues = watch(name);
 
-    const handleSaveItem = (data: any) => {
+    const handleSaveItem = (data: SimpleRuleItem | SafetyRuleSection) => {
         if (editingIndex !== null) {
             update(editingIndex, data);
         } else {
@@ -427,14 +422,14 @@ const DynamicListSection = ({
                     type === 'complex' ? (
                         <ComplexItemCard
                             key={field.id}
-                            item={watchedValues?.[index] as any || field}
+                            item={(watchedValues?.[index] as SafetyRuleSection) || (field as unknown as SafetyRuleSection)}
                             onEdit={() => handleEdit(index)}
                             onRemove={() => remove(index)}
                         />
                     ) : (
                         <SimpleItemCard
                             key={field.id}
-                            item={watchedValues?.[index] as any || field}
+                            item={(watchedValues?.[index] as SimpleRuleItem) || (field as unknown as SimpleRuleItem)}
                             onEdit={() => handleEdit(index)}
                             onRemove={() => remove(index)}
                         />
