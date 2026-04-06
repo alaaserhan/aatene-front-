@@ -489,6 +489,20 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     background: "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)",
                 }}
             >
+                <div className="flex items-center gap-3" dir="rtl">
+                    <div>
+                        <h3 className="text-white font-medium text-sm leading-tight text-left">الدعم الذكي</h3>
+                        {hasActiveConversation && (
+                            <div className="flex items-center gap-1.5 mt-0.5 justify-end">
+                                <span className="text-white/70 text-[11px]">متصل</span>
+                                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                            </div>
+                        )}
+                    </div>
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                        <Bot className="w-6 h-6 text-white" />
+                    </div>
+                </div>
                 <div className="flex items-center gap-3 shrink-0">
                     <button
                         onClick={onClose}
@@ -510,20 +524,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     )}
                 </div>
 
-                <div className="flex items-center gap-3" dir="rtl">
-                    <div>
-                        <h3 className="text-white font-medium text-sm leading-tight text-left">الدعم الذكي</h3>
-                        {hasActiveConversation && (
-                            <div className="flex items-center gap-1.5 mt-0.5 justify-end">
-                                <span className="text-white/70 text-[11px]">متصل</span>
-                                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                            </div>
-                        )}
-                    </div>
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                        <Bot className="w-6 h-6 text-white" />
-                    </div>
-                </div>
             </div>
 
             {isLoadingConv ? (

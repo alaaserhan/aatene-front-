@@ -40,7 +40,7 @@ export const endConversation = async (conversationId: number): Promise<EndConver
 };
 
 export async function submitRating(conversationId: number, rate: number, comment: string): Promise<SubmitRatingResponse> {
-    const { data } = await api.post(`${BASE}/${conversationId}/rating`, { rate, comment });
+    const { data } = await api.post(`${BASE}/${conversationId}/review`, { rate, comment });
     return data;
 }
 
