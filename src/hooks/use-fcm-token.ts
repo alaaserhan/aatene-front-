@@ -89,8 +89,14 @@ const useFCMToken = () => {
             console.log("[FCM Hook] Subscribing to foreground messages");
             unsubscribe = onMessage(msg, (payload: MessagePayload) => {
                 console.log("[FCM Hook] Foreground message received:", payload);
+
+                // دائماً نُحدِّث الـ queries بغض النظر عن التكرار
+                queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
+                queryClient.invalidateQueries({ queryKey: ["myNotificationStats"] });
+                queryClient.invalidateQueries({ queryKey: ["total-unread"] });
+
                 if (isDuplicateMessage(payload)) {
-                    console.log("[FCM Hook] Duplicate foreground message, skipping");
+                    console.log("[FCM Hook] Duplicate foreground message, skipping toast");
                     return;
                 }
                 playNotificationSound();
@@ -99,9 +105,6 @@ const useFCMToken = () => {
                 const body = payload.notification?.body || payload.data?.body;
 
                 toast.info(title, { description: body });
-                queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
-                queryClient.invalidateQueries({ queryKey: ["myNotificationStats"] });
-                queryClient.invalidateQueries({ queryKey: ["total-unread"] });
             });
         });
 
