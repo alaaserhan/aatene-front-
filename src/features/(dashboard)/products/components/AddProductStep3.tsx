@@ -74,34 +74,47 @@ export function AddProductStep3({
     const queryClient = useQueryClient();
     const userType = Cookies.get("user_type");
     const isAdmin = userType === "admin";
+
+    // دالة مساعدة: تستعيد الـ variations مع الصور الصحيحة (image_previews أو images)
+    const restoreVariations = (data: typeof initialData): VariationRow[] => {
+        return (data?.variations || []).map((v) => ({
+            id: v.id,
+            attributeValues: v.attributeValues,
+            price: v.price,
+            // image_previews = URL كامل للعرض، images قد يكون file_name مختصر
+            images: (v as any).image_previews?.length
+                ? (v as any).image_previews
+                : v.images?.filter((img: string) => img?.startsWith("http")) || v.images || [],
+            imageFileName: v.imageFileName || (v.images?.[0] ?? ""),
+            enabled: v.enabled,
+        }));
+    };
+
     const [hasVariations, setHasVariations] = useState<boolean>(
         initialData?.hasVariations || false
     );
 
-    const [selectedAttributeIds, setSelectedAttributeIds] = useState<number[]>([]);
-    const [variations, setVariations] = useState<VariationRow[]>(
-        initialData?.variations || []
+    const [selectedAttributeIds, setSelectedAttributeIds] = useState<number[]>(() => {
+        if (initialData?.attributes) {
+            return initialData.attributes.map((attr) => Number(attr.id));
+        }
+        return [];
+    });
+
+    const [variations, setVariations] = useState<VariationRow[]>(() =>
+        restoreVariations(initialData)
     );
 
     useEffect(() => {
         if (initialData) {
-            // eslint-disable-next-line react-hooks/exhaustive-deps
             setHasVariations(initialData.hasVariations);
-            // عند الرجوع: نستعيد image_previews (URL كامل للعرض) وليس images (file_name للباكند)
-            const restoredVariations = (initialData.variations || []).map((v) => ({
-                id: v.id,
-                attributeValues: v.attributeValues,
-                price: v.price,
-                images: (v as any).image_previews || v.images || [],
-                imageFileName: v.imageFileName || (v.images?.[0] ?? ""),
-                enabled: v.enabled,
-            }));
-            setVariations(restoredVariations);
+            setVariations(restoreVariations(initialData));
             if (initialData.attributes) {
                 const ids = initialData.attributes.map((attr) => Number(attr.id));
                 setSelectedAttributeIds(ids);
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialData]);
 
     const [isAttrModalOpen, setIsAttrModalOpen] = useState(false);
