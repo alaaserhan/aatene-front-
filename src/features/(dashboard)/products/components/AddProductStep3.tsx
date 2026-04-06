@@ -87,7 +87,16 @@ export function AddProductStep3({
         if (initialData) {
             // eslint-disable-next-line react-hooks/exhaustive-deps
             setHasVariations(initialData.hasVariations);
-            setVariations(initialData.variations || []);
+            // عند الرجوع: نستعيد image_previews (URL كامل للعرض) وليس images (file_name للباكند)
+            const restoredVariations = (initialData.variations || []).map((v) => ({
+                id: v.id,
+                attributeValues: v.attributeValues,
+                price: v.price,
+                images: (v as any).image_previews || v.images || [],
+                imageFileName: v.imageFileName || (v.images?.[0] ?? ""),
+                enabled: v.enabled,
+            }));
+            setVariations(restoredVariations);
             if (initialData.attributes) {
                 const ids = initialData.attributes.map((attr) => Number(attr.id));
                 setSelectedAttributeIds(ids);
@@ -254,12 +263,19 @@ export function AddProductStep3({
             }
 
             let isValid = true;
+            let missingImage = false;
             variations.forEach((row) => {
                 selectedAttributeIds.forEach((attrId) => {
                     if (!row.attributeValues[attrId]) isValid = false;
                 });
                 if (row.price <= 0) isValid = false;
+                if (!row.imageFileName && row.images.length === 0) missingImage = true;
             });
+
+            if (missingImage) {
+                toast.error("الرجاء رفع صورة لكل قيمة من قيم الاختلاف");
+                return;
+            }
 
             if (!isValid) {
                 toast.error("الرجاء إكمال جميع بيانات الاختلافات (القيم والسعر)");
