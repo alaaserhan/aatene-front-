@@ -135,8 +135,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         );
     }
 
-    const firstUserMsg = allMessages.find((m) => m.sender_type === "user");
-    const userName = firstUserMsg?.sender?.full_name || "مستخدم";
+    const userName = conversation?.user?.name || allMessages.find((m) => m.sender_type === "user")?.sender?.full_name || "مستخدم";
 
     return (
         <div className="flex flex-col h-full max-h-[calc(100vh-220px)] lg:max-h-none bg-white">
