@@ -12,12 +12,16 @@ import { useSettingsStore } from "@/src/stores/settings-store";
 import { useTotalUnreadCount } from "@/src/features/(dashboard)/chat/hooks";
 import { Badge } from "@/src/components/ui/badge";
 import Cookies from "js-cookie";
+import useFCMToken from "@/src/hooks/use-fcm-token";
 import Image from "next/image";
 
 const Navbar = () => {
   const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
   const lang = useLanguage();
   const { settings } = useSettingsStore();
+
+  // تفعيل FCM في صفحات الرئيسية لتحديث الإشعارات والرسائل فوراً
+  useFCMToken();
 
   return (
     <div className="w-full shadow-xs bg-white min-h-[72px] flex items-center border-b border-gray-200">
