@@ -91,9 +91,9 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             id: String(v.id),
             attributeValues: attributeValues,
             price: Number(v.price) || 0,
-            images: v.image ? [v.image] : [],
+            images: v.image_url ? [v.image_url] : (v.image ? [v.image] : []),
             imageFileName: v.image || "",
-            image_previews: v.image ? [v.image] : [],
+            image_previews: v.image_url ? [v.image_url] : (v.image ? [v.image] : []),
             enabled: true,
           };
         });

@@ -33,6 +33,7 @@ export interface Variation {
   id: number;
   price: number | string;
   image: string | null;
+  image_url: string | null;
   attributeOptions: VariationOption[];
 }
 
