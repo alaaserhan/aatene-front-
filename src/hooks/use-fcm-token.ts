@@ -101,6 +101,7 @@ const useFCMToken = () => {
                 toast.info(title, { description: body });
                 queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
                 queryClient.invalidateQueries({ queryKey: ["myNotificationStats"] });
+                queryClient.invalidateQueries({ queryKey: ["total-unread"] });
             });
         });
 
@@ -119,10 +120,12 @@ const useFCMToken = () => {
                         console.log("[FCM Hook] Duplicate SW message, skipping toast");
                         queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
                         queryClient.invalidateQueries({ queryKey: ["myNotificationStats"] });
+                        queryClient.invalidateQueries({ queryKey: ["total-unread"] });
                         return;
                     }
                     queryClient.invalidateQueries({ queryKey: ["myNotifications"] });
                     queryClient.invalidateQueries({ queryKey: ["myNotificationStats"] });
+                    queryClient.invalidateQueries({ queryKey: ["total-unread"] });
                 }
             };
             navigator.serviceWorker.addEventListener('message', handler);
