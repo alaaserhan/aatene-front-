@@ -113,13 +113,14 @@ export const useConversationMessages = (conversationId: number | undefined, enab
 
     return useInfiniteQuery({
         queryKey: ["botChat", "messages", conversationId],
-        queryFn: ({ pageParam = 1 }) => getMessages(conversationId!, pageParam, 20),
+        queryFn: ({ pageParam = 1 }) => getMessages(conversationId!, pageParam, 15),
         getNextPageParam: (lastPage, allPages) => {
-            const hasMore = lastPage.data.length === 20;
+            const hasMore = lastPage.data.length === 15;
             return hasMore ? allPages.length + 1 : undefined;
         },
         enabled: enabled && isLoggedIn && !!conversationId,
         initialPageParam: 1,
+        refetchOnMount: "always",
     });
 };
 
