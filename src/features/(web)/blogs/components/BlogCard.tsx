@@ -27,7 +27,7 @@ export function BlogCard({ blog, isHero = false }: { blog: Blog; isHero?: boolea
                         <div className="flex flex-col gap-2">
                             {/* Category Badge */}
                             <div className="flex ">
-                                <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-md font-medium">
+                                <span className="bg-[#395a7d] text-white text-xs px-3 py-1 rounded-md font-medium">
                                     {blog.category}
                                 </span>
                             </div>
@@ -45,7 +45,7 @@ export function BlogCard({ blog, isHero = false }: { blog: Blog; isHero?: boolea
                                     <div className="relative">
                                         <MessageCircle className="w-5 h-5 text-gray-900" strokeWidth={1.5} />
                                         <span className="absolute -top-2 border-2 border-white -right-4 bg-blue-3 text-white text-[8px] md:text-[9px] font-medium px-2 py-px rounded-full min-w-[24px] flex items-center justify-center">
-                                            {blog.review_count || "+99"}
+                                            {blog.review_count ?? 0}
                                         </span>
                                     </div>
 
@@ -53,7 +53,7 @@ export function BlogCard({ blog, isHero = false }: { blog: Blog; isHero?: boolea
                                     <div className="relative">
                                         <Heart className="w-5 h-5 text-gray-900" strokeWidth={1.5} />
                                         <span className="absolute -top-2 border-2 border-white -right-4 bg-blue-3 text-white text-[8px] md:text-[9px] font-medium px-2 py-px rounded-full min-w-[20px] flex items-center justify-center">
-                                            {blog.favorites_count || "6"}
+                                            {blog.favorites_count ?? 0}
                                         </span>
                                     </div>
                                 </div>
@@ -79,7 +79,7 @@ export function BlogCard({ blog, isHero = false }: { blog: Blog; isHero?: boolea
             <div className="p-5 flex-1 flex flex-col items-start text-right">
 
                 {/* Category Badge - Light Blue */}
-                <span className="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded-md font-medium mb-3 inline-block">
+                <span className="bg-[#eef2f7] text-[#395a7d] text-xs px-2 py-1 rounded-md font-medium mb-3 inline-block">
                     {blog.category}
                 </span>
 
