@@ -35,7 +35,7 @@ const Footer = () => {
         { label: "تسجيل الدخول", href: `/login` },
         { label: "إنشاء حساب", href: `/signup` },
         { label: "إعدادات", href: `/settings` },
-        { label: "كن تاجراً", href: `/stores/add` },
+        { label: "كن تاجراً", href: `/admin/stores/add` },
       ]
     },
     {
