@@ -468,8 +468,16 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         </>
     );
 
-    const hasActiveConversation = conversation && conversation.state === "active";
+    const hasActiveConversation = conversation && (conversation.state === "active" || conversation.state === "with_agent" || conversation.state === "waiting");
     const isAwaitingRating = conversation?.state === "awaiting_rating";
+
+    const statusLabel = useMemo(() => {
+        if (!conversation) return null;
+        if (conversation.state === "waiting") return "بانتظار الموظف...";
+        if (conversation.state === "with_agent") return "محادثة مباشرة";
+        if (["active"].includes(conversation.state)) return "متصل";
+        return null;
+    }, [conversation]);
 
     return (
         <div
@@ -492,9 +500,9 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 <div className="flex items-center gap-3" dir="rtl">
                     <div>
                         <h3 className="text-white font-medium text-sm leading-tight text-left">الدعم الذكي</h3>
-                        {hasActiveConversation && (
+                        {statusLabel && (
                             <div className="flex items-center gap-1.5 mt-0.5 justify-end">
-                                <span className="text-white/70 text-[11px]">متصل</span>
+                                <span className="text-white/70 text-[11px] font-outfit">{statusLabel}</span>
                                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                             </div>
                         )}
@@ -535,7 +543,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 renderEndConfirmView()
             ) : isAwaitingRating || chatView === "rating" ? (
                 renderRatingView()
-            ) : hasActiveConversation ? (
+            ) : conversation ? (
                 renderChatMessages()
             ) : (
                 renderWelcomeScreen()
