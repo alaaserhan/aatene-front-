@@ -25,6 +25,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
 
     const [realtimeMessages, setRealtimeMessages] = useState<WebMessage[]>([]);
 
+
     const { data: messagesData, isLoading } = useGetWebConversationMessages({
         conversationId,
         per_page: 100,
@@ -55,11 +56,14 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         if (!msg?.id) return;
         if (msg.sender_type === "admin") return;
 
+        const msgConvId = (data.conversation_id || (msg as unknown as Record<string, unknown>).conversation_id) as number | undefined;
+        if (msgConvId && msgConvId !== conversationId) return;
+
         setRealtimeMessages((prev) => {
             if (prev.some((m) => m.id === msg.id)) return prev;
             return [...prev, msg];
         });
-    }, []);
+    }, [conversationId]);
 
     const handleTypingIndicator = useCallback((data: Record<string, unknown>) => {
         const userData = data.user as { id: number; full_name?: string } | undefined;
@@ -92,7 +96,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
 
     const handleTyping = useCallback(() => {
         const now = Date.now();
-        if (now - lastTypingSentRef.current < 500) return;
+        if (now - lastTypingSentRef.current < 3000) return;
         lastTypingSentRef.current = now;
         markTyping(conversationId);
     }, [conversationId, markTyping]);

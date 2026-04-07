@@ -144,7 +144,7 @@ export function MessagesPage() {
                         `}>
                             {selectedChatId ? (
                                 isWebsite ? (
-                                    <WebChatConversationView conversationId={Number(selectedChatId)} />
+                                    <WebChatConversationView key={selectedChatId} conversationId={Number(selectedChatId)} />
                                 ) : (
                                     <ChatConversationView chatId={selectedChatId} platform={activePlatform} />
                                 )
