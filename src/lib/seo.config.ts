@@ -293,6 +293,11 @@ export const PAGE_SEO: Record<string, PageSEO> = {
         description: "إضافة مستخدم جديد",
         keywords: ["إضافة", "مستخدم", "أعطيني"],
     },
+    dashboardContacts: {
+        title: "رسائل التواصل",
+        description: "الرسائل المُرسلة من صفحة من نحن",
+        keywords: ["رسائل", "تواصل", "اتصل بنا"],
+    },
 };
 
 export function generatePageMetadata(

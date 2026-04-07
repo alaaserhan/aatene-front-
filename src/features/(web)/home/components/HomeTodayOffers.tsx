@@ -25,7 +25,7 @@ export default function HomeTodayOffers({ products: initialProducts }: HomeToday
                     <h2 className="text-2xl md:text-3xl font-medium">
                         عروض اليوم الكبرى
                     </h2>
-                    <Link href="/offers" className="inline-flex items-center justify-center p-2 px-4 rounded-full bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2c4461] transition-colors">
+                    <Link href="/search?type=products&has_discount=1" className="inline-flex items-center justify-center p-2 px-4 rounded-full bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2c4461] transition-colors">
                         عرض الكل
                         <ChevronsLeft className="w-4 h-4 mr-1" />
                     </Link>

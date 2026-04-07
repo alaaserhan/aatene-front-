@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Loader2, ArrowLeft, Music2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { useGetAboutUs } from "@/src/features/(web)/pages/hooks";
 import { useSendContact } from "@/src/features/(web)/pages/hooks";
 import { useSettingsStore } from "@/src/stores/settings-store";
@@ -47,14 +48,25 @@ export default function AboutPage() {
 
     const handleContactSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!contactForm.name.trim() || !contactForm.email.trim() || !contactForm.message.trim()) return;
+        if (!contactForm.name.trim()) {
+            toast.error("يرجى إدخال الاسم");
+            return;
+        }
+        if (!contactForm.email.trim()) {
+            toast.error("يرجى إدخال البريد الإلكتروني");
+            return;
+        }
+        if (!contactForm.message.trim()) {
+            toast.error("يرجى إدخال الرسالة");
+            return;
+        }
         sendContactMsg(contactForm, {
             onSuccess: () => {
                 setContactForm({ name: "", email: "", message: "" });
-                alert("✅ تم إرسال رسالتك بنجاح، سنتواصل معك قريباً.");
+                toast.success("تم إرسال رسالتك بنجاح، سنتواصل معك قريباً.");
             },
             onError: () => {
-                alert("❌ حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.");
+                toast.error("حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.");
             },
         });
     };

@@ -84,9 +84,9 @@ export function Calendar({
   return (
     <div className={cn("w-[280px] bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden", className)}>
       <div className="gradient-blue px-4 py-3.5">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between" dir="ltr">
           <button
-            onClick={nextMonth}
+            onClick={prevMonth}
             className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors text-white"
           >
             <ChevronLeftIcon className="h-4.5 w-4.5" />
@@ -106,7 +106,7 @@ export function Calendar({
           </button>
 
           <button
-            onClick={prevMonth}
+            onClick={nextMonth}
             className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors text-white"
           >
             <ChevronRightIcon className="h-4.5 w-4.5" />

@@ -315,6 +315,7 @@ export interface StoresSearchResponse extends GenericPaginationResponse {
 }
 
 export interface StoreSearchParams {
+    search?: string;
     city_id?: number[];
     category_id?: number;
     tags?: number[];
