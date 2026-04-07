@@ -200,6 +200,7 @@ function SearchContent({ type }: { type: SearchType }) {
 
     const storesParamsObj = useMemo(() => {
         return {
+            search: query || undefined,
             category_id: filters.category_id,
             city_id: filters.city_id,
             tags: filters.tags,
@@ -207,7 +208,7 @@ function SearchContent({ type }: { type: SearchType }) {
             page,
             per_page: PER_PAGE,
         };
-    }, [filters, page]);
+    }, [query, filters, page]);
 
     // Fetch results based on type
     const { data: productsData, isLoading: isLoadingProducts } = useSearchProducts(searchParamsObj, type === "products");

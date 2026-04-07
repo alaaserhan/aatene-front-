@@ -29,6 +29,7 @@ const MERCHANT_BLOCKED_SEGMENTS = new Set([
   'categories',
   'permissions',
   'settings',
+  'contacts',
 ]);
 
 function getLocaleFromPath(pathname: string) {
