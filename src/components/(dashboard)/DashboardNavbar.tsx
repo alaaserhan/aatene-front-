@@ -162,7 +162,8 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   }, []);
 
   const { data: unreadData } = useTotalUnreadCount(
-    isMerchant ? (Cookies.get("current_store_id") || undefined) : undefined
+    isMerchant ? (activeStoreId || undefined) : undefined,
+    !isMerchant
   );
   const unreadCount = unreadData?.unread_conversations_count || 0;
 

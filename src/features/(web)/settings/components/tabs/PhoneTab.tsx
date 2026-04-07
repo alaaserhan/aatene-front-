@@ -15,9 +15,18 @@ export default function PhoneTab() {
 
     useEffect(() => {
         if (accountData?.user?.phone) {
-            // Split country code and phone if possible, or just set as is
-            // For now, let's assume the component handles the display
-            setPhone(accountData.user.phone);
+            const rawPhone = accountData.user.phone;
+            // Strip the country code prefix if it's already included
+            const knownCodes = ["+972", "+20", "+966", "+1"];
+            let stripped = rawPhone;
+            for (const code of knownCodes) {
+                if (rawPhone.startsWith(code)) {
+                    setCountryCode(code);
+                    stripped = rawPhone.slice(code.length);
+                    break;
+                }
+            }
+            setPhone(stripped);
         }
     }, [accountData]);
 

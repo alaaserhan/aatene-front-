@@ -2,17 +2,20 @@
 
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import * as api from "./api";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 const QK = {
     conversations: ["conversations"] as const,
 };
 
 export const useConversations = (storeId?: number | string, ignoreCookie: boolean = false, enabled: boolean = true) => {
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
     return useQuery({
         queryKey: [...QK.conversations, storeId, ignoreCookie],
         queryFn: () => api.getConversations(storeId, ignoreCookie),
-        enabled,
-        staleTime: 30 * 1000, // 30 ثانية — لا يُعيد الجلب عند كل focus
+        enabled: enabled && isLoggedIn,
+        staleTime: 30 * 1000,
     });
 };
 
@@ -25,10 +28,15 @@ export const useConversationUnreadCount = (id: number | string) => {
 };
 
 export const useTotalUnreadCount = (storeId?: number | string, ignoreCookie: boolean = false) => {
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
     return useQuery({
         queryKey: ["total-unread", storeId, ignoreCookie],
         queryFn: () => api.getTotalUnreadCount(storeId, ignoreCookie),
-        refetchInterval: 15 * 1000, // كل 15 ثانية كـ fallback لو FCM لم يصل
+        enabled: isLoggedIn,
+        staleTime: 0,
+        refetchOnWindowFocus: true,
+        refetchInterval: isLoggedIn ? 10 * 1000 : false,
     });
 };
 
@@ -44,6 +52,7 @@ export const useSendMessage = () => {
             queryClient.invalidateQueries({ queryKey: QK.conversations });
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
             queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });
+            queryClient.invalidateQueries({ queryKey: ["total-unread"] });
         },
     });
 };

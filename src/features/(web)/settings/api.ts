@@ -335,39 +335,65 @@ export const getStory = async (id: number | string): Promise<BaseResponse & { re
     return data;
 };
 
+/**
+ * يستخرج file_name من URL الصورة الكامل
+ * مثال: "https://backend.aatene.com/storage/media/abc.jpg" → "media/abc.jpg"
+ * الباك اند يتوقع file_name من جدول media_center وليس URL كامل
+ */
+const extractFileName = (url: string | null | undefined): string | null => {
+    if (!url) return null;
+    const storageIndex = url.indexOf("/storage/");
+    if (storageIndex !== -1) return url.substring(storageIndex + "/storage/".length);
+    // إذا كانت قيمة file_name مباشرة (لا تحتوي على /storage/)
+    return url;
+};
+
 export const createStory = async (payload: CreateStoryPayload): Promise<BaseResponse & { record: Story }> => {
     if (payload.image_file) {
         const formData = new FormData();
         formData.append("image_file", payload.image_file);
-        formData.append("image", payload.image || "");
-        formData.append("text", payload.text || "");
-        formData.append("color", payload.color || "");
 
         const { data } = await api.post<BaseResponse & { record: Story }>("/profile/stories", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
+            headers: { "Content-Type": undefined }, // اتركه لـ browser يُعيّنه تلقائياً مع boundary
         });
         return data;
     }
 
-    const { data } = await api.post<BaseResponse & { record: Story }>("/profile/stories", payload);
+    // قصة نصية
+    const { data } = await api.post<BaseResponse & { record: Story }>("/profile/stories", {
+        text: payload.text || undefined,
+        color: payload.color || undefined,
+    });
     return data;
 };
 
 export const updateStory = async (id: number | string, payload: CreateStoryPayload): Promise<BaseResponse & { record: Story }> => {
     if (payload.image_file) {
+        // PHP لا يقرأ $_FILES مع PUT → نستخدم POST + _method=PUT (Laravel method spoofing)
         const formData = new FormData();
+        formData.append("_method", "PUT");
         formData.append("image_file", payload.image_file);
-        formData.append("image", payload.image || "");
-        formData.append("text", payload.text || "");
-        formData.append("color", payload.color || "");
 
         const { data } = await api.post<BaseResponse & { record: Story }>(`/profile/stories/${id}`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
+            headers: { "Content-Type": undefined }, // browser يُعيّن boundary تلقائياً
         });
         return data;
     }
 
-    const { data } = await api.put<BaseResponse & { record: Story }>(`/profile/stories/${id}`, payload);
+    if (payload.image) {
+        // الباك اند يتوقع file_name من جدول media_center وليس URL كامل
+        const fileName = extractFileName(payload.image);
+        const { data } = await api.put<BaseResponse & { record: Story }>(`/profile/stories/${id}`, {
+            image: fileName,
+        });
+        return data;
+    }
+
+    // قصة نصية
+    const { data } = await api.put<BaseResponse & { record: Story }>(`/profile/stories/${id}`, {
+        text: payload.text || undefined,
+        color: payload.color || undefined,
+    });
     return data;
 };
 

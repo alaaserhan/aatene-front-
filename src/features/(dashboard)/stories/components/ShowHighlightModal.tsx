@@ -188,11 +188,11 @@ export function ShowHighlightModal({
                         </button>
                     )}
 
-                    <div className="relative w-full h-full flex items-center overflow-hidden">
+                    <div className="relative w-full h-full flex items-center overflow-hidden" dir="ltr">
                         <div
                             className="flex items-center gap-8 absolute left-1/2 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
                             style={{
-                                transform: `translateX(calc(-${ACTIVE_WIDTH / 2}px - (${activeIndex} * ${INACTIVE_WIDTH + GAP}px)))`,
+                                transform: `translateX(calc(-${(ACTIVE_WIDTH / 2) + (activeIndex * (INACTIVE_WIDTH + GAP))}px))`,
                             }}
                         >
                             {highlightStories.map((story, index) => {
