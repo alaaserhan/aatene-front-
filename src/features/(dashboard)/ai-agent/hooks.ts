@@ -1,5 +1,5 @@
 // src/features/(dashboard)/ai-agent/hooks.ts
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import * as api from "./api";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -299,11 +299,21 @@ export function useGetWebConversations(params?: api.GetWebConversationsParams) {
     });
 }
 
-export function useGetWebConversationMessages(params: api.GetWebMessagesParams) {
-    return useQuery({
-        queryKey: ["web-conversation-messages", params.conversationId, params.page, params.per_page],
-        queryFn: () => api.getWebConversationMessages(params),
+export function useGetWebConversationMessages(params: Omit<api.GetWebMessagesParams, "page">) {
+    return useInfiniteQuery({
+        queryKey: ["web-conversation-messages", params.conversationId],
+        queryFn: ({ pageParam = 1 }) => api.getWebConversationMessages({
+            ...params,
+            page: pageParam,
+            per_page: params.per_page || 15
+        }),
+        initialPageParam: 1,
+        getNextPageParam: (lastPage, allPages) => {
+            const hasMore = lastPage.data.length === (params.per_page || 15);
+            return hasMore ? allPages.length + 1 : undefined;
+        },
         enabled: !!params.conversationId,
+        refetchOnMount: "always",
     });
 }
 
