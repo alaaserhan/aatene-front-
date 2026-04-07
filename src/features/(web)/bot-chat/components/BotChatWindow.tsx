@@ -56,9 +56,14 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const {
         data: messagesData,
         isLoading: isLoadingMessages,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
     } = useConversationMessages(conversationId, true);
 
-    const apiMessages = useMemo(() => messagesData?.data ?? [], [messagesData]);
+    const apiMessages = useMemo(() => {
+        return messagesData?.pages.flatMap((page) => page.data) ?? [];
+    }, [messagesData]);
 
     const allMessages = useMemo(() => {
         const apiIds = new Set(apiMessages.map((m) => m.id));
@@ -108,10 +113,11 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     );
 
     useEffect(() => {
-        if (scrollRef.current) {
+        if (scrollRef.current && !isFetchingNextPage) {
+            // Only auto-scroll to bottom if we are not fetching older messages
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [allMessages, typingUser]);
+    }, [allMessages, typingUser, isFetchingNextPage]);
 
     useEffect(() => {
         if (inputRef.current) {
@@ -123,7 +129,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const handleTyping = useCallback(() => {
         if (!conversationId) return;
         const now = Date.now();
-        if (now - lastTypingSentRef.current < 500) return;
+        if (now - lastTypingSentRef.current < 3000) return;
         lastTypingSentRef.current = now;
         sendTyping(conversationId);
     }, [conversationId, sendTyping]);
@@ -337,8 +343,23 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
     const renderChatMessages = () => (
         <>
-            <div className="flex-1 overflow-y-auto bg-[#f5f7fa] p-4" dir="rtl" ref={scrollRef}>
+            <div 
+                className="flex-1 overflow-y-auto bg-[#f5f7fa] p-4" 
+                dir="rtl" 
+                ref={scrollRef}
+                onScroll={(e) => {
+                    const { scrollTop } = e.currentTarget;
+                    if (scrollTop < 50 && hasNextPage && !isFetchingNextPage) {
+                        fetchNextPage();
+                    }
+                }}
+            >
                 <div className="flex flex-col gap-3">
+                    {isFetchingNextPage && (
+                        <div className="flex justify-center py-2 shrink-0">
+                            <Loader2 className="w-5 h-5 text-[#4a7ab5] animate-spin" />
+                        </div>
+                    )}
                     {isLoadingMessages && allMessages.length === 0 ? (
                         <div className="flex items-center justify-center py-8">
                             <Loader2 className="w-6 h-6 animate-spin text-[#4a7ab5]" />
