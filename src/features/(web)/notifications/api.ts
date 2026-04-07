@@ -1,8 +1,7 @@
 import api from "@/src/lib/axios";
 
 export interface DashboardNotification {
-    id: number;
-    notification_id: string;
+    id: number; // backend maps notification_id (FK) to this field
     title: string;
     body: string;
     media: string[];

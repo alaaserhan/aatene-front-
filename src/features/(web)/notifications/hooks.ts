@@ -20,7 +20,9 @@ export const useMyNotificationStats = (enabled = true) => {
         queryKey: ["myNotificationStats"],
         queryFn: () => getMyNotificationStats(),
         enabled: enabled && isLoggedIn,
-        refetchInterval: 15 * 1000, // كل 15 ثانية كـ fallback لو FCM لم يصل
+        staleTime: 0,
+        refetchOnWindowFocus: true,
+        refetchInterval: (enabled && isLoggedIn) ? 10 * 1000 : false,
     });
 };
 

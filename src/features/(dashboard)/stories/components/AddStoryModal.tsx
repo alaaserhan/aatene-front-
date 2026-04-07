@@ -32,6 +32,7 @@ interface AddStoryModalProps {
     onSave: (payload: CreateStoryPayload, onSuccess?: () => void) => void;
     isPending: boolean;
     MediaPickerComponent: React.ComponentType<MediaPickerProps>;
+    preSelectedFile?: { name: string; url: string; file?: File } | null;
 }
 
 const COLORS = [
@@ -59,7 +60,8 @@ export function AddStoryModal({
     storyToEdit,
     onSave,
     isPending,
-    MediaPickerComponent
+    MediaPickerComponent,
+    preSelectedFile,
 }: AddStoryModalProps) {
     const [currentMode, setCurrentMode] = useState<"text" | "media">(initialMode);
 
@@ -86,11 +88,14 @@ export function AddStoryModal({
                     setSelectedColor(storyToEdit.color || COLORS[0]);
                     setSelectedFile(null);
                 }
+                setIsMediaModalOpen(false);
             } else {
                 setCurrentMode(initialMode);
                 setText("");
                 setSelectedColor(COLORS[0]);
-                setSelectedFile(null);
+                // إذا كان هناك ملف محدد مسبقاً (من StoriesList) استخدمه مباشرة
+                setSelectedFile(preSelectedFile || null);
+                setIsMediaModalOpen(false);
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -108,10 +113,11 @@ export function AddStoryModal({
 
         const payload: CreateStoryPayload = currentMode === "media"
             ? { 
-                image: selectedFile?.file ? null : (selectedFile?.name || null), 
+                // إذا كان هناك ملف جديد → أرسل الملف، وإلا أرسل URL الصورة الحالية (api.ts تستخرج file_name)
+                image: selectedFile?.file ? null : (selectedFile?.url || null), 
                 image_file: selectedFile?.file || undefined, 
-                text: null, 
-                color: null 
+                text: null,
+                color: null,
             }
             : { text, color: selectedColor, image: null };
 

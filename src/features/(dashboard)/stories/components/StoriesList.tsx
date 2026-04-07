@@ -35,14 +35,24 @@ export function StoriesList({
   // States for Add Modal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addMode, setAddMode] = useState<"text" | "media">("text");
+  const [preSelectedFile, setPreSelectedFile] = useState<{ name: string; url: string; file?: File } | null>(null);
 
-  // ✅ 2. States for Show Modal (مودال العرض)
+  // State for direct media picker (skip Add modal for new media story)
+  const [isDirectMediaPickerOpen, setIsDirectMediaPickerOpen] = useState(false);
+
+  // ✅ 2. States for Show Modal
   const [isShowModalOpen, setIsShowModalOpen] = useState(false);
   const [initialStoryIndex, setInitialStoryIndex] = useState(0);
 
   const handleOpenAdd = (mode: "text" | "media") => {
-    setAddMode(mode);
-    setIsAddModalOpen(true);
+    if (mode === "media") {
+      // فتح منتقي الوسائط مباشرة بدون Add modal وسيط
+      setIsDirectMediaPickerOpen(true);
+    } else {
+      setAddMode("text");
+      setPreSelectedFile(null);
+      setIsAddModalOpen(true);
+    }
   };
 
   // ✅ 3. دالة فتح القصة عند الضغط عليها
@@ -128,11 +138,32 @@ export function StoriesList({
       {/* Add Modal */}
       <AddStoryModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => { setIsAddModalOpen(false); setPreSelectedFile(null); }}
         mode={addMode}
         onSave={onCreateStory}
         isPending={isPending}
         MediaPickerComponent={MediaPickerComponent}
+        preSelectedFile={preSelectedFile}
+      />
+
+      {/* Direct Media Picker for new media story - no intermediate modal */}
+      <MediaPickerComponent
+        open={isDirectMediaPickerOpen}
+        onOpenChange={setIsDirectMediaPickerOpen}
+        onSelect={(items: any) => {
+          const item = Array.isArray(items) ? items[0] : items;
+          if (item) {
+            const name = item.file_name || item.name || "Upload";
+            const url = item.url || item.src;
+            const file = item.file;
+            setPreSelectedFile({ name, url, file });
+            setAddMode("media");
+            setIsAddModalOpen(true);
+          }
+          setIsDirectMediaPickerOpen(false);
+        }}
+        allowedMediaTypes={["gallery"]}
+        multiple={false}
       />
 
       {/* ✅ 5. عرض مودال عرض القصص */}

@@ -3,6 +3,18 @@ import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import Cookies from "js-cookie";
 
+/**
+ * يستخرج file_name من URL الصورة الكامل
+ * مثال: "https://backend.aatene.com/storage/media/abc.jpg" → "media/abc.jpg"
+ * الباك اند يتوقع file_name من جدول media_center وليس URL كامل
+ */
+const extractFileName = (url: string | null | undefined): string | null => {
+  if (!url) return null;
+  const storageIndex = url.indexOf("/storage/");
+  if (storageIndex !== -1) return url.substring(storageIndex + "/storage/".length);
+  return url; // إذا كانت قيمة file_name مباشرة
+};
+
 export interface Story {
   id: number;
   image: string | null;
@@ -107,19 +119,18 @@ export const createStory = async ({
   if (payload.image_file) {
     const formData = new FormData();
     formData.append("image_file", payload.image_file);
-    formData.append("image", payload.image || "");
-    formData.append("text", payload.text || "");
-    formData.append("color", payload.color || "");
-    
     const { data } = await api.post<SingleStoryResponse>(endpoint, formData, {
-      headers: { ...headers, "Content-Type": "multipart/form-data" },
+      headers: { ...headers, "Content-Type": undefined }, // browser يُعيّن boundary تلقائياً
     });
     return data;
   }
 
-  const { data } = await api.post<SingleStoryResponse>(endpoint, payload, {
-    headers,
-  });
+  // قصة نصية
+  const body: Record<string, string> = {};
+  if (payload.text) body.text = payload.text;
+  if (payload.color) body.color = payload.color;
+
+  const { data } = await api.post<SingleStoryResponse>(endpoint, body, { headers });
   return data;
 };
 
@@ -136,21 +147,25 @@ export const updateStory = async ({
   const headers = getHeaders(storeId);
 
   if (payload.image_file) {
+    // صورة جديدة → multipart POST (الداشبورد يقبل POST على /{id} للتعديل)
     const formData = new FormData();
     formData.append("image_file", payload.image_file);
-    formData.append("image", payload.image || "");
-    formData.append("text", payload.text || "");
-    formData.append("color", payload.color || "");
-    
     const { data } = await api.post<SingleStoryResponse>(endpoint, formData, {
-      headers: { ...headers, "Content-Type": "multipart/form-data" },
+      headers: { ...headers, "Content-Type": undefined }, // browser يُعيّن boundary تلقائياً
     });
     return data;
   }
 
-  const { data } = await api.post<SingleStoryResponse>(endpoint, payload, {
-    headers,
-  });
+  // بناء الـ body — الباك اند يتوقع file_name وليس URL كامل
+  const body: Record<string, string> = {};
+  if (payload.image) {
+    const fileName = extractFileName(payload.image);
+    if (fileName) body.image = fileName;
+  }
+  if (payload.text) body.text = payload.text;
+  if (payload.color) body.color = payload.color;
+
+  const { data } = await api.post<SingleStoryResponse>(endpoint, body, { headers });
   return data;
 };
 

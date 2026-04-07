@@ -240,12 +240,12 @@ export function ShowStoryModal({
                     <div
                         className="relative w-full h-full flex items-center overflow-hidden"
                         onClick={onClose}
-                        dir="rtl"
+                        dir="ltr"
                     >
                         <div
-                            className="flex items-center gap-8 absolute right-1/2 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
+                            className="flex items-center gap-8 absolute left-1/2 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
                             style={{
-                                transform: `translateX(${ACTIVE_WIDTH / 2 + activeIndex * (INACTIVE_WIDTH + GAP)}px)`,
+                                transform: `translateX(calc(-${(ACTIVE_WIDTH / 2) + (activeIndex * (INACTIVE_WIDTH + GAP))}px))`,
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >

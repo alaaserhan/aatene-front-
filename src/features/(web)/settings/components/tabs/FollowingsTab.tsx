@@ -77,7 +77,7 @@ export default function FollowingsTab() {
                     قائمة المتابعين
                 </h1>
                 <p className="text-gray-400 text-sm">
-                    قم باختيار نوع الحساب الذي تريده (تاجر/مقدم خدمات/صاحب منتجات)
+                    الأشخاص الذين تتابعهم ويتابعونك
                 </p>
             </div>
 
