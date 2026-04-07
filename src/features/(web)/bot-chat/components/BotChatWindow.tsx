@@ -42,7 +42,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const inputRef = useRef<HTMLInputElement>(null);
 
     const queryClient = useQueryClient();
-    
+
     const { data: currentConvData, isLoading: isLoadingConv } = useCurrentConversation(true);
     const conversation = currentConvData?.data;
     const conversationId = conversation?.id;
@@ -63,7 +63,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const allMessages = useMemo(() => {
         const apiIds = new Set(apiMessages.map((m) => m.id));
         const filtered = realtimeMessages.filter((rtMsg) => !apiIds.has(rtMsg.id));
-        return [...apiMessages, ...filtered].sort((a, b) => 
+        return [...apiMessages, ...filtered].sort((a, b) =>
             new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         );
     }, [apiMessages, realtimeMessages]);
@@ -169,12 +169,12 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         if (!conversationId || rating === 0) return;
         submitRatingMutation.mutate(
             { conversationId, rate: rating, comment: ratingComment },
-            { 
+            {
                 onSuccess: () => {
                     setChatView("chat");
                     setRating(0);
                     setRatingComment("");
-                } 
+                }
             }
         );
     };
@@ -235,63 +235,63 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 <h3 className="text-lg font-semibold text-gray-800 mb-1">كيف كانت تجربتك؟</h3>
                 <p className="text-sm text-gray-500 text-center mb-5">ساعدنا في تحسين خدمة الدعم</p>
 
-                    <div className="flex gap-2 mb-4">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                                key={star}
-                                onMouseEnter={() => setHoverRating(star)}
-                                onMouseLeave={() => setHoverRating(0)}
-                                onClick={() => setRating(star)}
-                                className="p-1 transition-all hover:scale-125 cursor-pointer"
-                            >
-                                <Star
-                                    className={cn(
-                                        "w-8 h-8 transition-all duration-200",
-                                        star <= (hoverRating || rating)
-                                            ? "text-amber-400 fill-amber-400 drop-shadow-[0_2px_4px_rgba(251,191,36,0.4)]"
-                                            : "text-gray-300"
-                                    )}
-                                />
-                            </button>
-                        ))}
+                <div className="flex gap-2 mb-4">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                            key={star}
+                            onMouseEnter={() => setHoverRating(star)}
+                            onMouseLeave={() => setHoverRating(0)}
+                            onClick={() => setRating(star)}
+                            className="p-1 transition-all hover:scale-125 cursor-pointer"
+                        >
+                            <Star
+                                className={cn(
+                                    "w-8 h-8 transition-all duration-200",
+                                    star <= (hoverRating || rating)
+                                        ? "text-amber-400 fill-amber-400 drop-shadow-[0_2px_4px_rgba(251,191,36,0.4)]"
+                                        : "text-gray-300"
+                                )}
+                            />
+                        </button>
+                    ))}
+                </div>
+
+                {rating > 0 && (
+                    <div className="text-center mb-4  animate-in fade-in duration-300">
+                        <span className="text-2xl">
+                            {rating === 1 && "😞"}
+                            {rating === 2 && "😐"}
+                            {rating === 3 && "🙂"}
+                            {rating === 4 && "😊"}
+                            {rating === 5 && "🤩"}
+                        </span>
                     </div>
+                )}
 
-                    {rating > 0 && (
-                        <div className="text-center mb-4  animate-in fade-in duration-300">
-                            <span className="text-2xl">
-                                {rating === 1 && "😞"}
-                                {rating === 2 && "😐"}
-                                {rating === 3 && "🙂"}
-                                {rating === 4 && "😊"}
-                                {rating === 5 && "🤩"}
-                            </span>
-                        </div>
+                <textarea
+                    value={ratingComment}
+                    onChange={(e) => setRatingComment(e.target.value)}
+                    placeholder="أضف تعليقاً (اختياري)..."
+                    dir="rtl"
+                    rows={3}
+                    className="w-full bg-white rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-400 outline-none resize-none mb-4 focus:border-[#4a7ab5] focus:ring-2 focus:ring-[#4a7ab5]/10 transition-all"
+                />
+
+                <button
+                    onClick={handleSubmitRating}
+                    disabled={rating === 0 || submitRatingMutation.isPending}
+                    className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-white text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                        background: rating > 0 ? "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)" : "#d1d5db",
+                        boxShadow: rating > 0 ? "0 4px 16px rgba(44,68,96,0.3)" : "none",
+                    }}
+                >
+                    {submitRatingMutation.isPending ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                        <span>إرسال التقييم</span>
                     )}
-
-                    <textarea
-                        value={ratingComment}
-                        onChange={(e) => setRatingComment(e.target.value)}
-                        placeholder="أضف تعليقاً (اختياري)..."
-                        dir="rtl"
-                        rows={3}
-                        className="w-full bg-white rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-400 outline-none resize-none mb-4 focus:border-[#4a7ab5] focus:ring-2 focus:ring-[#4a7ab5]/10 transition-all"
-                    />
-
-                    <button
-                        onClick={handleSubmitRating}
-                        disabled={rating === 0 || submitRatingMutation.isPending}
-                        className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-white text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{
-                            background: rating > 0 ? "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)" : "#d1d5db",
-                            boxShadow: rating > 0 ? "0 4px 16px rgba(44,68,96,0.3)" : "none",
-                        }}
-                    >
-                        {submitRatingMutation.isPending ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                            <span>إرسال التقييم</span>
-                        )}
-                    </button>
+                </button>
             </div>
         </div>
     );
@@ -304,7 +304,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 >
                     <AlertCircle className="w-10 h-10 text-red-500" />
                 </div>
-                
+
                 <h3 className="text-xl font-bold text-gray-900 mb-2 font-outfit">إنهاء المحادثة؟</h3>
                 <p className="text-sm text-gray-500 text-center mb-10 leading-relaxed max-w-[240px]">
                     هل أنت متأكد من رغبتك في إنهاء المحادثة الحالية؟ سيتم تحويلك لتقييم الخدمة.
@@ -323,7 +323,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                             <span>نعم، إنهاء المحادثة</span>
                         )}
                     </button>
-                    
+
                     <button
                         onClick={() => setShowEndConfirm(false)}
                         className="w-full cursor-pointer px-6 py-3.5 rounded-2xl text-gray-600 text-sm font-bold hover:bg-gray-50 transition-all border border-gray-100"
@@ -387,7 +387,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                                             style={!isUser ? { boxShadow: "0 1px 4px rgba(0,0,0,0.06)" } : undefined}
                                         >
                                             {msg.message_text}
-                                            
+
                                             <div className={cn(
                                                 "text-[10px] mt-1 opacity-50",
                                                 isUser ? "text-right" : "text-left"
@@ -468,7 +468,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         </>
     );
 
-    const hasActiveConversation = conversation && conversation.state === "active";
+    const hasActiveConversation = conversation && (conversation.state === "active" || conversation.state === "with_agent" || conversation.state === "waiting");
     const isAwaitingRating = conversation?.state === "awaiting_rating";
 
     return (
@@ -490,26 +490,18 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 }}
             >
                 <div className="flex items-center gap-3" dir="rtl">
-                    <div>
-                        <h3 className="text-white font-medium text-sm leading-tight text-left">الدعم الذكي</h3>
-                        {hasActiveConversation && (
-                            <div className="flex items-center gap-1.5 mt-0.5 justify-end">
-                                <span className="text-white/70 text-[11px]">متصل</span>
-                                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                            </div>
-                        )}
-                    </div>
                     <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                         <Bot className="w-6 h-6 text-white" />
                     </div>
+                    <div>
+                        <h3 className="text-white font-medium text-sm leading-tight">الدعم الذكي</h3>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-white/70 text-[11px]">متصل</span>
+                            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        </div>
+                    </div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                    <button
-                        onClick={onClose}
-                        className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors cursor-pointer"
-                    >
-                        <X className="w-4 h-4 text-white" />
-                    </button>
                     {hasActiveConversation && (
                         <button
                             onClick={() => setShowEndConfirm(prev => !prev)}
@@ -522,6 +514,13 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                             <LogOut className="w-4 h-4" />
                         </button>
                     )}
+                    <button
+                        onClick={onClose}
+                        className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors cursor-pointer"
+                    >
+                        <X className="w-4 h-4 text-white" />
+                    </button>
+
                 </div>
 
             </div>
@@ -534,7 +533,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 renderEndConfirmView()
             ) : isAwaitingRating || chatView === "rating" ? (
                 renderRatingView()
-            ) : hasActiveConversation ? (
+            ) : conversation ? (
                 renderChatMessages()
             ) : (
                 renderWelcomeScreen()

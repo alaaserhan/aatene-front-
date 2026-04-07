@@ -2,7 +2,7 @@ export interface Conversation {
     id: number;
     user_id: number;
     platform: string;
-    state: "active" | "awaiting_rating" | "closed";
+    state: "active" | "awaiting_rating" | "closed" | "waiting" | "with_agent";
     needs_human: boolean;
     last_message_at: string;
     closed_at: string | null;
