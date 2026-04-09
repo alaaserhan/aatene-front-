@@ -69,10 +69,11 @@ export function AddProductStep2({
 
   // Sync tags if initialData changes (e.g. AI generation finished)
   useEffect(() => {
-    if (initialData?.tags) {
+    if (initialData?.tags && initialData.tags.length > 0) {
       setFormData(prev => ({ ...prev, tags: initialData.tags }));
     }
-  }, [initialData?.tags]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(initialData?.tags)]);
 
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
