@@ -331,7 +331,7 @@ export function AddProductStep1({
                   mainImageLabel="الصوره الرئيسية"
                   showDragHint={true}
                   mainImageAllowedMediaTypes={["image"]}
-                  allowedMediaTypes={["gallery", "image"]}
+                  allowedMediaTypes={["gallery", "image", "video"]}
                   required
                 />
 
