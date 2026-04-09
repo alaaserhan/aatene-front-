@@ -421,7 +421,7 @@ export default function AboutPage() {
                         <div className="flex-1">
                             <p className="text-blue-4 font-medium mb-2 text-lg">ابدأ الآن بإضافة رسالتك</p>
                             <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                                تواصل معنا، نحن هنا لمساعدتك.
+                                شارك أفكارك للتطوير
                             </h2>
                             <p
                                 className="text-gray-2"
@@ -433,7 +433,7 @@ export default function AboutPage() {
                                     textAlign: "right"
                                 }}
                             >
-                                فريقنا جاهز يرد على كل استفساراتك ويساعدك بخطوات واضحة وسريعة، سواء كنت حابب تعرف أكثر عن خدماتنا أو تحتاج دعم في طلبك. لا تتردد، رسالتك تهمنا.
+                                نرحّب بجميع اقتراحاتك وملاحظاتك اللى بتساعدنا نحسن تجربتك  ونطّور المنصة بشكل مستمر 
                             </p>
                         </div>
                         <div className="flex md:flex-col gap-4 items-center shrink-0">
