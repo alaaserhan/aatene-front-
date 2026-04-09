@@ -218,7 +218,7 @@ export function ClientSettingsPage() {
   const handleSaveAll = async () => {
     try {
       if (!formData.basicInfo.phone) {
-        toast.error("يرجى إدخال رقم الهاتف المحمول");
+        toast.error("يرجى إدخال رقم رقم التليفون");
         return;
       }
       if (!formData.basicInfo.whatsapp) {

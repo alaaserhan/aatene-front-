@@ -8,7 +8,7 @@ import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import Link from "next/link";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import {
     Star,
@@ -28,6 +28,7 @@ import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/
 import { useQueryClient } from "@tanstack/react-query";
 import { blogsKeys } from "../hooks";
 import { cn } from "@/src/lib/utils";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -78,6 +79,11 @@ function AuthorCard({ blog }: { blog: Blog }) {
 
     const chatHref = `/chat?type=${isStore ? "store" : "user"}&id=${isStore ? blog.store?.id : blog.user?.id}`;
 
+    const router = useRouter();
+    const params = useParams();
+    const lang = params?.locale || params?.lang || "ar";
+    const { user: authUser } = useAuthStore();
+
     return (
         <div className="bg-white border border-[#e0dfdc] rounded-xl p-6 flex flex-col items-center gap-4">
             <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100 flex items-center justify-center bg-gray-50">
@@ -104,12 +110,16 @@ function AuthorCard({ blog }: { blog: Blog }) {
                 {description?.slice(0, 150) || "لا يوجد وصف"}
             </p>
             <div className="flex items-center gap-2 w-full">
-                <Link href={chatHref} className="flex-1">
-                    <button className="w-full flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer">
-                        <MessageSquare size={13} />
-                        تواصل معي
-                    </button>
-                </Link>
+                <button
+                    onClick={() => {
+                        if (!authUser) { router.push(`/${lang}/login`); return; }
+                        router.push(chatHref);
+                    }}
+                    className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer"
+                >
+                    <MessageSquare size={13} />
+                    تواصل معي
+                </button>
                 {blog.store ? (
                     <ReportAbuse type="store" id={blog.store.id}>
                         <button className="flex cursor-pointer items-center justify-center gap-1 border border-[#b75959] text-[#b75959] rounded-full px-4 h-[25px] text-[11px] font-medium whitespace-nowrap">

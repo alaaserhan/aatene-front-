@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useState, useMemo } from "react";
 import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Check, Clock4 } from "lucide-react";
 import { Service } from "../api";
@@ -10,8 +10,8 @@ import { useAddServiceToCompare, useRemoveServiceFromCompare } from "@/src/featu
 import { cn } from "@/src/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
-import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { ShareModal } from "@/src/components/ui/ShareModal";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface ServiceHeroProps {
     service: Service;
@@ -42,12 +42,14 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
     const [showMenu, setShowMenu] = useState(false);
     const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
     const [selectedExtras, setSelectedExtras] = useState<number[]>([]);
-    const [selectedSpecialty, setSelectedSpecialty] = useState<string>("");
     const [isReportOpen, setIsReportOpen] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
     const [isInCompare, setIsInCompare] = useState(service.is_compare);
 
     const router = useRouter();
+    const params = useParams();
+    const lang = params?.locale || params?.lang || "ar";
+    const { user } = useAuthStore();
     const qc = useQueryClient();
     const { mutate: addToCompare } = useAddServiceToCompare();
     const { mutate: removeFromCompare } = useRemoveServiceFromCompare();
@@ -302,18 +304,20 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                         </div>
                     )}
 
-                    {/* Specialties / Field Dropdown */}
+                    {/* Specialties / Field Tags */}
                     {service.specialties && service.specialties.length > 0 && (
                         <div className="flex flex-col gap-2">
-                            <ReusableDropdown
-                                placeholder="اختر المجال"
-                                options={service.specialties.map(spec => ({
-                                    value: spec.id.toString(),
-                                    label: spec.title
-                                }))}
-                                value={selectedSpecialty}
-                                onChange={setSelectedSpecialty}
-                            />
+                            <p className="text-sm font-medium text-gray-700">التخصصات ومجالات العمل</p>
+                            <div className="flex flex-wrap gap-2">
+                                {service.specialties.map((spec) => (
+                                    <span
+                                        key={spec.id}
+                                        className="px-3 py-1 text-xs font-medium bg-[#eef2f7] text-[#395a7d] rounded-full border border-[#d0dcea]"
+                                    >
+                                        {spec.title}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
                     )}
 
@@ -340,7 +344,10 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                         )}
 
                         <button
-                            onClick={() => router.push(`/chat?type=store&id=${service.store?.id}&serviceId=${service.id}`)}
+                            onClick={() => {
+                                if (!user) { router.push(`/${lang}/login`); return; }
+                                router.push(`/chat?type=store&id=${service.store?.id}&serviceId=${service.id}`);
+                            }}
                             className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-11 cursor-pointer rounded-full font-medium  hover:bg-gray-50 transition-colors"
                         >
                             دردش

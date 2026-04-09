@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send } from "lucide-react";
 import { Product, Store, Attribute, AttributeOption } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
@@ -13,6 +13,7 @@ import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import Link from "next/link";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface ProductHeroProps {
     product: Product;
@@ -30,6 +31,10 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
     const [isReportOpen, setIsReportOpen] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
     const [isInCompare, setIsInCompare] = useState(product.in_compare);
+
+    const { user } = useAuthStore();
+    const params = useParams();
+    const lang = params?.locale || params?.lang || "ar";
 
     if (product.is_favorite !== prevProductIsFavorite) {
         setPrevProductIsFavorite(product.is_favorite);
@@ -386,7 +391,10 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
 
                         {/* Chat Button */}
                         <button
-                            onClick={() => router.push(`/chat?type=store&id=${store.id}&productId=${product.id}`)}
+                            onClick={() => {
+                                if (!user) { router.push(`/${lang}/login`); return; }
+                                router.push(`/chat?type=store&id=${store.id}&productId=${product.id}`);
+                            }}
                             className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-11 cursor-pointer rounded-full font-medium  hover:bg-gray-50 transition-colors"
                         >
                             دردش
