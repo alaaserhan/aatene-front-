@@ -426,7 +426,6 @@ export function AddProductStep1({
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium flex items-center gap-1">
                       الوصف الموجز
-                      <span className="text-red-500">*</span>
                     </Label>
                     <Tooltip
                       trigger={
@@ -479,6 +478,7 @@ export function AddProductStep1({
                       setFormData({ ...formData, description: val })
                     }
                     label="وصف المنتج"
+                    required
                     placeholder="اكتب وصفاً تفصيلاً..."
                     helpText="ماهو وصف المنتج"
                     helpTooltip="اكتب وصفًا تفصيليًا يشرح مميزات المنتج، خامته، طريقة استخدامه، والمعلومات الإضافية التي قد تساعد العميل في اتخاذ قرار الشراء. يمكنك استخدام فقرات أو نقاط مرتبة لتوضيح التفاصيل."

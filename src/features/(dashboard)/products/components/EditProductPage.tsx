@@ -52,7 +52,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   const [prevProductData, setPrevProductData] = useState<unknown>(null);
   const generateAIMutation = useGenerateProductAI();
   const isGeneratingAI = generateAIMutation.isPending;
-  const [lastGeneratedInput, setLastGeneratedInput] = useState<{ title: string; description: string; short_description: string } | null>(null);
+  const [lastGeneratedInput, setLastGeneratedInput] = useState<{ title: string; description: string } | null>(null);
   const [aiKeywords, setAiKeywords] = useState<string[]>([]);
 
   if (productData && productData !== prevProductData) {
@@ -181,13 +181,11 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   const handleGenerateAI = async (currentStep1Data: Step1FormData) => {
     const title = currentStep1Data.name.trim();
     const description = currentStep1Data.description.trim();
-    const short_description = currentStep1Data.short_description.trim();
 
     if (
       lastGeneratedInput &&
       lastGeneratedInput.title === title &&
-      lastGeneratedInput.description === description &&
-      lastGeneratedInput.short_description === short_description
+      lastGeneratedInput.description === description
     ) {
       return;
     }
@@ -196,11 +194,10 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       const data = await generateAIMutation.mutateAsync({
         title,
         description,
-        short_description,
         type: "product",
       });
 
-      setLastGeneratedInput({ title, description, short_description });
+      setLastGeneratedInput({ title, description });
 
 
       setFormData((prev) => {
