@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { useQueryClient } from "@tanstack/react-query";
+import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 
 interface StoreCardProps {
     store: Store;
@@ -75,6 +76,24 @@ const StoreCard = memo(({
                         <StoreIcon className="w-16 h-16 text-gray-400" />
                     </div>
                 )}
+
+                {/* Favorite Button - Top Left */}
+                <div
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    className="absolute top-3 left-3 z-10 w-10 h-10 rounded-full bg-[#ffffffc9] flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                >
+                    <FavoriteButton
+                        id={store.id}
+                        type="store"
+                        isFavorite={store.is_favorite}
+                        onSuccess={() => {
+                            queryClient.invalidateQueries({ queryKey: ["stores", "search"] });
+                            queryClient.invalidateQueries({ queryKey: ["storeProfile", store.slug] });
+                        }}
+                        className="w-full h-full rounded-full"
+                        iconClassName="w-5 h-5"
+                    />
+                </div>
             </div>
 
             {/* Content Section */}

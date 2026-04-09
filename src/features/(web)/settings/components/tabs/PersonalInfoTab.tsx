@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Camera, Calendar as CalendarIcon } from "lucide-react";
+import { Camera, Calendar as CalendarIcon, Search, ChevronRight, ChevronLeft } from "lucide-react";
 import { useGetAccount, useUpdateAccount, useUpdateAvatar, useGetCities } from "../../hooks";
 import { cn } from "@/src/lib/utils";
 import Image from "next/image";
@@ -27,9 +27,29 @@ export default function PersonalInfoTab() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const { data: accountData, isLoading: isLoadingAccount } = useGetAccount();
-    const { data: citiesData } = useGetCities();
     const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();
     const { mutate: updateAvatar, isPending: isUploadingAvatar } = useUpdateAvatar();
+
+    // City search + pagination state
+    const [citySearch, setCitySearch] = useState("");
+    const [cityPage, setCityPage] = useState(1);
+    const cityPerPage = 10;
+
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+    useEffect(() => {
+        const t = setTimeout(() => { setDebouncedSearch(citySearch); setCityPage(1); }, 400);
+        return () => clearTimeout(t);
+    }, [citySearch]);
+
+    const { data: citiesData, isLoading: isLoadingCities } = useGetCities({
+        name: debouncedSearch || undefined,
+        page: cityPage,
+        per_page: cityPerPage,
+    });
+
+    const cities = citiesData?.cities || [];
+    const totalCities = citiesData?.recordsTotal ?? citiesData?.total ?? cities.length;
+    const totalPages = Math.ceil(totalCities / cityPerPage);
 
     const [formData, setFormData] = useState({
         first_name: "",
@@ -102,11 +122,6 @@ export default function PersonalInfoTab() {
     if (isLoadingAccount) {
         return <div className="text-center py-10">جاري التحميل...</div>;
     }
-
-    const cityOptions = citiesData?.cities?.map(city => ({
-        value: String(city.id),
-        label: city.name
-    })) || [];
 
     const genderOptions = [
         { value: "male", label: "ذكر" },
@@ -284,20 +299,71 @@ export default function PersonalInfoTab() {
                             <label className="text-sm font-medium text-[#4B5563] text-right">
                                 المدينة <span className="text-red-500">*</span>
                             </label>
-                            <ReusableDropdown
-                                options={cityOptions}
-                                value={String(formData.city_id)}
-                                onChange={(val) => {
-                                    setFormData({ ...formData, city_id: Number(val) });
-                                    if (errors.city_id) setErrors((prev) => ({ ...prev, city_id: undefined }));
-                                }}
-                                placeholder="اختر المدينة"
-                                className={cn(
-                                    "rounded-full h-[54px] focus-within:ring-0 focus-within:border-gray-400",
-                                    errors.city_id ? "border-red-500" : "border-gray-200"
+                            <div className={cn("border rounded-2xl bg-white overflow-hidden", errors.city_id ? "border-red-500" : "border-gray-200")}>
+                                {/* Search Input */}
+                                <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-100">
+                                    <Search className="w-4 h-4 text-gray-400 shrink-0" />
+                                    <input
+                                        type="text"
+                                        value={citySearch}
+                                        onChange={(e) => setCitySearch(e.target.value)}
+                                        placeholder="ابحث عن مدينة..."
+                                        className="flex-1 text-sm bg-transparent outline-none text-right placeholder:text-gray-300"
+                                    />
+                                </div>
+                                {/* City List */}
+                                <div className="max-h-48 overflow-y-auto divide-y divide-gray-50">
+                                    {isLoadingCities ? (
+                                        <div className="py-4 text-center text-sm text-gray-400">جاري التحميل...</div>
+                                    ) : cities.length === 0 ? (
+                                        <div className="py-4 text-center text-sm text-gray-400">لا توجد نتائج</div>
+                                    ) : cities.map((city) => (
+                                        <button
+                                            key={city.id}
+                                            type="button"
+                                            onClick={() => {
+                                                setFormData({ ...formData, city_id: city.id });
+                                                if (errors.city_id) setErrors((prev) => ({ ...prev, city_id: undefined }));
+                                            }}
+                                            className={cn(
+                                                "w-full text-right px-4 py-2.5 text-sm transition-colors cursor-pointer hover:bg-gray-50",
+                                                formData.city_id === city.id ? "bg-blue-50 text-blue-4 font-medium" : "text-gray-700"
+                                            )}
+                                        >
+                                            {city.name}
+                                        </button>
+                                    ))}
+                                </div>
+                                {/* Pagination */}
+                                {totalPages > 1 && (
+                                    <div className="flex items-center justify-between px-4 py-2 border-t border-gray-100 bg-gray-50">
+                                        <button
+                                            type="button"
+                                            onClick={() => setCityPage(p => Math.max(1, p - 1))}
+                                            disabled={cityPage === 1}
+                                            className="p-1 rounded-md hover:bg-gray-200 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
+                                        >
+                                            <ChevronRight className="w-4 h-4 text-gray-500" />
+                                        </button>
+                                        <span className="text-xs text-gray-500">{cityPage} / {totalPages}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setCityPage(p => Math.min(totalPages, p + 1))}
+                                            disabled={cityPage === totalPages}
+                                            className="p-1 rounded-md hover:bg-gray-200 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
+                                        >
+                                            <ChevronLeft className="w-4 h-4 text-gray-500" />
+                                        </button>
+                                    </div>
                                 )}
-                                error={errors.city_id}
-                            />
+                            </div>
+                            {/* Selected city display */}
+                            {formData.city_id > 0 && (
+                                <p className="text-xs text-blue-4 px-2">
+                                    المدينة المختارة: <span className="font-medium">{cities.find(c => c.id === formData.city_id)?.name || "..."}</span>
+                                </p>
+                            )}
+                            {errors.city_id && <p className="text-red-500 text-xs px-4">{errors.city_id}</p>}
                         </div>
 
 
