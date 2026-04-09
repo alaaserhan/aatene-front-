@@ -50,6 +50,15 @@ export interface City {
 
 export interface GetCitiesResponse extends BaseResponse {
     cities: City[];
+    recordsTotal?: number;
+    recordsFiltered?: number;
+    total?: number;
+}
+
+export interface GetCitiesParams {
+    name?: string;
+    page?: number;
+    per_page?: number;
 }
 
 // 1.1 Districts
@@ -285,8 +294,8 @@ export const getGlobalSettings = async (): Promise<GetGlobalSettingsResponse> =>
 };
 
 // 1. Cities
-export const getCities = async (): Promise<GetCitiesResponse> => {
-    const { data } = await api.get<GetCitiesResponse>("/cities");
+export const getCities = async (params?: GetCitiesParams): Promise<GetCitiesResponse> => {
+    const { data } = await api.get<GetCitiesResponse>("/cities", { params });
     return data;
 };
 

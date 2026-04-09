@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth-store";
 import {
     getCities,
+    GetCitiesParams,
     getCity,
     getDistricts,
     getBlockedUsers,
@@ -79,10 +80,10 @@ const QK = {
 };
 
 // --- Cities ---
-export const useGetCities = () => {
+export const useGetCities = (params?: GetCitiesParams) => {
     return useQuery({
-        queryKey: QK.cities.all,
-        queryFn: getCities,
+        queryKey: [...QK.cities.all, params?.name, params?.page, params?.per_page],
+        queryFn: () => getCities(params),
     });
 };
 
