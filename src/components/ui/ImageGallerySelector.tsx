@@ -71,6 +71,7 @@ export function ImageGallerySelector({
     };
 
     const isAllowedAsMain = (file: string, url: string) => {
+        // الفيديو لا يمكن تعيينه كصورة رئيسية أبداً
         if (isVideoFile(file) || isVideoFile(url)) {
             return "لا يمكن تعيين الفيديو كصورة رئيسية";
         }
@@ -78,16 +79,14 @@ export function ImageGallerySelector({
         if (mainImageAllowedMediaTypes && mainImageAllowedMediaTypes.length > 0) {
             const fileType = itemMediaTypesRef.current[file] || itemMediaTypesRef.current[url];
 
-            // If the exact type is known from MediaCenter:
-            if (fileType && !mainImageAllowedMediaTypes.includes(fileType as "image" | "gallery" | "avatar" | "video")) {
-                return "لا يمكن تعيين هذا النوع من الملفات كصورة رئيسية";
+            // gallery يحتوي صوراً عادية — السماح به دائماً ما لم يكن فيديو (تم التحقق أعلاه)
+            if (fileType === "gallery") {
+                return null;
             }
 
-            // Fallback (check url path patterns)
-            if (!fileType && !mainImageAllowedMediaTypes.includes("gallery")) {
-                if ((file && file.includes("gallery")) || (url && url.includes("gallery"))) {
-                    return "لا يمكن تعيين صور المعرض كصورة رئيسية";
-                }
+            // إذا كان النوع معروفاً وغير مسموح به
+            if (fileType && !mainImageAllowedMediaTypes.includes(fileType as "image" | "gallery" | "avatar" | "video")) {
+                return "لا يمكن تعيين هذا النوع من الملفات كصورة رئيسية";
             }
         }
 

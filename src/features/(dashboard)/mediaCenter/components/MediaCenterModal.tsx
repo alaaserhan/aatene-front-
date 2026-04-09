@@ -108,7 +108,9 @@ export function MediaCenterModal({
   const uploadMutation = useUploadMedia();
 
   const handleUpload = async (files: FileList) => {
-    const fileType = activeType || (accept.includes("image") ? "image" : "file");
+    // "video" is not a valid backend type — map it to "gallery" which accepts mp4
+    const backendTypeMap: Record<string, string> = { video: "gallery" };
+    const fileType = backendTypeMap[activeType] ?? activeType ?? (accept.includes("image") ? "image" : "file");
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];

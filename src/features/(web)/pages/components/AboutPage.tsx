@@ -485,7 +485,7 @@ export default function AboutPage() {
 
                     <div className="bg-white rounded-xl p-6 md:p-10 shadow-sm">
                         <div className="flex items-center gap-3 justify-center mb-8">
-                            <h3 className="text-lg font-medium">نحن هنا للاستماع، اكتب ما ترغب بمشاركته معنا</h3>
+                            <h3 className="text-lg font-medium">نحن هنا للاستماع لجميع مقترحاتك ، اكتب ما ترغب بمشاركته معنا</h3>
                             <span className="text-2xl">🤗</span>
                         </div>
 
