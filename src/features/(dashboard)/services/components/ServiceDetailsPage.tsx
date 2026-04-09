@@ -463,6 +463,20 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     </div>
                                 </div>
 
+                                {/* Specialties Section */}
+                                {service.specialties && service.specialties.length > 0 && (
+                                    <div className="py-4 border-b border-gray-100">
+                                        <p className="font-bold text-sm mb-2">التخصصات ومجالات العمل</p>
+                                        <div className="flex flex-wrap gap-1">
+                                            {service.specialties.map((spec: string | { id: number; title: string }, idx: number) => (
+                                                <span key={idx} className="text-[#395a7d] text-xs leading-relaxed bg-[#eef2f7] px-2 py-1 rounded-full border border-[#d0dcea]">
+                                                    {typeof spec === 'object' ? spec.title : spec}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Keywords Section */}
                                 <div className="py-4">
                                     <p className=" font-bold text-sm mb-2">الكلمات المفتاحية</p>

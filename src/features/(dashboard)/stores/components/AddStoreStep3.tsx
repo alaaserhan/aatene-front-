@@ -49,7 +49,6 @@ export function AddStoreStep3({
 }: AddStoreStep3Props) {
   const router = useRouter();
   const [phoneCountryCode, setPhoneCountryCode] = useState("+972");
-  const [whatsappCountryCode, setWhatsappCountryCode] = useState("+972");
 
   const [formData, setFormData] = useState<LocalStep3Data>({
     phone: initialData?.phone || "",
@@ -117,7 +116,6 @@ export function AddStoreStep3({
     };
 
     if (!validatePhone(formData.phone, "phone")) isValid = false;
-    if (!validatePhone(formData.whats_app, "whats_app")) isValid = false;
 
     setErrors(newErrors);
 
@@ -158,8 +156,8 @@ export function AddStoreStep3({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <PhoneNumberInput
-                      label="الهاتف المحمول"
-                      placeholder="ادخل رقم الهاتف المحمول"
+                      label="رقم التليفون"
+                      placeholder="ادخل رقم رقم التليفون"
                       countryCode={phoneCountryCode}
                       onCountryCodeChange={setPhoneCountryCode}
                       value={formData.phone}
@@ -210,19 +208,7 @@ export function AddStoreStep3({
                     </div>
                   </div>
 
-                  <PhoneNumberInput
-                    label="الواتساب"
-                    placeholder="ادخل رقم الواتساب"
-                    countryCode={whatsappCountryCode}
-                    onCountryCodeChange={setWhatsappCountryCode}
-                    value={formData.whats_app}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "");
-                      setFormData({ ...formData, whats_app: val });
-                      if (errors.whats_app) setErrors((prev) => ({ ...prev, whats_app: "" }));
-                    }}
-                    error={errors.whats_app}
-                  />
+                  {/* رقم الواتساب محذوف - يمكن إعادته لاحقاً إذا لزم الأمر */}
 
                 </div>
 

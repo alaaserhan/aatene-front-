@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter, useParams } from "next/navigation";
 import { AddToFavoritesModal } from "./AddToFavoritesModal";
 import { useRemoveFromFavorites } from "../hooks";
 import { cn } from "@/src/lib/utils";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface FavoriteButtonProps {
     id: number | string;
@@ -25,10 +27,19 @@ export function FavoriteButton({
 }: FavoriteButtonProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { mutate: removeFromFav, isPending: isRemoving } = useRemoveFromFavorites();
+    const { user } = useAuthStore();
+    const router = useRouter();
+    const params = useParams();
+    const lang = params?.lang || "ar";
 
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
+
+        if (!user) {
+            router.push(`/${lang}/login`);
+            return;
+        }
 
         if (isFavorite) {
             // If already favorite, remove directly

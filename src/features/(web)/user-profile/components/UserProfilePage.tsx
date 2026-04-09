@@ -31,6 +31,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
     const [showShareModal, setShowShareModal] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showMoreMenu, setShowMoreMenu] = useState(false);
+    const { user: authUser } = useAuthStore();
 
     const mappedAvatarStories: Story[] = stories.map(s => ({
         id: s.id,
@@ -202,6 +203,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                     <button
                                         disabled={isChatLoading}
                                         onClick={() => {
+                                            if (!authUser) { router.push(`/${lang}/login`); return; }
                                             setIsChatLoading(true);
                                             router.push(`/chat?type=user&id=${user.id}`);
                                         }}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { StoreProfile, WhoFavoritedUser } from "../api";
 import { cn } from "@/src/lib/utils";
 import {
@@ -31,6 +31,7 @@ import { Story } from "@/src/features/(dashboard)/stories/api";
 import { useStoreWhoFavorited } from "../hooks";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface StoreHeaderProps {
     store: StoreProfile;
@@ -260,6 +261,9 @@ function WhoFavoritedSection({
 
 export default function StoreHeader({ store, followers, stories = [], isOwnStore = false }: StoreHeaderProps) {
     const router = useRouter();
+    const params = useParams();
+    const lang = params?.locale || params?.lang || "ar";
+    const { user } = useAuthStore();
     const queryClient = useQueryClient();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isChatLoading, setIsChatLoading] = useState(false);
@@ -493,6 +497,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                     <button
                                         disabled={isChatLoading}
                                         onClick={() => {
+                                            if (!user) { router.push(`/${lang}/login`); return; }
                                             setIsChatLoading(true);
                                             router.push(`/chat?type=store&id=${store.id}`);
                                         }}

@@ -186,7 +186,7 @@ export function BasicInfoSection({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* استبدال حقل الهاتف اليدوي بالمكون الموحد */}
               <PhoneNumberInput
-                label="الهاتف المحمول"
+                label="رقم التليفون"
                 value={data.phone}
                 onChange={(e) => onChange({ phone: e.target.value })}
                 required={true}
