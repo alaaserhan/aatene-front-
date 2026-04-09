@@ -187,7 +187,7 @@ export function AddProductStep1({
       delete newErrors.short_description;
       hasChanges = true;
     }
-    if (errors.description) {
+    if (errors.description && formData.description.trim()) {
       delete newErrors.description;
       hasChanges = true;
     }
@@ -205,8 +205,8 @@ export function AddProductStep1({
       newErrors.name = "اسم المنتج مطلوب";
     }
 
-    if (!formData.short_description.trim()) {
-      newErrors.short_description = "الوصف الموجز مطلوب";
+    if (!formData.description.trim()) {
+      newErrors.description = "وصف المنتج مطلوب";
     }
 
     if (!formData.cover) {
