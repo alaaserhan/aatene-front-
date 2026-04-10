@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useGetAboutUs } from "@/src/features/(web)/pages/hooks";
 import { useSendContact } from "@/src/features/(web)/pages/hooks";
 import { useSettingsStore } from "@/src/stores/settings-store";
+import { FormInput } from "@/src/components/ui/FormInput";
 
 // ─── Fallback static data (used when API returns nothing) ──────────────────
 
@@ -45,25 +46,34 @@ export default function AboutPage() {
     const { mutate: sendContactMsg, isPending: isSending } = useSendContact();
     const { settings } = useSettingsStore();
     const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
+    const [contactErrors, setContactErrors] = useState<{ name?: string; email?: string; message?: string }>({});
 
     const handleContactSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        const newErrors: { name?: string; email?: string; message?: string } = {};
+
         if (!contactForm.name.trim()) {
-            toast.error("يرجى إدخال الاسم");
-            return;
+            newErrors.name = "يرجى إدخال الاسم";
         }
         if (!contactForm.email.trim()) {
-            toast.error("يرجى إدخال البريد الإلكتروني");
-            return;
+            newErrors.email = "يرجى إدخال البريد الإلكتروني";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactForm.email)) {
+            newErrors.email = "البريد الإلكتروني غير صحيح";
         }
         if (!contactForm.message.trim()) {
-            toast.error("يرجى إدخال الرسالة");
+            newErrors.message = "يرجى إدخال الرسالة";
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setContactErrors(newErrors);
             return;
         }
+
+        setContactErrors({});
         sendContactMsg(contactForm, {
             onSuccess: () => {
                 setContactForm({ name: "", email: "", message: "" });
-                toast.success("تم إرسال رسالتك بنجاح، سنتواصل معك قريباً.");
+                toast.success("تم إرسال رأيك بنجاح، نشكرك ونعدك بالعمل به.");
             },
             onError: () => {
                 toast.error("حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.");
@@ -491,37 +501,43 @@ export default function AboutPage() {
 
                         <form className="space-y-6 max-w-4xl mx-auto" onSubmit={handleContactSubmit}>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <input
-                                        type="text"
-                                        placeholder="الاسم"
-                                        value={contactForm.name}
-                                        onChange={(e) => setContactForm((prev) => ({ ...prev, name: e.target.value }))}
-                                        required
-                                        className="w-full border-b border-gray-300 py-3 text-right bg-transparent outline-none focus:border-blue-4 transition-colors text-sm"
-                                    />
-                                </div>
-                                <div>
-                                    <input
-                                        type="email"
-                                        placeholder="البريد الالكتروني"
-                                        value={contactForm.email}
-                                        onChange={(e) => setContactForm((prev) => ({ ...prev, email: e.target.value }))}
-                                        required
-                                        className="w-full border-b border-gray-300 py-3 text-right bg-transparent outline-none focus:border-blue-4 transition-colors text-sm"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <textarea
-                                    placeholder="الرسالة"
-                                    rows={5}
-                                    value={contactForm.message}
-                                    onChange={(e) => setContactForm((prev) => ({ ...prev, message: e.target.value }))}
+                                <FormInput
+                                    label="الاسم"
                                     required
-                                    className="w-full border-b border-gray-300 py-3 text-right bg-transparent outline-none focus:border-blue-4 transition-colors resize-none text-sm"
+                                    placeholder="أدخل اسمك"
+                                    value={contactForm.name}
+                                    onChange={(e) => {
+                                        setContactForm((prev) => ({ ...prev, name: (e.target as HTMLInputElement).value }));
+                                        if ((e.target as HTMLInputElement).value.trim()) setContactErrors((prev) => ({ ...prev, name: undefined }));
+                                    }}
+                                    error={contactErrors.name}
+                                />
+                                <FormInput
+                                    label="البريد الإلكتروني"
+                                    required
+                                    type="text"
+                                    placeholder="example@email.com"
+                                    value={contactForm.email}
+                                    onChange={(e) => {
+                                        setContactForm((prev) => ({ ...prev, email: (e.target as HTMLInputElement).value }));
+                                        if ((e.target as HTMLInputElement).value.trim()) setContactErrors((prev) => ({ ...prev, email: undefined }));
+                                    }}
+                                    error={contactErrors.email}
                                 />
                             </div>
+                            <FormInput
+                                label="الرسالة"
+                                required
+                                multiline
+                                rows={5}
+                                placeholder="اكتب رسالتك هنا..."
+                                value={contactForm.message}
+                                onChange={(e) => {
+                                    setContactForm((prev) => ({ ...prev, message: (e.target as HTMLTextAreaElement).value }));
+                                    if ((e.target as HTMLTextAreaElement).value.trim()) setContactErrors((prev) => ({ ...prev, message: undefined }));
+                                }}
+                                error={contactErrors.message}
+                            />
                             <button
                                 type="submit"
                                 disabled={isSending}

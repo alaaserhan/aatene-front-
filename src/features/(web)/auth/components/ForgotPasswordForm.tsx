@@ -31,7 +31,14 @@ import { useLanguage } from "@/src/hooks/use-language";
 // --- Schemas ---
 
 const sendCodeSchema = z.object({
-    identifier: z.string().min(1, "البريد الإلكتروني مطلوب").email("بريد إلكتروني غير صالح"),
+    identifier: z
+        .string()
+        .min(1, "البريد الإلكتروني أو رقم الهاتف مطلوب")
+        .refine(
+            (val) =>
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || /^\+?[0-9]{7,15}$/.test(val.replace(/\s/g, "")),
+            "أدخل بريداً إلكترونياً صحيحاً أو رقم هاتف صحيح"
+        ),
 });
 
 const verifyCodeSchema = z.object({
@@ -266,7 +273,7 @@ export function ForgotPasswordForm() {
                                 <FormControl>
                                     <Input
                                         placeholder="example@Aatene.com"
-                                        type="email"
+                                        type="text"
                                         dir="ltr"
                                         className="h-[44px] text-base bg-white border border-[#E3E3E3] rounded-full focus:border-[#3D5E83] focus:ring-1 focus:ring-[#3D5E83] transition-colors text-[#555555] placeholder:text-[#AAAAAA] text-right"
                                         {...field}
