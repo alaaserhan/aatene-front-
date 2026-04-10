@@ -4,7 +4,62 @@ import { Facebook, Twitter, Instagram, Youtube, Ghost, Music2 } from "lucide-rea
 import Link from "next/link";
 import Image from "next/image";
 import { useSettingsStore } from "@/src/stores/settings-store";
-import { Label } from "recharts";
+
+const AppStoreButtons = () => (
+  <div className="flex flex-col gap-2">
+    <div className="relative group cursor-not-allowed">
+      <div className="relative h-12 w-full overflow-hidden rounded-lg opacity-70 group-hover:opacity-100 transition-opacity">
+        <Image
+          src="/Group.svg"
+          alt="Google Play Store"
+          fill
+          className="object-contain object-right"
+        />
+      </div>
+
+    </div>
+    <div className="relative group cursor-not-allowed">
+      <div className="relative h-12 w-full overflow-hidden rounded-lg opacity-70 group-hover:opacity-100 transition-opacity">
+        <Image
+          src="/apple.svg"
+          alt="Apple App Store"
+          fill
+          className="object-contain object-right"
+        />
+      </div>
+
+    </div>
+    <p className="text-[#8B96A5] text-xs text-right">التطبيق قيد التطوير</p>
+  </div>
+);
+
+const AppStoreButtonsMobile = () => (
+  <div className="flex flex-col items-center sm:items-start gap-2 w-full">
+    <div className="flex flex-row gap-3 justify-center sm:justify-start">
+      <div className="relative group cursor-not-allowed w-[120px] h-12 overflow-hidden rounded-lg">
+        <Image
+          width={120}
+          height={40}
+          src="/Group.svg"
+          alt="Google Play Store"
+          className="h-12 w-full opacity-70 group-hover:opacity-100 transition-opacity object-contain"
+        />
+
+      </div>
+      <div className="relative group cursor-not-allowed w-[120px] h-12 overflow-hidden rounded-lg">
+        <Image
+          src="/apple.svg"
+          alt="Apple App Store"
+          width={120}
+          height={40}
+          className="h-12 w-full opacity-70 group-hover:opacity-100 transition-opacity object-contain"
+        />
+
+      </div>
+    </div>
+    <p className="text-[#8B96A5] text-xs text-center sm:text-right w-full">التطبيق قيد التطوير</p>
+  </div>
+);
 
 const Footer = () => {
 
@@ -114,27 +169,8 @@ const Footer = () => {
 
           {/* Mobile App Downloads - Mobile Position */}
           <div className="block lg:hidden col-span-1 sm:col-span-1">
-            <h4 className="font-bold text-base mb-4  text-center sm:text-right">احصل على التطبيق</h4>
-            <div className="flex md:flex-col flex-row justify-center sm:justify-start gap-3 md:gap-0">
-              <a href="#" className="">
-                <Image
-                  width={120}
-                  height={40}
-                  src="/Group.svg"
-                  alt="Google Play Store"
-                  className="h-12"
-                />
-              </a>
-              <a href="#" className=" ">
-                <Image
-                  src="/apple.svg"
-                  alt="Apple App Store"
-                  width={120}
-                  height={40}
-                  className="h-12"
-                />
-              </a>
-            </div>
+            <h4 className="font-bold text-base mb-4 text-center sm:text-right">احصل على التطبيق</h4>
+            <AppStoreButtonsMobile />
           </div>
 
           {/* Navigation Links */}
@@ -164,29 +200,8 @@ const Footer = () => {
 
           {/* Mobile App Downloads - Desktop Position */}
           <div className="hidden lg:block lg:col-span-2">
-            <h4 className="font-bold text-base mb-3 ">احصل على التطبيق</h4>
-            <div className="flex justify-start flex-col gap-3">
-              <a href="#" className="block group">
-                <div className="relative h-12 w-full overflow-hidden rounded-lg transition-transform group-hover:scale-105">
-                  <Image
-                    src="/Group.svg"
-                    alt="Google Play Store"
-                    fill
-                    className="object-contain object-right"
-                  />
-                </div>
-              </a>
-              <a href="#" className="block group">
-                <div className="relative h-12 w-full overflow-hidden rounded-lg transition-transform group-hover:scale-105">
-                  <Image
-                    src="/apple.svg"
-                    alt="Apple App Store"
-                    fill
-                    className="object-contain object-right"
-                  />
-                </div>
-              </a>
-            </div>
+            <h4 className="font-bold text-base mb-3">احصل على التطبيق</h4>
+            <AppStoreButtons />
           </div>
         </div>
       </div>

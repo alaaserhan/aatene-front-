@@ -79,7 +79,26 @@ export default function proxy(request: NextRequest) {
     }
   }
 
-  // 2. Admin & Role Permissions Proxy Logic
+  // 2. Auth guard for protected web routes
+  const token = request.cookies.get('token')?.value;
+  const webLocale = getLocaleFromPath(pathname);
+
+  const protectedWebRoutes = [
+    '/requested-services/create',
+    '/requested-services/edit',
+  ];
+
+  const isProtectedWebRoute = protectedWebRoutes.some((route) => {
+    const withLocale = `/${webLocale}${route}`;
+    const withoutLocale = route;
+    return pathname.startsWith(withLocale) || pathname.startsWith(withoutLocale);
+  });
+
+  if (isProtectedWebRoute && !token) {
+    return NextResponse.redirect(new URL(`/${webLocale}/login`, request.url));
+  }
+
+  // 3. Admin & Role Permissions Proxy Logic
   const segments = pathname.split('/').filter(Boolean);
   let locale = 'ar';
   let adminIndex = -1;
@@ -92,7 +111,6 @@ export default function proxy(request: NextRequest) {
   }
 
   if (adminIndex !== -1) {
-    const token = request.cookies.get('token')?.value;
     const role = request.cookies.get('user_type')?.value;
     const segment = segments[adminIndex + 1];
 

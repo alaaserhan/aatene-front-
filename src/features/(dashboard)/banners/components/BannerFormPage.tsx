@@ -213,6 +213,14 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
         newErrors.mobile_banner = "صورة الموبايل مطلوبة";
       }
     }
+
+    if (formData.place !== "") {
+      const num = parseInt(formData.place, 10);
+      if (isNaN(num) || num < 1 || num > 6 || formData.place !== String(num)) {
+        newErrors.place = "مكان الإعلان يجب أن يكون رقماً من 1 إلى 6";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -356,9 +364,28 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
             <FormInput
               label="مكان الإعلان"
               value={formData.place}
-              onChange={(e) =>
-                setFormData({ ...formData, place: e.target.value })
-              }
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData({ ...formData, place: value });
+                if (value === "") {
+                  setErrors((prev) => {
+                    const newErrors = { ...prev };
+                    delete newErrors.place;
+                    return newErrors;
+                  });
+                } else {
+                  const num = parseInt(value, 10);
+                  if (isNaN(num) || num < 1 || num > 6 || value !== String(num)) {
+                    setErrors((prev) => ({ ...prev, place: "مكان الإعلان يجب أن يكون رقماً من 1 إلى 6" }));
+                  } else {
+                    setErrors((prev) => {
+                      const newErrors = { ...prev };
+                      delete newErrors.place;
+                      return newErrors;
+                    });
+                  }
+                }
+              }}
               placeholder="ضع مكان واحد الإعلان (1,2,3,4,5,6)"
               error={errors.place}
             />
