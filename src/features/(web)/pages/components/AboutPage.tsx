@@ -507,8 +507,9 @@ export default function AboutPage() {
                                     placeholder="أدخل اسمك"
                                     value={contactForm.name}
                                     onChange={(e) => {
-                                        setContactForm((prev) => ({ ...prev, name: (e.target as HTMLInputElement).value }));
-                                        if ((e.target as HTMLInputElement).value.trim()) setContactErrors((prev) => ({ ...prev, name: undefined }));
+                                        const value = (e.target as HTMLInputElement).value.replace(/[0-9]/g, "");
+                                        setContactForm((prev) => ({ ...prev, name: value }));
+                                        if (value.trim()) setContactErrors((prev) => ({ ...prev, name: undefined }));
                                     }}
                                     error={contactErrors.name}
                                 />

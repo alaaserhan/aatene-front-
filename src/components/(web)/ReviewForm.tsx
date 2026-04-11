@@ -2,10 +2,13 @@
 
 import { ChevronLeft, Plus, User, X } from "lucide-react";
 import Image from "next/image";
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { InteractiveStarRating } from "@/src/components/ui/StarRating";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { toast } from "sonner";
+
+const MAX_VIDEO_SIZE_MB = 10;
+const MAX_VIDEO_SIZE_BYTES = MAX_VIDEO_SIZE_MB * 1024 * 1024;
 
 interface ReviewFormProps {
     onSubmit: (data: { content: string; rate: number; images: File[]; parent_id?: number | null }) => Promise<void> | void;
@@ -25,10 +28,20 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
         const [content, setContent] = useState("");
         const [rate, setRate] = useState(0);
         const [images, setImages] = useState<File[]>([]);
+        const [previewUrls, setPreviewUrls] = useState<string[]>([]);
         const fileInputRef = useRef<HTMLInputElement>(null);
         const containerRef = useRef<HTMLDivElement>(null);
         const textareaRef = useRef<HTMLTextAreaElement>(null);
         const user = useAuthStore((state) => state.user);
+
+        // Generate stable object URLs only when files change, cleanup on unmount
+        useEffect(() => {
+            const urls = images.map((f) => URL.createObjectURL(f));
+            setPreviewUrls(urls);
+            return () => {
+                urls.forEach((url) => URL.revokeObjectURL(url));
+            };
+        }, [images]);
 
 
         useImperativeHandle(ref, () => ({
@@ -70,14 +83,29 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
                 setContent("");
                 setRate(0);
                 setImages([]);
+                setPreviewUrls([]);
             } catch {
             }
         };
 
         const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-            if (e.target.files) {
-                setImages((prev) => [...prev, ...Array.from(e.target.files!)]);
+            if (!e.target.files) return;
+            const newFiles = Array.from(e.target.files);
+            const validFiles: File[] = [];
+
+            for (const file of newFiles) {
+                if (file.type.startsWith("video/") && file.size > MAX_VIDEO_SIZE_BYTES) {
+                    toast.error(`حجم الفيديو كبير جداً — الحد الأقصى المسموح به هو ${MAX_VIDEO_SIZE_MB} ميغابايت`);
+                    continue;
+                }
+                validFiles.push(file);
             }
+
+            if (validFiles.length > 0) {
+                setImages((prev) => [...prev, ...validFiles]);
+            }
+            // Reset input so same file can be re-selected
+            e.target.value = "";
         };
 
         const removeImage = (index: number) => {
@@ -130,6 +158,8 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
                     <div className="flex items-start gap-2 flex-wrap">
                         {images.map((file, i) => {
                             const isVideo = file.type.startsWith("video/");
+                            const url = previewUrls[i];
+                            if (!url) return null;
                             return (
                                 <div
                                     key={i}
@@ -137,13 +167,15 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
                                 >
                                     {isVideo ? (
                                         <video
-                                            src={URL.createObjectURL(file)}
+                                            src={url}
                                             className="object-cover w-full h-full"
                                             controls={false}
+                                            muted
+                                            preload="metadata"
                                         />
                                     ) : (
                                         <Image
-                                            src={URL.createObjectURL(file)}
+                                            src={url}
                                             alt=""
                                             fill
                                             className="object-cover"
