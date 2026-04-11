@@ -250,7 +250,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
             {store.phone && (
               <SocialRow
                 icon={<img src="/icons/dashboard/phone3.svg" alt="phone" className="w-5 h-5" />}
-                label="رقم التليفون"
+                label="رقم الهاتف"
                 value={store.phone}
               />
             )}
