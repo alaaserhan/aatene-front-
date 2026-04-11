@@ -156,8 +156,8 @@ export function AddStoreStep3({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <PhoneNumberInput
-                      label="رقم التليفون"
-                      placeholder="ادخل رقم رقم التليفون"
+                      label="رقم الهاتف"
+                      placeholder="ادخل رقم رقم الهاتف"
                       countryCode={phoneCountryCode}
                       onCountryCodeChange={setPhoneCountryCode}
                       value={formData.phone}
