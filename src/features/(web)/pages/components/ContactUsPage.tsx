@@ -3,8 +3,23 @@
 import { ChevronLeft, Mail, MessageSquareText } from "lucide-react";
 import Image from "next/image";
 import { useUIStore } from "@/src/stores/ui-store";
+import { useAuthStore } from "@/src/stores/auth-store";
+import { useRouter, useParams } from "next/navigation";
 
 export default function ContactUsPage() {
+    const { user } = useAuthStore();
+    const router = useRouter();
+    const params = useParams();
+    const locale = params?.locale ?? "ar";
+
+    const handleContactClick = () => {
+        if (!user) {
+            router.push(`/${locale}/login`);
+            return;
+        }
+        useUIStore.getState().setChatOpen(true);
+    };
+
     return (
         <div className="py-8 md:py-16 flex items-center relative overflow-hidden">
             {/* Very light blue gradient blob on the left side */}
@@ -58,7 +73,7 @@ export default function ContactUsPage() {
 
                         <div className="pt-4 ">
                             <button
-                                onClick={() => useUIStore.getState().setChatOpen(true)}
+                                onClick={handleContactClick}
                                 className="bg-blue-4 text-white rounded-full px-4 py-2.5  text-sm font-medium flex items-center gap-3 transition-colors cursor-pointer"
                             >
                                 تواصل معنا
