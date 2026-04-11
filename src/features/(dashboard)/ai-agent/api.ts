@@ -462,6 +462,29 @@ export interface WebMissedQuestionsResponse {
     data: WebMissedQuestion[];
 }
 
+export interface WebAnalyticsResponse {
+    status: boolean;
+    message: string;
+    conversations: {
+        total: number;
+        needs_human: number;
+        done_by_bot: number;
+    };
+    messages: {
+        total: number;
+    };
+    ratings: {
+        average: number;
+        distribution: {
+            "1": number;
+            "2": number;
+            "3": number;
+            "4": number;
+            "5": number;
+        };
+    };
+}
+
 export interface GetWebConversationsParams {
     state?: WebConversationState;
 }
@@ -517,6 +540,11 @@ export const webMarkTyping = async (conversationId: number): Promise<WebTypingRe
 
 export const getWebMissedQuestions = async (): Promise<WebMissedQuestionsResponse> => {
     const { data } = await mainApi.get<WebMissedQuestionsResponse>(`${WEB_ADMIN_BASE}/missed-questions`);
+    return data;
+};
+
+export const getWebAnalytics = async (): Promise<WebAnalyticsResponse> => {
+    const { data } = await mainApi.get<WebAnalyticsResponse>(`${WEB_ADMIN_BASE}/analytics`);
     return data;
 };
 

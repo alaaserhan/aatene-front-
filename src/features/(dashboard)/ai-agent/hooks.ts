@@ -360,3 +360,10 @@ export function useGetWebMissedQuestions() {
         queryFn: api.getWebMissedQuestions,
     });
 }
+
+export function useGetWebAnalytics() {
+    return useQuery({
+        queryKey: ["web-analytics"],
+        queryFn: api.getWebAnalytics,
+    });
+}
