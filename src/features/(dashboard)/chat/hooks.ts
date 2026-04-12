@@ -62,8 +62,9 @@ export const useConversationMessages = (conversationId: number | string, ignoreC
         queryKey: ["conversation-messages", conversationId, ignoreCookie],
         queryFn: () => api.getConversationMessages(conversationId, ignoreCookie),
         enabled: !!conversationId && enabled,
-        staleTime: 10 * 1000, // 10 ثواني — يُقلل إعادة الجلب عند كل تفاعل
-        refetchOnWindowFocus: false, // لا يُعيد الجلب عند العودة للتاب
+        staleTime: 0,
+        refetchOnWindowFocus: true,
+        refetchInterval: 5 * 1000, // polling كل 5 ثوانٍ لاستقبال رسائل الطرف الآخر
     });
 };
 
