@@ -133,7 +133,7 @@ export function SourcesCard({ usersPerPlatform = [] }: SourcesCardProps) {
     }, { platform: "", number_of_users: 0 });
 
     // 2. Format the Max Number (Add spaces between digits: "3 0 0")
-    const formattedMax = maxPlatform.number_of_users.toString().split('').join(' ');
+    const formattedMax = maxPlatform.number_of_users.toString();
 
     // Helper to map API platform names
     const getPlatformDetails = (platformName: string) => {
@@ -215,7 +215,7 @@ export function RatingSourceCard({ ratings = [] }: RatingSourceCardProps) {
                 return { name: "فيسبوك", icon: <img src="/icons/dashboard/facebook3.svg" className="w-6 h-6" alt="" /> };
             default: // Aatene / Website
                 return {
-                    name: "أعطيني",
+                    name: "الموقع",
                     icon: <div className="w-5 h-5 rounded-full border border-gray-2 flex items-center justify-center text-[10px] font-bold text-gray-2">A</div>
                 };
         }

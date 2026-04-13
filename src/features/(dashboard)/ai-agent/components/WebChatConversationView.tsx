@@ -25,9 +25,16 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
 
     const [realtimeMessages, setRealtimeMessages] = useState<WebMessage[]>([]);
 
-    const { data: messagesData, isLoading } = useGetWebConversationMessages({
+
+    const { 
+        data: messagesData, 
+        isLoading,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
+    } = useGetWebConversationMessages({
         conversationId,
-        per_page: 100,
+        per_page: 15,
     });
 
     const { data: convsData } = useGetWebConversations();
@@ -40,7 +47,9 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
     const { mutate: resolveConversation, isPending: isResolving } = useWebResolveConversation();
     const { mutate: markTyping } = useWebMarkTyping();
 
-    const apiMessages: WebMessage[] = useMemo(() => messagesData?.data || [], [messagesData]);
+    const apiMessages: WebMessage[] = useMemo(() => {
+        return messagesData?.pages.flatMap((page) => page.data) || [];
+    }, [messagesData]);
 
     const allMessages = useMemo(() => {
         const apiIds = new Set(apiMessages.map((m) => m.id));
@@ -55,11 +64,14 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         if (!msg?.id) return;
         if (msg.sender_type === "admin") return;
 
+        const msgConvId = (data.conversation_id || (msg as unknown as Record<string, unknown>).conversation_id) as number | undefined;
+        if (msgConvId && msgConvId !== conversationId) return;
+
         setRealtimeMessages((prev) => {
             if (prev.some((m) => m.id === msg.id)) return prev;
             return [...prev, msg];
         });
-    }, []);
+    }, [conversationId]);
 
     const handleTypingIndicator = useCallback((data: Record<string, unknown>) => {
         const userData = data.user as { id: number; full_name?: string } | undefined;
@@ -85,14 +97,14 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
     );
 
     useEffect(() => {
-        if (scrollRef.current) {
+        if (scrollRef.current && !isFetchingNextPage) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [allMessages, isLoading, typingUser]);
+    }, [allMessages, isLoading, typingUser, isFetchingNextPage]);
 
     const handleTyping = useCallback(() => {
         const now = Date.now();
-        if (now - lastTypingSentRef.current < 500) return;
+        if (now - lastTypingSentRef.current < 3000) return;
         lastTypingSentRef.current = now;
         markTyping(conversationId);
     }, [conversationId, markTyping]);
@@ -135,8 +147,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         );
     }
 
-    const firstUserMsg = allMessages.find((m) => m.sender_type === "user");
-    const userName = firstUserMsg?.sender?.full_name || "مستخدم";
+    const userName = conversation?.user?.name || allMessages.find((m) => m.sender_type === "user")?.sender?.full_name || "مستخدم";
 
     return (
         <div className="flex flex-col h-full max-h-[calc(100vh-220px)] lg:max-h-none bg-white">
@@ -175,7 +186,18 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                     <div
                         ref={scrollRef}
                         className="flex-1 overflow-y-auto p-4"
+                        onScroll={(e) => {
+                            const { scrollTop } = e.currentTarget;
+                            if (scrollTop < 50 && hasNextPage && !isFetchingNextPage) {
+                                fetchNextPage();
+                            }
+                        }}
                     >
+                        {isFetchingNextPage && (
+                            <div className="flex justify-center py-2 shrink-0">
+                                <Loader2 className="w-5 h-5 text-[#4a7ab5] animate-spin" />
+                            </div>
+                        )}
                         {allMessages.map((msg, index) => {
                             const isUser = msg.sender_type === "user";
                             const isBot = msg.sender_type === "bot";

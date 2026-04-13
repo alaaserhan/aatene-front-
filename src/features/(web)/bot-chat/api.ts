@@ -29,8 +29,10 @@ export const sendMessage = async (conversationId: number, messageText: string): 
     return data;
 };
 
-export const getMessages = async (conversationId: number): Promise<GetMessagesResponse> => {
-    const { data } = await api.get<GetMessagesResponse>(`${BASE}/${conversationId}/messages`);
+export const getMessages = async (conversationId: number, page = 1, perPage = 20): Promise<GetMessagesResponse> => {
+    const { data } = await api.get<GetMessagesResponse>(`${BASE}/${conversationId}/messages`, {
+        params: { page, per_page: perPage },
+    });
     return data;
 };
 
@@ -40,7 +42,7 @@ export const endConversation = async (conversationId: number): Promise<EndConver
 };
 
 export async function submitRating(conversationId: number, rate: number, comment: string): Promise<SubmitRatingResponse> {
-    const { data } = await api.post(`${BASE}/${conversationId}/rating`, { rate, comment });
+    const { data } = await api.post(`${BASE}/${conversationId}/review`, { rate, comment });
     return data;
 }
 
