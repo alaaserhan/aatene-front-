@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
 import {
     getCurrentConversation,
     startConversation,
@@ -44,7 +44,7 @@ export const useSendMessage = () => {
         onMutate: async ({ conversationId, messageText }) => {
             await queryClient.cancelQueries({ queryKey: ["botChat", "messages", conversationId] });
 
-            const previousMessages = queryClient.getQueryData<GetMessagesResponse>(["botChat", "messages", conversationId]);
+            const previousMessages = queryClient.getQueryData<InfiniteData<GetMessagesResponse>>(["botChat", "messages", conversationId]);
 
             const tempId = Date.now().toString();
             const optimisticMessage: ConversationMessage = {
@@ -61,34 +61,42 @@ export const useSendMessage = () => {
             };
 
             if (previousMessages) {
-                queryClient.setQueryData<GetMessagesResponse>(["botChat", "messages", conversationId], {
+                queryClient.setQueryData<InfiniteData<GetMessagesResponse>>(["botChat", "messages", conversationId], {
                     ...previousMessages,
-                    data: [...previousMessages.data, optimisticMessage],
+                    pages: previousMessages.pages.map((page, index) =>
+                        index === 0 ? { ...page, data: [optimisticMessage, ...page.data] } : page
+                    ),
                 });
             }
 
             return { previousMessages, tempId };
         },
         onSuccess: (data, variables, context) => {
-            queryClient.setQueryData<GetMessagesResponse>(["botChat", "messages", variables.conversationId], (old) => {
+            queryClient.setQueryData<InfiniteData<GetMessagesResponse>>(["botChat", "messages", variables.conversationId], (old) => {
                 if (!old) return old;
                 return {
                     ...old,
-                    data: old.data.map((msg) =>
-                        msg.tempId === context?.tempId ? { ...data.data, status: "sent" } : msg
-                    ),
+                    pages: old.pages.map((page) => ({
+                        ...page,
+                        data: page.data.map((msg) =>
+                            msg.tempId === context?.tempId ? { ...data.data, status: "sent" } : msg
+                        ),
+                    })),
                 };
             });
         },
         onError: (_err, variables, context) => {
             if (context?.previousMessages) {
-                queryClient.setQueryData<GetMessagesResponse>(["botChat", "messages", variables.conversationId], (old) => {
+                queryClient.setQueryData<InfiniteData<GetMessagesResponse>>(["botChat", "messages", variables.conversationId], (old) => {
                     if (!old) return old;
                     return {
                         ...old,
-                        data: old.data.map((msg) =>
-                            msg.tempId === context?.tempId ? { ...msg, status: "error" } : msg
-                        ),
+                        pages: old.pages.map((page) => ({
+                            ...page,
+                            data: page.data.map((msg) =>
+                                msg.tempId === context?.tempId ? { ...msg, status: "error" } : msg
+                            ),
+                        })),
                     };
                 });
             }
@@ -103,10 +111,16 @@ export const useSendMessage = () => {
 export const useConversationMessages = (conversationId: number | undefined, enabled = true) => {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
-    return useQuery({
+    return useInfiniteQuery({
         queryKey: ["botChat", "messages", conversationId],
-        queryFn: () => getMessages(conversationId!),
+        queryFn: ({ pageParam = 1 }) => getMessages(conversationId!, pageParam, 15),
+        getNextPageParam: (lastPage, allPages) => {
+            const hasMore = lastPage.data.length === 15;
+            return hasMore ? allPages.length + 1 : undefined;
+        },
         enabled: enabled && isLoggedIn && !!conversationId,
+        initialPageParam: 1,
+        refetchOnMount: "always",
     });
 };
 
