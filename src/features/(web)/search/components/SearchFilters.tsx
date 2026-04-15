@@ -159,26 +159,33 @@ export default function SearchFilters({
 
     // Range slider values
     const minVal = filters.min_price || 0;
-    const maxVal = filters.max_price || 1000; // Default max if not set
+    const maxVal = filters.max_price || 1000;
 
     return (
-        <div className={cn("flex flex-col gap-4", className)}>
-            {/* Filter Header Card */}
-            <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-2">
-                <SlidersHorizontal className="w-5 h-5 text-[#3D5E83]" />
-                <h2 className="text-xl font-medium ">فلتر</h2>
+        <div className={cn("flex flex-col gap-0 bg-white rounded-xl border border-gray-200 overflow-hidden", className)}>
+            {/* Header */}
+            <div className="px-5 py-4 flex items-center justify-between border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                    <SlidersHorizontal className="w-5 h-5 text-[#3D5E83]" />
+                    <h2 className="text-lg font-semibold">فلتر</h2>
+                </div>
+                <button
+                    onClick={() => onFilterChange({})}
+                    className="text-sm text-[#3D5E83] hover:underline cursor-pointer"
+                >
+                    إعادة
+                </button>
             </div>
 
-            {/* Categories Card */}
-            {type !== "users" && categories.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200 p-5">
-                    <FilterSection title="فئات">
+            <div className="divide-y divide-gray-100">
+                {/* Categories */}
+                {type !== "users" && categories.length > 0 && (
+                    <FilterSection title="الفئات" defaultOpen={false}>
                         <div className="flex flex-col gap-1">
                             {parentCategories.map((parent) => {
                                 const children = childrenMap.get(parent.id.toString()) || [];
                                 const hasChildren = children.length > 0;
                                 const isExpanded = expandedCategories.has(parent.id);
-
                                 return (
                                     <div key={parent.id}>
                                         <div className="flex items-center gap-2">
@@ -187,12 +194,7 @@ export default function SearchFilters({
                                                     onClick={() => toggleCategoryExpand(parent.id)}
                                                     className="p-1 hover:bg-gray-100 rounded cursor-pointer"
                                                 >
-                                                    <ChevronDown
-                                                        className={cn(
-                                                            "w-4 h-4 text-gray-400 transition-transform",
-                                                            isExpanded && "rotate-180"
-                                                        )}
-                                                    />
+                                                    <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform", isExpanded && "rotate-180")} />
                                                 </button>
                                             )}
                                             <button
@@ -207,7 +209,6 @@ export default function SearchFilters({
                                                 {parent.name} <span className="text-gray-400 font-normal">({type === "services" ? parent.services_count : parent.products_count})</span>
                                             </button>
                                         </div>
-
                                         {hasChildren && isExpanded && (
                                             <div className="mr-6 mt-1 flex flex-col gap-1 border-r-2 border-gray-200 pr-3">
                                                 {children.map((child) => (
@@ -231,56 +232,43 @@ export default function SearchFilters({
                             })}
                         </div>
                     </FilterSection>
-                </div>
-            )}
+                )}
 
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-                <FilterSection title="المدينة">
+                {/* City */}
+                <FilterSection title="الموقع" defaultOpen={false}>
                     <ReusableDropdown
                         multiple={true}
                         options={cityOptions}
                         value={filters.city_id?.map(String) || []}
                         onChange={(vals: string[]) =>
-                            onFilterChange({
-                                ...filters,
-                                city_id: vals.length > 0 ? vals.map(Number) : undefined,
-                            })
+                            onFilterChange({ ...filters, city_id: vals.length > 0 ? vals.map(Number) : undefined })
                         }
                         placeholder="الكل"
                     />
                 </FilterSection>
-            </div>
 
-
-            {/* Attributes Cards (Separate card for each attribute) */}
-            {attributes && attributes.length > 0 &&
-                attributes.map((attr) => {
+                {/* Attributes */}
+                {attributes && attributes.length > 0 && attributes.map((attr) => {
                     const selectedOptionId = attr.options.find(opt => filters.variation_options?.includes(opt.id))?.id;
                     const options = [
                         { value: "", label: `اختر ${attr.title}` },
                         ...attr.options.map(opt => ({ value: opt.id.toString(), label: opt.title }))
                     ];
-
                     return (
-                        <div key={attr.id} className="bg-white rounded-xl border border-gray-200 p-5">
-                            <FilterSection title={attr.title}>
-                                <ReusableDropdown
-                                    options={options}
-                                    value={selectedOptionId?.toString() || ""}
-                                    onChange={(val: string) => handleAttributeChange(attr.id, val)}
-                                    placeholder={`اختر ${attr.title}`}
-                                />
-                            </FilterSection>
-                        </div>
+                        <FilterSection key={attr.id} title={attr.title} defaultOpen={false}>
+                            <ReusableDropdown
+                                options={options}
+                                value={selectedOptionId?.toString() || ""}
+                                onChange={(val: string) => handleAttributeChange(attr.id, val)}
+                                placeholder={`اختر ${attr.title}`}
+                            />
+                        </FilterSection>
                     );
-                })
-            }
+                })}
 
-
-            {/* Tags Card */}
-            {tags.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200 p-5">
-                    <FilterSection title="العلامات">
+                {/* Tags */}
+                {tags.length > 0 && (
+                    <FilterSection title="العلامات" defaultOpen={false}>
                         <div className="flex flex-wrap gap-2">
                             {tags.map((tag) => {
                                 const isSelected = filters.tags?.includes(tag.id);
@@ -289,106 +277,85 @@ export default function SearchFilters({
                                         key={tag.id}
                                         onClick={() => handleTagToggle(tag.id)}
                                         className={cn(
-                                            "px-4 py-2 rounded-full text-sm  transition-colors cursor-pointer",
-                                            isSelected
-                                                ? "bg-[#3D5E83] text-white"
-                                                : "bg-[#E5E7EB]  hover:bg-gray-200"
+                                            "px-3 py-1.5 rounded-full text-sm transition-colors cursor-pointer",
+                                            isSelected ? "bg-[#3D5E83] text-white" : "bg-[#E5E7EB] hover:bg-gray-200"
                                         )}
                                     >
                                         {tag.title}
                                     </button>
-                                )
+                                );
                             })}
                         </div>
                     </FilterSection>
-                </div>
-            )}
+                )}
 
-            {/* Price Range Card */}
-            {(type === "products" || type === "services") && (
-                <div className="bg-white rounded-xl border border-gray-200 p-5">
-                    <FilterSection title="النطاق السعري">
-                        <div className="flex flex-col gap-6 px-1 py-4">
+                {/* Price Range */}
+                {(type === "products" || type === "services") && (
+                    <FilterSection title="النطاق السعري" defaultOpen={false}>
+                        <div className="flex flex-col gap-6 px-1 py-2">
                             <DualRangeSlider
                                 min={0}
                                 max={5000}
                                 step={10}
                                 value={[minVal, maxVal]}
                                 onValueChange={(val) =>
-                                    onFilterChange({
-                                        ...filters,
-                                        min_price: val[0],
-                                        max_price: val[1],
-                                    })
+                                    onFilterChange({ ...filters, min_price: val[0], max_price: val[1] })
                                 }
                                 className="w-full"
                             />
                         </div>
                     </FilterSection>
-                </div>
-            )}
+                )}
 
-            {/* Review Rate Card (Only for users) */}
-            {type === "users" && (
-                <div className="bg-white rounded-xl border border-gray-200 p-5">
-                    <FilterSection title="التقييم">
-                        <div className="flex flex-col gap-3">
-                            {[5, 4, 3, 2, 1].map((rate) => (
-                                <div key={rate} className="flex items-center gap-3">
-                                    <CustomRatingCheckbox
-                                        isActive={filters.review_rate === rate}
-                                        onChange={() =>
-                                            onFilterChange({
-                                                ...filters,
-                                                review_rate: filters.review_rate === rate ? undefined : rate,
-                                            })
-                                        }
-                                    />
-                                    <div className="flex gap-1 items-center" dir="ltr">
-                                        {[...Array(5)].map((_, i) => (
-                                            <svg
-                                                key={i}
-                                                className={cn("w-5 h-5", i < rate ? "text-[#FDB022]" : "text-gray-300")}
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                            </svg>
-                                        ))}
-                                    </div>
+                {/* Review Rate - يظهر لجميع الأنواع */}
+                <FilterSection title="التقييم" defaultOpen={false}>
+                    <div className="flex flex-col gap-3">
+                        {[5, 4, 3, 2, 1].map((rate) => (
+                            <div key={rate} className="flex items-center gap-3">
+                                <CustomRatingCheckbox
+                                    isActive={filters.review_rate === rate}
+                                    onChange={() =>
+                                        onFilterChange({ ...filters, review_rate: filters.review_rate === rate ? undefined : rate })
+                                    }
+                                />
+                                <div className="flex gap-1 items-center" dir="ltr">
+                                    {[...Array(5)].map((_, i) => (
+                                        <svg key={i} className={cn("w-4 h-4", i < rate ? "text-[#FDB022]" : "text-gray-300")} fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
-                    </FilterSection>
-                </div>
-            )}
+                            </div>
+                        ))}
+                    </div>
+                </FilterSection>
+            </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-5 flex-col gap-3 hidden lg:flex">
+            {/* Apply Button */}
+            <div className="px-5 py-4 border-t border-gray-100 hidden lg:flex flex-col gap-2">
                 <button
                     onClick={() => onFilterChange(filters)}
-                    className="w-full py-3 bg-[#3D5E83] text-white rounded-xl font-medium hover:bg-[#2D496A] transition-colors cursor-pointer"
+                    className="w-full py-2.5 bg-[#3D5E83] text-white rounded-xl font-medium hover:bg-[#2D496A] transition-colors cursor-pointer"
                 >
-                    تطبيق الفلتر
-                </button>
-                <button
-                    onClick={() => onFilterChange({})}
-                    className="w-full py-2 text-[#3D5E83] text-sm font-medium hover:underline cursor-pointer"
-                >
-                    إعادة
+                    تطبيق الفلتر ›
                 </button>
             </div>
         </div>
     );
 }
 
-function FilterSection({ title, children }: { title: string; children: React.ReactNode }) {
+function FilterSection({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
     return (
-        <div className="mb-0">
-            <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-5 bg-blue-4 rounded-full" />
-                <h3 className="font-medium  text-lg">{title}</h3>
-            </div>
-            {children}
+        <div className="px-5 py-4">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-between w-full cursor-pointer mb-0"
+            >
+                <h3 className="font-medium text-base text-gray-800">{title}</h3>
+                <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform duration-200", isOpen && "rotate-180")} />
+            </button>
+            {isOpen && <div className="mt-3">{children}</div>}
         </div>
     );
 }
