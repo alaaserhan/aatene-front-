@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Camera, Calendar as CalendarIcon, Search, ChevronRight, ChevronLeft } from "lucide-react";
+import { Camera, Calendar as CalendarIcon, Search } from "lucide-react";
 import { useGetAccount, useUpdateAccount, useUpdateAvatar, useGetCities } from "../../hooks";
 import { cn } from "@/src/lib/utils";
 import Image from "next/image";
@@ -30,26 +30,20 @@ export default function PersonalInfoTab() {
     const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();
     const { mutate: updateAvatar, isPending: isUploadingAvatar } = useUpdateAvatar();
 
-    // City search + pagination state
+    // City search state
     const [citySearch, setCitySearch] = useState("");
-    const [cityPage, setCityPage] = useState(1);
-    const cityPerPage = 10;
-
     const [debouncedSearch, setDebouncedSearch] = useState("");
     useEffect(() => {
-        const t = setTimeout(() => { setDebouncedSearch(citySearch); setCityPage(1); }, 400);
+        const t = setTimeout(() => { setDebouncedSearch(citySearch); }, 400);
         return () => clearTimeout(t);
     }, [citySearch]);
 
     const { data: citiesData, isLoading: isLoadingCities } = useGetCities({
         name: debouncedSearch || undefined,
-        page: cityPage,
-        per_page: cityPerPage,
+        per_page: 1000,
     });
 
     const cities = citiesData?.cities || [];
-    const totalCities = citiesData?.recordsTotal ?? citiesData?.total ?? cities.length;
-    const totalPages = Math.ceil(totalCities / cityPerPage);
 
     const [formData, setFormData] = useState({
         first_name: "",
@@ -334,28 +328,6 @@ export default function PersonalInfoTab() {
                                         </button>
                                     ))}
                                 </div>
-                                {/* Pagination */}
-                                {totalPages > 1 && (
-                                    <div className="flex items-center justify-between px-4 py-2 border-t border-gray-100 bg-gray-50">
-                                        <button
-                                            type="button"
-                                            onClick={() => setCityPage(p => Math.max(1, p - 1))}
-                                            disabled={cityPage === 1}
-                                            className="p-1 rounded-md hover:bg-gray-200 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
-                                        >
-                                            <ChevronRight className="w-4 h-4 text-gray-500" />
-                                        </button>
-                                        <span className="text-xs text-gray-500">{cityPage} / {totalPages}</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => setCityPage(p => Math.min(totalPages, p + 1))}
-                                            disabled={cityPage === totalPages}
-                                            className="p-1 rounded-md hover:bg-gray-200 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
-                                        >
-                                            <ChevronLeft className="w-4 h-4 text-gray-500" />
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                             {/* Selected city display */}
                             {formData.city_id > 0 && (
