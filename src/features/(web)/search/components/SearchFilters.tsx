@@ -235,7 +235,7 @@ export default function SearchFilters({
                 )}
 
                 {/* City */}
-                <FilterSection title="الموقع" defaultOpen={false}>
+                <FilterSection title="المدن" defaultOpen={false}>
                     <ReusableDropdown
                         multiple={true}
                         options={cityOptions}
@@ -291,7 +291,7 @@ export default function SearchFilters({
 
                 {/* Price Range */}
                 {(type === "products" || type === "services") && (
-                    <FilterSection title="النطاق السعري" defaultOpen={false}>
+                    <FilterSection title=" السعر" defaultOpen={false}>
                         <div className="flex flex-col gap-6 px-1 py-2">
                             <DualRangeSlider
                                 min={0}
