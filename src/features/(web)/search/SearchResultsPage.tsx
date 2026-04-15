@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { SearchBar } from "@/src/components/(web)/SearchBar";
 import SearchFilters from "./components/SearchFilters";
@@ -16,7 +16,7 @@ import {
     useStoresSearchPage,
     useUsersSearchPage,
 } from "./hooks";
-import { ChevronLeft, SlidersHorizontal, Tag as TagIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, SlidersHorizontal, Tag as TagIcon, X } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { CompareFloatingBar } from "../compares/components/CompareFloatingBar";
 import { Category, City, Tag, Attribute } from "@/src/features/(web)/searchAndFilter/api";
@@ -264,105 +264,149 @@ function SearchContent({ type }: { type: SearchType }) {
 
     const displayTags = filterData.tags;
     const tagsScrollRef = useRef<HTMLDivElement>(null);
+    const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(false);
+    const [tagsCanScroll, setTagsCanScroll] = useState(false);
 
-    const scrollTags = () => {
+    // تحقق إذا كانت العلامات تفيض من الحاوية
+    const checkTagsOverflow = useCallback(() => {
+        const el = tagsScrollRef.current;
+        if (el) {
+            setTagsCanScroll(el.scrollWidth > el.clientWidth);
+        }
+    }, []);
+
+    useEffect(() => {
+        checkTagsOverflow();
+        const el = tagsScrollRef.current;
+        if (!el) return;
+        const observer = new ResizeObserver(checkTagsOverflow);
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [displayTags, checkTagsOverflow]);
+
+    const scrollTagsLeft = () => {
         if (tagsScrollRef.current) {
             tagsScrollRef.current.scrollBy({ left: -150, behavior: "smooth" });
         }
     };
 
-    return (
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
-            {/* Right Column: Filters Sidebar (Desktop) */}
-            <aside className="hidden lg:block w-80 shrink-0 sticky top-24 self-start">
-                <SearchFilters
-                    type={type}
-                    filters={filters}
-                    onFilterChange={handleFilterChange}
-                    categories={filterData.categories}
-                    cities={filterData.cities}
-                    tags={filterData.tags}
-                    attributes={filterData.attributes}
-                />
-            </aside>
+    const scrollTagsRight = () => {
+        if (tagsScrollRef.current) {
+            tagsScrollRef.current.scrollBy({ left: 150, behavior: "smooth" });
+        }
+    };
 
-            {/* Left Column: Main Content */}
-            <main className="flex-1 min-w-0 flex flex-col gap-6">
-                {/* Header Section */}
-                <div className="flex flex-col gap-4">
-                    <div className="flex flex-row items-center justify-between gap-4">
-                        {/* Related Tags - صف واحد قابل للسكرول */}
-                        {displayTags.length > 0 && (
-                            <div className="flex items-center gap-2 min-w-0 flex-1">
-                                <span className="text-gray-500 text-sm whitespace-nowrap flex items-center gap-1 shrink-0">
-                                    <TagIcon className="w-4 h-4" />
-                                    <span>العلامات:</span>
-                                </span>
-                                <div
-                                    ref={tagsScrollRef}
-                                    className="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5 flex-1"
-                                >
-                                    {displayTags.map((tag) => {
-                                        const isSelected = filters.tags?.includes(tag.id);
-                                        return (
-                                            <button
-                                                key={tag.id}
-                                                onClick={() => handleTagToggle(tag.id)}
-                                                className={cn(
-                                                    "px-4 py-1.5 rounded-full text-sm transition-colors cursor-pointer whitespace-nowrap shrink-0",
-                                                    isSelected
-                                                        ? "bg-[#3D5E83] text-white"
-                                                        : "bg-[#E5E7EB] hover:bg-gray-200"
-                                                )}
-                                            >
-                                                {tag.title}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                                <button
-                                    onClick={scrollTags}
-                                    className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
-                                    aria-label="تمرير العلامات"
-                                >
-                                    <ChevronLeft className="w-4 h-4 text-gray-500" />
-                                </button>
-                            </div>
+    return (
+        <div className="flex flex-col gap-4">
+            {/* Top Bar: زر الفلتر + العلامات */}
+            <div className="flex items-center gap-3">
+
+                {/* زر فتح/إغلاق الفلتر - Desktop */}
+                <button
+                    onClick={() => setIsDesktopFilterOpen(!isDesktopFilterOpen)}
+                    className={cn(
+                        "hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors cursor-pointer shrink-0",
+                        isDesktopFilterOpen
+                            ? "bg-[#3D5E83] text-white border-[#3D5E83]"
+                            : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
+                    )}
+                >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    <span className="font-medium text-sm">فلتر</span>
+                    {isDesktopFilterOpen && <X className="w-3.5 h-3.5 mr-1" />}
+                </button>
+
+                {/* زر فتح الفلتر - Mobile */}
+                <button
+                    onClick={() => setIsFilterOpen(true)}
+                    className="lg:hidden flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer text-[#3D5E83] shrink-0"
+                >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    <span className="font-medium text-sm">فلتر</span>
+                </button>
+
+                {/* العلامات - صف قابل للسكرول */}
+                {displayTags.length > 0 && (
+                    <div className="flex items-center gap-1 min-w-0 flex-1">
+                        {/* سهم يمين (بداية القائمة RTL) - يظهر فقط إذا كان هناك overflow */}
+                        {tagsCanScroll && (
+                            <button
+                                onClick={scrollTagsRight}
+                                className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+                                aria-label="تمرير يمين"
+                            >
+                                <ChevronRight className="w-4 h-4 text-gray-500" />
+                            </button>
                         )}
 
-                        {/* Mobile Filter Button */}
-                        <div className="lg:hidden flex justify-end shrink-0">
-                            <button
-                                onClick={() => setIsFilterOpen(true)}
-                                className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer text-[#3D5E83]"
-                            >
-                                <SlidersHorizontal className="w-5 h-5" />
-                                <span className="font-medium text-sm sm:text-base">فلتر</span>
-                            </button>
+                        <div
+                            ref={tagsScrollRef}
+                            className="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5 flex-1"
+                        >
+                            {displayTags.map((tag) => {
+                                const isSelected = filters.tags?.includes(tag.id);
+                                return (
+                                    <button
+                                        key={tag.id}
+                                        onClick={() => handleTagToggle(tag.id)}
+                                        className={cn(
+                                            "px-3 py-1.5 rounded-full text-sm transition-colors cursor-pointer whitespace-nowrap shrink-0",
+                                            isSelected
+                                                ? "bg-[#3D5E83] text-white"
+                                                : "bg-[#E5E7EB] hover:bg-gray-200"
+                                        )}
+                                    >
+                                        {tag.title}
+                                    </button>
+                                );
+                            })}
                         </div>
-                    </div>
 
-                    {/* Search Bar */}
-                    <div className="w-full mt-2">
-                        <SearchBar
-                            currentLocale="ar"
-                            defaultType={type}
-                            variant="rounded"
+                        {/* سهم يسار (نهاية القائمة RTL) - يظهر فقط إذا كان هناك overflow */}
+                        {tagsCanScroll && (
+                            <button
+                                onClick={scrollTagsLeft}
+                                className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+                                aria-label="تمرير يسار"
+                            >
+                                <ChevronLeft className="w-4 h-4 text-gray-500" />
+                            </button>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {/* Main Layout */}
+            <div className="flex flex-row gap-6 items-start">
+                {/* Filters Sidebar - Desktop (يظهر فقط عند الضغط) */}
+                {isDesktopFilterOpen && (
+                    <aside className="hidden lg:block w-72 shrink-0 sticky top-24 self-start">
+                        <SearchFilters
+                            type={type}
+                            filters={filters}
+                            onFilterChange={handleFilterChange}
+                            categories={filterData.categories}
+                            cities={filterData.cities}
+                            tags={filterData.tags}
+                            attributes={filterData.attributes}
                         />
-                    </div>
-                </div>
+                    </aside>
+                )}
 
-                {/* Results Section */}
-                <SearchResults
-                    type={type}
-                    items={items}
-                    total={total}
-                    currentPage={page}
-                    onPageChange={handlePageChange}
-                    isLoading={isLoading}
-                    perPage={PER_PAGE}
-                />
-            </main>
+                {/* Main Content */}
+                <main className="flex-1 min-w-0 flex flex-col gap-6">
+                    {/* Results */}
+                    <SearchResults
+                        type={type}
+                        items={items}
+                        total={total}
+                        currentPage={page}
+                        onPageChange={handlePageChange}
+                        isLoading={isLoading}
+                        perPage={PER_PAGE}
+                    />
+                </main>
+            </div>
 
             {/* Mobile Filter Drawer */}
             <MobileFilterDrawer
