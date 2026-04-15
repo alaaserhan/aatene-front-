@@ -193,7 +193,7 @@ export interface ServiceSearchParams {
     city_id?: number[];
     min_price?: number;
     max_price?: number;
-    review_rate_min?: number;
+    review_rate?: number;
     order_by?: string;
     page?: number;
     tags?: number[];
@@ -319,7 +319,7 @@ export interface StoreSearchParams {
     city_id?: number[];
     category_id?: number;
     tags?: number[];
-    review_rate_min?: number;
+    review_rate?: number;
     order_by?: string;
     per_page?: number;
     page?: number;
