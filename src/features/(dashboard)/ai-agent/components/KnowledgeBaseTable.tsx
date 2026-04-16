@@ -1,12 +1,11 @@
 // src/features/(dashboard)/ai-agent/components/KnowledgeBaseTable.tsx
 "use client";
 
-import { DriveFile } from "../api";
-import { formatDateTime } from "@/src/lib/date-helper";
+import { KnowledgeBankItem } from "../api";
 
 interface KnowledgeBaseTableProps {
-  files: DriveFile[];
-  onDelete: (file: DriveFile) => void;
+  files: KnowledgeBankItem[];
+  onDelete: (file: KnowledgeBankItem) => void;
 }
 
 export function KnowledgeBaseTable({ files, onDelete }: KnowledgeBaseTableProps) {
@@ -17,7 +16,6 @@ export function KnowledgeBaseTable({ files, onDelete }: KnowledgeBaseTableProps)
           <tr className="bg-[#F5F5F5] border-b border-gray-200">
             <th className="px-6 py-4 text-sm font-bold  w-[40%] text-right">الملف</th>
             <th className="px-6 py-4 text-sm font-bold  w-[20%] text-center">الحالة</th>
-            <th className="px-6 py-4 text-sm font-bold  w-[30%] text-center">أخر وقت تم تدريب البوت فيه</th>
             <th className="px-6 py-4 text-sm font-bold  w-[10%] text-center">إجراء</th>
           </tr>
         </thead>
@@ -27,25 +25,21 @@ export function KnowledgeBaseTable({ files, onDelete }: KnowledgeBaseTableProps)
               {/* File Name */}
               <td className="px-6 py-5">
                 <div className="flex items-center gap-3">
-                  {/* <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-2 group-hover:bg-white group-hover:shadow-sm transition-all">
-                        <FileText className="w-5 h-5" />
-                    </div> */}
-                  <span className="text-sm font-medium ">{file.name}</span>
+                  <a
+                    href={file.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium hover:text-blue-3 hover:underline"
+                  >
+                    {file.file_name}
+                  </a>
                 </div>
               </td>
 
-              {/* Status (Mocked as 'Trained' since API creates file immediately) */}
+              {/* Status */}
               <td className="px-6 py-5 text-center">
                 <span className="bg-[#DCFCE7] text-[#16A34A] px-4 py-1.5 rounded-lg text-sm font-bold inline-block">
                   تم التدريب
-                </span>
-              </td>
-
-
-              {/* Date */}
-              <td className="px-6 py-5 text-center">
-                <span className="text-sm font-medium " >
-                  {formatDateTime(file.created_time)}
                 </span>
               </td>
 
@@ -67,3 +61,4 @@ export function KnowledgeBaseTable({ files, onDelete }: KnowledgeBaseTableProps)
     </div>
   );
 }
+
