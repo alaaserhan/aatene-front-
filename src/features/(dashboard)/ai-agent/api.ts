@@ -548,6 +548,51 @@ export const getWebAnalytics = async (): Promise<WebAnalyticsResponse> => {
     return data;
 };
 
+// ─── Knowledge Bank ───────────────────────────────────────────────────────────
+
+export interface KnowledgeBankItem {
+    id: number;
+    file_name: string;
+    file_path: string;
+    url: string;
+}
+
+export interface KnowledgeBankListResponse {
+    status: boolean;
+    message: string;
+    data: KnowledgeBankItem[];
+}
+
+export interface KnowledgeBankUploadResponse {
+    status: boolean;
+    message: string;
+    data: KnowledgeBankItem;
+}
+
+export interface KnowledgeBankDeleteResponse {
+    status: boolean;
+    message: string;
+}
+
+export const getKnowledgeBank = async (): Promise<KnowledgeBankListResponse> => {
+    const { data } = await mainApi.get<KnowledgeBankListResponse>(`${WEB_ADMIN_BASE}/knowledge-bank`);
+    return data;
+};
+
+export const uploadKnowledge = async (file: File): Promise<KnowledgeBankUploadResponse> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const { data } = await mainApi.post<KnowledgeBankUploadResponse>(`${WEB_ADMIN_BASE}/knowledge-bank`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
+};
+
+export const deleteKnowledge = async (id: number): Promise<KnowledgeBankDeleteResponse> => {
+    const { data } = await mainApi.delete<KnowledgeBankDeleteResponse>(`${WEB_ADMIN_BASE}/knowledge-bank/${id}`);
+    return data;
+};
+
 export interface InstructionResponse {
     success: boolean;
     agent_name: string;

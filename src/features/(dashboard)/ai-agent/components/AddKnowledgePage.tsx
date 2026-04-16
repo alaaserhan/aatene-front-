@@ -5,14 +5,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, FileText, X } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
-import { useUploadDriveFile } from "../hooks";
+import { useUploadKnowledge } from "../hooks";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { cn } from "@/src/lib/utils";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
 
 export function AddKnowledgePage() {
   const router = useRouter();
-  const { mutate: uploadFile, isPending } = useUploadDriveFile();
+  const { mutate: uploadFile, isPending } = useUploadKnowledge();
 
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

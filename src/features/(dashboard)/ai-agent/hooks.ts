@@ -366,4 +366,57 @@ export function useGetWebAnalytics() {
         queryKey: ["web-analytics"],
         queryFn: api.getWebAnalytics,
     });
-}
+}
+
+// ─── Knowledge Bank ───────────────────────────────────────────────────────────
+
+export function useGetKnowledgeBank() {
+    return useQuery({
+        queryKey: ["knowledge-bank"],
+        queryFn: api.getKnowledgeBank,
+    });
+}
+
+export function useUploadKnowledge() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: api.uploadKnowledge,
+        onSuccess: (data) => {
+            toast.success(data.message || "تم رفع الملف بنجاح");
+            queryClient.invalidateQueries({ queryKey: ["knowledge-bank"] });
+        },
+        onError: (error: AxiosError<{ message: string }>) => {
+            toast.error(error.response?.data?.message || "فشل رفع الملف");
+        },
+    });
+}
+
+export function useDeleteKnowledge() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: api.deleteKnowledge,
+        onMutate: async (id) => {
+            await queryClient.cancelQueries({ queryKey: ["knowledge-bank"] });
+            const previous = queryClient.getQueryData<api.KnowledgeBankListResponse>(["knowledge-bank"]);
+            if (previous) {
+                queryClient.setQueryData<api.KnowledgeBankListResponse>(["knowledge-bank"], {
+                    ...previous,
+                    data: previous.data.filter((f) => f.id !== id),
+                });
+            }
+            return { previous };
+        },
+        onSuccess: (data) => {
+            toast.success(data.message || "تم حذف الملف بنجاح");
+        },
+        onError: (error: AxiosError<{ message: string }>, _id, context) => {
+            if (context?.previous) {
+                queryClient.setQueryData(["knowledge-bank"], context.previous);
+            }
+            toast.error(error.response?.data?.message || "فشل حذف الملف");
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["knowledge-bank"] });
+        },
+    });
+}

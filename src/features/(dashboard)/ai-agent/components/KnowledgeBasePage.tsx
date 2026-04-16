@@ -9,8 +9,8 @@ import { Button } from "@/src/components/ui/button";
 import { KnowledgeBaseEmptyState } from "../components/KnowledgeBaseEmptyState";
 import { KnowledgeBaseTable } from "../components/KnowledgeBaseTable";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
-import { useGetDriveFiles, useDeleteDriveFile } from "../hooks";
-import { DriveFile } from "../api";
+import { useGetKnowledgeBank, useDeleteKnowledge } from "../hooks";
+import { KnowledgeBankItem } from "../api";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
@@ -18,10 +18,10 @@ export function KnowledgeBasePage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: filesData, isLoading } = useGetDriveFiles();
-  const { mutate: deleteFile, isPending: isDeleting } = useDeleteDriveFile();
+  const { data: filesData, isLoading } = useGetKnowledgeBank();
+  const { mutate: deleteFile, isPending: isDeleting } = useDeleteKnowledge();
 
-  const [fileToDelete, setFileToDelete] = useState<DriveFile | null>(null);
+  const [fileToDelete, setFileToDelete] = useState<KnowledgeBankItem | null>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isSuccessDeleteOpen, setIsSuccessDeleteOpen] = useState(false);
 
@@ -29,7 +29,7 @@ export function KnowledgeBasePage() {
     router.push("/admin/mosa3edy/KnowledgeBase/add");
   };
 
-  const handleDeleteClick = (file: DriveFile) => {
+  const handleDeleteClick = (file: KnowledgeBankItem) => {
     setFileToDelete(file);
     setIsDeleteConfirmOpen(true);
   };
@@ -46,8 +46,8 @@ export function KnowledgeBasePage() {
     }
   };
 
-  const files = filesData?.files || [];
-  const filteredFiles = files.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const files = filesData?.data || [];
+  const filteredFiles = files.filter(f => f.file_name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <div className="p-3 lg:p-5">
