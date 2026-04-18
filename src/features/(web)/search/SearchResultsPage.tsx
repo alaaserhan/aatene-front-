@@ -341,7 +341,7 @@ function SearchContent({ type }: { type: SearchType }) {
 
                         <div
                             ref={tagsScrollRef}
-                            className="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5 flex-1"
+                            className="flex gap-2 overflow-x-auto no-scrollbar flex-1"
                         >
                             {displayTags.map((tag) => {
                                 const isSelected = filters.tags?.includes(tag.id);

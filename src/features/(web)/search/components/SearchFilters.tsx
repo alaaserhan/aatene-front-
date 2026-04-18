@@ -266,29 +266,6 @@ export default function SearchFilters({
                     );
                 })}
 
-                {/* Tags */}
-                {tags.length > 0 && (
-                    <FilterSection title="العلامات" defaultOpen={false}>
-                        <div className="flex flex-wrap gap-2">
-                            {tags.map((tag) => {
-                                const isSelected = filters.tags?.includes(tag.id);
-                                return (
-                                    <button
-                                        key={tag.id}
-                                        onClick={() => handleTagToggle(tag.id)}
-                                        className={cn(
-                                            "px-3 py-1.5 rounded-full text-sm transition-colors cursor-pointer",
-                                            isSelected ? "bg-[#3D5E83] text-white" : "bg-[#E5E7EB] hover:bg-gray-200"
-                                        )}
-                                    >
-                                        {tag.title}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </FilterSection>
-                )}
-
                 {/* Price Range */}
                 {(type === "products" || type === "services") && (
                     <FilterSection title=" السعر" defaultOpen={false}>
