@@ -3,8 +3,6 @@
 import { useState, KeyboardEvent, useMemo, useEffect } from "react";
 import { HelpCircle, Loader2 } from "lucide-react";
 import Cookies from "js-cookie";
-import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
-import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -290,7 +288,7 @@ export function AddProductStep2({
         />
 
         <div className="grid grid-cols-12 gap-4 mt-8">
-          <div className="col-span-12 lg:col-span-9">
+          <div className="col-span-12">
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <h2 className="text-xl font-bold mb-8 ">المعلومات المتقدمة</h2>
 
@@ -405,18 +403,6 @@ export function AddProductStep2({
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="col-span-12 lg:col-span-3">
-            <ProductPreviewSidebar
-              data={{
-                name: previousData.name,
-                price: previousData.price,
-                coverImage: previousData.cover_preview,
-                galleryImages: previousData.gallery_previews,
-              }}
-            />
-            <GuideVideoCard location="add-product" />
           </div>
         </div>
       </div>

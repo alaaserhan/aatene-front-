@@ -8,6 +8,8 @@ import { AddProductStep1 } from "./AddProductStep1";
 import { AddProductStep2 } from "./AddProductStep2";
 import { AddProductStep3 } from "./AddProductStep3";
 import { AddProductStep4 } from "./AddProductStep4";
+import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { ProductCreatePayload } from "../api";
 import { useCreateProduct, useGenerateProductAI } from "../hooks";
 import {
@@ -42,6 +44,14 @@ export function AddProductPage() {
       tags: [],
       ...(sectionIdFromUrl ? { section_id: Number(sectionIdFromUrl) } : {}),
     } : undefined
+  });
+
+  // بيانات المعاينة — تبقى mounted طوال الوقت لمنع إعادة تحميل الفيديو
+  const [previewData, setPreviewData] = useState({
+    name: formData.step1?.name || "",
+    price: formData.step1?.price || 0,
+    coverImage: formData.step1?.cover_preview || "",
+    galleryImages: formData.step1?.gallery_previews || [] as string[],
   });
 
   const generateAIMutation = useGenerateProductAI();
@@ -286,6 +296,7 @@ export function AddProductPage() {
             storeId={storeId}
             breadcrumbItems={breadcrumbItems}
             onStepClick={handleStepClick}
+            onPreviewChange={setPreviewData}
           />
         );
 
@@ -365,7 +376,19 @@ export function AddProductPage() {
 
   return (
     <>
-      {renderStep()}
+      <div className="flex gap-6 items-start">
+        {/* المحتوى الرئيسي */}
+        <div className="flex-1 min-w-0">
+          {renderStep()}
+        </div>
+
+        {/* الـ Sidebar الثابت — لا يُعاد تحميله عند تغيير الـ step */}
+        <div className="hidden lg:block w-[280px] shrink-0 sticky top-6 space-y-4 pt-4">
+          <ProductPreviewSidebar data={previewData} />
+          <GuideVideoCard location="add-product" />
+        </div>
+      </div>
+
       <SuccessModal
         isOpen={showSuccessModal}
         onClose={() => {
