@@ -245,17 +245,17 @@ export function ShowStoryModal({
                         <div
                             className="flex items-center gap-8 absolute left-1/2 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
                             style={{
-                                transform: `translateX(calc(-${(ACTIVE_WIDTH / 2) + (activeIndex * (INACTIVE_WIDTH + GAP))}px))`,
+                                transform: `translateX(calc(-${(ACTIVE_WIDTH / 2) + ((stories.length - 1 - activeIndex) * (INACTIVE_WIDTH + GAP))}px))`,
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            {stories.map((story, index) => {
-                                const isActive = index === activeIndex;
+                            {[...stories].reverse().map((story, index) => {
+                                const isActive = stories.length - 1 - index === activeIndex;
 
                                 return (
                                     <div
                                         key={story.id}
-                                        onClick={() => !isActive && goToIndex(index)}
+                                        onClick={() => !isActive && goToIndex(stories.length - 1 - index)}
                                         className={cn(
                                             "relative bg-white aspect-[9/16] rounded-[24px] overflow-hidden transition-all duration-500 ease-in-out shrink-0 border border-gray-800",
                                             isActive
