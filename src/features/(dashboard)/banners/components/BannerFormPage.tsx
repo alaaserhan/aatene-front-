@@ -187,10 +187,6 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
       newErrors.title = "عنوان البانر مطلوب";
     }
 
-    if (!formData.city_id) {
-      newErrors.city_id = "المدينة مطلوبة";
-    }
-
     if (!formData.url.trim()) {
       newErrors.url = "رابط URL مطلوب";
     } else if (!isValidUrl(formData.url)) {
@@ -214,11 +210,8 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
       }
     }
 
-    if (formData.place !== "") {
-      const num = parseInt(formData.place, 10);
-      if (isNaN(num) || num < 1 || num > 6 || formData.place !== String(num)) {
-        newErrors.place = "مكان الإعلان يجب أن يكون رقماً من 1 إلى 6";
-      }
+    if (!formData.place) {
+      newErrors.place = "مكان الإعلان مطلوب";
     }
 
     setErrors(newErrors);
@@ -342,8 +335,8 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
 
             <div >
               <Label className="text-sm font-medium mb-2">
-                المدينة المراد ظهور الإعلان لسكانه
-                <span className="text-red-500 ms-1">*</span>
+                المدينة المراد ظهور الإعلان لسكانها
+                <span className="text-gray-400 text-xs ms-1">(اختياري — اتركه فارغاً لعرضه لجميع المدن)</span>
               </Label>
               <ReusableDropdown
                 value={formData.city_id}
@@ -357,38 +350,39 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
                   })),
                 ]}
                 error={errors.city_id}
-                placeholder="اختر المدينة"
+                placeholder="اختر المدينة (أو اتركه فارغاً لجميع المدن)"
               />
             </div>
 
-            <FormInput
-              label="مكان الإعلان"
-              value={formData.place}
-              onChange={(e) => {
-                const value = e.target.value;
-                setFormData({ ...formData, place: value });
-                if (value === "") {
+            <div>
+              <Label className="text-sm font-medium mb-2 block">
+                مكان الإعلان
+              </Label>
+              <ReusableDropdown
+                value={formData.place}
+                onChange={(value) => {
+                  setFormData({ ...formData, place: value });
                   setErrors((prev) => {
                     const newErrors = { ...prev };
                     delete newErrors.place;
                     return newErrors;
                   });
-                } else {
-                  const num = parseInt(value, 10);
-                  if (isNaN(num) || num < 1 || num > 6 || value !== String(num)) {
-                    setErrors((prev) => ({ ...prev, place: "مكان الإعلان يجب أن يكون رقماً من 1 إلى 6" }));
-                  } else {
-                    setErrors((prev) => {
-                      const newErrors = { ...prev };
-                      delete newErrors.place;
-                      return newErrors;
-                    });
-                  }
-                }
-              }}
-              placeholder="ضع مكان واحد الإعلان (1,2,3,4,5,6)"
-              error={errors.place}
-            />
+                }}
+                options={[
+                  { value: "1", label: "مكان 1 — سلايدر كبير أعلى الصفحة (يدور بين أكثر من بنر)" },
+                  { value: "2", label: "مكان 2 — بنرات جنب بعض (تظهر كلها في نفس الوقت)" },
+                  { value: "3", label: "مكان 3 — بنر فاصل بعد المنتجات الجديدة" },
+                  { value: "4", label: "مكان 4 — بنر فاصل بعد عروض الأسبوع" },
+                  { value: "5", label: "مكان 5 — بنر فاصل بعد المنتجات المختارة لك" },
+                  { value: "6", label: "مكان 6 — بنر فاصل بعد منتجات قد تعجبك" },
+                ]}
+                placeholder="اختر مكان الإعلان"
+                error={errors.place}
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                المواضع 3 و 4 و 5 و 6 تعرض بنراً واحداً فقط (الأعلى أولوية)
+              </p>
+            </div>
 
             <FormInput
               label="رابط URL"
