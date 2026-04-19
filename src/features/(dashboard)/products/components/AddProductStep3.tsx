@@ -6,8 +6,6 @@ import { Search, X, Plus, Image as ImageIcon, UploadCloud, HelpCircle } from "lu
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
-import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
-import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Button } from "@/src/components/ui/button";
@@ -321,7 +319,7 @@ export function AddProductStep3({
                     onStepClick={onStepClick}
                 />
                 <div className="grid grid-cols-12 gap-4 mt-8">
-                    <div className="col-span-12 lg:col-span-9">
+                    <div className="col-span-12">
                         <div className="bg-white rounded-xl p-6 border border-gray-200">
                             <div className="flex items-center justify-between mb-8">
                                 <h2 className="text-xl font-bold">الاختلافات و الكميات</h2>
@@ -599,18 +597,6 @@ export function AddProductStep3({
                                 </div>
                             ) : null}
                         </div>
-                    </div>
-
-                    <div className="col-span-12 lg:col-span-3">
-                        <ProductPreviewSidebar
-                            data={{
-                                name: previousData.name,
-                                price: previousData.price,
-                                coverImage: previousData.cover_preview,
-                                galleryImages: previousData.gallery_previews,
-                            }}
-                        />
-                        <GuideVideoCard location="add-product" />
                     </div>
                 </div>
             </div>
