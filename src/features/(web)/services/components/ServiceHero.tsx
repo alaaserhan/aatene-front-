@@ -27,11 +27,14 @@ const executeTypeMap: Record<string, string> = {
 function SpecialtiesDropdown({ specialties }: { specialties: { id: number; title: string }[] }) {
     const [open, setOpen] = useState(false);
     return (
-        <div className="border border-gray-200 rounded-xl overflow-hidden">
+        <div>
             <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-[#f5f8fc] hover:bg-[#eef2f7] transition-colors"
+                className={cn(
+                    "w-full flex items-center justify-between px-4 py-3 border border-gray-200 bg-[#f5f8fc] hover:bg-[#eef2f7] transition-colors",
+                    open ? "rounded-t-xl" : "rounded-xl"
+                )}
             >
                 <span className="text-sm font-medium text-gray-700">التخصصات ومجالات العمل</span>
                 <div className="flex items-center gap-2">
@@ -44,14 +47,14 @@ function SpecialtiesDropdown({ specialties }: { specialties: { id: number; title
                 </div>
             </button>
             {open && (
-                <div className="px-4 py-3 bg-white flex flex-wrap gap-2">
+                <div className="border border-t-0 border-gray-200 rounded-b-xl bg-white max-h-52 overflow-y-auto">
                     {specialties.map((spec) => (
-                        <span
+                        <div
                             key={spec.id}
-                            className="px-3 py-1 text-xs font-medium bg-[#eef2f7] text-[#395a7d] rounded-full border border-[#d0dcea]"
+                            className="px-4 py-2.5 hover:bg-[#f5f8fc] border-b border-gray-100 last:border-0 transition-colors"
                         >
-                            {spec.title}
-                        </span>
+                            <span className="text-sm text-gray-700">{spec.title}</span>
+                        </div>
                     ))}
                 </div>
             )}
