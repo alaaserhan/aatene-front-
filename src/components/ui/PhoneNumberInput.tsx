@@ -162,7 +162,7 @@ const PhoneNumberInput = React.forwardRef<
                     <Input
                         type="tel"
                         className={cn(
-                            "flex-1 h-full border-none shadow-none focus-visible:ring-0 rounded-none font-sans text-left ltr bg-transparent pl-3",
+                            "flex-1 h-full border-none shadow-none focus-visible:ring-0 rounded-none font-sans text-right rtl bg-transparent pr-3",
                             rightRounded,
                             className
                         )}
