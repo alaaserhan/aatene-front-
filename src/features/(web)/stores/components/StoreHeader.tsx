@@ -323,13 +323,13 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                     {covers.length > 1 && (
                         <>
                             <button
-                                onClick={handlePrev}
+                                onClick={handleNext}
                                 className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/30 hover:bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 cursor-pointer text-white"
                             >
                                 <ChevronRight className="w-6 h-6" />
                             </button>
                             <button
-                                onClick={handleNext}
+                                onClick={handlePrev}
                                 className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/30 hover:bg-white/50 backdrop-blur-md rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 cursor-pointer text-white"
                             >
                                 <ChevronLeft className="w-6 h-6" />
