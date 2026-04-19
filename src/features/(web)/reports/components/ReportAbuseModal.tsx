@@ -5,6 +5,9 @@ import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import { useGetReportTypes, useCreateReport } from "../hooks";
 import { CreateReportPayload } from "../api";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 interface ReportAbuseModalProps {
     isOpen: boolean;
@@ -18,6 +21,19 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
     const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null);
     const [subject, setSubject] = useState("");
     const [content, setContent] = useState("");
+
+    const router = useRouter();
+    const params = useParams();
+    const lang = params?.locale || "ar";
+    const { user } = useAuthStore();
+
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (isOpen && !user) {
+            onClose();
+            router.push(`/${lang}/login`);
+        }
+    }, [isOpen, user]);
 
     const { data: typesData, isLoading: typesLoading } = useGetReportTypes();
     const { mutate: createReport, isPending } = useCreateReport();

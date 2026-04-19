@@ -153,63 +153,58 @@ export function AddStoreStep3({
               <h2 className="text-xl font-bold mb-8">الاتصال والسوشيال</h2>
 
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <PhoneNumberInput
-                      label="رقم الهاتف"
-                      placeholder="ادخل رقم رقم الهاتف"
-                      countryCode={phoneCountryCode}
-                      onCountryCodeChange={setPhoneCountryCode}
-                      value={formData.phone}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, "");
-                        setFormData({ ...formData, phone: val });
-                        if (errors.phone) setErrors((prev) => ({ ...prev, phone: "" }));
-                      }}
-                      error={errors.phone}
-                    />
+                <div className="space-y-2">
+                  <PhoneNumberInput
+                    label="رقم الهاتف"
+                    placeholder="ادخل رقم رقم الهاتف"
+                    countryCode={phoneCountryCode}
+                    onCountryCodeChange={setPhoneCountryCode}
+                    value={formData.phone}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      setFormData({ ...formData, phone: val });
+                      if (errors.phone) setErrors((prev) => ({ ...prev, phone: "" }));
+                    }}
+                    error={errors.phone}
+                  />
 
-                    <div className="flex items-center gap-2 pt-2">
-                      <button
-                        type="button"
-                        onClick={toggleHidePhone}
-                        className={cn(
-                          "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center shrink-0 cursor-pointer",
-                          formData.hide_phone === "1"
-                            ? "bg-blue-5 border-blue-4"
-                            : "bg-white border-gray-300 group-hover:border-gray-2"
-                        )}
-                        aria-checked={formData.hide_phone === "1"}
-                        role="checkbox"
-                      >
-                        {formData.hide_phone === "1" && (
-                          <svg
-                            className="w-4 h-4 text-blue-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={3}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        )}
-                      </button>
+                  <div className="flex items-center gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={toggleHidePhone}
+                      className={cn(
+                        "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center shrink-0 cursor-pointer",
+                        formData.hide_phone === "1"
+                          ? "bg-blue-5 border-blue-4"
+                          : "bg-white border-gray-300 group-hover:border-gray-2"
+                      )}
+                      aria-checked={formData.hide_phone === "1"}
+                      role="checkbox"
+                    >
+                      {formData.hide_phone === "1" && (
+                        <svg
+                          className="w-4 h-4 text-blue-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </button>
 
-                      <label
-                        onClick={toggleHidePhone}
-                        className="text-sm text-gray-2 cursor-pointer font-normal select-none"
-                      >
-                        إخفاء رقم الهاتف على الملف الشخصي
-                      </label>
-                    </div>
+                    <label
+                      onClick={toggleHidePhone}
+                      className="text-sm text-gray-2 cursor-pointer font-normal select-none"
+                    >
+                      إخفاء رقم الهاتف على الملف الشخصي
+                    </label>
                   </div>
-
-                  {/* رقم الواتساب محذوف - يمكن إعادته لاحقاً إذا لزم الأمر */}
-
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
