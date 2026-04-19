@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGetReportStats, useGetReports, useGetReportTypes } from "../hooks";
 import { GetReportsParams } from "../api";
 import { Eye, Loader2, Search } from "lucide-react";
@@ -8,6 +8,8 @@ import { formatDateTime } from "@/src/lib/date-helper";
 import ReportDetailsModal from "./ReportDetailsModal";
 import ReportResponsesModal from "./ReportResponsesModal";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { useRouter, useParams } from "next/navigation";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 const statusMap: Record<string, { label: string; bg: string; border: string; text: string }> = {
     pending: { label: "جديدة", bg: "#e0eeff", border: "#c0d4f0", text: "#287cda" },
@@ -29,6 +31,25 @@ export default function ReportInquiryPage() {
     const [searchValue, setSearchValue] = useState("");
     const [selectedUuid, setSelectedUuid] = useState<string | null>(null);
     const [selectedResponsesUuid, setSelectedResponsesUuid] = useState<string | null>(null);
+
+    const router = useRouter();
+    const params = useParams();
+    const lang = params?.locale || "ar";
+    const { user } = useAuthStore();
+
+    useEffect(() => {
+        if (!user) {
+            router.replace(`/${lang}/login`);
+        }
+    }, [user]);
+
+    if (!user) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <Loader2 className="w-6 h-6 animate-spin text-blue-4" />
+            </div>
+        );
+    }
 
     const { data: statsData, isLoading: statsLoading } = useGetReportStats();
     const { data: reportsData, isLoading: reportsLoading } = useGetReports(filters);
