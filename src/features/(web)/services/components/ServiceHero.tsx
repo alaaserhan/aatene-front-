@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { useState, useMemo } from "react";
-import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Check, Clock4 } from "lucide-react";
+import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Check, Clock4, ChevronDown } from "lucide-react";
 import { Service } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddServiceToCompare, useRemoveServiceFromCompare } from "@/src/features/(web)/compares/hooks";
@@ -23,6 +23,41 @@ const executeTypeMap: Record<string, string> = {
     week: "اسبوع",
     month: "شهر",
 };
+
+function SpecialtiesDropdown({ specialties }: { specialties: { id: number; title: string }[] }) {
+    const [open, setOpen] = useState(false);
+    return (
+        <div className="border border-gray-200 rounded-xl overflow-hidden">
+            <button
+                type="button"
+                onClick={() => setOpen((v) => !v)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-[#f5f8fc] hover:bg-[#eef2f7] transition-colors"
+            >
+                <span className="text-sm font-medium text-gray-700">التخصصات ومجالات العمل</span>
+                <div className="flex items-center gap-2">
+                    <span className="text-xs text-[#395a7d] bg-[#dce8f4] px-2 py-0.5 rounded-full font-medium">
+                        {specialties.length}
+                    </span>
+                    <ChevronDown
+                        className={cn("w-4 h-4 text-gray-500 transition-transform duration-200", open && "rotate-180")}
+                    />
+                </div>
+            </button>
+            {open && (
+                <div className="px-4 py-3 bg-white flex flex-wrap gap-2">
+                    {specialties.map((spec) => (
+                        <span
+                            key={spec.id}
+                            className="px-3 py-1 text-xs font-medium bg-[#eef2f7] text-[#395a7d] rounded-full border border-[#d0dcea]"
+                        >
+                            {spec.title}
+                        </span>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function ServiceHero({ service }: ServiceHeroProps) {
     const allMedia = useMemo(() => {
@@ -306,15 +341,20 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
 
                     {/* Specialties / Field Tags */}
                     {service.specialties && service.specialties.length > 0 && (
+                        <SpecialtiesDropdown specialties={service.specialties} />
+                    )}
+
+                    {/* Tags / Keywords */}
+                    {service.tags && service.tags.length > 0 && (
                         <div className="flex flex-col gap-2">
-                            <p className="text-sm font-medium text-gray-700">التخصصات ومجالات العمل</p>
+                            <p className="text-sm font-medium text-gray-700">الكلمات المفتاحية</p>
                             <div className="flex flex-wrap gap-2">
-                                {service.specialties.map((spec) => (
+                                {service.tags.map((tag) => (
                                     <span
-                                        key={spec.id}
-                                        className="px-3 py-1 text-xs font-medium bg-[#eef2f7] text-[#395a7d] rounded-full border border-[#d0dcea]"
+                                        key={tag.id}
+                                        className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full border border-gray-200"
                                     >
-                                        {spec.title}
+                                        {tag.title}
                                     </span>
                                 ))}
                             </div>
