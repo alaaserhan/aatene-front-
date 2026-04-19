@@ -2,6 +2,8 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { HelpCircle } from "lucide-react";
+import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { ProductFormActions } from "./ProductFormActions";
 import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -25,7 +27,6 @@ interface AddProductStep1Props {
   breadcrumbItems?: { label: string; href?: string }[];
   onStepClick?: (step: number) => void;
   showSaveDraft?: boolean;
-  onPreviewChange?: (data: { name: string; price: number; coverImage: string; galleryImages: string[] }) => void;
 }
 
 const CONDITION_OPTIONS = [
@@ -68,7 +69,6 @@ export function AddProductStep1({
   breadcrumbItems,
   onStepClick,
   showSaveDraft = true,
-  onPreviewChange,
 }: AddProductStep1Props) {
   const [formData, setFormData] = useState<Step1FormData>({
     category_id: initialData?.category_id || 0,
@@ -84,16 +84,6 @@ export function AddProductStep1({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // إرسال بيانات المعاينة للـ parent عند التغيير
-  useEffect(() => {
-    onPreviewChange?.({
-      name: formData.name,
-      price: formData.price,
-      coverImage: formData.cover_preview,
-      galleryImages: formData.gallery_previews,
-    });
-  }, [formData.name, formData.price, formData.cover_preview, formData.gallery_previews]);
 
   // ✅ حالة البحث عن الفئات
   const [categorySearchQuery, setCategorySearchQuery] = useState("");
@@ -302,7 +292,7 @@ export function AddProductStep1({
         />
 
         <div className="grid grid-cols-12 gap-4 mt-8">
-          <div className="col-span-12">
+          <div className="col-span-12 lg:col-span-9">
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-xl font-semibold">المعلومات الأساسية</h2>
@@ -498,6 +488,18 @@ export function AddProductStep1({
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="col-span-12 lg:col-span-3">
+            <ProductPreviewSidebar
+              data={{
+                name: formData.name,
+                price: formData.price,
+                coverImage: formData.cover_preview,
+                galleryImages: formData.gallery_previews,
+              }}
+            />
+            <GuideVideoCard location="add-product" />
           </div>
         </div>
       </div>

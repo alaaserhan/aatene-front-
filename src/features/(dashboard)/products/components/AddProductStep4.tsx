@@ -6,6 +6,8 @@ import { Plus, HelpCircle, Percent, Tag, Check, Image as ImageIcon, Calendar as 
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
+import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Step1FormData, Step4FormData, RelatedProduct } from "../types";
@@ -182,7 +184,7 @@ export function AddProductStep4({
                     onStepClick={onStepClick}
                 />
                 <div className="grid grid-cols-12 gap-4 mt-8">
-                    <div className="col-span-12">
+                    <div className="col-span-12 lg:col-span-9">
                         <div className="bg-white rounded-xl border border-gray-200 p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-4">
@@ -316,6 +318,18 @@ export function AddProductStep4({
                                 </div>
                             )}
                         </div>
+                    </div>
+
+                    <div className="col-span-12 lg:col-span-3">
+                        <ProductPreviewSidebar
+                            data={{
+                                name: previousData.name,
+                                price: previousData.price,
+                                coverImage: previousData.cover_preview,
+                                galleryImages: previousData.gallery_previews,
+                            }}
+                        />
+                        <GuideVideoCard location="add-product" />
                     </div>
                 </div>
             </div>
