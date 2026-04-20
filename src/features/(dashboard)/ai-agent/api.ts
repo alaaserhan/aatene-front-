@@ -3,7 +3,8 @@ import axios, { InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
 import mainApi from "@/src/lib/axios";
 
-const BASE_URL_5000 = "https://api1.mosaady.com";
+const BASE_URL_5000 = "https://api1.mosaady.com/api";
+const BASE_URL_5000_ROOT = "https://api1.mosaady.com";
 const BASE_URL_5002 = "https://api2.mosaady.com/api";
 const BASE_URL_5005 = "https://api3.mosaady.com";
 const BASE_URL_API4 = "https://api4.mosaady.com";
@@ -20,6 +21,9 @@ const authInterceptor = (config: InternalAxiosRequestConfig) => {
 
 const api5000 = axios.create({ baseURL: BASE_URL_5000 });
 api5000.interceptors.request.use(authInterceptor);
+
+const api5000Root = axios.create({ baseURL: BASE_URL_5000_ROOT });
+api5000Root.interceptors.request.use(authInterceptor);
 
 const api5002 = axios.create({ baseURL: BASE_URL_5002 });
 api5002.interceptors.request.use(authInterceptor);
@@ -86,17 +90,23 @@ export interface AgentUser {
 }
 
 export interface AgentUserSummary {
-    conversation_status: ConversationStatus;
-    last_message: LastMessage | null;
-    user_info: UserInfo;
+    chat_id: string;
+    first_name: string | null;
+    last_name: string | null;
+    username: string | null;
+    phone_number: string | null;
+    platform: string;
+    total_messages: number;
+    first_seen: string;
+    last_seen: string;
 }
 
 export interface UsersResponse {
     success: boolean;
     platform?: string;
     pagination: Pagination;
-    users?: AgentUser[];
-    urgent_users?: AgentUser[];
+    users?: AgentUserSummary[];
+    urgent_users?: AgentUserSummary[];
 }
 
 export interface UsersInfoResponse {
@@ -247,7 +257,7 @@ export const getPlatformUsers = async (params: GetUsersParams): Promise<UsersRes
     if (params.offset) queryParams.set("offset", String(params.offset));
     if (params.needs_human !== undefined) queryParams.set("needs_human", String(params.needs_human));
 
-    const { data } = await api5000.get<UsersResponse>(`/users/platform/${params.platform}?${queryParams.toString()}`);
+    const { data } = await api5000Root.get<UsersResponse>(`/users/platform/${params.platform}?${queryParams.toString()}`);
     return data;
 };
 
@@ -257,7 +267,7 @@ export const getPlatformUsersInfo = async (params: GetUsersParams): Promise<User
     if (params.offset) queryParams.set("offset", String(params.offset));
     if (params.needs_human !== undefined) queryParams.set("needs_human", String(params.needs_human));
 
-    const { data } = await api5000.get<UsersInfoResponse>(`/users/platform/${params.platform}/info?${queryParams.toString()}`);
+    const { data } = await api5000Root.get<UsersInfoResponse>(`/users/platform/${params.platform}/info?${queryParams.toString()}`);
     return data;
 };
 
