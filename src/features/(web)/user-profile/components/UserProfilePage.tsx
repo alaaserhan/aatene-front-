@@ -448,7 +448,7 @@ function FavoritesSection({ userId }: { userId: number }) {
     const totalPages = data ? Math.ceil(data.total / 5) : 1;
 
     return (
-        <div className="mb-8">
+        <div id="favorites" className="mb-8">
             <div className="flex flex-col sm:flex-row items-center justify-between mb-4 border-b border-gray-100 pb-3" dir="rtl">
                 <h2 className="text-2xl  font-medium mb-3 sm:mb-0 w-full sm:w-auto text-right">المفضلة</h2>
                 {totalPages > 1 && (

@@ -165,6 +165,8 @@ export interface HighlightResponse extends BaseResponse {
 export interface User {
     id: number;
     avatar: string | null;
+    avatar_url?: string | null;
+    cover_url?: string | null;
     first_name: string;
     last_name: string;
     fullname: string;
@@ -448,6 +450,15 @@ export const updateAvatar = async (avatar: File): Promise<BaseResponse & { data:
     formData.append("avatar", avatar);
     // Use POST as typically usually used for file uploads, prompt says POST.
     const { data } = await api.post<BaseResponse & { data: { avatar_url: string; avatar?: string } }>("/auth/account/update_avatar", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
+};
+
+export const updateCover = async (cover: File): Promise<BaseResponse & { data: { cover_url: string } }> => {
+    const formData = new FormData();
+    formData.append("cover", cover);
+    const { data } = await api.post<BaseResponse & { data: { cover_url: string } }>("/auth/account/update_cover", formData, {
         headers: { "Content-Type": "multipart/form-data" },
     });
     return data;
