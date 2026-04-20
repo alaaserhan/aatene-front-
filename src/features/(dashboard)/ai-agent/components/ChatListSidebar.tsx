@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Loader2, User, Store } from "lucide-react";
-import { useGetPlatformUsersInfo, useGetApi4Users, useGetDeletedUsers, useGetWebConversations } from "../hooks";
+import { useGetPlatformUsers, useGetApi4Users, useGetDeletedUsers, useGetWebConversations } from "../hooks";
 import { PlatformType, WebConversation, WebConversationState } from "../api";
 import { cn } from "@/src/lib/utils";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
@@ -328,7 +328,7 @@ function StandardChatList({
   needsHuman: boolean;
 }) {
   const isApiPlatform = ["whatsapp", "instagram", "messenger"].includes(platform);
-  const { data, isLoading } = useGetPlatformUsersInfo({
+  const { data, isLoading } = useGetPlatformUsers({
     platform: (isApiPlatform ? platform : "whatsapp") as PlatformType,
     limit: 50,
     needs_human: needsHuman,
@@ -342,7 +342,7 @@ function StandardChatList({
     );
   }
 
-  const users = (data?.users || []).filter((user) => !user.conversation_status.is_deleted);
+  const users = (data?.users || []);
 
   if (users.length === 0) {
     return (
@@ -355,16 +355,16 @@ function StandardChatList({
   return (
     <div className="flex flex-col h-full overflow-y-auto p-2">
       {users.map((user) => {
-        const lastMessage = user.last_message?.bot_response || user.last_message?.message_text || "بدأ المحادثة";
+        const lastMessage = "بدأ المحادثة";
         return (
           <UserCard
-            key={user.user_info.chat_id}
-            isSelected={selectedChatId === user.user_info.chat_id}
-            onClick={() => onSelectChat(user.user_info.chat_id)}
-            name={user.user_info.first_name || user.user_info.phone_number || "مستخدم"}
-            time={user.last_message?.created_at || user.user_info.last_seen}
+            key={user.chat_id}
+            isSelected={selectedChatId === user.chat_id}
+            onClick={() => onSelectChat(user.chat_id)}
+            name={user.first_name || user.phone_number || user.username || "مستخدم"}
+            time={user.last_seen}
             lastMessage={lastMessage}
-            type={(user.user_info as { type?: string }).type}
+            type={undefined}
           />
         );
       })}
