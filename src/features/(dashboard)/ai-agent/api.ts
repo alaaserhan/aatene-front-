@@ -3,7 +3,7 @@ import axios, { InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
 import mainApi from "@/src/lib/axios";
 
-const BASE_URL_5000 = "https://api1.mosaady.com/api";
+const BASE_URL_5000 = "https://api1.mosaady.com";
 const BASE_URL_5002 = "https://api2.mosaady.com/api";
 const BASE_URL_5005 = "https://api3.mosaady.com";
 const BASE_URL_API4 = "https://api4.mosaady.com";
