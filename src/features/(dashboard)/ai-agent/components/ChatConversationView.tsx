@@ -43,7 +43,7 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
     const refetch = isApi4 ? refetchApi4 : refetchUser;
 
     const user = userData?.user;
-    const rawMessages = isApi4 ? (api4Data?.history || []) : (user?.message_history || []);
+    const rawMessages = isApi4 ? (api4Data?.history || []) : (userData?.recent_messages || []);
 
     const messages = rawMessages.map((msg, idx) => ({
         message_id: 'message_id' in msg ? (msg as { message_id: number }).message_id : idx,
@@ -53,8 +53,8 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
         created_at: msg.created_at,
     }));
 
-    const needsHuman = isApi4 ? false : (user?.conversation_status?.needs_human ?? false);
-    const userName = isApi4 ? chatId : (user?.user_info.first_name || user?.user_info.phone_number || "المستخدم");
+    const needsHuman = false;
+    const userName = isApi4 ? chatId : (user?.first_name || user?.phone_number || user?.username || "المستخدم");
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -260,7 +260,7 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                                 if (!text && msg.message_type !== "choice") return null;
 
                                 if (msg.message_type === "choice") {
-                                    const isProduct = text.toLowerCase() === "product";
+                                    const isProduct = (text || "").toLowerCase() === "product";
                                     return (
                                         <div key={msg.message_id} className="flex justify-center w-full my-4">
                                             <div className="bg-[#DCE8F5] border-r-4 border-blue-3 text-blue-3 px-4 py-3 rounded-sm flex items-center justify-between gap-4 w-full">
