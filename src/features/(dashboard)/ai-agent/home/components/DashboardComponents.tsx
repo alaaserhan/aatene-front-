@@ -4,7 +4,23 @@
 import { cn } from "@/src/lib/utils";
 import { Star, Phone, Instagram, Facebook, Globe, Download, MessageSquare, MessageCircle, Database } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
-import { OverviewData } from "../../api";
+
+// Local types to avoid coupling with API response structure
+interface ConversationTypes {
+    ratio?: string;
+    needs_human_true?: number;
+    needs_human_false?: number;
+}
+
+interface PlatformUsers {
+    platform: string;
+    number_of_users: number;
+}
+
+interface PlatformRating {
+    platform: string;
+    average_rating: number;
+}
 
 // --- 1. Stat Card ---
 interface StatCardProps {
@@ -60,7 +76,7 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
 
 // --- 2. Chart Card ---
 interface SessionsChartCardProps {
-    data?: OverviewData['conversation_types'];
+    data?: ConversationTypes;
 }
 export function SessionsChartCard({ data }: SessionsChartCardProps) {
     const needsHuman = data?.needs_human_true || 0;
@@ -121,7 +137,7 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
 }
 // --- 3. Sources Card ---
 interface SourcesCardProps {
-    usersPerPlatform?: OverviewData['users_per_platform'];
+    usersPerPlatform?: PlatformUsers[];
     totalUsers?: number;
 }
 
@@ -198,7 +214,7 @@ export function SourcesCard({ usersPerPlatform = [] }: SourcesCardProps) {
 // --- 4. Rating Components ---
 
 interface RatingSourceCardProps {
-    ratings?: OverviewData['platforms_average_rating'];
+    ratings?: PlatformRating[];
 }
 
 export function RatingSourceCard({ ratings = [] }: RatingSourceCardProps) {
@@ -257,7 +273,7 @@ export function RatingSourceCard({ ratings = [] }: RatingSourceCardProps) {
     );
 }
 interface RatingClassificationCardProps {
-    breakdown?: OverviewData['review_stars_breakdown'];
+    breakdown?: Record<string, number>;
     totalReviews: number;
 }
 
