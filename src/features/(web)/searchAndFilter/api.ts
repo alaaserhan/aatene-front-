@@ -98,7 +98,7 @@ export interface ProductSearchParams {
     category_id?: number;
     section_id?: number;
     tags?: number[];
-    variation_options?: number[]; // Assuming variation IDs
+    variation_options?: number[];
     min_price?: number;
     max_price?: number;
     condition?: string;
@@ -109,6 +109,7 @@ export interface ProductSearchParams {
     order_dir?: string;
     page?: number;
     per_page?: number;
+    fav_by_id?: number;
 }
 
 export const searchProducts = async (params: ProductSearchParams): Promise<ProductsSearchResponse> => {
@@ -200,6 +201,7 @@ export interface ServiceSearchParams {
     store_id?: number;
     search?: string;
     section_id?: number;
+    fav_by_id?: number;
 }
 
 export const searchServices = async (params: ServiceSearchParams): Promise<ServicesSearchResponse> => {
@@ -323,6 +325,7 @@ export interface StoreSearchParams {
     order_by?: string;
     per_page?: number;
     page?: number;
+    fav_by_id?: number;
 }
 
 export const searchStores = async (params: StoreSearchParams): Promise<StoresSearchResponse> => {

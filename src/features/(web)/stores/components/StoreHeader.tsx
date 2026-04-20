@@ -65,15 +65,16 @@ function FollowerCard({
     isPending: boolean;
 }) {
     const visibleFavs = user.favorites.slice(0, 5);
-    const remainingCount = Math.max(0, Number(user.favorites_count) - 5);
+    const remainingCount = Math.max(0, Number(user.favorites_count) - visibleFavs.length);
     const hasFavorites = user.favorites.length > 0;
     const isPrivate = !hasFavorites && Number(user.favorites_count) > 0;
+    const profileId = user.slug || String(user.id);
 
     return (
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8 py-5 border-b border-gray-100 last:border-none">
             <div className="flex items-center justify-between w-full lg:max-w-[300px] shrink-0">
                 <div className="flex items-center gap-3  ">
-                    <Link href={`/profile/${user.slug}`} className="shrink-0">
+                    <Link href={`/profile/${profileId}`} className="shrink-0">
                         <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 border border-gray-200 relative flex items-center justify-center">
                             <UserIcon className="w-5 h-5 text-gray-400 absolute" />
                             {user.avatar_url && (
@@ -88,7 +89,7 @@ function FollowerCard({
                         </div>
                     </Link>
                     <div className="min-w-0">
-                        <Link href={`/profile/${user.slug}`}>
+                        <Link href={`/profile/${profileId}`}>
                             <p className="text-sm font-medium truncate hover:underline">{user.name}</p>
                         </Link>
                         <p className="text-xs text-gray-400">عدد المتابعين: {user.followers_count}</p>
@@ -142,9 +143,9 @@ function FollowerCard({
                         ))}
                         {remainingCount > 0 && (
                             <Link
-                                href={`/profile/${user.slug}`}
+                                href={`/profile/${profileId}/favorites`}
                                 className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-amber-400/80 shrink-0 flex items-center justify-center hover:bg-amber-500/80 transition-colors"
-                                title="عرض الملف الشخصي"
+                                title="عرض جميع المفضلة"
                             >
                                 <span className="text-white font-bold text-lg">+{remainingCount}</span>
                             </Link>

@@ -23,6 +23,7 @@ import {
     deleteHighlight,
     getAccount,
     updateAvatar,
+    updateCover,
     updateAccount,
     updateEmail,
     updatePhone,
@@ -290,6 +291,26 @@ export const useUpdateAvatar = () => {
                     avatar: newAvatarUrl,
                 });
             }
+        },
+        onSettled: () => {
+            qc.invalidateQueries({ queryKey: QK.account.profile });
+        },
+    });
+};
+
+export const useUpdateCover = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (cover: File) => updateCover(cover),
+        onSuccess: (data) => {
+            toast.success(data.message || "تم تحديث صورة الغلاف");
+            const newCoverUrl = data?.data?.cover_url;
+            if (newCoverUrl) {
+                useAuthStore.getState().updateUser({ avatar: newCoverUrl } as never);
+            }
+        },
+        onError: () => {
+            toast.error("حدث خطأ أثناء تحديث صورة الغلاف");
         },
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.account.profile });

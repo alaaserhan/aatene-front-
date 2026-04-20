@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Camera, Calendar as CalendarIcon } from "lucide-react";
-import { useGetAccount, useUpdateAccount, useUpdateAvatar, useGetCities } from "../../hooks";
+import { Camera, Calendar as CalendarIcon, Plus } from "lucide-react";
+import { useGetAccount, useUpdateAccount, useUpdateAvatar, useUpdateCover, useGetCities } from "../../hooks";
 import { cn } from "@/src/lib/utils";
 import Image from "next/image";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -25,10 +25,12 @@ type FormErrors = Partial<Record<keyof typeof personalInfoSchema.shape, string>>
 
 export default function PersonalInfoTab() {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const coverInputRef = useRef<HTMLInputElement>(null);
 
     const { data: accountData, isLoading: isLoadingAccount } = useGetAccount();
     const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();
     const { mutate: updateAvatar, isPending: isUploadingAvatar } = useUpdateAvatar();
+    const { mutate: updateCover, isPending: isUploadingCover } = useUpdateCover();
 
     // City search state
     const [citySearch, setCitySearch] = useState("");
@@ -56,6 +58,7 @@ export default function PersonalInfoTab() {
 
     const [errors, setErrors] = useState<FormErrors>({});
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
     // Populate form with existing data
     useEffect(() => {
@@ -70,11 +73,16 @@ export default function PersonalInfoTab() {
                 bio: user.bio || "",
             });
             setAvatarPreview(user.avatar);
+            setCoverPreview((user as any).cover_url || null);
         }
     }, [accountData]);
 
     const handleAvatarClick = () => {
         fileInputRef.current?.click();
+    };
+
+    const handleCoverClick = () => {
+        coverInputRef.current?.click();
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,6 +94,18 @@ export default function PersonalInfoTab() {
             };
             reader.readAsDataURL(file);
             updateAvatar(file);
+        }
+    };
+
+    const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setCoverPreview(e.target?.result as string);
+            };
+            reader.readAsDataURL(file);
+            updateCover(file);
         }
     };
 
@@ -176,8 +196,7 @@ export default function PersonalInfoTab() {
                                 accept="image/*"
                                 onChange={handleFileChange}
                                 className="hidden"
-                            />
-                        </div>
+                            />                        </div>
                     </div>
 
                     {/* Left Side: Form Fields */}
@@ -311,8 +330,50 @@ export default function PersonalInfoTab() {
                             />
                         </div>
 
-
-
+                        {/* Cover Image */}
+                        <div className="flex flex-col gap-3">
+                            <label className="text-sm font-medium text-[#4B5563] text-right">صورة الغلاف</label>
+                            <div
+                                onClick={handleCoverClick}
+                                className="relative w-full h-36 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 overflow-hidden cursor-pointer hover:border-blue-3 transition-colors group"
+                            >
+                                {coverPreview ? (
+                                    <>
+                                        <Image
+                                            src={coverPreview}
+                                            alt="Cover"
+                                            fill
+                                            className="object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <Camera className="w-6 h-6 text-white" />
+                                            <span className="text-white text-sm ms-2">تغيير الغلاف</span>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-full gap-2 text-gray-400">
+                                        {isUploadingCover ? (
+                                            <span className="text-sm">جاري الرفع...</span>
+                                        ) : (
+                                            <>
+                                                <div className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                                                    <Plus className="w-5 h-5" />
+                                                </div>
+                                                <span className="text-sm">اضف او اسحب صورة</span>
+                                                <span className="text-xs text-gray-300">png , jpg , svg</span>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                            <input
+                                ref={coverInputRef}
+                                type="file"
+                                accept="image/png,image/jpeg,image/svg+xml"
+                                onChange={handleCoverChange}
+                                className="hidden"
+                            />
+                        </div>
 
                         {/* Bio */}
                         <div className="flex flex-col gap-3">
