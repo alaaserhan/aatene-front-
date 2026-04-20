@@ -61,26 +61,6 @@ export function useResolveConversation() {
 
   return useMutation({
     mutationFn: api.resolveConversation,
-    onMutate: async (chatId) => {
-      await queryClient.cancelQueries({ queryKey: ["agent-user", chatId] });
-      const previousUser = queryClient.getQueryData<api.SingleUserResponse>(["agent-user", chatId]);
-
-      if (previousUser) {
-        queryClient.setQueryData<api.SingleUserResponse>(["agent-user", chatId], {
-          ...previousUser,
-          user: {
-            ...previousUser.user,
-            conversation_status: {
-              ...previousUser.user.conversation_status,
-              needs_human: false,
-              current_state: "active",
-            },
-          },
-        });
-      }
-
-      return { previousUser };
-    },
     onSuccess: (data) => {
       toast.success(data.message || "تم إنهاء المحادثة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["agent-users"] });
@@ -89,10 +69,7 @@ export function useResolveConversation() {
       queryClient.invalidateQueries({ queryKey: ["agent-stats"] });
       queryClient.invalidateQueries({ queryKey: ["agent-overview"] });
     },
-    onError: (error: AxiosError, chatId, context) => {
-      if (context?.previousUser) {
-        queryClient.setQueryData(["agent-user", chatId], context.previousUser);
-      }
+    onError: (error: AxiosError) => {
       toast.error(error.message || "فشل في تحديث حالة المحادثة");
     },
   });

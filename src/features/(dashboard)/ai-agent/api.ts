@@ -116,9 +116,18 @@ export interface UsersInfoResponse {
     users: AgentUserSummary[];
 }
 
+export interface RecentMessage {
+    bot_response: string | null;
+    created_at: string;
+    message_text: string | null;
+    message_type: string;
+    platform: string;
+}
+
 export interface SingleUserResponse {
     success: boolean;
-    user: AgentUser;
+    user: AgentUserSummary;
+    recent_messages: RecentMessage[];
 }
 
 export interface ResolveResponse {
@@ -181,20 +190,14 @@ export interface UserReviewsResponse {
 
 export interface OverviewData {
     total_users: number;
-    total_messages: number;
-    average_review_all_platforms: number;
-    conversation_types: {
-        ratio: string;
-        needs_human_true: number;
-        needs_human_false: number;
+    total_bot_responses: number;
+    needs_human_count: number;
+    messages_last_7_days: number;
+    messages_by_platform: Record<string, number>;
+    reviews: {
+        average_rating: number;
+        count: number;
     };
-    platform_with_most_users: {
-        platform: string;
-        number_of_users: number;
-    };
-    users_per_platform: { platform: string; number_of_users: number }[];
-    platforms_average_rating: { platform: string; average_rating: number }[];
-    review_stars_breakdown: Record<string, number>;
 }
 
 export interface OverviewResponse {
@@ -213,7 +216,7 @@ export interface StatsResponse {
 }
 
 export interface GetUsersParams {
-    platform: "whatsapp" | "instagram" | "messenger";
+    platform: "whatsapp" | "instagram" | "messenger" | "mobile";
     limit?: number;
     offset?: number;
     needs_human?: boolean;
@@ -292,7 +295,7 @@ export const getUrgentUsers = async (limit: number = 100, offset: number = 0): P
 };
 
 export const getSingleUser = async (chatId: string): Promise<SingleUserResponse> => {
-    const { data } = await api5000.get<SingleUserResponse>(`/user/${encodeURIComponent(chatId)}`);
+    const { data } = await api5000Root.get<SingleUserResponse>(`/users/${encodeURIComponent(chatId)}`);
     return data;
 };
 
@@ -618,7 +621,7 @@ export interface UpdateInstructionPayload {
     system_message: string;
 }
 
-export type PlatformType = "whatsapp" | "instagram" | "messenger";
+export type PlatformType = "whatsapp" | "instagram" | "messenger" | "mobile";
 export const getInstruction = async (platform: PlatformType): Promise<InstructionResponse> => {
     const { data } = await api5002.get<InstructionResponse>(`/${platform}/maya-agent`);
     return data;

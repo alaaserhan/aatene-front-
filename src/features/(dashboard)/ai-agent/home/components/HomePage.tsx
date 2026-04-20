@@ -42,17 +42,25 @@ export function HomePage() {
     const webMessages = web?.messages;
     const webRatings = web?.ratings;
 
+    // Total users: from overview + web
     const mergedTotalUsers = (raw.total_users || 0) + (webConversations?.total || 0);
-    const mergedTotalMessages = (raw.total_messages || 0) + (webMessages?.total || 0);
 
+    // Total messages: sum messages_by_platform + web messages
+    const platformMsgsTotal = Object.values(raw.messages_by_platform || {}).reduce((a, b) => a + b, 0);
+    const mergedTotalMessages = platformMsgsTotal + (webMessages?.total || 0);
+
+    // Conversation types: derive from needs_human_count
     const mergedConversationTypes = {
-        ratio: raw.conversation_types?.ratio || "0:0",
-        needs_human_true: (raw.conversation_types?.needs_human_true || 0) + (webConversations?.needs_human || 0),
-        needs_human_false: (raw.conversation_types?.needs_human_false || 0) + (webConversations?.done_by_bot || 0),
+        ratio: "0:0",
+        needs_human_true: (raw.needs_human_count || 0) + (webConversations?.needs_human || 0),
+        needs_human_false: Math.max(0, mergedTotalUsers - (raw.needs_human_count || 0) - (webConversations?.needs_human || 0)),
     };
 
-    const webPlatformEntry = { platform: "website", number_of_users: webMessages?.total || 0 };
-    const existingPlatforms = raw.users_per_platform || [];
+    // Users per platform: derive from messages_by_platform
+    const existingPlatforms = Object.entries(raw.messages_by_platform || {}).map(([platform, count]) => ({
+        platform,
+        number_of_users: count as number,
+    }));
     const hasWebsite = existingPlatforms.some((p) => p.platform.toLowerCase() === "website");
     const mergedUsersPerPlatform = hasWebsite
         ? existingPlatforms.map((p) =>
@@ -60,40 +68,33 @@ export function HomePage() {
                   ? { ...p, number_of_users: p.number_of_users + (webMessages?.total || 0) }
                   : p
           )
-        : [...existingPlatforms, webPlatformEntry];
+        : [...existingPlatforms, { platform: "website", number_of_users: webMessages?.total || 0 }];
 
-    const oldBreakdown = raw.review_stars_breakdown || {};
+    // Reviews
     const webDist = webRatings?.distribution;
     const mergedBreakdown: Record<string, number> = {
-        five_star: (oldBreakdown["five_star"] || 0) + (webDist?.["5"] || 0),
-        four_star: (oldBreakdown["four_star"] || 0) + (webDist?.["4"] || 0),
-        three_star: (oldBreakdown["three_star"] || 0) + (webDist?.["3"] || 0),
-        two_star: (oldBreakdown["two_star"] || 0) + (webDist?.["2"] || 0),
-        one_star: (oldBreakdown["one_star"] || 0) + (webDist?.["1"] || 0),
+        five_star: webDist?.["5"] || 0,
+        four_star: webDist?.["4"] || 0,
+        three_star: webDist?.["3"] || 0,
+        two_star: webDist?.["2"] || 0,
+        one_star: webDist?.["1"] || 0,
     };
 
-    const totalReviewsCalculated = Object.values(mergedBreakdown).reduce((a, b) => a + b, 0);
+    const totalReviewsCalculated = (raw.reviews?.count || 0) + Object.values(mergedBreakdown).reduce((a, b) => a + b, 0);
 
-    const oldTotal = raw.review_stars_breakdown
-        ? Object.values(raw.review_stars_breakdown).reduce((a, b) => a + b, 0)
-        : 0;
-    const webTotal = webDist
-        ? Object.values(webDist).reduce((a, b) => a + b, 0)
-        : 0;
+    const webTotal = webDist ? Object.values(webDist).reduce((a, b) => a + b, 0) : 0;
+    const apiTotal = raw.reviews?.count || 0;
     const mergedAverage =
-        oldTotal + webTotal > 0
-            ? ((raw.average_review_all_platforms || 0) * oldTotal + (webRatings?.average || 0) * webTotal) /
-              (oldTotal + webTotal)
+        apiTotal + webTotal > 0
+            ? ((raw.reviews?.average_rating || 0) * apiTotal + (webRatings?.average || 0) * webTotal) /
+              (apiTotal + webTotal)
             : 0;
 
-    const existingRatings = raw.platforms_average_rating || [];
-    const hasWebsiteRating = existingRatings.some((r) => r.platform.toLowerCase() === "website");
-    const mergedPlatformRatings = hasWebsiteRating
-        ? existingRatings
-        : [...existingRatings, { platform: "website", average_rating: webRatings?.average || 0 }];
+    const mergedPlatformRatings = [
+        { platform: "website", average_rating: webRatings?.average || 0 },
+    ];
 
     const data = {
-        ...raw,
         total_users: mergedTotalUsers,
         total_messages: mergedTotalMessages,
         conversation_types: mergedConversationTypes,
