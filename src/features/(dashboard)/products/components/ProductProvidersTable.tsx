@@ -122,12 +122,12 @@ export function ProductProvidersTable({
                                     <td className="px-6 py-4 text-center">
                                         <span
                                             className={`text-xs font-medium ${
-                                                store.status === "active"
+                                                store.status === "approved"
                                                     ? "text-green-600"
                                                     : "text-red-600"
                                             }`}
                                         >
-                                            {store.status === "active" ? "نشط" : "موقوف"}
+                                            {store.status === "approved" ? "نشط" : "موقوف"}
                                         </span>
                                     </td>
 

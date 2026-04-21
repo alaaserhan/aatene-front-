@@ -104,7 +104,7 @@ export default function ProductViewPage() {
 
     const handleApprove = () => {
         updateStatus(
-            { id: Number(id), payload: { status: "active" } },
+            { id: Number(id), payload: { status: "approved" } },
             {
                 onSuccess: () => {
                     setSuccessModalTitle("تمت الموافقة على المنتج بنجاح");
@@ -187,7 +187,7 @@ export default function ProductViewPage() {
                 {/* ── Status Alert (للتاجر فقط وليس الأدمن) ── */}
 
                 {/* ✅ تم قبول المنتج */}
-                {!isAdmin && !alertDismissed && currentStatus === "active" && (
+                {!isAdmin && !alertDismissed && currentStatus === "approved" && (
                     <div className="container mx-auto mt-4 px-4 md:px-0">
                         <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#66FF99]/60 bg-[#E6FFF1] relative" dir="rtl">
                             <CheckCircle2 className="w-5 h-5 text-[#00A846] mt-0.5 shrink-0" />
@@ -223,7 +223,7 @@ export default function ProductViewPage() {
                 )}
 
                 {/* 🕐 المنتج قيد المراجعة */}
-                {!isAdmin && !alertDismissed && currentStatus === "not-active" && (
+                {!isAdmin && !alertDismissed && currentStatus === "pending" && (
                     <div className="container mx-auto mt-4 px-4 md:px-0">
                         <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#FFD87D]/60 bg-[#FFFBF0] relative" dir="rtl">
                             <PauseCircle className="w-5 h-5 text-[#C48A00] mt-0.5 shrink-0" />
@@ -241,7 +241,7 @@ export default function ProductViewPage() {
                 )}
 
                 {/* ⏸ إلغاء تفعيل مؤقت من التاجر */}
-                {!isAdmin && !raw.shown && !shownAlertDismissed && currentStatus === "active" && (
+                {!isAdmin && !raw.shown && !shownAlertDismissed && currentStatus === "approved" && (
                     <div className="container mx-auto mt-4 px-4 md:px-0">
                         <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#6D6D6D]/30 bg-[#F5F5F5] relative" dir="rtl">
                             <PauseCircle className="w-5 h-5 text-[#6D6D6D] mt-0.5 shrink-0" />
@@ -259,12 +259,12 @@ export default function ProductViewPage() {
                 )}
 
                 {/* ── Action Bar (Admin Only) ── */}
-                {isAdmin && (currentStatus === "not-active" || currentStatus === "rejected" || currentStatus === "active") && (
+                {isAdmin && (currentStatus === "pending" || currentStatus === "rejected" || currentStatus === "approved") && (
                     <div className="container mx-auto mt-4 px-4 md:px-0">
                         <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-gray-100 bg-white rounded-lg">
                             <h2 className="text-lg font-bold">اختر الإجراء المناسب للمنتج</h2>
                             <div className="flex gap-3">
-                                {currentStatus !== "active" && (
+                                {currentStatus !== "approved" && (
                                     <Button
                                         onClick={handleApprove}
                                         disabled={isUpdating}
@@ -438,7 +438,7 @@ export default function ProductViewPage() {
                         <div className="bg-white rounded-2xl border border-gray-100 h-fit overflow-hidden">
 
                             {/* Activate Toggle Row — يظهر فقط للتاجر وفقط إذا كان المنتج مقبولاً */}
-                            {!isAdmin && currentStatus === "active" && (
+                            {!isAdmin && currentStatus === "approved" && (
                             <div className="flex items-center justify-between px-5 py-3 rounded-md mx-4 mt-4 bg-[#C8D7E8]">
                                 <span className="font-bold text-sm text-[#1e3a52]">تفعيل المنتج</span>
                                 <button

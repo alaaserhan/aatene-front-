@@ -18,13 +18,13 @@ import { ProductEmptyState } from "./ProductEmptyState";
 
 const statusFilterOptions = [
     { label: "الكل", value: "all" },
-    { label: "نشط", value: "active" },
-    { label: "غير نشط", value: "not-active" },
+    { label: "نشط", value: "approved" },
+    { label: "غير نشط", value: "pending" },
 ];
 
 const productStatusTabs: { key: MerchantProductStatus; label: string; activeClass: string; activeTextClass: string; badgeClass: string }[] = [
-    { key: "active", label: "تمت الموافقة عليه", activeClass: "border-emerald-500 text-emerald-500", activeTextClass: "text-emerald-500", badgeClass: "bg-emerald-500" },
-    { key: "not-active", label: "قيد المراجعة", activeClass: "border-amber-400 text-amber-400", activeTextClass: "text-amber-400", badgeClass: "bg-amber-400" },
+    { key: "approved", label: "تمت الموافقة عليه", activeClass: "border-emerald-500 text-emerald-500", activeTextClass: "text-emerald-500", badgeClass: "bg-emerald-500" },
+    { key: "pending", label: "قيد المراجعة", activeClass: "border-amber-400 text-amber-400", activeTextClass: "text-amber-400", badgeClass: "bg-amber-400" },
     { key: "rejected", label: "مرفوض", activeClass: "border-red-500 text-red-500", activeTextClass: "text-red-500", badgeClass: "bg-red-500" },
 ];
 
@@ -32,7 +32,7 @@ const productStatusTabs: { key: MerchantProductStatus; label: string; activeClas
 function AllProductsSection() {
     const router = useRouter();
 
-    const [activeStatus, setActiveStatus] = useState<MerchantProductStatus>("active");
+    const [activeStatus, setActiveStatus] = useState<MerchantProductStatus>("approved");
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [productToDelete, setProductToDelete] = useState<number | null>(null);
@@ -55,8 +55,8 @@ function AllProductsSection() {
     const products = productsData?.data || [];
     const totalPages = Math.ceil((productsData?.recordsFiltered || 0) / 10);
 
-    const activeCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "active"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); return p; }, [searchQuery]);
-    const notActiveCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "not-active"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); return p; }, [searchQuery]);
+    const activeCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "approved"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); return p; }, [searchQuery]);
+    const notActiveCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "pending"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); return p; }, [searchQuery]);
     const rejectedCountParams = useMemo(() => { const p = new URLSearchParams(); p.set("status", "rejected"); p.set("per_page", "1"); if (searchQuery) p.set("name", searchQuery); return p; }, [searchQuery]);
 
     const { data: activeCountData } = useGetProducts(activeCountParams);
@@ -64,8 +64,8 @@ function AllProductsSection() {
     const { data: rejectedCountData } = useGetProducts(rejectedCountParams);
 
     const getCount = (key: MerchantProductStatus) => {
-        if (key === "active") return activeCountData?.recordsFiltered ?? 0;
-        if (key === "not-active") return notActiveCountData?.recordsFiltered ?? 0;
+        if (key === "approved") return activeCountData?.recordsFiltered ?? 0;
+        if (key === "pending") return notActiveCountData?.recordsFiltered ?? 0;
         return rejectedCountData?.recordsFiltered ?? 0;
     };
 
@@ -74,7 +74,7 @@ function AllProductsSection() {
     const { mutate: deleteProduct } = useDeleteProduct();
 
     const handleToggleStatus = (product: Product) => {
-        const newStatus = product.status === "active" ? "not-active" : "active";
+        const newStatus = product.status === "approved" ? "pending" : "approved";
         updateStatusMutation({ id: product.id, payload: { status: newStatus } });
     };
     const handleToggleShown = (product: Product) => {

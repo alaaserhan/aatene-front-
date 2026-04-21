@@ -18,8 +18,8 @@ import { cn } from "@/src/lib/utils";
 
 const statusFilterOptions = [
     { label: "الكل", value: "all" },
-    { label: "نشط", value: "active" },
-    { label: "غير نشط", value: "not-active" },
+    { label: "نشط", value: "approved" },
+    { label: "غير نشط", value: "pending" },
 ];
 
 const serviceStatusTabs: {

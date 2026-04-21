@@ -152,7 +152,7 @@ export function StoresAdminTable({
                     <td className="px-4 py-4">
                       <div className="flex justify-center">
                         <ToggleSwitch
-                          enabled={store.status === "active"}
+                          enabled={store.status === "approved"}
                           disabled={!canToggleStatus}
                           onChange={() => onToggleStatus(store)}
                         />

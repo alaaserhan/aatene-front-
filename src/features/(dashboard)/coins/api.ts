@@ -170,3 +170,105 @@ export const getCoinsGeneral = async (
 };
 
 COINS_DISABLED_END */
+
+// ============================================================
+// ✅ نظام العملات الشخصية للتاجر (My Coins)
+// ============================================================
+
+import api from "@/src/lib/axios";
+import { getDynamicEndpoint } from "@/src/lib/api-helper";
+
+// --- Interfaces ---
+
+export interface BaseResponse {
+    status: boolean;
+    message: string;
+}
+
+export interface MyBalanceResponse extends BaseResponse {
+    balance: number;
+}
+
+export interface MyCoinTransaction {
+    id: number;
+    user_id: string | null;
+    store_id: string | null;
+    coins_package_id: string | null;
+    type: "purchase" | "deduction" | "refund" | "transfer_to_store" | "transfer_between_stores" | string;
+    coins_amount: number;
+    price: string | null;
+    description: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface MyTransactionsResponse extends BaseResponse {
+    recordsTotal: number;
+    recordsFiltered: number;
+    transactions: MyCoinTransaction[];
+}
+
+export interface MyPurchasePackageRequest {
+    package_id: number | string;
+    callback_url?: string;
+}
+
+export interface MyPurchaseResponse extends BaseResponse {
+    transaction: MyCoinTransaction;
+}
+
+export interface TransferToStoreRequest {
+    store_id: number | string;
+    coins_amount: number;
+}
+
+export interface TransferBetweenStoresRequest {
+    from_store_id: number | string;
+    to_store_id: number | string;
+    coins_amount: number;
+}
+
+export interface TransferResponse extends BaseResponse {
+    [key: string]: unknown;
+}
+
+// --- API Functions ---
+
+export const getMyBalance = async (): Promise<MyBalanceResponse> => {
+    const endpoint = getDynamicEndpoint("/my-coins/balance");
+    const { data } = await api.get<MyBalanceResponse>(endpoint);
+    return data;
+};
+
+export const getMyTransactions = async (
+    params?: URLSearchParams
+): Promise<MyTransactionsResponse> => {
+    const endpoint = getDynamicEndpoint("/my-coins/transactions");
+    const queryString = params ? `?${params.toString()}` : "";
+    const { data } = await api.get<MyTransactionsResponse>(`${endpoint}${queryString}`);
+    return data;
+};
+
+export const purchaseForMe = async (
+    body: MyPurchasePackageRequest
+): Promise<MyPurchaseResponse> => {
+    const endpoint = getDynamicEndpoint("/my-coins/purchase");
+    const { data } = await api.post<MyPurchaseResponse>(endpoint, body);
+    return data;
+};
+
+export const transferToStore = async (
+    body: TransferToStoreRequest
+): Promise<TransferResponse> => {
+    const endpoint = getDynamicEndpoint("/my-coins/transfer-to-store");
+    const { data } = await api.post<TransferResponse>(endpoint, body);
+    return data;
+};
+
+export const transferBetweenStores = async (
+    body: TransferBetweenStoresRequest
+): Promise<TransferResponse> => {
+    const endpoint = getDynamicEndpoint("/my-coins/transfer-between-stores");
+    const { data } = await api.post<TransferResponse>(endpoint, body);
+    return data;
+};
