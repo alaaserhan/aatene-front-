@@ -3,7 +3,7 @@ import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import { User } from "../../(web)/auth/types";
 import { MerchantRole } from "@/src/config/role-permissions";
 
-export type StoreStatus = "active" | "not-active" | "rejected";
+export type StoreStatus = "approved" | "pending" | "rejected";
 export type StoreType = "products" | "services";
 export type OpenStatus =
   | "open_without_working_times"

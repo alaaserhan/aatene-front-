@@ -18,8 +18,8 @@ const storeStatusTabs: {
   activeClass: string;
   badgeClass: string;
 }[] = [
-  { key: "active", label: "تمت الموافقة عليه", activeClass: "border-emerald-500 text-emerald-500", badgeClass: "bg-emerald-500" },
-  { key: "not-active", label: "قيد المراجعة", activeClass: "border-amber-400 text-amber-400", badgeClass: "bg-amber-400" },
+  { key: "approved", label: "تمت الموافقة عليه", activeClass: "border-emerald-500 text-emerald-500", badgeClass: "bg-emerald-500" },
+  { key: "pending", label: "قيد المراجعة", activeClass: "border-amber-400 text-amber-400", badgeClass: "bg-amber-400" },
   { key: "rejected", label: "مرفوض", activeClass: "border-red-500 text-red-500", badgeClass: "bg-red-500" },
 ];
 
@@ -27,7 +27,7 @@ export function StoresPage() {
   const router = useRouter();
   const { locale, type } = useParams<{ locale: string; type: string }>();
 
-  const [statusTab, setStatusTab] = useState<StoreStatus>("active");
+  const [statusTab, setStatusTab] = useState<StoreStatus>("approved");
   const [typeFilter, setTypeFilter] = useState<StoreTypeFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,7 +49,7 @@ export function StoresPage() {
 
   const activeCountParams = useMemo(() => {
     const p = new URLSearchParams();
-    p.set("status", "active");
+    p.set("status", "approved");
     p.set("per_page", "1");
     if (typeFilter === "products") p.set("type", "products");
     if (typeFilter === "services") p.set("type", "services");
@@ -58,7 +58,7 @@ export function StoresPage() {
   }, [searchQuery, typeFilter]);
   const pendingCountParams = useMemo(() => {
     const p = new URLSearchParams();
-    p.set("status", "not-active");
+    p.set("status", "pending");
     p.set("per_page", "1");
     if (typeFilter === "products") p.set("type", "products");
     if (typeFilter === "services") p.set("type", "services");
@@ -113,8 +113,8 @@ export function StoresPage() {
   const { data: rejectedCountData } = useGetStores(rejectedCountParams, { staleTime: 30_000 });
 
   const getTabCount = (key: StoreStatus) => {
-    if (key === "active") return activeCountData?.recordsFiltered ?? 0;
-    if (key === "not-active") return pendingCountData?.recordsFiltered ?? 0;
+    if (key === "approved") return activeCountData?.recordsFiltered ?? 0;
+    if (key === "pending") return pendingCountData?.recordsFiltered ?? 0;
     return rejectedCountData?.recordsFiltered ?? 0;
   };
 
@@ -134,7 +134,7 @@ export function StoresPage() {
 
   const handleToggleStatus = (store: Store) => {
     if (store.status === "rejected") return;
-    const next: StoreStatus = store.status === "active" ? "not-active" : "active";
+    const next: StoreStatus = store.status === "approved" ? "pending" : "approved";
     updateStatus({ id: store.id, payload: { status: next } });
   };
 

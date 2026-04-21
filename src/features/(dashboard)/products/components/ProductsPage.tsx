@@ -62,7 +62,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
   // --- States ---
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeStatus, setActiveStatus] = useState<MerchantProductStatus | "all">("active");
+  const [activeStatus, setActiveStatus] = useState<MerchantProductStatus | "all">("approved");
   const [currentPage, setCurrentPage] = useState(1);
   const [productToDelete, setProductToDelete] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -101,7 +101,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
 
   const activeCountParams = useMemo(() => {
     const params = new URLSearchParams();
-    params.set("status", "active");
+    params.set("status", "approved");
     params.set("per_page", "1");
     if (effectiveStoreId) params.set("store_id", effectiveStoreId);
     if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
@@ -111,7 +111,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
 
   const notActiveCountParams = useMemo(() => {
     const params = new URLSearchParams();
-    params.set("status", "not-active");
+    params.set("status", "pending");
     params.set("per_page", "1");
     if (effectiveStoreId) params.set("store_id", effectiveStoreId);
     if (selectedSectionId && selectedSectionId !== "other") params.set("section_id", selectedSectionId);
@@ -147,16 +147,16 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
 
   const getCountForStatus = (key: MerchantProductStatus) => {
     switch (key) {
-      case "active": return activeCountData?.recordsFiltered ?? 0;
-      case "not-active": return notActiveCountData?.recordsFiltered ?? 0;
+      case "approved": return activeCountData?.recordsFiltered ?? 0;
+      case "pending": return notActiveCountData?.recordsFiltered ?? 0;
       case "rejected": return rejectedCountData?.recordsFiltered ?? 0;
       default: return 0;
     }
   };
 
   const statusTabs: { key: MerchantProductStatus; label: string; activeClass: string; activeTextClass: string; badgeClass: string }[] = [
-    { key: "active", label: "تمت الموافقة عليه", activeClass: "border-emerald-500 text-emerald-500", activeTextClass: "text-emerald-500", badgeClass: "bg-emerald-500" },
-    { key: "not-active", label: "قيد المراجعة", activeClass: "border-amber-400 text-amber-400", activeTextClass: "text-amber-400", badgeClass: "bg-amber-400" },
+    { key: "approved", label: "تمت الموافقة عليه", activeClass: "border-emerald-500 text-emerald-500", activeTextClass: "text-emerald-500", badgeClass: "bg-emerald-500" },
+    { key: "pending", label: "قيد المراجعة", activeClass: "border-amber-400 text-amber-400", activeTextClass: "text-amber-400", badgeClass: "bg-amber-400" },
     { key: "rejected", label: "مرفوض", activeClass: "border-red-500 text-red-500", activeTextClass: "text-red-500", badgeClass: "bg-red-500" },
   ];
 
@@ -188,7 +188,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
   const createSection = useCreateSection();
 
   const handleToggleStatus = (product: Product) => {
-    const newStatus = product.status === "active" ? "not-active" : "active";
+    const newStatus = product.status === "approved" ? "pending" : "approved";
     updateStatusMutation({ id: product.id, payload: { status: newStatus } });
   };
 

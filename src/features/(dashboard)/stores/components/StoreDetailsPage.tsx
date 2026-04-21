@@ -19,8 +19,8 @@ interface StoreDetailsPageProps {
 }
 
 const statusOptions = [
-  { label: "مفعل", value: "active" },
-  { label: "غير مفعل", value: "not-active" },
+  { label: "مفعل", value: "approved" },
+  { label: "غير مفعل", value: "pending" },
 ];
 
 export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageProps) {

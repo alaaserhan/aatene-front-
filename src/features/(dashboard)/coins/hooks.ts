@@ -74,3 +74,71 @@ export function useGetCoinsGeneral(storeId?: number | string) {
 }
 
 COINS_DISABLED_END */
+
+// ============================================================
+// ✅ hooks لنظام العملات الشخصية للتاجر (My Coins)
+// ============================================================
+
+"use client";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import * as api from "./api";
+import { toast } from "sonner";
+
+export function useGetMyBalance() {
+    return useQuery({
+        queryKey: ["my-coins", "balance"],
+        queryFn: () => api.getMyBalance(),
+        staleTime: 30_000,
+    });
+}
+
+export function useGetMyTransactions(params?: URLSearchParams) {
+    return useQuery({
+        queryKey: ["my-coins", "transactions", params?.toString()],
+        queryFn: () => api.getMyTransactions(params),
+        placeholderData: (prev) => prev,
+    });
+}
+
+export function usePurchaseForMe() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (body: api.MyPurchasePackageRequest) => api.purchaseForMe(body),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["my-coins"] });
+            toast.success("تم إنشاء معاملة الشراء بنجاح");
+        },
+        onError: () => {
+            toast.error("حدث خطأ أثناء عملية الشراء");
+        },
+    });
+}
+
+export function useTransferToStore() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (body: api.TransferToStoreRequest) => api.transferToStore(body),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["my-coins"] });
+            toast.success("تم تحويل العملات إلى المتجر بنجاح");
+        },
+        onError: () => {
+            toast.error("حدث خطأ أثناء تحويل العملات إلى المتجر");
+        },
+    });
+}
+
+export function useTransferBetweenStores() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (body: api.TransferBetweenStoresRequest) => api.transferBetweenStores(body),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["my-coins"] });
+            toast.success("تم تحويل العملات بين المتاجر بنجاح");
+        },
+        onError: () => {
+            toast.error("حدث خطأ أثناء تحويل العملات بين المتاجر");
+        },
+    });
+}

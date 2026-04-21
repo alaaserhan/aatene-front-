@@ -15,7 +15,7 @@ export function LatestsProducts() {
         // Mocking statuses based on image since API only returns "active/not-active"
         // In a real scenario, you'd map specific API status codes
 
-        if (status === "active") {
+        if (status === "approved") {
             return (
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#DCFCE7] text-[#16A34A] text-xs font-medium border border-[#DCFCE7]">
                     <CheckCircle2 className="w-3.5 h-3.5" />

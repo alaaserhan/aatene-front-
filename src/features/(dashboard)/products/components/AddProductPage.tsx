@@ -178,7 +178,7 @@ export function AddProductPage() {
       section_id: updatedFormData.step2!.section_id || 0,
       price: updatedFormData.step1!.price,
 
-      status: isAdmin ? "active" : "not-active",
+      status: isAdmin ? "approved" : "pending",
       tags: updatedFormData.step2!.tags,
   crossSells: [...new Set(data.crossSells || [])],
   cross_sells_price: data.cross_sells_price || undefined,

@@ -75,7 +75,7 @@ export function ProductTable({
                             ) : (
                                 <>
                                     <th className="px-6 py-4 text-sm font-medium text-center">
-                                        {activeStatus === "not-active" ? "تم التسليم" : "تاريخ الانتهاء"}
+                                        {activeStatus === "pending" ? "تم التسليم" : "تاريخ الانتهاء"}
                                     </th>
                                     <th className="px-6 py-4 text-sm font-medium text-center">مشاهدات</th>
                                     <th className="px-6 py-4 text-sm font-medium text-center">عدد التواصلات</th>
@@ -145,7 +145,7 @@ export function ProductTable({
                                         {/* Submission / Expiry date */}
                                         <td className="px-6 py-4 text-center">
                                             <span className="text-sm">
-                                                {activeStatus === "not-active"
+                                                {activeStatus === "pending"
                                                     ? (formatDate(product.created_at) || "-")
                                                     : (formatDate(product.end_date) || "-")}
                                             </span>

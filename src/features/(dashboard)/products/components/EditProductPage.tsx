@@ -289,7 +289,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       store_id: updatedFormData.step2!.store_id,
       section_id: updatedFormData.step2!.section_id || 0,
       price: updatedFormData.step1!.price,
-      status: product?.status || "active",
+      status: product?.status || "pending",
       tags: updatedFormData.step2!.tags,
       crossSells: [...new Set(data.crossSells || [])],
       cross_sells_price: data.cross_sells_price || undefined,

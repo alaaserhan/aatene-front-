@@ -109,8 +109,8 @@ export function ServiceProvidersTable({
 
                                     <td className="px-6 py-4 text-center">
                                         <div className="flex justify-center items-center gap-2">
-                                            <span className={`text-xs font-medium ${store.status === 'active' ? 'text-green-600' : 'text-red-600'}`}>
-                                                {store.status === 'active' ? 'نشط' : 'موقوف'}
+                                            <span className={`text-xs font-medium ${store.status === 'approved' ? 'text-green-600' : 'text-red-600'}`}>
+                                                {store.status === 'approved' ? 'نشط' : 'موقوف'}
                                             </span>
                                         </div>
                                     </td>

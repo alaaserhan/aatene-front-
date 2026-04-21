@@ -5,8 +5,8 @@ import Cookies from "js-cookie";
 
 export type ProductType = "simple" | "variation";
 export type ProductCondition = "new" | "used" | "refurbished";
-export type ProductStatus = "active" | "not-active" | "rejected";
-export type MerchantProductStatus = "active" | "not-active" | "rejected";
+export type ProductStatus = "approved" | "pending" | "rejected";
+export type MerchantProductStatus = "approved" | "pending" | "rejected";
 
 export interface Category {
   id: number;
