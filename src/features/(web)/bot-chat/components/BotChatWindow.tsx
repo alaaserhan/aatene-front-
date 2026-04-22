@@ -156,7 +156,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     };
 
     const handleStartConversation = () => {
-        startConversation.mutate();
+        startConversation.mutate("web");
     };
 
     const handleEndConversation = () => {
