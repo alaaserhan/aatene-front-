@@ -84,7 +84,7 @@ export interface StoreManager {
 export interface StoreManagerPayload {
   email: string;
   title: ManagerTitle;
-  status: StoreStatus;
+  status: string;
 }
 
 // ============== Shipping ==============

@@ -32,7 +32,7 @@ interface AddStoreStep4Props {
 interface NewManagerForm {
   email: string;
   title: ManagerTitle | "";
-  status: StoreStatus;
+  status: string;
 }
 
 const JOB_TITLE_OPTIONS = [
@@ -67,7 +67,7 @@ export function AddStoreStep4({
   const [newManager, setNewManager] = useState<NewManagerForm>({
     email: "",
     title: "",
-    status: "active",
+    status: "approved",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
