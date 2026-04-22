@@ -156,7 +156,7 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
       type: updatedFormData.type,
       name: updatedFormData.step2!.name,
       logo: updatedFormData.step2!.logo || undefined,
-      status: "active",
+      status: "approved",
       cover: updatedFormData.step2!.cover,
       description: updatedFormData.step2!.description,
       email: updatedFormData.step2!.email,
