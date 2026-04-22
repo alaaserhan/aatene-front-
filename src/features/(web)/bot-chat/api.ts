@@ -10,14 +10,16 @@ import {
 
 const BASE = "/ai-support/user/conversations";
 
-export const getCurrentConversation = async (): Promise<GetCurrentConversationResponse> => {
-    const { data } = await api.get<GetCurrentConversationResponse>(`${BASE}/current`);
+export const getCurrentConversation = async (platform: string = "web"): Promise<GetCurrentConversationResponse> => {
+    const { data } = await api.get<GetCurrentConversationResponse>(`${BASE}/current`, {
+        headers: { platform },
+    });
     return data;
 };
 
-export const startConversation = async (): Promise<StartConversationResponse> => {
-    const { data } = await api.post<StartConversationResponse>(`${BASE}/start`, {
-        platform: "web",
+export const startConversation = async (platform: string = "web"): Promise<StartConversationResponse> => {
+    const { data } = await api.post<StartConversationResponse>(`${BASE}/start`, {}, {
+        headers: { platform },
     });
     return data;
 };

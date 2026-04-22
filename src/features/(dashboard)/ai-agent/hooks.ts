@@ -239,10 +239,10 @@ export function useUpdateInstruction() {
   });
 }
 
-export function useGetAdminMissedQuestions() {
+export function useGetAdminMissedQuestions(params?: { status?: "pending" | "reviewed" | "added_to_kb" }) {
   return useQuery({
-    queryKey: ["admin-missed-questions"],
-    queryFn: api.getAdminMissedQuestions,
+    queryKey: ["admin-missed-questions", params?.status],
+    queryFn: () => api.getAdminMissedQuestions(params),
   });
 }
 
@@ -264,6 +264,20 @@ export function useReviewAdminMissedQuestion() {
     },
     onError: (error: AxiosError<{ message: string }>) => {
       toast.error(error.response?.data?.message || "فشل الرد على السؤال");
+    },
+  });
+}
+
+export function useDeleteAdminMissedQuestion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => api.deleteAdminMissedQuestion(id),
+    onSuccess: () => {
+      toast.success("تم حذف السؤال بنجاح");
+      queryClient.invalidateQueries({ queryKey: ["admin-missed-questions"] });
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      toast.error(error.response?.data?.message || "فشل حذف السؤال");
     },
   });
 }
@@ -321,6 +335,35 @@ export function useWebResolveConversation() {
         },
         onError: (error: AxiosError<{ message: string }>) => {
             toast.error(error.response?.data?.message || "فشل في تحديث حالة المحادثة");
+        },
+    });
+}
+
+export function useWebEndConversation() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: api.webEndConversation,
+        onSuccess: (data) => {
+            toast.success(data.message || "تم إنهاء المحادثة بنجاح");
+            queryClient.invalidateQueries({ queryKey: ["web-conversations"] });
+            queryClient.invalidateQueries({ queryKey: ["web-conversation-messages"] });
+        },
+        onError: (error: AxiosError<{ message: string }>) => {
+            toast.error(error.response?.data?.message || "فشل إنهاء المحادثة");
+        },
+    });
+}
+
+export function useWebDeleteConversation() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: api.webDeleteConversation,
+        onSuccess: () => {
+            toast.success("تم حذف المحادثة بنجاح");
+            queryClient.invalidateQueries({ queryKey: ["web-conversations"] });
+        },
+        onError: (error: AxiosError<{ message: string }>) => {
+            toast.error(error.response?.data?.message || "فشل حذف المحادثة");
         },
     });
 }
