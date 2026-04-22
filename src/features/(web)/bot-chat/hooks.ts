@@ -16,7 +16,7 @@ export const useCurrentConversation = (enabled = true) => {
 
     return useQuery({
         queryKey: ["botChat", "currentConversation"],
-        queryFn: getCurrentConversation,
+        queryFn: () => getCurrentConversation("web"),
         enabled: enabled && isLoggedIn,
     });
 };
@@ -25,7 +25,7 @@ export const useStartConversation = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: startConversation,
+        mutationFn: (platform: string = "web") => startConversation(platform),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
         },

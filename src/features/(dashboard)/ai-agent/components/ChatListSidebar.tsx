@@ -29,7 +29,7 @@ function UserCard({
   isSelected: boolean;
   onClick: () => void;
   name: string;
-  time: string;
+  time?: string;
   lastMessage?: string;
   type?: string;
 }) {
@@ -220,8 +220,8 @@ function WebsiteChatList({
                 isSelected={selectedChatId === String(conv.id)}
                 onClick={() => onSelectChat(String(conv.id))}
                 name={conv.user?.name || "مستخدم"}
-                time={conv.last_message_at}
-                // lastMessage={`محادثة #${conv.id}`}
+                time={conv.last_message_at ?? undefined}
+                lastMessage={conv.latest_message?.message_text ?? undefined}
               />
               <div className="absolute bottom-2 left-2">
                 <ConversationStateBadgeInline state={conv.state} />
@@ -283,7 +283,7 @@ function DeletedChatList({ selectedChatId, onSelectChat }: { selectedChatId: str
     );
   }
 
-  const users = data?.deleted_users || [];
+  const users = data?.users || data?.deleted_users || [];
 
   if (users.length === 0) {
     return (
@@ -295,20 +295,19 @@ function DeletedChatList({ selectedChatId, onSelectChat }: { selectedChatId: str
 
   return (
     <div className="flex flex-col h-full overflow-y-auto p-2">
-      {users.map((user) => {
-        const lastMsgObj = user.message_history?.[user.message_history.length - 1];
-        const lastMsgText = lastMsgObj?.bot_response || lastMsgObj?.message_text || "محادثة";
-        const time = lastMsgObj?.created_at || user.user_info.last_seen;
+      {(users as import("../api").AgentUserSummary[]).map((user) => {
+        const lastMsg = user.last_messages?.[user.last_messages.length - 1];
+        const lastMsgText = lastMsg?.bot_response || lastMsg?.message_text || "محادثة";
+        const time = lastMsg?.created_at || user.last_seen;
 
         return (
           <UserCard
-            key={user.user_info.chat_id}
-            isSelected={selectedChatId === user.user_info.chat_id}
-            onClick={() => onSelectChat(user.user_info.chat_id)}
-            name={user.user_info.first_name || user.user_info.phone_number || user.user_info.chat_id}
+            key={user.chat_id}
+            isSelected={selectedChatId === user.chat_id}
+            onClick={() => onSelectChat(user.chat_id)}
+            name={user.first_name || user.phone_number || user.chat_id}
             time={time}
             lastMessage={lastMsgText}
-            type={(user.user_info as { type?: string }).type}
           />
         );
       })}

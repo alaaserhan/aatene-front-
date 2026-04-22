@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Loader2, Search, MessageSquare, CheckCircle, PlusCircle, FileText, MessageCircleMoreIcon } from "lucide-react";
+import { Loader2, Search, MessageSquare, CheckCircle, PlusCircle, FileText, MessageCircleMoreIcon, Trash2 } from "lucide-react";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Input } from "@/src/components/ui/input";
-import { useGetAdminMissedQuestions, useReviewAdminMissedQuestion } from "../hooks";
+import { useGetAdminMissedQuestions, useReviewAdminMissedQuestion, useDeleteAdminMissedQuestion } from "../hooks";
 import { AdminMissedQuestion } from "../api";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { jsPDF } from "jspdf";
@@ -17,7 +17,8 @@ const ITEMS_PER_PAGE = 10;
 
 const STATUS_OPTIONS = [
     { value: "pending", label: "قيد المراجعة" },
-    { value: "added_to_kb", label: "تم الرد" },
+    { value: "reviewed", label: "تمت المراجعة" },
+    { value: "added_to_kb", label: "تم الإضافة للقاعدة" },
 ];
 
 const FILTER_STATUS_OPTIONS = [
@@ -26,12 +27,15 @@ const FILTER_STATUS_OPTIONS = [
 ];
 
 export function UnansweredQuestionsPage() {
-    const { data: response, isLoading } = useGetAdminMissedQuestions();
-    const { mutate: reviewQuestion, isPending: isReviewing } = useReviewAdminMissedQuestion();
-
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
+
+    const { data: response, isLoading } = useGetAdminMissedQuestions(
+        statusFilter !== "all" ? { status: statusFilter as "pending" | "reviewed" | "added_to_kb" } : undefined
+    );
+    const { mutate: reviewQuestion, isPending: isReviewing } = useReviewAdminMissedQuestion();
+    const { mutate: deleteQuestion } = useDeleteAdminMissedQuestion();
     
     const [isAnswerModalOpen, setIsAnswerModalOpen] = useState(false);
     const [questionToAnswer, setQuestionToAnswer] = useState<AdminMissedQuestion | null>(null);
@@ -44,20 +48,11 @@ export function UnansweredQuestionsPage() {
     }, [response]);
 
     const filteredQuestions = useMemo(() => {
-        let result = questions;
-
-        if (statusFilter !== "all") {
-            result = result.filter(q => q.status === statusFilter);
-        }
-
-        if (searchQuery.trim()) {
-            result = result.filter((q) =>
-                q.question?.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-        }
-
-        return result;
-    }, [questions, searchQuery, statusFilter]);
+        if (!searchQuery.trim()) return questions;
+        return questions.filter((q) =>
+            q.question?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [questions, searchQuery]);
 
     const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / ITEMS_PER_PAGE));
 
@@ -262,6 +257,7 @@ export function UnansweredQuestionsPage() {
                                         <tbody>
                                             {paginatedQuestions.map((question) => {
                                                 const isPending = question.status === "pending";
+                                                const isAddedToKb = question.status === "added_to_kb";
                                                 return (
                                                     <tr
                                                         key={question.id}
@@ -269,6 +265,11 @@ export function UnansweredQuestionsPage() {
                                                     >
                                                         <td className="px-6 py-4 font-medium text-gray-800">
                                                             {question.question}
+                                                            {question.platform && (
+                                                                <span className="ml-2 text-xs bg-blue-50 text-blue-3 px-2 py-0.5 rounded-full">
+                                                                    {question.platform}
+                                                                </span>
+                                                            )}
                                                             {question.admin_notes && (
                                                                 <p title={question.admin_notes} className="text-xs text-gray-500 mt-2 flex items-start gap-1 p-2 bg-gray-50 rounded-lg border border-gray-100">
                                                                     <MessageCircleMoreIcon className="w-4 h-4 inline mt-0.5 shrink-0 text-blue-3" />
@@ -285,10 +286,15 @@ export function UnansweredQuestionsPage() {
                                                                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                                                     قيد المراجعة
                                                                 </span>
-                                                            ) : (
+                                                            ) : isAddedToKb ? (
                                                                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-[#ecfdf5] text-[#059669]">
                                                                     <CheckCircle className="w-3.5 h-3.5" />
-                                                                    تم الرد
+                                                                    تم الإضافة للقاعدة
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-blue-50 text-blue-3">
+                                                                    <CheckCircle className="w-3.5 h-3.5" />
+                                                                    تمت المراجعة
                                                                 </span>
                                                             )}
                                                         </td>
@@ -310,6 +316,13 @@ export function UnansweredQuestionsPage() {
                                                                         تعديل الرد
                                                                     </button>
                                                                 )}
+                                                                <button
+                                                                    onClick={() => deleteQuestion(question.id)}
+                                                                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-all cursor-pointer active:scale-95"
+                                                                    title="حذف السؤال"
+                                                                >
+                                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                                </button>
                                                             </div>
                                                         </td>
                                                     </tr>

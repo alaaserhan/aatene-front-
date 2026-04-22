@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { Loader2, Send, Headset, CheckCircle, Bot, User, Star } from "lucide-react";
+import { Loader2, Send, Headset, CheckCircle, Bot, User, Star, XCircle, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { useGetWebConversationMessages, useWebAdminReply, useWebResolveConversation, useWebMarkTyping, useGetWebConversations } from "../hooks";
+import { useGetWebConversationMessages, useWebAdminReply, useWebResolveConversation, useWebEndConversation, useWebDeleteConversation, useWebMarkTyping, useGetWebConversations } from "../hooks";
 import { WebMessage } from "../api";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
@@ -45,6 +45,8 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
 
     const { mutate: sendReply, isPending: isSending } = useWebAdminReply();
     const { mutate: resolveConversation, isPending: isResolving } = useWebResolveConversation();
+    const { mutate: endConversation, isPending: isEnding } = useWebEndConversation();
+    const { mutate: deleteConversation, isPending: isDeleting } = useWebDeleteConversation();
     const { mutate: markTyping } = useWebMarkTyping();
 
     const apiMessages: WebMessage[] = useMemo(() => {
@@ -167,6 +169,18 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
 
                 {!conversation?.resolved_at && (
                     <div className="flex items-center gap-2">
+                        {conversation?.state !== "resolved" && conversation?.state !== "awaiting_rating" && (
+                            <Button
+                                size="sm"
+                                onClick={() => endConversation(conversationId)}
+                                disabled={isEnding}
+                                variant="outline"
+                                className="border-gray-300 text-gray-600 gap-2 font-bold h-9 hover:bg-gray-50"
+                            >
+                                {isEnding ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                                إنهاء
+                            </Button>
+                        )}
                         <Button
                             size="sm"
                             onClick={() => resolveConversation(conversationId)}
@@ -175,6 +189,16 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                         >
                             {isResolving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                             تم الحل
+                        </Button>
+                        <Button
+                            size="sm"
+                            onClick={() => deleteConversation(conversationId)}
+                            disabled={isDeleting}
+                            variant="outline"
+                            className="border-red-200 text-red-500 gap-2 font-bold h-9 hover:bg-red-50"
+                        >
+                            {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                            حذف
                         </Button>
                     </div>
                 )}

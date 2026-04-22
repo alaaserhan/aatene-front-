@@ -99,6 +99,8 @@ export interface AgentUserSummary {
     total_messages: number;
     first_seen: string;
     last_seen: string;
+    last_messages?: RecentMessage[];
+    conversation_status?: ConversationStatus;
 }
 
 export interface UsersResponse {
@@ -240,6 +242,7 @@ export interface DeletedUsersResponse {
     success: boolean;
     pagination: Pagination;
     deleted_users: AgentUser[];
+    users?: AgentUserSummary[];
 }
 
 export interface Api4Message {
@@ -406,6 +409,7 @@ export interface WebConversation {
     needs_human: boolean;
     user: WebConversationUser;
     last_message_at: string;
+    latest_message?: { message_text: string | null } | null;
     closed_at: string | null;
     resolved_at: string | null;
     created_at: string;
@@ -643,6 +647,7 @@ export interface AdminMissedQuestion {
     admin_notes: string | null;
     status: string;
     priority: string;
+    platform?: string;
     resolved_by_admin_id: number | null;
     resolved_at: string | null;
     created_at: string;
@@ -662,8 +667,9 @@ export interface AdminMissedQuestionSingleResponse {
     data: AdminMissedQuestion;
 }
 
-export const getAdminMissedQuestions = async (): Promise<AdminMissedQuestionsResponse> => {
-    const { data } = await mainApi.get<AdminMissedQuestionsResponse>(`${WEB_ADMIN_BASE}/missed-questions`);
+export const getAdminMissedQuestions = async (params?: { status?: "pending" | "reviewed" | "added_to_kb" }): Promise<AdminMissedQuestionsResponse> => {
+    const qs = params?.status ? `?status=${params.status}` : "";
+    const { data } = await mainApi.get<AdminMissedQuestionsResponse>(`${WEB_ADMIN_BASE}/missed-questions${qs}`);
     return data;
 };
 
@@ -676,5 +682,24 @@ export const reviewAdminMissedQuestion = async (id: number, adminNotes: string):
     const { data } = await mainApi.post<AdminMissedQuestionSingleResponse>(`${WEB_ADMIN_BASE}/missed-questions/${id}/reviewed`, {
         admin_notes: adminNotes,
     });
+    return data;
+};
+
+export const deleteAdminMissedQuestion = async (id: number): Promise<{ status: boolean; message: string }> => {
+    const { data } = await mainApi.delete<{ status: boolean; message: string }>(`${WEB_ADMIN_BASE}/missed-questions/${id}`);
+    return data;
+};
+
+export const webEndConversation = async (conversationId: number): Promise<WebResolveResponse> => {
+    const { data } = await mainApi.patch<WebResolveResponse>(
+        `${WEB_ADMIN_BASE}/conversations/${conversationId}/end`
+    );
+    return data;
+};
+
+export const webDeleteConversation = async (conversationId: number): Promise<{ status: boolean; message: string }> => {
+    const { data } = await mainApi.delete<{ status: boolean; message: string }>(
+        `${WEB_ADMIN_BASE}/conversations/${conversationId}`
+    );
     return data;
 };

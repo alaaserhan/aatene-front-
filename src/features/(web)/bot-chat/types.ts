@@ -1,23 +1,40 @@
+export interface ConversationUser {
+    id: number;
+    name: string;
+    avatar: string | null;
+    avatar_url: string | null;
+}
+
 export interface Conversation {
     id: number;
     user_id: number;
     platform: string;
-    state: "active" | "awaiting_rating" | "closed" | "waiting" | "with_agent";
+    state: "active" | "awaiting_rating" | "resolved" | "waiting" | "with_agent";
     needs_human: boolean;
-    last_message_at: string;
+    user: ConversationUser | null;
+    latest_message: ConversationMessage | null;
+    last_message_at: string | null;
     closed_at: string | null;
     resolved_at: string | null;
     created_at: string;
     updated_at: string;
 }
 
+export interface MessageSender {
+    id: number;
+    full_name: string;
+    avatar: string | null;
+    avatar_url: string | null;
+}
+
 export interface ConversationMessage {
     id: number;
     conversation_id: number;
-    sender_type: "user" | "bot" | "agent" | "admin";
+    sender_type: "user" | "bot" | "admin";
     sender_id: string;
     message_text: string;
     meta: unknown[];
+    sender?: MessageSender | null;
     status?: "sending" | "sent" | "error";
     tempId?: string;
     created_at: string;
