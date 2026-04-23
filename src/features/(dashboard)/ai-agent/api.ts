@@ -283,7 +283,7 @@ export const getApi4Users = async (limit: number = 50, offset: number = 0): Prom
 };
 
 export const getDeletedUsers = async (limit: number = 50, offset: number = 0): Promise<DeletedUsersResponse> => {
-    const { data } = await api5000.get<DeletedUsersResponse>(`/users/deleted?limit=${limit}&offset=${offset}`);
+    const { data } = await api5000Root.get<DeletedUsersResponse>(`/users/deleted?limit=${limit}&offset=${offset}`);
     return data;
 };
 
@@ -293,7 +293,7 @@ export const getApi4MessageHistory = async (chatId: string): Promise<Api4Message
 };
 
 export const getUrgentUsers = async (limit: number = 100, offset: number = 0): Promise<UsersResponse> => {
-    const { data } = await api5000.get<UsersResponse>(`/users/urgent?limit=${limit}&offset=${offset}`);
+    const { data } = await api5000Root.get<UsersResponse>(`/users/urgent?limit=${limit}&offset=${offset}`);
     return data;
 };
 
@@ -303,37 +303,37 @@ export const getSingleUser = async (chatId: string): Promise<SingleUserResponse>
 };
 
 export const resolveConversation = async (chatId: string): Promise<ResolveResponse> => {
-    const { data } = await api5000.put<ResolveResponse>(`/user/${encodeURIComponent(chatId)}/resolve`);
+    const { data } = await api5000Root.put<ResolveResponse>(`/users/${encodeURIComponent(chatId)}/resolve`);
     return data;
 };
 
 export const deleteConversation = async (chatId: string): Promise<DeleteConversationResponse> => {
-    const { data } = await api5000.delete<DeleteConversationResponse>(`/user/${encodeURIComponent(chatId)}`);
+    const { data } = await api5000Root.post<DeleteConversationResponse>(`/users/${encodeURIComponent(chatId)}/delete`);
     return data;
 };
 
 export const restoreConversation = async (chatId: string): Promise<RestoreConversationResponse> => {
-    const { data } = await api5000.put<RestoreConversationResponse>(`/user/${encodeURIComponent(chatId)}/restore`);
+    const { data } = await api5000Root.post<RestoreConversationResponse>(`/users/${encodeURIComponent(chatId)}/restore`);
     return data;
 };
 
 export const sendMessage = async (payload: SendMessagePayload): Promise<SendMessageResponse> => {
-    const { data } = await api5000.post<SendMessageResponse>("/messages/send", payload);
+    const { data } = await api5000Root.post<SendMessageResponse>("/messages/send", payload);
     return data;
 };
 
 export const getUserReviews = async (chatId: string): Promise<UserReviewsResponse> => {
-    const { data } = await api5000.get<UserReviewsResponse>(`/user/${encodeURIComponent(chatId)}/reviews`);
+    const { data } = await api5000Root.get<UserReviewsResponse>(`/users/${encodeURIComponent(chatId)}/reviews`);
     return data;
 };
 
 export const getOverview = async (): Promise<OverviewResponse> => {
-    const { data } = await api5000.get<OverviewResponse>("/overview");
+    const { data } = await api5000Root.get<OverviewResponse>("/api/overview");
     return data;
 };
 
 export const getUsersStats = async (): Promise<StatsResponse> => {
-    const { data } = await api5000.get<StatsResponse>("/users/stats");
+    const { data } = await api5000Root.get<StatsResponse>("/users/stats");
     return data;
 };
 
