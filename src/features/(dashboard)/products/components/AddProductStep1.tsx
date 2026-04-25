@@ -1,21 +1,25 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
-import { HelpCircle } from "lucide-react";
+import { useState, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import { HelpCircle, ChevronDown } from "lucide-react";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { ProductFormActions } from "./ProductFormActions";
 import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
-import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { FormInput } from "@/src/components/ui/FormInput";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Label } from "@/src/components/ui/label";
 import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
 import { Step1FormData } from "../types";
 import { cn } from "@/src/lib/utils";
-// ✅ استخدام useInfiniteCategoryOptions بدلاً من useGetCategoryOptions
-import { useInfiniteCategoryOptions } from "../../categoriesAndAttributes/hooks";
+import { CategoryPickerModal } from "./CategoryPickerModal";
 import { Stepper } from "@/src/components/ui/Stepper";
+
+export interface Step1Ref {
+  validate: () => boolean;
+  getData: () => Step1FormData;
+}
 
 interface AddProductStep1Props {
   initialData?: Step1FormData;
@@ -27,6 +31,8 @@ interface AddProductStep1Props {
   breadcrumbItems?: { label: string; href?: string }[];
   onStepClick?: (step: number) => void;
   showSaveDraft?: boolean;
+  accordionMode?: boolean;
+  onDataChange?: (data: Step1FormData) => void;
 }
 
 const CONDITION_OPTIONS = [
@@ -60,7 +66,7 @@ const Tooltip = ({
   );
 };
 
-export function AddProductStep1({
+export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(function AddProductStep1({
   initialData,
   onNext,
   onCancel,
@@ -69,9 +75,12 @@ export function AddProductStep1({
   breadcrumbItems,
   onStepClick,
   showSaveDraft = true,
-}: AddProductStep1Props) {
+  accordionMode = false,
+  onDataChange,
+}, ref) {
   const [formData, setFormData] = useState<Step1FormData>({
     category_id: initialData?.category_id || 0,
+    category_name: initialData?.category_name || "",
     cover: initialData?.cover || "",
     cover_preview: initialData?.cover_preview || "",
     gallery: initialData?.gallery || [],
@@ -84,65 +93,16 @@ export function AddProductStep1({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // ✅ حالة البحث عن الفئات
-  const [categorySearchQuery, setCategorySearchQuery] = useState("");
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
-
-  // ✅ Debounce search
-  const [debouncedCategorySearch, setDebouncedCategorySearch] = useState("");
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedCategorySearch(categorySearchQuery);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [categorySearchQuery]);
-
-  const categoryQueryParams = useMemo(() => {
-    const params = new URLSearchParams();
-    params.set("per_page", "10");
-    params.set("type", "product");
-    if (debouncedCategorySearch) {
-      params.set("name", debouncedCategorySearch);
-    }
-    return params;
-  }, [debouncedCategorySearch]);
-
-  const {
-    data: categoriesData,
-    isLoading: isCategoriesLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage
-  } = useInfiniteCategoryOptions(categoryQueryParams);
-
-  const categoryOptions = useMemo(() => {
-    const allCategories = categoriesData?.pages.flatMap((page) => page.categories) || [];
-    return allCategories.map((cat) => ({
-      value: String(cat.id),
-      label: cat.name,
-    }));
-  }, [categoriesData]);
-
-  // البحث عن الفئة المختارة لعرض اسمها (للتأكد من العرض الصحيح في الـ Info Box)
-  // البحث عن الفئة المختارة لعرض اسمها (للتأكد من العرض الصحيح في الـ Info Box)
-  const selectedCategory = useMemo(() => {
-    const allCategories = categoriesData?.pages.flatMap((page) => page.categories) || [];
-    return allCategories.find((c) => c.id === formData.category_id);
-  }, [categoriesData, formData.category_id]);
 
   const defaultBreadcrumbItems = [
     { label: "المنتجات", href: "/dashboard/products" },
     { label: "انشاء منتج جديد" },
   ];
 
-  const isCategoryInvalid = 
-    formData.category_id !== 0 && 
-    !isCategoriesLoading && 
-    !selectedCategory && 
-    !categorySearchQuery && 
-    !debouncedCategorySearch;
+  const isCategorySelected = formData.category_id !== 0 && !!formData.category_name;
 
   // Sync with initialData if it changes (e.g. from AI)
   useEffect(() => {
@@ -170,10 +130,7 @@ export function AddProductStep1({
       hasChanges = true;
     }
 
-    if (errors.category_id === "الفئة مطلوبة" && formData.category_id) {
-      delete newErrors.category_id;
-      hasChanges = true;
-    } else if (errors.category_id === "الفئة المحددة غير موجودة، يرجى اختيار فئة أخرى" && selectedCategory) {
+    if (errors.category_id && formData.category_id) {
       delete newErrors.category_id;
       hasChanges = true;
     }
@@ -195,7 +152,7 @@ export function AddProductStep1({
     if (hasChanges) {
       setErrors(newErrors);
     }
-  }, [formData, errors, selectedCategory]);
+  }, [formData, errors]);
   // --------------------------------------------------
 
   const validate = () => {
@@ -215,8 +172,6 @@ export function AddProductStep1({
 
     if (!formData.category_id) {
       newErrors.category_id = "الفئة مطلوبة";
-    } else if (!selectedCategory && !categorySearchQuery && !debouncedCategorySearch) {
-      newErrors.category_id = "الفئة المحددة غير موجودة، يرجى اختيار فئة أخرى";
     }
 
     if (formData.price < 0) {
@@ -277,6 +232,162 @@ export function AddProductStep1({
     }
   };
 
+  const handleCategorySelect = (categoryId: number, categoryName: string) => {
+    setFormData({ ...formData, category_id: categoryId, category_name: categoryName });
+  };
+
+  // expose validate + getData للاستخدام في accordion mode
+  useImperativeHandle(ref, () => ({
+    validate: () => {
+      const newErrors: Record<string, string> = {};
+      if (!formData.name.trim()) newErrors.name = "اسم المنتج مطلوب";
+      if (!formData.description.trim()) newErrors.description = "وصف المنتج مطلوب";
+      if (!formData.cover) newErrors.cover = "صورة المنتج مطلوبة";
+      if (!formData.category_id) newErrors.category_id = "الفئة مطلوبة";
+      if (formData.price < 0) newErrors.price = "لا يمكن أن يكون السعر أقل من صفر";
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    },
+    getData: () => formData,
+  }));
+
+  // إبلاغ الصفحة الأم بتغييرات البيانات (للـ live preview في accordion mode)
+  useEffect(() => {
+    if (accordionMode && onDataChange) {
+      onDataChange(formData);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData, accordionMode]);
+
+  // ── Accordion mode render ──
+  if (accordionMode) {
+    return (
+      <div className="space-y-8 p-6">
+        {isCategorySelected && (() => {
+          const parts = formData.category_name?.split(" > ") ?? [];
+          const leafName = parts[parts.length - 1] || formData.category_name || "";
+          const hasPath = parts.length > 1;
+          return (
+            <div className="bg-[#F8F8F8] rounded-md p-4 flex items-center justify-between">
+              <div className="flex flex-col gap-0.5">
+                <h3 className="text-sm font-medium">{leafName}</h3>
+                {hasPath && <p className="text-xs text-gray-3">{formData.category_name}</p>}
+                {!hasPath && <p className="text-xs text-gray-3">منتجات خاصة بـ {leafName} ومتعلقاتها</p>}
+              </div>
+              <button type="button" onClick={() => setIsCategoryModalOpen(true)} className="text-blue-4 font-bold text-sm hover:underline">تغيير</button>
+            </div>
+          );
+        })()}
+
+        <ImageGallerySelector
+          label=" الصور"
+          subLabel="يمكنك إضافة حتى (10) صور و (١) فيديو "
+          value={combinedFiles}
+          previews={combinedPreviews}
+          onChange={handleImagesChange}
+          maxFiles={10}
+          error={errors.cover}
+          showMainSelector={true}
+          mainImageLabel="الصوره الرئيسية"
+          showDragHint={true}
+          mainImageAllowedMediaTypes={["image"]}
+          allowedMediaTypes={["gallery", "image", "video"]}
+          required
+        />
+
+        <FormInput
+          label="اسم المنتج"
+          name="name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="ادخل اسم المنتج"
+          hint="قم بتضمين الكلمات الرئيسية التي يستخدمها المشترون للبحث عن هذا العنصر."
+          required
+          maxLength={140}
+          showCounter
+          error={errors.name}
+        />
+
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">السعر</Label>
+          <input
+            type="number"
+            min="0"
+            value={formData.price || ""}
+            onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+            placeholder="ادخل سعر المنتج"
+            className={cn("w-full px-4 py-3 border rounded-sm focus:outline-none text-sm", errors.price ? "border-red-500" : "border-gray-200")}
+          />
+          {errors.price && <p className="text-xs text-red-500 mt-1">{errors.price}</p>}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2" ref={categoryDropdownRef}>
+            <Label className="text-sm font-medium flex items-center gap-1">الفئات <span className="text-red-500">*</span></Label>
+            <button
+              type="button"
+              onClick={() => setIsCategoryModalOpen(true)}
+              className={cn("w-full h-11 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none", errors.category_id ? "border-red-400 bg-red-50" : "border-gray-200 hover:border-gray-300 bg-white")}
+            >
+              <span className={cn("truncate text-right", formData.category_name ? "text-gray-900" : "text-gray-400")}>{formData.category_name || "اختر فئة المنتج"}</span>
+              <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0 ms-2" />
+            </button>
+            {errors.category_id && <p className="text-xs text-red-500 mt-1">{errors.category_id}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">حالة المنتج</Label>
+            <ReusableDropdown options={CONDITION_OPTIONS} value={formData.condition} onChange={(value) => setFormData({ ...formData, condition: value as "new" | "used" })} placeholder="اختر الحالة" className="h-11" />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium">الوصف الموجز</Label>
+            <Tooltip
+              trigger={<div className="flex items-center gap-1 text-blue-4 cursor-pointer"><HelpCircle className="w-3.5 h-3.5" /><span className="text-xs font-medium">ماهو الوصف الموجز</span></div>}
+              content="اكتب وصفًا قصيرًا يوضح الفكرة الأساسية عن المنتج. يظهر في نتائج البحث وصفحات العرض السريعة."
+            />
+          </div>
+          <textarea
+            value={formData.short_description}
+            onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
+            placeholder="اكتب وصفاً مختصراً..."
+            maxLength={300}
+            rows={3}
+            className={cn("w-full px-4 py-3 border rounded-lg text-sm resize-none placeholder:text-gray-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500", errors.short_description ? "border-red-500" : "border-gray-200")}
+          />
+          <div className="flex justify-between text-xs text-gray-3">
+            <span>عدد الكلمات المتاحة في الوصف هي 70 كلمة</span>
+            <span>{formData.short_description.length}/300 حرف</span>
+          </div>
+          {errors.short_description && <p className="text-xs text-red-500">{errors.short_description}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <RichTextEditor
+            value={formData.description}
+            onChange={(val) => setFormData({ ...formData, description: val })}
+            label="وصف المنتج"
+            required
+            placeholder="اكتب وصفاً تفصيلاً..."
+            helpText="ماهو وصف المنتج"
+            helpTooltip="اكتب وصفًا تفصيليًا يشرح مميزات المنتج، خامته، طريقة استخدامه، والمعلومات الإضافية."
+            error={errors.description}
+            className="max-h-[400px] min-h-[200px]"
+          />
+        </div>
+
+        <CategoryPickerModal
+          isOpen={isCategoryModalOpen}
+          onClose={() => setIsCategoryModalOpen(false)}
+          onSelect={handleCategorySelect}
+          selectedCategoryId={formData.category_id || undefined}
+        />
+      </div>
+    );
+  }
+
+  // ── Standalone (stepper) mode render ──
   return (
     <div className="overflow-hidden">
       <div className="container mx-auto py-4 px-4">
@@ -298,25 +409,33 @@ export function AddProductStep1({
                 <h2 className="text-xl font-semibold">المعلومات الأساسية</h2>
               </div>
 
-              {selectedCategory && (
-                <div className="bg-[#F8F8F8] rounded-md p-6 mb-8 flex items-center justify-between">
-                  <div className="flex flex-col gap-1">
-                    <h3 className="text-sm font-medium ">
-                      {selectedCategory.name}
-                    </h3>
-                    <p className="text-xs text-gray-3">
-                      منتجات خاصة بـ {selectedCategory.name} ومتعلقاتها
-                    </p>
+              {isCategorySelected && (() => {
+                const parts = formData.category_name?.split(" > ") ?? [];
+                const leafName = parts[parts.length - 1] || formData.category_name || "";
+                const hasPath = parts.length > 1;
+                return (
+                  <div className="bg-[#F8F8F8] rounded-md p-6 mb-8 flex items-center justify-between">
+                    <div className="flex flex-col gap-1">
+                      <h3 className="text-sm font-medium">{leafName}</h3>
+                      {hasPath && (
+                        <p className="text-xs text-gray-3">{formData.category_name}</p>
+                      )}
+                      {!hasPath && (
+                        <p className="text-xs text-gray-3">
+                          منتجات خاصة بـ {leafName} ومتعلقاتها
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsCategoryModalOpen(true)}
+                      className="text-blue-4 font-bold text-sm cursor-pointer hover:underline"
+                    >
+                      تغيير
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={scrollToCategoryDropdown}
-                    className="text-blue-4 font-bold text-sm cursor-pointer hover:underline"
-                  >
-                    تغيير
-                  </button>
-                </div>
-              )}
+                );
+              })()}
 
               <div className="space-y-8">
                 <ImageGallerySelector
@@ -382,27 +501,33 @@ export function AddProductStep1({
                     <Label className="text-sm font-medium flex items-center gap-1">
                       الفئات <span className="text-red-500">*</span>
                     </Label>
-                    {/* ✅ تفعيل البحث في القائمة المنسدلة */}
-                    <ReusableDropdown
-                      options={categoryOptions}
-                      value={
-                        formData.category_id
-                          ? String(formData.category_id)
-                          : ""
-                      }
-                      onChange={(value) =>
-                        setFormData({ ...formData, category_id: Number(value) })
-                      }
-                      placeholder={
-                        isCategoriesLoading ? "جاري التحميل..." : "ابحث عن اسم الفئة"
-                      }
-                      error={errors.category_id || (isCategoryInvalid ? "الفئة المحددة غير موجودة، يرجى اختيار فئة أخرى" : undefined)}
-                      className="h-11"
-                      onSearch={(val) => setCategorySearchQuery(val)} // تفعيل البحث
-                      searchPlaceholder="ابحث عن الفئة..."
-                      onReachEnd={() => hasNextPage && fetchNextPage()}
-                      isLoadingMore={isFetchingNextPage}
-                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsCategoryModalOpen(true)}
+                      className={cn(
+                        "w-full h-11 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none",
+                        errors.category_id
+                          ? "border-red-400 bg-red-50"
+                          : "border-gray-200 hover:border-gray-300 bg-white"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "truncate text-right",
+                          formData.category_name
+                            ? "text-gray-900"
+                            : "text-gray-400"
+                        )}
+                      >
+                        {formData.category_name || "اختر فئة المنتج"}
+                      </span>
+                      <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0 ms-2" />
+                    </button>
+                    {errors.category_id && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.category_id}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -512,6 +637,14 @@ export function AddProductStep1({
         showCancel={true}
         showSaveDraft={showSaveDraft}
       />
+
+      <CategoryPickerModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        onSelect={handleCategorySelect}
+        selectedCategoryId={formData.category_id || undefined}
+      />
     </div >
   );
-}
+});
+AddProductStep1.displayName = "AddProductStep1";

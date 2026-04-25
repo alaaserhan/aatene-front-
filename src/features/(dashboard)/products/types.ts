@@ -2,6 +2,7 @@
 
 export interface Step1FormData {
   category_id: number;
+  category_name?: string;
   cover: string;
   cover_preview: string;
   gallery: string[];

@@ -112,7 +112,7 @@ export interface ProductCreatePayload {
   type: ProductType;
   condition: ProductCondition;
   category_id: number;
-  store_id: number;
+  store_id?: number;
   section_id: number;
   price: number;
   status: ProductStatus;

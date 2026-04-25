@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 export interface Category {
   id: number;
   name: string;
+  full_name?: string;
   images: string[];
   images_urls: string[] | null;
   type: string;
