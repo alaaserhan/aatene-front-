@@ -1,7 +1,7 @@
 // src/features/(dashboard)/products/components/AddProductStep4.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Plus, HelpCircle, Percent, Tag, Check, Image as ImageIcon, Calendar as CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -31,6 +31,10 @@ import {
 import { Calendar } from "@/src/components/ui/calendar"; // تأكد من وجود هذا المكون أو قم بتثبيته عبر shadcn
 import { Stepper } from "@/src/components/ui/Stepper";
 
+export interface Step4Ref {
+    getData: () => Step4FormData;
+}
+
 interface AddProductStep4Props {
     previousData: Step1FormData;
     initialData?: Step4FormData;
@@ -43,9 +47,10 @@ interface AddProductStep4Props {
     breadcrumbItems?: { label: string; href?: string }[];
     onStepClick?: (step: number) => void;
     showSaveDraft?: boolean;
+    accordionMode?: boolean;
 }
 
-export function AddProductStep4({
+export const AddProductStep4 = forwardRef<Step4Ref, AddProductStep4Props>(function AddProductStep4({
     previousData,
     initialData,
     onSave,
@@ -57,7 +62,8 @@ export function AddProductStep4({
     onStepClick,
     showSaveDraft = true,
     isEditMode = false,
-}: AddProductStep4Props) {
+    accordionMode = false,
+}, ref) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
@@ -173,6 +179,69 @@ export function AddProductStep4({
     };
 
     const crossSellsTooltip = "المنتجات المرتبطة تظهر للعميل كاقتراحات إضافية عند تصفح هذا المنتج، مما يزيد من فرص البيع.";
+
+    useImperativeHandle(ref, () => ({
+        getData: () => formData,
+    }));
+
+    // ── Accordion mode render ──
+    if (accordionMode) {
+        return (
+            <div className="p-6 space-y-6">
+                <div className="flex items-center justify-between">
+                    <p className="text-sm text-gray-2">قم باختيار منتجات لترشيحها في قائمة المنتج</p>
+                    <div className="flex items-center gap-2">
+                        <Tooltip trigger={<div className="flex items-center gap-1 text-blue-4 cursor-pointer"><HelpCircle className="w-4 h-4" /><span className="text-xs font-medium">ماهي منتجات مرتبطة</span></div>} content={crossSellsTooltip} />
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                    <Button onClick={() => setIsProductModalOpen(true)} variant="outline" className="gap-2 px-6 border-blue-4 text-blue-4 bg-blue-5 hover:bg-blue-6 rounded-sm"><Plus className="w-4 h-4" />اختار منتجات</Button>
+                    {formData.crossSellsData.length > 0 && <button type="button" onClick={handleRemoveAll} className="text-sm text-blue-3 hover:underline font-medium cursor-pointer">حذف الكل</button>}
+                </div>
+
+                {formData.crossSellsData.length > 0 ? (
+                    <div className="space-y-3">
+                        {formData.crossSellsData.map((product) => {
+                            const isSelected = selectedInListIds.includes(product.id);
+                            return (
+                                <div key={product.id} className="flex items-center justify-between p-4 bg-[#F5F5F5] rounded-lg">
+                                    <div className="flex items-center gap-4 flex-1">
+                                        <div onClick={() => handleToggleListSelection(product.id)} className="w-4 h-4 rounded-xs border-blue-1 bg-blue-5 border flex items-center justify-center cursor-pointer">
+                                            {isSelected && <Check className="w-3.5 h-3.5 text-blue-4" />}
+                                        </div>
+                                        <div className="w-12 h-12 rounded-lg bg-white border border-gray-200 overflow-hidden flex-shrink-0">
+                                            {product.cover_url ? <img src={product.cover_url} alt={product.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-50"><ImageIcon className="w-5 h-5 text-gray-2" /></div>}
+                                        </div>
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="text-sm font-medium truncate">{product.name}</span>
+                                            <span className="text-xs text-gray-2">{product.price} ريال</span>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => handleRemoveProduct(product.id)} className="w-8 h-8 flex items-center justify-center cursor-pointer bg-[#FFE5E5] text-[#FF4D4F] rounded-md hover:bg-[#ffd1d1]">
+                                        <img src="/icons/dashboard/trash.svg" alt="" className="w-3.5" />
+                                    </button>
+                                </div>
+                            );
+                        })}
+                        {formData.crossSellsData.length > 0 && selectedInListIds.length > 0 && (
+                            <button onClick={() => setIsDiscountModalOpen(true)} type="button" className="flex items-center gap-2 px-4 py-2 border border-dashed border-blue-4 text-blue-4 rounded-sm hover:bg-blue-5 text-sm font-medium">
+                                <Percent className="w-4 h-4" />{formData.cross_sells_price ? `تعديل العرض` : `إضافة عرض`}
+                            </button>
+                        )}
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-10 text-center">
+                        <img src="/icons/dashboard/empty1.svg" alt="empty" className="w-32 mb-4" />
+                        <p className="text-sm text-gray-2">لم يتم إضافة أي منتجات مرتبطة بعد</p>
+                    </div>
+                )}
+
+                <SelectProductsModal isOpen={isProductModalOpen} onClose={() => setIsProductModalOpen(false)} onSelect={handleSelectProducts} selectedIds={formData.crossSells} />
+                <DiscountModal isOpen={isDiscountModalOpen} onClose={() => setIsDiscountModalOpen(false)} onConfirm={handleApplyDiscount} selectedProducts={formData.crossSellsData.filter(p => selectedInListIds.includes(p.id))} initialPrice={formData.cross_sells_price} initialDate={formData.cross_sells_due_date} initialName={formData.cross_sells_name} initialDescription={formData.cross_sells_description} />
+            </div>
+        );
+    }
 
     return (
         <div className="">
@@ -362,7 +431,8 @@ export function AddProductStep4({
             />
         </div>
     );
-}
+});
+AddProductStep4.displayName = "AddProductStep4";
 
 // --- Updated Discount Modal Component ---
 

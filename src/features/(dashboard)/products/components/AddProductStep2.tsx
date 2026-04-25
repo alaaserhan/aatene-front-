@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, KeyboardEvent, useMemo, useEffect } from "react";
+import { useState, KeyboardEvent, useMemo, useEffect, forwardRef, useImperativeHandle } from "react";
 import { HelpCircle, Loader2 } from "lucide-react";
 import Cookies from "js-cookie";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
@@ -30,6 +30,11 @@ interface ExtendedStep2FormData extends Step2FormData {
   section_id?: number;
 }
 
+export interface Step2Ref {
+  validate: () => boolean;
+  getData: () => ExtendedStep2FormData;
+}
+
 interface AddProductStep2Props {
   previousData: Step1FormData;
   initialData?: ExtendedStep2FormData;
@@ -42,9 +47,10 @@ interface AddProductStep2Props {
   showSaveDraft?: boolean;
   isGeneratingAI?: boolean;
   aiKeywords?: string[];
+  accordionMode?: boolean;
 }
 
-export function AddProductStep2({
+export const AddProductStep2 = forwardRef<Step2Ref, AddProductStep2Props>(function AddProductStep2({
   previousData,
   initialData,
   onNext,
@@ -56,7 +62,8 @@ export function AddProductStep2({
   showSaveDraft = true,
   isGeneratingAI = false,
   aiKeywords = [],
-}: AddProductStep2Props) {
+  accordionMode = false,
+}, ref) {
   const userType = Cookies.get("user_type");
   const currentStoreId = Cookies.get("current_store_id");
   const isAdmin = userType === "admin";
@@ -276,6 +283,72 @@ export function AddProductStep2({
 
   const keywordsDescription = `الكلمات المفتاحية هي مصطلحات أو عبارات تصف محتوى الصفحة أو الموضوع. وتستخدم لتحسين البحث والوصول للمحتوى بسهولة. مثل: "موبايل", "سامسونج" ,"حذاء أحمر", "الكترونيات".`;
 
+  useImperativeHandle(ref, () => ({
+    validate: () => {
+      const newErrors: Record<string, string> = {};
+      if (!formData.store_id) newErrors.store_id = "يجب اختيار المتجر";
+      if (!formData.section_id) newErrors.section_id = "يجب اختيار القسم";
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    },
+    getData: () => formData,
+  }));
+
+  // ── Accordion mode render ──
+  if (accordionMode) {
+    const formContent = (
+      <div className="space-y-8 p-6">
+        {isAdmin && (
+          <div className="space-y-2">
+            <Label className="text-sm font-medium flex items-center gap-1">إظهار المنتج في متجر <span className="text-red-500">*</span></Label>
+            <ReusableDropdown options={storeOptions} value={formData.store_id ? String(formData.store_id) : ""} onChange={handleStoreChange} placeholder={isStoresLoading ? "جاري التحميل..." : "اختر المتجر..."} error={errors.store_id} className="h-11" onSearch={setStoreSearchQuery} searchPlaceholder="ابحث عن متجر..." onReachEnd={() => hasNextPage && fetchNextPage()} isLoadingMore={isFetchingNextPage} />
+          </div>
+        )}
+
+        {formData.store_id > 0 && (
+          <div className="space-y-2">
+            <Label className="text-sm font-medium flex items-center gap-1">القسم <span className="text-red-500">*</span></Label>
+            <ReusableDropdown options={sectionOptions} value={formData.section_id && formData.section_id > 0 ? String(formData.section_id) : null} onChange={(value) => setFormData({ ...formData, section_id: Number(value) })} placeholder={isSectionsLoading ? "جاري التحميل..." : "اختر القسم..."} error={errors.section_id} className="h-11" onAddNew={() => setIsAddSectionOpen(true)} addNewLabel="إضافة قسم جديد" onSearch={setSectionSearchQuery} searchPlaceholder="ابحث عن قسم..." />
+          </div>
+        )}
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium flex items-center gap-2">الكلمات المفتاحية {isGeneratingAI && <Loader2 className="w-3 h-3 animate-spin text-blue-500" />}</Label>
+            <Tooltip trigger={<div className="flex items-center gap-1 text-blue-4 cursor-pointer"><HelpCircle className="w-3.5 h-3.5" /><span className="text-xs font-medium">ماهي الكلمات المفتاحية</span></div>} content={keywordsDescription} />
+          </div>
+          <div className="flex items-center gap-3">
+            <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleKeyDown} placeholder={isGeneratingAI ? "جاري توليد الكلمات المفتاحية..." : "اكتب الوسم هنا..."} className="flex-1 px-4 py-2.5 border border-gray-200 rounded-sm focus:outline-none text-sm" />
+            <button type="button" onClick={handleAddTag} disabled={!tagInput.trim()} className="px-6 py-2.5 bg-blue-4 text-white rounded-sm text-sm font-medium hover:bg-[#2c425e] disabled:opacity-50">اضافة</button>
+          </div>
+          {formData.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {formData.tags.map((tag, index) => <OptionTag key={index} label={tag} onRemove={() => handleRemoveTag(tag)} showRemoveButton={formData.tags.length > 3} />)}
+            </div>
+          )}
+        </div>
+
+        <Dialog open={isAddSectionOpen} onOpenChange={setIsAddSectionOpen}>
+          <DialogContent className="sm:max-w-lg" dir="rtl">
+            <DialogHeader><DialogTitle className="text-xl font-medium">أضف قسم جديد</DialogTitle></DialogHeader>
+            <div className="grid gap-6 py-4">
+              <div className="grid gap-3">
+                <Label htmlFor="section-name-acc" className="text-right font-medium">اسم القسم</Label>
+                <Input id="section-name-acc" value={newSectionName} onChange={(e) => setNewSectionName(e.target.value)} placeholder="اكتب اسم القسم هنا" className="w-full px-4 py-3 border-gray-200 rounded-lg" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddSection(); } }} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={handleAddSection} disabled={!newSectionName.trim() || createSection.isPending} className="w-full px-6 py-3 rounded-lg font-medium" style={{ backgroundColor: 'var(--blue-3)' }}>
+                {createSection.isPending ? "جاري الحفظ..." : "حفظ"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+    return formContent;
+  }
+
   return (
     <div className="overflow-hidden">
       <div className="container mx-auto py-4 px-4">
@@ -472,4 +545,5 @@ export function AddProductStep2({
       </Dialog>
     </div >
   );
-}
+});
+AddProductStep2.displayName = "AddProductStep2";
