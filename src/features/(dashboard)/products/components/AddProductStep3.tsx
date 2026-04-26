@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, forwardRef, useImperativeHandle } from "react";
-import { Search, X, Plus, Image as ImageIcon, UploadCloud, HelpCircle } from "lucide-react";
+import { Search, X, Plus, UploadCloud, HelpCircle } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
@@ -41,6 +41,8 @@ const useGetAttributes = (params: URLSearchParams) => {
 
 export interface Step3Ref {
     getData: () => Step3FormData;
+    /** عند تفعيل الاختلافات: يتحقق من السمات والصفوف والصور والأسعار قبل المتابعة */
+    validate: () => boolean;
 }
 
 interface AddProductStep3Props {
@@ -270,39 +272,48 @@ export const AddProductStep3 = forwardRef<Step3Ref, AddProductStep3Props>(functi
         };
     };
 
-    const handleNext = () => {
-        if (hasVariations) {
-            if (selectedAttributeIds.length === 0) {
-                toast.error("الرجاء اختيار سمات للمنتج");
-                return;
-            }
-            if (variations.length === 0) {
-                toast.error("الرجاء إضافة قيمة واحدة على الأقل للاختلافات");
-                return;
-            }
+    const scrollToVariationTarget = (selector: string) => {
+        requestAnimationFrame(() => {
+            document.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+    };
 
-            let isValid = true;
-            let missingImage = false;
-            variations.forEach((row) => {
-                selectedAttributeIds.forEach((attrId) => {
-                    if (!row.attributeValues[attrId]) isValid = false;
-                });
-                if (row.price <= 0) isValid = false;
-                // الصورة مطلوبة: يجب أن يكون هناك images للعرض AND imageFileName للإرسال
-                if (row.images.length === 0 || !row.imageFileName) missingImage = true;
-            });
-
-            if (missingImage) {
-                toast.error("الرجاء رفع صورة لكل قيمة من قيم الاختلاف");
-                return;
+    const validateVariations = (): boolean => {
+        if (!hasVariations) return true;
+        if (selectedAttributeIds.length === 0) {
+            toast.error("الرجاء اختيار سمات للمنتج");
+            scrollToVariationTarget('[data-step3-anchor="pick-attributes"]');
+            return false;
+        }
+        if (variations.length === 0) {
+            toast.error("الرجاء إضافة قيمة واحدة على الأقل للاختلافات");
+            scrollToVariationTarget('[data-step3-anchor="variation-values"]');
+            return false;
+        }
+        for (const row of variations) {
+            for (const attrId of selectedAttributeIds) {
+                if (!row.attributeValues[attrId]) {
+                    toast.error("الرجاء إكمال جميع بيانات الاختلافات (القيم والسعر)");
+                    scrollToVariationTarget(`[data-variation-row="${row.id}"]`);
+                    return false;
+                }
             }
-
-            if (!isValid) {
+            if (row.price <= 0) {
                 toast.error("الرجاء إكمال جميع بيانات الاختلافات (القيم والسعر)");
-                return;
+                scrollToVariationTarget(`[data-variation-row="${row.id}"]`);
+                return false;
+            }
+            if (row.images.length === 0 || !row.imageFileName) {
+                toast.error("الرجاء رفع صورة لكل قيمة من قيم الاختلاف");
+                scrollToVariationTarget(`[data-variation-row="${row.id}"]`);
+                return false;
             }
         }
+        return true;
+    };
 
+    const handleNext = () => {
+        if (!validateVariations()) return;
         onNext(prepareCurrentData());
     };
 
@@ -314,6 +325,7 @@ export const AddProductStep3 = forwardRef<Step3Ref, AddProductStep3Props>(functi
 
     useImperativeHandle(ref, () => ({
         getData: () => prepareCurrentData(),
+        validate: () => validateVariations(),
     }));
 
     const defaultBreadcrumbItems = [
@@ -351,7 +363,7 @@ export const AddProductStep3 = forwardRef<Step3Ref, AddProductStep3Props>(functi
                 {hasVariations ? (
                     <div>
                         <div>
-                            <div className="flex items-center gap-3 flex-wrap mb-4">
+                            <div className="flex items-center gap-3 flex-wrap mb-4" data-step3-anchor="pick-attributes">
                                 <Button onClick={() => setIsAttrModalOpen(true)} variant="outline" className="gap-2 h-9 border-blue-6 text-blue-3 bg-blue-5 hover:bg-blue-6 rounded-sm">
                                     <Plus className="w-3 h-3" />إضافة سمة جديدة
                                 </Button>
@@ -363,12 +375,12 @@ export const AddProductStep3 = forwardRef<Step3Ref, AddProductStep3Props>(functi
                             </div>
                             {selectedAttributeIds.length > 0 ? (
                                 <div className="space-y-4">
-                                    <div className="flex items-center justify-between mt-8 mb-4">
+                                    <div className="flex items-center justify-between mt-8 mb-4" data-step3-anchor="variation-values">
                                         <h3 className="font-bold text-lg text-blue-4">قيم الاختلاف <span className="text-red-500">*</span></h3>
                                         <Button onClick={handleAddVariationRow} variant="outline" className="gap-2 h-9 border-blue-6 text-blue-3 bg-blue-5 hover:bg-blue-6 rounded-sm"><Plus className="w-3 h-3" />قيمة جديدة</Button>
                                     </div>
-                                    <div className="overflow-x-auto pb-4">
-                                        <div className="min-w-[600px]">
+                                    <div className="overflow-x-auto pb-4 custom-scrollbar">
+                                        <div className="min-w-[800px]">
                                             <div className="bg-blue-5 rounded-sm p-4 grid gap-4 items-center text-sm font-bold text-blue-4 mb-2" style={{ gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px` }}>
                                                 {selectedAttributesFull.map((attr) => <div key={attr.id} className="text-center">{attr.title}</div>)}
                                                 <div className="text-center">السعر</div>
@@ -377,7 +389,12 @@ export const AddProductStep3 = forwardRef<Step3Ref, AddProductStep3Props>(functi
                                             </div>
                                             <div className="space-y-3">
                                                 {variations.map((row) => (
-                                                    <div key={row.id} className="bg-white border-b border-gray-100 p-4 grid gap-4 items-center last:border-0" style={{ gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px` }}>
+                                                    <div
+                                                        key={row.id}
+                                                        data-variation-row={row.id}
+                                                        className="bg-white border-b border-gray-100 p-4 grid gap-4 items-center last:border-0"
+                                                        style={{ gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px` }}
+                                                    >
                                                         {selectedAttributesFull.map((attr) => {
                                                             const options = attr.options.map((opt) => ({ value: String(opt.id), label: opt.title }));
                                                             return (
@@ -386,16 +403,83 @@ export const AddProductStep3 = forwardRef<Step3Ref, AddProductStep3Props>(functi
                                                                 </div>
                                                             );
                                                         })}
-                                                        <div className="flex justify-center">
-                                                                    <input type="number" min="0" value={row.price || ""} onChange={(e) => updateVariationRow(row.id, "price", Number(e.target.value))} placeholder="السعر" className="w-full max-w-[100px] h-9 border border-gray-200 rounded-sm px-2 text-sm text-center focus:outline-none" />
+                                                        <div className="relative">
+                                                            <input
+                                                                type="number"
+                                                                value={row.price || ""}
+                                                                onChange={(e) => updateVariationRow(row.id, "price", Number(e.target.value))}
+                                                                className="w-full h-10 px-2 border border-gray-200 rounded-md text-sm text-center focus:ring-1 focus:ring-blue-300 outline-none"
+                                                                placeholder="0.00"
+                                                            />
+                                                            <span className="absolute end-8 top-1/2 -translate-y-1/2 text-gray-2 font-sans">
+                                                                ₪
+                                                            </span>
                                                         </div>
                                                         <div className="flex justify-center">
-                                                            <div className="w-14 h-14 rounded-lg border border-gray-200 overflow-hidden cursor-pointer hover:border-blue-4 transition-colors" onClick={() => { setActiveRowIdForImage(row.id); setIsMediaModalOpen(true); }}>
-                                                                {row.images.length > 0 ? <img src={row.images[0]} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-50"><ImageIcon className="w-5 h-5 text-gray-2" /></div>}
-                                                            </div>
+                                                            {row.images.length > 0 ? (
+                                                                <div className="relative inline-flex">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            setActiveRowIdForImage(row.id);
+                                                                            setIsMediaModalOpen(true);
+                                                                        }}
+                                                                        className="block"
+                                                                    >
+                                                                        <img src={row.images[0]} alt="" className="w-12 h-14 object-cover rounded-md shadow-sm" />
+                                                                        {row.images.length > 1 && (
+                                                                            <span className="absolute -bottom-1 -end-1 w-5 h-5 bg-[#3A5779] text-white rounded-full text-[10px] flex items-center justify-center font-bold">
+                                                                                +{row.images.length - 1}
+                                                                            </span>
+                                                                        )}
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            updateVariationRow(row.id, "images", []);
+                                                                            updateVariationRow(row.id, "imageFileName", "");
+                                                                        }}
+                                                                        className="absolute -top-1.5 -left-1.5 w-4 h-4 bg-[#E0E7ED] text-[#3A5779] rounded-full flex items-center justify-center cursor-pointer hover:bg-white z-10 shadow-sm border border-[#D5E1EA]"
+                                                                    >
+                                                                        <X className="w-2.5 h-2.5" />
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setActiveRowIdForImage(row.id);
+                                                                        setIsMediaModalOpen(true);
+                                                                    }}
+                                                                    className="flex items-center gap-2 text-[#3A5779] text-sm bg-[#EBF2F9] border border-[#D5E1EA] rounded-md px-3 h-10 hover:bg-[#dbe9f5] transition-colors whitespace-nowrap"
+                                                                >
+                                                                    <span>قم برفع الصورة</span>
+                                                                    <UploadCloud className="w-4 h-4 shrink-0" />
+                                                                </button>
+                                                            )}
                                                         </div>
-                                                        <div className="flex items-center justify-center gap-2">
-                                                            <button onClick={() => handleRemoveVariationRow(row.id)} className="w-8 h-8 flex items-center justify-center cursor-pointer bg-[#FFE5E5] text-[#FF4D4F] rounded-md hover:bg-[#ffd1d1] transition-colors">
+                                                        <div className="flex items-center justify-center gap-3">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => updateVariationRow(row.id, "enabled", !row.enabled)}
+                                                                className={cn(
+                                                                    "w-11 h-6 rounded-full p-1 transition-colors duration-200 ease-in-out relative",
+                                                                    row.enabled ? "bg-green-500" : "bg-gray-200"
+                                                                )}
+                                                            >
+                                                                <div
+                                                                    className={cn(
+                                                                        "w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 ease-in-out",
+                                                                        row.enabled ? "-translate-x-5" : "translate-x-0"
+                                                                    )}
+                                                                />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleRemoveVariationRow(row.id)}
+                                                                className="w-8 h-8 flex items-center justify-center cursor-pointer bg-[#FFE5E5] text-[#FF4D4F] rounded-md hover:bg-[#ffd1d1] transition-colors"
+                                                            >
                                                                 <img src="/icons/dashboard/trash.svg" alt="" className="w-3.5" />
                                                             </button>
                                                         </div>
@@ -422,6 +506,12 @@ export const AddProductStep3 = forwardRef<Step3Ref, AddProductStep3Props>(functi
 
                 <AttributeSelectionModal isOpen={isAttrModalOpen} onClose={() => setIsAttrModalOpen(false)} attributes={allAttributes} selectedIds={selectedAttributeIds} savedSelectedOptions={savedSelectedOptions} onConfirm={(ids, updatedAttrs, selectedOptsMap) => {
                     setSelectedAttributeIds(ids);
+                    if (updatedAttrs) {
+                        queryClient.setQueryData(
+                            ["attributes", queryParams.toString()],
+                            (old: any) => (old ? { ...old, data: updatedAttrs } : old)
+                        );
+                    }
                     if (ids.length > 0 && selectedOptsMap) {
                         const attrs = (updatedAttrs || allAttributes).filter((a) => ids.includes(a.id));
                         const attrOptions: { attrId: number; optIds: string[] }[] = attrs.map((a) => { const chosen = selectedOptsMap[a.id]; const optIds = chosen && chosen.length > 0 ? chosen.map(String) : a.options.map((o) => String(o.id)); return { attrId: a.id, optIds }; });
@@ -512,7 +602,7 @@ export const AddProductStep3 = forwardRef<Step3Ref, AddProductStep3Props>(functi
 
                             {hasVariations ? (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
-                                    <div className="flex flex-col flex-wrap items-start gap-3">
+                                    <div className="flex flex-col flex-wrap items-start gap-3" data-step3-anchor="pick-attributes">
                                         <Button
                                             onClick={() => setIsAttrModalOpen(true)}
                                             variant="outline"
@@ -537,7 +627,7 @@ export const AddProductStep3 = forwardRef<Step3Ref, AddProductStep3Props>(functi
 
                                     {selectedAttributeIds.length > 0 ? (
                                         <div className="space-y-4">
-                                            <div className="flex items-center justify-between mt-8 mb-4">
+                                            <div className="flex items-center justify-between mt-8 mb-4" data-step3-anchor="variation-values">
                                                 <h3 className="font-bold text-lg text-blue-4">
                                                     قيم الاختلاف <span className="text-red-500">*</span>
                                                 </h3>
@@ -573,6 +663,7 @@ export const AddProductStep3 = forwardRef<Step3Ref, AddProductStep3Props>(functi
                                                         {variations.map((row) => (
                                                             <div
                                                                 key={row.id}
+                                                                data-variation-row={row.id}
                                                                 className="bg-white border-b border-gray-100 p-4 grid gap-4 items-center last:border-0"
                                                                 style={{
                                                                     gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px`,

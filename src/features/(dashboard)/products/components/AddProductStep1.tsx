@@ -155,42 +155,37 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
   }, [formData, errors]);
   // --------------------------------------------------
 
-  const validate = () => {
+  const STEP1_SCROLL_ORDER = ["cover", "name", "price", "category_id", "description"] as const;
+
+  const scrollToFirstStep1Error = (errs: Record<string, string>) => {
+    for (const key of STEP1_SCROLL_ORDER) {
+      if (errs[key]) {
+        requestAnimationFrame(() => {
+          document
+            .querySelector(`[data-step1-anchor="${key}"]`)
+            ?.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+        return;
+      }
+    }
+  };
+
+  const validateStep1Fields = (): boolean => {
     const newErrors: Record<string, string> = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "اسم المنتج مطلوب";
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = "وصف المنتج مطلوب";
-    }
-
-    if (!formData.cover) {
-      newErrors.cover = "صورة المنتج مطلوبة (يجب إضافة صورة واحدة على الأقل)";
-    }
-
-    if (!formData.category_id) {
-      newErrors.category_id = "الفئة مطلوبة";
-    }
-
-    if (formData.price < 0) {
-      newErrors.price = "لا يمكن أن يكون السعر أقل من صفر";
-    }
-
+    if (!formData.name.trim()) newErrors.name = "اسم المنتج مطلوب";
+    if (!formData.description.trim()) newErrors.description = "وصف المنتج مطلوب";
+    if (!formData.cover) newErrors.cover = "صورة المنتج مطلوبة (يجب إضافة صورة واحدة على الأقل)";
+    if (!formData.category_id) newErrors.category_id = "الفئة مطلوبة";
+    if (formData.price < 0) newErrors.price = "لا يمكن أن يكون السعر أقل من صفر";
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const ok = Object.keys(newErrors).length === 0;
+    if (!ok) scrollToFirstStep1Error(newErrors);
+    return ok;
   };
 
   const handleNext = () => {
-    if (validate()) {
+    if (validateStep1Fields()) {
       onNext(formData);
-    } else {
-      const firstError = Object.keys(errors)[0];
-      const element =
-        document.querySelector(`[name="${firstError}"]`) ||
-        document.querySelector(".text-red-500");
-      element?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
@@ -238,16 +233,7 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
 
   // expose validate + getData للاستخدام في accordion mode
   useImperativeHandle(ref, () => ({
-    validate: () => {
-      const newErrors: Record<string, string> = {};
-      if (!formData.name.trim()) newErrors.name = "اسم المنتج مطلوب";
-      if (!formData.description.trim()) newErrors.description = "وصف المنتج مطلوب";
-      if (!formData.cover) newErrors.cover = "صورة المنتج مطلوبة";
-      if (!formData.category_id) newErrors.category_id = "الفئة مطلوبة";
-      if (formData.price < 0) newErrors.price = "لا يمكن أن يكون السعر أقل من صفر";
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    },
+    validate: () => validateStep1Fields(),
     getData: () => formData,
   }));
 
@@ -279,6 +265,7 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
           );
         })()}
 
+        <div data-step1-anchor="cover">
         <ImageGallerySelector
           label=" الصور"
           subLabel="يمكنك إضافة حتى (10) صور و (١) فيديو "
@@ -294,7 +281,9 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
           allowedMediaTypes={["gallery", "image", "video"]}
           required
         />
+        </div>
 
+        <div data-step1-anchor="name">
         <FormInput
           label="اسم المنتج"
           name="name"
@@ -307,8 +296,9 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
           showCounter
           error={errors.name}
         />
+        </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2" data-step1-anchor="price">
           <Label className="text-sm font-medium">السعر</Label>
           <input
             type="number"
@@ -322,12 +312,12 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2" ref={categoryDropdownRef}>
+          <div className="space-y-2" ref={categoryDropdownRef} data-step1-anchor="category_id">
             <Label className="text-sm font-medium flex items-center gap-1">الفئات <span className="text-red-500">*</span></Label>
             <button
               type="button"
               onClick={() => setIsCategoryModalOpen(true)}
-              className={cn("w-full h-11 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none", errors.category_id ? "border-red-400 bg-red-50" : "border-gray-200 hover:border-gray-300 bg-white")}
+              className={cn("w-full h-11 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none bg-white", errors.category_id ? "border-red-500" : "border-gray-200 hover:border-gray-300")}
             >
               <span className={cn("truncate text-right", formData.category_name ? "text-gray-900" : "text-gray-400")}>{formData.category_name || "اختر فئة المنتج"}</span>
               <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0 ms-2" />
@@ -363,7 +353,7 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
           {errors.short_description && <p className="text-xs text-red-500">{errors.short_description}</p>}
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2" data-step1-anchor="description">
           <RichTextEditor
             value={formData.description}
             onChange={(val) => setFormData({ ...formData, description: val })}
@@ -438,6 +428,7 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
               })()}
 
               <div className="space-y-8">
+                <div data-step1-anchor="cover">
                 <ImageGallerySelector
                   label=" الصور"
                   subLabel="يمكنك إضافة حتى (10) صور و (١) فيديو "
@@ -453,7 +444,9 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
                   allowedMediaTypes={["gallery", "image", "video"]}
                   required
                 />
+                </div>
 
+                <div data-step1-anchor="name">
                 <FormInput
                   label="اسم المنتج"
                   name="name"
@@ -468,8 +461,9 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
                   showCounter
                   error={errors.name}
                 />
+                </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2" data-step1-anchor="price">
                   <Label className="text-sm font-medium flex items-center gap-1">
                     السعر
                   </Label>
@@ -497,7 +491,7 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2" ref={categoryDropdownRef}>
+                  <div className="space-y-2" ref={categoryDropdownRef} data-step1-anchor="category_id">
                     <Label className="text-sm font-medium flex items-center gap-1">
                       الفئات <span className="text-red-500">*</span>
                     </Label>
@@ -505,10 +499,10 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
                       type="button"
                       onClick={() => setIsCategoryModalOpen(true)}
                       className={cn(
-                        "w-full h-11 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none",
+                        "w-full h-11 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none bg-white",
                         errors.category_id
-                          ? "border-red-400 bg-red-50"
-                          : "border-gray-200 hover:border-gray-300 bg-white"
+                          ? "border-red-500"
+                          : "border-gray-200 hover:border-gray-300"
                       )}
                     >
                       <span
@@ -595,8 +589,7 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
                   )}
                 </div>
 
-                <div className="space-y-2">
-
+                <div className="space-y-2" data-step1-anchor="description">
                   <RichTextEditor
                     value={formData.description}
                     onChange={(val) =>
