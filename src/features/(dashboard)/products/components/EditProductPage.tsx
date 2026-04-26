@@ -24,10 +24,20 @@ import {
 } from "../types";
 import { useAuthStore } from "@/src/stores/auth-store";
 import Cookies from "js-cookie";
+import { ProductFormActions } from "./ProductFormActions";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
-import { cn } from "@/src/lib/utils";
+
+function plainTextFromHtml(html: string): string {
+  if (!html) return "";
+  if (typeof document === "undefined") {
+    return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  }
+  const d = document.createElement("div");
+  d.innerHTML = html;
+  return (d.textContent || "").trim();
+}
 
 // ── Accordion Section Component ──
 interface AccordionSectionProps {
@@ -44,24 +54,21 @@ function AccordionSection({ title, isOpen, isCompleted, onToggle, children }: Ac
       <button
         type="button"
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-5 py-4 text-right hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
       >
         <div className="flex items-center gap-3">
-          {isOpen ? (
-            <MinusCircle className="w-5 h-5 text-gray-400 flex-shrink-0" />
-          ) : (
-            <PlusCircle className="w-5 h-5 text-gray-400 flex-shrink-0" />
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="font-semibold text-gray-800">{title}</span>
-          {isCompleted && (
+          {isCompleted && !isOpen ? (
             <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-          )}
+          ) : null}
+          <h3 className="text-base font-semibold text-gray-800">{title}</h3>
         </div>
+        {isOpen ? (
+          <MinusCircle className="w-5 h-5 text-blue-4 flex-shrink-0" />
+        ) : (
+          <PlusCircle className="w-5 h-5 text-gray-400 flex-shrink-0" />
+        )}
       </button>
 
-      {/* Always rendered - CSS hidden keeps refs alive */}
       <div className={`border-t border-gray-100${isOpen ? "" : " hidden"}`}>
         {children}
       </div>
@@ -119,6 +126,14 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     coverImage: string;
     galleryImages: string[];
   }>({ name: "", price: 0, coverImage: "", galleryImages: [] });
+
+  /** يبقى متزامناً مع نموذج الخطوة 1 (الفئة وغيرها) لأن formData.step1 لا يُحدَّث عند كل تغيير */
+  const [step1Snapshot, setStep1Snapshot] = useState<Step1FormData | null>(null);
+
+  const accordionStep1Previous = useMemo((): Step1FormData | null => {
+    if (!formData?.step1) return null;
+    return step1Snapshot ?? formData.step1;
+  }, [step1Snapshot, formData?.step1]);
 
   // ── Map product data when loaded ──
   if (productData && productData !== prevProductData) {
@@ -216,6 +231,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
         };
 
         setFormData(initialFormData);
+        setStep1Snapshot(initialFormData.step1!);
         setProductSku(product.sku || "");
         // Mark all sections as completed since data is pre-filled
         setCompletedSections(new Set([1, 2, 3, 4]));
@@ -263,12 +279,13 @@ export function EditProductPage({ productId }: EditProductPageProps) {
 
   const handleGenerateAI = async (currentStep1Data: Step1FormData) => {
     const title = currentStep1Data.name.trim();
-    const description = currentStep1Data.description.trim();
+    const descPlain = plainTextFromHtml(currentStep1Data.description || "");
+    const descriptionForApi = descPlain || currentStep1Data.description.trim();
 
     if (
       lastGeneratedInput &&
       lastGeneratedInput.title === title &&
-      lastGeneratedInput.description === description
+      lastGeneratedInput.description === descPlain
     ) {
       return;
     }
@@ -276,24 +293,31 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     try {
       const data = await generateAIMutation.mutateAsync({
         title,
-        description,
+        description: descriptionForApi,
         type: "product",
       });
 
-      setLastGeneratedInput({ title, description });
+      setLastGeneratedInput({ title, description: descPlain });
 
+      let mergedStep1: Step1FormData | null = null;
       setFormData((prev) => {
         if (!prev) return null;
-        const newStep1 = { ...prev.step1, ...currentStep1Data };
+        const newStep1 = { ...prev.step1!, ...currentStep1Data };
         if (data.title) newStep1.name = data.title;
         if (data.short_description) newStep1.short_description = data.short_description;
         const newStep2 = { ...prev.step2 } as Step2FormData;
-        if (data.results?.keywords) {
-          newStep2.tags = data.results.keywords;
-          setAiKeywords(data.results.keywords);
+        const rawKw =
+          data.results?.keywords ??
+          (data as { keywords?: string[] }).keywords;
+        const kw = Array.isArray(rawKw) ? rawKw.filter((k): k is string => typeof k === "string" && k.trim().length > 0) : [];
+        if (kw.length > 0) {
+          newStep2.tags = kw;
+          setAiKeywords(kw);
         }
+        mergedStep1 = newStep1;
         return { ...prev, step1: newStep1, step2: newStep2 };
       });
+      if (mergedStep1) setStep1Snapshot(mergedStep1);
     } catch (error) {
       console.error("AI Generation Error:", error);
       toast.error("فشل توليد البيانات");
@@ -305,23 +329,34 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     switch (sectionNum) {
       case 1: {
         const isValid = step1Ref.current?.validate() ?? false;
-        if (isValid) {
-          const data = step1Ref.current?.getData();
-          setCompletedSections(prev => new Set([...prev, 1]));
-          setOpenSections(prev => { const s = new Set([...prev, 2]); s.delete(1); return s; });
-          if (data) handleGenerateAI(data);
+        if (!isValid) {
+          setOpenSections(prev => new Set([...prev, 1]));
+          break;
         }
+        const data = step1Ref.current?.getData();
+        if (data) setStep1Snapshot(data);
+        setCompletedSections(prev => new Set([...prev, 1]));
+        setOpenSections(prev => { const s = new Set([...prev, 2]); s.delete(1); return s; });
+        if (data) handleGenerateAI(data);
         break;
       }
       case 2: {
         const isValid = step2Ref.current?.validate() ?? false;
-        if (isValid) {
-          setCompletedSections(prev => new Set([...prev, 2]));
-          setOpenSections(prev => { const s = new Set([...prev, 3]); s.delete(2); return s; });
+        if (!isValid) {
+          setOpenSections(prev => new Set([...prev, 2]));
+          break;
         }
+        setCompletedSections(prev => new Set([...prev, 2]));
+        setOpenSections(prev => { const s = new Set([...prev, 3]); s.delete(2); return s; });
         break;
       }
       case 3: {
+        const step3Valid = step3Ref.current?.validate() ?? true;
+        if (!step3Valid) {
+          setOpenSections(prev => new Set([...prev, 3]));
+          toast.error("يرجى إكمال بيانات الاختلافات والكميات");
+          break;
+        }
         setCompletedSections(prev => new Set([...prev, 3]));
         setOpenSections(prev => { const s = new Set([...prev, 4]); s.delete(3); return s; });
         break;
@@ -339,11 +374,21 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     if (!formData) return;
 
     const step1Valid = step1Ref.current?.validate() ?? false;
-    const step2Valid = step2Ref.current?.validate() ?? false;
-    if (!step1Valid || !step2Valid) {
-      if (!step1Valid) setOpenSections(prev => new Set([...prev, 1]));
-      else if (!step2Valid) setOpenSections(prev => new Set([...prev, 2]));
+    if (!step1Valid) {
+      setOpenSections(prev => new Set([...prev, 1]));
       toast.error("يرجى إكمال الحقول المطلوبة أولاً");
+      return;
+    }
+    const step2Valid = step2Ref.current?.validate() ?? false;
+    if (!step2Valid) {
+      setOpenSections(prev => new Set([...prev, 2]));
+      toast.error("يرجى إكمال الحقول المطلوبة أولاً");
+      return;
+    }
+    const step3Valid = step3Ref.current?.validate() ?? true;
+    if (!step3Valid) {
+      setOpenSections(prev => new Set([...prev, 3]));
+      toast.error("يرجى إكمال بيانات الاختلافات والكميات");
       return;
     }
 
@@ -477,12 +522,15 @@ export function EditProductPage({ productId }: EditProductPageProps) {
                     barSteps={emptyBarSteps}
                     breadcrumbItems={breadcrumbItems}
                     accordionMode
-                    onDataChange={(data) => setPreviewData({
-                      name: data.name,
-                      price: data.price,
-                      coverImage: data.cover_preview,
-                      galleryImages: data.gallery_previews,
-                    })}
+                    onDataChange={(data) => {
+                      setStep1Snapshot(data);
+                      setPreviewData({
+                        name: data.name,
+                        price: data.price,
+                        coverImage: data.cover_preview,
+                        galleryImages: data.gallery_previews,
+                      });
+                    }}
                   />
                   <div className="px-6 pb-5 pt-4 border-t border-gray-100 flex justify-start">
                     <button
@@ -506,7 +554,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
                 >
                   <AddProductStep2
                     ref={step2Ref}
-                    previousData={formData.step1!}
+                    previousData={accordionStep1Previous!}
                     initialData={formData.step2}
                     onNext={() => {}}
                     onBack={() => {}}
@@ -538,8 +586,9 @@ export function EditProductPage({ productId }: EditProductPageProps) {
                   onToggle={() => toggleSection(3)}
                 >
                   <AddProductStep3
+                    key={`step3-cat-${accordionStep1Previous?.category_id ?? 0}`}
                     ref={step3Ref}
-                    previousData={formData.step1 as Step1FormData}
+                    previousData={accordionStep1Previous!}
                     initialData={formData.step3}
                     onNext={() => {}}
                     onBack={() => {}}
@@ -570,7 +619,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
                 >
                   <AddProductStep4
                     ref={step4Ref}
-                    previousData={formData.step1!}
+                    previousData={accordionStep1Previous!}
                     initialData={formData.step4}
                     onSave={async () => {}}
                     onBack={() => {}}
@@ -604,41 +653,16 @@ export function EditProductPage({ productId }: EditProductPageProps) {
           </div>
         </div>
 
-        {/* ── Bottom action bar ── */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 shadow-lg z-30">
-          <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => router.push(backUrl)}
-              className="px-6 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              رجوع
-            </button>
-
-            <button
-              type="button"
-              onClick={handleFinalSubmit}
-              disabled={isSubmitting || updateProductMutation.isPending}
-              className={cn(
-                "flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors",
-                "bg-blue-4 hover:bg-[#2c425e]",
-                (isSubmitting || updateProductMutation.isPending) && "opacity-60 cursor-not-allowed"
-              )}
-            >
-              {(isSubmitting || updateProductMutation.isPending) ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  جاري الحفظ...
-                </>
-              ) : (
-                <>
-                  حفظ التعديلات
-                  <ChevronLeft className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </div>
-        </div>
+        <ProductFormActions
+          sticky
+          onNext={handleFinalSubmit}
+          onBack={() => router.push(backUrl)}
+          nextLabel="حفظ التعديلات"
+          loadingLabel="جاري الحفظ..."
+          nextTrailing={<ChevronLeft className="w-5 h-5" />}
+          isSubmitting={isSubmitting || updateProductMutation.isPending}
+          showBack
+        />
       </div>
 
       <SuccessModal

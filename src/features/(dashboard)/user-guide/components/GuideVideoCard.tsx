@@ -28,7 +28,7 @@ export function GuideVideoCard({ location }: GuideVideoCardProps) {
 
     const video = data.record;
     const isLink = video.video_source === "link";
-    const embedUrl = isLink ? getEmbedUrl(video.video_url, true) : null;
+    const embedUrl = isLink ? getEmbedUrl(video.video_url, false) : null;
     const thumbnailSrc = video.thumbnail_url;
 
     return (
@@ -63,7 +63,7 @@ export function GuideVideoCard({ location }: GuideVideoCardProps) {
                             <iframe
                                 src={embedUrl}
                                 title={video.title}
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowFullScreen
                                 className="w-full h-full border-none"
                             />
@@ -71,7 +71,8 @@ export function GuideVideoCard({ location }: GuideVideoCardProps) {
                             <video
                                 src={video.video_url}
                                 controls
-                                autoPlay
+                                playsInline
+                                preload="metadata"
                                 className="w-full h-full object-contain"
                             />
                         )

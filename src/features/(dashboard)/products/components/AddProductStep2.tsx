@@ -77,7 +77,7 @@ export const AddProductStep2 = forwardRef<Step2Ref, AddProductStep2Props>(functi
   // Sync tags if initialData changes (e.g. AI generation finished)
   useEffect(() => {
     if (initialData?.tags && initialData.tags.length > 0) {
-      setFormData(prev => ({ ...prev, tags: initialData.tags }));
+      setFormData((prev) => ({ ...prev, tags: initialData.tags }));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(initialData?.tags)]);
@@ -193,25 +193,30 @@ export const AddProductStep2 = forwardRef<Step2Ref, AddProductStep2Props>(functi
     { label: "انشاء منتج جديد" },
   ];
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.store_id) {
-      newErrors.store_id = "يجب اختيار المتجر";
+  const scrollToFirstStep2Error = (errs: Record<string, string>) => {
+    const order = ["store_id", "section_id"] as const;
+    for (const key of order) {
+      if (errs[key]) {
+        requestAnimationFrame(() => {
+          const target =
+            document.querySelector(`[data-step2-anchor="${key}"]`) ||
+            document.querySelector("[data-step2-root]");
+          target?.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+        return;
+      }
     }
-    if (!formData.section_id) {
-      newErrors.section_id = "يجب اختيار القسم";
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = () => {
-    if (validate()) {
+    const newErrors: Record<string, string> = {};
+    if (!formData.store_id) newErrors.store_id = "يجب اختيار المتجر";
+    if (!formData.section_id) newErrors.section_id = "يجب اختيار القسم";
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length === 0) {
       onNext(formData);
     } else {
-      const firstError = Object.keys(errors)[0];
-      const element = document.querySelector(`[name="${firstError}"]`);
-      element?.scrollIntoView({ behavior: "smooth", block: "center" });
+      scrollToFirstStep2Error(newErrors);
     }
   };
 
@@ -289,7 +294,9 @@ export const AddProductStep2 = forwardRef<Step2Ref, AddProductStep2Props>(functi
       if (!formData.store_id) newErrors.store_id = "يجب اختيار المتجر";
       if (!formData.section_id) newErrors.section_id = "يجب اختيار القسم";
       setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
+      const ok = Object.keys(newErrors).length === 0;
+      if (!ok) scrollToFirstStep2Error(newErrors);
+      return ok;
     },
     getData: () => formData,
   }));
@@ -297,16 +304,16 @@ export const AddProductStep2 = forwardRef<Step2Ref, AddProductStep2Props>(functi
   // ── Accordion mode render ──
   if (accordionMode) {
     const formContent = (
-      <div className="space-y-8 p-6">
+      <div className="space-y-8 p-6" data-step2-root>
         {isAdmin && (
-          <div className="space-y-2">
+          <div className="space-y-2" data-step2-anchor="store_id">
             <Label className="text-sm font-medium flex items-center gap-1">إظهار المنتج في متجر <span className="text-red-500">*</span></Label>
             <ReusableDropdown options={storeOptions} value={formData.store_id ? String(formData.store_id) : ""} onChange={handleStoreChange} placeholder={isStoresLoading ? "جاري التحميل..." : "اختر المتجر..."} error={errors.store_id} className="h-11" onSearch={setStoreSearchQuery} searchPlaceholder="ابحث عن متجر..." onReachEnd={() => hasNextPage && fetchNextPage()} isLoadingMore={isFetchingNextPage} />
           </div>
         )}
 
         {formData.store_id > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-2" data-step2-anchor="section_id">
             <Label className="text-sm font-medium flex items-center gap-1">القسم <span className="text-red-500">*</span></Label>
             <ReusableDropdown options={sectionOptions} value={formData.section_id && formData.section_id > 0 ? String(formData.section_id) : null} onChange={(value) => setFormData({ ...formData, section_id: Number(value) })} placeholder={isSectionsLoading ? "جاري التحميل..." : "اختر القسم..."} error={errors.section_id} className="h-11" onAddNew={() => setIsAddSectionOpen(true)} addNewLabel="إضافة قسم جديد" onSearch={setSectionSearchQuery} searchPlaceholder="ابحث عن قسم..." />
           </div>
@@ -369,7 +376,7 @@ export const AddProductStep2 = forwardRef<Step2Ref, AddProductStep2Props>(functi
 
               <div className="space-y-8">
                 {isAdmin && (
-                  <div className="space-y-2">
+                  <div className="space-y-2" data-step2-anchor="store_id">
                     <Label className="text-sm font-medium flex items-center gap-1">
                       إظهار المنتج في متجر
                       <span className="text-red-500">*</span>
@@ -392,7 +399,7 @@ export const AddProductStep2 = forwardRef<Step2Ref, AddProductStep2Props>(functi
                 )}
 
                 {formData.store_id > 0 && (
-                  <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300" data-step2-anchor="section_id">
                     <Label className="text-sm font-medium flex items-center gap-1">
                       القسم
                       <span className="text-red-500">*</span>

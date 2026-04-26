@@ -1,8 +1,9 @@
 // src/features/(dashboard)/products/components/ProductFormActions.tsx
 "use client";
 
+import type { ReactNode } from "react";
 import { Button } from "@/src/components/ui/button";
-import { Bookmark } from "lucide-react";
+import { cn } from "@/src/lib/utils";
 
 interface ProductFormActionsProps {
     onNext: () => void;
@@ -12,10 +13,15 @@ interface ProductFormActionsProps {
     nextLabel?: string;
     backLabel?: string;
     cancelLabel?: string;
+    loadingLabel?: string;
+    /** محتوى بعد نص الزر الأساسي (مثل › في إضافة منتج) */
+    nextTrailing?: ReactNode;
     isSubmitting?: boolean;
     showBack?: boolean;
     showCancel?: boolean;
     showSaveDraft?: boolean;
+    /** شريط سفلي ثابت بنفس ظل وارتفاع أزرار التصميم القديم */
+    sticky?: boolean;
 }
 
 export function ProductFormActions({
@@ -26,19 +32,22 @@ export function ProductFormActions({
     nextLabel = "التالي",
     backLabel = "رجوع",
     cancelLabel = "إلغاء",
+    loadingLabel = "جاري الحفظ...",
+    nextTrailing,
     isSubmitting = false,
     showBack = true,
     showCancel = false,
     showSaveDraft = false,
+    sticky = false,
 }: ProductFormActionsProps) {
-    return (
-        <div className="flex gap-4 justify-between mt-6 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)] p-6">
+    const inner = (
+        <div className={cn("flex gap-4 justify-between", sticky ? "" : "mt-6", "p-6")}>
             <div className="flex items-center gap-3">
                 <Button
                     type="button"
                     onClick={onNext}
                     disabled={isSubmitting}
-                    className="px-12 py-5 cursor-pointer rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-12 py-5 cursor-pointer rounded-sm disabled:opacity-50 disabled:cursor-not-allowed text-base font-medium"
                     style={{ backgroundColor: "var(--blue-3)" }}
                 >
                     {isSubmitting ? (
@@ -59,10 +68,13 @@ export function ProductFormActions({
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 />
                             </svg>
-                            جاري الحفظ...
+                            {loadingLabel}
                         </span>
                     ) : (
-                        nextLabel
+                        <span className="inline-flex items-center gap-2">
+                            {nextLabel}
+                            {nextTrailing}
+                        </span>
                     )}
                 </Button>
 
@@ -105,6 +117,20 @@ export function ProductFormActions({
                     </Button>
                 )}
             </div>
+        </div>
+    );
+
+    if (sticky) {
+        return (
+            <div className="sticky bottom-0 left-0 right-0 z-30 w-full bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+                <div className="container mx-auto max-w-full">{inner}</div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+            <div className="container mx-auto max-w-full">{inner}</div>
         </div>
     );
 }

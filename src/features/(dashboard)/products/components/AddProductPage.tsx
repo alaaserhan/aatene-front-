@@ -19,11 +19,22 @@ import {
 } from "../types";
 import { toast } from "sonner";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { ProductFormActions } from "./ProductFormActions";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
-import { cn } from "@/src/lib/utils";
 import { CheckCircle2, PlusCircle, MinusCircle, ChevronLeft } from "lucide-react";
+
+/** نص الوصف من HTML (للـ AI) حتى لا يُعتبر الحقل «فارغاً» عند وجود وسوم فقط */
+function plainTextFromHtml(html: string): string {
+  if (!html) return "";
+  if (typeof document === "undefined") {
+    return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  }
+  const d = document.createElement("div");
+  d.innerHTML = html;
+  return (d.textContent || "").trim();
+}
 
 // ── Accordion Section Component ──
 interface AccordionSectionProps {
@@ -95,6 +106,25 @@ export function AddProductPage() {
     galleryImages: string[];
   }>({ name: "", price: 0, coverImage: "", galleryImages: [] });
 
+  /** نسخة حية من بيانات الخطوة 1 — مطلوبة لـ previousData في الخطوات 2–4 (خصوصاً category_id للاختلافات) */
+  const [step1Snapshot, setStep1Snapshot] = useState<Step1FormData | null>(null);
+
+  const accordionStep1Previous = useMemo((): Step1FormData => {
+    if (step1Snapshot) return step1Snapshot;
+    return {
+      name: previewData.name,
+      price: previewData.price,
+      cover: "",
+      cover_preview: previewData.coverImage,
+      gallery: [],
+      gallery_previews: previewData.galleryImages,
+      condition: "new",
+      category_id: 0,
+      short_description: "",
+      description: "",
+    };
+  }, [step1Snapshot, previewData]);
+
   const generateAIMutation = useGenerateProductAI();
   const isGeneratingAI = generateAIMutation.isPending;
   const [aiKeywords, setAiKeywords] = useState<string[]>([]);
@@ -125,12 +155,14 @@ export function AddProductPage() {
             label: "نعم، استكمل",
             onClick: () => {
               if (parsedDraft.step1) {
+                const s1 = parsedDraft.step1 as Step1FormData;
                 setPreviewData({
-                  name: parsedDraft.step1.name || "",
-                  price: parsedDraft.step1.price || 0,
-                  coverImage: parsedDraft.step1.cover_preview || "",
-                  galleryImages: parsedDraft.step1.gallery_previews || [],
+                  name: s1.name || "",
+                  price: s1.price || 0,
+                  coverImage: s1.cover_preview || "",
+                  galleryImages: s1.gallery_previews || [],
                 });
+                setStep1Snapshot(s1);
               }
               toast.dismiss();
             },
@@ -158,6 +190,7 @@ export function AddProductPage() {
   };
 
   const handleStep1DataChange = (data: Step1FormData) => {
+    setStep1Snapshot(data);
     setPreviewData({
       name: data.name || "",
       price: data.price || 0,
@@ -168,18 +201,33 @@ export function AddProductPage() {
 
   const handleGenerateAI = async (step1Data: Step1FormData) => {
     const title = step1Data.name.trim();
-    const description = step1Data.description.trim();
-    if (!title && !description) return;
+    const descPlain = plainTextFromHtml(step1Data.description || "");
+    if (!title && !descPlain) return;
 
     try {
-      const data = await generateAIMutation.mutateAsync({ title, description, type: "product" });
+      const data = await generateAIMutation.mutateAsync({
+        title,
+        description: descPlain || step1Data.description.trim(),
+        type: "product",
+      });
 
-      if (data.results?.keywords && data.results.keywords.length > 0) {
-        setAiKeywords(data.results.keywords);
-        setInitialStep2Data({
-          store_id: Number(storeId) || 0,
-          tags: data.results.keywords,
-        } as Step2FormData);
+      const raw =
+        data.results?.keywords ??
+        (data as { keywords?: string[] }).keywords;
+      const keywords = Array.isArray(raw) ? raw.filter((k): k is string => typeof k === "string" && k.trim().length > 0) : [];
+      if (keywords.length > 0) {
+        setAiKeywords(keywords);
+        setInitialStep2Data((prev) =>
+          ({
+            ...(prev ?? {
+              store_id: Number(storeId) || 0,
+              tags: [],
+              ...(sectionIdFromUrl ? { section_id: Number(sectionIdFromUrl) } : {}),
+            }),
+            store_id: Number(storeId) || prev?.store_id || 0,
+            tags: keywords,
+          }) as Step2FormData
+        );
       }
     } catch {
       /* AI errors are non-blocking */
@@ -189,16 +237,22 @@ export function AddProductPage() {
   const handleFinalSubmit = async () => {
     // Validate step1 and step2
     const step1Valid = step1Ref.current?.validate() ?? false;
-    const step2Valid = step2Ref.current?.validate() ?? false;
 
     if (!step1Valid) {
       setOpenSections(prev => new Set([...prev, 1]));
       toast.error("يرجى إكمال المعلومات الأساسية");
       return;
     }
+    const step2Valid = step2Ref.current?.validate() ?? false;
     if (!step2Valid) {
       setOpenSections(prev => new Set([...prev, 2]));
       toast.error("يرجى إكمال المعلومات المتقدمة");
+      return;
+    }
+    const step3Valid = step3Ref.current?.validate() ?? true;
+    if (!step3Valid) {
+      setOpenSections(prev => new Set([...prev, 3]));
+      toast.error("يرجى إكمال بيانات الاختلافات والكميات");
       return;
     }
 
@@ -275,23 +329,34 @@ export function AddProductPage() {
     switch (sectionNum) {
       case 1: {
         const isValid = step1Ref.current?.validate() ?? false;
-        if (isValid) {
-          const data = step1Ref.current?.getData();
-          setCompletedSections(prev => new Set([...prev, 1]));
-          setOpenSections(prev => { const s = new Set([...prev, 2]); s.delete(1); return s; });
-          if (data) handleGenerateAI(data);
+        if (!isValid) {
+          setOpenSections(prev => new Set([...prev, 1]));
+          break;
         }
+        const data = step1Ref.current?.getData();
+        if (data) setStep1Snapshot(data);
+        setCompletedSections(prev => new Set([...prev, 1]));
+        setOpenSections(prev => { const s = new Set([...prev, 2]); s.delete(1); return s; });
+        if (data) handleGenerateAI(data);
         break;
       }
       case 2: {
         const isValid = step2Ref.current?.validate() ?? false;
-        if (isValid) {
-          setCompletedSections(prev => new Set([...prev, 2]));
-          setOpenSections(prev => { const s = new Set([...prev, 3]); s.delete(2); return s; });
+        if (!isValid) {
+          setOpenSections(prev => new Set([...prev, 2]));
+          break;
         }
+        setCompletedSections(prev => new Set([...prev, 2]));
+        setOpenSections(prev => { const s = new Set([...prev, 3]); s.delete(2); return s; });
         break;
       }
       case 3: {
+        const step3Valid = step3Ref.current?.validate() ?? true;
+        if (!step3Valid) {
+          setOpenSections(prev => new Set([...prev, 3]));
+          toast.error("يرجى إكمال بيانات الاختلافات والكميات");
+          break;
+        }
         setCompletedSections(prev => new Set([...prev, 3]));
         setOpenSections(prev => { const s = new Set([...prev, 4]); s.delete(3); return s; });
         break;
@@ -356,7 +421,7 @@ export function AddProductPage() {
                 >
                   <AddProductStep2
                     ref={step2Ref}
-                    previousData={{ name: previewData.name, price: previewData.price, cover: "", cover_preview: previewData.coverImage, gallery: [], gallery_previews: previewData.galleryImages, condition: "new", category_id: 0, short_description: "", description: "" }}
+                    previousData={accordionStep1Previous}
                     initialData={initialStep2Data as any}
                     onNext={() => {}}
                     onBack={() => {}}
@@ -387,8 +452,9 @@ export function AddProductPage() {
                   onToggle={() => toggleSection(3)}
                 >
                   <AddProductStep3
+                    key={`step3-cat-${accordionStep1Previous.category_id || 0}`}
                     ref={step3Ref}
-                    previousData={{ name: previewData.name, price: previewData.price, cover: "", cover_preview: previewData.coverImage, gallery: [], gallery_previews: previewData.galleryImages, condition: "new", category_id: 0, short_description: "", description: "" }}
+                    previousData={accordionStep1Previous}
                     onNext={() => {}}
                     onBack={() => {}}
                     barSteps={emptyBarSteps}
@@ -417,7 +483,7 @@ export function AddProductPage() {
                 >
                   <AddProductStep4
                     ref={step4Ref}
-                    previousData={{ name: previewData.name, price: previewData.price, cover: "", cover_preview: previewData.coverImage, gallery: [], gallery_previews: previewData.galleryImages, condition: "new", category_id: 0, short_description: "", description: "" }}
+                    previousData={accordionStep1Previous}
                     onSave={async () => {}}
                     onBack={() => {}}
                     barSteps={emptyBarSteps}
@@ -449,41 +515,18 @@ export function AddProductPage() {
           </div>
         </div>
 
-        {/* ── Bottom action bar ── */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 shadow-lg z-30">
-          <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => router.push(storeIdFromUrl ? `/admin/productProviders/${storeIdFromUrl}` : "/admin/products")}
-              className="px-6 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              رجوع
-            </button>
-
-            <button
-              type="button"
-              onClick={handleFinalSubmit}
-              disabled={isSubmitting || createProductMutation.isPending}
-              className={cn(
-                "flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors",
-                "bg-blue-4 hover:bg-[#2c425e]",
-                (isSubmitting || createProductMutation.isPending) && "opacity-60 cursor-not-allowed"
-              )}
-            >
-              {(isSubmitting || createProductMutation.isPending) ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  جاري الإرسال...
-                </>
-              ) : (
-                <>
-                  تسليم للمراجعة
-                  <span className="text-lg leading-none">›</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
+        <ProductFormActions
+          sticky
+          onNext={handleFinalSubmit}
+          onBack={() =>
+            router.push(storeIdFromUrl ? `/admin/productProviders/${storeIdFromUrl}` : "/admin/products")
+          }
+          nextLabel="تسليم للمراجعة"
+          loadingLabel="جاري الإرسال..."
+          nextTrailing={<span className="text-lg leading-none">›</span>}
+          isSubmitting={isSubmitting || createProductMutation.isPending}
+          showBack
+        />
       </div>
 
       <SuccessModal
