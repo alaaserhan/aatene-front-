@@ -236,6 +236,14 @@ export const blockUser = async (payload: BlockUserPayload, ignoreCookie: boolean
     return data;
 };
 
+export const updateConversation = async (id: number | string, payload: { name?: string }, ignoreCookie: boolean = false): Promise<{ status: boolean; message: string; conversation: Conversation }> => {
+    const headers = getHeaders(undefined, ignoreCookie);
+    const { data } = await api.patch<{ status: boolean; message: string; conversation: Conversation }>(`/conversations/${id}`, payload, {
+        headers,
+    });
+    return data;
+};
+
 export const deleteConversation = async (id: number | string, ignoreCookie: boolean = false): Promise<{ status: boolean; message: string }> => {
     const headers = getHeaders(undefined, ignoreCookie);
     const { data } = await api.delete<{ status: boolean; message: string }>(`/conversations/${id}`, {
@@ -329,6 +337,46 @@ export interface GetConversationFilesResponse {
 export const getConversationFiles = async (conversationId: number | string, ignoreCookie: boolean = false): Promise<GetConversationFilesResponse> => {
     const headers = getHeaders(undefined, ignoreCookie);
     const { data } = await api.get<GetConversationFilesResponse>(`/conversations/${conversationId}/files`, {
+        headers,
+    });
+    return data;
+};
+
+export interface UnblockUserPayload {
+    blocked_type: "user" | "store";
+    blocked_id: number | string;
+}
+
+export const unblockUser = async (payload: UnblockUserPayload, ignoreCookie: boolean = false): Promise<{ status: boolean; message: string }> => {
+    const headers = getHeaders(undefined, ignoreCookie);
+    const { data } = await api.delete<{ status: boolean; message: string }>("/blocks/unblock", {
+        headers,
+        data: payload,
+    });
+    return data;
+};
+
+export interface BlockedUser {
+    id: number;
+    blocker_type: string;
+    blocker_id: number;
+    blocked_type: string;
+    blocked_id: number;
+    reason: string | null;
+    created_at: string;
+    updated_at: string;
+    blocked_data: ParticipantData;
+}
+
+export interface GetBlockedUsersResponse {
+    status: boolean;
+    message: string;
+    blocks: BlockedUser[];
+}
+
+export const getBlockedUsers = async (ignoreCookie: boolean = false): Promise<GetBlockedUsersResponse> => {
+    const headers = getHeaders(undefined, ignoreCookie);
+    const { data } = await api.get<GetBlockedUsersResponse>("/blocks/blocked-users", {
         headers,
     });
     return data;
