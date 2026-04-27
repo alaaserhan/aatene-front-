@@ -92,7 +92,7 @@ export function AddKnowledgePage() {
                     type="file"
                     className="hidden"
                     onChange={handleChange}
-                    accept=".pdf,.csv,.docx"
+                    accept=".pdf,.doc,.docx,.txt"
                   />
 
                   <div className="flex items-center justify-center mb-4">
@@ -103,7 +103,7 @@ export function AddKnowledgePage() {
                     تصفح أو اسحب وأسقط الملف هنا
                   </p>
                   <p className="text-gray-2 text-sm">
-                    يدعم ملفات PDF, CSV, DOCS بحجم يصل إلى 0.5 ميجابايت وبحد اقصى 50
+                    يدعم ملفات PDF, DOC, DOCX, TXT بحجم يصل إلى 10 ميجابايت
                   </p>
                 </div>
               ) : (

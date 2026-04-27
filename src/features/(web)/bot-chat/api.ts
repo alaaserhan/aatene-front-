@@ -1,6 +1,7 @@
 import api from "@/src/lib/axios";
 import {
     GetCurrentConversationResponse,
+    GetUserConversationsResponse,
     StartConversationResponse,
     SendMessageResponse,
     GetMessagesResponse,
@@ -12,6 +13,13 @@ const BASE = "/ai-support/user/conversations";
 
 export const getCurrentConversation = async (platform: string = "web"): Promise<GetCurrentConversationResponse> => {
     const { data } = await api.get<GetCurrentConversationResponse>(`${BASE}/current`, {
+        headers: { platform },
+    });
+    return data;
+};
+
+export const getUserConversations = async (platform: string = "web"): Promise<GetUserConversationsResponse> => {
+    const { data } = await api.get<GetUserConversationsResponse>(BASE, {
         headers: { platform },
     });
     return data;

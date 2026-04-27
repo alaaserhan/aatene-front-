@@ -504,6 +504,7 @@ export interface WebAnalyticsResponse {
 
 export interface GetWebConversationsParams {
     state?: WebConversationState;
+    unresolved_human_support?: boolean;
 }
 
 export interface GetWebMessagesParams {
@@ -517,6 +518,7 @@ const WEB_ADMIN_BASE = "/ai-support/admin";
 export const getWebConversations = async (params?: GetWebConversationsParams): Promise<WebConversationsResponse> => {
     const queryParams = new URLSearchParams();
     if (params?.state) queryParams.set("state", params.state);
+    if (params?.unresolved_human_support) queryParams.set("unresolved_human_support", "1");
     const qs = queryParams.toString();
     const { data } = await mainApi.get<WebConversationsResponse>(`${WEB_ADMIN_BASE}/conversations${qs ? `?${qs}` : ""}`);
     return data;
@@ -596,12 +598,17 @@ export const getKnowledgeBank = async (): Promise<KnowledgeBankListResponse> => 
     return data;
 };
 
-export const uploadKnowledge = async (file: File): Promise<KnowledgeBankUploadResponse> => {
+export const uploadKnowledge = async (file: File, platform: string = "web"): Promise<KnowledgeBankUploadResponse> => {
     const formData = new FormData();
     formData.append("file", file);
-    const { data } = await mainApi.post<KnowledgeBankUploadResponse>(`${WEB_ADMIN_BASE}/knowledge-bank`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-    });
+    formData.append("platform", platform);
+    const { data } = await mainApi.post<KnowledgeBankUploadResponse>(
+        `${WEB_ADMIN_BASE}/knowledge-bank`,
+        formData,
+        {
+            headers: { "Content-Type": "multipart/form-data" },
+        }
+    );
     return data;
 };
 
@@ -691,7 +698,7 @@ export const deleteAdminMissedQuestion = async (id: number): Promise<{ status: b
 };
 
 export const webEndConversation = async (conversationId: number): Promise<WebResolveResponse> => {
-    const { data } = await mainApi.patch<WebResolveResponse>(
+    const { data } = await mainApi.post<WebResolveResponse>(
         `${WEB_ADMIN_BASE}/conversations/${conversationId}/end`
     );
     return data;
@@ -701,5 +708,57 @@ export const webDeleteConversation = async (conversationId: number): Promise<{ s
     const { data } = await mainApi.delete<{ status: boolean; message: string }>(
         `${WEB_ADMIN_BASE}/conversations/${conversationId}`
     );
+    return data;
+};
+
+// ─── Analytics (User-level) ───────────────────────────────────────────────────
+
+export interface UserAnalyticsSummary {
+    user_id: number;
+    name: string;
+    total_conversations: number;
+    total_messages: number;
+    average_rating: number | null;
+}
+
+export interface UserAnalyticsResponse {
+    status: boolean;
+    message: string;
+    data: UserAnalyticsSummary[];
+}
+
+export interface SingleUserAnalyticsResponse {
+    status: boolean;
+    message: string;
+    data: UserAnalyticsSummary & Record<string, unknown>;
+}
+
+export interface UserAnalyticsReview {
+    rate: number;
+    rate_time: string;
+    rate_text: string | null;
+}
+
+export interface UserAnalyticsReviewsResponse {
+    status: boolean;
+    message: string;
+    total: number;
+    rateing: UserAnalyticsReview[];
+}
+
+export const getUserAnalytics = async (params?: Record<string, string>): Promise<UserAnalyticsResponse> => {
+    const qs = params ? `?${new URLSearchParams(params).toString()}` : "";
+    const { data } = await mainApi.get<UserAnalyticsResponse>(`${WEB_ADMIN_BASE}/analytics/users${qs}`);
+    return data;
+};
+
+export const getSingleUserAnalytics = async (userId: number): Promise<SingleUserAnalyticsResponse> => {
+    const { data } = await mainApi.get<SingleUserAnalyticsResponse>(`${WEB_ADMIN_BASE}/analytics/users/${userId}`);
+    return data;
+};
+
+export const getUserAnalyticsReviews = async (userId: number, params?: { per_page?: number }): Promise<UserAnalyticsReviewsResponse> => {
+    const qs = params?.per_page ? `?per_page=${params.per_page}` : "";
+    const { data } = await mainApi.get<UserAnalyticsReviewsResponse>(`${WEB_ADMIN_BASE}/analytics/users/${userId}/reviews${qs}`);
     return data;
 };

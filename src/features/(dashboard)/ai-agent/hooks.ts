@@ -284,7 +284,7 @@ export function useDeleteAdminMissedQuestion() {
 
 export function useGetWebConversations(params?: api.GetWebConversationsParams) {
     return useQuery({
-        queryKey: ["web-conversations", params?.state],
+        queryKey: ["web-conversations", params?.state, params?.unresolved_human_support],
         queryFn: () => api.getWebConversations(params),
         refetchInterval: 30000,
     });
@@ -388,6 +388,29 @@ export function useGetWebAnalytics() {
     });
 }
 
+export function useGetUserAnalytics(params?: Record<string, string>) {
+    return useQuery({
+        queryKey: ["web-analytics-users", params],
+        queryFn: () => api.getUserAnalytics(params),
+    });
+}
+
+export function useGetSingleUserAnalytics(userId: number) {
+    return useQuery({
+        queryKey: ["web-analytics-user", userId],
+        queryFn: () => api.getSingleUserAnalytics(userId),
+        enabled: !!userId,
+    });
+}
+
+export function useGetUserAnalyticsReviews(userId: number, params?: { per_page?: number }) {
+    return useQuery({
+        queryKey: ["web-analytics-user-reviews", userId, params],
+        queryFn: () => api.getUserAnalyticsReviews(userId, params),
+        enabled: !!userId,
+    });
+}
+
 // ─── Knowledge Bank ───────────────────────────────────────────────────────────
 
 export function useGetKnowledgeBank() {
@@ -400,7 +423,7 @@ export function useGetKnowledgeBank() {
 export function useUploadKnowledge() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: api.uploadKnowledge,
+        mutationFn: (file: File) => api.uploadKnowledge(file, "web"),
         onSuccess: (data) => {
             toast.success(data.message || "تم رفع الملف بنجاح");
             queryClient.invalidateQueries({ queryKey: ["knowledge-bank"] });
