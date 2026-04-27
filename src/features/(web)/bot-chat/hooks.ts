@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
 import {
     getCurrentConversation,
+    getUserConversations,
     startConversation,
     sendMessage,
     getMessages,
@@ -17,6 +18,16 @@ export const useCurrentConversation = (enabled = true) => {
     return useQuery({
         queryKey: ["botChat", "currentConversation"],
         queryFn: () => getCurrentConversation("web"),
+        enabled: enabled && isLoggedIn,
+    });
+};
+
+export const useUserConversations = (enabled = true) => {
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+    return useQuery({
+        queryKey: ["botChat", "conversations"],
+        queryFn: () => getUserConversations("web"),
         enabled: enabled && isLoggedIn,
     });
 };

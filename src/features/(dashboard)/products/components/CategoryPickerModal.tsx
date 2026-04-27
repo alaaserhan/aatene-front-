@@ -2,8 +2,9 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight, Search, Loader2 } from "lucide-react";
-import { useGetCategories } from "../../categoriesAndAttributes/hooks";
-import { Category } from "../../categoriesAndAttributes/api";
+import { useQuery } from "@tanstack/react-query";
+import { useGetParentCategories, useGetSubCategories } from "../../categoriesAndAttributes/hooks";
+import { Category, CategorySelectOption, getCategoryOptions } from "../../categoriesAndAttributes/api";
 import { cn } from "@/src/lib/utils";
 
 interface CategoryPickerModalProps {
@@ -54,29 +55,58 @@ export function CategoryPickerModal({
       ? navigationStack[navigationStack.length - 1].id
       : null;
 
-  // عند وجود بحث: يبحث في كل الفئات (global)
-  // عند غياب البحث: يعرض المستوى الحالي فقط
-  const params = useMemo(() => {
+  const isSearchMode = debouncedSearch.trim().length > 0;
+
+  // ── Browse mode: فئات رئيسية ──
+  const parentParams = useMemo(() => {
     const p = new URLSearchParams();
     p.set("type", type);
-    p.set("per_page", "100");
-    p.set("is_active", "1");
-
-    if (debouncedSearch) {
-      // بحث عام بدون قيود المستوى
-      p.set("name", debouncedSearch);
-    } else if (currentParentId) {
-      p.set("parent_id", String(currentParentId));
-      p.set("only_sub_categories", "true");
-    } else {
-      p.set("only_parent", "true");
-    }
-
     return p;
-  }, [debouncedSearch, currentParentId, type]);
+  }, [type]);
 
-  const { data, isLoading } = useGetCategories(params, { enabled: isOpen });
-  const categories = data?.data ?? [];
+  const { data: parentData, isLoading: isLoadingParents } = useGetParentCategories(
+    parentParams,
+    { enabled: isOpen && !isSearchMode && currentParentId === null }
+  );
+
+  // ── Browse mode: فئات فرعية ──
+  const { data: subData, isLoading: isLoadingSubs } = useGetSubCategories(
+    currentParentId ?? 0,
+    type,
+    { enabled: isOpen && !isSearchMode && currentParentId !== null }
+  );
+
+  // ── Search mode: /categories/select — يُرجع الفئات الورقية فقط مع full_name ──
+  const searchParams = useMemo(() => {
+    const p = new URLSearchParams();
+    p.set("type", type);
+    if (debouncedSearch) p.set("name", debouncedSearch);
+    return p;
+  }, [debouncedSearch, type]);
+
+  const { data: searchData, isLoading: isLoadingSearch } = useQuery({
+    queryKey: ["categories", "select", searchParams.toString()],
+    queryFn: () => getCategoryOptions(searchParams),
+    enabled: isOpen && isSearchMode,
+  });
+
+  // ── القائمة النشطة ──
+  const isLoading = isSearchMode
+    ? isLoadingSearch
+    : currentParentId === null
+    ? isLoadingParents
+    : isLoadingSubs;
+
+  // في Browse mode نستخدم Category[], في Search mode نستخدم CategorySelectOption[]
+  const browseCategories: Category[] = useMemo(() => {
+    if (isSearchMode) return [];
+    if (currentParentId === null) return parentData?.data ?? [];
+    return subData?.data ?? [];
+  }, [isSearchMode, currentParentId, parentData, subData]);
+
+  const searchResults: CategorySelectOption[] = useMemo(() => {
+    return searchData?.categories ?? [];
+  }, [searchData]);
 
   const handleCategoryClick = (cat: Category) => {
     const hasChildren = Number(cat.sub_categories_count ?? 0) > 0;
@@ -89,15 +119,20 @@ export function CategoryPickerModal({
       setSelectedFullName("");
     } else {
       setSelectedId(cat.id);
-      // بناء المسار الكامل: من السجل أو من navigationStack + اسم الفئة
       const fullPath =
         cat.full_name && cat.full_name !== cat.name
           ? cat.full_name
           : navigationStack.length > 0
-          ? [...navigationStack.map((n) => n.name), cat.name].join(" > ")
+          ? [...navigationStack.map((n) => n.name), cat.name].join(" < ")
           : cat.name;
       setSelectedFullName(fullPath);
     }
+  };
+
+  const handleSearchResultClick = (cat: CategorySelectOption) => {
+    setSelectedId(cat.id);
+    // name في /categories/select هو full_name من الباك اند
+    setSelectedFullName(cat.name);
   };
 
   const handleBack = () => {
@@ -206,46 +241,88 @@ export function CategoryPickerModal({
             <div className="flex justify-center items-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-[#406896]" />
             </div>
-          ) : categories.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-              <Search className="w-8 h-8 mb-2 opacity-30" />
-              <p className="text-sm">لا توجد نتائج مطابقة</p>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {categories.map((cat: Category) => {
-                const hasChildren = Number(cat.sub_categories_count ?? 0) > 0;
-                const isSelected = selectedId === cat.id;
+          ) : isSearchMode ? (
+            /* ── Search results from /categories/select ── */
+            searchResults.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                <Search className="w-8 h-8 mb-2 opacity-30" />
+                <p className="text-sm">لا توجد نتائج مطابقة</p>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                {searchResults.map((cat: CategorySelectOption) => {
+                  const isSelected = selectedId === cat.id;
+                  // name هو full_name من الباك اند — نأخذ آخر جزء كاسم مختصر
+                  const parts = cat.name.split(" > ");
+                  const shortName = parts[parts.length - 1];
+                  const parentPath = parts.slice(0, -1).join(" < ");
 
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => handleCategoryClick(cat)}
-                    className={cn(
-                      "w-full flex items-center justify-between px-4 py-3.5 rounded-lg text-sm text-right transition-colors",
-                      isSelected
-                        ? "bg-[#EDF3FA] text-[#406896] border border-[#c8d7e8]"
-                        : hasChildren
-                        ? "bg-white hover:bg-gray-50 text-gray-800 border border-gray-100"
-                        : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-100"
-                    )}
-                  >
-                    <div className="flex flex-col items-start gap-0.5 min-w-0">
-                      <span className="font-medium">{cat.name}</span>
-                      {debouncedSearch && cat.full_name && cat.full_name !== cat.name && (
-                        <span className="text-xs text-gray-400 truncate w-full">
-                          {cat.full_name}
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => handleSearchResultClick(cat)}
+                      className={cn(
+                        "w-full flex items-center justify-between px-4 py-3.5 rounded-lg text-sm text-right transition-colors",
+                        isSelected
+                          ? "bg-[#EDF3FA] text-[#406896] border border-[#c8d7e8]"
+                          : "bg-white hover:bg-gray-50 text-gray-800 border border-gray-100"
+                      )}
+                    >
+                      <div className="flex flex-col items-start gap-0.5 min-w-0">
+                        <span className="font-medium">{shortName}</span>
+                        {parentPath && (
+                          <span className="text-xs text-gray-400 truncate w-full">
+                            {parentPath}
+                          </span>
+                        )}
+                      </div>
+                      {isSelected && (
+                        <span className="w-4 h-4 rounded-full bg-[#406896] flex items-center justify-center shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white" />
                         </span>
                       )}
-                    </div>
-                    {/* السهم فقط للفئات التي بداخلها فروع */}
-                    {hasChildren && (
-                      <ChevronLeft className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )
+          ) : (
+            /* ── Browse mode ── */
+            browseCategories.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                <Search className="w-8 h-8 mb-2 opacity-30" />
+                <p className="text-sm">لا توجد فئات</p>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                {browseCategories.map((cat: Category) => {
+                  const hasChildren = Number(cat.sub_categories_count ?? 0) > 0;
+                  const isSelected = selectedId === cat.id;
+
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => handleCategoryClick(cat)}
+                      className={cn(
+                        "w-full flex items-center justify-between px-4 py-3.5 rounded-lg text-sm text-right transition-colors",
+                        isSelected
+                          ? "bg-[#EDF3FA] text-[#406896] border border-[#c8d7e8]"
+                          : "bg-white hover:bg-gray-50 text-gray-800 border border-gray-100"
+                      )}
+                    >
+                      <span className="font-medium">{cat.name}</span>
+                      {hasChildren ? (
+                        <ChevronLeft className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      ) : isSelected ? (
+                        <span className="w-4 h-4 rounded-full bg-[#406896] flex items-center justify-center shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                        </span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
+            )
           )}
         </div>
 

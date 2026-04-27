@@ -11,6 +11,7 @@ export interface Conversation {
     platform: string;
     state: "active" | "awaiting_rating" | "resolved" | "waiting" | "with_agent";
     needs_human: boolean;
+    is_reviewed: boolean;
     user: ConversationUser | null;
     latest_message: ConversationMessage | null;
     last_message_at: string | null;
@@ -85,4 +86,11 @@ export interface SubmitRatingResponse {
     status: boolean;
     message: string;
     data: ConversationReview;
+}
+
+export interface GetUserConversationsResponse {
+    status: boolean;
+    message: string;
+    total: number;
+    conversations: Conversation[];
 }
