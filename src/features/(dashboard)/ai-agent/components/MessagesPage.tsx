@@ -18,7 +18,7 @@ export function MessagesPage() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const activePlatform = searchParams.get("platform") || "whatsapp";
+    const activePlatform = searchParams.get("platform") || "website";
     const selectedChatId = searchParams.get("chatId");
 
     const [showNeedsHuman, setShowNeedsHuman] = useState(false);
