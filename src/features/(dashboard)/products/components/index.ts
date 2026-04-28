@@ -1,13 +1,9 @@
 export { AddProductPage } from "./AddProductPage";
 export { EditProductPage } from "./EditProductPage";
 export { AddProductStep1 } from "./AddProductStep1";
-export type { Step1Ref } from "./AddProductStep1";
 export { AddProductStep2 } from "./AddProductStep2";
-export type { Step2Ref } from "./AddProductStep2";
 export { AddProductStep3 } from "./AddProductStep3";
-export type { Step3Ref } from "./AddProductStep3";
 export { AddProductStep4 } from "./AddProductStep4";
-export type { Step4Ref } from "./AddProductStep4";
 export { ProductsPage } from "./ProductsPage";
 export { ProductTable } from "./ProductTable";
 export { ProductEmptyState } from "./ProductEmptyState";
