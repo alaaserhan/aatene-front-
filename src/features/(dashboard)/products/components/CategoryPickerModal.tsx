@@ -174,10 +174,7 @@ export function CategoryPickerModal({
           </button>
 
           {/* العنوان + أيقونة التنقل */}
-          <div className="flex-1 flex items-center justify-end gap-2 pr-1 pl-10">
-            <h2 className="text-base font-semibold text-gray-900">
-              اختر الفئة المناسبة للمنتج
-            </h2>
+          <div className="flex-1 flex items-center justify-start gap-2 pr-1 pl-10">
             {navigationStack.length > 0 ? (
               <button
                 onClick={handleBack}
@@ -189,6 +186,9 @@ export function CategoryPickerModal({
             ) : (
               <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
             )}
+            <h2 className="text-base font-semibold text-gray-900">
+              اختر الفئة المناسبة للمنتج
+            </h2>
           </div>
         </div>
 

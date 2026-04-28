@@ -1,25 +1,20 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { HelpCircle, ChevronDown } from "lucide-react";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { ProductFormActions } from "./ProductFormActions";
 import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
-import { FormInput } from "@/src/components/ui/FormInput";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
 import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
 import { Step1FormData } from "../types";
 import { cn } from "@/src/lib/utils";
 import { CategoryPickerModal } from "./CategoryPickerModal";
 import { Stepper } from "@/src/components/ui/Stepper";
-
-export interface Step1Ref {
-  validate: () => boolean;
-  getData: () => Step1FormData;
-}
 
 interface AddProductStep1Props {
   initialData?: Step1FormData;
@@ -31,8 +26,6 @@ interface AddProductStep1Props {
   breadcrumbItems?: { label: string; href?: string }[];
   onStepClick?: (step: number) => void;
   showSaveDraft?: boolean;
-  accordionMode?: boolean;
-  onDataChange?: (data: Step1FormData) => void;
 }
 
 const CONDITION_OPTIONS = [
@@ -66,7 +59,7 @@ const Tooltip = ({
   );
 };
 
-export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(function AddProductStep1({
+export function AddProductStep1({
   initialData,
   onNext,
   onCancel,
@@ -75,9 +68,7 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
   breadcrumbItems,
   onStepClick,
   showSaveDraft = true,
-  accordionMode = false,
-  onDataChange,
-}, ref) {
+}: AddProductStep1Props) {
   const [formData, setFormData] = useState<Step1FormData>({
     category_id: initialData?.category_id || 0,
     category_name: initialData?.category_name || "",
@@ -102,7 +93,14 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
     { label: "انشاء منتج جديد" },
   ];
 
-  const isCategorySelected = formData.category_id !== 0 && !!formData.category_name;
+  const handleCategorySelect = (categoryId: number, categoryName: string) => {
+    setFormData({ ...formData, category_id: categoryId, category_name: categoryName });
+    if (errors.category_id) {
+      const newErrors = { ...errors };
+      delete newErrors.category_id;
+      setErrors(newErrors);
+    }
+  };
 
   // Sync with initialData if it changes (e.g. from AI)
   useEffect(() => {
@@ -130,7 +128,7 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
       hasChanges = true;
     }
 
-    if (errors.category_id && formData.category_id) {
+    if (errors.category_id === "الفئة مطلوبة" && formData.category_id) {
       delete newErrors.category_id;
       hasChanges = true;
     }
@@ -155,37 +153,42 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
   }, [formData, errors]);
   // --------------------------------------------------
 
-  const STEP1_SCROLL_ORDER = ["cover", "name", "price", "category_id", "description"] as const;
-
-  const scrollToFirstStep1Error = (errs: Record<string, string>) => {
-    for (const key of STEP1_SCROLL_ORDER) {
-      if (errs[key]) {
-        requestAnimationFrame(() => {
-          document
-            .querySelector(`[data-step1-anchor="${key}"]`)
-            ?.scrollIntoView({ behavior: "smooth", block: "center" });
-        });
-        return;
-      }
-    }
-  };
-
-  const validateStep1Fields = (): boolean => {
+  const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.name.trim()) newErrors.name = "اسم المنتج مطلوب";
-    if (!formData.description.trim()) newErrors.description = "وصف المنتج مطلوب";
-    if (!formData.cover) newErrors.cover = "صورة المنتج مطلوبة (يجب إضافة صورة واحدة على الأقل)";
-    if (!formData.category_id) newErrors.category_id = "الفئة مطلوبة";
-    if (formData.price < 0) newErrors.price = "لا يمكن أن يكون السعر أقل من صفر";
+
+    if (!formData.name.trim()) {
+      newErrors.name = "اسم المنتج مطلوب";
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = "وصف المنتج مطلوب";
+    }
+
+    if (!formData.cover) {
+      newErrors.cover = "صورة المنتج مطلوبة (يجب إضافة صورة واحدة على الأقل)";
+    }
+
+    if (!formData.category_id) {
+      newErrors.category_id = "الفئة مطلوبة";
+    }
+
+    if (formData.price < 0) {
+      newErrors.price = "لا يمكن أن يكون السعر أقل من صفر";
+    }
+
     setErrors(newErrors);
-    const ok = Object.keys(newErrors).length === 0;
-    if (!ok) scrollToFirstStep1Error(newErrors);
-    return ok;
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = () => {
-    if (validateStep1Fields()) {
+    if (validate()) {
       onNext(formData);
+    } else {
+      const firstError = Object.keys(errors)[0];
+      const element =
+        document.querySelector(`[name="${firstError}"]`) ||
+        document.querySelector(".text-red-500");
+      element?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
@@ -227,157 +230,6 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
     }
   };
 
-  const handleCategorySelect = (categoryId: number, categoryName: string) => {
-    setFormData({ ...formData, category_id: categoryId, category_name: categoryName });
-  };
-
-  // expose validate + getData للاستخدام في accordion mode
-  useImperativeHandle(ref, () => ({
-    validate: () => validateStep1Fields(),
-    getData: () => formData,
-  }));
-
-  // إبلاغ الصفحة الأم بتغييرات البيانات (للـ live preview في accordion mode)
-  useEffect(() => {
-    if (accordionMode && onDataChange) {
-      onDataChange(formData);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData, accordionMode]);
-
-  // ── Accordion mode render ──
-  if (accordionMode) {
-    return (
-      <div className="space-y-8 p-6">
-        {isCategorySelected && (() => {
-          const parts = formData.category_name?.split(" > ") ?? [];
-          const leafName = parts[parts.length - 1] || formData.category_name || "";
-          const hasPath = parts.length > 1;
-          return (
-            <div className="bg-[#F8F8F8] rounded-md p-4 flex items-center justify-between">
-              <div className="flex flex-col gap-0.5">
-                <h3 className="text-sm font-medium">{leafName}</h3>
-                {hasPath && <p className="text-xs text-gray-3">{formData.category_name}</p>}
-                {!hasPath && <p className="text-xs text-gray-3">منتجات خاصة بـ {leafName} ومتعلقاتها</p>}
-              </div>
-              <button type="button" onClick={() => setIsCategoryModalOpen(true)} className="text-blue-4 font-bold text-sm hover:underline">تغيير</button>
-            </div>
-          );
-        })()}
-
-        <div data-step1-anchor="cover">
-        <ImageGallerySelector
-          label=" الصور"
-          subLabel="يمكنك إضافة حتى (10) صور و (١) فيديو "
-          value={combinedFiles}
-          previews={combinedPreviews}
-          onChange={handleImagesChange}
-          maxFiles={10}
-          error={errors.cover}
-          showMainSelector={true}
-          mainImageLabel="الصوره الرئيسية"
-          showDragHint={true}
-          mainImageAllowedMediaTypes={["image"]}
-          allowedMediaTypes={["gallery", "image", "video"]}
-          required
-        />
-        </div>
-
-        <div data-step1-anchor="name">
-        <FormInput
-          label="اسم المنتج"
-          name="name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          placeholder="ادخل اسم المنتج"
-          hint="قم بتضمين الكلمات الرئيسية التي يستخدمها المشترون للبحث عن هذا العنصر."
-          required
-          maxLength={140}
-          showCounter
-          error={errors.name}
-        />
-        </div>
-
-        <div className="space-y-2" data-step1-anchor="price">
-          <Label className="text-sm font-medium">السعر</Label>
-          <input
-            type="number"
-            min="0"
-            value={formData.price || ""}
-            onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-            placeholder="ادخل سعر المنتج"
-            className={cn("w-full px-4 py-3 border rounded-sm focus:outline-none text-sm", errors.price ? "border-red-500" : "border-gray-200")}
-          />
-          {errors.price && <p className="text-xs text-red-500 mt-1">{errors.price}</p>}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2" ref={categoryDropdownRef} data-step1-anchor="category_id">
-            <Label className="text-sm font-medium flex items-center gap-1">الفئات <span className="text-red-500">*</span></Label>
-            <button
-              type="button"
-              onClick={() => setIsCategoryModalOpen(true)}
-              className={cn("w-full h-11 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none bg-white", errors.category_id ? "border-red-500" : "border-gray-200 hover:border-gray-300")}
-            >
-              <span className={cn("truncate text-right", formData.category_name ? "text-gray-900" : "text-gray-400")}>{formData.category_name || "اختر فئة المنتج"}</span>
-              <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0 ms-2" />
-            </button>
-            {errors.category_id && <p className="text-xs text-red-500 mt-1">{errors.category_id}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">حالة المنتج</Label>
-            <ReusableDropdown options={CONDITION_OPTIONS} value={formData.condition} onChange={(value) => setFormData({ ...formData, condition: value as "new" | "used" })} placeholder="اختر الحالة" className="h-11" />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium">الوصف الموجز</Label>
-            <Tooltip
-              trigger={<div className="flex items-center gap-1 text-blue-4 cursor-pointer"><HelpCircle className="w-3.5 h-3.5" /><span className="text-xs font-medium">ماهو الوصف الموجز</span></div>}
-              content="اكتب وصفًا قصيرًا يوضح الفكرة الأساسية عن المنتج. يظهر في نتائج البحث وصفحات العرض السريعة."
-            />
-          </div>
-          <textarea
-            value={formData.short_description}
-            onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-            placeholder="اكتب وصفاً مختصراً..."
-            maxLength={300}
-            rows={3}
-            className={cn("w-full px-4 py-3 border rounded-lg text-sm resize-none placeholder:text-gray-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500", errors.short_description ? "border-red-500" : "border-gray-200")}
-          />
-          <div className="flex justify-between text-xs text-gray-3">
-            <span>عدد الكلمات المتاحة في الوصف هي 70 كلمة</span>
-            <span>{formData.short_description.length}/300 حرف</span>
-          </div>
-          {errors.short_description && <p className="text-xs text-red-500">{errors.short_description}</p>}
-        </div>
-
-        <div className="space-y-2" data-step1-anchor="description">
-          <RichTextEditor
-            value={formData.description}
-            onChange={(val) => setFormData({ ...formData, description: val })}
-            label="وصف المنتج"
-            required
-            placeholder="اكتب وصفاً تفصيلاً..."
-            helpText="ماهو وصف المنتج"
-            helpTooltip="اكتب وصفًا تفصيليًا يشرح مميزات المنتج، خامته، طريقة استخدامه، والمعلومات الإضافية."
-            error={errors.description}
-            className="max-h-[400px] min-h-[200px]"
-          />
-        </div>
-
-        <CategoryPickerModal
-          isOpen={isCategoryModalOpen}
-          onClose={() => setIsCategoryModalOpen(false)}
-          onSelect={handleCategorySelect}
-          selectedCategoryId={formData.category_id || undefined}
-        />
-      </div>
-    );
-  }
-
-  // ── Standalone (stepper) mode render ──
   return (
     <div className="overflow-hidden">
       <div className="container mx-auto py-4 px-4">
@@ -399,36 +251,27 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
                 <h2 className="text-xl font-semibold">المعلومات الأساسية</h2>
               </div>
 
-              {isCategorySelected && (() => {
-                const parts = formData.category_name?.split(" > ") ?? [];
-                const leafName = parts[parts.length - 1] || formData.category_name || "";
-                const hasPath = parts.length > 1;
-                return (
-                  <div className="bg-[#F8F8F8] rounded-md p-6 mb-8 flex items-center justify-between">
-                    <div className="flex flex-col gap-1">
-                      <h3 className="text-sm font-medium">{leafName}</h3>
-                      {hasPath && (
-                        <p className="text-xs text-gray-3">{formData.category_name}</p>
-                      )}
-                      {!hasPath && (
-                        <p className="text-xs text-gray-3">
-                          منتجات خاصة بـ {leafName} ومتعلقاتها
-                        </p>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsCategoryModalOpen(true)}
-                      className="text-blue-4 font-bold text-sm cursor-pointer hover:underline"
-                    >
-                      تغيير
-                    </button>
+              {formData.category_name && (
+                <div className="bg-[#F8F8F8] rounded-md p-6 mb-8 flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <h3 className="text-sm font-medium ">
+                      {formData.category_name}
+                    </h3>
+                    <p className="text-xs text-gray-3">
+                      منتجات خاصة بـ {formData.category_name} ومتعلقاتها
+                    </p>
                   </div>
-                );
-              })()}
+                  <button
+                    type="button"
+                    onClick={() => setIsCategoryModalOpen(true)}
+                    className="text-blue-4 font-bold text-sm cursor-pointer hover:underline"
+                  >
+                    تغيير
+                  </button>
+                </div>
+              )}
 
               <div className="space-y-8">
-                <div data-step1-anchor="cover">
                 <ImageGallerySelector
                   label=" الصور"
                   subLabel="يمكنك إضافة حتى (10) صور و (١) فيديو "
@@ -444,9 +287,7 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
                   allowedMediaTypes={["gallery", "image", "video"]}
                   required
                 />
-                </div>
 
-                <div data-step1-anchor="name">
                 <FormInput
                   label="اسم المنتج"
                   name="name"
@@ -461,9 +302,8 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
                   showCounter
                   error={errors.name}
                 />
-                </div>
 
-                <div className="space-y-2" data-step1-anchor="price">
+                <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-1">
                     السعر
                   </Label>
@@ -491,36 +331,28 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2" ref={categoryDropdownRef} data-step1-anchor="category_id">
+                  <div className="space-y-2" ref={categoryDropdownRef}>
                     <Label className="text-sm font-medium flex items-center gap-1">
                       الفئات <span className="text-red-500">*</span>
                     </Label>
+                    {/* زر يفتح CategoryPickerModal */}
                     <button
                       type="button"
                       onClick={() => setIsCategoryModalOpen(true)}
                       className={cn(
-                        "w-full h-11 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none bg-white",
+                        "w-full h-11 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none",
                         errors.category_id
-                          ? "border-red-500"
-                          : "border-gray-200 hover:border-gray-300"
+                          ? "border-red-400 bg-red-50"
+                          : "border-gray-200 hover:border-gray-300 bg-white"
                       )}
                     >
-                      <span
-                        className={cn(
-                          "truncate text-right",
-                          formData.category_name
-                            ? "text-gray-900"
-                            : "text-gray-400"
-                        )}
-                      >
+                      <span className={cn("truncate text-right", formData.category_name ? "text-gray-900" : "text-gray-400")}>
                         {formData.category_name || "اختر فئة المنتج"}
                       </span>
                       <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0 ms-2" />
                     </button>
                     {errors.category_id && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {errors.category_id}
-                      </p>
+                      <p className="text-xs text-red-500 mt-1">{errors.category_id}</p>
                     )}
                   </div>
 
@@ -589,7 +421,8 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
                   )}
                 </div>
 
-                <div className="space-y-2" data-step1-anchor="description">
+                <div className="space-y-2">
+
                   <RichTextEditor
                     value={formData.description}
                     onChange={(val) =>
@@ -639,5 +472,4 @@ export const AddProductStep1 = forwardRef<Step1Ref, AddProductStep1Props>(functi
       />
     </div >
   );
-});
-AddProductStep1.displayName = "AddProductStep1";
+}

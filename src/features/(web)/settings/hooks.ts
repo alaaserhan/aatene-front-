@@ -281,10 +281,10 @@ export const useUpdateAvatar = () => {
     return useMutation({
         mutationFn: (avatar: File) => updateAvatar(avatar),
         onSuccess: (data) => {
-            toast.success(data.message || "Avatar updated successfully");
+            toast.success(data.message || "تم تحديث الصورة");
             
-            // API returns { data: { avatar_url: "..." } }
-            const newAvatarUrl = data?.data?.avatar_url || data?.data?.avatar;
+            // الباكند يُرجع avatar_url في root مباشرة: { status, message, avatar_url }
+            const newAvatarUrl = data?.avatar_url || data?.data?.avatar_url || data?.data?.avatar;
             if (newAvatarUrl) {
                 useAuthStore.getState().updateUser({ 
                     avatar_url: newAvatarUrl,
