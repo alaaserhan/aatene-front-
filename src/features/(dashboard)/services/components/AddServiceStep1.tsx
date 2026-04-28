@@ -4,22 +4,22 @@
 import { useState, useMemo, useEffect, KeyboardEvent, useRef } from "react";
 import { ProductFormActions } from "../../products/components/ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
-import { ReusableDropdown, DropdownRef } from "@/src/components/ui/ReusableDropdown";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
 import { Tooltip } from "@/src/components/ui/Tooltip";
 import { OptionTag } from "@/src/components/ui/OptionTag";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, ChevronDown } from "lucide-react";
 import { Step1ServiceData } from "../types";
-import { useInfiniteCategories } from "../../categoriesAndAttributes/hooks";
-import { useGetSections, useCreateSection } from "../../sections/hooks"; // استيراد هوك الأقسام
+import { useGetSections, useCreateSection } from "../../sections/hooks";
 import { Stepper } from "@/src/components/ui/Stepper";
 import { ServicePreviewSidebar } from "./ServicePreviewSidebar";
 import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { useGetSingleStore } from "../../stores/hooks";
 import { toast } from "sonner";
 import { SectionModal, SectionFormData } from "../../sections/components/SectionModal";
-import { useDebounce } from "@/src/hooks/use-debounce";
+import { CategoryPickerModal } from "../../products/components/CategoryPickerModal";
+import { cn } from "@/src/lib/utils";
 
 interface AddServiceStep1Props {
   initialData?: Step1ServiceData;
@@ -48,12 +48,12 @@ export function AddServiceStep1({
   const { data: storeData } = useGetSingleStore(storeId, { enabled: !!storeId });
   const store = storeData?.record;
 
-  const categoryDropdownRef = useRef<DropdownRef>(null);
   const categorySectionRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState<Step1ServiceData>({
     title: initialData?.title || "",
     category_id: initialData?.category_id || "",
+    category_name: initialData?.category_name || "",
     section_id: initialData?.section_id || "",
     specialties: initialData?.specialties?.map((s: string | { title: string }) => (typeof s === 'object' ? s.title : s)) || [],
     price: initialData?.price || 0,
@@ -65,41 +65,20 @@ export function AddServiceStep1({
   });
 
   const [specialtyInput, setSpecialtyInput] = useState("");
-  const [categorySearch, setCategorySearch] = useState("");
-  const debouncedCategorySearch = useDebounce(categorySearch, 500);
-
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   const createSection = useCreateSection();
 
-  // --- Fetch Categories ---
-  const categoriesQueryParams = useMemo(() => {
-    const params = new URLSearchParams();
-    params.set("per_page", "20");
-    params.set("type", "service");
-    params.set("only_parent", "true");
-    if (debouncedCategorySearch) {
-      params.set("name", debouncedCategorySearch);
+  const handleCategorySelect = (categoryId: number, categoryName: string) => {
+    setFormData({ ...formData, category_id: String(categoryId), category_name: categoryName });
+    if (errors.category_id) {
+      const newErrors = { ...errors };
+      delete newErrors.category_id;
+      setErrors(newErrors);
     }
-    return params;
-  }, [debouncedCategorySearch]);
-
-  const {
-    data: categoriesInfiniteData,
-    isLoading: isCategoriesLoading,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage
-  } = useInfiniteCategories(categoriesQueryParams);
-
-  const categoryOptions = useMemo(() => {
-    const allCategories = categoriesInfiniteData?.pages.flatMap(page => page.data || []) || [];
-    return allCategories.map((cat) => ({
-      value: String(cat.id),
-      label: cat.name,
-    }));
-  }, [categoriesInfiniteData]);
+  };
 
   // --- Fetch Sections ---
   const sectionsQueryParams = useMemo(() => {
@@ -123,11 +102,6 @@ export function AddServiceStep1({
       })) || []
     );
   }, [sectionsData]);
-
-  const selectedCategoryName = useMemo(() => {
-    const allCategories = categoriesInfiniteData?.pages.flatMap(page => page.data || []) || [];
-    return allCategories.find(c => String(c.id) === String(formData.category_id))?.name || "تصنيف غير محدد";
-  }, [categoriesInfiniteData, formData.category_id]);
 
   useEffect(() => {
     const newErrors = { ...errors };
@@ -196,7 +170,8 @@ export function AddServiceStep1({
     const newErrors: Record<string, string> = {};
     if (!formData.title.trim()) newErrors.title = "عنوان الخدمة مطلوب";
     if (!formData.category_id) newErrors.category_id = "التصنيف الرئيسي مطلوب";
-    if (!formData.section_id) newErrors.section_id = "القسم مطلوب"; // التحقق من القسم
+    if (!formData.section_id) newErrors.section_id = "القسم مطلوب";
+    if (!formData.images || formData.images.length === 0) newErrors.images = "صورة الخدمة مطلوبة";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -206,23 +181,11 @@ export function AddServiceStep1({
       onNext(formData);
     } else {
       const firstError = Object.keys(errors)[0];
-      // التمرير إلى العنصر الذي يحتوي على الخطأ أو اسم الحقل
       const element = document.getElementsByName(firstError)[0] || document.getElementById(firstError);
       element?.scrollIntoView({ behavior: "smooth", block: "center" });
-
-      // Fallback scroll if specific element not found (e.g. dropdowns sometimes don't have name attr on container)
       if (!element) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    }
-  };
-
-  const scrollToCategoryAndOpen = () => {
-    if (categorySectionRef.current) {
-      categorySectionRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-      setTimeout(() => {
-        categoryDropdownRef.current?.open();
-      }, 500);
     }
   };
 
@@ -252,23 +215,21 @@ export function AddServiceStep1({
             <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
               <h2 className="text-xl font-semibold mb-8">المعلومات الأساسية</h2>
 
-              <div className="bg-gray-50 p-4 rounded-lg flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <h3 className="text-sm font-medium mb-1">
-                      {selectedCategoryName}
-                    </h3>
-                    <p className="text-xs text-gray-2">خدمات خاصة في قسم {selectedCategoryName}</p>
+              {formData.category_name && (
+                <div className="bg-[#F8F8F8] rounded-md p-6 mb-8 flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <h3 className="text-sm font-medium">{formData.category_name}</h3>
+                    <p className="text-xs text-gray-2">خدمات خاصة في قسم {formData.category_name}</p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsCategoryModalOpen(true)}
+                    className="text-blue-4 font-bold text-sm cursor-pointer hover:underline"
+                  >
+                    تغيير
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={scrollToCategoryAndOpen}
-                  className="text-sm cursor-pointer text-blue-4 font-bold hover:underline"
-                >
-                  تغيير
-                </button>
-              </div>
+              )}
 
               <div className="space-y-6">
 
@@ -289,29 +250,30 @@ export function AddServiceStep1({
                   </p>
                 </div>
 
-                {/* Category Dropdown */}
+                {/* Category Button → opens CategoryPickerModal */}
                 <div className="space-y-2" ref={categorySectionRef} id="category_id">
                   <Label className="text-sm font-medium flex items-center gap-1">
                     التصنيف الرئيسي <span className="text-red-500">*</span>
                   </Label>
-                  <ReusableDropdown
-                    ref={categoryDropdownRef}
-                    options={categoryOptions}
-                    value={formData.category_id ? String(formData.category_id) : ""}
-                    onChange={(value) => setFormData({ ...formData, category_id: value })}
-                    placeholder={isCategoriesLoading ? "جاري التحميل..." : "اختر التصنيف"}
-                    error={errors.category_id}
-                    className="h-12"
-                    onSearch={setCategorySearch}
-                    searchPlaceholder="بحث عن تصنيف..."
-                    onReachEnd={() => {
-                      if (hasNextPage) fetchNextPage();
-                    }}
-                    isLoadingMore={isFetchingNextPage}
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsCategoryModalOpen(true)}
+                    className={cn(
+                      "w-full h-12 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none",
+                      errors.category_id
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-200 hover:border-gray-300 bg-white"
+                    )}
+                  >
+                    <span className={cn("truncate text-right", formData.category_name ? "text-gray-900" : "text-gray-400")}>
+                      {formData.category_name || "اختر التصنيف"}
+                    </span>
+                    <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0 ms-2" />
+                  </button>
+                  {errors.category_id && <p className="text-xs text-red-500 mt-1">{errors.category_id}</p>}
                 </div>
 
-                {/* Section Dropdown (New) */}
+                {/* Section Dropdown */}
                 <div className="space-y-2" id="section_id">
                   <Label className="text-sm font-medium flex items-center gap-1">
                     القسم <span className="text-red-500">*</span>
@@ -417,6 +379,14 @@ export function AddServiceStep1({
         onClose={() => setIsSectionModalOpen(false)}
         onSave={handleSaveSection}
         mode="add"
+      />
+
+      <CategoryPickerModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        onSelect={handleCategorySelect}
+        selectedCategoryId={formData.category_id ? Number(formData.category_id) : undefined}
+        type="service"
       />
     </div>
   );

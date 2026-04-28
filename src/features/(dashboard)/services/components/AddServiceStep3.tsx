@@ -53,6 +53,10 @@ export function AddServiceStep3({
     };
 
     const handleNext = () => {
+        if (images.length === 0) {
+            setError("صورة الخدمة مطلوبة، يرجى إضافة صورة واحدة على الأقل");
+            return;
+        }
         onNext({
             images,
             images_previews: imagesPreviews,

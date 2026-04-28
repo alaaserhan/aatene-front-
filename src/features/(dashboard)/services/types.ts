@@ -5,6 +5,7 @@ import { ExecuteType, ServiceExtra, ServiceQuestion } from "./api";
 export interface Step1ServiceData {
   title: string;
   category_id: number | string;
+  category_name?: string;
   section_id: number | string;
   specialties: string[];
 
