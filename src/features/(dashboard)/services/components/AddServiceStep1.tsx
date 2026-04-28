@@ -166,25 +166,26 @@ export function AddServiceStep1({
     });
   };
 
-  const validate = () => {
+  const validate = (): Record<string, string> => {
     const newErrors: Record<string, string> = {};
     if (!formData.title.trim()) newErrors.title = "عنوان الخدمة مطلوب";
     if (!formData.category_id) newErrors.category_id = "التصنيف الرئيسي مطلوب";
     if (!formData.section_id) newErrors.section_id = "القسم مطلوب";
-    if (!formData.images || formData.images.length === 0) newErrors.images = "صورة الخدمة مطلوبة";
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return newErrors;
   };
 
   const handleNext = () => {
-    if (validate()) {
+    const newErrors = validate();
+    if (Object.keys(newErrors).length === 0) {
       onNext(formData);
     } else {
-      const firstError = Object.keys(errors)[0];
-      const element = document.getElementsByName(firstError)[0] || document.getElementById(firstError);
-      element?.scrollIntoView({ behavior: "smooth", block: "center" });
-      if (!element) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      const firstErrorKey = Object.keys(newErrors)[0];
+      const element = document.getElementById(firstErrorKey) || document.getElementsByName(firstErrorKey)[0];
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
   };
