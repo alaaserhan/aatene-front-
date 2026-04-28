@@ -60,6 +60,7 @@ export interface Product {
   type?: ProductType;
   condition?: ProductCondition;
   category_id?: number | string;
+  category_name?: string;
   category?: Category;
   section_id?: number | string;
   section?: Section | null;
@@ -112,7 +113,7 @@ export interface ProductCreatePayload {
   type: ProductType;
   condition: ProductCondition;
   category_id: number;
-  store_id?: number;
+  store_id: number;
   section_id: number;
   price: number;
   status: ProductStatus;
