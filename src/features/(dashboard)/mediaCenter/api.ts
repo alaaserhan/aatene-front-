@@ -22,8 +22,16 @@ export interface BaseResponse {
   message: string;
 }
 
-export interface ListMediaResponse extends BaseResponse {
+export interface PaginatedMediaData {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
   data: MediaItem[];
+}
+
+export interface ListMediaResponse extends BaseResponse {
+  data: PaginatedMediaData;
 }
 
 export interface SingleMediaResponse extends BaseResponse {
@@ -122,7 +130,7 @@ export const deleteMedia = async (
   payload: DeleteMediaPayload
 ): Promise<BaseResponse> => {
   const { data } = await api.delete<BaseResponse>(
-    `/media-center/delete?file_name=${payload.file_name}`
+    `/media-center/delete?file_name=${encodeURIComponent(payload.file_name)}`
   );
   return data;
 };

@@ -67,13 +67,16 @@ export const useDeleteMedia = () => {
       });
 
       prevLists.forEach(([key, oldData]) => {
-        if (oldData?.data) {
-          const nextData = oldData.data.filter(
-            (item: MediaItem) => item.file_name !== variables.file_name
-          );
+        const items = oldData?.data?.data;
+        if (Array.isArray(items)) {
           qc.setQueryData(key, {
             ...oldData,
-            data: nextData,
+            data: {
+              ...oldData!.data,
+              data: items.filter(
+                (item: MediaItem) => item.file_name !== variables.file_name
+              ),
+            },
           });
         }
       });
