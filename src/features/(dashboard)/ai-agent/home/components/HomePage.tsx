@@ -72,12 +72,15 @@ export function HomePage() {
 
     // Reviews
     const webDist = webRatings?.distribution;
+
+    // by_stars من الـ API الحقيقي (keys "1"→"5")
+    const apiByStars = raw.reviews?.by_stars || {};
     const mergedBreakdown: Record<string, number> = {
-        five_star: webDist?.["5"] || 0,
-        four_star: webDist?.["4"] || 0,
-        three_star: webDist?.["3"] || 0,
-        two_star: webDist?.["2"] || 0,
-        one_star: webDist?.["1"] || 0,
+        five_star:  (apiByStars["5"] || 0) + (webDist?.["5"] || 0),
+        four_star:  (apiByStars["4"] || 0) + (webDist?.["4"] || 0),
+        three_star: (apiByStars["3"] || 0) + (webDist?.["3"] || 0),
+        two_star:   (apiByStars["2"] || 0) + (webDist?.["2"] || 0),
+        one_star:   (apiByStars["1"] || 0) + (webDist?.["1"] || 0),
     };
 
     const totalReviewsCalculated = (raw.reviews?.count || 0) + Object.values(mergedBreakdown).reduce((a, b) => a + b, 0);
@@ -90,9 +93,18 @@ export function HomePage() {
               (apiTotal + webTotal)
             : 0;
 
-    const mergedPlatformRatings = [
-        { platform: "website", average_rating: webRatings?.average || 0 },
-    ];
+    // platform ratings: من الـ API + web
+    const apiPlatformRatings = (raw.reviews?.by_platform || []).map((p) => ({
+        platform: p.platform,
+        average_rating: p.average_rating,
+    }));
+    const hasWebInApi = apiPlatformRatings.some((p) => p.platform === "website" || p.platform === "web");
+    const mergedPlatformRatings = hasWebInApi
+        ? apiPlatformRatings
+        : [
+              ...apiPlatformRatings,
+              { platform: "website", average_rating: webRatings?.average || 0 },
+          ];
 
     const data = {
         total_users: mergedTotalUsers,

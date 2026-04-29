@@ -197,9 +197,12 @@ export interface OverviewData {
     needs_human_count: number;
     messages_last_7_days: number;
     messages_by_platform: Record<string, number>;
+    active_conversations?: number;
     reviews: {
         average_rating: number;
         count: number;
+        by_stars?: Record<string, number>;
+        by_platform?: { platform: string; count: number; average_rating: number }[];
     };
 }
 
