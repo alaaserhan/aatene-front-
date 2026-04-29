@@ -43,7 +43,7 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
     const refetch = isApi4 ? refetchApi4 : refetchUser;
 
     const user = userData?.user;
-    const rawMessages = isApi4 ? (api4Data?.history || []) : (userData?.recent_messages || []);
+    const rawMessages = isApi4 ? (api4Data?.history || []) : (userData?.recent_messages || userData?.user?.messages || []);
 
     const messages = rawMessages.map((msg, idx) => ({
         message_id: 'message_id' in msg ? (msg as { message_id: number }).message_id : idx,
