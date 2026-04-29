@@ -103,11 +103,7 @@ export function MediaCenterModal({
   }, [searchQuery, activeType]);
 
   const { data: mediaData, isLoading, error } = useGetMediaList(params, open);
-  // Backend returns paginated response: { data: { current_page, data: [...items], ... } }
-  const rawMediaData = mediaData?.data as any;
-  const mediaItems: MediaItemType[] = Array.isArray(rawMediaData)
-    ? rawMediaData
-    : (rawMediaData?.data ?? []);
+  const mediaItems: MediaItemType[] = mediaData?.data?.data ?? [];
 
   const uploadMutation = useUploadMedia();
 
