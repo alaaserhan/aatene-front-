@@ -11,6 +11,7 @@ import {
 } from "@tanstack/react-query";
 import * as api from "./api";
 import { toast } from "sonner";
+import Cookies from "js-cookie";
 import {
   PaginatedStoresResponse,
   SingleStoreResponse,
@@ -71,7 +72,16 @@ export function useCreateStore() {
   return useMutation({
     mutationFn: (payload: StoreCreatePayload) => api.createStore(payload),
     onSuccess: (data) => {
-      // toast.success(data.message || "تم إنشاء المتجر بنجاح");
+      // بعد الإنشاء مباشرة — عيّن الـ cookies حتى لا يحدث race condition في StoreGuard
+      const store = data?.record;
+      if (store?.id) {
+        Cookies.set("current_store_id", store.id.toString(), { expires: 365 });
+        Cookies.set("store_type", store.type, { expires: 365 });
+        if (store.role_in_store) {
+          Cookies.set("store_role", store.role_in_store, { expires: 365 });
+        }
+        window.dispatchEvent(new Event("store-info-updated"));
+      }
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: StoresQK.listAny });
