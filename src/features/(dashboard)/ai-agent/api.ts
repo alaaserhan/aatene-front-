@@ -100,6 +100,7 @@ export interface AgentUserSummary {
     first_seen: string;
     last_seen: string;
     last_messages?: RecentMessage[];
+    messages?: RecentMessage[];
     conversation_status?: ConversationStatus;
 }
 
@@ -129,7 +130,7 @@ export interface RecentMessage {
 export interface SingleUserResponse {
     success: boolean;
     user: AgentUserSummary;
-    recent_messages: RecentMessage[];
+    recent_messages?: RecentMessage[];
 }
 
 export interface ResolveResponse {
