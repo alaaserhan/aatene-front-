@@ -42,6 +42,7 @@ interface AddProductStep2Props {
   showSaveDraft?: boolean;
   isGeneratingAI?: boolean;
   aiKeywords?: string[];
+  isEditMode?: boolean;
 }
 
 export function AddProductStep2({
@@ -56,6 +57,7 @@ export function AddProductStep2({
   showSaveDraft = true,
   isGeneratingAI = false,
   aiKeywords = [],
+  isEditMode = false,
 }: AddProductStep2Props) {
   const userType = Cookies.get("user_type");
   const currentStoreId = Cookies.get("current_store_id");
@@ -188,7 +190,7 @@ export function AddProductStep2({
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.store_id) {
+    if (!formData.store_id && !(isAdmin && isEditMode)) {
       newErrors.store_id = "يجب اختيار المتجر";
     }
     if (!formData.section_id) {
@@ -295,7 +297,7 @@ export function AddProductStep2({
               <h2 className="text-xl font-bold mb-8 ">المعلومات المتقدمة</h2>
 
               <div className="space-y-8">
-                {isAdmin && (
+                {isAdmin && !isEditMode && (
                   <div className="space-y-2">
                     <Label className="text-sm font-medium flex items-center gap-1">
                       إظهار المنتج في متجر
