@@ -126,7 +126,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                 {/* Delivery Time */}
                 <div className="flex items-center gap-3">
                     <div className="w-11 h-11 rounded-md bg-gray-50 flex items-center justify-center">
-                        <img src="/icons/dashboard/calender.svg" alt="calendar" width={24} height={24} />
+                        <img src="/icons/dashboard/calender.svg" alt="مدة التوصيل" width={24} height={24} />
                     </div>
                     <span className="font-medium ">
                         يتم التوصيل خلال {activeDetails?.days || "1-4"} أيام
@@ -136,7 +136,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                 {/* Free Shipping */}
                 <div className="flex items-center gap-3">
                     <div className="w-11 h-11 rounded-md bg-gray-50 flex items-center justify-center">
-                        <img src="/icons/car.svg" alt="calendar" width={24} height={24} />
+                        <img src="/icons/car.svg" alt="توصيل" width={24} height={24} />
                     </div>
                     <span className="font-medium ">
                         {(!activeCompany || String(activeDetails?.price) === "0") ? "توصيل مجاني" : `توصيل: ${activeDetails?.price} ₪ `}
@@ -146,7 +146,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                 {/* Delivery Location */}
                 <div className="flex items-center gap-3">
                     <div className="w-11 h-11 rounded-md bg-gray-50 flex items-center justify-center">
-                        <img src="/icons/box.svg" alt="calendar" width={30} height={30} />
+                        <img src="/icons/box.svg" alt="مدينة التوصيل" width={30} height={30} />
                     </div>
                     <div className="flex items-center gap-2">
                         <span className="font-medium ">التوصيل إلى: <span className="underline decoration-blue-3 underline-offset-4 cursor-pointer" onClick={() => { setTempSelectedCityId(selectedCityId); setIsCityModalOpen(true); }}>{selectedCityName}</span></span>
