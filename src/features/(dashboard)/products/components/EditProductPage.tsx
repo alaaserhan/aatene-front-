@@ -410,6 +410,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             showSaveDraft={false}
             isGeneratingAI={isGeneratingAI}
             aiKeywords={aiKeywords}
+            isEditMode={true}
           />
         );
       case 3:
