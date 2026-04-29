@@ -1,13 +1,13 @@
 // src/features/(dashboard)/stores/components/AddShippingCompanyDialog.tsx
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/src/components/ui/button";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
 import { ShippingCompanyPayload, ShippingPricePayload } from "../api";
 import { useGetCities } from "../../cities/hooks";
 // import { toast } from "sonner"; // Removed as requested
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import {
   Dialog,
@@ -42,9 +42,17 @@ export function AddShippingCompanyDialog({
   const [storePhone, setStorePhone] = useState("");
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [citySearch, setCitySearch] = useState("");
 
   const { data: citiesData } = useGetCities(new URLSearchParams());
-  const cities = citiesData?.data || [];
+  const allCities = citiesData?.data || [];
+
+  const cities = useMemo(() => {
+    if (!citySearch.trim()) return allCities;
+    return allCities.filter((c) =>
+      c.name.toLowerCase().includes(citySearch.trim().toLowerCase())
+    );
+  }, [allCities, citySearch]);
 
   useEffect(() => {
     if (isOpen) {
@@ -236,9 +244,22 @@ export function AddShippingCompanyDialog({
 
               <div className="space-y-4">
                 <h3 className="font-medium">المدن التي ترسل لها المنتجات؟ <span className="text-red-500">*</span></h3>
+
+                {/* City Search */}
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={citySearch}
+                    onChange={(e) => setCitySearch(e.target.value)}
+                    placeholder="ابحث عن مدينة..."
+                    className="w-full h-9 rounded-md border border-gray-200 pr-9 pl-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-3"
+                  />
+                </div>
+
                 <div
                   className={cn(
-                    "space-y-3 p-2 rounded-lg transition-colors",
+                    "space-y-3 p-2 rounded-lg transition-colors max-h-52 overflow-y-auto",
                     errors.cities ? "border border-red-500 bg-red-50" : ""
                   )}
                 >

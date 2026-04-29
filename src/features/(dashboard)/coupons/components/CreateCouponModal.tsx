@@ -6,6 +6,7 @@ import {
     List,
     Percent,
     Loader2,
+    ChevronRight,
 } from "lucide-react";
 import { InfiniteData } from "@tanstack/react-query";
 import { OptionTag } from "@/src/components/ui/OptionTag";
@@ -589,7 +590,20 @@ export function CreateCouponModal({
 
                 </div>
 
-                <div className="p-4 bg-gray-50 flex items-center justify-end gap-3 border-t border-gray-100 shrink-0 rounded-b-lg">
+                <div className="p-4 bg-gray-50 flex items-center justify-between gap-3 border-t border-gray-100 shrink-0 rounded-b-lg">
+                    <div>
+                        {currentStep > 1 && (
+                            <button
+                                onClick={() => setCurrentStep((s) => (s - 1) as StepId)}
+                                className="px-4 py-2 rounded-md cursor-pointer bg-gray-100 font-medium hover:bg-gray-200 transition-colors flex items-center gap-1"
+                                disabled={isPending}
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                                رجوع
+                            </button>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-3">
                     <button
                         onClick={onClose}
                         className="px-6 py-2 rounded-md cursor-pointer bg-gray-100 font-medium hover:bg-gray-200 transition-colors"
@@ -615,6 +629,7 @@ export function CreateCouponModal({
                             {isPending ? "جاري الحفظ..." : "حفظ"}
                         </button>
                     )}
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>
