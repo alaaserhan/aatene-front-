@@ -110,7 +110,7 @@ api.interceptors.response.use(
     }
     else if (!error.response) {
       if (typeof window !== "undefined") {
-        toast.error("Network Error: Please check your connection.");
+        toast.error("خطأ في الاتصال، يرجى التحقق من اتصالك بالإنترنت.");
       }
     }
 

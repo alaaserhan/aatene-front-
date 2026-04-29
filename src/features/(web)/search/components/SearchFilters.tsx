@@ -100,6 +100,7 @@ export default function SearchFilters({
     className,
 }: SearchFiltersProps) {
     const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
+    const [citySearch, setCitySearch] = useState("");
 
     const handleTagToggle = (tagId: number) => {
         const currentTags = filters.tags || [];
@@ -146,7 +147,9 @@ export default function SearchFilters({
         });
     };
 
-    const cityOptions = cities.map((c) => ({ value: c.id.toString(), label: c.name }));
+    const cityOptions = cities
+        .filter((c) => !citySearch.trim() || c.name.toLowerCase().includes(citySearch.trim().toLowerCase()))
+        .map((c) => ({ value: c.id.toString(), label: c.name }));
 
     const { parentCategories, childrenMap } = buildCategoryTree(categories);
 
@@ -244,6 +247,8 @@ export default function SearchFilters({
                             onFilterChange({ ...filters, city_id: vals.length > 0 ? vals.map(Number) : undefined })
                         }
                         placeholder="الكل"
+                        onSearch={(q) => setCitySearch(q)}
+                        searchPlaceholder="ابحث عن مدينة..."
                     />
                 </FilterSection>
 
