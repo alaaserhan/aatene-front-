@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Category, City, Tag, Attribute } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
@@ -183,7 +183,7 @@ export default function SearchFilters({
             <div className="divide-y divide-gray-100">
                 {/* Categories */}
                 {type !== "users" && categories.length > 0 && (
-                    <FilterSection title="الفئات" defaultOpen={false}>
+                    <FilterSection title="الفئات" defaultOpen={false} forceOpen={!!filters.category_id}>
                         <div className="flex flex-col gap-1">
                             {parentCategories.map((parent) => {
                                 const children = childrenMap.get(parent.id.toString()) || [];
@@ -326,8 +326,13 @@ export default function SearchFilters({
     );
 }
 
-function FilterSection({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+function FilterSection({ title, children, defaultOpen = true, forceOpen }: { title: string; children: React.ReactNode; defaultOpen?: boolean; forceOpen?: boolean }) {
     const [isOpen, setIsOpen] = useState(defaultOpen);
+
+    useEffect(() => {
+        if (forceOpen) setIsOpen(true);
+    }, [forceOpen]);
+
     return (
         <div className="px-5 py-4">
             <button

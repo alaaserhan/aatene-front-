@@ -1,6 +1,7 @@
 // src/features/(dashboard)/stores/components/CityMultiSelect.tsx
 "use client";
 
+import { useState } from "react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Trash2 } from "lucide-react";
 
@@ -23,13 +24,13 @@ export function CityMultiSelect({
   onChange,
   error,
 }: CityMultiSelectProps) {
-
-
+  const [citySearch, setCitySearch] = useState("");
 
   const dropdownOptions = cities
     .filter((city) => !selectedCityIds.includes(city.id))
+    .filter((city) => !citySearch.trim() || city.name.toLowerCase().includes(citySearch.trim().toLowerCase()))
     .map((city) => ({
-      value: city.id.toString(), // نحول الرقم لنص للـ Dropdown
+      value: city.id.toString(),
       label: city.name,
     }));
 
@@ -53,10 +54,12 @@ export function CityMultiSelect({
         </label>
         <ReusableDropdown
           options={dropdownOptions}
-          value="" // دائماً فارغ لإظهار الـ Placeholder
+          value=""
           onChange={handleSelect}
           placeholder="اختر المدينة"
           error={error}
+          onSearch={(q) => setCitySearch(q)}
+          searchPlaceholder="ابحث عن مدينة..."
         />
       </div>
 
