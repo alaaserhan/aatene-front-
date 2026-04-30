@@ -19,6 +19,7 @@ interface UserMenuProps {
 
 const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
   const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
+  const isHydrated = useAuthStore((state) => state.isHydrated);
   const user = useAuthStore((state) => state.user);
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -69,7 +70,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
     }
   }, [isMobile]);
 
-  if (!isAuthenticated || !user) {
+  if (!isHydrated || !isAuthenticated || !user) {
     return (
       <Link
         href={`/${lang}/login`}

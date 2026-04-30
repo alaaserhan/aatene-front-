@@ -48,6 +48,7 @@ export default function MobileNav() {
   const router = useRouter();
   const lang = useLanguage();
   const user = useAuthStore((state) => state.user);
+  const isHydrated = useAuthStore((state) => state.isHydrated);
   const userType = user?.user_type;
 
   const { data: statsData } = useMyNotificationStats(!!user);
@@ -142,7 +143,7 @@ export default function MobileNav() {
                         <h3 className="font-medium text-gray-2 uppercase tracking-wider mb-3">التصفح</h3>
                       </div>
 
-                      {!!user && (
+                      {isHydrated && !!user && (
                         <>
                           <Link
                             href={`/${lang}/chat`}
