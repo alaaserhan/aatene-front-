@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Category, City, Tag, Attribute } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
@@ -327,10 +327,15 @@ export default function SearchFilters({
 }
 
 function FilterSection({ title, children, defaultOpen = true, forceOpen }: { title: string; children: React.ReactNode; defaultOpen?: boolean; forceOpen?: boolean }) {
-    const [isOpen, setIsOpen] = useState(defaultOpen);
+    const [isOpen, setIsOpen] = useState(defaultOpen || !!forceOpen);
+    const prevForceOpen = useRef(forceOpen);
 
     useEffect(() => {
-        if (forceOpen) setIsOpen(true);
+        // فقط لو forceOpen تغيّر من false → true نفتح، وليس العكس
+        if (forceOpen && !prevForceOpen.current) {
+            setIsOpen(true);
+        }
+        prevForceOpen.current = forceOpen;
     }, [forceOpen]);
 
     return (
