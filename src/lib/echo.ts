@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 
 if (typeof window !== "undefined") {
   (window as { Pusher?: typeof Pusher }).Pusher = Pusher;
-  Pusher.logToConsole = true;
+  Pusher.logToConsole = process.env.NODE_ENV === "development";
 }
 
 let echoInstance: Echo<"pusher"> | null = null;
@@ -17,8 +17,8 @@ export function getEcho(): Echo<"pusher"> {
 
   echoInstance = new Echo({
     broadcaster: "pusher",
-    key: process.env.NEXT_PUBLIC_PUSHER_KEY ?? "e381d0621da09cb7f0d0",
-    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? "ap2",
+    key: process.env.NEXT_PUBLIC_PUSHER_KEY ?? "ca9b1f898ff3d07906f9",
+    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? "eu",
     forceTLS: true,
     authEndpoint,
     authorizer: (channel: { name: string }, options: { authEndpoint: string }) => {
