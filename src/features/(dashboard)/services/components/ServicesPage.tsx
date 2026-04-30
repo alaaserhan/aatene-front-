@@ -234,12 +234,6 @@ export function ServicesPage({ storeId }: { storeId: number }) {
             activeClass: "border-red-500 text-red-500",
             badgeClass: "bg-red-500"
         },
-        {
-            key: "draft",
-            label: "مسودة",
-            activeClass: "border-gray-400 text-gray-500",
-            badgeClass: "bg-gray-400"
-        },
     ];
 
     if (!storeId) {

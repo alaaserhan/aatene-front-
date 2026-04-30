@@ -3,7 +3,7 @@ import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import Cookies from "js-cookie";
 
-export type ServiceStatus = "pending" | "rejected" | "approved" | "draft";
+export type ServiceStatus = "pending" | "rejected" | "approved";
 export type ExecuteType = "min" | "hour" | "day" | "week" | "month" | "year";
 
 export interface RejectionReason {
