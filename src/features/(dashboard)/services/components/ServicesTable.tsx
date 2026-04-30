@@ -23,7 +23,7 @@ interface ServicesTableProps {
     onEdit: (service: Service) => void;
     onDelete: (service: Service) => void;
     onReview: (service: Service) => void;
-    activeStatus?: "approved" | "pending" | "rejected" | "draft";
+    activeStatus?: "approved" | "pending" | "rejected";
 }
 
 export function ServicesTable({
