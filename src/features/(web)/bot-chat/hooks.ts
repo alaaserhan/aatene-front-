@@ -71,14 +71,24 @@ export const useSendMessage = () => {
                 updated_at: new Date().toISOString(),
             };
 
-            if (previousMessages) {
-                queryClient.setQueryData<InfiniteData<GetMessagesResponse>>(["botChat", "messages", conversationId], {
+            const newCacheData: InfiniteData<GetMessagesResponse> = previousMessages
+                ? {
                     ...previousMessages,
                     pages: previousMessages.pages.map((page, index) =>
                         index === 0 ? { ...page, data: [optimisticMessage, ...page.data] } : page
                     ),
-                });
-            }
+                }
+                : {
+                    pages: [{
+                        status: true,
+                        message: "",
+                        total: 1,
+                        data: [optimisticMessage],
+                    }],
+                    pageParams: [1],
+                };
+
+            queryClient.setQueryData<InfiniteData<GetMessagesResponse>>(["botChat", "messages", conversationId], newCacheData);
 
             return { previousMessages, tempId };
         },
@@ -97,7 +107,11 @@ export const useSendMessage = () => {
             });
         },
         onError: (_err, variables, context) => {
-            if (context?.previousMessages) {
+            if (context?.previousMessages !== undefined) {
+                // Restore the previous cache
+                queryClient.setQueryData<InfiniteData<GetMessagesResponse>>(["botChat", "messages", variables.conversationId], context.previousMessages);
+            } else {
+                // Cache was empty before — mark the optimistic message as errored
                 queryClient.setQueryData<InfiniteData<GetMessagesResponse>>(["botChat", "messages", variables.conversationId], (old) => {
                     if (!old) return old;
                     return {
