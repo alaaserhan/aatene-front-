@@ -15,6 +15,7 @@ import Image from "next/image";
 
 const Navbar = () => {
   const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
+  const isHydrated = useAuthStore((state) => state.isHydrated);
   const lang = useLanguage();
   const { settings } = useSettingsStore();
 
@@ -53,7 +54,7 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-4 lg:gap-6">
-            {isAuthenticated && <NavIcons />}
+            {isHydrated && isAuthenticated && <NavIcons />}
             <UserMenu />
           </div>
         </div>
