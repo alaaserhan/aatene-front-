@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Loader2, Search, Eye, Pencil, Plus, Trash2, PlusCircle, SlidersHorizontal, ChevronDown, Check } from "lucide-react";
+import { Loader2, Search, Trash2, Eye, Plus, Pencil, PlusCircle, SlidersHorizontal, ChevronDown, Check } from "lucide-react";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
 import { Input } from "@/src/components/ui/input";
 import { useGetAdminMissedQuestions, useReviewAdminMissedQuestion, useDeleteAdminMissedQuestion } from "../hooks";
@@ -355,51 +355,48 @@ export function UnansweredQuestionsPage() {
 
                                                         <td className="px-5 py-4">
                                                             {isTrained ? (
-                                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#ecfdf5] text-[#059669]">
+                                                                <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-[#ecfdf5] text-[#059669]">
                                                                     تم التدريب
                                                                 </span>
                                                             ) : (
-                                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#fef9c3] text-[#a16207]">
+                                                                <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-[#fef9c3] text-[#a16207]">
                                                                     قيد المراجعة
                                                                 </span>
                                                             )}
                                                         </td>
 
-                                                        <td className="px-5 py-4">
-                                                            <div className="flex items-center justify-center gap-2">
+                                                        <td className="px-5 py-4 w-[140px]">
+                                                            <div className="flex items-center justify-center gap-3">
+                                                                {/* solve / solved أولاً */}
                                                                 <button
-                                                                    onClick={() => deleteQuestion(question.id)}
-                                                                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-all cursor-pointer active:scale-95"
-                                                                    title="حذف"
+                                                                    onClick={() => handleOpenAnswerModal(question)}
+                                                                    className="cursor-pointer active:scale-95 transition-all flex-shrink-0 w-10 h-10 flex items-center justify-center"
+                                                                    title={isPending ? "إضافة رد" : "تعديل الرد"}
                                                                 >
-                                                                    <Trash2 className="w-4 h-4" />
+                                                                    <img
+                                                                        src={isPending ? "/ai/solve.svg" : "/ai/solved.svg"}
+                                                                        alt={isPending ? "إضافة رد" : "تعديل الرد"}
+                                                                        style={{ width: 40, height: 40 }}
+                                                                    />
                                                                 </button>
 
+                                                                {/* عرض */}
                                                                 <button
                                                                     onClick={() => setViewQuestion(question)}
-                                                                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-100 transition-all cursor-pointer active:scale-95"
+                                                                    className="cursor-pointer active:scale-95 transition-all flex-shrink-0 w-10 h-10 flex items-center justify-center"
                                                                     title="عرض"
                                                                 >
-                                                                    <Eye className="w-4 h-4" />
+                                                                    <img src="/ai/show.svg" alt="عرض" style={{ width: 40, height: 40 }} />
                                                                 </button>
 
-                                                                {isPending ? (
-                                                                    <button
-                                                                        onClick={() => handleOpenAnswerModal(question)}
-                                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 transition-all cursor-pointer active:scale-95"
-                                                                        title="إضافة رد"
-                                                                    >
-                                                                        <Plus className="w-4 h-4" />
-                                                                    </button>
-                                                                ) : (
-                                                                    <button
-                                                                        onClick={() => handleOpenAnswerModal(question)}
-                                                                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 transition-all cursor-pointer active:scale-95"
-                                                                        title="تعديل الرد"
-                                                                    >
-                                                                        <Pencil className="w-4 h-4" />
-                                                                    </button>
-                                                                )}
+                                                                {/* حذف */}
+                                                                <button
+                                                                    onClick={() => deleteQuestion(question.id)}
+                                                                    className="cursor-pointer active:scale-95 transition-all flex-shrink-0 w-10 h-10 flex items-center justify-center"
+                                                                    title="حذف"
+                                                                >
+                                                                    <img src="/ai/delete.svg" alt="حذف" style={{ width: 40, height: 40 }} />
+                                                                </button>
                                                             </div>
                                                         </td>
                                                     </tr>
