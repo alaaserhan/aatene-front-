@@ -239,9 +239,9 @@ export function useUpdateInstruction() {
   });
 }
 
-export function useGetAdminMissedQuestions(params?: { status?: "pending" | "reviewed" | "added_to_kb" }) {
+export function useGetAdminMissedQuestions(params?: { status?: "pending" | "reviewed" | "added_to_kb"; platform?: string; search?: string; page?: number; per_page?: number }) {
   return useQuery({
-    queryKey: ["admin-missed-questions", params?.status],
+    queryKey: ["admin-missed-questions", params?.status, params?.platform, params?.search, params?.page],
     queryFn: () => api.getAdminMissedQuestions(params),
   });
 }
@@ -257,7 +257,8 @@ export function useGetAdminMissedQuestion(id: number) {
 export function useReviewAdminMissedQuestion() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, adminNotes }: { id: number; adminNotes: string }) => api.reviewAdminMissedQuestion(id, adminNotes),
+    mutationFn: ({ id, adminNotes, platform }: { id: number; adminNotes: string; platform: string }) =>
+      api.reviewAdminMissedQuestion(id, adminNotes, platform),
     onSuccess: () => {
       toast.success("تم الرد على السؤال بنجاح");
       queryClient.invalidateQueries({ queryKey: ["admin-missed-questions"] });

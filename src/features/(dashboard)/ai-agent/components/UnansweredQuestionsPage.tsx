@@ -30,6 +30,12 @@ const SOURCE_OPTIONS = [
     { value: "instagram", label: "الانستجرام" },
 ];
 
+const ANSWER_PLATFORM_OPTIONS = [
+    { value: "web", label: "المنصة" },
+    { value: "app", label: "التطبيق" },
+    { value: "both", label: "الاثنين معًا" },
+];
+
 // دالة مساعدة: تحويل قيمة platform من الباك اند إلى نص عربي للعرض
 const platformLabel = (val?: string) => {
     if (!val) return "-";
@@ -68,6 +74,7 @@ export function UnansweredQuestionsPage() {
     const [isAnswerModalOpen, setIsAnswerModalOpen] = useState(false);
     const [questionToAnswer, setQuestionToAnswer] = useState<AdminMissedQuestion | null>(null);
     const [adminNotes, setAdminNotes] = useState("");
+    const [answerPlatform, setAnswerPlatform] = useState("both");
     const [isExporting, setIsExporting] = useState(false);
 
     const queryParams = useMemo(() => ({
@@ -110,6 +117,7 @@ export function UnansweredQuestionsPage() {
     const handleOpenAnswerModal = (question: AdminMissedQuestion) => {
         setQuestionToAnswer(question);
         setAdminNotes(question.admin_notes || "");
+        setAnswerPlatform(question.platform === "web" || question.platform === "app" ? question.platform : "both");
         setIsAnswerModalOpen(true);
     };
 
@@ -117,12 +125,13 @@ export function UnansweredQuestionsPage() {
         setIsAnswerModalOpen(false);
         setQuestionToAnswer(null);
         setAdminNotes("");
+        setAnswerPlatform("both");
     };
 
     const handleSubmitAnswer = () => {
         if (!questionToAnswer) return;
         reviewQuestion(
-            { id: questionToAnswer.id, adminNotes },
+            { id: questionToAnswer.id, adminNotes, platform: answerPlatform },
             { onSuccess: () => handleCloseModal() }
         );
     };
@@ -474,6 +483,27 @@ export function UnansweredQuestionsPage() {
                             <p className="font-medium text-sm leading-relaxed">{questionToAnswer?.question}</p>
                         </div>
                         <div className="flex flex-col gap-2">
+                            <label className="text-sm font-semibold">قاعدة المعرفة التي سيتم اضافة السؤال لها</label>
+                            <div className="border border-gray-200 rounded-xl overflow-hidden">
+                                {ANSWER_PLATFORM_OPTIONS.map((option) => (
+                                    <label
+                                        key={option.value}
+                                        className="flex items-center justify-between px-4 py-3 border-b border-gray-100 last:border-b-0 cursor-pointer"
+                                    >
+                                        <span className="text-sm">{option.label}</span>
+                                        <input
+                                            type="radio"
+                                            name="answer-platform"
+                                            value={option.value}
+                                            checked={answerPlatform === option.value}
+                                            onChange={(e) => setAnswerPlatform(e.target.value)}
+                                            className="w-4 h-4 accent-blue-3"
+                                        />
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
                             <label className="text-sm font-semibold">ملاحظات الإدارة / إجابة السؤال</label>
                             <textarea
                                 value={adminNotes}
@@ -486,7 +516,7 @@ export function UnansweredQuestionsPage() {
                     <DialogFooter className="sm:justify-end gap-2">
                         <button
                             onClick={handleSubmitAnswer}
-                            disabled={!adminNotes.trim() || isReviewing}
+                            disabled={!adminNotes.trim() || !answerPlatform || isReviewing}
                             className="bg-blue-3 hover:opacity-90 text-white px-8 py-2.5 rounded-lg text-sm font-bold transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-md active:scale-95"
                         >
                             {isReviewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>حفظ الرد واعتماد</span>}
