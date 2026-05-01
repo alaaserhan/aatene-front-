@@ -66,6 +66,7 @@ export function InstructionsPage() {
                 <PlatformsSidebar
                     activePlatform={activePlatform}
                     onSelect={setActivePlatform}
+                    showToggle={false}
                 />
 
                 <div className="flex-1 w-full bg-white rounded-2xl border border-gray-200 p-4 lg:p-8 h-[calc(100vh-200px)] lg:h-[calc(100vh-124px)] flex flex-col">

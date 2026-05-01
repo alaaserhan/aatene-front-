@@ -365,9 +365,10 @@ export function UnansweredQuestionsPage() {
                                                             <span className="line-clamp-2">{question.question}</span>
                                                         </td>
 
-                                                         <td className="px-5 py-4 text-gray-600 whitespace-nowrap">
-                                                             {platformLabel(question.platform)}
-                                                         </td>                                                        <td className="px-5 py-4 text-gray-500 max-w-[180px]">
+                                                        <td className="px-5 py-4 text-gray-600 whitespace-nowrap">
+                                                            {platformLabel(question.platform)}
+                                                        </td>
+                                                        <td className="px-5 py-4 text-gray-500 max-w-[180px]">
                                                             {answerText ? (
                                                                 <span className="text-xs leading-relaxed">
                                                                     {answerText.length > 35 ? answerText.slice(0, 35) + ".." : answerText}
@@ -449,33 +450,35 @@ export function UnansweredQuestionsPage() {
             <Dialog open={!!viewQuestion} onOpenChange={(open) => { if (!open) setViewQuestion(null); }}>
                 <DialogContent className="sm:max-w-[500px]" dir="rtl">
                     <DialogHeader>
-                        <DialogTitle className="text-lg font-bold text-right">تفاصيل السؤال</DialogTitle>
+                        <DialogTitle className="text-xl font-bold text-right">تفاصيل السؤال</DialogTitle>
                     </DialogHeader>
-                    <div className="py-4 flex flex-col gap-4">
-                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                            <span className="text-xs text-gray-500 font-medium mb-1 block">السؤال:</span>
-                            <p className="font-medium text-sm leading-relaxed">{viewQuestion?.question}</p>
+                    <div className="py-4 flex flex-col gap-5">
+                        <div className="bg-[#F8FAFC] p-4 rounded-2xl border border-[#E5E7EB]">
+                            <span className="text-sm text-[#6B7280] font-semibold mb-2 block">السؤال</span>
+                            <p className="font-semibold text-[17px] leading-relaxed text-[#1F2937]">{viewQuestion?.question}</p>
                         </div>
                         {viewQuestion?.platform && (
                             <div className="flex items-center gap-2 text-sm">
-                                <span className="text-gray-500">مصدر السؤال:</span>
-                                <span className="font-medium bg-blue-50 text-blue-500 px-2 py-0.5 rounded-full text-xs">{viewQuestion.platform}</span>
+                                <span className="text-[#6B7280] font-semibold">مصدر السؤال:</span>
+                                <span className="font-semibold bg-[#EEF4FF] text-[#295D9B] px-3 py-1 rounded-full text-xs">
+                                    {platformLabel(viewQuestion.platform)}
+                                </span>
                             </div>
                         )}
                         {viewQuestion?.admin_notes && (
-                            <div className="bg-green-50 p-4 rounded-xl border border-green-100">
-                                <span className="text-xs text-green-700 font-medium mb-1 block">الإجابة:</span>
-                                <p className="text-sm leading-relaxed text-gray-700">{viewQuestion.admin_notes}</p>
+                            <div className="bg-[#F8FAFC] p-4 rounded-2xl border border-[#E5E7EB]">
+                                <span className="text-sm text-[#6B7280] font-semibold mb-2 block">الإجابة</span>
+                                <p className="text-sm leading-relaxed text-[#374151]">{viewQuestion.admin_notes}</p>
                             </div>
                         )}
-                        <div className="text-xs text-gray-400">
+                        <div className="text-sm text-[#6B7280]">
                             التاريخ: {viewQuestion ? formatDateTime(viewQuestion.created_at) : ""}
                         </div>
                     </div>
                     <DialogFooter>
                         <button
                             onClick={() => setViewQuestion(null)}
-                            className="px-6 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+                            className="h-12 bg-[#E5EAF1] text-[#1F2937] hover:opacity-90 px-6 rounded-xl text-base font-bold transition-all cursor-pointer"
                         >
                             إغلاق
                         </button>
@@ -487,23 +490,20 @@ export function UnansweredQuestionsPage() {
             <Dialog open={isAnswerModalOpen} onOpenChange={setIsAnswerModalOpen}>
                 <DialogContent className="sm:max-w-[500px]" dir="rtl">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-bold flex items-center gap-2 text-right">
-                            <PlusCircle className="w-5 h-5 text-blue-3" />
-                            إضافة رد وتدريب البوت
-                        </DialogTitle>
+                        <DialogTitle className="text-xl font-bold text-right">تعديل الرد على السؤال</DialogTitle>
                     </DialogHeader>
-                    <div className="py-4 flex flex-col gap-4">
-                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                            <span className="text-xs text-gray-500 font-medium mb-1 block">السؤال الفائت:</span>
-                            <p className="font-medium text-sm leading-relaxed">{questionToAnswer?.question}</p>
+                    <div className="py-4 flex flex-col gap-5">
+                        <div className="bg-[#F8FAFC] p-4 rounded-2xl border border-[#E5E7EB]">
+                            <span className="text-sm text-[#6B7280] font-semibold mb-2 block">السؤال</span>
+                            <p className="font-semibold text-[17px] leading-relaxed text-[#1F2937]">{questionToAnswer?.question}</p>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-sm font-semibold">قاعدة المعرفة التي سيتم اضافة السؤال لها</label>
+                            <label className="text-sm font-semibold text-[#374151]">قاعدة المعرفة التي سيتم اضافة السؤال لها</label>
                             <div className="relative" ref={answerPlatformRef}>
                                 <button
                                     type="button"
                                     onClick={() => setIsAnswerPlatformOpen((prev) => !prev)}
-                                    className="w-full h-11 px-4 border border-gray-200 rounded-lg bg-white flex items-center justify-between text-sm text-gray-700"
+                                    className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl bg-white flex items-center justify-between text-sm text-[#374151]"
                                 >
                                     <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isAnswerPlatformOpen ? "rotate-180" : ""}`} />
                                     <span>
@@ -541,27 +541,27 @@ export function UnansweredQuestionsPage() {
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-sm font-semibold">ملاحظات الإدارة / إجابة السؤال</label>
+                            <label className="text-sm font-semibold text-[#374151]">ملاحظات الإدارة / إجابة السؤال</label>
                             <textarea
                                 value={adminNotes}
                                 onChange={(e) => setAdminNotes(e.target.value)}
                                 placeholder="اكتب الإجابة هنا ليتم إضافتها لقاعدة معرفة البوت..."
-                                className="w-full min-h-[150px] rounded-xl border border-gray-200 p-4 text-sm outline-none resize-y transition-all focus:border-blue-3"
+                                className="w-full min-h-[170px] rounded-2xl border border-[#D1D5DB] p-4 text-sm text-[#111827] outline-none resize-y transition-all focus:border-blue-3"
                             />
                         </div>
                     </div>
-                    <DialogFooter className="sm:justify-end gap-2">
+                    <DialogFooter className="grid grid-cols-2 gap-4">
                         <button
                             onClick={handleSubmitAnswer}
                             disabled={!adminNotes.trim() || !answerPlatform || isReviewing}
-                            className="bg-blue-3 hover:opacity-90 text-white px-8 py-2.5 rounded-lg text-sm font-bold transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-md active:scale-95"
+                            className="h-12 bg-[#E5EAF1] text-[#1F2937] hover:opacity-90 px-6 rounded-xl text-base font-bold transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                         >
-                            {isReviewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>حفظ الرد واعتماد</span>}
+                            {isReviewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>حفظ</span>}
                         </button>
                         <button
                             onClick={handleCloseModal}
                             disabled={isReviewing}
-                            className="bg-white border border-gray-200 hover:bg-gray-50 px-6 py-2.5 rounded-lg text-sm font-bold transition-all cursor-pointer"
+                            className="h-12 bg-blue-3 hover:opacity-90 text-white px-8 rounded-xl text-base font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-95"
                         >
                             إلغاء
                         </button>
