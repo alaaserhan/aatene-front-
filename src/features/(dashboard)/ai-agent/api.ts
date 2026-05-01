@@ -670,6 +670,9 @@ export interface AdminMissedQuestionsResponse {
     message: string;
     total: number;
     data: AdminMissedQuestion[];
+    current_page?: number;
+    last_page?: number;
+    per_page?: number;
 }
 
 export interface AdminMissedQuestionSingleResponse {
@@ -678,8 +681,14 @@ export interface AdminMissedQuestionSingleResponse {
     data: AdminMissedQuestion;
 }
 
-export const getAdminMissedQuestions = async (params?: { status?: "pending" | "reviewed" | "added_to_kb" }): Promise<AdminMissedQuestionsResponse> => {
-    const qs = params?.status ? `?status=${params.status}` : "";
+export const getAdminMissedQuestions = async (params?: { status?: "pending" | "reviewed" | "added_to_kb"; platform?: string; search?: string; page?: number; per_page?: number }): Promise<AdminMissedQuestionsResponse> => {
+    const query = new URLSearchParams();
+    if (params?.status) query.set("status", params.status);
+    if (params?.platform) query.set("platform", params.platform);
+    if (params?.search) query.set("search", params.search);
+    if (params?.page) query.set("page", String(params.page));
+    if (params?.per_page) query.set("per_page", String(params.per_page));
+    const qs = query.toString() ? `?${query.toString()}` : "";
     const { data } = await mainApi.get<AdminMissedQuestionsResponse>(`${WEB_ADMIN_BASE}/missed-questions${qs}`);
     return data;
 };
@@ -689,9 +698,14 @@ export const getAdminMissedQuestion = async (id: number): Promise<AdminMissedQue
     return data;
 };
 
-export const reviewAdminMissedQuestion = async (id: number, adminNotes: string): Promise<AdminMissedQuestionSingleResponse> => {
+export const reviewAdminMissedQuestion = async (
+    id: number,
+    adminNotes: string,
+    platform: string
+): Promise<AdminMissedQuestionSingleResponse> => {
     const { data } = await mainApi.post<AdminMissedQuestionSingleResponse>(`${WEB_ADMIN_BASE}/missed-questions/${id}/reviewed`, {
         admin_notes: adminNotes,
+        platform,
     });
     return data;
 };
