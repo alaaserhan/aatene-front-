@@ -27,12 +27,6 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
       isActive: pathname.includes("KnowledgeBase")
     },
     {
-      iconPath: "/icons/dashboard/fileAi.svg",
-      label: "التعليمات",
-      href: "/admin/mosa3edy/instructions",
-      isActive: pathname.includes("instructions")
-    },
-    {
       iconPath: "/icons/dashboard/chatAi.svg",
       label: "المحادثات",
       href: "/admin/mosa3edy/messages",

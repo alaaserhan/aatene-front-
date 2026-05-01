@@ -160,7 +160,9 @@ export interface RestoreConversationResponse {
 
 export interface SendMessagePayload {
     chat_id: string;
-    message_text: string;
+    platform?: string;
+    message?: string;
+    message_text?: string;
     bot_response?: string;
 }
 
@@ -307,7 +309,7 @@ export const getSingleUser = async (chatId: string): Promise<SingleUserResponse>
 };
 
 export const resolveConversation = async (chatId: string): Promise<ResolveResponse> => {
-    const { data } = await api5000Root.put<ResolveResponse>(`/users/${encodeURIComponent(chatId)}/resolve`);
+    const { data } = await api5000Root.post<ResolveResponse>(`/users/${encodeURIComponent(chatId)}/resolve`);
     return data;
 };
 
@@ -322,7 +324,24 @@ export const restoreConversation = async (chatId: string): Promise<RestoreConver
 };
 
 export const sendMessage = async (payload: SendMessagePayload): Promise<SendMessageResponse> => {
-    const { data } = await api5000Root.post<SendMessageResponse>("/messages/send", payload);
+    const normalizedMessage = payload.message ?? payload.message_text ?? "";
+    const normalizedPlatform = payload.platform;
+
+    // Primary integration from webhook docs.
+    if (normalizedPlatform && normalizedMessage) {
+        const { data } = await api5000Root.post<SendMessageResponse>("/ai-support/send-message", {
+            chat_id: payload.chat_id,
+            platform: normalizedPlatform,
+            message: normalizedMessage,
+        });
+        return data;
+    }
+
+    // Backward-compatible fallback for older payload consumers.
+    const { data } = await api5000Root.post<SendMessageResponse>("/messages/send", {
+        ...payload,
+        message_text: normalizedMessage,
+    });
     return data;
 };
 

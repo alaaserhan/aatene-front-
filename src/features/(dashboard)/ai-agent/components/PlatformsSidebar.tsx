@@ -8,6 +8,7 @@ import { useGetWebConversations } from "../hooks";
 interface PlatformsSidebarProps {
   activePlatform: string;
   onSelect: (platform: string) => void;
+  showToggle?: boolean;
 }
 
 function PlatformItem({
@@ -16,6 +17,7 @@ function PlatformItem({
   isActive,
   count,
   isRed,
+  showToggle,
   onClick,
 }: {
   label: string;
@@ -23,6 +25,7 @@ function PlatformItem({
   isActive: boolean;
   count?: number;
   isRed?: boolean;
+  showToggle: boolean;
   onClick: () => void;
 }) {
   return (
@@ -74,28 +77,29 @@ function PlatformItem({
             {count}
           </span>
         )}
-        {/* Toggle switch */}
-        <div
-          className={cn(
-            "w-9 h-5 rounded-full relative transition-all duration-300 shrink-0",
-            isActive
-              ? isRed ? "bg-red-500" : "bg-[#1DC355]"
-              : "bg-gray-200"
-          )}
-        >
+        {showToggle && (
           <div
             className={cn(
-              "absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-300",
-              isActive ? "left-[18px]" : "left-0.5"
+              "w-9 h-5 rounded-full relative transition-all duration-300 shrink-0",
+              isActive
+                ? isRed ? "bg-red-500" : "bg-[#1DC355]"
+                : "bg-gray-200"
             )}
-          />
-        </div>
+          >
+            <div
+              className={cn(
+                "absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-300",
+                isActive ? "left-[18px]" : "left-0.5"
+              )}
+            />
+          </div>
+        )}
       </div>
     </button>
   );
 }
 
-export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarProps) {
+export function PlatformsSidebar({ activePlatform, onSelect, showToggle = true }: PlatformsSidebarProps) {
   const pathname = usePathname();
   const isMessagesRoute = pathname.includes("messages");
 
@@ -183,6 +187,7 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
               iconPath={p.iconPath}
               isActive={activePlatform === p.id}
               count={p.count}
+              showToggle={showToggle}
               onClick={() => onSelect(p.id)}
             />
           ))}
@@ -200,6 +205,7 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
                   label={p.label}
                   iconPath={p.iconPath}
                   isActive={false}
+                  showToggle={showToggle}
                   onClick={() => {}}
                 />
               ))}
@@ -211,6 +217,7 @@ export function PlatformsSidebar({ activePlatform, onSelect }: PlatformsSidebarP
                 iconPath={deletedPlatform.iconPath}
                 isActive={activePlatform === deletedPlatform.id}
                 isRed
+                showToggle={showToggle}
                 onClick={() => onSelect(deletedPlatform.id)}
               />
             </div>

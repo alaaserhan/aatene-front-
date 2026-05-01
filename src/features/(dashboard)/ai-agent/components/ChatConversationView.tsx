@@ -43,17 +43,26 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
     const refetch = isApi4 ? refetchApi4 : refetchUser;
 
     const user = userData?.user;
+    const platformForWebhook = useMemo(() => {
+        if (platform === "api4_whatsapp") return "whatsapp";
+        if (platform === "whatsapp" || platform === "instagram" || platform === "messenger") return platform;
+        return undefined;
+    }, [platform]);
     const rawMessages = isApi4 ? (api4Data?.history || []) : (userData?.recent_messages || userData?.user?.messages || []);
 
-    const messages = rawMessages.map((msg, idx) => ({
-        message_id: 'message_id' in msg ? (msg as { message_id: number }).message_id : idx,
-        message_text: msg.message_text,
-        message_type: msg.message_type,
-        bot_response: ('bot_response' in msg ? (msg as { bot_response: string }).bot_response : msg.message_text) as string,
-        created_at: msg.created_at,
-    }));
+    const messages = useMemo(() => {
+        return rawMessages
+            .map((msg, idx) => ({
+                message_id: 'message_id' in msg ? (msg as { message_id: number }).message_id : idx,
+                message_text: msg.message_text,
+                message_type: msg.message_type,
+                bot_response: ('bot_response' in msg ? (msg as { bot_response: string }).bot_response : msg.message_text) as string,
+                created_at: msg.created_at,
+            }))
+            .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    }, [rawMessages]);
 
-    const needsHuman = false;
+    const needsHuman = Boolean(!isApi4 && user?.conversation_status?.needs_human);
     const userName = isApi4 ? chatId : (user?.first_name || user?.phone_number || user?.username || "المستخدم");
 
     useEffect(() => {
@@ -61,6 +70,16 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [messages, isLoading, typingUser]);
+
+    // Fallback polling to keep non-website chats fresh
+    // in case realtime events are delayed or unavailable.
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            refetch();
+        }, 5000);
+
+        return () => clearInterval(intervalId);
+    }, [refetch]);
 
     const handleNewMessage = useCallback(() => {
         refetch();
@@ -92,12 +111,17 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
         sendMessage(
             {
                 chat_id: chatId,
+                platform: platformForWebhook,
+                message: messageText,
                 message_text: messageText,
             },
             {
                 onSuccess: () => {
                     setMessageText("");
                     refetch();
+                    // Backend may persist/reindex message with slight delay.
+                    setTimeout(() => refetch(), 1200);
+                    setTimeout(() => refetch(), 3000);
                 },
             }
         );
@@ -382,7 +406,7 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                         </div>
 
                         {/* --- Input Area --- */}
-                        {needsHuman && (
+                        {!isDeletedChats && (
                             <div className="p-4 pt-2 bg-[#F5F5F5] shrink-0">
                                 <div className="relative flex items-center gap-2 bg-white rounded-md p-2 pr-4 ">
                                     <Input
@@ -412,9 +436,9 @@ export function ChatConversationView({ chatId, platform }: ChatConversationViewP
                             </div>
                         )}
 
-                        {!needsHuman && (
+                        {isDeletedChats && (
                             <div className="p-3 bg-[#F5F5F5] text-center text-xs text-gray-2 shrink-0">
-                                هذه المحادثة تدار تلقائياً بواسطة المساعد الذكي
+                                لا يمكن الرد على المحادثات المحذوفة
                             </div>
                         )}
                     </div>

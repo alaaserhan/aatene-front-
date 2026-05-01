@@ -1,5 +1,5 @@
-import { InstructionsPage } from "@/src/features/(dashboard)/ai-agent/components/InstructionsPage";
+import { notFound } from "next/navigation";
 
 export default function Page() {
-  return <InstructionsPage/>;
+  notFound();
 }
