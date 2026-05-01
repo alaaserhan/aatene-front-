@@ -285,7 +285,7 @@ export function useDeleteAdminMissedQuestion() {
 
 export function useGetWebConversations(params?: api.GetWebConversationsParams) {
     return useQuery({
-        queryKey: ["web-conversations", params?.state, params?.unresolved_human_support],
+        queryKey: ["web-conversations", params?.state, params?.unresolved_human_support, params?.needs_human],
         queryFn: () => api.getWebConversations(params),
         refetchInterval: 30000,
     });

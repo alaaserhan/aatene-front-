@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Loader2, Send, Headset, CheckCircle, Bot, User, Star, XCircle, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { useQueryClient } from "@tanstack/react-query";
 import { useGetWebConversationMessages, useWebAdminReply, useWebResolveConversation, useWebEndConversation, useWebDeleteConversation, useWebMarkTyping, useGetWebConversations } from "../hooks";
 import { WebMessage } from "../api";
 import { Button } from "@/src/components/ui/button";
@@ -16,6 +17,7 @@ interface WebChatConversationViewProps {
 }
 
 export function WebChatConversationView({ conversationId }: WebChatConversationViewProps) {
+    const queryClient = useQueryClient();
     const user = useAuthStore((state) => state.user);
     const scrollRef = useRef<HTMLDivElement>(null);
     const [messageText, setMessageText] = useState("");
@@ -88,10 +90,20 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         }, 3000);
     }, [user?.id]);
 
-    const echoEvents = useMemo(() => [
-        { event: ".message.created", callback: handleNewMessage },
-        { event: ".typing.indicator", callback: handleTypingIndicator },
-    ], [handleNewMessage, handleTypingIndicator]);
+    const handleConversationStateBroadcast = useCallback(() => {
+        queryClient.invalidateQueries({ queryKey: ["web-conversations"] });
+        queryClient.invalidateQueries({ queryKey: ["web-conversation-messages", conversationId] });
+    }, [queryClient, conversationId]);
+
+    const echoEvents = useMemo(
+        () => [
+            { event: ".message.created", callback: handleNewMessage },
+            { event: ".typing.indicator", callback: handleTypingIndicator },
+            { event: ".state.changed", callback: handleConversationStateBroadcast },
+            { event: ".conversation.resolved", callback: handleConversationStateBroadcast },
+        ],
+        [handleNewMessage, handleTypingIndicator, handleConversationStateBroadcast]
+    );
 
     useEchoChannel(
         `conversation.${conversationId}`,
@@ -210,6 +222,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                     <div
                         ref={scrollRef}
                         className="flex-1 overflow-y-auto p-4"
+                        dir="rtl"
                         onScroll={(e) => {
                             const { scrollTop } = e.currentTarget;
                             if (scrollTop < 50 && hasNextPage && !isFetchingNextPage) {
@@ -239,21 +252,23 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                                 <div
                                     key={msg.id}
                                     className={cn(
-                                        "flex flex-col w-full",
-                                        isSequence ? "mt-1" : "mt-6"
+                                        "flex w-full",
+                                        isSequence ? "mt-1" : "mt-6",
+                                        /* زائر: يسار الشاشة في واجهة RTL | أدمن/بوت: يمين الشاشة */
+                                        isUser ? "justify-end" : "justify-start"
                                     )}
                                 >
                                     {isUser && (
-                                        <div className="flex flex-col gap-1 max-w-[85%] mr-auto" dir="ltr">
+                                        <div className="flex flex-col gap-1 max-w-[85%]">
                                             {!isSequence && (
-                                                <div className="flex items-center gap-2 text-xs px-1 mb-1">
+                                                <div className="flex items-center gap-2 text-xs px-1 mb-1 justify-end">
                                                     <span className="text-gray-2">{getRelativeTimeArabic(msg.created_at)}</span>
                                                     <span>|</span>
                                                     <span className="font-medium text-gray-700">{msg.sender?.full_name || userName}</span>
                                                 </div>
                                             )}
 
-                                            <div className="flex gap-3 items-start">
+                                            <div className="flex gap-3 items-start flex-row-reverse">
                                                 <div className={cn(
                                                     "w-8 h-8 rounded-full bg-gray-200 shrink-0 flex items-center justify-center mt-1 border border-blue-200 overflow-hidden",
                                                     isSequence && "invisible border-none"
@@ -263,7 +278,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                                                     )}
                                                 </div>
 
-                                                <div className="bg-white p-3 px-4 rounded-2xl rounded-tl-none text-sm leading-relaxed" dir="rtl">
+                                                <div className="bg-white p-3 px-4 rounded-2xl rounded-br-none shadow-sm border border-gray-100 text-sm leading-relaxed text-gray-800">
                                                     {text}
                                                 </div>
                                             </div>
@@ -271,9 +286,9 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                                     )}
 
                                     {isSupport && (
-                                        <div className="flex flex-col items-end gap-2 max-w-[85%] self-end ml-auto" dir="ltr">
+                                        <div className="flex flex-col gap-2 max-w-[85%]">
                                             {!isSequence && (
-                                                <div className="flex items-center gap-2 text-xs px-1 w-full justify-end mb-1">
+                                                <div className="flex items-center gap-2 text-xs px-1 mb-1 justify-start">
                                                     <span className="font-medium text-gray-700">
                                                         {isBot ? "موظف الذكاء الاصطناعي" : (msg.sender?.full_name || "الموظف")}
                                                     </span>
@@ -282,7 +297,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                                                 </div>
                                             )}
 
-                                            <div className="flex gap-3 items-start flex-row-reverse w-full">
+                                            <div className="flex gap-3 items-start">
                                                 <div className={cn(
                                                     "w-8 h-8 rounded-full shrink-0 flex items-center justify-center mt-1",
                                                     !isSequence ? (isBot ? "bg-[#EBF1F7]" : "bg-blue-100") : "invisible"
@@ -297,8 +312,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                                                 </div>
 
                                                 <div
-                                                    className="p-4 rounded-2xl rounded-tr-none text-sm leading-relaxed bg-linear-to-br from-[#395A7D] to-[#6496CD] text-white"
-                                                    dir="rtl"
+                                                    className="p-4 rounded-2xl rounded-bl-none text-sm leading-relaxed bg-linear-to-br from-[#395A7D] to-[#6496CD] text-white shadow-sm"
                                                 >
                                                     {text}
                                                 </div>
@@ -310,18 +324,20 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                         })}
 
                         {typingUser && (
-                            <div className="flex flex-col gap-1 mt-4 mr-auto max-w-[85%] animate-in fade-in duration-300 w-fit" dir="ltr">
-                                <div className="flex gap-3 items-start">
+                            <div className="flex w-full justify-end mt-4 animate-in fade-in duration-300">
+                                <div className="flex flex-col gap-1 max-w-[85%] w-fit">
+                                <div className="flex gap-3 items-start flex-row-reverse">
                                     <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0 flex items-center justify-center mt-1 border border-blue-200 overflow-hidden">
                                         <User className="w-4 h-4 text-blue-3" />
                                     </div>
-                                    <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-none text-sm text-gray-500 flex items-center gap-1.5 shadow-sm border border-gray-100">
+                                    <div className="bg-white px-4 py-3 rounded-2xl rounded-br-none text-sm text-gray-500 flex items-center gap-1.5 shadow-sm border border-gray-100">
                                         <span className="flex gap-1 items-center">
                                             <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
                                             <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
                                             <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
                                         </span>
                                     </div>
+                                </div>
                                 </div>
                             </div>
                         )}

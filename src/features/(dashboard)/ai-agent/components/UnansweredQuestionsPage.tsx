@@ -554,14 +554,14 @@ export function UnansweredQuestionsPage() {
                         <button
                             onClick={handleSubmitAnswer}
                             disabled={!adminNotes.trim() || !answerPlatform || isReviewing}
-                            className="h-12 bg-[#E5EAF1] text-[#1F2937] hover:opacity-90 px-6 rounded-xl text-base font-bold transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                            className="h-12 bg-blue-3 hover:opacity-90 text-white px-6 rounded-xl text-base font-bold transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 shadow-md active:scale-95"
                         >
                             {isReviewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>حفظ</span>}
                         </button>
                         <button
                             onClick={handleCloseModal}
                             disabled={isReviewing}
-                            className="h-12 bg-blue-3 hover:opacity-90 text-white px-8 rounded-xl text-base font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-95"
+                            className="h-12 bg-[#E5EAF1] text-[#1F2937] hover:opacity-90 px-8 rounded-xl text-base font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                         >
                             إلغاء
                         </button>
