@@ -17,7 +17,7 @@ const ITEMS_PER_PAGE = 10;
 // خيارات فلتر الحالة — تظهر في dropdown زر التصفية
 const STATUS_FILTER_OPTIONS = [
     { value: "all",      label: "الكل" },
-    { value: "reviewed", label: "تم التدريب" },
+    { value: "added_to_kb", label: "تم التدريب" },
     { value: "pending",  label: "قيد المراجعة" },
 ];
 
@@ -53,8 +53,10 @@ export function UnansweredQuestionsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isSourceOpen, setIsSourceOpen] = useState(false);
+    const [isAnswerPlatformOpen, setIsAnswerPlatformOpen] = useState(false);
     const filterRef = useRef<HTMLDivElement>(null);
     const sourceRef = useRef<HTMLDivElement>(null);
+    const answerPlatformRef = useRef<HTMLDivElement>(null);
 
     // إغلاق dropdowns عند الضغط خارجها
     useEffect(() => {
@@ -64,6 +66,9 @@ export function UnansweredQuestionsPage() {
             }
             if (sourceRef.current && !sourceRef.current.contains(e.target as Node)) {
                 setIsSourceOpen(false);
+            }
+            if (answerPlatformRef.current && !answerPlatformRef.current.contains(e.target as Node)) {
+                setIsAnswerPlatformOpen(false);
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
@@ -80,15 +85,24 @@ export function UnansweredQuestionsPage() {
     const queryParams = useMemo(() => ({
         ...(platformFilter ? { platform: platformFilter } : {}),
         ...(statusFilter !== "all" ? { status: statusFilter as "pending" | "reviewed" | "added_to_kb" } : {}),
+        ...(searchQuery.trim() ? { search: searchQuery.trim() } : {}),
         page,
         per_page: ITEMS_PER_PAGE,
-    }), [platformFilter, statusFilter, page]);
+    }), [platformFilter, statusFilter, searchQuery, page]);
 
     const { data: response, isLoading } = useGetAdminMissedQuestions(queryParams);
     const { mutate: reviewQuestion, isPending: isReviewing } = useReviewAdminMissedQuestion();
     const { mutate: deleteQuestion } = useDeleteAdminMissedQuestion();
 
     const questions: AdminMissedQuestion[] = response?.data ?? [];
+    const filteredQuestions = useMemo(() => {
+        const q = searchQuery.trim().toLowerCase();
+        if (!q) return questions;
+        return questions.filter((item) =>
+            item.question.toLowerCase().includes(q) ||
+            (item.admin_notes ?? "").toLowerCase().includes(q)
+        );
+    }, [questions, searchQuery]);
     const totalPages = Math.max(1, Math.ceil((response?.total ?? 0) / ITEMS_PER_PAGE));
 
     const handleSelectStatus = (val: string) => {
@@ -126,6 +140,7 @@ export function UnansweredQuestionsPage() {
         setQuestionToAnswer(null);
         setAdminNotes("");
         setAnswerPlatform("both");
+        setIsAnswerPlatformOpen(false);
     };
 
     const handleSubmitAnswer = () => {
@@ -142,10 +157,10 @@ export function UnansweredQuestionsPage() {
             const pdf = new jsPDF("p", "mm", "a4");
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const rowsPerPage = 25;
-            const totalChunks = Math.max(1, Math.ceil(questions.length / rowsPerPage));
+            const totalChunks = Math.max(1, Math.ceil(filteredQuestions.length / rowsPerPage));
 
             for (let i = 0; i < totalChunks; i++) {
-                const chunk = questions.slice(i * rowsPerPage, (i + 1) * rowsPerPage);
+                const chunk = filteredQuestions.slice(i * rowsPerPage, (i + 1) * rowsPerPage);
                 const container = document.createElement("div");
                 container.style.cssText = "position:absolute;top:-9999px;left:-9999px;width:800px;padding:20px;background:white;";
                 container.dir = "rtl";
@@ -320,7 +335,7 @@ export function UnansweredQuestionsPage() {
                             <div className="flex items-center justify-center py-40">
                                 <Loader2 className="w-10 h-10 animate-spin text-blue-3" />
                             </div>
-                        ) : questions.length === 0 ? (
+                        ) : filteredQuestions.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-24 text-gray-400">
                                 <img src="/icons/dashboard/document.svg" alt="empty" className="w-16 h-16 opacity-20 mb-4" />
                                 <p className="text-sm font-medium">لا توجد أسئلة حالياً</p>
@@ -339,7 +354,7 @@ export function UnansweredQuestionsPage() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {questions.map((question) => {
+                                            {filteredQuestions.map((question) => {
                                                 const isPending = question.status === "pending";
                                                 const isTrained = question.status === "reviewed" || question.status === "added_to_kb";
                                                 const answerText = question.admin_notes;
@@ -484,23 +499,45 @@ export function UnansweredQuestionsPage() {
                         </div>
                         <div className="flex flex-col gap-2">
                             <label className="text-sm font-semibold">قاعدة المعرفة التي سيتم اضافة السؤال لها</label>
-                            <div className="border border-gray-200 rounded-xl overflow-hidden">
-                                {ANSWER_PLATFORM_OPTIONS.map((option) => (
-                                    <label
-                                        key={option.value}
-                                        className="flex items-center justify-between px-4 py-3 border-b border-gray-100 last:border-b-0 cursor-pointer"
-                                    >
-                                        <span className="text-sm">{option.label}</span>
-                                        <input
-                                            type="radio"
-                                            name="answer-platform"
-                                            value={option.value}
-                                            checked={answerPlatform === option.value}
-                                            onChange={(e) => setAnswerPlatform(e.target.value)}
-                                            className="w-4 h-4 accent-blue-3"
-                                        />
-                                    </label>
-                                ))}
+                            <div className="relative" ref={answerPlatformRef}>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAnswerPlatformOpen((prev) => !prev)}
+                                    className="w-full h-11 px-4 border border-gray-200 rounded-lg bg-white flex items-center justify-between text-sm text-gray-700"
+                                >
+                                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isAnswerPlatformOpen ? "rotate-180" : ""}`} />
+                                    <span>
+                                        {ANSWER_PLATFORM_OPTIONS.find((opt) => opt.value === answerPlatform)?.label ?? "اختر القاعدة"}
+                                    </span>
+                                </button>
+                                {isAnswerPlatformOpen && (
+                                    <div className="absolute top-12 left-0 w-full z-50 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                                        {ANSWER_PLATFORM_OPTIONS.map((option) => (
+                                            <button
+                                                key={option.value}
+                                                type="button"
+                                                onClick={() => {
+                                                    setAnswerPlatform(option.value);
+                                                    setIsAnswerPlatformOpen(false);
+                                                }}
+                                                className="w-full flex items-center justify-between px-4 py-3 text-sm text-right hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                                            >
+                                                <span
+                                                    className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                                                        answerPlatform === option.value ? "border-blue-3" : "border-gray-300"
+                                                    }`}
+                                                >
+                                                    <span
+                                                        className={`w-2.5 h-2.5 rounded-full ${
+                                                            answerPlatform === option.value ? "bg-blue-3" : "bg-transparent"
+                                                        }`}
+                                                    />
+                                                </span>
+                                                <span className="text-gray-700">{option.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
