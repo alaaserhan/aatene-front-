@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Loader2, Search, Eye, Pencil, Plus, Trash2, PlusCircle, SlidersHorizontal } from "lucide-react";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { Loader2, Search, Eye, Pencil, Plus, Trash2, PlusCircle, SlidersHorizontal, ChevronDown, Check } from "lucide-react";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
-import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Input } from "@/src/components/ui/input";
 import { useGetAdminMissedQuestions, useReviewAdminMissedQuestion, useDeleteAdminMissedQuestion } from "../hooks";
 import { AdminMissedQuestion } from "../api";
@@ -15,70 +14,97 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 
 const ITEMS_PER_PAGE = 10;
 
-const STATUS_OPTIONS = [
-    { value: "pending", label: "قيد المراجعة" },
-    { value: "reviewed", label: "تمت المراجعة" },
-    { value: "added_to_kb", label: "تم الإضافة للقاعدة" },
+// خيارات فلتر الحالة — تظهر في dropdown زر التصفية
+const STATUS_FILTER_OPTIONS = [
+    { value: "all",      label: "الكل" },
+    { value: "reviewed", label: "تم التدريب" },
+    { value: "pending",  label: "قيد المراجعة" },
 ];
 
+// قيم المصدر — تطابق ما يُخزَّن في الباك اند بالضبط (بدون "الكل")
 const SOURCE_OPTIONS = [
-    { value: "all", label: "الكل" },
-    { value: "التطبيق", label: "التطبيق" },
-    { value: "المنصة", label: "المنصة" },
-    { value: "واتساب", label: "واتساب" },
-    { value: "مسنجر", label: "مسنجر" },
-    { value: "انستجرام", label: "انستجرام" },
+    { value: "web",       label: "المنصة" },
+    { value: "app",       label: "التطبيق" },
+    { value: "whatsapp",  label: "الواتساب" },
+    { value: "messenger", label: "الماسنجر" },
+    { value: "instagram", label: "الانستجرام" },
 ];
+
+// دالة مساعدة: تحويل قيمة platform من الباك اند إلى نص عربي للعرض
+const platformLabel = (val?: string) => {
+    if (!val) return "-";
+    const map: Record<string, string> = {
+        web: "المنصة", app: "التطبيق",
+        whatsapp: "الواتساب", messenger: "الماسنجر", instagram: "الانستجرام",
+    };
+    return map[val] ?? val;
+};
 
 export function UnansweredQuestionsPage() {
+    const [page, setPage] = useState(1);
+    const [platformFilter, setPlatformFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
-    const [sourceFilter, setSourceFilter] = useState("all");
-    const [pendingSourceFilter, setPendingSourceFilter] = useState("all");
-    const [currentPage, setCurrentPage] = useState(1);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [isSourceOpen, setIsSourceOpen] = useState(false);
+    const filterRef = useRef<HTMLDivElement>(null);
+    const sourceRef = useRef<HTMLDivElement>(null);
+
+    // إغلاق dropdowns عند الضغط خارجها
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+                setIsFilterOpen(false);
+            }
+            if (sourceRef.current && !sourceRef.current.contains(e.target as Node)) {
+                setIsSourceOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     const [viewQuestion, setViewQuestion] = useState<AdminMissedQuestion | null>(null);
     const [isAnswerModalOpen, setIsAnswerModalOpen] = useState(false);
     const [questionToAnswer, setQuestionToAnswer] = useState<AdminMissedQuestion | null>(null);
     const [adminNotes, setAdminNotes] = useState("");
     const [isExporting, setIsExporting] = useState(false);
 
-    const { data: response, isLoading } = useGetAdminMissedQuestions(undefined);
+    const queryParams = useMemo(() => ({
+        ...(platformFilter ? { platform: platformFilter } : {}),
+        ...(statusFilter !== "all" ? { status: statusFilter as "pending" | "reviewed" | "added_to_kb" } : {}),
+        page,
+        per_page: ITEMS_PER_PAGE,
+    }), [platformFilter, statusFilter, page]);
+
+    const { data: response, isLoading } = useGetAdminMissedQuestions(queryParams);
     const { mutate: reviewQuestion, isPending: isReviewing } = useReviewAdminMissedQuestion();
     const { mutate: deleteQuestion } = useDeleteAdminMissedQuestion();
 
-    const questions: AdminMissedQuestion[] = useMemo(() => {
-        if (!response?.data) return [];
-        return response.data;
-    }, [response]);
+    const questions: AdminMissedQuestion[] = response?.data ?? [];
+    const totalPages = Math.max(1, Math.ceil((response?.total ?? 0) / ITEMS_PER_PAGE));
 
-    const filteredQuestions = useMemo(() => {
-        let result = questions;
-        if (searchQuery.trim()) {
-            result = result.filter((q) =>
-                q.question?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                q.admin_notes?.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-        }
-        if (sourceFilter !== "all") {
-            result = result.filter((q) => q.platform === sourceFilter);
-        }
-        return result;
-    }, [questions, searchQuery, sourceFilter]);
+    const handleSelectStatus = (val: string) => {
+        setStatusFilter(val);
+        setPage(1);
+        setIsFilterOpen(false);
+    };
 
-    const totalPages = Math.max(1, Math.ceil(filteredQuestions.length / ITEMS_PER_PAGE));
+    const handleSelectSource = (val: string) => {
+        setPlatformFilter(val);
+        setPage(1);
+        setIsSourceOpen(false);
+    };
 
-    const paginatedQuestions = useMemo(() => {
-        const start = (currentPage - 1) * ITEMS_PER_PAGE;
-        return filteredQuestions.slice(start, start + ITEMS_PER_PAGE);
-    }, [filteredQuestions, currentPage]);
+    const handleResetFilter = () => {
+        setPlatformFilter("");
+        setStatusFilter("all");
+        setPage(1);
+    };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
-
-    const handleApplyFilter = () => {
-        setSourceFilter(pendingSourceFilter);
-        setCurrentPage(1);
+        setPage(1);
     };
 
     const handleOpenAnswerModal = (question: AdminMissedQuestion) => {
@@ -107,21 +133,19 @@ export function UnansweredQuestionsPage() {
             const pdf = new jsPDF("p", "mm", "a4");
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const rowsPerPage = 25;
-            const totalChunks = Math.ceil(filteredQuestions.length / rowsPerPage);
+            const totalChunks = Math.max(1, Math.ceil(questions.length / rowsPerPage));
 
             for (let i = 0; i < totalChunks; i++) {
-                const chunk = filteredQuestions.slice(i * rowsPerPage, (i + 1) * rowsPerPage);
+                const chunk = questions.slice(i * rowsPerPage, (i + 1) * rowsPerPage);
                 const container = document.createElement("div");
                 container.style.cssText = "position:absolute;top:-9999px;left:-9999px;width:800px;padding:20px;background:white;";
                 container.dir = "rtl";
-
                 const headerHtml = i === 0
                     ? `<div style="text-align:center;margin-bottom:20px;"><h1 style="font-family:Tahoma,Arial,sans-serif;font-size:24px;color:#333;">أسئلة لم يتمكن البوت من الرد عليها</h1></div>`
                     : `<div style="margin-bottom:20px;"></div>`;
-
                 let rowsHtml = "";
                 chunk.forEach((q) => {
-                    const statusObj = STATUS_OPTIONS.find(opt => opt.value === q.status);
+                    const statusObj = STATUS_FILTER_OPTIONS.find((opt: { value: string; label: string }) => opt.value === q.status);
                     rowsHtml += `<tr style="border-bottom:1px solid #eee;">
                         <td style="padding:12px 8px;font-family:Tahoma,Arial,sans-serif;text-align:right;color:#444;">${q.question}</td>
                         <td style="padding:12px 8px;font-family:Tahoma,Arial,sans-serif;text-align:right;color:#444;">${q.platform || "-"}</td>
@@ -129,7 +153,6 @@ export function UnansweredQuestionsPage() {
                         <td style="padding:12px 8px;font-family:Tahoma,Arial,sans-serif;text-align:right;color:#444;">${statusObj?.label || q.status}</td>
                     </tr>`;
                 });
-
                 container.innerHTML = headerHtml + `<table style="width:100%;border-collapse:collapse;font-family:Tahoma,Arial,sans-serif;text-align:right;" dir="rtl">
                     <thead><tr style="background:#f8f9fa;border-bottom:2px solid #ddd;">
                         <th style="padding:12px 8px;text-align:right;color:#333;">السؤال</th>
@@ -139,11 +162,9 @@ export function UnansweredQuestionsPage() {
                     </tr></thead>
                     <tbody>${rowsHtml}</tbody>
                 </table>`;
-
                 document.body.appendChild(container);
                 const canvas = await html2canvas(container, { scale: 1.5, useCORS: true });
                 document.body.removeChild(container);
-
                 if (i > 0) pdf.addPage();
                 pdf.addImage(canvas.toDataURL("image/jpeg", 0.75), "JPEG", 0, 0, pdfWidth, (canvas.height * pdfWidth) / canvas.width);
             }
@@ -158,16 +179,14 @@ export function UnansweredQuestionsPage() {
     return (
         <div className="p-3 lg:p-5">
             <div className="lg:grid lg:grid-cols-[280px_1fr] flex flex-col gap-4 items-start">
-                {/* Sidebar */}
                 <div className="w-full lg:sticky lg:top-25">
                     <Mosa3edySidebar />
                 </div>
 
-                {/* Main Content */}
                 <div className="w-full bg-white rounded-2xl border border-gray-200 p-4 lg:p-8 min-h-[calc(100vh-124px)] flex flex-col gap-5">
 
-                    {/* Header */}
-                    <div className="flex flex-col sm:flex-row-reverse justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-5">
+                    {/* Header — العنوان يمين، زر التصدير يسار */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-5">
                         <div className="text-right">
                             <h1 className="text-xl lg:text-2xl font-bold mb-1">
                                 أسئلة لم يتمكن البوت من الرد عليها
@@ -192,6 +211,7 @@ export function UnansweredQuestionsPage() {
 
                     {/* Filters */}
                     <div className="flex flex-col sm:flex-row items-center gap-3" dir="rtl">
+                        {/* Search */}
                         <div className="relative flex-1 w-full">
                             <Input
                                 placeholder="ابحث عن السؤال أو الإجابة"
@@ -203,23 +223,86 @@ export function UnansweredQuestionsPage() {
                             <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                         </div>
 
-                        <div className="w-full sm:w-[180px]">
-                            <ReusableDropdown
-                                options={SOURCE_OPTIONS}
-                                value={pendingSourceFilter}
-                                onChange={(val: string) => setPendingSourceFilter(val)}
-                                placeholder="مصدر السؤال"
-                                className="w-full !h-11"
-                            />
+                        {/* مصدر السؤال — dropdown بنفس تصميم التصفية */}
+                        <div className="relative" ref={sourceRef}>
+                            <button
+                                onClick={() => setIsSourceOpen((prev) => !prev)}
+                                className={`flex items-center gap-2 px-4 h-11 border rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer min-w-[150px] ${
+                                    platformFilter
+                                        ? "border-blue-3 bg-blue-50 text-blue-3"
+                                        : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                                }`}
+                            >
+                                <span className="flex-1 text-right">
+                                    {platformFilter
+                                        ? SOURCE_OPTIONS.find(o => o.value === platformFilter)?.label ?? "مصدر السؤال"
+                                        : "مصدر السؤال"}
+                                </span>
+                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isSourceOpen ? "rotate-180" : ""}`} />
+                            </button>
+
+                            {isSourceOpen && (
+                                <div className="absolute top-12 right-0 z-50 bg-white border border-gray-200 rounded-xl shadow-lg min-w-[160px] overflow-hidden" dir="rtl">
+                                    {/* الكل — لإعادة الضبط */}
+                                    <button
+                                        onClick={() => handleSelectSource("")}
+                                        className={`w-full flex items-center justify-between px-4 py-3 text-sm text-right hover:bg-gray-50 transition-colors border-b border-gray-100 cursor-pointer ${
+                                            !platformFilter ? "text-blue-3 font-semibold" : "text-gray-700"
+                                        }`}
+                                    >
+                                        <span>الكل</span>
+                                        {!platformFilter && <Check className="w-3.5 h-3.5 text-blue-3" />}
+                                    </button>
+                                    {SOURCE_OPTIONS.map((opt) => (
+                                        <button
+                                            key={opt.value}
+                                            onClick={() => handleSelectSource(opt.value)}
+                                            className={`w-full flex items-center justify-between px-4 py-3 text-sm text-right hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0 cursor-pointer ${
+                                                platformFilter === opt.value ? "text-blue-3 font-semibold" : "text-gray-700"
+                                            }`}
+                                        >
+                                            <span>{opt.label}</span>
+                                            {platformFilter === opt.value && <Check className="w-3.5 h-3.5 text-blue-3" />}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
-                        <button
-                            onClick={handleApplyFilter}
-                            className="flex items-center gap-2 px-4 h-11 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors whitespace-nowrap cursor-pointer"
-                        >
-                            <SlidersHorizontal className="w-4 h-4" />
-                            تصفية
-                        </button>
+                        {/* زر التصفية — dropdown للحالة */}
+                        <div className="relative" ref={filterRef}>
+                            <button
+                                onClick={() => setIsFilterOpen((prev) => !prev)}
+                                className={`flex items-center gap-2 px-4 h-11 border rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer ${
+                                    statusFilter !== "all"
+                                        ? "border-blue-3 bg-blue-50 text-blue-3"
+                                        : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                                }`}
+                            >
+                                <SlidersHorizontal className="w-4 h-4" />
+                                {statusFilter !== "all"
+                                    ? STATUS_FILTER_OPTIONS.find(o => o.value === statusFilter)?.label ?? "تصفية"
+                                    : "تصفية"}
+                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isFilterOpen ? "rotate-180" : ""}`} />
+                            </button>
+
+                            {isFilterOpen && (
+                                <div className="absolute top-12 right-0 z-50 bg-white border border-gray-200 rounded-xl shadow-lg min-w-[160px] overflow-hidden" dir="rtl">
+                                    {STATUS_FILTER_OPTIONS.map((opt) => (
+                                        <button
+                                            key={opt.value}
+                                            onClick={() => handleSelectStatus(opt.value)}
+                                            className={`w-full flex items-center justify-between px-4 py-3 text-sm text-right hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0 cursor-pointer ${
+                                                statusFilter === opt.value ? "text-blue-3 font-semibold" : "text-gray-700"
+                                            }`}
+                                        >
+                                            <span>{opt.label}</span>
+                                            {statusFilter === opt.value && <Check className="w-3.5 h-3.5 text-blue-3" />}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Table */}
@@ -228,7 +311,7 @@ export function UnansweredQuestionsPage() {
                             <div className="flex items-center justify-center py-40">
                                 <Loader2 className="w-10 h-10 animate-spin text-blue-3" />
                             </div>
-                        ) : filteredQuestions.length === 0 ? (
+                        ) : questions.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-24 text-gray-400">
                                 <img src="/icons/dashboard/document.svg" alt="empty" className="w-16 h-16 opacity-20 mb-4" />
                                 <p className="text-sm font-medium">لا توجد أسئلة حالياً</p>
@@ -241,13 +324,13 @@ export function UnansweredQuestionsPage() {
                                             <tr className="bg-[#FAFAFA] border-b border-gray-200">
                                                 <th className="text-right px-5 py-4 font-semibold text-gray-600 whitespace-nowrap">السؤال</th>
                                                 <th className="text-right px-5 py-4 font-semibold text-gray-600 whitespace-nowrap">مصدر السؤال</th>
-                                                <th className="text-right px-5 py-4 font-semibold text-gray-600 whitespace-nowrap min-w-[160px]">الإجابة</th>
+                                                <th className="text-right px-5 py-4 font-semibold text-gray-600 whitespace-nowrap min-w-[180px]">الإجابة</th>
                                                 <th className="text-right px-5 py-4 font-semibold text-gray-600 whitespace-nowrap">الحالة</th>
                                                 <th className="text-center px-5 py-4 font-semibold text-gray-600 whitespace-nowrap w-[130px]">إجراء</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {paginatedQuestions.map((question) => {
+                                            {questions.map((question) => {
                                                 const isPending = question.status === "pending";
                                                 const isTrained = question.status === "reviewed" || question.status === "added_to_kb";
                                                 const answerText = question.admin_notes;
@@ -258,11 +341,9 @@ export function UnansweredQuestionsPage() {
                                                             <span className="line-clamp-2">{question.question}</span>
                                                         </td>
 
-                                                        <td className="px-5 py-4 text-gray-600 whitespace-nowrap">
-                                                            {question.platform || "-"}
-                                                        </td>
-
-                                                        <td className="px-5 py-4 text-gray-500 max-w-[180px]">
+                                                         <td className="px-5 py-4 text-gray-600 whitespace-nowrap">
+                                                             {platformLabel(question.platform)}
+                                                         </td>                                                        <td className="px-5 py-4 text-gray-500 max-w-[180px]">
                                                             {answerText ? (
                                                                 <span className="text-xs leading-relaxed">
                                                                     {answerText.length > 35 ? answerText.slice(0, 35) + ".." : answerText}
@@ -328,13 +409,15 @@ export function UnansweredQuestionsPage() {
                                     </table>
                                 </div>
 
-                                <div className="my-6">
-                                    <Pagination
-                                        totalPages={totalPages}
-                                        currentPage={currentPage}
-                                        onPageChange={(p) => { setCurrentPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                                    />
-                                </div>
+                                {totalPages > 1 && (
+                                    <div className="my-6">
+                                        <Pagination
+                                            totalPages={totalPages}
+                                            currentPage={page}
+                                            onPageChange={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                                        />
+                                    </div>
+                                )}
                             </>
                         )}
                     </div>
