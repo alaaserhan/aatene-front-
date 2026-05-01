@@ -99,27 +99,23 @@ export function MessagesPage() {
                             </h1>
                         </div>
 
-                        {!isWebsite && (
-                            <div className="flex items-center gap-2 lg:gap-3 bg-gray-50 px-3 lg:px-4 py-2 rounded-lg border border-gray-100">
-                                <Switch
-                                    id="human-filter"
-                                    checked={showNeedsHuman}
-                                    onCheckedChange={(checked) => {
-                                        setShowNeedsHuman(checked);
-                                        if (checked) {
-                                            const params = new URLSearchParams(searchParams.toString());
-                                            params.delete("chatId");
-                                            router.push(`${pathname}?${params.toString()}`);
-                                        }
-                                    }}
-                                    dir="ltr"
-                                    className="data-[state=checked]:bg-[#D97706]"
-                                />
-                                <Label htmlFor="human-filter" className="text-xs lg:text-sm font-medium text-gray-2 cursor-pointer select-none whitespace-nowrap">
-                                    يحتاج تدخل بشري
-                                </Label>
-                            </div>
-                        )}
+                        <div className="flex items-center gap-2 lg:gap-3 bg-gray-50 px-3 lg:px-4 py-2 rounded-lg border border-gray-100">
+                            <Switch
+                                id="human-filter"
+                                checked={showNeedsHuman}
+                                onCheckedChange={(checked) => {
+                                    setShowNeedsHuman(checked);
+                                    const params = new URLSearchParams(searchParams.toString());
+                                    params.delete("chatId");
+                                    router.push(`${pathname}?${params.toString()}`);
+                                }}
+                                dir="ltr"
+                                className="data-[state=checked]:bg-[#D97706]"
+                            />
+                            <Label htmlFor="human-filter" className="text-xs lg:text-sm font-medium text-gray-2 cursor-pointer select-none whitespace-nowrap">
+                                يحتاج تدخل بشري
+                            </Label>
+                        </div>
                     </div>
 
                     <div className="flex flex-1 overflow-hidden">

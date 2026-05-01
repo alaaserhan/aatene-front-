@@ -528,6 +528,8 @@ export interface WebAnalyticsResponse {
 export interface GetWebConversationsParams {
     state?: WebConversationState;
     unresolved_human_support?: boolean;
+    /** يطابق فلتر الباك needs_human (محادثات تحتاج تدخل بشري) */
+    needs_human?: boolean;
 }
 
 export interface GetWebMessagesParams {
@@ -542,6 +544,7 @@ export const getWebConversations = async (params?: GetWebConversationsParams): P
     const queryParams = new URLSearchParams();
     if (params?.state) queryParams.set("state", params.state);
     if (params?.unresolved_human_support) queryParams.set("unresolved_human_support", "1");
+    if (params?.needs_human) queryParams.set("needs_human", "1");
     const qs = queryParams.toString();
     const { data } = await mainApi.get<WebConversationsResponse>(`${WEB_ADMIN_BASE}/conversations${qs ? `?${qs}` : ""}`);
     return data;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import type { GetWebConversationsParams } from "../api";
 import { Loader2, User, Store } from "lucide-react";
 import { useGetPlatformUsers, useGetApi4Users, useGetDeletedUsers, useGetWebConversations } from "../hooks";
 import { PlatformType, WebConversation, WebConversationState } from "../api";
@@ -139,16 +140,23 @@ function WebsiteChatList({
   onSelectChat,
   stateFilter,
   onStateFilter,
+  needsHuman,
 }: {
   selectedChatId: string | null;
   onSelectChat: (id: string) => void;
   stateFilter?: WebConversationState;
   onStateFilter?: (state?: WebConversationState) => void;
+  needsHuman: boolean;
 }) {
   const queryClient = useQueryClient();
-  const { data, isLoading } = useGetWebConversations(
-    stateFilter ? { state: stateFilter } : undefined
-  );
+  const webConversationsParams = useMemo((): GetWebConversationsParams | undefined => {
+    const p: GetWebConversationsParams = {};
+    if (stateFilter) p.state = stateFilter;
+    if (needsHuman) p.needs_human = true;
+    return Object.keys(p).length ? p : undefined;
+  }, [stateFilter, needsHuman]);
+
+  const { data, isLoading } = useGetWebConversations(webConversationsParams);
 
   const adminEvents = useMemo(() => [
     {
@@ -161,6 +169,13 @@ function WebsiteChatList({
       event: ".state.changed",
       callback: () => {
         queryClient.invalidateQueries({ queryKey: ["web-conversations"] });
+      },
+    },
+    {
+      event: ".conversation.resolved",
+      callback: () => {
+        queryClient.invalidateQueries({ queryKey: ["web-conversations"] });
+        queryClient.invalidateQueries({ queryKey: ["web-conversation-messages"] });
       },
     },
   ], [queryClient]);
@@ -379,6 +394,7 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsH
         onSelectChat={onSelectChat}
         stateFilter={webStateFilter}
         onStateFilter={onWebStateFilter}
+        needsHuman={needsHuman}
       />
     );
   }

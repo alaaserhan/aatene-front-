@@ -195,16 +195,29 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         typingTimeoutRef.current = setTimeout(() => setTypingUser(null), 3000);
     }, [user?.id]);
 
-    const handleStateChanged = useCallback(() => {
-        queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
-        queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
-    }, [queryClient]);
+    const handleStateChanged = useCallback(
+        (data?: Record<string, unknown>) => {
+            queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
+            queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
+            const rawId = data?.conversation_id;
+            const msgConvId = typeof rawId === "number" ? rawId : typeof rawId === "string" ? Number(rawId) : NaN;
+            if (!Number.isNaN(msgConvId)) {
+                queryClient.invalidateQueries({ queryKey: ["botChat", "messages", msgConvId] });
+            }
+        },
+        [queryClient]
+    );
 
-    const echoEvents = useMemo(() => [
-        { event: ".message.created", callback: handleNewMessage },
-        { event: ".typing.indicator", callback: handleTypingIndicator },
-        { event: ".state.changed", callback: handleStateChanged },
-    ], [handleNewMessage, handleTypingIndicator, handleStateChanged]);
+    const echoEvents = useMemo(
+        () => [
+            { event: ".message.created", callback: handleNewMessage },
+            { event: ".typing.indicator", callback: handleTypingIndicator },
+            { event: ".state.changed", callback: handleStateChanged },
+            // Admin resolve broadcasts ConversationResolved as conversation.resolved (not state.changed)
+            { event: ".conversation.resolved", callback: handleStateChanged },
+        ],
+        [handleNewMessage, handleTypingIndicator, handleStateChanged]
+    );
 
     useEchoChannel(
         conversationId ? `conversation.${conversationId}` : null,
