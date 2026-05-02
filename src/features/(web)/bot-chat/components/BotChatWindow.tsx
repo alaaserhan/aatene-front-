@@ -32,6 +32,11 @@ const WELCOME_STORAGE_PREFIX = "aatene_bot_welcome_seen";
 const CHATBOT_HEADER_SRC = "/ai/chatbot2.svg";
 const CHATBOT_WELCOME_SRC = "/ai/chatbot.svg";
 
+/** سجل الدردشات — Chat Bot AI.svg دعم، (1) مستخدم، (2) بوت */
+const HISTORY_ICON_SUPPORT = `/ai/${encodeURIComponent("Chat Bot AI.svg")}`;
+const HISTORY_ICON_USER = `/ai/${encodeURIComponent("Chat Bot AI(1).svg")}`;
+const HISTORY_ICON_BOT = `/ai/${encodeURIComponent("Chat Bot AI(2).svg")}`;
+
 function welcomeStorageKey(userId: number | undefined) {
     return userId != null ? `${WELCOME_STORAGE_PREFIX}_u_${userId}` : `${WELCOME_STORAGE_PREFIX}_anon`;
 }
@@ -84,12 +89,12 @@ function HistoryTab({ onSelectConversation }: { onSelectConversation: (conv: Con
                 }
 
                 const showWaitingBadge = conv.state === "waiting" && conv.needs_human;
-                const IconCmp =
+                const historyIconSrc =
                     conv.needs_human || conv.state === "with_agent"
-                        ? Headset
+                        ? HISTORY_ICON_SUPPORT
                         : last?.sender_type === "user"
-                          ? User
-                          : Bot;
+                          ? HISTORY_ICON_USER
+                          : HISTORY_ICON_BOT;
 
                 return (
                     <button
@@ -98,10 +103,13 @@ function HistoryTab({ onSelectConversation }: { onSelectConversation: (conv: Con
                         onClick={() => onSelectConversation(conv)}
                         className="w-full flex items-start gap-3 px-4 py-3.5 border-b border-gray-100 last:border-0 hover:bg-[#f7fafc] transition-colors text-right"
                     >
-                        {/* يمين الصف (بداية RTL): الأيقونة */}
-                        <div className="w-11 h-11 shrink-0 rounded-full bg-[#e8f0fa] flex items-center justify-center border border-[#cfe0f4]">
-                            <IconCmp className="w-[22px] h-[22px] text-[#4a7ab5]" strokeWidth={1.75} />
-                        </div>
+                        {/* يمين الصف (بداية RTL): الأيقونة فقط بدون غلاف */}
+                        <img
+                            src={historyIconSrc}
+                            alt=""
+                            className="w-11 h-11 shrink-0 object-contain select-none pointer-events-none"
+                            draggable={false}
+                        />
                         <div className="flex-1 min-w-0">
                             {snippet ? (
                                 <p className="text-[13px] text-gray-800 leading-snug line-clamp-2">
