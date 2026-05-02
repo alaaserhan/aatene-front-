@@ -361,6 +361,8 @@ export type WebConversationState = "active" | "waiting" | "with_agent" | "awaiti
 export interface WebConversationUser {
     id: number;
     name: string;
+    /** يطابق `users.ai_support_bot_active` — إذا كان false لا يُستدعى الويبهوك لرد البوت */
+    ai_support_bot_active?: boolean;
 }
 
 export interface WebConversation {
@@ -508,6 +510,14 @@ export const webAdminReply = async (conversationId: number, messageText: string)
 export const webResolveConversation = async (conversationId: number): Promise<WebResolveResponse> => {
     const { data } = await mainApi.patch<WebResolveResponse>(
         `${WEB_ADMIN_BASE}/conversations/${conversationId}/resolve`
+    );
+    return data;
+};
+
+/** يعكس تفعيل رد البوت للمستخدم المرتبط بالمحادثة (PATCH toggle-bot). */
+export const webToggleBot = async (conversationId: number): Promise<WebResolveResponse> => {
+    const { data } = await mainApi.patch<WebResolveResponse>(
+        `${WEB_ADMIN_BASE}/conversations/${conversationId}/toggle-bot`
     );
     return data;
 };

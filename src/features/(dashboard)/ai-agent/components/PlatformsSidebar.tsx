@@ -205,7 +205,7 @@ export function PlatformsSidebar({ activePlatform, onSelect, showToggle = true }
                   label={p.label}
                   iconPath={p.iconPath}
                   isActive={false}
-                  showToggle={showToggle}
+                  showToggle={false}
                   onClick={() => {}}
                 />
               ))}
