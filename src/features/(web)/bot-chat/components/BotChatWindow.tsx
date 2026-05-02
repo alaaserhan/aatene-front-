@@ -38,11 +38,11 @@ const HISTORY_ICON_SUPPORT = `/ai/${encodeURIComponent("Chat Bot AI.svg")}`;
 const HISTORY_ICON_USER = `/ai/${encodeURIComponent("Chat Bot AI(1).svg")}`;
 const HISTORY_ICON_BOT = `/ai/${encodeURIComponent("Chat Bot AI(2).svg")}`;
 
-/** التقييم يُعرَض بعد مرور هذه المدة على بدء المحادثة (`created_at`) — للاختبار 30 ثانية؛ أعد `5 * 60 * 1000` للإنتاج */
-const RATING_SHOW_AFTER_MS = 30 * 1000;
+/** التقييم يُعرَض بعد مرور هذه المدة على بدء المحادثة (`created_at`) */
+const RATING_SHOW_AFTER_MS = 5 * 60 * 1000;
 
-/** للاختبار: إظهار نموذج التقييم كل 30 ثانية أثناء المحادثة. عيّن `0` قبل الإنتاج */
-const RATING_TEST_INTERVAL_MS = 30 * 1000;
+/** للاختبار: إظهار نموذج التقييم بشكل دوري أثناء المحادثة. `0` = معطّل (الإنتاج) */
+const RATING_TEST_INTERVAL_MS = 0;
 
 function historyConversationStatus(conv: Conversation): { label: string; className: string } {
     const st = conv.state;
@@ -451,7 +451,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         messagesEndRef.current?.scrollIntoView({ block: "end", inline: "nearest" });
     }, [conversationId, isLoadingMessages, allMessages.length]);
 
-    /** للاختبار: إظهار التقييم كل 30 ثانية */
     useEffect(() => {
         if (RATING_TEST_INTERVAL_MS <= 0) return;
         if (chatView !== "chat" || !conversationId) return;
@@ -677,7 +676,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     return;
                 }
                 setChatView("chat");
-                toast.info("سيُعرَض نموذج التقييم بعد اكتمال 30 ثانية على بداية المحادثة (وضع اختبار).");
+                toast.info("سيُعرَض نموذج التقييم بعد اكتمال 5 دقائق على بداية المحادثة.");
                 ratingDelayTimerRef.current = setTimeout(() => {
                     ratingDelayTimerRef.current = null;
                     setChatView("rating");
