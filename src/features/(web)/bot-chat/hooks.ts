@@ -137,6 +137,7 @@ export const useSendMessage = () => {
         onSettled: (_data, _error, variables) => {
             queryClient.invalidateQueries({ queryKey: ["botChat", "messages", variables.conversationId] });
             queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
+            queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
         },
     });
 };
