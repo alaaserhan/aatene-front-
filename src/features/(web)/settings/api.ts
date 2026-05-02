@@ -166,6 +166,8 @@ export interface User {
     id: number;
     avatar: string | null;
     avatar_url?: string | null;
+    /** ProfileResource يعيد الغلاف تحت المفتاح `cover` (رابط كامل) */
+    cover?: string | null;
     cover_url?: string | null;
     first_name: string;
     last_name: string;

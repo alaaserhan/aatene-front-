@@ -72,8 +72,9 @@ export default function PersonalInfoTab() {
                 city_id: user.city?.id || 0,
                 bio: user.bio || "",
             });
-            setAvatarPreview(user.avatar);
-            setCoverPreview((user as any).cover_url || null);
+            setAvatarPreview(user.avatar_url ?? user.avatar ?? null);
+            // الحساب من الباك: `cover` في ProfileResource؛ رفع الغلاف يعيد `cover_url` في JSON
+            setCoverPreview(user.cover_url ?? user.cover ?? null);
         }
     }, [accountData]);
 
