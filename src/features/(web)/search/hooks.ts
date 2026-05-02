@@ -51,6 +51,8 @@ export const useProductsSearchPage = (enabled: boolean = true, categoryId?: numb
         queryFn: () => getProductsSearchPageData(categoryId),
         staleTime: 1000 * 60 * 10, // 10 minutes
         enabled,
+        /** يمنع اختفاء الفئات لحظياً عند تغيّر الفئة وإعادة الجلب */
+        placeholderData: (prev) => prev,
     });
 };
 
@@ -70,6 +72,7 @@ export const useServicesSearchPage = (enabled: boolean = true, categoryId?: numb
         queryFn: () => getServicesSearchPageData(categoryId),
         staleTime: 1000 * 60 * 10,
         enabled,
+        placeholderData: (prev) => prev,
     });
 };
 
@@ -89,6 +92,7 @@ export const useStoresSearchPage = (enabled: boolean = true, categoryId?: number
         queryFn: () => getStoresSearchPageData(categoryId),
         staleTime: 1000 * 60 * 10,
         enabled,
+        placeholderData: (prev) => prev,
     });
 };
 
@@ -108,5 +112,6 @@ export const useUsersSearchPage = (enabled: boolean = true, categoryId?: number)
         queryFn: () => getUsersSearchPageData(categoryId),
         staleTime: 1000 * 60 * 10,
         enabled,
+        placeholderData: (prev) => prev,
     });
 };
