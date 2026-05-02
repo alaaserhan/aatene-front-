@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
-import { X, Send, Loader2, Bot, Star, LogOut, Pencil, User, Headset, AlertCircle, History } from "lucide-react";
+import { X, Send, Loader2, Bot, Star, Pencil, User, Headset, AlertCircle, History } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/src/lib/utils";
@@ -11,7 +11,6 @@ import {
     useStartConversation,
     useSendMessage,
     useConversationMessages,
-    useEndConversation,
     useSubmitRating,
     useBotChatTyping,
 } from "@/src/features/(web)/bot-chat/hooks";
@@ -37,9 +36,6 @@ const CHATBOT_WELCOME_SRC = "/ai/chatbot.svg";
 const HISTORY_ICON_SUPPORT = `/ai/${encodeURIComponent("Chat Bot AI.svg")}`;
 const HISTORY_ICON_USER = `/ai/${encodeURIComponent("Chat Bot AI(1).svg")}`;
 const HISTORY_ICON_BOT = `/ai/${encodeURIComponent("Chat Bot AI(2).svg")}`;
-
-/** التقييم يُعرَض بعد مرور هذه المدة على بدء المحادثة (`created_at`) */
-const RATING_SHOW_AFTER_MS = 5 * 60 * 1000;
 
 /** للاختبار: إظهار نموذج التقييم بشكل دوري أثناء المحادثة. `0` = معطّل (الإنتاج) */
 const RATING_TEST_INTERVAL_MS = 0;
@@ -284,7 +280,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
     const [ratingComment, setRatingComment] = useState("");
-    const [showEndConfirm, setShowEndConfirm] = useState(false);
     const [showNewConvConfirm, setShowNewConvConfirm] = useState(false);
     const [typingUser, setTypingUser] = useState<string | null>(null);
     const [viewingConvId, setViewingConvId] = useState<number | null>(null);
@@ -305,13 +300,10 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const lastLayoutConvIdRef = useRef<number | undefined>(undefined);
     const prevMsgCountForPinRef = useRef(0);
     const inputRef = useRef<HTMLInputElement>(null);
-    /** إنهاء يدوي من المستخدم — لتجنب تنبيه «من النظام» */
-    const endedByUserActionRef = useRef(false);
     const prevConvIdRef = useRef<number | undefined>(undefined);
     const prevConvStateRef = useRef<string | undefined>(undefined);
     /** عند true نُبقي العرض أسفل المحادثة (آخر الرسائل). يصبح false إذا ابتعد المستخدم للأعلى لقراءة قديم */
     const stickToBottomRef = useRef(true);
-    const ratingDelayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const queryClient = useQueryClient();
 
@@ -321,7 +313,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
     const startConversation = useStartConversation();
     const sendMessageMutation = useSendMessage();
-    const endConversationMutation = useEndConversation();
     const submitRatingMutation = useSubmitRating();
     const { mutate: sendTyping } = useBotChatTyping();
 
@@ -399,15 +390,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         conversationId ? `conversation.${conversationId}` : null,
         echoEvents
     );
-
-    useEffect(() => {
-        return () => {
-            if (ratingDelayTimerRef.current) {
-                clearTimeout(ratingDelayTimerRef.current);
-                ratingDelayTimerRef.current = null;
-            }
-        };
-    }, []);
 
     const scrollMessagesToBottom = useCallback(() => {
         const anchor = messagesEndRef.current;
@@ -493,10 +475,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         prevConvIdRef.current = undefined;
         prevConvStateRef.current = undefined;
         stickToBottomRef.current = true;
-        if (ratingDelayTimerRef.current) {
-            clearTimeout(ratingDelayTimerRef.current);
-            ratingDelayTimerRef.current = null;
-        }
     }, [conversationId]);
 
     useEffect(() => {
@@ -625,10 +603,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         setViewingConvId(null);
         setViewingConversation(null);
         setRealtimeMessages([]);
-        if (ratingDelayTimerRef.current) {
-            clearTimeout(ratingDelayTimerRef.current);
-            ratingDelayTimerRef.current = null;
-        }
         setChatView("chat");
 
         startConversation.mutate("web", {
@@ -648,53 +622,12 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         setActiveTab("new");
     };
 
-    const handleEndConversation = () => {
-        if (!conversationId) return;
-        endedByUserActionRef.current = true;
-        const createdAtSnapshot =
-            (viewingConvId != null ? viewingConversation : conversation ?? null)?.created_at;
-        setRating(0);
-        setRatingComment("");
-        if (ratingDelayTimerRef.current) {
-            clearTimeout(ratingDelayTimerRef.current);
-            ratingDelayTimerRef.current = null;
-        }
-        endConversationMutation.mutate(conversationId, {
-            onSuccess: () => {
-                setShowEndConfirm(false);
-                queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
-                queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
-
-                if (!createdAtSnapshot) {
-                    setChatView("rating");
-                    return;
-                }
-                const eligibleAt = new Date(createdAtSnapshot).getTime() + RATING_SHOW_AFTER_MS;
-                const waitMs = Math.max(0, eligibleAt - Date.now());
-                if (waitMs <= 0) {
-                    setChatView("rating");
-                    return;
-                }
-                setChatView("chat");
-                toast.info("سيُعرَض نموذج التقييم بعد اكتمال 5 دقائق على بداية المحادثة.");
-                ratingDelayTimerRef.current = setTimeout(() => {
-                    ratingDelayTimerRef.current = null;
-                    setChatView("rating");
-                }, waitMs);
-            },
-        });
-    };
-
     const handleSubmitRating = () => {
         if (!conversationId || rating === 0) return;
         submitRatingMutation.mutate(
             { conversationId, rate: rating, comment: ratingComment },
             {
                 onSuccess: () => {
-                    if (ratingDelayTimerRef.current) {
-                        clearTimeout(ratingDelayTimerRef.current);
-                        ratingDelayTimerRef.current = null;
-                    }
                     setChatView("chat");
                     setRating(0);
                     setRatingComment("");
@@ -710,9 +643,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     // ─── Derived state ──────────────────────────────────────────────────────────
     const displayedConv: Conversation | null | undefined =
         viewingConvId != null ? viewingConversation : conversation ?? null;
-    const hasActiveConversation =
-        displayedConv &&
-        (displayedConv.state === "active" || displayedConv.state === "with_agent" || displayedConv.state === "waiting");
     const isAwaitingRating = displayedConv?.state === "awaiting_rating";
     const isResolved = displayedConv?.state === "resolved";
     /** إرسال رسائل فقط للمحادثات التي لا تزال مفتوحة مع البوت/الدعم */
@@ -771,10 +701,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         const nowTerminal = state === "awaiting_rating" || state === "resolved";
 
         if (prevState !== undefined && prevId === id && wasOpen && nowTerminal) {
-            if (!endedByUserActionRef.current) {
-                toast.info("تم إنهاء المحادثة من جانب النظام.");
-            }
-            endedByUserActionRef.current = false;
+            toast.info("تم إنهاء المحادثة من جانب النظام.");
         }
 
         prevConvIdRef.current = id;
@@ -887,36 +814,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 >
                     إلغاء
                 </button>
-            </div>
-        </div>
-    );
-
-    const renderEndConfirmView = () => (
-        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gradient-to-b from-white to-[#f8fafc]">
-            <div className="flex flex-col items-center w-full animate-in zoom-in-95 fade-in duration-300">
-                <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center mb-6 shadow-lg shadow-red-500/10">
-                    <AlertCircle className="w-10 h-10 text-red-500" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">إنهاء المحادثة؟</h3>
-                <p className="text-sm text-gray-500 text-center mb-10 leading-relaxed max-w-[240px]">
-                    هل أنت متأكد من رغبتك في إنهاء المحادثة الحالية؟ سيتم تحويلك لتقييم الخدمة.
-                </p>
-                <div className="flex flex-col gap-3 w-full">
-                    <button
-                        onClick={handleEndConversation}
-                        disabled={endConversationMutation.isPending}
-                        className="w-full cursor-pointer flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-white text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-red-500/20"
-                        style={{ background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)" }}
-                    >
-                        {endConversationMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <span>نعم، إنهاء المحادثة</span>}
-                    </button>
-                    <button
-                        onClick={() => setShowEndConfirm(false)}
-                        className="w-full cursor-pointer px-6 py-3.5 rounded-2xl text-gray-600 text-sm font-bold hover:bg-gray-50 transition-all border border-gray-100"
-                    >
-                        تراجع للمحادثة
-                    </button>
-                </div>
             </div>
         </div>
     );
@@ -1246,12 +1143,9 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 </div>
             );
         }
-        if (showEndConfirm) return renderEndConfirmView();
-
         const showIntroScreen =
             activeTab === "new" &&
             !showNewConvConfirm &&
-            !showEndConfirm &&
             !isAwaitingRating &&
             (welcomeSeen === false || !conversationId);
 
@@ -1340,21 +1234,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                             <Pencil className="w-[18px] h-[18px] text-white" strokeWidth={2.25} />
                         )}
                     </button>
-
-                    {hasActiveConversation && (
-                        <button
-                            type="button"
-                            onClick={() => setShowEndConfirm((prev) => !prev)}
-                            className={cn(
-                                "w-11 h-11 cursor-pointer rounded-full flex items-center justify-center transition-all backdrop-blur-[2px]",
-                                showEndConfirm ? "bg-white/15 text-white" : "bg-white/20 hover:bg-white/30 text-white"
-                            )}
-                            title="إنهاء المحادثة"
-                            aria-label="إنهاء المحادثة"
-                        >
-                            <LogOut className="w-[18px] h-[18px]" />
-                        </button>
-                    )}
                 </div>
             </div>
 
@@ -1363,7 +1242,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 <button
                     type="button"
                     onClick={() => {
-                        setShowEndConfirm(false);
                         setShowNewConvConfirm(false);
                         setViewingConvId(null);
                         setViewingConversation(null);
