@@ -34,7 +34,8 @@ export interface ConversationMessage {
     sender_type: "user" | "bot" | "admin";
     sender_id: string;
     message_text: string;
-    meta: unknown[];
+    /** من الـ API: مصفوفة أو كائن يحوي أزراراً / روابط — انظر normalizeMessageMeta في الواجهة */
+    meta?: unknown;
     sender?: MessageSender | null;
     status?: "sending" | "sent" | "error";
     tempId?: string;
