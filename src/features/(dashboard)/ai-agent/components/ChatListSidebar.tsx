@@ -15,8 +15,6 @@ interface ChatListSidebarProps {
   selectedChatId: string | null;
   onSelectChat: (chatId: string) => void;
   needsHuman: boolean;
-  webStateFilter?: WebConversationState;
-  onWebStateFilter?: (state?: WebConversationState) => void;
 }
 
 function UserCard({
@@ -89,39 +87,6 @@ const STATE_COLORS: Record<WebConversationState, string> = {
   resolved: "bg-gray-100 text-gray-600 border-gray-200",
 };
 
-const STATE_ACTIVE_COLORS: Record<WebConversationState, string> = {
-  active: "bg-green-500 text-white border-green-500",
-  waiting: "bg-yellow-500 text-white border-yellow-500",
-  with_agent: "bg-blue-500 text-white border-blue-500",
-  awaiting_rating: "bg-purple-500 text-white border-purple-500",
-  resolved: "bg-gray-500 text-white border-gray-500",
-};
-
-function StateBadge({
-  state,
-  isActive,
-  onClick,
-  className,
-}: {
-  state: WebConversationState;
-  isActive: boolean;
-  onClick: () => void;
-  className?: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "px-2.5 py-1 rounded-full text-xs font-medium border transition-all duration-200 cursor-pointer whitespace-nowrap",
-        isActive ? STATE_ACTIVE_COLORS[state] : STATE_COLORS[state],
-        className
-      )}
-    >
-      {STATE_LABELS[state]}
-    </button>
-  );
-}
-
 function ConversationStateBadgeInline({ state }: { state: WebConversationState }) {
   return (
     <span
@@ -138,23 +103,18 @@ function ConversationStateBadgeInline({ state }: { state: WebConversationState }
 function WebsiteChatList({
   selectedChatId,
   onSelectChat,
-  stateFilter,
-  onStateFilter,
   needsHuman,
 }: {
   selectedChatId: string | null;
   onSelectChat: (id: string) => void;
-  stateFilter?: WebConversationState;
-  onStateFilter?: (state?: WebConversationState) => void;
   needsHuman: boolean;
 }) {
   const queryClient = useQueryClient();
   const webConversationsParams = useMemo((): GetWebConversationsParams | undefined => {
     const p: GetWebConversationsParams = {};
-    if (stateFilter) p.state = stateFilter;
     if (needsHuman) p.needs_human = true;
     return Object.keys(p).length ? p : undefined;
-  }, [stateFilter, needsHuman]);
+  }, [needsHuman]);
 
   const { data, isLoading } = useGetWebConversations(webConversationsParams);
 
@@ -182,26 +142,10 @@ function WebsiteChatList({
 
   useEchoChannel("admin.conversations", adminEvents);
 
-  const filterStates: WebConversationState[] = ["active", "waiting", "with_agent", "awaiting_rating", "resolved"];
-
   if (isLoading) {
     return (
-      <div className="flex flex-col h-full">
-        <div className="p-3 border-b border-gray-100">
-          <div className="flex flex-wrap gap-1.5">
-            {filterStates.map((s) => (
-              <StateBadge
-                key={s}
-                state={s}
-                isActive={stateFilter === s}
-                onClick={() => onStateFilter?.(stateFilter === s ? undefined : s)}
-              />
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center justify-center flex-1">
-          <Loader2 className="w-8 h-8 text-blue-3 animate-spin" />
-        </div>
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-8 h-8 text-blue-3 animate-spin" />
       </div>
     );
   }
@@ -210,19 +154,6 @@ function WebsiteChatList({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-3 border-b border-gray-100">
-        <div className="flex flex-wrap gap-1.5">
-          {filterStates.map((s) => (
-            <StateBadge
-              key={s}
-              state={s}
-              isActive={stateFilter === s}
-              onClick={() => onStateFilter?.(stateFilter === s ? undefined : s)}
-            />
-          ))}
-        </div>
-      </div>
-
       {conversations.length === 0 ? (
         <div className="flex flex-col items-center justify-center flex-1 text-gray-2">
           <p>لا توجد محادثات</p>
@@ -238,7 +169,7 @@ function WebsiteChatList({
                 time={conv.last_message_at ?? undefined}
                 lastMessage={conv.latest_message?.message_text ?? undefined}
               />
-              <div className="absolute bottom-2 left-2">
+              <div className="absolute bottom-2 left-2 pointer-events-none">
                 <ConversationStateBadgeInline state={conv.state} />
               </div>
             </div>
@@ -386,14 +317,12 @@ function StandardChatList({
   );
 }
 
-export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsHuman, webStateFilter, onWebStateFilter }: ChatListSidebarProps) {
+export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsHuman }: ChatListSidebarProps) {
   if (platform === "website") {
     return (
       <WebsiteChatList
         selectedChatId={selectedChatId}
         onSelectChat={onSelectChat}
-        stateFilter={webStateFilter}
-        onStateFilter={onWebStateFilter}
         needsHuman={needsHuman}
       />
     );

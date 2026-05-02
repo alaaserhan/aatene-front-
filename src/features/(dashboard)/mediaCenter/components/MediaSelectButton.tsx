@@ -6,7 +6,7 @@ import { Plus, X } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { toast } from "sonner";
 import { MediaCenterModal } from "./MediaCenterModal";
-import { MediaItem } from "../api";
+import { MediaItem, getMediaPreviewUrl } from "../api";
 import { InfoBox } from "@/src/components/ui/InfoBox";
 import { DragHint } from "@/src/components/ui/DragHint";
 
@@ -64,7 +64,7 @@ export function MediaSelectButton({
       }
     }
 
-    const selectedPreviewUrl = file.src;
+    const selectedPreviewUrl = getMediaPreviewUrl(file);
     const selectedFileName = file.file_name;
 
     onChange(selectedFileName, selectedPreviewUrl);

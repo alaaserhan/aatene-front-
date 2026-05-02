@@ -14,7 +14,13 @@ export interface MediaItem {
   created_at: string;
   updated_at: string;
   url: string;
+  /** للصور غالباً نفس `url`؛ لغير الصور الباك قد يضع مسار أيقونة امتداد — للعرض استخدم `getMediaPreviewUrl` */
   src: string;
+}
+
+/** رابط المعاينة الفعلي (ملف التخزين). تجنّب `src` للفيديو/ملفات لأن API قد يعيد assets/icons/mp4.png وغيره. */
+export function getMediaPreviewUrl(item: Pick<MediaItem, "url" | "src">): string {
+  return item.url || item.src;
 }
 
 export interface BaseResponse {

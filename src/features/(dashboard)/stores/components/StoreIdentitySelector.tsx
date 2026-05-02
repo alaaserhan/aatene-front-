@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
-import { MediaItem } from "../../mediaCenter/api";
+import { MediaItem, getMediaPreviewUrl } from "../../mediaCenter/api";
 
 interface StoreIdentitySelectorProps {
   label?: string;
@@ -26,7 +26,7 @@ export function StoreIdentitySelector({
 
   const handleSelect = (file: MediaItem | MediaItem[]) => {
     if (Array.isArray(file)) return;
-    onChange(file.file_name, file.src);
+    onChange(file.file_name, getMediaPreviewUrl(file));
     setIsModalOpen(false);
   };
 
