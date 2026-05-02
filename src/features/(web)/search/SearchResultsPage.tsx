@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { SearchBar } from "@/src/components/(web)/SearchBar";
 import SearchFilters from "./components/SearchFilters";
 import SearchResults from "./components/SearchResults";
 import MobileFilterDrawer from "./components/MobileFilterDrawer";
