@@ -304,9 +304,10 @@ export const useUpdateCover = () => {
         mutationFn: (cover: File) => updateCover(cover),
         onSuccess: (data) => {
             toast.success(data.message || "تم تحديث صورة الغلاف");
-            const newCoverUrl = data?.data?.cover_url;
+            // الباك: returnData(['cover_url' => ...]) → { status, message, cover_url } في الجذر
+            const newCoverUrl = data?.cover_url ?? data?.data?.cover_url;
             if (newCoverUrl) {
-                useAuthStore.getState().updateUser({ avatar: newCoverUrl } as never);
+                useAuthStore.getState().updateUser({ cover: newCoverUrl, cover_url: newCoverUrl });
             }
         },
         onError: () => {

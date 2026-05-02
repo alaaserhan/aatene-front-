@@ -63,6 +63,11 @@ export const useAuthStore = create<AuthState>()(
           } else if (syncedData.avatar_url && !syncedData.avatar) {
             syncedData.avatar = syncedData.avatar_url as string;
           }
+          if (syncedData.cover && !syncedData.cover_url) {
+            syncedData.cover_url = syncedData.cover as string;
+          } else if (syncedData.cover_url && !syncedData.cover) {
+            syncedData.cover = syncedData.cover_url as string;
+          }
           const updated = { ...currentUser, ...syncedData };
           // Sync user_type cookie when it changes
           if (userData.user_type && userData.user_type !== currentUser.user_type) {

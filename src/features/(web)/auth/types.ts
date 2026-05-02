@@ -7,6 +7,9 @@ export interface User {
   fullname: string;
   avatar: string | null;
   avatar_url: string | null;
+  /** رابط صورة الغلاف (تعاد من ProfileResource كـ `cover` — نحتفظ بالاثنين للتوافق) */
+  cover?: string | null;
+  cover_url?: string | null;
   first_name: string;
   last_name: string;
   email: string;
