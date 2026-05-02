@@ -643,14 +643,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     // ─── Derived state ──────────────────────────────────────────────────────────
     const displayedConv: Conversation | null | undefined =
         viewingConvId != null ? viewingConversation : conversation ?? null;
-
-    /** بعد طلب دعم بشري لا ننتظر رد البوت في الواجهة — إيقاف الرد الفعلي يكون في الباكند */
-    useEffect(() => {
-        if (!displayedConv?.needs_human) return;
-        setAwaitingBotReply(false);
-        setAwaitingAfterUserMsgId(null);
-    }, [displayedConv?.needs_human, displayedConv?.id]);
-
     const isAwaitingRating = displayedConv?.state === "awaiting_rating";
     const isResolved = displayedConv?.state === "resolved";
     /** إرسال رسائل فقط للمحادثات التي لا تزال مفتوحة مع البوت/الدعم */
