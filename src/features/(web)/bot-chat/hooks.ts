@@ -30,6 +30,9 @@ function normalizeUserConversationsPayload(res: GetUserConversationsResponse): G
     return { ...res, conversations: sorted };
 }
 
+/** فترة تحديث حالة المحادثة (مثل awaiting_rating) — أقصر من staleTime العام (5 دقائق) */
+const CURRENT_CONV_POLL_MS = 30_000;
+
 export const useCurrentConversation = (enabled = true) => {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
@@ -37,6 +40,8 @@ export const useCurrentConversation = (enabled = true) => {
         queryKey: ["botChat", "currentConversation"],
         queryFn: () => getCurrentConversation("web"),
         enabled: enabled && isLoggedIn,
+        staleTime: CURRENT_CONV_POLL_MS,
+        refetchInterval: enabled && isLoggedIn ? CURRENT_CONV_POLL_MS : false,
     });
 };
 

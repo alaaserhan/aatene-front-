@@ -349,6 +349,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 return [...prev, msg];
             });
             queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
+            queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
         },
         [queryClient]
     );
@@ -380,6 +381,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
             { event: ".message.created", callback: handleNewMessage },
             { event: ".typing.indicator", callback: handleTypingIndicator },
             { event: ".state.changed", callback: handleStateChanged },
+            { event: ".conversation.awaiting_rating", callback: handleStateChanged },
             // Admin resolve broadcasts ConversationResolved as conversation.resolved (not state.changed)
             { event: ".conversation.resolved", callback: handleStateChanged },
         ],
