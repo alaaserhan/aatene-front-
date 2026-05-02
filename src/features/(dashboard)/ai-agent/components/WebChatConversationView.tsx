@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { Loader2, Send, Headset, CheckCircle, Bot, User, Star, XCircle, Trash2 } from "lucide-react";
+import { Loader2, Send, Headset, CheckCircle, Bot, User, Star, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import {
     useGetWebConversationMessages,
     useWebAdminReply,
     useWebResolveConversation,
-    useWebEndConversation,
     useWebDeleteConversation,
     useWebMarkTyping,
     useGetWebConversations,
@@ -58,7 +57,6 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
 
     const { mutate: sendReply, isPending: isSending } = useWebAdminReply();
     const { mutate: resolveConversation, isPending: isResolving } = useWebResolveConversation();
-    const { mutate: endConversation, isPending: isEnding } = useWebEndConversation();
     const { mutate: deleteConversation, isPending: isDeleting } = useWebDeleteConversation();
     const { mutate: markTyping } = useWebMarkTyping();
     const { mutate: toggleBot, isPending: isTogglingBot } = useWebToggleBot();
@@ -216,26 +214,15 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
 
                 {!conversation?.resolved_at && (
                     <div className="flex items-center gap-2 flex-wrap justify-end">
-                        {conversation?.state !== "resolved" && conversation?.state !== "awaiting_rating" && (
-                            <Button
-                                size="sm"
-                                onClick={() => endConversation(conversationId)}
-                                disabled={isEnding}
-                                variant="outline"
-                                className="border-gray-300 text-gray-600 gap-2 font-bold h-9 hover:bg-gray-50"
-                            >
-                                {isEnding ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                                إنهاء
-                            </Button>
-                        )}
                         <Button
                             size="sm"
                             onClick={() => resolveConversation(conversationId)}
                             disabled={isResolving}
                             className="bg-[#1DC355] hover:bg-green-700 text-white gap-2 font-bold h-9"
+                            title="إغلاق المحادثة وتسجيلها كمنتهية (resolved)"
                         >
                             {isResolving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                            تم الحل
+                            تم حل طلب المساعدة
                         </Button>
                         <Button
                             size="sm"

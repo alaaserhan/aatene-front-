@@ -8,7 +8,6 @@ import { ChatListSidebar } from "../components/ChatListSidebar";
 import { ChatEmptyState } from "../components/ChatEmptyState";
 import { ChatConversationView } from "../components/ChatConversationView";
 import { WebChatConversationView } from "../components/WebChatConversationView";
-import { WebConversationState } from "../api";
 import { Switch } from "@/src/components/ui/switch";
 import { Label } from "@/src/components/ui/label";
 import { ArrowRight } from "lucide-react";
@@ -24,7 +23,6 @@ export function MessagesPage() {
     const [showNeedsHuman, setShowNeedsHuman] = useState(false);
 
     const isWebsite = activePlatform === "website";
-    const webStateParam = searchParams.get("state") as WebConversationState | null;
 
     const getPlatformTitle = (id: string) => {
         switch (id) {
@@ -54,17 +52,6 @@ export function MessagesPage() {
 
     const handleBackToList = () => {
         const params = new URLSearchParams(searchParams.toString());
-        params.delete("chatId");
-        router.push(`${pathname}?${params.toString()}`);
-    };
-
-    const handleWebStateFilter = (state?: WebConversationState) => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (state) {
-            params.set("state", state);
-        } else {
-            params.delete("state");
-        }
         params.delete("chatId");
         router.push(`${pathname}?${params.toString()}`);
     };
@@ -129,8 +116,6 @@ export function MessagesPage() {
                                 selectedChatId={selectedChatId}
                                 onSelectChat={handleChatSelect}
                                 needsHuman={showNeedsHuman}
-                                webStateFilter={webStateParam || undefined}
-                                onWebStateFilter={handleWebStateFilter}
                             />
                         </div>
 

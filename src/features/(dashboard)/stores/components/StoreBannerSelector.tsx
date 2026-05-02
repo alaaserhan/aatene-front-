@@ -5,7 +5,28 @@ import { useState, useRef } from "react";
 import { cn } from "@/src/lib/utils";
 import { Plus, GripHorizontal } from "lucide-react";
 import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
-import { MediaItem } from "../../mediaCenter/api";
+import { MediaItem, getMediaPreviewUrl } from "../../mediaCenter/api";
+
+function isBannerVideoUrl(url: string, fileName: string): boolean {
+    const path = `${fileName} ${url}`.toLowerCase();
+    return /\.(mp4|webm|ogg|mov|m4v|mkv|avi)$/i.test(path);
+}
+
+function BannerSlidePreview({ url, fileName }: { url: string; fileName: string }) {
+    if (isBannerVideoUrl(url, fileName)) {
+        return (
+            <video
+                src={url}
+                className="w-full h-full object-cover"
+                muted
+                playsInline
+                loop
+                preload="metadata"
+            />
+        );
+    }
+    return <img src={url} alt="Banner" className="w-full h-full object-cover" />;
+}
 
 interface StoreBannerSelectorProps {
     value: string[];
@@ -39,7 +60,7 @@ export function StoreBannerSelector({
         const filesToAdd = filesArray.slice(0, remainingSlots);
 
         const newFileNames = filesToAdd.map((f) => f.file_name);
-        const newFileUrls = filesToAdd.map((f) => f.src);
+        const newFileUrls = filesToAdd.map((f) => getMediaPreviewUrl(f));
 
         onChange([...value, ...newFileNames], [...previews, ...newFileUrls]);
         setIsModalOpen(false);
@@ -106,7 +127,7 @@ export function StoreBannerSelector({
                     بنر المتجر (يمكنك إضافة حتى {maxFiles} بنرات)
                 </label>
                 <span className="text-xs text-gray-2">
-                    المقاسات المفضلة 680 × 180
+                    المقاسات المفضلة للصور 680 × 180 — يمكن اختيار فيديو من المعرض إن قبله السيرفر (حد الرفع غالباً 5 م.ب لكل ملف)
                 </span>
             </div>
 
@@ -127,11 +148,7 @@ export function StoreBannerSelector({
                         )}
                     >
                         <div className="h-[120px] w-full bg-gray-100 relative group">
-                            <img
-                                src={item.url}
-                                alt="Banner"
-                                className="w-full h-full object-cover"
-                            />
+                            <BannerSlidePreview url={item.url} fileName={item.file} />
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                                 <GripHorizontal className="text-white w-6 h-6 drop-shadow-md" />
                             </div>
@@ -187,7 +204,7 @@ export function StoreBannerSelector({
                         <span className="text-xs text-gray-3 font-medium">
                             أضف أو اسحب بنر
                         </span>
-                        <span className="text-xs text-gray-3">png, jpg</span>
+                        <span className="text-xs text-gray-3">صور أو فيديو (من مركز الوسائط)</span>
                     </div>
                 )}
             </div>
