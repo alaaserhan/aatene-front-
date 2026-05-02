@@ -61,6 +61,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
     const { mutate: endConversation, isPending: isEnding } = useWebEndConversation();
     const { mutate: deleteConversation, isPending: isDeleting } = useWebDeleteConversation();
     const { mutate: markTyping } = useWebMarkTyping();
+    const { mutate: toggleBot, isPending: isTogglingBot } = useWebToggleBot();
 
     const apiMessages: WebMessage[] = useMemo(() => {
         return messagesData?.pages.flatMap((page) => page.data) || [];
