@@ -40,10 +40,19 @@ const ANSWER_PLATFORM_OPTIONS = [
 const platformLabel = (val?: string) => {
     if (!val) return "-";
     const map: Record<string, string> = {
-        web: "المنصة", app: "التطبيق",
-        whatsapp: "الواتساب", messenger: "الماسنجر", instagram: "الانستجرام",
+        web: "المنصة",
+        app: "التطبيق",
+        mobile: "التطبيق",
+        whatsapp: "الواتساب",
+        messenger: "الماسنجر",
+        instagram: "الانستجرام",
     };
     return map[val] ?? val;
+};
+
+const normalizeMissedQuestionPlatform = (val?: string) => {
+    if (val === "mobile") return "app";
+    return val;
 };
 
 export function UnansweredQuestionsPage() {
@@ -131,7 +140,8 @@ export function UnansweredQuestionsPage() {
     const handleOpenAnswerModal = (question: AdminMissedQuestion) => {
         setQuestionToAnswer(question);
         setAdminNotes(question.admin_notes || "");
-        setAnswerPlatform(question.platform === "web" || question.platform === "app" ? question.platform : "both");
+        const p = normalizeMissedQuestionPlatform(question.platform);
+        setAnswerPlatform(p === "web" || p === "app" ? p : "both");
         setIsAnswerModalOpen(true);
     };
 
@@ -172,7 +182,7 @@ export function UnansweredQuestionsPage() {
                     const statusObj = STATUS_FILTER_OPTIONS.find((opt: { value: string; label: string }) => opt.value === q.status);
                     rowsHtml += `<tr style="border-bottom:1px solid #eee;">
                         <td style="padding:12px 8px;font-family:Tahoma,Arial,sans-serif;text-align:right;color:#444;">${q.question}</td>
-                        <td style="padding:12px 8px;font-family:Tahoma,Arial,sans-serif;text-align:right;color:#444;">${q.platform || "-"}</td>
+                        <td style="padding:12px 8px;font-family:Tahoma,Arial,sans-serif;text-align:right;color:#444;">${platformLabel(q.platform)}</td>
                         <td style="padding:12px 8px;font-family:Tahoma,Arial,sans-serif;text-align:right;color:#444;">${q.admin_notes ? q.admin_notes.slice(0, 50) + "..." : "-"}</td>
                         <td style="padding:12px 8px;font-family:Tahoma,Arial,sans-serif;text-align:right;color:#444;">${statusObj?.label || q.status}</td>
                     </tr>`;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { X, Send, Loader2, Bot, Star, LogOut, MessageSquarePlus, Sparkles, User, Headset, AlertCircle, History, ChevronRight } from "lucide-react";
+import { X, Send, Loader2, Bot, Star, LogOut, Pencil, User, Headset, AlertCircle, History, ChevronRight } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/src/lib/utils";
@@ -24,6 +24,16 @@ type TabView = "new" | "history";
 
 interface BotChatWindowProps {
     onClose: () => void;
+}
+
+const WELCOME_STORAGE_PREFIX = "aatene_bot_welcome_seen";
+
+/** أصول التصميم: الأعلى = chatbot2.svg، الأسفل (ترحيب/محادثة فارغة) = chatbot.svg */
+const CHATBOT_HEADER_SRC = "/ai/chatbot2.svg";
+const CHATBOT_WELCOME_SRC = "/ai/chatbot.svg";
+
+function welcomeStorageKey(userId: number | undefined) {
+    return userId != null ? `${WELCOME_STORAGE_PREFIX}_u_${userId}` : `${WELCOME_STORAGE_PREFIX}_anon`;
 }
 
 // ─── State labels ──────────────────────────────────────────────────────────────
@@ -126,6 +136,9 @@ function HistoryTab({ onSelectConversation }: { onSelectConversation: (conv: Con
 export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const user = useAuthStore((state) => state.user);
 
+    /** null = لم يُقرأ التخزين بعد؛ false = أول زيارة؛ true = سبق رؤية شاشة الترحيب */
+    const [welcomeSeen, setWelcomeSeen] = useState<boolean | null>(null);
+
     const [activeTab, setActiveTab] = useState<TabView>("new");
     const [inputText, setInputText] = useState("");
     const [chatView, setChatView] = useState<ChatView>("chat");
@@ -136,7 +149,8 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const [showNewConvConfirm, setShowNewConvConfirm] = useState(false);
     const [typingUser, setTypingUser] = useState<string | null>(null);
     const [viewingConvId, setViewingConvId] = useState<number | null>(null);
-    const [isStartingNew, setIsStartingNew] = useState(false);
+    /** عند فتح محادثة من السجل نحتفظ بالكائن حتى نعرض حالتها الحقيقية (نشطة vs منتهية) */
+    const [viewingConversation, setViewingConversation] = useState<Conversation | null>(null);
 
     const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastTypingSentRef = useRef<number>(0);
@@ -235,6 +249,25 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
     }, [queryClient]);
 
+    useEffect(() => {
+        const key = welcomeStorageKey(user?.id);
+        try {
+            setWelcomeSeen(localStorage.getItem(key) === "1");
+        } catch {
+            setWelcomeSeen(true);
+        }
+    }, [user?.id]);
+
+    const markWelcomeSeen = useCallback(() => {
+        const key = welcomeStorageKey(user?.id);
+        try {
+            localStorage.setItem(key, "1");
+        } catch {
+            /* ignore */
+        }
+        setWelcomeSeen(true);
+    }, [user?.id]);
+
     const handleTyping = useCallback(() => {
         if (!conversationId) return;
         const now = Date.now();
@@ -243,12 +276,37 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         sendTyping(conversationId);
     }, [conversationId, sendTyping]);
 
-    const handleSend = useCallback(async () => {
-        if (!inputText.trim() || sendMessageMutation.isPending || !conversationId) return;
+    const handleSend = useCallback(() => {
         const text = inputText.trim();
+        if (!text || sendMessageMutation.isPending || startConversation.isPending) return;
+
+        if (!conversationId) {
+            startConversation.mutate("web", {
+                onSuccess: (res) => {
+                    const id = res?.data?.id;
+                    if (id) {
+                        markWelcomeSeen();
+                        setInputText("");
+                        sendMessageMutation.mutate({ conversationId: id, messageText: text });
+                        queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
+                        queryClient.invalidateQueries({ queryKey: ["botChat", "messages", id] });
+                    }
+                },
+            });
+            return;
+        }
+
+        markWelcomeSeen();
         setInputText("");
         sendMessageMutation.mutate({ conversationId, messageText: text });
-    }, [inputText, sendMessageMutation, conversationId]);
+    }, [
+        inputText,
+        sendMessageMutation,
+        conversationId,
+        startConversation,
+        queryClient,
+        markWelcomeSeen,
+    ]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === "Enter" && !e.shiftKey) {
@@ -263,6 +321,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     };
 
     const handleNewConvClick = () => {
+        if (welcomeSeen !== true) return;
         if (
             conversation &&
             (conversation.state === "active" || conversation.state === "waiting" || conversation.state === "with_agent")
@@ -276,41 +335,22 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const doStartConversation = () => {
         setShowNewConvConfirm(false);
         setViewingConvId(null);
+        setViewingConversation(null);
         setRealtimeMessages([]);
 
-        const currentId = conversation?.id;
-        const isActive = conversation &&
-            (conversation.state === "active" || conversation.state === "waiting" || conversation.state === "with_agent");
-
-        if (currentId && isActive) {
-            // أنهِ المحادثة القديمة أولاً ثم ابدأ جديدة
-            setIsStartingNew(true);
-            endConversationMutation.mutate(currentId, {
-                onSuccess: () => {
-                    startConversation.mutate("web", {
-                        onSuccess: () => {
-                            setIsStartingNew(false);
-                            setChatView("chat");
-                            queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
-                            queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
-                        },
-                        onError: () => setIsStartingNew(false),
-                    });
-                },
-                onError: () => setIsStartingNew(false),
-            });
-        } else {
-            startConversation.mutate("web", {
-                onSuccess: () => {
-                    queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
-                    queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
-                },
-            });
-        }
+        startConversation.mutate("web", {
+            onSuccess: () => {
+                markWelcomeSeen();
+                setChatView("chat");
+                queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
+                queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
+            },
+        });
     };
 
     const handleSelectHistoryConv = (conv: Conversation) => {
         setViewingConvId(conv.id);
+        setViewingConversation(conv);
         setRealtimeMessages([]);
         setActiveTab("new");
     };
@@ -338,6 +378,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     setRating(0);
                     setRatingComment("");
                     setViewingConvId(null);
+                    setViewingConversation(null);
                     queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
                 },
             }
@@ -345,79 +386,126 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     };
 
     // ─── Derived state ──────────────────────────────────────────────────────────
-    const displayedConv = viewingConvId ? undefined : conversation;
+    const displayedConv: Conversation | null | undefined =
+        viewingConvId != null ? viewingConversation : conversation ?? null;
     const hasActiveConversation =
         displayedConv &&
         (displayedConv.state === "active" || displayedConv.state === "with_agent" || displayedConv.state === "waiting");
     const isAwaitingRating = displayedConv?.state === "awaiting_rating";
     const isResolved = displayedConv?.state === "resolved";
-    const isViewingHistory = !!viewingConvId;
+    /** إرسال رسائل فقط للمحادثات التي لا تزال مفتوحة مع البوت/الدعم */
+    const canSendMessages =
+        !!displayedConv &&
+        (displayedConv.state === "active" ||
+            displayedConv.state === "waiting" ||
+            displayedConv.state === "with_agent");
 
     // ─── Render helpers ─────────────────────────────────────────────────────────
 
-    const renderWelcomeScreen = () => (
-        <div className="flex-1 flex flex-col items-center justify-center p-6 bg-gradient-to-b from-[#f8fafc] to-[#eef2f7]">
-            <div className="relative mb-5">
-                <div
-                    className="w-20 h-20 rounded-full flex items-center justify-center"
-                    style={{ background: "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)", boxShadow: "0 8px 32px rgba(44,68,96,0.25)" }}
-                >
-                    <Bot className="w-10 h-10 text-white" />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-400 flex items-center justify-center border-[3px] border-white">
-                    <Sparkles className="w-3.5 h-3.5 text-white" />
+    const renderIntroFooterInput = () => {
+        const busy = sendMessageMutation.isPending || startConversation.isPending;
+        return (
+            <div className="bg-white px-4 py-3.5 shrink-0 rounded-t-2xl" dir="rtl">
+                <div className="flex items-center gap-3">
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        value={inputText}
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
+                        placeholder=".. اكتب رسالتك هنا"
+                        disabled={busy}
+                        className="flex-1 min-w-0 bg-transparent text-sm text-right text-gray-800 placeholder:text-gray-400 outline-none border-none h-12 disabled:opacity-60"
+                    />
+                    <button
+                        type="button"
+                        onClick={handleSend}
+                        disabled={!inputText.trim() || busy}
+                        className={cn(
+                            "w-12 h-12 shrink-0 rounded-xl flex items-center justify-center transition-all",
+                            !inputText.trim() || busy ? "cursor-not-allowed" : "cursor-pointer"
+                        )}
+                        style={{
+                            background: "#e8ecf2",
+                            color: inputText.trim() && !busy ? "#475569" : "#94a3b8",
+                        }}
+                    >
+                        {busy ? (
+                            <Loader2 className="w-5 h-5 animate-spin text-[#64748b]" />
+                        ) : (
+                            <Send className="w-5 h-5 rtl:-rotate-90" strokeWidth={2} />
+                        )}
+                    </button>
                 </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-1 text-center">
-                مرحباً {user?.first_name ?? ""}
-            </h3>
-            <p className="text-sm text-gray-500 text-center mb-6 leading-relaxed max-w-[240px]">
-                كيف يمكنني مساعدتك اليوم؟
-            </p>
-            <button
-                onClick={handleNewConvClick}
-                disabled={startConversation.isPending}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl text-white text-sm font-medium transition-all hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-60"
-                style={{ background: "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)", boxShadow: "0 4px 16px rgba(44,68,96,0.3)" }}
-            >
-                {startConversation.isPending ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                    <>
-                        <MessageSquarePlus className="w-5 h-5" />
-                        <span>ابدأ محادثة جديدة</span>
-                    </>
-                )}
-            </button>
+        );
+    };
+
+    /** الشاشة الأولى: خلفية مسطّحة #f5f9ff بدون دوائر/ظلال تحت الأيقونة كالتصميم */
+    const renderIntroScreen = () => (
+        <div className="flex-1 flex flex-col min-h-0 bg-[#f5f9ff]">
+            <div className="flex-1 flex flex-col items-center justify-center p-8 px-5 min-h-0">
+                <img
+                    src={CHATBOT_WELCOME_SRC}
+                    alt=""
+                    width={100}
+                    height={84}
+                    className="w-[100px] h-[84px] object-contain select-none pointer-events-none mb-6"
+                    aria-hidden
+                />
+                <h3 className="text-xl mb-2 text-center leading-snug" dir="rtl">
+                    <span className="font-semibold text-black">مرحباً </span>
+                    <span className="font-bold text-[#1e3a5f]">{user?.first_name ?? ""}</span>
+                </h3>
+                <p className="text-sm font-normal text-[#1e3a5f]/85 text-center leading-relaxed max-w-[280px]">
+                    كيف يمكنني مساعدتك اليوم؟
+                </p>
+            </div>
+            {renderIntroFooterInput()}
         </div>
     );
 
-    const renderNewConvConfirm = () => (
-        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gradient-to-b from-white to-[#f8fafc]">
-            <div className="flex flex-col items-center w-full animate-in zoom-in-95 fade-in duration-300">
-                <div className="w-16 h-16 rounded-2xl bg-[#eef3f9] flex items-center justify-center mb-5">
-                    <MessageSquarePlus className="w-8 h-8 text-[#4a7ab5]" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2 text-center">ابدأ محادثة جديدة</h3>
-                <p className="text-sm text-gray-500 text-center mb-8 leading-relaxed max-w-[240px]">
-                    بعد بدء محادثة جديدة ، ستتمكن من الوصول إلى المحادثات السابقة من سجل الدردشات
-                </p>
-                <div className="flex flex-col gap-3 w-full">
-                    <button
-                        onClick={doStartConversation}
-                        disabled={startConversation.isPending}
-                        className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl text-white text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-60"
-                        style={{ background: "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)" }}
-                    >
-                        {startConversation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "ابدأ محادثة جديدة"}
-                    </button>
-                    <button
-                        onClick={() => setShowNewConvConfirm(false)}
-                        className="w-full px-5 py-3 rounded-2xl text-gray-600 text-sm font-bold hover:bg-gray-50 transition-all border border-gray-200 cursor-pointer"
-                    >
-                        إلغاء
-                    </button>
-                </div>
+    /** محتوى البوب-أب فقط — الطبقة المعتمة تُعرض في الجذر فوق النافذة */
+    const renderNewConvConfirmModal = () => (
+        <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="new-conv-dialog-title"
+            className="relative w-full max-w-[300px] rounded-2xl bg-white px-5 pb-5 pt-11 shadow-[0_20px_50px_rgba(0,0,0,0.22)] animate-in zoom-in-95 fade-in duration-200"
+            onClick={(e) => e.stopPropagation()}
+        >
+            <button
+                type="button"
+                onClick={() => setShowNewConvConfirm(false)}
+                className="absolute left-3 top-3 rounded-full p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
+                aria-label="إغلاق"
+            >
+                <X className="w-[18px] h-[18px]" strokeWidth={2} />
+            </button>
+            <h3 id="new-conv-dialog-title" className="text-center text-lg font-bold text-black mb-3">
+                ابدأ محادثة جديدة
+            </h3>
+            <p className="text-center text-sm text-gray-500 leading-relaxed mb-2 px-0.5">
+                بعد بدء محادثة جديدة ، ستتمكن من الوصول إلى المحادثات السابقة من سجل الدردشات
+            </p>
+            <div className="flex gap-3" dir="rtl">
+                <button
+                    type="button"
+                    onClick={doStartConversation}
+                    disabled={startConversation.isPending}
+                    className="flex-1 min-h-[44px] flex items-center justify-center rounded-xl text-white text-sm font-bold transition-opacity disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
+                    style={{ background: "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)" }}
+                >
+                    {startConversation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "ابدأ محادثة جديدة"}
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setShowNewConvConfirm(false)}
+                    disabled={startConversation.isPending}
+                    className="flex-1 min-h-[44px] flex items-center justify-center rounded-xl text-sm font-bold bg-[#e8ecf4] text-[#395A7D] hover:bg-[#dde4ee] transition-colors cursor-pointer disabled:opacity-50"
+                >
+                    إلغاء
+                </button>
             </div>
         </div>
     );
@@ -476,6 +564,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                         setRating(0);
                         setRatingComment("");
                         setViewingConvId(null);
+                        setViewingConversation(null);
                         queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
                         queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
                     }}
@@ -520,7 +609,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const renderChatMessages = () => (
         <>
             <div
-                className="flex-1 overflow-y-auto bg-[#f5f7fa] p-4"
+                className="flex-1 overflow-y-auto bg-[#f5f9ff] p-4"
                 dir="rtl"
                 ref={scrollRef}
                 onScroll={(e) => {
@@ -539,9 +628,22 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                             <Loader2 className="w-6 h-6 animate-spin text-[#4a7ab5]" />
                         </div>
                     ) : allMessages.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-                            <Bot className="w-10 h-10 mb-2 opacity-40" />
-                            <p className="text-sm">ابدأ بإرسال رسالتك الأولى</p>
+                        <div className="flex flex-col items-center justify-center py-10 gap-3 min-h-[200px]">
+                            <img
+                                src={CHATBOT_WELCOME_SRC}
+                                alt=""
+                                width={100}
+                                height={84}
+                                className="w-[100px] h-[84px] object-contain select-none pointer-events-none mb-2"
+                                aria-hidden
+                            />
+                            <h3 className="text-lg text-center leading-snug" dir="rtl">
+                                <span className="font-semibold text-black">مرحباً </span>
+                                <span className="font-bold text-[#1e3a5f]">{user?.first_name ?? ""}</span>
+                            </h3>
+                            <p className="text-sm font-normal text-[#1e3a5f]/85 text-center leading-relaxed max-w-[240px]">
+                                كيف يمكنني مساعدتك اليوم؟
+                            </p>
                         </div>
                     ) : (
                         allMessages.map((msg: ConversationMessage) => {
@@ -632,21 +734,30 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 </div>
             )}
 
-            {/* Resolved / history banner */}
-            {(isResolved || isViewingHistory) && (
-                <div className="bg-gray-50 border-t border-gray-200 px-4 py-2.5 flex items-center justify-between gap-2 shrink-0" dir="rtl">
-                    <span className="text-xs text-gray-500">هذه المحادثة منتهية</span>
+            {/* شريط المحادثة المنتهية — فقط عند state === resolved */}
+            {isResolved && (
+                <div className="bg-gray-50 border-t border-gray-200 px-4 py-3 flex items-center justify-between gap-3 shrink-0" dir="rtl">
+                    <span className="text-xs text-gray-600 font-medium">هذه المحادثة منتهية</span>
                     <button
+                        type="button"
                         onClick={handleNewConvClick}
-                        className="text-xs text-[#4a7ab5] font-medium hover:underline cursor-pointer"
+                        disabled={startConversation.isPending}
+                        className={cn(
+                            "shrink-0 rounded-xl px-4 py-2 text-xs font-bold transition-colors cursor-pointer disabled:opacity-60",
+                            "border border-[#395A7D] bg-white text-[#395A7D] hover:bg-[#eef3f9]"
+                        )}
                     >
-                        ابدأ محادثة جديدة
+                        {startConversation.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin inline" />
+                        ) : (
+                            "ابدأ محادثة جديدة"
+                        )}
                     </button>
                 </div>
             )}
 
-            {/* Input — only for active conversations */}
-            {!isResolved && !isViewingHistory && (
+            {/* إدخال — للمحادثات النشطة بما فيها المفتوحة من السجل */}
+            {canSendMessages && (
                 <div className="bg-white px-4 py-3 md:py-3 border-t border-gray-100 shrink-0" dir="rtl">
                     <div className="flex items-center gap-2">
                         <input
@@ -682,33 +793,53 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
     // ─── Body decision ───────────────────────────────────────────────────────────
     const renderBody = () => {
-        // سجل الدردشات دائماً يُعرض بغض النظر عن حالة التحميل
         if (activeTab === "history") {
             return <HistoryTab onSelectConversation={handleSelectHistoryConv} />;
         }
-        // إذا كنا نعرض محادثة من السجل، اعرضها مباشرة
         if (viewingConvId) {
             return renderChatMessages();
         }
-        if (isLoadingConv || isStartingNew) {
+        if (welcomeSeen === null) {
             return (
-                <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-[#f5f7fa]">
+                <div className="flex-1 flex items-center justify-center bg-[#f8fafc]">
                     <Loader2 className="w-8 h-8 animate-spin text-[#4a7ab5]" />
-                    {isStartingNew && <p className="text-sm text-gray-500">جاري بدء محادثة جديدة...</p>}
                 </div>
             );
         }
-        if (showNewConvConfirm) return renderNewConvConfirm();
         if (showEndConfirm) return renderEndConfirmView();
         if (isAwaitingRating || chatView === "rating") return renderRatingView();
+
+        const showIntroScreen =
+            activeTab === "new" &&
+            !showNewConvConfirm &&
+            !showEndConfirm &&
+            !isAwaitingRating &&
+            (welcomeSeen === false || !conversationId);
+
+        if (showIntroScreen) {
+            return renderIntroScreen();
+        }
+
+        if (isLoadingConv || startConversation.isPending) {
+            return (
+                <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-[#f5f7fa]">
+                    <Loader2 className="w-8 h-8 animate-spin text-[#4a7ab5]" />
+                    {startConversation.isPending && (
+                        <p className="text-sm text-gray-500">جاري بدء محادثة جديدة...</p>
+                    )}
+                </div>
+            );
+        }
+
         if (conversationId) return renderChatMessages();
-        return renderWelcomeScreen();
+
+        return renderIntroScreen();
     };
 
     return (
         <div
             className={cn(
-                "z-[9999] bg-white w-[360px] max-w-[calc(100vw-32px)] rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 fade-in duration-300",
+                "relative z-[9999] bg-white w-[420px] max-w-[calc(100vw-32px)] rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 fade-in duration-300",
                 "fixed max-md:top-1/2 max-md:left-1/2 max-md:-translate-x-1/2 max-md:-translate-y-1/2",
                 "md:fixed md:bottom-24 md:right-6"
             )}
@@ -717,96 +848,108 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 boxShadow: "0 12px 48px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.1)",
             }}
         >
-            {/* ── Header ── */}
+            {/* ── Header: العنوان + الصورة يسار، أزرار الإغلاق/القلم/الخروج يمين */}
             <div
-                className="px-5 py-4 flex items-center justify-between shrink-0"
-                style={{ background: "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)" }}
+                className="px-5 py-5 flex items-center justify-between shrink-0 gap-3"
+                style={{
+                    background: "linear-gradient(180deg, #5b8cc9 0%, #2c4460 55%, #1e3550 100%)",
+                }}
             >
-                <div className="flex items-center gap-3" dir="rtl">
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                        <Bot className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                        <h3 className="text-white font-medium text-sm leading-tight">المساعد الذكي</h3>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                            <span className="text-white/70 text-[11px]">متصل</span>
+                <div className="flex items-center gap-3 min-w-0 shrink-0" dir="ltr">
+                    <div className="min-w-0 text-right">
+                        <h3 className="text-white font-bold text-xl leading-tight whitespace-nowrap">المساعد الذكي</h3>
+                        <div className="flex items-center justify-end gap-1.5 mt-1">
+                            <span className="text-white/85 text-xs">متصل</span>
+                            <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
                         </div>
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-white/20 border border-white/25 flex items-center justify-center shrink-0 overflow-hidden backdrop-blur-[2px]">
+                        <img
+                            src={CHATBOT_HEADER_SRC}
+                            alt=""
+                            width={40}
+                            height={34}
+                            className="w-10 h-[34px] object-contain object-center select-none pointer-events-none"
+                        />
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
-                    {/* New conversation */}
+                <div className="flex items-center gap-2.5 shrink-0" dir="ltr">
                     <button
-                        onClick={() => { setActiveTab("new"); handleNewConvClick(); }}
+                        type="button"
+                        onClick={onClose}
+                        className="w-11 h-11 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors cursor-pointer backdrop-blur-[2px]"
+                        aria-label="إغلاق"
+                    >
+                        <X className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setActiveTab("new");
+                            handleNewConvClick();
+                        }}
                         disabled={startConversation.isPending}
-                        className="w-8 h-8 cursor-pointer rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-all"
+                        className="w-11 h-11 cursor-pointer rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all disabled:opacity-60 backdrop-blur-[2px]"
                         title="محادثة جديدة"
+                        aria-label="محادثة جديدة"
                     >
                         {startConversation.isPending ? (
-                            <Loader2 className="w-4 h-4 text-white animate-spin" />
+                            <Loader2 className="w-[18px] h-[18px] text-white animate-spin" />
                         ) : (
-                            <MessageSquarePlus className="w-4 h-4 text-white" />
+                            <Pencil className="w-[18px] h-[18px] text-white" strokeWidth={2.25} />
                         )}
                     </button>
 
-                    {/* End conversation */}
-                    {hasActiveConversation && !isViewingHistory && (
+                    {hasActiveConversation && (
                         <button
+                            type="button"
                             onClick={() => setShowEndConfirm((prev) => !prev)}
                             className={cn(
-                                "w-8 h-8 cursor-pointer rounded-full flex items-center justify-center transition-all",
-                                showEndConfirm ? "bg-white/10 text-white" : "bg-white/15 hover:bg-white/25 text-white"
+                                "w-11 h-11 cursor-pointer rounded-full flex items-center justify-center transition-all backdrop-blur-[2px]",
+                                showEndConfirm ? "bg-white/15 text-white" : "bg-white/20 hover:bg-white/30 text-white"
                             )}
                             title="إنهاء المحادثة"
+                            aria-label="إنهاء المحادثة"
                         >
-                            <LogOut className="w-4 h-4" />
+                            <LogOut className="w-[18px] h-[18px]" />
                         </button>
                     )}
-
-                    {/* Close */}
-                    <button
-                        onClick={onClose}
-                        className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors cursor-pointer"
-                    >
-                        <X className="w-4 h-4 text-white" />
-                    </button>
                 </div>
             </div>
 
-            {/* ── Tabs ── */}
-            <div className="flex bg-white border-b border-gray-200 shrink-0" dir="rtl">
+            {/* ── Tabs — خلفية التبويب النشط ~ #d1dae5 كالتصميم ── */}
+            <div className="grid grid-cols-2 shrink-0 border-b border-gray-200/90 bg-white" dir="rtl">
                 <button
+                    type="button"
                     onClick={() => {
                         setShowEndConfirm(false);
+                        setShowNewConvConfirm(false);
                         setViewingConvId(null);
+                        setViewingConversation(null);
                         setActiveTab("new");
-                        if (!conversation) {
-                            doStartConversation();
-                        } else if (
-                            conversation.state === "active" ||
-                            conversation.state === "waiting" ||
-                            conversation.state === "with_agent"
-                        ) {
-                            setShowNewConvConfirm(true);
-                        }
                     }}
                     className={cn(
-                        "flex-1 py-3 text-sm font-medium transition-all border-b-2",
+                        "py-3 text-sm font-semibold transition-colors",
                         activeTab === "new"
-                            ? "text-[#2c4460] border-[#2c4460]"
-                            : "text-gray-400 border-transparent hover:text-gray-600"
+                            ? "text-[#1e3a5f] bg-[#d1dae5]"
+                            : "text-[#5a6b85] bg-[#f8fafc] hover:bg-gray-100/80"
                     )}
                 >
                     دردشة جديدة
                 </button>
                 <button
-                    onClick={() => setActiveTab("history")}
+                    type="button"
+                    onClick={() => {
+                        if (welcomeSeen === false) markWelcomeSeen();
+                        setActiveTab("history");
+                    }}
                     className={cn(
-                        "flex-1 py-3 text-sm font-medium transition-all border-b-2",
+                        "py-3 text-sm font-semibold transition-colors",
                         activeTab === "history"
-                            ? "text-[#2c4460] border-[#2c4460]"
-                            : "text-gray-400 border-transparent hover:text-gray-600"
+                            ? "text-[#1e3a5f] bg-[#d1dae5]"
+                            : "text-[#5a6b85] bg-[#f8fafc] hover:bg-gray-100/80"
                     )}
                 >
                     سجل الدردشات
@@ -814,7 +957,19 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
             </div>
 
             {/* ── Body ── */}
-            {renderBody()}
+            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">{renderBody()}</div>
+
+            {/* بوب-أب «ابدأ محادثة جديدة» — طبقة معتمة + بطاقة وسط كالتصميم */}
+            {showNewConvConfirm && (
+                <div
+                    className="absolute inset-0 z-[100] flex items-center justify-center bg-black/45 backdrop-blur-[2px] px-4 animate-in fade-in duration-200"
+                    onClick={() => {
+                        if (!startConversation.isPending) setShowNewConvConfirm(false);
+                    }}
+                >
+                    {renderNewConvConfirmModal()}
+                </div>
+            )}
         </div>
     );
 }
