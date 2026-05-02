@@ -2,7 +2,9 @@
 "use client";
 
 import { cn } from "@/src/lib/utils";
-import { Star, Phone, Instagram, Facebook, Globe, Download, MessageSquare, MessageCircle, Database } from "lucide-react";
+import { formatPlatformLabel } from "@/src/features/(dashboard)/ai-agent/utils/platform-display";
+import { PlatformBrandIcon } from "@/src/features/(dashboard)/ai-agent/utils/platform-icons";
+import { Star } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 
 // Local types to avoid coupling with API response structure
@@ -151,18 +153,7 @@ export function SourcesCard({ usersPerPlatform = [] }: SourcesCardProps) {
     // 2. Format the Max Number (Add spaces between digits: "3 0 0")
     const formattedMax = maxPlatform.number_of_users.toString();
 
-    // Helper to map API platform names
-    const getPlatformDetails = (platformName: string) => {
-        switch (platformName.toLowerCase()) {
-            case 'whatsapp': return { name: 'الواتساب', icon: <img src="/icons/dashboard/whatsapp2.svg" className="w-5 h-5" alt="" /> };
-            case 'instagram': return { name: 'الانستجرام', icon: <img src="/icons/dashboard/instagram2.svg" className="w-4 h-4" alt="" /> };
-            case 'website': return { name: 'الموقع', icon: <img src="/logo-sm.svg" className="w-4 h-4" alt="" /> };
-            case 'mobile': return { name: 'الموبايل', icon: <img src="/logo-sm.svg" className="w-4 h-4" alt="" /> };
-            default: return { name: platformName, icon: <Globe className="w-4 h-4 text-gray-2" />, color: 'text-gray-2' };
-        }
-    };
-
-    const topPlatformName = getPlatformDetails(maxPlatform.platform).name;
+    const topPlatformName = formatPlatformLabel(maxPlatform.platform);
 
     return (
         <div className="bg-white rounded-md p-4 border border-gray-200 h-full flex flex-col">
@@ -190,15 +181,14 @@ export function SourcesCard({ usersPerPlatform = [] }: SourcesCardProps) {
 
             <div className="space-y-2 flex-1">
                 {usersPerPlatform?.map((item, index) => {
-                    const details = getPlatformDetails(item.platform);
                     return (
-                        <div key={index} className="flex items-center justify-between p-2 pb-3 border-b border-gray-100 last:border-0">
+                        <div key={`${item.platform}-${index}`} className="flex items-center justify-between p-2 pb-3 border-b border-gray-100 last:border-0">
                             {/* Right Side: Icon + Name */}
                             <div className="flex items-center gap-3">
                                 <div className="w-7 h-7 rounded-sm flex items-center justify-center bg-transparent border border-blue-1">
-                                    {details.icon}
+                                    <PlatformBrandIcon platform={item.platform} size="md" />
                                 </div>
-                                <span className="text-sm text-gray-2 font-bold">{details.name}</span>
+                                <span className="text-sm text-gray-2 font-bold">{formatPlatformLabel(item.platform)}</span>
                             </div>
 
                             {/* Left Side: Count */}
@@ -218,25 +208,6 @@ interface RatingSourceCardProps {
 }
 
 export function RatingSourceCard({ ratings = [] }: RatingSourceCardProps) {
-
-    // دالة مساعدة لترجمة الأسماء وتحديد الأيقونات
-    const getPlatformDetails = (platform: string) => {
-        switch (platform.toLowerCase()) {
-            case 'whatsapp':
-                return { name: "واتساب", icon: <img src="/icons/dashboard/whatsapp3.svg" className="w-6 h-6" alt="" /> };
-            case 'instagram':
-                return { name: "انستجرام", icon: <img src="/icons/dashboard/instagram.svg" className="w-6 h-6" alt="" /> };
-            case 'messenger':
-            case 'facebook':
-                return { name: "فيسبوك", icon: <img src="/icons/dashboard/facebook3.svg" className="w-6 h-6" alt="" /> };
-            default: // Aatene / Website
-                return {
-                    name: "الموقع",
-                    icon: <div className="w-5 h-5 rounded-full border border-gray-2 flex items-center justify-center text-[10px] font-bold text-gray-2">A</div>
-                };
-        }
-    };
-
     return (
         <div className="bg-white rounded-md p-4 border border-gray-200 h-full ">
             <div className="flex items-center justify-center gap-2 mb-6">
@@ -245,19 +216,17 @@ export function RatingSourceCard({ ratings = [] }: RatingSourceCardProps) {
 
             <div className="space-y-3">
                 {ratings?.map((item, i) => {
-                    const details = getPlatformDetails(item.platform);
-
                     return (
                         <div
-                            key={i}
+                            key={`${item.platform}-${i}`}
                             className="flex items-center justify-between pb-3 border-b border-gray-100 last:border-0 last:pb-0"
                         >
                             {/* Right: Text + Icon */}
                             <div className="flex items-center gap-2">
                                 <div className="">
-                                    {details.icon}
+                                    <PlatformBrandIcon platform={item.platform} size="lg" />
                                 </div>
-                                <span className="text-sm font-medium ">{details.name}</span>
+                                <span className="text-sm font-medium ">{formatPlatformLabel(item.platform)}</span>
                             </div>
 
                             {/* Left: Rating Badge */}

@@ -1,7 +1,7 @@
 // src/features/(dashboard)/home/components/HomePage.tsx
 "use client";
 
-import { useGetAgentOverview, useGetDriveFiles, useGetWebAnalytics } from "../../hooks";
+import { useGetAgentOverview, useGetKnowledgeBank, useGetWebAnalytics } from "../../hooks";
 import {
     StatCard,
     SessionsChartCard,
@@ -14,9 +14,62 @@ import {
 import { Mosa3edySidebar } from "./Mosa3edySidebar";
 import { Database, MessageSquare, MessageCircle, Loader2 } from "lucide-react";
 
+/** عدد تقييمات بنجمة واحدة من توزيع Laravel (مفاتيح نصية أو رقمية في JSON). */
+function ratingDistCount(dist: Record<string, number> | undefined, star: 1 | 2 | 3 | 4 | 5): number {
+    if (!dist) return 0;
+    const n = dist[String(star)];
+    if (typeof n === "number" && !Number.isNaN(n)) return n;
+    const alt = (dist as Record<number, number>)[star];
+    return typeof alt === "number" && !Number.isNaN(alt) ? alt : 0;
+}
+
+/** يدمج صفّي web وwebsite في صف واحد باسم website (نفس مصدر «الموقع» في المنتج). */
+function mergeWebWebsiteUserRows(rows: { platform: string; number_of_users: number }[]): { platform: string; number_of_users: number }[] {
+    let sum = 0;
+    const rest: { platform: string; number_of_users: number }[] = [];
+    let hadWebLike = false;
+    for (const r of rows) {
+        const k = r.platform.toLowerCase();
+        if (k === "web" || k === "website") {
+            hadWebLike = true;
+            sum += r.number_of_users;
+        } else {
+            rest.push(r);
+        }
+    }
+    if (!hadWebLike) return rows;
+    return [...rest, { platform: "website", number_of_users: sum }];
+}
+
+type RatingRowIn = { platform: string; average_rating: number; count: number };
+
+/** متوسط مرجّح عند وجود count؛ وإلا متوسط الحسابي لصفّي web وwebsite. */
+function mergeWebWebsiteRatingRows(rows: RatingRowIn[]): { platform: string; average_rating: number }[] {
+    const webLike: RatingRowIn[] = [];
+    const rest: RatingRowIn[] = [];
+    for (const r of rows) {
+        const k = r.platform.toLowerCase();
+        if (k === "web" || k === "website") {
+            webLike.push(r);
+        } else {
+            rest.push(r);
+        }
+    }
+    const out = rest.map(({ platform, average_rating }) => ({ platform, average_rating }));
+    if (webLike.length === 0) {
+        return rows.map(({ platform, average_rating }) => ({ platform, average_rating }));
+    }
+    const totalCount = webLike.reduce((s, r) => s + r.count, 0);
+    const avg =
+        totalCount > 0
+            ? webLike.reduce((s, r) => s + r.average_rating * r.count, 0) / totalCount
+            : webLike.reduce((s, r) => s + r.average_rating, 0) / webLike.length;
+    return [...out, { platform: "website", average_rating: avg }];
+}
+
 export function HomePage() {
     const { data: overviewResponse, isLoading, isError } = useGetAgentOverview();
-    const { data: filesData } = useGetDriveFiles();
+    const { data: knowledgeBankResponse } = useGetKnowledgeBank();
     const { data: webAnalytics } = useGetWebAnalytics();
 
     const raw = overviewResponse?.overview;
@@ -42,18 +95,30 @@ export function HomePage() {
     const webMessages = web?.messages;
     const webRatings = web?.ratings;
 
-    // Total users: from overview + web
-    const mergedTotalUsers = (raw.total_users || 0) + (webConversations?.total || 0);
+    /** إجمالي محادثات ومسار الويب من Laravel (مصدر webhook / ai-support). */
+    const webConvTotal = webConversations?.total ?? 0;
 
-    // Total messages: sum messages_by_platform + web messages
+    // Total users: من api1 + محادثات الويب المسجّلة في Laravel
+    const mergedTotalUsers = (raw.total_users || 0) + webConvTotal;
+
+    // Total messages: رسائل المنصات القديمة + رسائل الويب من Laravel
     const platformMsgsTotal = Object.values(raw.messages_by_platform || {}).reduce((a, b) => a + b, 0);
     const mergedTotalMessages = platformMsgsTotal + (webMessages?.total || 0);
 
-    // Conversation types: derive from needs_human_count
+    /**
+     * جلسات الشات: جانب الويب من Laravel بشكل صريح (needs_human / done_by_bot كما في ConversationService::getAnalytics).
+     * جانب api1: تقدير «بدون موظف» = إجمالي المستخدمين/المحادثات في overview − المحتاجة لموظف (تقريب للمنصات غير الويب).
+     */
+    const legacyTotal = raw.total_users ?? 0;
+    const legacyNeeds = raw.needs_human_count ?? 0;
+    const legacyBotEstimate = Math.max(0, legacyTotal - legacyNeeds);
+    const laravelNeeds = webConversations?.needs_human ?? 0;
+    const laravelDoneByBot = webConversations?.done_by_bot ?? 0;
+
     const mergedConversationTypes = {
         ratio: "0:0",
-        needs_human_true: (raw.needs_human_count || 0) + (webConversations?.needs_human || 0),
-        needs_human_false: Math.max(0, mergedTotalUsers - (raw.needs_human_count || 0) - (webConversations?.needs_human || 0)),
+        needs_human_true: legacyNeeds + laravelNeeds,
+        needs_human_false: legacyBotEstimate + laravelDoneByBot,
     };
 
     // Users per platform: derive from messages_by_platform
@@ -61,50 +126,77 @@ export function HomePage() {
         platform,
         number_of_users: count as number,
     }));
-    const hasWebsite = existingPlatforms.some((p) => p.platform.toLowerCase() === "website");
-    const mergedUsersPerPlatform = hasWebsite
-        ? existingPlatforms.map((p) =>
-              p.platform.toLowerCase() === "website"
-                  ? { ...p, number_of_users: p.number_of_users + (webMessages?.total || 0) }
-                  : p
-          )
-        : [...existingPlatforms, { platform: "website", number_of_users: webMessages?.total || 0 }];
+    const hasWebsiteKey = existingPlatforms.some((p) => p.platform.toLowerCase() === "website");
+    const hasWebKey = existingPlatforms.some((p) => p.platform.toLowerCase() === "web");
+    const extraWebMsgs = webMessages?.total || 0;
+
+    let mergedUsersPerPlatform: { platform: string; number_of_users: number }[];
+    if (hasWebsiteKey) {
+        mergedUsersPerPlatform = existingPlatforms.map((p) =>
+            p.platform.toLowerCase() === "website"
+                ? { ...p, number_of_users: p.number_of_users + extraWebMsgs }
+                : p
+        );
+    } else if (hasWebKey) {
+        mergedUsersPerPlatform = existingPlatforms.map((p) =>
+            p.platform.toLowerCase() === "web" ? { ...p, number_of_users: p.number_of_users + extraWebMsgs } : p
+        );
+    } else {
+        mergedUsersPerPlatform = [...existingPlatforms, { platform: "website", number_of_users: extraWebMsgs }];
+    }
+    mergedUsersPerPlatform = mergeWebWebsiteUserRows(mergedUsersPerPlatform);
 
     // Reviews
     const webDist = webRatings?.distribution;
 
-    // by_stars من الـ API الحقيقي (keys "1"→"5")
+    // by_stars من overview (api1) + توزيع Laravel (webhook → تقييمات ai-support)
     const apiByStars = raw.reviews?.by_stars || {};
     const mergedBreakdown: Record<string, number> = {
-        five_star:  (apiByStars["5"] || 0) + (webDist?.["5"] || 0),
-        four_star:  (apiByStars["4"] || 0) + (webDist?.["4"] || 0),
-        three_star: (apiByStars["3"] || 0) + (webDist?.["3"] || 0),
-        two_star:   (apiByStars["2"] || 0) + (webDist?.["2"] || 0),
-        one_star:   (apiByStars["1"] || 0) + (webDist?.["1"] || 0),
+        five_star: (apiByStars["5"] || 0) + ratingDistCount(webDist, 5),
+        four_star: (apiByStars["4"] || 0) + ratingDistCount(webDist, 4),
+        three_star: (apiByStars["3"] || 0) + ratingDistCount(webDist, 3),
+        two_star: (apiByStars["2"] || 0) + ratingDistCount(webDist, 2),
+        one_star: (apiByStars["1"] || 0) + ratingDistCount(webDist, 1),
     };
 
-    const totalReviewsCalculated = (raw.reviews?.count || 0) + Object.values(mergedBreakdown).reduce((a, b) => a + b, 0);
+    /** مجموع التقييمات من التوزيع فقط — بدون جمع count مع مجموع النجوم (كان يضاعف العدد). */
+    const totalReviewsCalculated =
+        mergedBreakdown.five_star +
+        mergedBreakdown.four_star +
+        mergedBreakdown.three_star +
+        mergedBreakdown.two_star +
+        mergedBreakdown.one_star;
 
-    const webTotal = webDist ? Object.values(webDist).reduce((a, b) => a + b, 0) : 0;
-    const apiTotal = raw.reviews?.count || 0;
+    const webTotal = webDist ? Object.values(webDist).reduce((a, b) => a + Number(b || 0), 0) : 0;
+
+    /** متوسط واحد مطابق لمجموع أشرطة النجوم المدمَجة (api1 + Laravel). */
     const mergedAverage =
-        apiTotal + webTotal > 0
-            ? ((raw.reviews?.average_rating || 0) * apiTotal + (webRatings?.average || 0) * webTotal) /
-              (apiTotal + webTotal)
+        totalReviewsCalculated > 0
+            ? (5 * mergedBreakdown.five_star +
+                  4 * mergedBreakdown.four_star +
+                  3 * mergedBreakdown.three_star +
+                  2 * mergedBreakdown.two_star +
+                  1 * mergedBreakdown.one_star) /
+              totalReviewsCalculated
             : 0;
 
-    // platform ratings: من الـ API + web
-    const apiPlatformRatings = (raw.reviews?.by_platform || []).map((p) => ({
+    // platform ratings: من الـ API (web + website → صف واحد) ثم إضافة متوسط Laravel إن لم يُدرَج الموقع في overview
+    const apiPlatformRatingsWithCounts: RatingRowIn[] = (raw.reviews?.by_platform || []).map((p) => ({
         platform: p.platform,
         average_rating: p.average_rating,
+        count: p.count ?? 0,
     }));
-    const hasWebInApi = apiPlatformRatings.some((p) => p.platform === "website" || p.platform === "web");
-    const mergedPlatformRatings = hasWebInApi
-        ? apiPlatformRatings
-        : [
-              ...apiPlatformRatings,
-              { platform: "website", average_rating: webRatings?.average || 0 },
-          ];
+    const hadWebsiteOrWebInOverview = (raw.reviews?.by_platform || []).some((p) => {
+        const k = p.platform.toLowerCase();
+        return k === "website" || k === "web";
+    });
+    let mergedPlatformRatings = mergeWebWebsiteRatingRows(apiPlatformRatingsWithCounts);
+    if (!hadWebsiteOrWebInOverview && webTotal > 0 && webRatings?.average != null) {
+        mergedPlatformRatings = [
+            ...mergedPlatformRatings,
+            { platform: "website", average_rating: webRatings.average },
+        ];
+    }
 
     const data = {
         total_users: mergedTotalUsers,
@@ -151,7 +243,7 @@ export function HomePage() {
                         />
                         <StatCard
                             title="قاعدة المعرفة"
-                            value={filesData?.count || 0} // Static value for now
+                            value={knowledgeBankResponse?.data?.length ?? 0}
                             icon={"database"}
                             iconColor="text-green-500"
                             iconBg="bg-green-50"

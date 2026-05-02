@@ -6,7 +6,6 @@ import mainApi from "@/src/lib/axios";
 const BASE_URL_5000 = "https://api1.mosaady.com/api";
 const BASE_URL_5000_ROOT = "https://api1.mosaady.com";
 const BASE_URL_5002 = "https://api2.mosaady.com/api";
-const BASE_URL_5005 = "https://api3.mosaady.com";
 const BASE_URL_API4 = "https://api4.mosaady.com";
 
 const authInterceptor = (config: InternalAxiosRequestConfig) => {
@@ -27,9 +26,6 @@ api5000Root.interceptors.request.use(authInterceptor);
 
 const api5002 = axios.create({ baseURL: BASE_URL_5002 });
 api5002.interceptors.request.use(authInterceptor);
-
-const api5005 = axios.create({ baseURL: BASE_URL_5005 });
-api5005.interceptors.request.use(authInterceptor);
 
 const api4 = axios.create({ baseURL: BASE_URL_API4 });
 api4.interceptors.request.use(authInterceptor);
@@ -360,63 +356,6 @@ export const getUsersStats = async (): Promise<StatsResponse> => {
     return data;
 };
 
-export interface DriveFile {
-    id: string;
-    name: string;
-    mime_type: string;
-    size: number;
-    size_mb: number;
-    created_time: string;
-    modified_time: string;
-    web_link: string;
-}
-
-export interface FilesResponse {
-    success: boolean;
-    count: number;
-    files: DriveFile[];
-}
-
-export interface UploadResponse {
-    success: boolean;
-    message: string;
-    file: {
-        id: string;
-        name: string;
-        size: number;
-        created_time: string;
-        web_link: string;
-    };
-}
-
-export interface DeleteFileResponse {
-    success: boolean;
-    message: string;
-    file_id: string;
-}
-
-export const getDriveFiles = async (): Promise<FilesResponse> => {
-    const { data } = await api5005.get<FilesResponse>("/files");
-    return data;
-};
-
-export const uploadDriveFile = async (file: File): Promise<UploadResponse> => {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const { data } = await api5005.post<UploadResponse>("/upload", formData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-    });
-    return data;
-};
-
-export const deleteDriveFile = async (fileId: string): Promise<DeleteFileResponse> => {
-    const { data } = await api5005.delete<DeleteFileResponse>(`/delete/${fileId}`);
-    return data;
-};
-
 export type WebConversationState = "active" | "waiting" | "with_agent" | "awaiting_rating" | "resolved";
 
 export interface WebConversationUser {
@@ -502,12 +441,14 @@ export interface WebMissedQuestionsResponse {
     data: WebMissedQuestion[];
 }
 
+/** مطابق لـ `ConversationService::getAnalytics()` — محادثات/رسائل/تقييمات مسار الويب (webhook → Laravel). */
 export interface WebAnalyticsResponse {
     status: boolean;
     message: string;
     conversations: {
         total: number;
         needs_human: number;
+        /** محادثات needs_human = false — يطابق منطق الباك للشريحة «البوت يرد» */
         done_by_bot: number;
     };
     messages: {
@@ -515,13 +456,8 @@ export interface WebAnalyticsResponse {
     };
     ratings: {
         average: number;
-        distribution: {
-            "1": number;
-            "2": number;
-            "3": number;
-            "4": number;
-            "5": number;
-        };
+        /** مفاتيح 1…5 كما يخرجها JSON من Laravel */
+        distribution: Record<string, number>;
     };
 }
 
