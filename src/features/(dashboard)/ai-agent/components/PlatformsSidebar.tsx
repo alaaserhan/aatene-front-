@@ -99,7 +99,7 @@ function PlatformItem({
   );
 }
 
-export function PlatformsSidebar({ activePlatform, onSelect, showToggle = true }: PlatformsSidebarProps) {
+export function PlatformsSidebar({ activePlatform, onSelect, showToggle = false }: PlatformsSidebarProps) {
   const pathname = usePathname();
   const isMessagesRoute = pathname.includes("messages");
 

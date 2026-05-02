@@ -102,6 +102,17 @@ export default function SearchFilters({
     const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
     const [citySearch, setCitySearch] = useState("");
 
+    /** عند اختيار فئة فرعية نُبقي مجموعة الفرعي ظاهرة */
+    useEffect(() => {
+        const cid = filters.category_id;
+        if (cid == null || categories.length === 0) return;
+        const selected = categories.find((c) => c.id === cid);
+        if (!selected?.parent_id) return;
+        const pid = parseInt(String(selected.parent_id), 10);
+        if (Number.isNaN(pid)) return;
+        setExpandedCategories((prev) => new Set(prev).add(pid));
+    }, [filters.category_id, categories]);
+
     const handleTagToggle = (tagId: number) => {
         const currentTags = filters.tags || [];
         const newTags = currentTags.includes(tagId)
@@ -183,7 +194,7 @@ export default function SearchFilters({
             <div className="divide-y divide-gray-100">
                 {/* Categories */}
                 {type !== "users" && categories.length > 0 && (
-                    <FilterSection title="الفئات" defaultOpen={false} forceOpen={!!filters.category_id}>
+                    <FilterSection title="الفئات" defaultOpen={true} forceOpen={!!filters.category_id}>
                         <div className="flex flex-col gap-1">
                             {parentCategories.map((parent) => {
                                 const children = childrenMap.get(parent.id.toString()) || [];
