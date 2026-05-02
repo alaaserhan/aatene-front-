@@ -10,7 +10,25 @@ import {
 } from "./api";
 import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { GetMessagesResponse, ConversationMessage } from "./types";
+import type { Conversation, GetMessagesResponse, GetUserConversationsResponse, ConversationMessage } from "./types";
+
+/** Laravel قد يعيد conversations كمصفوفة أو كصفحة ({ data: [...] }) */
+function normalizeUserConversationsPayload(res: GetUserConversationsResponse): GetUserConversationsResponse {
+    const raw = res.conversations as unknown;
+    let list: Conversation[] = [];
+    if (Array.isArray(raw)) {
+        list = raw;
+    } else if (raw && typeof raw === "object" && "data" in raw) {
+        const inner = (raw as { data?: unknown }).data;
+        if (Array.isArray(inner)) list = inner as Conversation[];
+    }
+    const sorted = [...list].sort((a, b) => {
+        const ta = a.last_message_at ?? a.updated_at ?? a.created_at;
+        const tb = b.last_message_at ?? b.updated_at ?? b.created_at;
+        return new Date(tb).getTime() - new Date(ta).getTime();
+    });
+    return { ...res, conversations: sorted };
+}
 
 export const useCurrentConversation = (enabled = true) => {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
@@ -27,7 +45,10 @@ export const useUserConversations = (enabled = true) => {
 
     return useQuery({
         queryKey: ["botChat", "conversations"],
-        queryFn: () => getUserConversations("web"),
+        queryFn: async () => {
+            const res = await getUserConversations("web");
+            return normalizeUserConversationsPayload(res);
+        },
         enabled: enabled && isLoggedIn,
     });
 };
@@ -115,6 +136,7 @@ export const useSendMessage = () => {
         },
         onSettled: (_data, _error, variables) => {
             queryClient.invalidateQueries({ queryKey: ["botChat", "messages", variables.conversationId] });
+            queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
         },
     });
 };

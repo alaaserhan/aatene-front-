@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { X, Send, Loader2, Bot, Star, LogOut, Pencil, User, Headset, AlertCircle, History, ChevronRight } from "lucide-react";
+import { X, Send, Loader2, Bot, Star, LogOut, Pencil, User, Headset, AlertCircle, History } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/src/lib/utils";
@@ -15,7 +15,7 @@ import {
     useSubmitRating,
     useBotChatTyping,
 } from "@/src/features/(web)/bot-chat/hooks";
-import type { ConversationMessage, Conversation } from "@/src/features/(web)/bot-chat/types";
+import type { ConversationMessage, Conversation, SendMessageResponse } from "@/src/features/(web)/bot-chat/types";
 import { useEchoChannel } from "@/src/hooks/use-echo-channel";
 import { formatTimeOnly, getRelativeTimeArabic } from "@/src/lib/date-helper";
 
@@ -36,31 +36,15 @@ function welcomeStorageKey(userId: number | undefined) {
     return userId != null ? `${WELCOME_STORAGE_PREFIX}_u_${userId}` : `${WELCOME_STORAGE_PREFIX}_anon`;
 }
 
-// ─── State labels ──────────────────────────────────────────────────────────────
-const STATE_LABELS: Record<string, string> = {
-    active: "نشط",
-    waiting: "في انتظار رد بشري",
-    with_agent: "مع الدعم",
-    awaiting_rating: "بانتظار التقييم",
-    resolved: "منتهية",
-};
-
-const STATE_COLORS: Record<string, string> = {
-    active: "bg-green-100 text-green-700",
-    waiting: "bg-amber-100 text-amber-700",
-    with_agent: "bg-blue-100 text-blue-700",
-    awaiting_rating: "bg-purple-100 text-purple-700",
-    resolved: "bg-gray-100 text-gray-500",
-};
-
-// ─── History tab component ─────────────────────────────────────────────────────
+// ─── History tab component — RTL: أيقونة يمين، نص وسط، «منذ …» يسار ───
 function HistoryTab({ onSelectConversation }: { onSelectConversation: (conv: Conversation) => void }) {
+    const authUser = useAuthStore((state) => state.user);
     const { data, isLoading, isError, error } = useUserConversations(true);
     const conversations: Conversation[] = data?.conversations ?? [];
 
     if (isLoading) {
         return (
-            <div className="flex-1 flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center bg-white">
                 <Loader2 className="w-7 h-7 animate-spin text-[#4a7ab5]" />
             </div>
         );
@@ -68,7 +52,7 @@ function HistoryTab({ onSelectConversation }: { onSelectConversation: (conv: Con
 
     if (isError) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-2">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-2 bg-white">
                 <AlertCircle className="w-10 h-10 text-red-300" />
                 <p className="text-sm text-red-400">فشل تحميل المحادثات</p>
                 <p className="text-[10px] text-gray-400 break-all">{String(error)}</p>
@@ -78,7 +62,7 @@ function HistoryTab({ onSelectConversation }: { onSelectConversation: (conv: Con
 
     if (conversations.length === 0) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center bg-white">
                 <History className="w-12 h-12 text-gray-200 mb-3" />
                 <p className="text-sm text-gray-400">لا توجد محادثات سابقة</p>
             </div>
@@ -86,45 +70,57 @@ function HistoryTab({ onSelectConversation }: { onSelectConversation: (conv: Con
     }
 
     return (
-        <div className="flex-1 overflow-y-auto" dir="rtl">
+        <div className="flex-1 overflow-y-auto bg-white min-h-0" dir="rtl">
             {conversations.map((conv) => {
-                const isActive = conv.state === "active" || conv.state === "waiting" || conv.state === "with_agent";
-                const lastMsg = conv.latest_message?.message_text;
+                const last = conv.latest_message;
+                const snippet = last?.message_text?.trim() ?? "";
+                let speakerLabel = conv.user?.name ?? "المساعد الذكي";
+                if (last?.sender_type === "user") {
+                    speakerLabel = authUser?.first_name ?? conv.user?.name ?? "أنت";
+                } else if (last?.sender_type === "bot") {
+                    speakerLabel = "المساعد الذكي";
+                } else if (last?.sender_type === "admin") {
+                    speakerLabel = last.sender?.full_name ?? "فريق الدعم";
+                }
+
+                const showWaitingBadge = conv.state === "waiting" && conv.needs_human;
+                const IconCmp =
+                    conv.needs_human || conv.state === "with_agent"
+                        ? Headset
+                        : last?.sender_type === "user"
+                          ? User
+                          : Bot;
+
                 return (
                     <button
                         key={conv.id}
+                        type="button"
                         onClick={() => onSelectConversation(conv)}
-                        className="w-full flex items-start gap-3 px-4 py-3.5 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors text-right"
+                        className="w-full flex items-start gap-3 px-4 py-3.5 border-b border-gray-100 last:border-0 hover:bg-[#f7fafc] transition-colors text-right"
                     >
-                        <div className="w-10 h-10 rounded-full bg-[#eef3f9] flex items-center justify-center shrink-0 border border-[#d0dff0]">
-                            {conv.needs_human ? (
-                                <Headset className="w-5 h-5 text-[#4a7ab5]" />
-                            ) : (
-                                <Bot className="w-5 h-5 text-[#4a7ab5]" />
-                            )}
+                        {/* يمين الصف (بداية RTL): الأيقونة */}
+                        <div className="w-11 h-11 shrink-0 rounded-full bg-[#e8f0fa] flex items-center justify-center border border-[#cfe0f4]">
+                            <IconCmp className="w-[22px] h-[22px] text-[#4a7ab5]" strokeWidth={1.75} />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-center mb-1">
-                                <span className="text-xs font-medium text-gray-800 truncate">
-                                    {conv.user?.name ?? "المساعد الذكي"}
-                                </span>
-                                <span className="text-[10px] text-gray-400 shrink-0 mr-2">
-                                    {conv.last_message_at ? getRelativeTimeArabic(conv.last_message_at) : ""}
-                                </span>
-                            </div>
-                            {lastMsg && (
-                                <p className="text-xs text-gray-400 truncate mb-1">{lastMsg}</p>
+                            {snippet ? (
+                                <p className="text-[13px] text-gray-800 leading-snug line-clamp-2">
+                                    <span className="font-semibold text-[#1e3a5f]">{speakerLabel}:</span>{" "}
+                                    <span className="text-gray-600 font-normal">{snippet}</span>
+                                </p>
+                            ) : (
+                                <p className="text-[13px] text-gray-500">محادثة</p>
                             )}
-                            <div className="flex items-center gap-1.5">
-                                <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium", STATE_COLORS[conv.state] ?? "bg-gray-100 text-gray-500")}>
-                                    {STATE_LABELS[conv.state] ?? conv.state}
+                            {showWaitingBadge && (
+                                <span className="mt-1.5 inline-block rounded-lg bg-sky-100 px-2.5 py-1 text-[11px] font-medium text-sky-800">
+                                    في انتظار رد بشري
                                 </span>
-                                {isActive && (
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block animate-pulse" />
-                                )}
-                            </div>
+                            )}
                         </div>
-                        <ChevronRight className="w-4 h-4 text-gray-300 shrink-0 mt-1 rtl:rotate-180" />
+                        {/* يسار الصف (نهاية RTL): الوقت النسبي */}
+                        <span className="text-[11px] text-gray-400 shrink-0 pt-0.5 w-[78px] text-left tabular-nums leading-snug">
+                            {conv.last_message_at ? getRelativeTimeArabic(conv.last_message_at) : ""}
+                        </span>
                     </button>
                 );
             })}
@@ -154,6 +150,11 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
     const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastTypingSentRef = useRef<number>(0);
+    /** بعد إرسال رسالة حتى يصل رد البوت/الدعم — لعرض نقاط الكتابة وتعطيل الإدخال */
+    const [awaitingBotReply, setAwaitingBotReply] = useState(false);
+    /** معرّف آخر رسالة مستخدم ناجحة من السيرفر — لاكتشاف رد البوت عبر التحديث الدوري (رسالة غير مستخدم بـ id أكبر) */
+    const [awaitingAfterUserMsgId, setAwaitingAfterUserMsgId] = useState<number | null>(null);
+    const awaitingBotClearRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [realtimeMessages, setRealtimeMessages] = useState<ConversationMessage[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -190,15 +191,21 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         );
     }, [apiMessages, realtimeMessages]);
 
-    const handleNewMessage = useCallback((data: Record<string, unknown>) => {
-        const msg = (data.message || data) as ConversationMessage;
-        if (!msg?.id) return;
-        if (msg.sender_type === "user") return;
-        setRealtimeMessages((prev) => {
-            if (prev.some((m) => m.id === msg.id)) return prev;
-            return [...prev, msg];
-        });
-    }, []);
+    const handleNewMessage = useCallback(
+        (data: Record<string, unknown>) => {
+            const msg = (data.message || data) as ConversationMessage;
+            if (!msg?.id) return;
+            if (msg.sender_type === "user") return;
+            setAwaitingBotReply(false);
+            setAwaitingAfterUserMsgId(null);
+            setRealtimeMessages((prev) => {
+                if (prev.some((m) => m.id === msg.id)) return prev;
+                return [...prev, msg];
+            });
+            queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
+        },
+        [queryClient]
+    );
 
     const handleTypingIndicator = useCallback((data: Record<string, unknown>) => {
         const userData = data.user as { id: number; full_name?: string } | undefined;
@@ -242,12 +249,45 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         if (scrollRef.current && !isFetchingNextPage) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [allMessages, typingUser, isFetchingNextPage]);
+    }, [allMessages, typingUser, isFetchingNextPage, sendMessageMutation.isPending, awaitingBotReply]);
 
     useEffect(() => {
         if (inputRef.current) inputRef.current.focus();
         queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
     }, [queryClient]);
+
+    useEffect(() => {
+        setAwaitingBotReply(false);
+        setAwaitingAfterUserMsgId(null);
+    }, [conversationId]);
+
+    useEffect(() => {
+        if (!awaitingBotReply) {
+            if (awaitingBotClearRef.current) {
+                clearTimeout(awaitingBotClearRef.current);
+                awaitingBotClearRef.current = null;
+            }
+            return;
+        }
+        awaitingBotClearRef.current = setTimeout(() => {
+            setAwaitingBotReply(false);
+            setAwaitingAfterUserMsgId(null);
+        }, 120_000);
+        return () => {
+            if (awaitingBotClearRef.current) clearTimeout(awaitingBotClearRef.current);
+        };
+    }, [awaitingBotReply]);
+
+    useEffect(() => {
+        if (!awaitingBotReply || awaitingAfterUserMsgId == null) return;
+        const hasBotSideReply = allMessages.some(
+            (m) => m.sender_type !== "user" && m.id > awaitingAfterUserMsgId
+        );
+        if (hasBotSideReply) {
+            setAwaitingBotReply(false);
+            setAwaitingAfterUserMsgId(null);
+        }
+    }, [allMessages, awaitingBotReply, awaitingAfterUserMsgId]);
 
     useEffect(() => {
         const key = welcomeStorageKey(user?.id);
@@ -278,7 +318,12 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
     const handleSend = useCallback(() => {
         const text = inputText.trim();
-        if (!text || sendMessageMutation.isPending || startConversation.isPending) return;
+        if (!text || sendMessageMutation.isPending || startConversation.isPending || awaitingBotReply) return;
+
+        const afterSendSuccess = (res: SendMessageResponse) => {
+            setAwaitingBotReply(true);
+            setAwaitingAfterUserMsgId(res.data.id);
+        };
 
         if (!conversationId) {
             startConversation.mutate("web", {
@@ -287,7 +332,10 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     if (id) {
                         markWelcomeSeen();
                         setInputText("");
-                        sendMessageMutation.mutate({ conversationId: id, messageText: text });
+                        sendMessageMutation.mutate(
+                            { conversationId: id, messageText: text },
+                            { onSuccess: afterSendSuccess }
+                        );
                         queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
                         queryClient.invalidateQueries({ queryKey: ["botChat", "messages", id] });
                     }
@@ -298,7 +346,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
         markWelcomeSeen();
         setInputText("");
-        sendMessageMutation.mutate({ conversationId, messageText: text });
+        sendMessageMutation.mutate({ conversationId, messageText: text }, { onSuccess: afterSendSuccess });
     }, [
         inputText,
         sendMessageMutation,
@@ -306,6 +354,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         startConversation,
         queryClient,
         markWelcomeSeen,
+        awaitingBotReply,
     ]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -400,10 +449,12 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
             displayedConv.state === "waiting" ||
             displayedConv.state === "with_agent");
 
+    const inputLocked = sendMessageMutation.isPending || awaitingBotReply;
+
     // ─── Render helpers ─────────────────────────────────────────────────────────
 
     const renderIntroFooterInput = () => {
-        const busy = sendMessageMutation.isPending || startConversation.isPending;
+        const busy = sendMessageMutation.isPending || startConversation.isPending || awaitingBotReply;
         return (
             <div className="bg-white px-4 py-3.5 shrink-0 rounded-t-2xl" dir="rtl">
                 <div className="flex items-center gap-3">
@@ -723,6 +774,28 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                             </div>
                         </div>
                     )}
+
+                    {/* نقاط كتابة البوت — نفس محاذاة رسائل المساعد (يمين في RTL) */}
+                    {!typingUser && inputLocked && (
+                        <div className="flex flex-col gap-0.5 items-end mt-1 animate-in fade-in duration-200">
+                            <span className="text-[10px] text-gray-400 px-1">: المساعد الذكي</span>
+                            <div className="flex gap-2 items-end flex-row-reverse">
+                                <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shrink-0 border border-gray-100">
+                                    <Bot className="w-4 h-4 text-[#4a7ab5]" />
+                                </div>
+                                <div
+                                    className="bg-white px-4 py-2.5 rounded-2xl rounded-tl-sm border border-gray-100 flex items-center gap-1.5"
+                                    style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
+                                >
+                                    <span className="flex gap-1 items-center py-0.5">
+                                        <span className="w-1.5 h-1.5 bg-[#94a3b8] rounded-full animate-bounce [animation-delay:0ms]" />
+                                        <span className="w-1.5 h-1.5 bg-[#94a3b8] rounded-full animate-bounce [animation-delay:150ms]" />
+                                        <span className="w-1.5 h-1.5 bg-[#94a3b8] rounded-full animate-bounce [animation-delay:300ms]" />
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -767,20 +840,22 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                             onChange={handleInputChange}
                             onKeyDown={handleKeyDown}
                             placeholder="اكتب رسالتك هنا ..."
-                            className="flex-1 bg-transparent text-base md:text-sm text-right text-gray-700 placeholder:text-gray-400 outline-none border-none h-12 md:h-10"
+                            disabled={inputLocked}
+                            className="flex-1 bg-transparent text-base md:text-sm text-right text-gray-700 placeholder:text-gray-400 outline-none border-none h-12 md:h-10 disabled:opacity-60"
                         />
                         <button
                             onClick={handleSend}
-                            disabled={!inputText.trim() || sendMessageMutation.isPending}
+                            type="button"
+                            disabled={!inputText.trim() || inputLocked}
                             className={cn(
-                                "w-12 h-12 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer",
-                                inputText.trim()
-                                    ? "bg-[#395A7D] hover:bg-[#2c4460] text-white shadow-md"
-                                    : "bg-gray-100 text-gray-400"
+                                "w-12 h-12 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 transition-all",
+                                inputLocked || !inputText.trim()
+                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                    : "bg-[#395A7D] hover:bg-[#2c4460] text-white shadow-md cursor-pointer"
                             )}
                         >
-                            {sendMessageMutation.isPending ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
+                            {inputLocked ? (
+                                <Loader2 className="w-5 h-5 animate-spin text-[#64748b]" />
                             ) : (
                                 <Send className="w-5 h-5 rtl:-rotate-90" style={{ marginRight: "-1px" }} />
                             )}
@@ -919,8 +994,8 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 </div>
             </div>
 
-            {/* ── Tabs — خلفية التبويب النشط ~ #d1dae5 كالتصميم ── */}
-            <div className="grid grid-cols-2 shrink-0 border-b border-gray-200/90 bg-white" dir="rtl">
+            {/* ── Tabs — نشط: خلفية #d1dae5 + حد سفلي كحلي؛ غير نشط: أبيض كالمرجع ── */}
+            <div className="grid grid-cols-2 shrink-0 bg-white border-b border-gray-200/90" dir="rtl">
                 <button
                     type="button"
                     onClick={() => {
@@ -931,10 +1006,10 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                         setActiveTab("new");
                     }}
                     className={cn(
-                        "py-3 text-sm font-semibold transition-colors",
+                        "py-3 text-sm font-semibold transition-colors border-b-[3px]",
                         activeTab === "new"
-                            ? "text-[#1e3a5f] bg-[#d1dae5]"
-                            : "text-[#5a6b85] bg-[#f8fafc] hover:bg-gray-100/80"
+                            ? "text-[#1e3a5f] bg-[#d1dae5] border-[#1e3a5f]"
+                            : "text-[#5a6b85] bg-white border-transparent hover:bg-gray-50"
                     )}
                 >
                     دردشة جديدة
@@ -946,10 +1021,10 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                         setActiveTab("history");
                     }}
                     className={cn(
-                        "py-3 text-sm font-semibold transition-colors",
+                        "py-3 text-sm font-semibold transition-colors border-b-[3px]",
                         activeTab === "history"
-                            ? "text-[#1e3a5f] bg-[#d1dae5]"
-                            : "text-[#5a6b85] bg-[#f8fafc] hover:bg-gray-100/80"
+                            ? "text-[#1e3a5f] bg-[#d1dae5] border-[#1e3a5f]"
+                            : "text-[#5a6b85] bg-white border-transparent hover:bg-gray-50"
                     )}
                 >
                     سجل الدردشات
