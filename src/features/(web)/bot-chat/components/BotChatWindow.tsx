@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
 import { X, Send, Loader2, Bot, Star, LogOut, Pencil, User, Headset, AlertCircle, History } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
@@ -38,8 +38,11 @@ const HISTORY_ICON_SUPPORT = `/ai/${encodeURIComponent("Chat Bot AI.svg")}`;
 const HISTORY_ICON_USER = `/ai/${encodeURIComponent("Chat Bot AI(1).svg")}`;
 const HISTORY_ICON_BOT = `/ai/${encodeURIComponent("Chat Bot AI(2).svg")}`;
 
-/** التقييم يُعرَض بعد مرور هذه المدة على بدء المحادثة (`created_at`) */
-const RATING_SHOW_AFTER_MS = 5 * 60 * 1000;
+/** التقييم يُعرَض بعد مرور هذه المدة على بدء المحادثة (`created_at`) — للاختبار 30 ثانية؛ أعد `5 * 60 * 1000` للإنتاج */
+const RATING_SHOW_AFTER_MS = 30 * 1000;
+
+/** للاختبار: إظهار نموذج التقييم كل 30 ثانية أثناء المحادثة. عيّن `0` قبل الإنتاج */
+const RATING_TEST_INTERVAL_MS = 30 * 1000;
 
 function historyConversationStatus(conv: Conversation): { label: string; className: string } {
     const st = conv.state;
@@ -297,6 +300,10 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const awaitingBotClearRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [realtimeMessages, setRealtimeMessages] = useState<ConversationMessage[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
+    /** مرساة أسفل قائمة الرسائل — للتمرير الموثوق إلى آخر المحادثة */
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const lastLayoutConvIdRef = useRef<number | undefined>(undefined);
+    const prevMsgCountForPinRef = useRef(0);
     const inputRef = useRef<HTMLInputElement>(null);
     /** إنهاء يدوي من المستخدم — لتجنب تنبيه «من النظام» */
     const endedByUserActionRef = useRef(false);
@@ -403,15 +410,56 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     }, []);
 
     const scrollMessagesToBottom = useCallback(() => {
-        const el = scrollRef.current;
-        if (!el) return;
-        requestAnimationFrame(() => {
+        const anchor = messagesEndRef.current;
+        const outer = scrollRef.current;
+        const run = () => {
+            const a = messagesEndRef.current;
+            const o = scrollRef.current;
+            if (a) {
+                a.scrollIntoView({ block: "end", inline: "nearest" });
+            } else if (o) {
+                o.scrollTop = o.scrollHeight;
+            }
+        };
+        if (anchor || outer) {
             requestAnimationFrame(() => {
-                const inner = scrollRef.current;
-                if (inner) inner.scrollTop = inner.scrollHeight;
+                requestAnimationFrame(run);
             });
-        });
+        }
     }, []);
+
+    /** قبل الرسم: عند فتح محادثة أو أول تحميل للرسائل نُثبت الأسفل حتى لا يعتبر onScroll أننا «بعيدين عن القاع» */
+    useLayoutEffect(() => {
+        const el = scrollRef.current;
+        if (!el || !conversationId) return;
+
+        if (lastLayoutConvIdRef.current !== conversationId) {
+            lastLayoutConvIdRef.current = conversationId;
+            prevMsgCountForPinRef.current = 0;
+            stickToBottomRef.current = true;
+        }
+
+        if (isLoadingMessages && allMessages.length === 0) return;
+
+        const firstPaintWithMessages = prevMsgCountForPinRef.current === 0 && allMessages.length > 0;
+        prevMsgCountForPinRef.current = allMessages.length;
+
+        if (!stickToBottomRef.current && !firstPaintWithMessages) return;
+
+        stickToBottomRef.current = true;
+        el.scrollTop = el.scrollHeight;
+        messagesEndRef.current?.scrollIntoView({ block: "end", inline: "nearest" });
+    }, [conversationId, isLoadingMessages, allMessages.length]);
+
+    /** للاختبار: إظهار التقييم كل 30 ثانية */
+    useEffect(() => {
+        if (RATING_TEST_INTERVAL_MS <= 0) return;
+        if (chatView !== "chat" || !conversationId) return;
+        const id = window.setInterval(() => {
+            setChatView("rating");
+        }, RATING_TEST_INTERVAL_MS);
+        return () => window.clearInterval(id);
+    }, [conversationId, chatView]);
 
     useEffect(() => {
         if (isFetchingNextPage) return;
@@ -629,7 +677,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     return;
                 }
                 setChatView("chat");
-                toast.info("سيُعرَض نموذج التقييم بعد اكتمال 5 دقائق على بداية المحادثة.");
+                toast.info("سيُعرَض نموذج التقييم بعد اكتمال 30 ثانية على بداية المحادثة (وضع اختبار).");
                 ratingDelayTimerRef.current = setTimeout(() => {
                     ratingDelayTimerRef.current = null;
                     setChatView("rating");
@@ -1024,90 +1072,96 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     )}
 
                     {(chatView === "rating" || isAwaitingRating) && conversationId && (
-                        <div
-                            className="mt-4 rounded-2xl bg-white border border-gray-200 p-4 shadow-[0_2px_12px_rgba(0,0,0,0.06)] max-w-full animate-in fade-in slide-in-from-bottom-2 duration-300"
-                            dir="rtl"
-                        >
-                            <p className="text-center text-sm font-medium text-gray-900 leading-relaxed">
-                                نقدّر وقتك في مشاركة رأيك معنا
-                            </p>
-                            <p className="text-center text-xs text-gray-600 mt-2 mb-5 leading-relaxed px-1">
-                                يرجى تقييم تجربتك لمساعدتنا في تقديم خدمة أفضل
-                            </p>
+                        <div className="w-full flex justify-center px-2 py-3 shrink-0">
+                            <div
+                                className="w-full max-w-[min(100%,300px)] rounded-xl bg-white border border-gray-200/90 p-3 shadow-[0_4px_20px_rgba(0,0,0,0.06)] animate-in fade-in slide-in-from-bottom-2 duration-300"
+                                dir="rtl"
+                            >
+                                <p className="text-center text-xs font-semibold text-gray-900 leading-snug">
+                                    نقدّر وقتك في مشاركة رأيك معنا
+                                </p>
+                                <p className="text-center text-[11px] text-gray-600 mt-1.5 mb-3 leading-relaxed px-0.5">
+                                    يرجى تقييم تجربتك لمساعدتنا في تقديم خدمة أفضل
+                                </p>
 
-                            <div className="flex justify-center gap-2 mb-5">
-                                {[1, 2, 3, 4, 5].map((star) => (
+                                <div className="flex justify-center gap-1 mb-3">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button
+                                            key={star}
+                                            type="button"
+                                            onMouseEnter={() => setHoverRating(star)}
+                                            onMouseLeave={() => setHoverRating(0)}
+                                            onClick={() => setRating(star)}
+                                            className="p-0.5 transition-transform hover:scale-110 cursor-pointer"
+                                            aria-label={`${star} من 5`}
+                                        >
+                                            <Star
+                                                className={cn(
+                                                    "w-7 h-7 transition-colors",
+                                                    star <= (hoverRating || rating)
+                                                        ? "text-amber-400 fill-amber-400"
+                                                        : "text-gray-300"
+                                                )}
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <hr className="border-gray-100 mb-2.5" />
+
+                                <label
+                                    htmlFor="bot-rating-comment"
+                                    className="block text-right text-[11px] font-medium text-gray-600 mb-1"
+                                >
+                                    أضف تعليق (اختياري)
+                                </label>
+                                <textarea
+                                    id="bot-rating-comment"
+                                    value={ratingComment}
+                                    onChange={(e) => setRatingComment(e.target.value)}
+                                    placeholder="اكتب تعليقك هنا..."
+                                    rows={2}
+                                    className="w-full bg-gray-50/80 rounded-lg border border-gray-200 px-2.5 py-2 text-xs text-gray-800 placeholder:text-gray-400 outline-none resize-none mb-3 focus:border-[#395A7D] focus:bg-white transition-colors"
+                                />
+
+                                <div className="flex justify-start" dir="ltr">
                                     <button
-                                        key={star}
                                         type="button"
-                                        onMouseEnter={() => setHoverRating(star)}
-                                        onMouseLeave={() => setHoverRating(0)}
-                                        onClick={() => setRating(star)}
-                                        className="p-1 transition-transform hover:scale-110 cursor-pointer"
-                                        aria-label={`${star} من 5`}
+                                        onClick={handleSubmitRating}
+                                        disabled={rating === 0 || submitRatingMutation.isPending}
+                                        className={cn(
+                                            "min-w-[100px] px-4 py-2 rounded-lg text-xs font-semibold text-white transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
+                                            rating > 0 ? "bg-[#1e3a5f] hover:bg-[#152a45]" : "bg-gray-300"
+                                        )}
                                     >
-                                        <Star
-                                            className={cn(
-                                                "w-9 h-9 transition-colors",
-                                                star <= (hoverRating || rating)
-                                                    ? "text-amber-400 fill-amber-400"
-                                                    : "text-gray-300"
-                                            )}
-                                        />
+                                        {submitRatingMutation.isPending ? (
+                                            <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                                        ) : (
+                                            "إرسال"
+                                        )}
                                     </button>
-                                ))}
-                            </div>
+                                </div>
 
-                            <hr className="border-gray-200 mb-4" />
-
-                            <label htmlFor="bot-rating-comment" className="block text-right text-xs font-medium text-gray-600 mb-2">
-                                أضف تعليق (اختياري)
-                            </label>
-                            <textarea
-                                id="bot-rating-comment"
-                                value={ratingComment}
-                                onChange={(e) => setRatingComment(e.target.value)}
-                                placeholder="اكتب تعليقك هنا..."
-                                rows={4}
-                                className="w-full bg-white rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none resize-none mb-4 focus:border-[#395A7D] transition-colors"
-                            />
-
-                            <div className="flex justify-start" dir="ltr">
                                 <button
                                     type="button"
-                                    onClick={handleSubmitRating}
-                                    disabled={rating === 0 || submitRatingMutation.isPending}
-                                    className={cn(
-                                        "min-w-[120px] px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
-                                        rating > 0 ? "bg-[#1e3a5f] hover:bg-[#152a45]" : "bg-gray-300"
-                                    )}
+                                    onClick={() => {
+                                        setChatView("chat");
+                                        setRating(0);
+                                        setRatingComment("");
+                                        setHoverRating(0);
+                                        setViewingConvId(null);
+                                        setViewingConversation(null);
+                                        queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
+                                        queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
+                                    }}
+                                    className="w-full mt-2 py-1.5 text-center text-[11px] text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                                 >
-                                    {submitRatingMutation.isPending ? (
-                                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                                    ) : (
-                                        "إرسال"
-                                    )}
+                                    تخطّي لاحقاً
                                 </button>
                             </div>
-
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setChatView("chat");
-                                    setRating(0);
-                                    setRatingComment("");
-                                    setHoverRating(0);
-                                    setViewingConvId(null);
-                                    setViewingConversation(null);
-                                    queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
-                                    queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
-                                }}
-                                className="w-full mt-3 py-2 text-center text-xs text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-                            >
-                                تخطّي لاحقاً
-                            </button>
                         </div>
                     )}
+                    <div ref={messagesEndRef} className="h-px w-full shrink-0" aria-hidden />
                 </div>
             </div>
 
