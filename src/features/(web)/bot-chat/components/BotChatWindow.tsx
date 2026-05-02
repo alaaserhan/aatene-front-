@@ -18,6 +18,7 @@ import {
 import type { ConversationMessage, Conversation, SendMessageResponse } from "@/src/features/(web)/bot-chat/types";
 import { useEchoChannel } from "@/src/hooks/use-echo-channel";
 import { formatTimeOnly, getRelativeTimeArabic } from "@/src/lib/date-helper";
+import { toast } from "sonner";
 
 type ChatView = "chat" | "rating";
 type TabView = "new" | "history";
@@ -37,8 +38,136 @@ const HISTORY_ICON_SUPPORT = `/ai/${encodeURIComponent("Chat Bot AI.svg")}`;
 const HISTORY_ICON_USER = `/ai/${encodeURIComponent("Chat Bot AI(1).svg")}`;
 const HISTORY_ICON_BOT = `/ai/${encodeURIComponent("Chat Bot AI(2).svg")}`;
 
+/** التقييم يُعرَض بعد مرور هذه المدة على بدء المحادثة (`created_at`) */
+const RATING_SHOW_AFTER_MS = 5 * 60 * 1000;
+
+function historyConversationStatus(conv: Conversation): { label: string; className: string } {
+    const st = conv.state;
+    if (st === "resolved") {
+        return { label: "منتهية", className: "bg-slate-100 text-slate-700 border border-slate-200/90" };
+    }
+    if (st === "awaiting_rating") {
+        return { label: "في انتظار تقييم", className: "bg-amber-50 text-amber-900 border border-amber-200" };
+    }
+    if (st === "waiting" && conv.needs_human) {
+        return { label: "في انتظار رد بشري", className: "bg-sky-100 text-sky-900 border border-sky-200" };
+    }
+    if (st === "with_agent") {
+        return { label: "مع فريق الدعم", className: "bg-violet-50 text-violet-900 border border-violet-200" };
+    }
+    if (st === "waiting") {
+        return { label: "انتظار", className: "bg-blue-50 text-blue-900 border border-blue-200" };
+    }
+    if (st === "active") {
+        return { label: "نشطة", className: "bg-emerald-50 text-emerald-900 border border-emerald-200" };
+    }
+    return { label: st, className: "bg-gray-100 text-gray-700 border border-gray-200" };
+}
+
 function welcomeStorageKey(userId: number | undefined) {
     return userId != null ? `${WELCOME_STORAGE_PREFIX}_u_${userId}` : `${WELCOME_STORAGE_PREFIX}_anon`;
+}
+
+/** تحويل meta من الـ API (مصفوفة أو كائن يحوي buttons/quick_replies) إلى قائمة عناصر للعرض */
+function normalizeMessageMeta(meta: unknown): unknown[] {
+    if (meta == null) return [];
+    if (Array.isArray(meta)) return meta;
+    if (typeof meta === "object") {
+        const o = meta as Record<string, unknown>;
+        if (Array.isArray(o.buttons)) return o.buttons;
+        if (Array.isArray(o.quick_replies)) return o.quick_replies;
+        if (Array.isArray(o.suggestions)) return o.suggestions;
+        if (Array.isArray(o.items)) return o.items;
+        return [];
+    }
+    return [];
+}
+
+function MessageMetaBlock({
+    meta,
+    isUserBubble,
+    disabled,
+    onQuickReply,
+}: {
+    meta: unknown;
+    isUserBubble: boolean;
+    disabled: boolean;
+    onQuickReply: (text: string) => void;
+}) {
+    const items = normalizeMessageMeta(meta);
+    if (items.length === 0) return null;
+
+    const chipBase =
+        "text-right rounded-xl px-3 py-1.5 text-xs font-medium transition-colors max-w-full break-words border";
+
+    return (
+        <div className="mt-2 flex flex-col gap-1.5 items-stretch min-w-0 w-full" dir="rtl">
+            {items.map((item, idx) => {
+                if (typeof item === "string") {
+                    return (
+                        <button
+                            key={`s-${idx}`}
+                            type="button"
+                            disabled={disabled}
+                            onClick={() => onQuickReply(item)}
+                            className={cn(
+                                chipBase,
+                                isUserBubble
+                                    ? "border-white/40 bg-white/15 text-white hover:bg-white/25"
+                                    : "border-[#cfe0f4] bg-[#f0f6fc] text-[#1e3a5f] hover:bg-[#e4eef8]"
+                            )}
+                        >
+                            {item}
+                        </button>
+                    );
+                }
+                if (item && typeof item === "object") {
+                    const o = item as Record<string, unknown>;
+                    const label = String(o.label ?? o.title ?? o.text ?? o.name ?? "").trim();
+                    const urlRaw = o.url ?? o.href;
+                    const url = typeof urlRaw === "string" ? urlRaw.trim() : "";
+                    const payloadRaw = o.payload ?? o.value ?? o.message ?? label;
+                    const payload = typeof payloadRaw === "string" ? payloadRaw : label;
+
+                    if (url && /^https?:\/\//i.test(url)) {
+                        return (
+                            <a
+                                key={`l-${idx}`}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={cn(
+                                    "text-xs underline-offset-2 hover:underline text-right block py-0.5",
+                                    isUserBubble ? "text-white/95" : "text-[#4a7ab5]"
+                                )}
+                            >
+                                {label || url}
+                            </a>
+                        );
+                    }
+                    if (label || payload) {
+                        return (
+                            <button
+                                key={`o-${idx}`}
+                                type="button"
+                                disabled={disabled}
+                                onClick={() => onQuickReply(payload || label)}
+                                className={cn(
+                                    chipBase,
+                                    isUserBubble
+                                        ? "border-white/40 bg-white/15 text-white hover:bg-white/25"
+                                        : "border-[#cfe0f4] bg-[#f0f6fc] text-[#1e3a5f] hover:bg-[#e4eef8]"
+                                )}
+                            >
+                                {label || payload}
+                            </button>
+                        );
+                    }
+                }
+                return null;
+            })}
+        </div>
+    );
 }
 
 // ─── History tab component — RTL: أيقونة يمين، نص وسط، «منذ …» يسار ───
@@ -88,7 +217,7 @@ function HistoryTab({ onSelectConversation }: { onSelectConversation: (conv: Con
                     speakerLabel = last.sender?.full_name ?? "فريق الدعم";
                 }
 
-                const showWaitingBadge = conv.state === "waiting" && conv.needs_human;
+                const statusBadge = historyConversationStatus(conv);
                 const historyIconSrc =
                     conv.needs_human || conv.state === "with_agent"
                         ? HISTORY_ICON_SUPPORT
@@ -119,11 +248,14 @@ function HistoryTab({ onSelectConversation }: { onSelectConversation: (conv: Con
                             ) : (
                                 <p className="text-[13px] text-gray-500">محادثة</p>
                             )}
-                            {showWaitingBadge && (
-                                <span className="mt-1.5 inline-block rounded-lg bg-sky-100 px-2.5 py-1 text-[11px] font-medium text-sky-800">
-                                    في انتظار رد بشري
-                                </span>
-                            )}
+                            <span
+                                className={cn(
+                                    "mt-1.5 inline-block rounded-lg px-2.5 py-1 text-[11px] font-semibold",
+                                    statusBadge.className
+                                )}
+                            >
+                                {statusBadge.label}
+                            </span>
                         </div>
                         {/* يسار الصف (نهاية RTL): الوقت النسبي */}
                         <span className="text-[11px] text-gray-400 shrink-0 pt-0.5 w-[78px] text-left tabular-nums leading-snug">
@@ -166,6 +298,13 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const [realtimeMessages, setRealtimeMessages] = useState<ConversationMessage[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    /** إنهاء يدوي من المستخدم — لتجنب تنبيه «من النظام» */
+    const endedByUserActionRef = useRef(false);
+    const prevConvIdRef = useRef<number | undefined>(undefined);
+    const prevConvStateRef = useRef<string | undefined>(undefined);
+    /** عند true نُبقي العرض أسفل المحادثة (آخر الرسائل). يصبح false إذا ابتعد المستخدم للأعلى لقراءة قديم */
+    const stickToBottomRef = useRef(true);
+    const ratingDelayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const queryClient = useQueryClient();
 
@@ -206,6 +345,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
             if (msg.sender_type === "user") return;
             setAwaitingBotReply(false);
             setAwaitingAfterUserMsgId(null);
+            stickToBottomRef.current = true;
             setRealtimeMessages((prev) => {
                 if (prev.some((m) => m.id === msg.id)) return prev;
                 return [...prev, msg];
@@ -254,10 +394,46 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     );
 
     useEffect(() => {
-        if (scrollRef.current && !isFetchingNextPage) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        return () => {
+            if (ratingDelayTimerRef.current) {
+                clearTimeout(ratingDelayTimerRef.current);
+                ratingDelayTimerRef.current = null;
+            }
+        };
+    }, []);
+
+    const scrollMessagesToBottom = useCallback(() => {
+        const el = scrollRef.current;
+        if (!el) return;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                const inner = scrollRef.current;
+                if (inner) inner.scrollTop = inner.scrollHeight;
+            });
+        });
+    }, []);
+
+    useEffect(() => {
+        if (isFetchingNextPage) return;
+        if (!stickToBottomRef.current) return;
+        scrollMessagesToBottom();
+    }, [
+        allMessages,
+        typingUser,
+        isFetchingNextPage,
+        sendMessageMutation.isPending,
+        awaitingBotReply,
+        isLoadingMessages,
+        chatView,
+        scrollMessagesToBottom,
+    ]);
+
+    useEffect(() => {
+        if (chatView === "rating") {
+            stickToBottomRef.current = true;
+            scrollMessagesToBottom();
         }
-    }, [allMessages, typingUser, isFetchingNextPage, sendMessageMutation.isPending, awaitingBotReply]);
+    }, [chatView, scrollMessagesToBottom]);
 
     useEffect(() => {
         if (inputRef.current) inputRef.current.focus();
@@ -267,6 +443,13 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     useEffect(() => {
         setAwaitingBotReply(false);
         setAwaitingAfterUserMsgId(null);
+        prevConvIdRef.current = undefined;
+        prevConvStateRef.current = undefined;
+        stickToBottomRef.current = true;
+        if (ratingDelayTimerRef.current) {
+            clearTimeout(ratingDelayTimerRef.current);
+            ratingDelayTimerRef.current = null;
+        }
     }, [conversationId]);
 
     useEffect(() => {
@@ -329,6 +512,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         if (!text || sendMessageMutation.isPending || startConversation.isPending || awaitingBotReply) return;
 
         const afterSendSuccess = (res: SendMessageResponse) => {
+            stickToBottomRef.current = true;
             setAwaitingBotReply(true);
             setAwaitingAfterUserMsgId(res.data.id);
         };
@@ -394,6 +578,11 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         setViewingConvId(null);
         setViewingConversation(null);
         setRealtimeMessages([]);
+        if (ratingDelayTimerRef.current) {
+            clearTimeout(ratingDelayTimerRef.current);
+            ratingDelayTimerRef.current = null;
+        }
+        setChatView("chat");
 
         startConversation.mutate("web", {
             onSuccess: () => {
@@ -414,13 +603,37 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
     const handleEndConversation = () => {
         if (!conversationId) return;
+        endedByUserActionRef.current = true;
+        const createdAtSnapshot =
+            (viewingConvId != null ? viewingConversation : conversation ?? null)?.created_at;
         setRating(0);
         setRatingComment("");
+        if (ratingDelayTimerRef.current) {
+            clearTimeout(ratingDelayTimerRef.current);
+            ratingDelayTimerRef.current = null;
+        }
         endConversationMutation.mutate(conversationId, {
             onSuccess: () => {
                 setShowEndConfirm(false);
                 queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
-                setChatView("rating");
+                queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
+
+                if (!createdAtSnapshot) {
+                    setChatView("rating");
+                    return;
+                }
+                const eligibleAt = new Date(createdAtSnapshot).getTime() + RATING_SHOW_AFTER_MS;
+                const waitMs = Math.max(0, eligibleAt - Date.now());
+                if (waitMs <= 0) {
+                    setChatView("rating");
+                    return;
+                }
+                setChatView("chat");
+                toast.info("سيُعرَض نموذج التقييم بعد اكتمال 5 دقائق على بداية المحادثة.");
+                ratingDelayTimerRef.current = setTimeout(() => {
+                    ratingDelayTimerRef.current = null;
+                    setChatView("rating");
+                }, waitMs);
             },
         });
     };
@@ -431,9 +644,14 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
             { conversationId, rate: rating, comment: ratingComment },
             {
                 onSuccess: () => {
+                    if (ratingDelayTimerRef.current) {
+                        clearTimeout(ratingDelayTimerRef.current);
+                        ratingDelayTimerRef.current = null;
+                    }
                     setChatView("chat");
                     setRating(0);
                     setRatingComment("");
+                    setHoverRating(0);
                     setViewingConvId(null);
                     setViewingConversation(null);
                     queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
@@ -458,6 +676,63 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
             displayedConv.state === "with_agent");
 
     const inputLocked = sendMessageMutation.isPending || awaitingBotReply;
+
+    const sendQuickReply = useCallback(
+        (text: string) => {
+            const trimmed = text.trim();
+            if (!trimmed || !canSendMessages || sendMessageMutation.isPending || startConversation.isPending || awaitingBotReply) return;
+            if (!conversationId) return;
+            stickToBottomRef.current = true;
+            markWelcomeSeen();
+            setInputText("");
+            sendMessageMutation.mutate(
+                { conversationId, messageText: trimmed },
+                {
+                    onSuccess: (res: SendMessageResponse) => {
+                        setAwaitingBotReply(true);
+                        setAwaitingAfterUserMsgId(res.data.id);
+                    },
+                }
+            );
+        },
+        [
+            canSendMessages,
+            conversationId,
+            sendMessageMutation,
+            startConversation.isPending,
+            awaitingBotReply,
+            markWelcomeSeen,
+        ]
+    );
+
+    useEffect(() => {
+        const id = displayedConv?.id;
+        const state = displayedConv?.state;
+        if (id == null || state == null) return;
+
+        const prevId = prevConvIdRef.current;
+        const prevState = prevConvStateRef.current;
+
+        if (prevId !== undefined && prevId !== id) {
+            prevConvIdRef.current = id;
+            prevConvStateRef.current = state;
+            return;
+        }
+
+        const wasOpen =
+            prevState === "active" || prevState === "waiting" || prevState === "with_agent";
+        const nowTerminal = state === "awaiting_rating" || state === "resolved";
+
+        if (prevState !== undefined && prevId === id && wasOpen && nowTerminal) {
+            if (!endedByUserActionRef.current) {
+                toast.info("تم إنهاء المحادثة من جانب النظام.");
+            }
+            endedByUserActionRef.current = false;
+        }
+
+        prevConvIdRef.current = id;
+        prevConvStateRef.current = state;
+    }, [displayedConv?.id, displayedConv?.state]);
 
     // ─── Render helpers ─────────────────────────────────────────────────────────
 
@@ -569,72 +844,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         </div>
     );
 
-    const renderRatingView = () => (
-        <div className="flex-1 flex flex-col items-center justify-center p-6 bg-gradient-to-b from-[#f8fafc] to-[#eef2f7] overflow-y-auto">
-            <div className="flex flex-col items-center w-full animate-in fade-in slide-in-from-bottom-4 duration-400">
-                <div
-                    className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-                    style={{ background: "linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)", boxShadow: "0 6px 24px rgba(245,158,11,0.3)" }}
-                >
-                    <Star className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-1">كيف كانت تجربتك؟</h3>
-                <p className="text-sm text-gray-500 text-center mb-5">ساعدنا في تحسين خدمة الدعم</p>
-
-                <div className="flex gap-2 mb-4">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                            key={star}
-                            onMouseEnter={() => setHoverRating(star)}
-                            onMouseLeave={() => setHoverRating(0)}
-                            onClick={() => setRating(star)}
-                            className="p-1 transition-all hover:scale-125 cursor-pointer"
-                        >
-                            <Star className={cn("w-8 h-8 transition-all duration-200", star <= (hoverRating || rating) ? "text-amber-400 fill-amber-400" : "text-gray-300")} />
-                        </button>
-                    ))}
-                </div>
-
-                {rating > 0 && (
-                    <div className="text-center mb-4 animate-in fade-in duration-300">
-                        <span className="text-2xl">{["😞", "😐", "🙂", "😊", "🤩"][rating - 1]}</span>
-                    </div>
-                )}
-
-                <textarea
-                    value={ratingComment}
-                    onChange={(e) => setRatingComment(e.target.value)}
-                    placeholder="أضف تعليقاً (اختياري)..."
-                    dir="rtl"
-                    rows={3}
-                    className="w-full bg-white rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-400 outline-none resize-none mb-4 focus:border-[#4a7ab5] transition-all"
-                />
-                <button
-                    onClick={handleSubmitRating}
-                    disabled={rating === 0 || submitRatingMutation.isPending}
-                    className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-white text-sm font-medium transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50"
-                    style={{ background: rating > 0 ? "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)" : "#d1d5db" }}
-                >
-                    {submitRatingMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : <span>إرسال التقييم</span>}
-                </button>
-                <button
-                    onClick={() => {
-                        setChatView("chat");
-                        setRating(0);
-                        setRatingComment("");
-                        setViewingConvId(null);
-                        setViewingConversation(null);
-                        queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
-                        queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
-                    }}
-                    className="w-full mt-2 px-5 py-2 rounded-xl text-gray-400 text-sm hover:text-gray-600 transition-all cursor-pointer"
-                >
-                    تخطَّ
-                </button>
-            </div>
-        </div>
-    );
-
     const renderEndConfirmView = () => (
         <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gradient-to-b from-white to-[#f8fafc]">
             <div className="flex flex-col items-center w-full animate-in zoom-in-95 fade-in duration-300">
@@ -672,7 +881,10 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 dir="rtl"
                 ref={scrollRef}
                 onScroll={(e) => {
-                    const { scrollTop } = e.currentTarget;
+                    const el = e.currentTarget;
+                    const { scrollTop, scrollHeight, clientHeight } = el;
+                    const fromBottom = scrollHeight - scrollTop - clientHeight;
+                    stickToBottomRef.current = fromBottom < 120;
                     if (scrollTop < 50 && hasNextPage && !isFetchingNextPage) fetchNextPage();
                 }}
             >
@@ -741,6 +953,12 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                                             style={!isUser ? { boxShadow: "0 1px 4px rgba(0,0,0,0.06)" } : undefined}
                                         >
                                             {msg.message_text}
+                                            <MessageMetaBlock
+                                                meta={msg.meta}
+                                                isUserBubble={isUser}
+                                                disabled={inputLocked || !canSendMessages}
+                                                onQuickReply={sendQuickReply}
+                                            />
                                             <div className={cn("text-[10px] mt-1 opacity-50", isUser ? "text-right" : "text-left")}>
                                                 {formatTimeOnly(msg.created_at)}
                                             </div>
@@ -804,6 +1022,92 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                             </div>
                         </div>
                     )}
+
+                    {(chatView === "rating" || isAwaitingRating) && conversationId && (
+                        <div
+                            className="mt-4 rounded-2xl bg-white border border-gray-200 p-4 shadow-[0_2px_12px_rgba(0,0,0,0.06)] max-w-full animate-in fade-in slide-in-from-bottom-2 duration-300"
+                            dir="rtl"
+                        >
+                            <p className="text-center text-sm font-medium text-gray-900 leading-relaxed">
+                                نقدّر وقتك في مشاركة رأيك معنا
+                            </p>
+                            <p className="text-center text-xs text-gray-600 mt-2 mb-5 leading-relaxed px-1">
+                                يرجى تقييم تجربتك لمساعدتنا في تقديم خدمة أفضل
+                            </p>
+
+                            <div className="flex justify-center gap-2 mb-5">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        type="button"
+                                        onMouseEnter={() => setHoverRating(star)}
+                                        onMouseLeave={() => setHoverRating(0)}
+                                        onClick={() => setRating(star)}
+                                        className="p-1 transition-transform hover:scale-110 cursor-pointer"
+                                        aria-label={`${star} من 5`}
+                                    >
+                                        <Star
+                                            className={cn(
+                                                "w-9 h-9 transition-colors",
+                                                star <= (hoverRating || rating)
+                                                    ? "text-amber-400 fill-amber-400"
+                                                    : "text-gray-300"
+                                            )}
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+
+                            <hr className="border-gray-200 mb-4" />
+
+                            <label htmlFor="bot-rating-comment" className="block text-right text-xs font-medium text-gray-600 mb-2">
+                                أضف تعليق (اختياري)
+                            </label>
+                            <textarea
+                                id="bot-rating-comment"
+                                value={ratingComment}
+                                onChange={(e) => setRatingComment(e.target.value)}
+                                placeholder="اكتب تعليقك هنا..."
+                                rows={4}
+                                className="w-full bg-white rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 outline-none resize-none mb-4 focus:border-[#395A7D] transition-colors"
+                            />
+
+                            <div className="flex justify-start" dir="ltr">
+                                <button
+                                    type="button"
+                                    onClick={handleSubmitRating}
+                                    disabled={rating === 0 || submitRatingMutation.isPending}
+                                    className={cn(
+                                        "min-w-[120px] px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
+                                        rating > 0 ? "bg-[#1e3a5f] hover:bg-[#152a45]" : "bg-gray-300"
+                                    )}
+                                >
+                                    {submitRatingMutation.isPending ? (
+                                        <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                                    ) : (
+                                        "إرسال"
+                                    )}
+                                </button>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setChatView("chat");
+                                    setRating(0);
+                                    setRatingComment("");
+                                    setHoverRating(0);
+                                    setViewingConvId(null);
+                                    setViewingConversation(null);
+                                    queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
+                                    queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
+                                }}
+                                className="w-full mt-3 py-2 text-center text-xs text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                            >
+                                تخطّي لاحقاً
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -837,8 +1141,8 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 </div>
             )}
 
-            {/* إدخال — للمحادثات النشطة بما فيها المفتوحة من السجل */}
-            {canSendMessages && (
+            {/* إدخال — يُخفى أثناء عرض التقييم داخل المحادثة */}
+            {canSendMessages && !(chatView === "rating" || isAwaitingRating) && (
                 <div className="bg-white px-4 py-3 md:py-3 border-t border-gray-100 shrink-0" dir="rtl">
                     <div className="flex items-center gap-2">
                         <input
@@ -890,7 +1194,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
             );
         }
         if (showEndConfirm) return renderEndConfirmView();
-        if (isAwaitingRating || chatView === "rating") return renderRatingView();
 
         const showIntroScreen =
             activeTab === "new" &&
