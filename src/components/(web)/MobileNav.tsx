@@ -1,18 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronLeft, Menu, X, Search } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { SearchBar } from "./SearchBar";
 import UserMenu from "./UserMenu";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
-import { cn } from "@/src/lib/utils";
 import { useMyNotificationStats } from "@/src/features/(web)/notifications/hooks";
 import { Badge } from "@/src/components/ui/badge";
 import { useSettingsStore } from "@/src/stores/settings-store";
+import NavbarCategoriesMenu from "./NavbarCategoriesMenu";
 
 const menuVariants: Variants = {
   closed: {
@@ -45,11 +44,9 @@ export default function MobileNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
-  const router = useRouter();
   const lang = useLanguage();
   const user = useAuthStore((state) => state.user);
   const isHydrated = useAuthStore((state) => state.isHydrated);
-  const userType = user?.user_type;
 
   const { data: statsData } = useMyNotificationStats(!!user);
   const unreadCount = statsData?.unseen || 0;
@@ -66,17 +63,20 @@ export default function MobileNav() {
   };
 
   return (
-    <div className="min-[1100px]:hidden w-full">
-      <div className="flex items-center justify-between px-4 py-3 w-full">
-        <button
-          className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
-          onClick={toggleMobileMenu}
-          aria-label={mobileMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+    <div className="relative z-[280] min-[1100px]:hidden w-full">
+      <div className="flex items-center justify-between px-4 py-3 w-full gap-2">
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
+            onClick={toggleMobileMenu}
+            aria-label={mobileMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+          <NavbarCategoriesMenu variant="mobile" />
+        </div>
 
-        <Link href={`/${lang}`}>
+        <Link href={`/${lang}`} className="shrink-0">
           {settings?.logo_url ? (
             <img src={settings.logo_url} className="h-8 w-auto object-contain" alt={settings?.name || "logo"} />
           ) : (
@@ -258,11 +258,13 @@ export default function MobileNav() {
 
                 {/* Search Component */}
                 <div className="mt-2">
-                  <SearchBar
-                    currentLocale={lang}
-                    variant="mobile"
-                    onSearch={() => setMobileSearchOpen(false)}
-                  />
+                  <Suspense fallback={<div className="h-11 w-full rounded-xl bg-gray-100 animate-pulse" aria-hidden />}>
+                    <SearchBar
+                      currentLocale={lang}
+                      variant="mobile"
+                      onSearch={() => setMobileSearchOpen(false)}
+                    />
+                  </Suspense>
                 </div>
               </div>
             </motion.div>

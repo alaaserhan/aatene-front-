@@ -1,11 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Category, City, Tag, Attribute } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
 import { SlidersHorizontal, ChevronDown } from "lucide-react";
 import { DualRangeSlider } from "@/src/components/ui/DualRangeSlider";
+import {
+    flattenCategoryTree,
+    buildCategoryTree,
+} from "@/src/features/(web)/search/utils/categoryTree";
 
 export type SearchType = "products" | "services" | "stores" | "users";
 
@@ -73,20 +77,90 @@ function CustomRatingCheckbox({ isActive, onChange }: CustomRatingCheckboxProps)
     );
 }
 
-// Helper to build hierarchical category structure
-function buildCategoryTree(categories: Category[]) {
-    const parentCategories = categories.filter((c) => !c.parent_id || c.parent_id === null);
-    const childrenMap = new Map<string, Category[]>();
+function CategoryTreeNode({
+    category,
+    depth,
+    childrenMap,
+    expandedCategories,
+    toggleCategoryExpand,
+    filters,
+    handleCategorySelect,
+    searchType,
+}: {
+    category: Category;
+    depth: number;
+    childrenMap: Map<string, Category[]>;
+    expandedCategories: Set<number>;
+    toggleCategoryExpand: (id: number) => void;
+    filters: FilterState;
+    handleCategorySelect: (id: number | undefined) => void;
+    searchType: SearchType;
+}) {
+    const children = childrenMap.get(category.id.toString()) || [];
+    const hasChildren = children.length > 0;
+    const isExpanded = expandedCategories.has(category.id);
+    const count =
+        searchType === "services" ? category.services_count : category.products_count;
+    const isSelected = filters.category_id === category.id;
+    const labelClass =
+        depth === 0
+            ? isSelected
+                ? "text-[#3D5E83] font-bold"
+                : "text-gray-600 hover:text-[#3D5E83]"
+            : isSelected
+              ? "text-[#3D5E83] font-medium"
+              : "text-gray-500 hover:text-[#3D5E83]";
 
-    categories.forEach((cat) => {
-        if (cat.parent_id) {
-            const children = childrenMap.get(cat.parent_id) || [];
-            children.push(cat);
-            childrenMap.set(cat.parent_id, children);
-        }
-    });
-
-    return { parentCategories, childrenMap };
+    return (
+        <div>
+            <div className="flex items-center gap-2">
+                <div className="w-6 shrink-0 flex justify-center">
+                    {hasChildren ? (
+                        <button
+                            type="button"
+                            onClick={() => toggleCategoryExpand(category.id)}
+                            className="p-1 hover:bg-gray-100 rounded cursor-pointer"
+                        >
+                            <ChevronDown
+                                className={cn(
+                                    "w-4 h-4 text-gray-400 transition-transform",
+                                    isExpanded && "rotate-180"
+                                )}
+                            />
+                        </button>
+                    ) : null}
+                </div>
+                <button
+                    type="button"
+                    onClick={() => handleCategorySelect(category.id)}
+                    className={cn(
+                        "flex-1 text-right py-2 px-3 rounded-lg text-sm transition-colors cursor-pointer",
+                        labelClass
+                    )}
+                >
+                    {category.name}{" "}
+                    <span className="text-gray-400 font-normal">({count})</span>
+                </button>
+            </div>
+            {hasChildren && isExpanded && (
+                <div className="mr-6 mt-1 flex flex-col gap-1 border-r-2 border-gray-200 pr-3">
+                    {children.map((child) => (
+                        <CategoryTreeNode
+                            key={child.id}
+                            category={child}
+                            depth={depth + 1}
+                            childrenMap={childrenMap}
+                            expandedCategories={expandedCategories}
+                            toggleCategoryExpand={toggleCategoryExpand}
+                            filters={filters}
+                            handleCategorySelect={handleCategorySelect}
+                            searchType={searchType}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 }
 
 export default function SearchFilters({
@@ -102,16 +176,31 @@ export default function SearchFilters({
     const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
     const [citySearch, setCitySearch] = useState("");
 
-    /** عند اختيار فئة فرعية نُبقي مجموعة الفرعي ظاهرة */
+    const flatCategories = useMemo(
+        () => flattenCategoryTree(categories),
+        [categories]
+    );
+
+    /** عند اختيار فئة فرعية نوسّع سلسلة الآباء حتى تبقى الفئة الظاهرة */
     useEffect(() => {
         const cid = filters.category_id;
-        if (cid == null || categories.length === 0) return;
-        const selected = categories.find((c) => c.id === cid);
+        if (cid == null || flatCategories.length === 0) return;
+        const selected = flatCategories.find((c) => c.id === cid);
         if (!selected?.parent_id) return;
-        const pid = parseInt(String(selected.parent_id), 10);
-        if (Number.isNaN(pid)) return;
-        setExpandedCategories((prev) => new Set(prev).add(pid));
-    }, [filters.category_id, categories]);
+        setExpandedCategories((prev) => {
+            const next = new Set(prev);
+            let pid: number | null = parseInt(String(selected.parent_id), 10);
+            while (pid != null && !Number.isNaN(pid)) {
+                next.add(pid);
+                const p = flatCategories.find((c) => c.id === pid);
+                pid =
+                    p?.parent_id != null && String(p.parent_id) !== ""
+                        ? parseInt(String(p.parent_id), 10)
+                        : null;
+            }
+            return next;
+        });
+    }, [filters.category_id, flatCategories]);
 
     const handleTagToggle = (tagId: number) => {
         const currentTags = filters.tags || [];
@@ -162,7 +251,7 @@ export default function SearchFilters({
         .filter((c) => !citySearch.trim() || c.name.toLowerCase().includes(citySearch.trim().toLowerCase()))
         .map((c) => ({ value: c.id.toString(), label: c.name }));
 
-    const { parentCategories, childrenMap } = buildCategoryTree(categories);
+    const { parentCategories, childrenMap } = buildCategoryTree(flatCategories);
 
     const handleCategorySelect = (categoryId: number | undefined) => {
         onFilterChange({
@@ -196,54 +285,19 @@ export default function SearchFilters({
                 {type !== "users" && categories.length > 0 && (
                     <FilterSection title="الفئات" defaultOpen={true} forceOpen={!!filters.category_id}>
                         <div className="flex flex-col gap-1">
-                            {parentCategories.map((parent) => {
-                                const children = childrenMap.get(parent.id.toString()) || [];
-                                const hasChildren = children.length > 0;
-                                const isExpanded = expandedCategories.has(parent.id);
-                                return (
-                                    <div key={parent.id}>
-                                        <div className="flex items-center gap-2">
-                                            {hasChildren && (
-                                                <button
-                                                    onClick={() => toggleCategoryExpand(parent.id)}
-                                                    className="p-1 hover:bg-gray-100 rounded cursor-pointer"
-                                                >
-                                                    <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform", isExpanded && "rotate-180")} />
-                                                </button>
-                                            )}
-                                            <button
-                                                onClick={() => handleCategorySelect(parent.id)}
-                                                className={cn(
-                                                    "flex-1 text-right py-2 px-3 rounded-lg text-sm transition-colors cursor-pointer",
-                                                    filters.category_id === parent.id
-                                                        ? "text-[#3D5E83] font-bold"
-                                                        : "text-gray-600 hover:text-[#3D5E83]"
-                                                )}
-                                            >
-                                                {parent.name} <span className="text-gray-400 font-normal">({type === "services" ? parent.services_count : parent.products_count})</span>
-                                            </button>
-                                        </div>
-                                        {hasChildren && isExpanded && (
-                                            <div className="mr-6 mt-1 flex flex-col gap-1 border-r-2 border-gray-200 pr-3">
-                                                {children.map((child) => (
-                                                    <button
-                                                        key={child.id}
-                                                        onClick={() => handleCategorySelect(child.id)}
-                                                        className={cn(
-                                                            "text-right py-2 px-3 rounded-lg text-sm transition-colors cursor-pointer",
-                                                            filters.category_id === child.id
-                                                                ? "text-[#3D5E83] font-medium"
-                                                                : "text-gray-500 hover:text-[#3D5E83]"
-                                                        )}
-                                                    >
-                                                        {child.name} <span className="text-gray-400">({type === "services" ? child.services_count : child.products_count})</span>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
+                            {parentCategories.map((parent) => (
+                                <CategoryTreeNode
+                                    key={parent.id}
+                                    category={parent}
+                                    depth={0}
+                                    childrenMap={childrenMap}
+                                    expandedCategories={expandedCategories}
+                                    toggleCategoryExpand={toggleCategoryExpand}
+                                    filters={filters}
+                                    handleCategorySelect={handleCategorySelect}
+                                    searchType={type}
+                                />
+                            ))}
                         </div>
                     </FilterSection>
                 )}
