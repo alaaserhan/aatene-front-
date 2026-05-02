@@ -338,6 +338,20 @@ export function useWebMarkTyping() {
     });
 }
 
+export function useWebToggleBot() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: api.webToggleBot,
+        onSuccess: (data) => {
+            if (data.data) patchWebConversationInListCaches(queryClient, data.data);
+            toast.success(data.message || "تم تحديث حالة رد البوت");
+        },
+        onError: (error: AxiosError<{ message: string }>) => {
+            toast.error(error.response?.data?.message || "فشل تحديث حالة البوت");
+        },
+    });
+}
+
 export function useGetWebMissedQuestions() {
     return useQuery({
         queryKey: ["web-missed-questions"],

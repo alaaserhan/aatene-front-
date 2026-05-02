@@ -4,10 +4,21 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Loader2, Send, Headset, CheckCircle, Bot, User, Star, XCircle, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetWebConversationMessages, useWebAdminReply, useWebResolveConversation, useWebEndConversation, useWebDeleteConversation, useWebMarkTyping, useGetWebConversations } from "../hooks";
+import {
+    useGetWebConversationMessages,
+    useWebAdminReply,
+    useWebResolveConversation,
+    useWebEndConversation,
+    useWebDeleteConversation,
+    useWebMarkTyping,
+    useGetWebConversations,
+    useWebToggleBot,
+} from "../hooks";
 import { WebMessage } from "../api";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
+import { Switch } from "@/src/components/ui/switch";
+import { Label } from "@/src/components/ui/label";
 import { cn } from "@/src/lib/utils";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { useEchoChannel } from "@/src/hooks/use-echo-channel";
@@ -163,24 +174,47 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
 
     const userName = conversation?.user?.name || allMessages.find((m) => m.sender_type === "user")?.sender?.full_name || "مستخدم";
 
+    /** عند غياب الحقل نفترض true (مطابق سلوك الباك للزائر/القيم الافتراضية). */
+    const botRepliesEnabled = (conversation?.user?.ai_support_bot_active ?? true) !== false;
+
     return (
         <div className="flex flex-col h-full max-h-[calc(100vh-220px)] lg:max-h-none bg-white">
 
-            <div className="bg-white px-6 py-4 flex justify-between items-center z-10 shrink-0">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center border border-blue-4 overflow-hidden">
+            <div className="bg-white px-4 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-3 z-10 shrink-0 border-b border-gray-50">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center border border-blue-4 overflow-hidden shrink-0">
                         <img src="/icons/dashboard/user.svg" className="w-10 h-10 object-cover" alt="User" />
                     </div>
-                    <div>
-                        <h2 className="text-base font-bold">
+                    <div className="min-w-0">
+                        <h2 className="text-base font-bold truncate">
                             {userName}
                         </h2>
                         <span className="text-xs text-gray-2">محادثة #{conversationId}</span>
                     </div>
                 </div>
 
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 justify-end">
+                {conversation?.user != null && (
+                    <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-100 shrink-0">
+                        <Switch
+                            id={`bot-reply-${conversationId}`}
+                            checked={botRepliesEnabled}
+                            disabled={isTogglingBot}
+                            onCheckedChange={() => toggleBot(conversationId)}
+                            dir="ltr"
+                            className="data-[state=checked]:bg-[#1DC355]"
+                        />
+                        <Label
+                            htmlFor={`bot-reply-${conversationId}`}
+                            className="text-xs sm:text-sm font-medium text-gray-700 cursor-pointer select-none whitespace-nowrap"
+                        >
+                            رد البوت التلقائي
+                        </Label>
+                    </div>
+                )}
+
                 {!conversation?.resolved_at && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap justify-end">
                         {conversation?.state !== "resolved" && conversation?.state !== "awaiting_rating" && (
                             <Button
                                 size="sm"
@@ -214,6 +248,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                         </Button>
                     </div>
                 )}
+                </div>
             </div>
 
             <div className="flex-1 min-h-0 px-4 pb-4">
