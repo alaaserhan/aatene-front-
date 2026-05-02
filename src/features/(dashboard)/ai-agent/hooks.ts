@@ -4,6 +4,22 @@ import * as api from "./api";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 
+/** يحدّث المحادثة في كل نسخ كاش قائمة الويب فوراً (قبل اكتمال الـ refetch) */
+function patchWebConversationInListCaches(queryClient: ReturnType<typeof useQueryClient>, updated: api.WebConversation) {
+    if (!updated?.id) return;
+    queryClient.setQueriesData<api.WebConversationsResponse>(
+        { queryKey: ["web-conversations"] },
+        (old) => {
+            if (!old?.data?.length) return old;
+            const idx = old.data.findIndex((c) => c.id === updated.id);
+            if (idx === -1) return old;
+            const next = [...old.data];
+            next[idx] = { ...next[idx], ...updated };
+            return { ...old, data: next };
+        }
+    );
+}
+
 export function useGetPlatformUsers(params: api.GetUsersParams) {
   return useQuery({
     queryKey: ["agent-users", params.platform, params.limit, params.offset, params.needs_human],
@@ -331,6 +347,7 @@ export function useWebResolveConversation() {
         mutationFn: api.webResolveConversation,
         onSuccess: (data) => {
             toast.success(data.message || "تم إنهاء المحادثة بنجاح");
+            if (data.data) patchWebConversationInListCaches(queryClient, data.data);
             queryClient.invalidateQueries({ queryKey: ["web-conversations"] });
             queryClient.invalidateQueries({ queryKey: ["web-conversation-messages"] });
         },
@@ -346,6 +363,7 @@ export function useWebEndConversation() {
         mutationFn: api.webEndConversation,
         onSuccess: (data) => {
             toast.success(data.message || "تم إنهاء المحادثة بنجاح");
+            if (data.data) patchWebConversationInListCaches(queryClient, data.data);
             queryClient.invalidateQueries({ queryKey: ["web-conversations"] });
             queryClient.invalidateQueries({ queryKey: ["web-conversation-messages"] });
         },

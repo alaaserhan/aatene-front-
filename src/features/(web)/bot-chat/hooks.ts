@@ -132,6 +132,9 @@ export const useConversationMessages = (conversationId: number | undefined, enab
         enabled: enabled && isLoggedIn && !!conversationId,
         initialPageParam: 1,
         refetchOnMount: "always",
+        // Echo قد لا يصل أو يتأخر؛ نفس فكرة التحديث الدوري في ChatConversationView للوحة الأدمن
+        refetchInterval: enabled && isLoggedIn && conversationId ? 5000 : false,
+        refetchOnWindowFocus: true,
     });
 };
 
