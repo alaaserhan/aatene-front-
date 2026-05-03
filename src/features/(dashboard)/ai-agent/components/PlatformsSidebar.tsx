@@ -116,11 +116,9 @@ export function PlatformsSidebar({ activePlatform, onSelect, showToggle = false 
     { id: "mobile", label: "التطبيق", iconPath: "/icons/dashboard/mobile.svg" },
   ];
 
+  /** محادثات المنتجات والخدمات — الواتساب فقط (مصدر api4) */
   const productPlatforms = [
     { id: "api4_whatsapp", label: "واتساب", iconPath: "/icons/dashboard/whatsapp4.svg" },
-    { id: "p_instagram", label: "انستجرام", iconPath: "/icons/dashboard/insta.svg" },
-    { id: "p_website", label: "الموقع الالكتروني", iconPath: "/icons/dashboard/website.svg" },
-    { id: "p_mobile", label: "التطبيق", iconPath: "/icons/dashboard/mobile.svg" },
   ];
 
   const deletedPlatform = {
@@ -204,9 +202,9 @@ export function PlatformsSidebar({ activePlatform, onSelect, showToggle = false 
                   key={p.id}
                   label={p.label}
                   iconPath={p.iconPath}
-                  isActive={false}
-                  showToggle={false}
-                  onClick={() => {}}
+                  isActive={activePlatform === p.id}
+                  showToggle={showToggle}
+                  onClick={() => onSelect(p.id)}
                 />
               ))}
             </div>
