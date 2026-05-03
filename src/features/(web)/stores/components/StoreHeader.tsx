@@ -32,6 +32,7 @@ import { useStoreWhoFavorited } from "../hooks";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 
 interface StoreHeaderProps {
     store: StoreProfile;
@@ -275,6 +276,10 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
     const covers = store.cover_urls || [];
+    const currentCoverUrl = covers[currentImageIndex] || "";
+    const currentCoverIsVideo = Boolean(
+        currentCoverUrl && isStoreBannerVideoUrl(currentCoverUrl)
+    );
 
     const [avatarStoryOpen, setAvatarStoryOpen] = useState(false);
     const hasStories = stories && stories.length > 0;
@@ -310,12 +315,26 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
             <div className="relative bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] pb-4">
                 <div className="relative h-48 md:h-[250px] lg:h-[300px] w-full overflow-hidden group">
                     {covers.length > 0 ? (
-                        <Image
-                            src={covers[currentImageIndex]}
-                            alt="Store Cover"
-                            fill
-                            className="object-cover transition-all duration-700"
-                        />
+                        currentCoverIsVideo ? (
+                            <video
+                                key={currentCoverUrl}
+                                src={currentCoverUrl}
+                                className="absolute inset-0 h-full w-full object-cover transition-all duration-700"
+                                muted
+                                playsInline
+                                loop
+                                autoPlay
+                                preload="metadata"
+                            />
+                        ) : (
+                            <Image
+                                key={currentCoverUrl}
+                                src={currentCoverUrl}
+                                alt="Store Cover"
+                                fill
+                                className="object-cover transition-all duration-700"
+                            />
+                        )
                     ) : (
                         <div className="w-full h-full" />
                     )}

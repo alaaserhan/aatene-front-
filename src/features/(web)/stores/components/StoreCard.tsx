@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
+import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 
 interface StoreCardProps {
     store: Store;
@@ -26,7 +27,11 @@ const StoreCard = memo(({
     onVisitClick,
     className
 }: StoreCardProps) => {
+    const coverUrls = (store.cover_urls ?? []).filter(Boolean);
+    const primaryCover = coverUrls[0];
+    const coverIsVideo = Boolean(primaryCover && isStoreBannerVideoUrl(primaryCover));
     const [imgSrc, setImgSrc] = useState(store.logo_url || "/placeholder.png");
+    const [imageCoverSrc, setImageCoverSrc] = useState(primaryCover || "");
     const rating = parseFloat(store.review_rate || "0");
     const [followed, setFollowed] = useState(isFollowing || store.am_i_following);
 
@@ -34,6 +39,14 @@ const StoreCard = memo(({
     useEffect(() => {
         setFollowed(isFollowing || store.am_i_following);
     }, [isFollowing, store.am_i_following]);
+
+    useEffect(() => {
+        setImageCoverSrc(primaryCover || "");
+    }, [primaryCover]);
+
+    useEffect(() => {
+        setImgSrc(store.logo_url || "/placeholder.png");
+    }, [store.logo_url]);
 
     const queryClient = useQueryClient();
     const { mutate: follow, isPending: isFollowPending } = useFollowUserOrStore();
@@ -59,9 +72,29 @@ const StoreCard = memo(({
                 className
             )}
         >
-            {/* Cover Image */}
+            {/* Cover: banner (cover_urls) or logo */}
             <div className="relative h-48 w-full bg-gray-200">
-                {store.logo_url ? (
+                {coverIsVideo && primaryCover ? (
+                    <video
+                        src={primaryCover}
+                        className="absolute inset-0 h-full w-full object-cover"
+                        muted
+                        playsInline
+                        loop
+                        autoPlay
+                        preload="metadata"
+                    />
+                ) : primaryCover && !coverIsVideo ? (
+                    <Image
+                        src={imageCoverSrc || primaryCover}
+                        alt={store.name}
+                        fill
+                        className="object-cover"
+                        onError={() => {
+                            setImageCoverSrc(store.logo_url || "/placeholder.png");
+                        }}
+                    />
+                ) : store.logo_url ? (
                     <Image
                         src={imgSrc}
                         alt={store.name}

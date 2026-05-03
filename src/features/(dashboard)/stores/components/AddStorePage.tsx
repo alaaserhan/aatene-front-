@@ -1,7 +1,7 @@
 // src/features/(dashboard)/stores/components/AddStorePage.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { AddStoreStep2 } from "./AddStoreStep2";
 import { AddStoreStep3 } from "./AddStoreStep3";
@@ -41,38 +41,44 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
 
   const generateAIMutation = useGenerateStoreAI();
   const isGeneratingAI = generateAIMutation.isPending;
-  const [lastGeneratedInput, setLastGeneratedInput] = useState<{ name: string; description: string } | null>(null);
+  /** يُحدَّث فقط عند نجاح التوليد فعلياً — لتجنب منع إعادة المحاولة عند استجابة فارغة */
+  const lastSuccessfulAiInputRef = useRef<{ name: string; description: string } | null>(null);
   const [aiKeywords, setAiKeywords] = useState<string[]>([]);
 
-  const handleGenerateAI = async (step2Data: Step2FormData) => {
+  const handleGenerateAI = useCallback(async (step2Data: Step2FormData) => {
     const name = step2Data.name.trim();
     const description = step2Data.description.trim();
 
     if (!name || !description) return;
 
-    if (
-      lastGeneratedInput &&
-      lastGeneratedInput.name === name &&
-      lastGeneratedInput.description === description
-    ) {
+    const prevOk = lastSuccessfulAiInputRef.current;
+    if (prevOk && prevOk.name === name && prevOk.description === description) {
       return;
     }
 
     try {
       const data = await generateAIMutation.mutateAsync({ name, description });
-      setLastGeneratedInput({ name, description });
+      const keywords = data.results?.keywords ?? [];
 
-      if (data.results?.keywords) {
-        setAiKeywords(data.results.keywords);
+      if (keywords.length > 0) {
+        lastSuccessfulAiInputRef.current = { name, description };
+        setAiKeywords(keywords);
         setFormData((prev) => ({
           ...prev,
-          step7: { tags: data.results!.keywords! },
+          step7: prev.step7?.tags?.length ? prev.step7 : { tags: keywords },
         }));
       }
     } catch (error) {
       console.error("AI Generation Error:", error);
     }
-  };
+  }, [generateAIMutation]);
+
+  /** عند الوصول لخطوة الكلمات بدون نتيجة بعد، أعد استدعاء التوليد (مثلاً إن سبق ولم تُستخرج الكلمات من شكل الاستجابة) */
+  useEffect(() => {
+    if (currentStep !== 7 || !formData.step2) return;
+    if (aiKeywords.length > 0 || (formData.step7?.tags?.length ?? 0) > 0) return;
+    void handleGenerateAI(formData.step2);
+  }, [currentStep, formData.step2, aiKeywords.length, formData.step7?.tags, handleGenerateAI]);
 
   const handleStep2Next = (data: Step2FormData) => {
     setFormData({ ...formData, step2: data });

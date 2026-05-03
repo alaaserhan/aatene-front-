@@ -1,6 +1,6 @@
 // src/features/(dashboard)/stores/components/EditStorePage.tsx
 "use client";
-import { useState } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { AddStoreStep2 } from "./AddStoreStep2";
 import { AddStoreStep3 } from "./AddStoreStep3";
@@ -40,38 +40,44 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
 
   const generateAIMutation = useGenerateStoreAI();
   const isGeneratingAI = generateAIMutation.isPending;
-  const [lastGeneratedInput, setLastGeneratedInput] = useState<{ name: string; description: string } | null>(null);
+  const lastSuccessfulAiInputRef = useRef<{ name: string; description: string } | null>(null);
   const [aiKeywords, setAiKeywords] = useState<string[]>([]);
 
-  const handleGenerateAI = async (step2Data: Step2FormData) => {
+  const handleGenerateAI = useCallback(async (step2Data: Step2FormData) => {
     const name = step2Data.name.trim();
     const description = step2Data.description.trim();
 
     if (!name || !description) return;
 
-    if (
-      lastGeneratedInput &&
-      lastGeneratedInput.name === name &&
-      lastGeneratedInput.description === description
-    ) {
+    const prevOk = lastSuccessfulAiInputRef.current;
+    if (prevOk && prevOk.name === name && prevOk.description === description) {
       return;
     }
 
     try {
       const data = await generateAIMutation.mutateAsync({ name, description });
-      setLastGeneratedInput({ name, description });
+      const keywords = data.results?.keywords ?? [];
 
-      if (data.results?.keywords) {
-        setAiKeywords(data.results.keywords);
-        setFormData((prev) => prev ? {
-          ...prev,
-          step7: { tags: data.results!.keywords! },
-        } : prev);
+      if (keywords.length > 0) {
+        lastSuccessfulAiInputRef.current = { name, description };
+        setAiKeywords(keywords);
+        setFormData((prev) => {
+          if (!prev) return prev;
+          const hasTags = (prev.step7?.tags?.length ?? 0) > 0;
+          if (hasTags) return prev;
+          return { ...prev, step7: { tags: keywords } };
+        });
       }
     } catch (error) {
       console.error("AI Generation Error:", error);
     }
-  };
+  }, [generateAIMutation]);
+
+  useEffect(() => {
+    if (currentStep !== 7 || !formData?.step2) return;
+    if (aiKeywords.length > 0 || (formData.step7?.tags?.length ?? 0) > 0) return;
+    void handleGenerateAI(formData.step2);
+  }, [currentStep, formData?.step2, formData?.step7?.tags, aiKeywords.length, handleGenerateAI]);
 
   const store = storeData?.record;
 

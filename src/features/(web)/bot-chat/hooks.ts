@@ -142,6 +142,7 @@ export const useSendMessage = () => {
         onSettled: (_data, _error, variables) => {
             queryClient.invalidateQueries({ queryKey: ["botChat", "messages", variables.conversationId] });
             queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
+            queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
         },
     });
 };
@@ -187,7 +188,8 @@ export const useSubmitRating = () => {
             submitRating(conversationId, rate, comment),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
-            toast.success("شكراً لتقييمك!");
+            queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
+            /** رسالة الشكر تُعرض داخل نافذة الدردشة في BotChatWindow */
         },
         onError: () => {
             toast.error("حدث خطأ أثناء إرسال التقييم");

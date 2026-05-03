@@ -6,14 +6,10 @@ import { cn } from "@/src/lib/utils";
 import { Plus, GripHorizontal } from "lucide-react";
 import { MediaCenterModal } from "../../mediaCenter/components/MediaCenterModal";
 import { MediaItem, getMediaPreviewUrl } from "../../mediaCenter/api";
-
-function isBannerVideoUrl(url: string, fileName: string): boolean {
-    const path = `${fileName} ${url}`.toLowerCase();
-    return /\.(mp4|webm|ogg|mov|m4v|mkv|avi)$/i.test(path);
-}
+import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 
 function BannerSlidePreview({ url, fileName }: { url: string; fileName: string }) {
-    if (isBannerVideoUrl(url, fileName)) {
+    if (isStoreBannerVideoUrl(url, fileName)) {
         return (
             <video
                 src={url}

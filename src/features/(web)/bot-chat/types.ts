@@ -3,22 +3,8 @@ export interface ConversationUser {
     name: string;
     avatar: string | null;
     avatar_url: string | null;
-}
-
-export interface Conversation {
-    id: number;
-    user_id: number;
-    platform: string;
-    state: "active" | "awaiting_rating" | "resolved" | "waiting" | "with_agent";
-    needs_human: boolean;
-    is_reviewed: boolean;
-    user: ConversationUser | null;
-    latest_message: ConversationMessage | null;
-    last_message_at: string | null;
-    closed_at: string | null;
-    resolved_at: string | null;
-    created_at: string;
-    updated_at: string;
+    /** يطابق ConversationResource → user.ai_support_bot_active — إن كان false لا يستدعي الباكند البوت */
+    ai_support_bot_active?: boolean;
 }
 
 export interface MessageSender {
@@ -50,6 +36,24 @@ export interface ConversationReview {
     rate: number;
     comment: string;
     created_at: string;
+}
+
+/** يطابق ConversationResource (حقول المستخدم + المراجعة عند التحميل) */
+export interface Conversation {
+    id: number;
+    user_id: number;
+    platform: string;
+    state: "active" | "awaiting_rating" | "resolved" | "waiting" | "with_agent";
+    needs_human: boolean;
+    is_reviewed: boolean;
+    review?: ConversationReview | null;
+    user: ConversationUser | null;
+    latest_message: ConversationMessage | null;
+    last_message_at: string | null;
+    closed_at: string | null;
+    resolved_at: string | null;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface GetCurrentConversationResponse {
