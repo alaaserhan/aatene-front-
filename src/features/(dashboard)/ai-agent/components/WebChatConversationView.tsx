@@ -24,8 +24,6 @@ import { Label } from "@/src/components/ui/label";
 import { cn } from "@/src/lib/utils";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { useEchoChannel } from "@/src/hooks/use-echo-channel";
-import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
-import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 
 interface WebChatConversationViewProps {
     conversationId: number;
@@ -192,12 +190,6 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         }
     };
 
-    const handleClearInvalidChat = () => {
-        const next = new URLSearchParams(searchParams.toString());
-        next.delete("chatId");
-        router.push(`${pathname}?${next.toString()}`);
-    };
-
     if (isConvLoading) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -207,17 +199,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
     }
 
     if (isConvError || !convDetail?.data) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full gap-4 px-6 text-center text-gray-2">
-                <p className="max-w-md text-sm leading-relaxed">
-                    لا توجد محادثة بهذا المعرف في النظام. غالباً أن الرابط يستخدم معرفاً قديماً (مثل معرف قناة خارجية)
-                    وليس رقم المحادثة في Laravel. افتح المحادثة من قائمة «المحادثات» أو من التطبيق بعد ربطها بالباكند.
-                </p>
-                <Button type="button" variant="outline" onClick={handleClearInvalidChat}>
-                    العودة للقائمة
-                </Button>
-            </div>
-        );
+        return null;
     }
 
     if (isMessagesLoading && !messagesInfinite?.pages?.length) {
