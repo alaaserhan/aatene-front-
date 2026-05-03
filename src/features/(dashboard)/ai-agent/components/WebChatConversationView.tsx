@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Loader2, Send, Headset, CheckCircle, Bot, User, Star, Trash2 } from "lucide-react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
 import {
     useGetWebConversationMessages,
     useWebAdminReply,
@@ -15,7 +15,7 @@ import {
     useGetWebConversation,
     useWebToggleBot,
 } from "../hooks";
-import { WebMessage } from "../api";
+import { WebMessage, type WebMessagesResponse } from "../api";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Switch } from "@/src/components/ui/switch";
@@ -66,6 +66,9 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         enabled: canLoadMessages,
     });
 
+    /** تصريح صريح — استنتاج TS يضيع مع `enabled` الديناميكي فيزود `data` كـ `never` */
+    const messagesInfinite = messagesData as InfiniteData<WebMessagesResponse> | undefined;
+
     const conversation = useMemo(() => {
         const fromList = convsData?.data?.find((c) => c.id === conversationId);
         return fromList ?? convDetail?.data;
@@ -78,8 +81,8 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
     const { mutate: toggleBot, isPending: isTogglingBot } = useWebToggleBot();
 
     const apiMessages: WebMessage[] = useMemo(() => {
-        return messagesData?.pages.flatMap((page) => page.data) || [];
-    }, [messagesData]);
+        return messagesInfinite?.pages.flatMap((page) => page.data) || [];
+    }, [messagesInfinite]);
 
     const allMessages = useMemo(() => {
         const apiIds = new Set(apiMessages.map((m) => m.id));
@@ -217,7 +220,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         );
     }
 
-    if (isMessagesLoading && !messagesData?.pages?.length) {
+    if (isMessagesLoading && !messagesInfinite?.pages?.length) {
         return (
             <div className="flex items-center justify-center h-full">
                 <Loader2 className="w-8 h-8 text-blue-3 animate-spin" />

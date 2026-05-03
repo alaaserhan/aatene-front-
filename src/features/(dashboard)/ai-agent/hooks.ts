@@ -1,5 +1,11 @@
 // src/features/(dashboard)/ai-agent/hooks.ts
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import {
+    useQuery,
+    useMutation,
+    useQueryClient,
+    useInfiniteQuery,
+    type InfiniteData,
+} from "@tanstack/react-query";
 import * as api from "./api";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -280,7 +286,13 @@ export function useGetWebConversation(conversationId: number) {
 
 export function useGetWebConversationMessages(params: Omit<api.GetWebMessagesParams, "page">) {
     const canFetch = params.enabled !== false && !!params.conversationId;
-    return useInfiniteQuery({
+    return useInfiniteQuery<
+        api.WebMessagesResponse,
+        Error,
+        InfiniteData<api.WebMessagesResponse>,
+        readonly [string, number, boolean | undefined],
+        number
+    >({
         queryKey: ["web-conversation-messages", params.conversationId, params.enabled],
         queryFn: ({ pageParam = 1 }) => {
             const { enabled: _e, ...rest } = params;
