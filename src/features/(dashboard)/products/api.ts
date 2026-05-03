@@ -1,6 +1,7 @@
 // src/features/(dashboard)/products/api.ts
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
+import { extractKeywordsFromWebhookPayload } from "@/src/features/(dashboard)/stores/api";
 import Cookies from "js-cookie";
 
 export type ProductType = "simple" | "variation";
@@ -231,9 +232,15 @@ export interface GenerateAIResponse {
 export const generateProductAI = async (
   payload: { title: string; description: string; type: string }
 ): Promise<GenerateAIResponse> => {
-  const { data } = await api.post<GenerateAIResponse>(
+  /** n8n قد يُرجع شكلًا متداخلًا أو JSON كنص — نفس تطبيع مسار المتاجر */
+  const { data } = await api.post<unknown>(
     "https://auto.mosaady.com/webhook/932942c7-8bb9-4793-9fae-8468d0b2de32",
-    payload
+    payload,
+    { timeout: 120_000 }
   );
-  return data;
+  const keywords = extractKeywordsFromWebhookPayload(data);
+  return {
+    success: keywords.length > 0,
+    ...(keywords.length > 0 ? { results: { keywords } } : {}),
+  };
 };

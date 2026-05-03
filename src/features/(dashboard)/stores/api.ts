@@ -409,7 +409,8 @@ export const generateStoreAI = async (
 ): Promise<GenerateStoreAIResponse> => {
   const { data } = await api.post<unknown>(
     "https://auto.mosaady.com/webhook/6281f79d-a9ee-44e0-9bad-4f2d04abba5f",
-    payload
+    payload,
+    { timeout: 120_000 }
   );
   const keywords = extractKeywordsFromWebhookPayload(data);
   return {
