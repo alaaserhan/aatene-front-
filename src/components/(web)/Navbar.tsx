@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import UserMenu from "./UserMenu";
 import MobileNav from "./MobileNav";
@@ -13,12 +13,18 @@ import { useSettingsStore } from "@/src/stores/settings-store";
 
 import Image from "next/image";
 import NavbarCategoriesMenu from "./NavbarCategoriesMenu";
+import { upgradeHttpToHttps, fixMediaUrl } from "@/src/lib/utils";
 
 const Navbar = () => {
   const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
   const isHydrated = useAuthStore((state) => state.isHydrated);
   const lang = useLanguage();
   const { settings } = useSettingsStore();
+  const [logoBroken, setLogoBroken] = useState(false);
+
+  useEffect(() => {
+    setLogoBroken(false);
+  }, [settings?.logo_url]);
 
   return (
     <div className="relative z-[280] w-full shadow-xs bg-white min-h-[72px] flex items-center border-b border-gray-200">
@@ -29,14 +35,15 @@ const Navbar = () => {
       <div className="hidden min-[1100px]:block container my-2">
         <div className="flex items-center justify-between gap-6">
           <Link href={`/${lang}`} className="flex shrink-0 items-center gap-4 overflow-visible">
-            {settings?.logo_url ? (
+            {settings?.logo_url && !logoBroken ? (
               <Image 
-                src={settings.logo_url} 
+                src={upgradeHttpToHttps(fixMediaUrl(settings.logo_url))} 
                 className="h-10 w-auto object-contain" 
                 alt={settings?.name || "logo"} 
                 width={150}
                 height={40}
                 priority
+                onError={() => setLogoBroken(true)}
               />
             ) : (
               <Image 
