@@ -18,7 +18,7 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/utils";
-import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
 
@@ -326,22 +326,15 @@ export default function ProductViewPage() {
                             </div>
 
                             {/* Main media (صورة أو فيديو) */}
-                            <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 border border-gray-100 bg-gray-50">
-                                {isStoreBannerVideoUrl(displayImage) ? (
-                                    <video
-                                        key={displayImage}
-                                        src={displayImage}
-                                        controls
-                                        playsInline
-                                        className="w-full h-full object-cover transition-opacity duration-300 bg-black"
-                                    />
-                                ) : (
-                                    <img
-                                        src={displayImage}
-                                        alt={raw.name}
-                                        className="w-full h-full object-cover transition-opacity duration-300"
-                                    />
-                                )}
+                            <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-4 border border-gray-100 bg-gray-50">
+                                <VideoOrImage
+                                    key={displayImage}
+                                    src={displayImage}
+                                    alt={raw.name}
+                                    fill
+                                    thumb={false}
+                                    className="transition-opacity duration-300"
+                                />
                             </div>
 
                             {/* Thumbnails */}
@@ -352,23 +345,19 @@ export default function ProductViewPage() {
                                             key={idx}
                                             onClick={() => setActiveImage(img)}
                                             className={cn(
-                                                "w-20 h-16 rounded-lg overflow-hidden border shrink-0 cursor-pointer transition-all duration-200",
+                                                "relative w-20 h-16 rounded-lg overflow-hidden border shrink-0 cursor-pointer transition-all duration-200",
                                                 (activeImage || imagesList[0]) === img
                                                     ? "border-blue-500 ring-2 ring-blue-100 opacity-100"
                                                     : "border-gray-200 opacity-70 hover:opacity-100 hover:border-blue-300"
                                             )}
                                         >
-                                            {isStoreBannerVideoUrl(img) ? (
-                                                <video
-                                                    src={img}
-                                                    muted
-                                                    playsInline
-                                                    preload="metadata"
-                                                    className="w-full h-full object-cover pointer-events-none"
-                                                />
-                                            ) : (
-                                                <img src={img} alt={`thumb-${idx}`} className="w-full h-full object-cover" />
-                                            )}
+                                            <VideoOrImage
+                                                src={img}
+                                                alt={`thumb-${idx}`}
+                                                fill
+                                                thumb
+                                                className="pointer-events-none"
+                                            />
                                         </div>
                                     ))}
                                 </div>

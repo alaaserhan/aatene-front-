@@ -7,7 +7,7 @@ import { useGetSingleStore, useDeleteStore, useUpdateStoreStatus } from "../hook
 import { Button } from "@/src/components/ui/button";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 import { StoreStatus, WorkingTime, StoreManager } from "../api";
 import { formatDateArabic } from "@/src/lib/date-helper";
 import { useAuthStore } from "@/src/stores/auth-store";
@@ -143,11 +143,20 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
 
         <div className="relative w-full h-32 border border-gray-100 rounded-xl overflow-hidden justify-center items-center flex">
           {store.cover_urls?.[0] ? (
-            <img
-              src={store.cover_urls[0]}
-              alt="Store Cover"
-              className=" h-full w-full object-cover"
-            />
+            isVideoFile(store.cover_urls[0]) ? (
+              <video
+                src={store.cover_urls[0]}
+                controls
+                playsInline
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <img
+                src={store.cover_urls[0]}
+                alt="Store Cover"
+                className=" h-full w-full object-cover"
+              />
+            )
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-teal-400 to-teal-600" />
           )}

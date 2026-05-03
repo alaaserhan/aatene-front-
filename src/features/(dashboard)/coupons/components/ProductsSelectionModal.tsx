@@ -9,8 +9,8 @@ import { useGetProducts } from "@/src/features/(dashboard)/products/hooks";
 import { useDebounce } from "@/src/hooks/use-debounce";
 
 
-import Image from "next/image";
 import { cn } from "@/src/lib/utils";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 
 interface ProductsSelectionModalProps {
     isOpen: boolean;
@@ -172,15 +172,14 @@ export function ProductsSelectionModal({
                                     >
                                         <div className="relative aspect-square bg-gray-100">
                                             {isValidImageSrc(product.cover_url) ? (
-                                                <Image
+                                                <VideoOrImage
                                                     src={product.cover_url!}
                                                     alt={product.name}
                                                     fill
-                                                    className="object-cover"
+                                                    thumb
+                                                    className=""
                                                 />
                                             ) : (
-
-
                                                 <div className="w-full h-full flex items-center justify-center text-gray-400">
                                                     No Image
                                                 </div>

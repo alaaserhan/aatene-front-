@@ -6,15 +6,12 @@ import { Story } from "../api";
 import { Trash2, Loader2 } from "lucide-react";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
+import { isVideoFile } from "@/src/lib/utils";
 
 interface StoryItemProps {
   story: Story;
   onDelete: (id: number) => void;
 }
-
-const isVideoFile = (fileName: string) => {
-  return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
-};
 
 export function StoryItem({ story, onDelete }: StoryItemProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -24,7 +21,7 @@ export function StoryItem({ story, onDelete }: StoryItemProps) {
     setDeleteOpen(false);
   };
 
-  const timeAgo = getRelativeTimeArabic(story.created_at);[]
+  const timeAgo = getRelativeTimeArabic(story.created_at);
 
   return (
     <>

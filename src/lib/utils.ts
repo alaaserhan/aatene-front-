@@ -5,8 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const isVideoFile = (fileName: string) => {
-    return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
+/** مسار ملف أو URL كامل — يستبعد query string لاكتشاف الامتداد (مثل file.mp4?token=) */
+export const isVideoFile = (urlOrName: string) => {
+    const path = (urlOrName || "").split("?")[0] || "";
+    return /\.(mp4|webm|ogg|mov|m4v|mkv|av1|avi|wmv|3gp|3gpp|3gpp2|mp2t)$/i.test(path);
 };
 
 /**

@@ -10,6 +10,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useStoryOwners } from "../hooks";
 import { StoriesSkeleton } from "./HomeSkeletons";
 import dynamic from "next/dynamic";
+import { isVideoFile } from "@/src/lib/utils";
 
 interface StoryOwner {
     id: number;
@@ -24,10 +25,6 @@ interface StoryOwner {
 }
 
 const EMPTY_OWNERS: StoryOwner[] = [];
-
-const isVideoFile = (fileName: string) => {
-    return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
-};
 
 interface HomeStoriesProps {
     initialOwners?: StoryOwner[];

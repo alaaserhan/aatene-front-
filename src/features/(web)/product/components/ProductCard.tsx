@@ -4,7 +4,7 @@ import { memo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
 import { useRouter } from "next/navigation";
@@ -64,15 +64,25 @@ const ProductCard = memo(({
 
             {/* Image Container */}
             <Link href={slug ? `/product/${slug}` : "#"} className="relative w-full aspect-3/4 rounded-xl overflow-hidden bg-gray-100 block">
-                <Image
-                    src={imgSrc}
-                    alt={name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={() => {
-                        setImgSrc("/placeholder.png");
-                    }}
-                />
+                {isVideoFile(imgSrc) ? (
+                    <video
+                        src={imgSrc}
+                        muted
+                        playsInline
+                        preload="metadata"
+                        className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                ) : (
+                    <Image
+                        src={imgSrc}
+                        alt={name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={() => {
+                            setImgSrc("/placeholder.png");
+                        }}
+                    />
+                )}
 
                 {/* Favorite Button - Top Left */}
                 <div

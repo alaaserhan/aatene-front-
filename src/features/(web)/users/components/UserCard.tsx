@@ -1,7 +1,7 @@
 "use client";
 
 import { User } from "@/src/features/(web)/searchAndFilter/api";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 import { Star, MapPin, Crown, User as UserIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -28,8 +28,15 @@ export default function UserCard({ user, className }: UserCardProps) {
             )}>
             {/* Cover Image */}
             <div className="relative h-32 w-full bg-gray-100">
-                {
-                    coverImage ? (
+                {coverImage ? (
+                    isVideoFile(coverImage) ? (
+                        <video
+                            src={coverImage}
+                            controls
+                            playsInline
+                            className="absolute inset-0 h-full w-full object-cover"
+                        />
+                    ) : (
                         <Image
                             src={coverImage}
                             alt="Cover"
@@ -37,10 +44,10 @@ export default function UserCard({ user, className }: UserCardProps) {
                             className="object-cover"
                             priority
                         />
-                    ) : (
-                        <div className="bg-blue-1 w-full h-full" />
                     )
-                }
+                ) : (
+                    <div className="bg-blue-1 w-full h-full" />
+                )}
             </div>
 
             {/* Content Section */}

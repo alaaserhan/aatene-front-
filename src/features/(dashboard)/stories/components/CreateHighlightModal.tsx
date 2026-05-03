@@ -7,13 +7,9 @@ import { Story, Highlight, CreateHighlightPayload } from "../api";
 import { Loader2, CheckCircle2 } from "lucide-react";
 import { Input } from "@/src/components/ui/input";
 import { toast } from "sonner";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { FormInput } from "@/src/components/ui/FormInput";
-
-const isVideoFile = (fileName: string) => {
-  return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
-};
 
 interface CreateHighlightModalProps {
   isOpen: boolean;
