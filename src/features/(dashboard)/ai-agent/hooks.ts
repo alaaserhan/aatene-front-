@@ -20,6 +20,23 @@ function patchWebConversationInListCaches(queryClient: ReturnType<typeof useQuer
     );
 }
 
+/** يزيل المحادثة من كل كاشات القائمة فور الحذف في الباكند (حتى لا تبقى ظاهرة حتى انتهاء الـ refetch) */
+function removeWebConversationFromListCaches(queryClient: ReturnType<typeof useQueryClient>, conversationId: number) {
+    queryClient.setQueriesData<api.WebConversationsResponse>(
+        { queryKey: ["web-conversations"] },
+        (old) => {
+            if (!old?.data?.length) return old;
+            const next = old.data.filter((c) => c.id !== conversationId);
+            if (next.length === old.data.length) return old;
+            return {
+                ...old,
+                data: next,
+                total: typeof old.total === "number" ? Math.max(0, old.total - 1) : old.total,
+            };
+        }
+    );
+}
+
 export function useGetPlatformUsers(params: api.GetUsersParams) {
   return useQuery({
     queryKey: ["agent-users", params.platform, params.limit, params.offset, params.needs_human],
@@ -246,26 +263,39 @@ export function useDeleteAdminMissedQuestion() {
 
 export function useGetWebConversations(params?: api.GetWebConversationsParams) {
     return useQuery({
-        queryKey: ["web-conversations", params?.state, params?.unresolved_human_support, params?.needs_human],
+        queryKey: ["web-conversations", params?.state, params?.unresolved_human_support, params?.needs_human, params?.platform],
         queryFn: () => api.getWebConversations(params),
         refetchInterval: 30000,
     });
 }
 
+export function useGetWebConversation(conversationId: number) {
+    return useQuery({
+        queryKey: ["web-conversation", conversationId],
+        queryFn: () => api.getWebConversation(conversationId),
+        enabled: Number.isFinite(conversationId) && conversationId > 0,
+        retry: false,
+    });
+}
+
 export function useGetWebConversationMessages(params: Omit<api.GetWebMessagesParams, "page">) {
+    const canFetch = params.enabled !== false && !!params.conversationId;
     return useInfiniteQuery({
-        queryKey: ["web-conversation-messages", params.conversationId],
-        queryFn: ({ pageParam = 1 }) => api.getWebConversationMessages({
-            ...params,
-            page: pageParam,
-            per_page: params.per_page || 15
-        }),
+        queryKey: ["web-conversation-messages", params.conversationId, params.enabled],
+        queryFn: ({ pageParam = 1 }) => {
+            const { enabled: _e, ...rest } = params;
+            return api.getWebConversationMessages({
+                ...rest,
+                page: pageParam,
+                per_page: params.per_page || 15
+            });
+        },
         initialPageParam: 1,
         getNextPageParam: (lastPage, allPages) => {
             const hasMore = lastPage.data.length === (params.per_page || 15);
             return hasMore ? allPages.length + 1 : undefined;
         },
-        enabled: !!params.conversationId,
+        enabled: canFetch,
         refetchOnMount: "always",
     });
 }
@@ -322,8 +352,11 @@ export function useWebDeleteConversation() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: api.webDeleteConversation,
-        onSuccess: () => {
+        onSuccess: (_data, conversationId) => {
             toast.success("تم حذف المحادثة بنجاح");
+            removeWebConversationFromListCaches(queryClient, conversationId);
+            queryClient.removeQueries({ queryKey: ["web-conversation", conversationId] });
+            queryClient.removeQueries({ queryKey: ["web-conversation-messages", conversationId] });
             queryClient.invalidateQueries({ queryKey: ["web-conversations"] });
         },
         onError: (error: AxiosError<{ message: string }>) => {

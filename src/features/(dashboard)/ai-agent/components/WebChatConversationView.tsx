@@ -12,6 +12,7 @@ import {
     useWebDeleteConversation,
     useWebMarkTyping,
     useGetWebConversations,
+    useGetWebConversation,
     useWebToggleBot,
 } from "../hooks";
 import { WebMessage } from "../api";
@@ -44,22 +45,31 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
     const [realtimeMessages, setRealtimeMessages] = useState<WebMessage[]>([]);
 
 
+    const { data: convsData } = useGetWebConversations();
+    const {
+        data: convDetail,
+        isLoading: isConvLoading,
+        isError: isConvError,
+    } = useGetWebConversation(conversationId);
+
+    const canLoadMessages = !isConvLoading && !isConvError && !!convDetail?.data;
+
     const { 
         data: messagesData, 
-        isLoading,
+        isLoading: isMessagesLoading,
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage
     } = useGetWebConversationMessages({
         conversationId,
         per_page: 15,
+        enabled: canLoadMessages,
     });
 
-    const { data: convsData } = useGetWebConversations();
-    const conversation = useMemo(() => 
-        convsData?.data?.find(c => c.id === conversationId),
-        [convsData, conversationId]
-    );
+    const conversation = useMemo(() => {
+        const fromList = convsData?.data?.find((c) => c.id === conversationId);
+        return fromList ?? convDetail?.data;
+    }, [convsData, conversationId, convDetail?.data]);
 
     const { mutate: sendReply, isPending: isSending } = useWebAdminReply();
     const { mutate: resolveConversation, isPending: isResolving } = useWebResolveConversation();
@@ -130,7 +140,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         if (scrollRef.current && !isFetchingNextPage) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [allMessages, isLoading, typingUser, isFetchingNextPage]);
+    }, [allMessages, isMessagesLoading, typingUser, isFetchingNextPage]);
 
     const handleTyping = useCallback(() => {
         const now = Date.now();
@@ -162,6 +172,16 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         }
     };
 
+    const handleDeleteConversation = () => {
+        deleteConversation(conversationId, {
+            onSuccess: () => {
+                const next = new URLSearchParams(searchParams.toString());
+                next.delete("chatId");
+                router.replace(`${pathname}?${next.toString()}`);
+            },
+        });
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMessageText(e.target.value);
         if (e.target.value.trim()) {
@@ -169,7 +189,35 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         }
     };
 
-    if (isLoading) {
+    const handleClearInvalidChat = () => {
+        const next = new URLSearchParams(searchParams.toString());
+        next.delete("chatId");
+        router.push(`${pathname}?${next.toString()}`);
+    };
+
+    if (isConvLoading) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <Loader2 className="w-8 h-8 text-blue-3 animate-spin" />
+            </div>
+        );
+    }
+
+    if (isConvError || !convDetail?.data) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full gap-4 px-6 text-center text-gray-2">
+                <p className="max-w-md text-sm leading-relaxed">
+                    لا توجد محادثة بهذا المعرف في النظام. غالباً أن الرابط يستخدم معرفاً قديماً (مثل معرف قناة خارجية)
+                    وليس رقم المحادثة في Laravel. افتح المحادثة من قائمة «المحادثات» أو من التطبيق بعد ربطها بالباكند.
+                </p>
+                <Button type="button" variant="outline" onClick={handleClearInvalidChat}>
+                    العودة للقائمة
+                </Button>
+            </div>
+        );
+    }
+
+    if (isMessagesLoading && !messagesData?.pages?.length) {
         return (
             <div className="flex items-center justify-center h-full">
                 <Loader2 className="w-8 h-8 text-blue-3 animate-spin" />
@@ -232,7 +280,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                         </Button>
                         <Button
                             size="sm"
-                            onClick={() => deleteConversation(conversationId)}
+                            onClick={handleDeleteConversation}
                             disabled={isDeleting}
                             variant="outline"
                             className="border-red-200 text-red-500 gap-2 font-bold h-9 hover:bg-red-50"

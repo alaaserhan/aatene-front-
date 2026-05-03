@@ -3,8 +3,13 @@
 
 import { Button } from "@/src/components/ui/button";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 export function StoreEmptyState() {
+    const { locale, type } = useParams<{ locale?: string; type?: string }>();
+    const addHref =
+        locale && type ? `/${locale}/${type}/stores/add` : "/admin/stores/add";
+
     return (
         <div className="flex flex-col items-center justify-center h-full bg-white rounded-lg p-8 text-center border border-gray-200">
             <div className="mb-6 relative">
@@ -20,7 +25,7 @@ export function StoreEmptyState() {
                 إبدأ بإنشاء متجرك الأول معنا
             </p>
 
-            <Link href="/admin/stores/add">
+            <Link href={addHref} prefetch={false}>
                 <Button
                     className="bg-blue-3 text-white px-16 py-5 cursor-pointer rounded-xs"
                 >

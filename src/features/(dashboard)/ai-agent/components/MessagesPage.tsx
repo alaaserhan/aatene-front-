@@ -22,7 +22,8 @@ export function MessagesPage() {
 
     const [showNeedsHuman, setShowNeedsHuman] = useState(false);
 
-    const isWebsite = activePlatform === "website";
+    /** محادثات عبر Laravel ai-support (الموقع أو التطبيق) */
+    const isLaravelConversationUi = activePlatform === "website" || activePlatform === "mobile";
 
     const getPlatformTitle = (id: string) => {
         switch (id) {
@@ -124,7 +125,7 @@ export function MessagesPage() {
                             ${selectedChatId ? 'flex' : 'hidden lg:flex'}
                         `}>
                             {selectedChatId ? (
-                                isWebsite ? (
+                                isLaravelConversationUi ? (
                                     <WebChatConversationView key={selectedChatId} conversationId={Number(selectedChatId)} />
                                 ) : (
                                     <ChatConversationView chatId={selectedChatId} platform={activePlatform} />

@@ -100,6 +100,28 @@ export function UserProfilePage() {
     }
 
     const { user_info, reviews_summary } = data;
+
+    const goToChat = () => {
+        const p = (user_info?.platform || "").toLowerCase();
+        /** محادثات Laravel (الموقع/التطبيق) تُعرَف بـ `id` داخلي وليس بـ chat_id الخارجي */
+        if (p === "web") {
+            router.push("/admin/mosa3edy/messages?platform=website");
+            return;
+        }
+        if (p === "mobile" || p === "app") {
+            router.push("/admin/mosa3edy/messages?platform=mobile");
+            return;
+        }
+        const map: Record<string, string> = {
+            whatsapp: "whatsapp",
+            instagram: "instagram",
+            messenger: "messenger",
+        };
+        const platformParam = map[p] || "whatsapp";
+        router.push(
+            `/admin/mosa3edy/messages?platform=${platformParam}&chatId=${encodeURIComponent(chatId)}`
+        );
+    };
     const starBreakdown = reviews_summary.star_breakdown;
 
     const getPercentage = (count: number) => {
@@ -150,7 +172,7 @@ export function UserProfilePage() {
 
                         <div>
                             <Button
-                                onClick={() => router.push(`/admin/mosa3edy/messages?chatId=${chatId}`)}
+                                onClick={goToChat}
                                 className="bg-blue-3 hover:bg-[#2c4460] text-white h-12 px-8 rounded-lg font-medium"
                             >
                                 الذهاب للدردشة

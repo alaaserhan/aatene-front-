@@ -7,6 +7,7 @@ import axios, {
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { ErrorResponse } from "../types";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 export let isLoggingOut = false;
 export function setLoggingOut(value: boolean) {
@@ -76,8 +77,15 @@ api.interceptors.response.use(
       if (typeof window !== "undefined") {
         if (!window.location.pathname.includes("/login")) {
           toast.error("Your session has expired. Please log in again.");
-          Cookies.remove("token");
-          window.location.href = "/login";
+          /** إزالة كل كوكيز الجلسة — كان يُمسح token فقط فيسبب حالة «مسجّل» في الواجهة بدون token للسيرفر */
+          useAuthStore.getState().logout();
+          try {
+            localStorage.removeItem("auth-storage");
+          } catch {
+            /* ignore */
+          }
+          const lang = Cookies.get("lang") || "ar";
+          window.location.href = `/${lang}/login`;
         }
       }
     }

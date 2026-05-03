@@ -104,17 +104,22 @@ function WebsiteChatList({
   selectedChatId,
   onSelectChat,
   needsHuman,
+  /** فلتر Laravel `platform`؛ مثال: `mobile` لمحادثات التطبيق */
+  platformFilter,
 }: {
   selectedChatId: string | null;
   onSelectChat: (id: string) => void;
   needsHuman: boolean;
+  platformFilter?: string;
 }) {
   const queryClient = useQueryClient();
   const webConversationsParams = useMemo((): GetWebConversationsParams | undefined => {
     const p: GetWebConversationsParams = {};
     if (needsHuman) p.needs_human = true;
-    return Object.keys(p).length ? p : undefined;
-  }, [needsHuman]);
+    if (platformFilter) p.platform = platformFilter;
+    if (Object.keys(p).length === 0) return undefined;
+    return p;
+  }, [needsHuman, platformFilter]);
 
   const { data, isLoading } = useGetWebConversations(webConversationsParams);
 
@@ -272,7 +277,7 @@ function StandardChatList({
   onSelectChat: (id: string) => void;
   needsHuman: boolean;
 }) {
-  const isApiPlatform = ["whatsapp", "instagram", "messenger", "mobile"].includes(platform);
+  const isApiPlatform = ["whatsapp", "instagram", "messenger"].includes(platform);
   const { data, isLoading } = useGetPlatformUsers({
     platform: (isApiPlatform ? platform : "whatsapp") as PlatformType,
     limit: 50,

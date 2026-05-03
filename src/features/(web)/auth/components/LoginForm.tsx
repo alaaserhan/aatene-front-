@@ -55,7 +55,12 @@ export function LoginForm() {
 
     if (tokenParam) {
       setIsGoogleLoading(true);
-      Cookies.set("token", tokenParam, { expires: 365, secure: process.env.NODE_ENV === "production", sameSite: "lax" });
+      Cookies.set("token", tokenParam, {
+        expires: 365,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
       getAccount().then((data) => {
         if (data?.user) {
           storeLogin(tokenParam, data.user as unknown as User);

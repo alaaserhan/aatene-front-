@@ -387,6 +387,13 @@ export interface WebConversationsResponse {
     data: WebConversation[];
 }
 
+/** استجابة `GET .../conversations/{id}` — محادثة واحدة */
+export interface WebConversationSingleResponse {
+    status: boolean;
+    message: string;
+    data: WebConversation;
+}
+
 export interface WebMessageSender {
     id: number;
     full_name: string;
@@ -468,12 +475,16 @@ export interface GetWebConversationsParams {
     unresolved_human_support?: boolean;
     /** يطابق فلتر الباك needs_human (محادثات تحتاج تدخل بشري) */
     needs_human?: boolean;
+    /** يطابق عمود `ai_support_conversations.platform` (مثلاً `web` أو `mobile`) */
+    platform?: string;
 }
 
 export interface GetWebMessagesParams {
     conversationId: number;
     page?: number;
     per_page?: number;
+    /** إذا `false` لا يُستدعى طلب الرسائل (قبل التأكد من وجود المحادثة في Laravel) */
+    enabled?: boolean;
 }
 
 const WEB_ADMIN_BASE = "/ai-support/admin";
@@ -483,8 +494,16 @@ export const getWebConversations = async (params?: GetWebConversationsParams): P
     if (params?.state) queryParams.set("state", params.state);
     if (params?.unresolved_human_support) queryParams.set("unresolved_human_support", "1");
     if (params?.needs_human) queryParams.set("needs_human", "1");
+    if (params?.platform) queryParams.set("platform", params.platform);
     const qs = queryParams.toString();
     const { data } = await mainApi.get<WebConversationsResponse>(`${WEB_ADMIN_BASE}/conversations${qs ? `?${qs}` : ""}`);
+    return data;
+};
+
+export const getWebConversation = async (conversationId: number): Promise<WebConversationSingleResponse> => {
+    const { data } = await mainApi.get<WebConversationSingleResponse>(
+        `${WEB_ADMIN_BASE}/conversations/${conversationId}`
+    );
     return data;
 };
 
