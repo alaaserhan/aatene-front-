@@ -1,5 +1,6 @@
 // src/components/(admin)/analytics/reports/TopList.tsx
 import { cn } from "@/src/lib/utils";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 
 export interface TopListItem {
@@ -57,9 +58,15 @@ export function TopList({ title, subtitle, items, className, icon: Icon, iconCla
                                 {/* Center: Details */}
                                 <div className="flex  gap-4 flex-1 ">
                                     {/* Image/Avatar */}
-                                    <div className="w-12 h-12 rounded-sm bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+                                    <div className="relative w-12 h-12 rounded-sm bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
                                         {item.image ? (
-                                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                                            <VideoOrImage
+                                                src={item.image}
+                                                alt={item.title}
+                                                fill
+                                                thumb
+                                                className=""
+                                            />
                                         ) : (
                                             <span className="text-xs font-bold text-gray-2">{item.title?.charAt(0)}</span>
                                         )}

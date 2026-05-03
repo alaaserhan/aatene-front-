@@ -7,6 +7,7 @@ import { Button } from "@/src/components/ui/button";
 import { useInfiniteGetProducts } from "../hooks";
 import { RelatedProduct } from "../types";
 import { cn } from "@/src/lib/utils";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import {
   Dialog,
   DialogContent,
@@ -175,12 +176,14 @@ export function SelectProductsModal({
                         </div>
 
                         {/* Image */}
-                        <div className="w-12 h-12 rounded-md bg-gray-100 border border-gray-100 overflow-hidden flex-shrink-0">
+                        <div className="relative w-12 h-12 rounded-md bg-gray-100 border border-gray-100 overflow-hidden flex-shrink-0">
                           {product.cover_url ? (
-                            <img
+                            <VideoOrImage
                               src={product.cover_url}
                               alt={product.name}
-                              className="w-full h-full object-cover"
+                              fill
+                              thumb
+                              className=""
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-300">

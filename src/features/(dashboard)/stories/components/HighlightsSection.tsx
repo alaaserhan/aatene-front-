@@ -6,11 +6,7 @@ import { Plus } from "lucide-react";
 import { Highlight, Story } from "../api";
 import { CreateHighlightModal } from "./CreateHighlightModal";
 import { ShowHighlightModal } from "./ShowHighlightModal";
-import { cn } from "@/src/lib/utils";
-
-const isVideoFile = (fileName: string) => {
-  return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
-};
+import { cn, isVideoFile } from "@/src/lib/utils";
 
 interface HighlightsSectionProps {
   highlights: Highlight[];

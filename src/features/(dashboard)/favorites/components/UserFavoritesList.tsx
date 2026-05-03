@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Loader2, Search, Calendar } from "lucide-react";
 import { formatDate } from "@/src/lib/date-helper";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { toast } from "sonner";
 
 import {
@@ -183,9 +184,15 @@ export function UserFavoritesList({ userId }: UserFavoritesListProps) {
                             <div key={fav.id} className="p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors">
 
                                 {/* Image */}
-                                <div className="w-12 h-12 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-100">
+                                <div className="relative w-12 h-12 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-100">
                                     {fav.item ? (
-                                        <img src={fav.item.gallery_urls[0] || fav.item.image_url} alt={fav.item.name} className="w-full h-full object-cover" />
+                                        <VideoOrImage
+                                            src={fav.item.gallery_urls[0] || fav.item.image_url}
+                                            alt={fav.item.name}
+                                            fill
+                                            thumb
+                                            className="rounded-full"
+                                        />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-gray-300 text-[10px]">No Img</div>
                                     )}

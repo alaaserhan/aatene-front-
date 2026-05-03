@@ -12,6 +12,7 @@ import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Step1FormData, Step4FormData, RelatedProduct } from "../types";
 import { cn } from "@/src/lib/utils";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { SelectProductsModal } from "./SelectProductsModal";
 import { Button } from "@/src/components/ui/button";
 import { Tooltip } from "@/src/components/ui/Tooltip";
@@ -251,12 +252,14 @@ export function AddProductStep4({
                                                                 >
                                                                     {isSelected && <Check className="w-3.5 h-3.5 text-blue-4" />}
                                                                 </div>
-                                                                <div className="w-12 h-12 rounded-lg bg-white border border-gray-200 overflow-hidden flex-shrink-0">
+                                                                <div className="relative w-12 h-12 rounded-lg bg-white border border-gray-200 overflow-hidden flex-shrink-0">
                                                                     {product.cover_url ? (
-                                                                        <img
+                                                                        <VideoOrImage
                                                                             src={product.cover_url}
                                                                             alt={product.name}
-                                                                            className="w-full h-full object-cover"
+                                                                            fill
+                                                                            thumb
+                                                                            className=""
                                                                         />
                                                                     ) : (
                                                                         <div className="w-full h-full flex items-center justify-center text-gray-300">
@@ -569,9 +572,15 @@ function DiscountModal({
                                     {selectedProducts.map((product, idx) => (
                                         <div key={product.id} className="flex items-center gap-2">
                                             <div className="flex flex-col items-center gap-1">
-                                                <div className="w-12 h-12 rounded-md overflow-hidden bg-white border border-gray-200">
+                                                <div className="relative w-12 h-12 rounded-md overflow-hidden bg-white border border-gray-200">
                                                     {product.cover_url ? (
-                                                        <img src={product.cover_url} alt={product.name} className="w-full h-full object-cover" />
+                                                        <VideoOrImage
+                                                            src={product.cover_url}
+                                                            alt={product.name}
+                                                            fill
+                                                            thumb
+                                                            className=""
+                                                        />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-gray-300">
                                                             <ImageIcon className="w-3 h-3" />

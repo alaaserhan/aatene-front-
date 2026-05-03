@@ -7,7 +7,7 @@ import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertica
 import { Service } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddServiceToCompare, useRemoveServiceFromCompare } from "@/src/features/(web)/compares/hooks";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { ShareModal } from "@/src/components/ui/ShareModal";
@@ -64,9 +64,6 @@ function SpecialtiesDropdown({ specialties }: { specialties: { id: number; title
 
 export default function ServiceHero({ service }: ServiceHeroProps) {
     const allMedia = useMemo(() => {
-        const isVideoFile = (url: string) => {
-            return /\.(mp4|webm|avi|mkv|mov|wmv|x-ms-wmv|3gp|3gpp|3gpp2|ogg|quicktime|mp2t)(\?.*)?$/i.test(url || "");
-        };
         const items: { type: "image" | "video"; url: string }[] = [];
         if (service.images_urls && service.images_urls.length > 0) {
             service.images_urls.forEach((img) => items.push({ type: isVideoFile(img) ? "video" : "image", url: img }));

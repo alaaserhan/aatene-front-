@@ -2,6 +2,7 @@
 "use client";
 
 import { cn } from "@/src/lib/utils";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { Heart, Star, Share2, ChevronRight } from "lucide-react";
 
 interface ProductPreviewSidebarProps {
@@ -49,10 +50,12 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
 
                         {/* Main Image */}
                         {data.coverImage ? (
-                            <img
+                            <VideoOrImage
                                 src={data.coverImage}
                                 alt="Product Cover"
-                                className="w-full h-full object-cover"
+                                fill
+                                thumb={false}
+                                className=""
                             />
                         ) : (
                             <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-300">

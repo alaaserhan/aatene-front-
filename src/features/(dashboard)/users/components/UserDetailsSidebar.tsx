@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { UserUpdatePayload } from "../api";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
@@ -356,7 +356,16 @@ export function UserDetailsSidebar({
             {/* Cover Image Area */}
             <div className="relative w-full h-32 md:h-40 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 mt-2">
               {currentCoverUrl ? (
-                <img src={currentCoverUrl} alt="Cover" className="w-full h-full object-cover" />
+                isVideoFile(currentCoverUrl) ? (
+                  <video
+                    src={currentCoverUrl}
+                    controls
+                    playsInline
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : (
+                  <img src={currentCoverUrl} alt="Cover" className="w-full h-full object-cover" />
+                )
               ) : (
                 <div className="w-full h-full bg-blue-5 flex items-center justify-center text-blue-4">
                   صورة الغلاف

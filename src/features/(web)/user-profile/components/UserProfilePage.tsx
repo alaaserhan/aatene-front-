@@ -62,20 +62,25 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
     return (
         <div className="relative mb-8 bg-white shadow-sm border-b border-gray-100 pb-2 md:pb-6">
             <div className="relative h-44 md:h-[200px] lg:h-[250px] overflow-hidden w-full ">
-                {
-                    user.cover_url ? (
+                {user.cover_url ? (
+                    isVideoFile(user.cover_url) ? (
+                        <video
+                            src={user.cover_url}
+                            controls
+                            playsInline
+                            className="absolute inset-0 h-full w-full object-cover"
+                        />
+                    ) : (
                         <Image
                             src={user.cover_url}
                             alt="cover"
                             fill
                             className="object-cover"
                         />
-                    ) : (
-                        <div className="w-full h-full">
-
-                        </div>
                     )
-                }
+                ) : (
+                    <div className="w-full h-full" />
+                )}
             </div>
 
             <div className="container relative">

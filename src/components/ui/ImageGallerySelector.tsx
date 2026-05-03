@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 import { Plus, GripHorizontal, Play } from "lucide-react";
 import { toast } from "sonner";
 import { MediaCenterModal } from "@/src/features/(dashboard)/mediaCenter/components/MediaCenterModal";
@@ -65,10 +65,6 @@ export function ImageGallerySelector({
         file,
         url: previews[index] || "",
     }));
-
-    const isVideoFile = (fileName: string) => {
-        return /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(fileName || "");
-    };
 
     const isAllowedAsMain = (file: string, url: string) => {
         // الفيديو لا يمكن تعيينه كصورة رئيسية أبداً
