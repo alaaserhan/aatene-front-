@@ -63,7 +63,9 @@ export function AddServiceStep4({
     const store = storeData?.record;
 
     const generateAIMutation = useGenerateProductAI();
-    const isGeneratingAI = generateAIMutation.isPending;
+    /** حالة محلية + finally لضمان إخفاء الـ loader حتى لو بقي isPending عالقًا */
+    const [keywordGenBusy, setKeywordGenBusy] = useState(false);
+    const isGeneratingAI = keywordGenBusy;
 
     const [description, setDescription] = useState(initialData?.description || "");
     const [questions, setQuestions] = useState<ServiceQuestion[]>(initialData?.questions || []);
@@ -102,6 +104,7 @@ export function AddServiceStep4({
             return;
         }
 
+        setKeywordGenBusy(true);
         try {
             const data = await generateAIMutation.mutateAsync({
                 title,
@@ -111,14 +114,20 @@ export function AddServiceStep4({
 
             setLastGeneratedInput({ title, description: descText });
 
-            if (data.results?.keywords) {
+            if (data.results?.keywords && data.results.keywords.length > 0) {
                 setTags(data.results.keywords);
                 setAiKeywords(data.results.keywords);
                 toast.success("تم توليد الكلمات المفتاحية بنجاح");
+            } else {
+                toast.warning(
+                    "اكتمل الطلب لكن لم تُستخرج كلمات مفتاحية — جرّب تعديل الوصف أو أعد المحاولة لاحقًا"
+                );
             }
         } catch (error) {
             console.error("AI Generation Error:", error);
             toast.error("فشل توليد الكلمات المفتاحية");
+        } finally {
+            setKeywordGenBusy(false);
         }
     };
 
