@@ -12,6 +12,7 @@ import { useMyNotificationStats } from "@/src/features/(web)/notifications/hooks
 import { Badge } from "@/src/components/ui/badge";
 import { useSettingsStore } from "@/src/stores/settings-store";
 import NavbarCategoriesMenu from "./NavbarCategoriesMenu";
+import { upgradeHttpToHttps, fixMediaUrl } from "@/src/lib/utils";
 
 const menuVariants: Variants = {
   closed: {
@@ -43,6 +44,7 @@ const searchVariants: Variants = {
 export default function MobileNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileLogoBroken, setMobileLogoBroken] = useState(false);
 
   const lang = useLanguage();
   const user = useAuthStore((state) => state.user);
@@ -51,6 +53,10 @@ export default function MobileNav() {
   const { data: statsData } = useMyNotificationStats(!!user);
   const unreadCount = statsData?.unseen || 0;
   const { settings } = useSettingsStore();
+
+  useEffect(() => {
+    setMobileLogoBroken(false);
+  }, [settings?.logo_url]);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);

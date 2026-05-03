@@ -4,6 +4,14 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import Cookies from "js-cookie";
 import { User } from "../features/(web)/auth/types";
 
+/** نفس المسار لكل الطلبات؛ يمنع كوكيز تُرفَق لصفحة فقط وتختفي على مسارات أخرى */
+const AUTH_COOKIE_OPTS = {
+  expires: 365,
+  path: "/" as const,
+  sameSite: "lax" as const,
+  secure: process.env.NODE_ENV === "production",
+};
+
 interface AuthState {
   isLoggedIn: boolean;
   isHydrated: boolean;
@@ -22,31 +30,23 @@ export const useAuthStore = create<AuthState>()(
       user: null,
 
       login: (token, userData) => {
-        const isProduction = process.env.NODE_ENV === "production";
-        Cookies.set("token", token, {
-          expires: 365,
-          secure: isProduction,
-          sameSite: "lax",
-        });
-        Cookies.set("user_type", userData.user_type, {
-          expires: 365,
-          secure: isProduction,
-          sameSite: "lax",
-        });
+        Cookies.set("token", token, AUTH_COOKIE_OPTS);
+        Cookies.set("user_type", userData.user_type, AUTH_COOKIE_OPTS);
         if (userData.user_type === "admin" && userData.permissions) {
-          Cookies.set("admin_permissions", JSON.stringify(userData.permissions), { expires: 365 });
+          Cookies.set("admin_permissions", JSON.stringify(userData.permissions), AUTH_COOKIE_OPTS);
         }
         set({ isLoggedIn: true, user: userData });
 
       },
 
       logout: () => {
-        Cookies.remove("token");
-        Cookies.remove("user_type");
-        Cookies.remove("current_store_id");
-        Cookies.remove("store_type");
-        Cookies.remove("store_role");
-        Cookies.remove("admin_permissions");
+        const rm = { path: "/" as const };
+        Cookies.remove("token", rm);
+        Cookies.remove("user_type", rm);
+        Cookies.remove("current_store_id", rm);
+        Cookies.remove("store_type", rm);
+        Cookies.remove("store_role", rm);
+        Cookies.remove("admin_permissions", rm);
         set({ isLoggedIn: false, user: null });
 
 
@@ -71,12 +71,7 @@ export const useAuthStore = create<AuthState>()(
           const updated = { ...currentUser, ...syncedData };
           // Sync user_type cookie when it changes
           if (userData.user_type && userData.user_type !== currentUser.user_type) {
-            const isProduction = process.env.NODE_ENV === "production";
-            Cookies.set("user_type", userData.user_type, {
-              expires: 365,
-              secure: isProduction,
-              sameSite: "lax",
-            });
+            Cookies.set("user_type", userData.user_type, AUTH_COOKIE_OPTS);
           }
           set({ user: updated });
         }

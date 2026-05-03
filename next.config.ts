@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /**
+   * الصفحات تحت `app/[locale]/(dashboard)/[type]/...` تحتاج `/ar/admin/...` أو `/en/admin/...`.
+   * كثير من الروابط في المشروع تستخدم `/admin/...` بدون locale → 404 بدون هذا التوجيه الداخلي.
+   */
+  async rewrites() {
+    return [
+      { source: "/admin", destination: "/ar/admin" },
+      { source: "/admin/:path*", destination: "/ar/admin/:path*" },
+    ];
+  },
   images: {
     unoptimized: true, // ضروري تحذفي السطر ده لو حابة تستخدمي ميزة تحسين الصور اللي بتقدمها Next.js، بس لو مش هتستخدميها يبقى ممكن تسيبيها زي ما هي
     remotePatterns: [

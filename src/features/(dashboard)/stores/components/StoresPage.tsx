@@ -146,13 +146,17 @@ export function StoresPage() {
     }
   };
 
+  const addStoreHref =
+    locale && type ? `/${locale}/${type}/stores/add` : "/admin/stores/add";
+
   return (
     <div className="bg-gray-50 min-h-full flex flex-col">
       <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
         <div className="flex items-center justify-between h-16 px-6">
           <h1 className="text-blue-4 font-semibold">إدارة المتاجر</h1>
           <Link
-            href="/admin/stores/add"
+            href={addStoreHref}
+            prefetch={false}
             className="flex items-center gap-2 px-4 py-2 bg-[#3A5779] rounded-xs text-white text-sm font-semibold cursor-pointer hover:bg-[#2d4460] transition-colors"
           >
             <Plus className="w-5 h-5" />
