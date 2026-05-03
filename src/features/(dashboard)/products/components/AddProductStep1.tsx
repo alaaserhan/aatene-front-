@@ -153,7 +153,7 @@ export function AddProductStep1({
   }, [formData, errors]);
   // --------------------------------------------------
 
-  const validate = () => {
+  const validate = (): Record<string, string> => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
@@ -177,19 +177,24 @@ export function AddProductStep1({
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return newErrors;
   };
 
   const handleNext = () => {
-    if (validate()) {
+    const newErrors = validate();
+    const keys = Object.keys(newErrors);
+    if (keys.length === 0) {
       onNext(formData);
-    } else {
-      const firstError = Object.keys(errors)[0];
-      const element =
-        document.querySelector(`[name="${firstError}"]`) ||
-        document.querySelector(".text-red-500");
-      element?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
     }
+    const firstKey = keys[0];
+    const element =
+      (firstKey === "cover"
+        ? document.getElementById("product-step1-cover")
+        : null) ||
+      document.querySelector(`[name="${firstKey}"]`) ||
+      document.querySelector(".text-red-500");
+    element?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   const combinedFiles = useMemo(() => {
@@ -272,9 +277,10 @@ export function AddProductStep1({
               )}
 
               <div className="space-y-8">
+                <div id="product-step1-cover">
                 <ImageGallerySelector
                   label=" الصور"
-                  subLabel="يمكنك إضافة حتى (10) صور و (١) فيديو "
+                  subLabel="حتى 10 ملفات: صورة رئيسية واحدة (صورة فقط) + باقي المعرض يقبل صورًا وفيديو (فيديو واحد كحد أقصى)"
                   value={combinedFiles}
                   previews={combinedPreviews}
                   onChange={handleImagesChange}
@@ -283,10 +289,14 @@ export function AddProductStep1({
                   showMainSelector={true}
                   mainImageLabel="الصوره الرئيسية"
                   showDragHint={true}
+                  dragHintText="يمكنك سحب وإفلات الصور أو الفيديو لإعادة الترتيب"
+                  emptyStateText="أضف صورة الغلاف"
+                  emptyStateSubText="الموضع الأول صورة فقط؛ بعدها يمكن إضافة صور وفيديو للمعرض"
                   mainImageAllowedMediaTypes={["image"]}
                   allowedMediaTypes={["gallery", "image", "video"]}
                   required
                 />
+                </div>
 
                 <FormInput
                   label="اسم المنتج"
@@ -338,12 +348,13 @@ export function AddProductStep1({
                     {/* زر يفتح CategoryPickerModal */}
                     <button
                       type="button"
+                      name="category_id"
                       onClick={() => setIsCategoryModalOpen(true)}
                       className={cn(
-                        "w-full h-11 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none",
+                        "w-full h-11 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none bg-white",
                         errors.category_id
-                          ? "border-red-400 bg-red-50"
-                          : "border-gray-200 hover:border-gray-300 bg-white"
+                          ? "border-red-500"
+                          : "border-gray-200 hover:border-gray-300"
                       )}
                     >
                       <span className={cn("truncate text-right", formData.category_name ? "text-gray-900" : "text-gray-400")}>
@@ -351,9 +362,6 @@ export function AddProductStep1({
                       </span>
                       <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0 ms-2" />
                     </button>
-                    {errors.category_id && (
-                      <p className="text-xs text-red-500 mt-1">{errors.category_id}</p>
-                    )}
                   </div>
 
                   <div className="space-y-2">

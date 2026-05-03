@@ -134,9 +134,22 @@ export function MediaCenterModal({
         );
       } else {
         if (selectionLimit && selectedItems.length >= selectionLimit) {
+          const types = allowedMediaTypes ?? [];
+          const hasImage =
+            types.includes("image") ||
+            types.includes("gallery") ||
+            types.includes("avatar");
+          const hasVideo = types.includes("video");
+          const limitNoun =
+            hasImage && hasVideo
+              ? "صور أو فيديوهات"
+              : hasVideo && !hasImage
+                ? "فيديوهات"
+                : hasImage
+                  ? "صور"
+                  : "ملفات";
           toast.warning(
-            `لا يمكنك اختيار أكثر من ${selectionLimit} ${allowedMediaTypes?.includes("image") ? "صور" : "ملفات"
-            }`
+            `لا يمكنك اختيار أكثر من ${selectionLimit} ${limitNoun}`
           );
           return;
         }
