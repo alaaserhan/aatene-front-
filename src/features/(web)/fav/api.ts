@@ -16,6 +16,7 @@ export interface FavoriteList {
 export interface FavoriteItem {
     id: number;
     favs_type: string;
+    /** قد يكون null إن حُذف المخزن/المنتج أو لم يُحمَّل من الـ API */
     favs: {
         id: number;
         slug: string;
@@ -31,7 +32,7 @@ export interface FavoriteItem {
         discount_present: number;
         review_rate: string;
         review_count: string;
-    };
+    } | null;
 }
 
 export interface CreateListPayload {
