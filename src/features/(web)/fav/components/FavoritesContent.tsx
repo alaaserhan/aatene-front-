@@ -215,7 +215,7 @@ export default function FavoritesContent({
 
             {/* Empty State — نستبعد العناصر اليتيمة (favs === null) */}
             {visibleFavorites.length === 0 && !isLoadingListItems && (
-                <EmptyFavorites />
+                <EmptyFavorites type={selectedType} />
             )}
 
             {/* Products Grid */}

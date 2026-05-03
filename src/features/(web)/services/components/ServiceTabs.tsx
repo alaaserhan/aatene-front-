@@ -528,13 +528,16 @@ function ServiceQAItem({ question }: { question: ServiceBoardQuestion }) {
                 </div>
             )}
 
-            {isAnswersModalOpen && (
-                <ServiceQAAnswersModal
-                    isOpen={isAnswersModalOpen}
-                    onClose={() => setIsAnswersModalOpen(false)}
-                    question={question}
-                />
-            )}
+            <ServiceQAAnswersModal
+                isOpen={isAnswersModalOpen}
+                onClose={() => setIsAnswersModalOpen(false)}
+                question={question}
+                onReportAnswer={(answerId) => {
+                    setReportAnswerId(answerId);
+                    setIsAnswerReportOpen(true);
+                    setIsAnswersModalOpen(false);
+                }}
+            />
 
             {isReportModalOpen && (
                 <ReportAbuseModal
@@ -605,12 +608,18 @@ function ServiceQAAnswerForm({ questionId, onClose }: { questionId: number, onCl
     );
 }
 
-function ServiceQAAnswersModal({ isOpen, onClose, question }: { isOpen: boolean, onClose: () => void, question: ServiceBoardQuestion }) {
+function ServiceQAAnswersModal({
+    isOpen,
+    onClose,
+    question,
+    onReportAnswer,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    question: ServiceBoardQuestion;
+    onReportAnswer: (answerId: number) => void;
+}) {
     const { data: answersData, isLoading } = useGetServiceBoardAnswers(question.id, isOpen);
-    const [reportState, setReportState] = useState<{ isOpen: boolean, answerId: number | null }>({
-        isOpen: false,
-        answerId: null
-    });
     const answers = answersData?.answers || question.answers || [];
 
     return (
@@ -643,7 +652,8 @@ function ServiceQAAnswersModal({ isOpen, onClose, question }: { isOpen: boolean,
                                         <div className="flex items-center gap-4 text-xs">
                                             <span className="text-gray-400" dir="ltr">{ans.created_at}</span>
                                             <button
-                                                onClick={() => setReportState({ isOpen: true, answerId: ans.id })}
+                                                type="button"
+                                                onClick={() => onReportAnswer(ans.id)}
                                                 className="flex items-center gap-1.5 text-red-600 font-medium hover:text-red-600 transition-colors cursor-pointer"
                                             >
                                                 <Flag className="w-3.5 h-3.5" />
@@ -661,14 +671,6 @@ function ServiceQAAnswersModal({ isOpen, onClose, question }: { isOpen: boolean,
                     )}
                 </div>
             </DialogContent>
-            {reportState.isOpen && reportState.answerId && (
-                <ReportAbuseModal
-                    isOpen={reportState.isOpen}
-                    onClose={() => setReportState({ isOpen: false, answerId: null })}
-                    type="service_board_answer"
-                    id={reportState.answerId}
-                />
-            )}
         </Dialog>
     );
 }

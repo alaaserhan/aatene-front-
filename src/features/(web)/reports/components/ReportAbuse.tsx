@@ -34,14 +34,12 @@ export function ReportAbuse({ type, id, children }: ReportAbuseProps) {
                 </span>
             )}
 
-            {isOpen && (
-                <ReportAbuseModal
-                    isOpen={isOpen}
-                    onClose={() => setIsOpen(false)}
-                    type={type}
-                    id={id}
-                />
-            )}
+            <ReportAbuseModal
+                isOpen={isOpen}
+                onClose={() => setIsOpen(false)}
+                type={type}
+                id={id}
+            />
         </>
     );
 }
