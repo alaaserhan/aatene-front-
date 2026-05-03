@@ -323,12 +323,25 @@ function StandardChatList({
 }
 
 export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsHuman }: ChatListSidebarProps) {
+  /** يطابق عمود Laravel `ai_support_conversations.platform` (`web` افتراضي إنشاء المحادثة من الموقع، `mobile` من التطبيق) */
   if (platform === "website") {
     return (
       <WebsiteChatList
         selectedChatId={selectedChatId}
         onSelectChat={onSelectChat}
         needsHuman={needsHuman}
+        platformFilter="web"
+      />
+    );
+  }
+
+  if (platform === "mobile") {
+    return (
+      <WebsiteChatList
+        selectedChatId={selectedChatId}
+        onSelectChat={onSelectChat}
+        needsHuman={needsHuman}
+        platformFilter="mobile"
       />
     );
   }
