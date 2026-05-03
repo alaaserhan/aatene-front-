@@ -17,11 +17,15 @@ export default function RequestedServiceCard({ service, className }: RequestedSe
     const user = service.user;
 
     return (
-        <Link
-            href={`/requested-services/${service.slug}`}
-            className={`border border-gray-200 rounded-lg p-6 flex flex-col gap-4 hover:border-blue-2 transition-colors relative bg-white ${className || ""}`}
+        <div
+            className={`group relative border border-gray-200 rounded-lg p-6 flex flex-col gap-4 hover:border-blue-2 transition-colors bg-white ${className || ""}`}
         >
-            <div className="flex gap-4 items-start">
+            <Link
+                href={`/requested-services/${service.slug}`}
+                className="absolute inset-0 z-[1] rounded-lg"
+                aria-label={`عرض تفاصيل: ${service.title}`}
+            />
+            <div className="relative z-[2] flex gap-4 items-start pointer-events-none">
                 <div className="shrink-0 w-[50px] h-[50px] rounded-full overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
                     {user?.avatar_url ? (
                         <Image
@@ -41,12 +45,10 @@ export default function RequestedServiceCard({ service, className }: RequestedSe
                             {service.title}
                         </h3>
 
-                        <div onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                        }}>
+                        <div className="pointer-events-auto shrink-0">
                             <ReportAbuse type="requested_service" id={service.id}>
                                 <button
+                                    type="button"
                                     className="flex cursor-pointer items-center gap-1 text-[#F00] font-medium text-xs hover:underline shrink-0"
                                 >
                                     <Flag className="w-3 h-3" />
@@ -101,7 +103,7 @@ export default function RequestedServiceCard({ service, className }: RequestedSe
                     )}
                 </div>
             </div>
-        </Link>
+        </div>
     );
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/src/components/ui/dialog";
 import { useGetReportTypes, useCreateReport } from "../hooks";
 import { CreateReportPayload } from "../api";
 import { CheckCircle2, Loader2 } from "lucide-react";
@@ -119,7 +119,14 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-[500px] w-[95vw] h-auto max-h-[90vh] overflow-y-auto p-6 rounded-2xl" dir="rtl">
+            <DialogContent
+                className="z-[200] max-w-[500px] w-[95vw] h-auto max-h-[90vh] overflow-y-auto p-6 rounded-2xl"
+                overlayClassName="z-[199]"
+                dir="rtl"
+            >
+                <DialogDescription className="sr-only">
+                    نموذج الإبلاغ عن إساءة. اختر نوع البلاغ ثم أكمل التفاصيل وأرسلها.
+                </DialogDescription>
                 {/* Step 1: Select Report Type */}
                 {step === 1 && (
                     <div className="flex flex-col items-center gap-6">
