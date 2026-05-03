@@ -37,11 +37,11 @@ const HISTORY_ICON_SUPPORT = `/ai/${encodeURIComponent("Chat Bot AI.svg")}`;
 const HISTORY_ICON_USER = `/ai/${encodeURIComponent("Chat Bot AI(1).svg")}`;
 const HISTORY_ICON_BOT = `/ai/${encodeURIComponent("Chat Bot AI(2).svg")}`;
 
-/**
- * بعد «تخطّي لاحقاً»: يُخفى نموذج التقييم ثم يُعاد إظهاره تلقائياً بعد هذه المدة.
- * عند انتهاء المحادثة (awaiting_rating / resolved بدون تقييم) يظهر النموذج فوراً ما لم يكن التأجيل سارياً.
- */
+/** بعد «تخطّي لاحقاً» عندما تكون المحادثة منتهية وبانتظار تقييم: إعادة إظهار النموذج بعد هذه المدة */
 const RATING_PROMPT_SNOOZE_MS = 5 * 60 * 1000;
+
+/** أثناء محادثة مفتوحة (يمكن إرسال رسائل): إظهار نموذج التقييم كل هذه الفترة. `0` يعطّل */
+const RATING_ACTIVE_CHAT_INTERVAL_MS = 5 * 60 * 1000;
 
 function historyConversationStatus(conv: Conversation): { label: string; className: string } {
     const st = conv.state;
@@ -345,6 +345,15 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         !isRatingSnoozed &&
         (chatView === "rating" || needsRatingFromServer);
 
+    const canSendMessages = useMemo(
+        () =>
+            !!displayedConv &&
+            (displayedConv.state === "active" ||
+                displayedConv.state === "waiting" ||
+                displayedConv.state === "with_agent"),
+        [displayedConv]
+    );
+
     /** قيمة واحدة بدل دمج deps متعددة في useEffect — يجنّب تحذير React عن طول مصفوفة غير ثابت */
     const ratingFlowNeedsScrollToBottom = shouldPromptRating || ratingThankYou;
 
@@ -486,6 +495,15 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         const id = window.setTimeout(() => setRatingSnoozeUntil(null), delay);
         return () => window.clearTimeout(id);
     }, [ratingSnoozeUntil]);
+
+    useEffect(() => {
+        if (RATING_ACTIVE_CHAT_INTERVAL_MS <= 0) return;
+        if (!conversationId || !canSendMessages || chatView !== "chat" || ratingThankYou) return;
+        const id = window.setInterval(() => {
+            setChatView("rating");
+        }, RATING_ACTIVE_CHAT_INTERVAL_MS);
+        return () => window.clearInterval(id);
+    }, [conversationId, canSendMessages, chatView, ratingThankYou]);
 
     useEffect(() => {
         if (isFetchingNextPage) return;
@@ -714,13 +732,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     };
 
     // ─── Derived state ──────────────────────────────────────────────────────────
-    /** إرسال رسائل فقط للمحادثات التي لا تزال مفتوحة مع البوت/الدعم */
-    const canSendMessages =
-        !!displayedConv &&
-        (displayedConv.state === "active" ||
-            displayedConv.state === "waiting" ||
-            displayedConv.state === "with_agent");
-
     const inputLocked = sendMessageMutation.isPending || awaitingBotReply;
 
     const sendQuickReply = useCallback(
