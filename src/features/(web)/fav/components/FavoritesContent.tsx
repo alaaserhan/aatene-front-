@@ -93,6 +93,8 @@ export default function FavoritesContent({
         )
         : favoritesList;
 
+    const visibleFavorites = filteredFavorites.filter((item) => item.favs != null);
+
     // Handle list badge click
     const handleListClick = (listId: number | null) => {
         setSelectedListId(listId);
@@ -211,16 +213,16 @@ export default function FavoritesContent({
                 <div className="text-center py-10">جاري تحميل العناصر...</div>
             )}
 
-            {/* Empty State */}
-            {(!filteredFavorites || filteredFavorites.length === 0) && !isLoadingListItems && (
+            {/* Empty State — نستبعد العناصر اليتيمة (favs === null) */}
+            {visibleFavorites.length === 0 && !isLoadingListItems && (
                 <EmptyFavorites />
             )}
 
             {/* Products Grid */}
-            {filteredFavorites && filteredFavorites.length > 0 && !isLoadingListItems && (
+            {visibleFavorites.length > 0 && !isLoadingListItems && (
                 <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                        {filteredFavorites.map((item) => {
+                        {visibleFavorites.map((item) => {
                             if (item.favs_type === "store") {
                                 return <StoreCard key={item.id} store={item.favs as unknown as Store} />;
                             }
@@ -230,16 +232,16 @@ export default function FavoritesContent({
                             return (
                                 <ProductCard
                                     key={item.id}
-                                    id={item.favs?.id || item.id}
-                                    name={item.favs?.name || "اسم المنتج"}
-                                    slug={item.favs?.slug}
-                                    cover={item.favs?.cover || ""}
-                                    price={item.favs?.price || "0"}
-                                    priceAfterDiscount={item.favs?.price_after_discount}
-                                    discountPercent={item.favs?.discount_present}
-                                    reviewRate={item.favs?.review_rate}
-                                    reviewCount={item.favs?.review_count}
-                                    isFavorite={item.favs?.is_favorite ?? true}
+                                    id={item.favs.id || item.id}
+                                    name={item.favs.name || "اسم المنتج"}
+                                    slug={item.favs.slug}
+                                    cover={item.favs.cover || ""}
+                                    price={item.favs.price || "0"}
+                                    priceAfterDiscount={item.favs.price_after_discount}
+                                    discountPercent={item.favs.discount_present}
+                                    reviewRate={item.favs.review_rate}
+                                    reviewCount={item.favs.review_count}
+                                    isFavorite={item.favs.is_favorite ?? true}
                                     type={item.favs_type as any || "product"}
                                 />
                             );
