@@ -25,3 +25,13 @@ export const fixMediaUrl = (url: string): string => {
         return url;
     }
 };
+
+/**
+ * يُرقّي روابط http إلى https بشكل ثابت (SSR و CSR متطابقان).
+ * يقلّل حظر المحتوى المختلط على Safari/iOS عند عرض الشعار والوسائط من CDN.
+ */
+export function upgradeHttpToHttps(url: string): string {
+    if (!url || typeof url !== "string") return url;
+    if (url.startsWith("http://")) return `https://${url.slice(7)}`;
+    return url;
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronLeft, Menu, X, Search } from "lucide-react";
 import Link from "next/link";
@@ -76,10 +76,18 @@ export default function MobileNav() {
         </div>
 
         <Link href={`/${lang}`} className="shrink-0 min-w-0 max-[45%]">
-          {settings?.logo_url ? (
-            <img src={settings.logo_url} className="h-8 w-auto max-h-8 object-contain mx-auto" alt={settings?.name || "logo"} />
+          {settings?.logo_url && !mobileLogoBroken ? (
+            <img
+              src={upgradeHttpToHttps(fixMediaUrl(settings.logo_url))}
+              className="h-8 w-auto max-h-8 object-contain mx-auto"
+              alt={settings?.name || "logo"}
+              width={150}
+              height={32}
+              style={{ width: "auto", height: "2rem" }}
+              onError={() => setMobileLogoBroken(true)}
+            />
           ) : (
-            <img src="/black.svg" className="h-8 mx-auto" alt="logo" />
+            <img src="/black.svg" className="h-8 mx-auto" alt="logo" width={120} height={32} style={{ width: "auto", height: "2rem" }} />
           )}
         </Link>
 
