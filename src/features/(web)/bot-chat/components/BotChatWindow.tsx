@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
-import { X, Send, Loader2, Bot, Star, Pencil, User, Headset, AlertCircle, History } from "lucide-react";
+import { X, Send, Loader2, Bot, Star, Pencil, User, Headset, AlertCircle, History, CheckCircle2 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/src/lib/utils";
@@ -280,6 +280,8 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
     const [ratingComment, setRatingComment] = useState("");
+    /** بعد إرسال التقييم: إظهار شكراً قبل العودة لمحادثة جديدة */
+    const [ratingThankYou, setRatingThankYou] = useState(false);
     const [showNewConvConfirm, setShowNewConvConfirm] = useState(false);
     const [typingUser, setTypingUser] = useState<string | null>(null);
     const [viewingConvId, setViewingConvId] = useState<number | null>(null);
@@ -310,6 +312,31 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const { data: currentConvData, isLoading: isLoadingConv } = useCurrentConversation(true);
     const conversation = currentConvData?.data;
     const conversationId = viewingConvId ?? conversation?.id;
+    const displayedConv: Conversation | null | undefined =
+        viewingConvId != null ? viewingConversation : conversation ?? null;
+
+    /** يطابق MessageService (isBotActive): إذا عطّل المستخدم البوت لا ننتظر رداً آلياً */
+    const botRepliesEnabled = useMemo(() => {
+        const u = displayedConv?.user;
+        if (u == null) return true;
+        return u.ai_support_bot_active !== false;
+    }, [displayedConv?.user]);
+
+    /** انتظار رد آلياً فقط إذا لم يُفعَّل طلب دعم بشري — لتجنّب نقاط «المساعد الذكي» مع الباكند */
+    const awaitingAssistantReply =
+        botRepliesEnabled && displayedConv?.needs_human !== true;
+
+    const isAwaitingRating = displayedConv?.state === "awaiting_rating";
+    const isResolved = displayedConv?.state === "resolved";
+    /** يشمل انتهاء المحادثة (resolved) قبل التقييم كما في awaiting_rating */
+    const shouldPromptRating =
+        !!conversationId &&
+        (chatView === "rating" ||
+            isAwaitingRating ||
+            (isResolved && !!displayedConv && !displayedConv.is_reviewed));
+
+    /** قيمة واحدة بدل دمج deps متعددة في useEffect — يجنّب تحذير React عن طول مصفوفة غير ثابت */
+    const ratingFlowNeedsScrollToBottom = shouldPromptRating || ratingThankYou;
 
     const startConversation = useStartConversation();
     const sendMessageMutation = useSendMessage();
@@ -460,16 +487,20 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     ]);
 
     useEffect(() => {
-        if (chatView === "rating") {
+        if (ratingFlowNeedsScrollToBottom) {
             stickToBottomRef.current = true;
             scrollMessagesToBottom();
         }
-    }, [chatView, scrollMessagesToBottom]);
+    }, [ratingFlowNeedsScrollToBottom, scrollMessagesToBottom]);
 
     useEffect(() => {
         if (inputRef.current) inputRef.current.focus();
         queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
     }, [queryClient]);
+
+    useEffect(() => {
+        setRatingThankYou(false);
+    }, [conversationId]);
 
     useEffect(() => {
         setAwaitingBotReply(false);
@@ -508,6 +539,20 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     }, [allMessages, awaitingBotReply, awaitingAfterUserMsgId]);
 
     useEffect(() => {
+        if (!botRepliesEnabled) {
+            setAwaitingBotReply(false);
+            setAwaitingAfterUserMsgId(null);
+        }
+    }, [botRepliesEnabled]);
+
+    useEffect(() => {
+        if (displayedConv?.needs_human === true) {
+            setAwaitingBotReply(false);
+            setAwaitingAfterUserMsgId(null);
+        }
+    }, [displayedConv?.needs_human]);
+
+    useEffect(() => {
         const key = welcomeStorageKey(user?.id);
         try {
             setWelcomeSeen(localStorage.getItem(key) === "1");
@@ -540,6 +585,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
         const afterSendSuccess = (res: SendMessageResponse) => {
             stickToBottomRef.current = true;
+            if (!awaitingAssistantReply) return;
             setAwaitingBotReply(true);
             setAwaitingAfterUserMsgId(res.data.id);
         };
@@ -574,6 +620,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         queryClient,
         markWelcomeSeen,
         awaitingBotReply,
+        awaitingAssistantReply,
     ]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -624,29 +671,32 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         setActiveTab("new");
     };
 
+    const dismissRatingThankYou = useCallback(() => {
+        setRatingThankYou(false);
+        setChatView("chat");
+        setViewingConvId(null);
+        setViewingConversation(null);
+    }, []);
+
     const handleSubmitRating = () => {
         if (!conversationId || rating === 0) return;
         submitRatingMutation.mutate(
             { conversationId, rate: rating, comment: ratingComment },
             {
                 onSuccess: () => {
+                    setRatingThankYou(true);
                     setChatView("chat");
                     setRating(0);
                     setRatingComment("");
                     setHoverRating(0);
-                    setViewingConvId(null);
-                    setViewingConversation(null);
                     queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
+                    queryClient.invalidateQueries({ queryKey: ["botChat", "messages", conversationId] });
                 },
             }
         );
     };
 
     // ─── Derived state ──────────────────────────────────────────────────────────
-    const displayedConv: Conversation | null | undefined =
-        viewingConvId != null ? viewingConversation : conversation ?? null;
-    const isAwaitingRating = displayedConv?.state === "awaiting_rating";
-    const isResolved = displayedConv?.state === "resolved";
     /** إرسال رسائل فقط للمحادثات التي لا تزال مفتوحة مع البوت/الدعم */
     const canSendMessages =
         !!displayedConv &&
@@ -668,6 +718,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 { conversationId, messageText: trimmed },
                 {
                     onSuccess: (res: SendMessageResponse) => {
+                        if (!awaitingAssistantReply) return;
                         setAwaitingBotReply(true);
                         setAwaitingAfterUserMsgId(res.data.id);
                     },
@@ -681,6 +732,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
             startConversation.isPending,
             awaitingBotReply,
             markWelcomeSeen,
+            awaitingAssistantReply,
         ]
     );
 
@@ -948,7 +1000,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     )}
 
                     {/* نقاط كتابة البوت — نفس محاذاة رسائل المساعد (يمين في RTL) */}
-                    {!typingUser && inputLocked && (
+                    {!typingUser && inputLocked && !displayedConv?.needs_human && (
                         <div className="flex flex-col gap-0.5 items-end mt-1 animate-in fade-in duration-200">
                             <span className="text-[10px] text-gray-400 px-1">: المساعد الذكي</span>
                             <div className="flex gap-2 items-end flex-row-reverse">
@@ -969,7 +1021,31 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                         </div>
                     )}
 
-                    {(chatView === "rating" || isAwaitingRating) && conversationId && (
+                    {ratingThankYou && conversationId && (
+                        <div className="w-full flex justify-center px-2 py-4 shrink-0">
+                            <div
+                                className="w-full max-w-[min(100%,300px)] rounded-xl bg-white border border-emerald-100 p-4 shadow-[0_4px_24px_rgba(16,185,129,0.08)] animate-in fade-in zoom-in-95 duration-300"
+                                dir="rtl"
+                            >
+                                <div className="flex flex-col items-center gap-2 text-center">
+                                    <CheckCircle2 className="w-10 h-10 text-emerald-500 shrink-0" aria-hidden />
+                                    <p className="text-sm font-bold text-[#1e3a5f]">شكراً لتقييمك!</p>
+                                    <p className="text-[11px] text-gray-600 leading-relaxed px-1">
+                                        نقدّر وقتك؛ ملاحظاتك تساعدنا على تحسين الخدمة.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={dismissRatingThankYou}
+                                        className="mt-2 w-full min-h-[40px] rounded-xl text-sm font-bold text-white cursor-pointer transition-colors bg-[#395A7D] hover:bg-[#2c4460]"
+                                    >
+                                        متابعة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {shouldPromptRating && !ratingThankYou && (
                         <div className="w-full flex justify-center px-2 py-3 shrink-0">
                             <div
                                 className="w-full max-w-[min(100%,300px)] rounded-xl bg-white border border-gray-200/90 p-3 shadow-[0_4px_20px_rgba(0,0,0,0.06)] animate-in fade-in slide-in-from-bottom-2 duration-300"
@@ -1063,7 +1139,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 </div>
             </div>
 
-            {/* "Needs human" banner */}
+            {/* انتظار رد بشري في حالة waiting */}
             {displayedConv?.needs_human && displayedConv?.state === "waiting" && (
                 <div className="bg-amber-50 border-t border-amber-100 px-4 py-2 flex items-center gap-2 shrink-0" dir="rtl">
                     <Headset className="w-4 h-4 text-amber-600 shrink-0" />
@@ -1071,8 +1147,8 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 </div>
             )}
 
-            {/* شريط المحادثة المنتهية — فقط عند state === resolved */}
-            {isResolved && (
+            {/* شريط «منتهية» — لا يظهر أثناء بطاقة الشكر */}
+            {isResolved && !shouldPromptRating && !ratingThankYou && (
                 <div className="bg-gray-50 border-t border-gray-200 px-4 py-3 flex items-center justify-between gap-3 shrink-0" dir="rtl">
                     <span className="text-xs text-gray-600 font-medium">هذه المحادثة منتهية</span>
                     <button
@@ -1094,7 +1170,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
             )}
 
             {/* إدخال — يُخفى أثناء عرض التقييم داخل المحادثة */}
-            {canSendMessages && !(chatView === "rating" || isAwaitingRating) && (
+            {canSendMessages && !shouldPromptRating && !ratingThankYou && (
                 <div className="bg-white px-4 py-3 md:py-3 border-t border-gray-100 shrink-0" dir="rtl">
                     <div className="flex items-center gap-2">
                         <input
@@ -1148,7 +1224,8 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         const showIntroScreen =
             activeTab === "new" &&
             !showNewConvConfirm &&
-            !isAwaitingRating &&
+            !shouldPromptRating &&
+            !ratingThankYou &&
             (welcomeSeen === false || !conversationId);
 
         if (showIntroScreen) {
@@ -1245,6 +1322,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     type="button"
                     onClick={() => {
                         setShowNewConvConfirm(false);
+                        setRatingThankYou(false);
                         setViewingConvId(null);
                         setViewingConversation(null);
                         setActiveTab("new");

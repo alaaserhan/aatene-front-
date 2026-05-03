@@ -324,14 +324,15 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                   منتج جديد
                 </Link>
               ) : !isLoadingSections && !hasSections ? (
-                <Link
-                  href={`${navPrefix}/sections`}
+                <button
+                  type="button"
+                  onClick={() => setIsSectionModalOpen(true)}
                   className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-lg font-medium transition-colors"
                   style={{ backgroundColor: "var(--blue-3)" }}
                 >
                   <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
                   إضافة قسم
-                </Link>
+                </button>
               ) : null}
               <button
                 onClick={() => { setShowGuide((v) => !v); setGuideStep(1); }}
@@ -465,7 +466,10 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
         </div>
 
         {isMerchant && !isLoadingSections && !hasSections ? (
-          <ProductEmptyState type="no-sections" />
+          <ProductEmptyState
+            type="no-sections"
+            onAddSection={() => setIsSectionModalOpen(true)}
+          />
         ) : (
           <div className="grid grid-cols-12 gap-6 items-start">
 

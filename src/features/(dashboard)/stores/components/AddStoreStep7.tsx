@@ -62,6 +62,15 @@ export function AddStoreStep7({
     }
   }, [initialData?.tags]);
 
+  /** إذا وصل توليد الذكاء الاصطناعي بعد فتح الصفحة، املأ الحقول تلقائياً */
+  useEffect(() => {
+    if (!aiKeywords.length) return;
+    setTags((prev) => {
+      if (prev.length > 0) return prev;
+      return [...aiKeywords];
+    });
+  }, [aiKeywords]);
+
   const [inputValue, setInputValue] = useState("");
 
   const steps = barSteps;

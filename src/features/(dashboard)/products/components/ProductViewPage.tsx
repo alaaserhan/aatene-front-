@@ -18,6 +18,7 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/utils";
+import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
 
@@ -324,13 +325,23 @@ export default function ProductViewPage() {
                                 </div>
                             </div>
 
-                            {/* Main Image */}
+                            {/* Main media (صورة أو فيديو) */}
                             <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 border border-gray-100 bg-gray-50">
-                                <img
-                                    src={displayImage}
-                                    alt={raw.name}
-                                    className="w-full h-full object-cover transition-opacity duration-300"
-                                />
+                                {isStoreBannerVideoUrl(displayImage) ? (
+                                    <video
+                                        key={displayImage}
+                                        src={displayImage}
+                                        controls
+                                        playsInline
+                                        className="w-full h-full object-cover transition-opacity duration-300 bg-black"
+                                    />
+                                ) : (
+                                    <img
+                                        src={displayImage}
+                                        alt={raw.name}
+                                        className="w-full h-full object-cover transition-opacity duration-300"
+                                    />
+                                )}
                             </div>
 
                             {/* Thumbnails */}
@@ -347,7 +358,17 @@ export default function ProductViewPage() {
                                                     : "border-gray-200 opacity-70 hover:opacity-100 hover:border-blue-300"
                                             )}
                                         >
-                                            <img src={img} alt={`thumb-${idx}`} className="w-full h-full object-cover" />
+                                            {isStoreBannerVideoUrl(img) ? (
+                                                <video
+                                                    src={img}
+                                                    muted
+                                                    playsInline
+                                                    preload="metadata"
+                                                    className="w-full h-full object-cover pointer-events-none"
+                                                />
+                                            ) : (
+                                                <img src={img} alt={`thumb-${idx}`} className="w-full h-full object-cover" />
+                                            )}
                                         </div>
                                     ))}
                                 </div>

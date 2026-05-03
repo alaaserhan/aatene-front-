@@ -301,6 +301,8 @@ export interface Store {
     logo_url: string | null;
     cover: string | null;
     cover_url: string | null;
+    /** Present on home «special merchants» and other endpoints that return full store media */
+    cover_urls?: string[] | null;
     review_rate: string;
     review_count: string;
     open_status: string;

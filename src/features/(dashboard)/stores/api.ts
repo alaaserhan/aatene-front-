@@ -357,12 +357,63 @@ export interface GenerateStoreAIResponse {
   success?: boolean;
 }
 
+/** Normalize n8n / webhook payloads: nested results, strings as JSON, keyword objects with title */
+export function extractKeywordsFromWebhookPayload(raw: unknown): string[] {
+  const pushFromArray = (arr: unknown): string[] => {
+    if (!Array.isArray(arr)) return [];
+    const out: string[] = [];
+    for (const item of arr) {
+      if (typeof item === "string") {
+        const t = item.trim();
+        if (t) out.push(t);
+      } else if (item && typeof item === "object" && "title" in item) {
+        const title = (item as { title?: unknown }).title;
+        if (typeof title === "string" && title.trim()) out.push(title.trim());
+      }
+    }
+    return out;
+  };
+
+  const walk = (node: unknown): string[] => {
+    if (node == null) return [];
+    if (typeof node === "string") {
+      try {
+        return walk(JSON.parse(node));
+      } catch {
+        return [];
+      }
+    }
+    if (typeof node !== "object") return [];
+    const o = node as Record<string, unknown>;
+
+    for (const key of ["results", "data", "output", "body", "response"]) {
+      const nested = o[key];
+      if (nested && typeof nested === "object") {
+        const kw = (nested as Record<string, unknown>).keywords;
+        const got = pushFromArray(kw);
+        if (got.length) return got;
+      }
+    }
+
+    const top = pushFromArray(o.keywords);
+    if (top.length) return top;
+
+    return [];
+  };
+
+  return walk(raw);
+}
+
 export const generateStoreAI = async (
   payload: { name: string; description: string }
 ): Promise<GenerateStoreAIResponse> => {
-  const { data } = await api.post<GenerateStoreAIResponse>(
+  const { data } = await api.post<unknown>(
     "https://auto.mosaady.com/webhook/6281f79d-a9ee-44e0-9bad-4f2d04abba5f",
     payload
   );
-  return data;
+  const keywords = extractKeywordsFromWebhookPayload(data);
+  return {
+    success: true,
+    ...(keywords.length > 0 ? { results: { keywords } } : {}),
+  };
 };

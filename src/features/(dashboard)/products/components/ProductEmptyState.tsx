@@ -7,9 +7,11 @@ import { Plus, Layers, PackageX } from "lucide-react";
 
 interface ProductEmptyStateProps {
     type: "no-sections" | "no-products";
+    /** عند التوفّر، يفتح نافذة إضافة القسم بدلاً من الانتقال لصفحة الأقسام */
+    onAddSection?: () => void;
 }
 
-export function ProductEmptyState({ type }: ProductEmptyStateProps) {
+export function ProductEmptyState({ type, onAddSection }: ProductEmptyStateProps) {
     const isNoSections = type === "no-sections";
 
     return (
@@ -34,14 +36,25 @@ export function ProductEmptyState({ type }: ProductEmptyStateProps) {
                     : "أضف منتجاتك الآن وابدأ في البيع، يمكنك إضافة تفاصيل كاملة وصور للمنتج."}
             </p>
 
-            <Link href={isNoSections ? "/admin/sections" : "/admin/products/add"}>
+            {isNoSections && onAddSection ? (
                 <Button
-                    className="bg-blue-3 text-white  py-5 cursor-pointer rounded-xs"
+                    type="button"
+                    onClick={onAddSection}
+                    className="bg-blue-3 text-white py-5 cursor-pointer rounded-xs"
                 >
                     <Plus className="w-5 h-5" />
-                    {isNoSections ? " إضافة قسم جديد" : "إضافة منتج جديد"}
+                    إضافة قسم جديد
                 </Button>
-            </Link>
+            ) : (
+                <Link href={isNoSections ? "/admin/sections" : "/admin/products/add"}>
+                    <Button
+                        className="bg-blue-3 text-white  py-5 cursor-pointer rounded-xs"
+                    >
+                        <Plus className="w-5 h-5" />
+                        {isNoSections ? " إضافة قسم جديد" : "إضافة منتج جديد"}
+                    </Button>
+                </Link>
+            )}
         </div>
     );
 }
