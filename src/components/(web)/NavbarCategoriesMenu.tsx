@@ -35,7 +35,6 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
     const [open, setOpen] = useState(false);
     const [pinned, setPinned] = useState(false);
     const [mounted, setMounted] = useState(false);
-    const [portalTarget, setPortalTarget] = useState<Element | null>(null);
     const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const pathname = usePathname() || "";
     const searchParams = useSearchParams();
@@ -59,8 +58,15 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
 
     useEffect(() => {
         setMounted(true);
-        setPortalTarget(typeof document !== "undefined" ? document.body : null);
     }, []);
+
+    /** جذر البوابة: يُستخدم فقط بعد mount حتى يكون `document.body` موجوداً */
+    const portalRoot =
+        mounted &&
+        typeof document !== "undefined" &&
+        document.body instanceof HTMLElement
+            ? document.body
+            : null;
 
     useEffect(() => () => cancelClose(), [cancelClose]);
 
@@ -161,7 +167,7 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
         open &&
         mounted &&
         variant === "mobile" &&
-        portalTarget
+        portalRoot
             ? createPortal(
                   <>
                       <button
@@ -183,7 +189,7 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
                           </div>
                       </div>
                   </>,
-                  portalTarget
+                  portalRoot
               )
             : null;
 

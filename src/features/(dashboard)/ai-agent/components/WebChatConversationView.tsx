@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Loader2, Send, Headset, CheckCircle, Bot, User, Star, Trash2 } from "lucide-react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import {
     useGetWebConversationMessages,
     useWebAdminReply,
@@ -15,7 +15,8 @@ import {
     useGetWebConversation,
     useWebToggleBot,
 } from "../hooks";
-import { WebMessage, type WebMessagesResponse } from "../api";
+import { WebMessage } from "../api";
+import { isInfiniteWebMessagesData } from "../utils/web-messages-infinite-data";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Switch } from "@/src/components/ui/switch";
@@ -66,8 +67,7 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         enabled: canLoadMessages,
     });
 
-    /** تصريح صريح — استنتاج TS يضيع مع `enabled` الديناميكي فيزود `data` كـ `never` */
-    const messagesInfinite = messagesData as InfiniteData<WebMessagesResponse> | undefined;
+    const messagesInfinite = isInfiniteWebMessagesData(messagesData) ? messagesData : undefined;
 
     const conversation = useMemo(() => {
         const fromList = convsData?.data?.find((c) => c.id === conversationId);
