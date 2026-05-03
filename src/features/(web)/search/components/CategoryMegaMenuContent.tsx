@@ -175,7 +175,7 @@ export default function CategoryMegaMenuContent({
                         : "min-w-[240px] max-w-[270px]",
                     columnShell,
                     isMobileLayout
-                        ? "max-h-[min(360px,50dvh)]"
+                        ? "max-h-[min(360px,50vh)]"
                         : "max-h-[min(400px,58vh)]"
                 )}
             >
@@ -218,7 +218,7 @@ export default function CategoryMegaMenuContent({
                                 : "min-w-[220px] max-w-[260px]",
                             columnShell,
                             isMobileLayout
-                                ? "max-h-[min(360px,50dvh)]"
+                                ? "max-h-[min(360px,50vh)]"
                                 : "max-h-[min(400px,58vh)]"
                         )}
                     >

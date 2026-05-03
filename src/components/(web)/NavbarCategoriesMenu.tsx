@@ -35,6 +35,7 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
     const [open, setOpen] = useState(false);
     const [pinned, setPinned] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [portalTarget, setPortalTarget] = useState<Element | null>(null);
     const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const pathname = usePathname() || "";
     const searchParams = useSearchParams();
@@ -58,6 +59,7 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
 
     useEffect(() => {
         setMounted(true);
+        setPortalTarget(typeof document !== "undefined" ? document.body : null);
     }, []);
 
     useEffect(() => () => cancelClose(), [cancelClose]);
@@ -172,7 +174,7 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
                     }}
                 />
                 <div
-                    className="fixed inset-x-3 top-[4.25rem] z-[400] max-h-[min(72vh,calc(100dvh-5.5rem))] overflow-hidden rounded-xl border border-gray-200/90 bg-white shadow-xl"
+                    className="fixed inset-x-3 top-[4.25rem] z-[400] max-h-[min(72vh,calc(100vh-5.5rem))] overflow-hidden rounded-xl border border-gray-200/90 bg-white shadow-xl"
                     dir="rtl"
                 >
                     <div className="max-h-[inherit] overflow-x-auto overflow-y-auto overscroll-x-contain overscroll-y-contain px-1 py-1 [-webkit-overflow-scrolling:touch]">
@@ -180,7 +182,7 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
                     </div>
                 </div>
             </>,
-            document.body
+            portalTarget
         );
 
     const triggerDesktop = (
