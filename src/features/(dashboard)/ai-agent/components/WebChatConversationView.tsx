@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Loader2, Send, Headset, CheckCircle, Bot, User, Star, Trash2 } from "lucide-react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -21,12 +22,17 @@ import { Label } from "@/src/components/ui/label";
 import { cn } from "@/src/lib/utils";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { useEchoChannel } from "@/src/hooks/use-echo-channel";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 
 interface WebChatConversationViewProps {
     conversationId: number;
 }
 
 export function WebChatConversationView({ conversationId }: WebChatConversationViewProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const user = useAuthStore((state) => state.user);
     const scrollRef = useRef<HTMLDivElement>(null);

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState, useCallback, useEffect, useRef } from "react";
+import { Suspense, useState, useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { ChevronDown, LayoutGrid } from "lucide-react";
@@ -9,7 +9,6 @@ import { cn } from "@/src/lib/utils";
 import {
     useProductsSearchPage,
     useServicesSearchPage,
-    useStoresSearchPage,
 } from "@/src/features/(web)/search/hooks";
 import CategoryMegaMenuContent, {
     type MegaMenuSearchType,
@@ -45,7 +44,6 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
     const [pinned, setPinned] = useState(false);
     const [mounted, setMounted] = useState(false);
     const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const pinnedRef = useRef(false);
     const pathname = usePathname() || "";
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -95,52 +93,38 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
     const validCategoryId =
         categoryId != null && !Number.isNaN(categoryId) ? categoryId : undefined;
 
-    const typeForCategories: MegaMenuSearchType =
-        isSearchPage && urlType !== "users" ? urlType : "products";
+    /** شجرتا منتجات وخدمات معًا للقائمة المنسدلة — نفس واجهات البحث الحالية بدون تعديل باكند */
+    const { data: productsPageData } = useProductsSearchPage(true);
+    const { data: servicesPageData } = useServicesSearchPage(true);
 
-    const { data: productsPageData } = useProductsSearchPage(
-        typeForCategories === "products",
-        isSearchPage ? validCategoryId : undefined
-    );
-    const { data: servicesPageData } = useServicesSearchPage(
-        typeForCategories === "services",
-        isSearchPage ? validCategoryId : undefined
-    );
-    const { data: storesPageData } = useStoresSearchPage(
-        typeForCategories === "stores",
-        isSearchPage ? validCategoryId : undefined
-    );
+    const productCategories: Category[] = productsPageData?.categories ?? [];
+    const serviceCategories: Category[] = servicesPageData?.categories ?? [];
 
-    const categories: Category[] = useMemo(() => {
-        switch (typeForCategories) {
-            case "products":
-                return productsPageData?.categories || [];
-            case "services":
-                return servicesPageData?.categories || [];
-            case "stores":
-                return storesPageData?.categories || [];
-            default:
-                return [];
-        }
-    }, [typeForCategories, productsPageData, servicesPageData, storesPageData]);
+    const selectedSearchTypeForMenu: "products" | "services" | undefined =
+        urlType === "services"
+            ? "services"
+            : urlType === "products"
+              ? "products"
+              : undefined;
 
     const selectedForMenu = isSearchPage ? validCategoryId : undefined;
 
     const navigateWithCategory = useCallback(
-        (id: number) => {
+        (id: number, searchType: "products" | "services") => {
             if (isSearchPage) {
                 const p = new URLSearchParams(searchParams.toString());
+                p.set("type", searchType);
                 p.set("category_id", String(id));
                 p.set("page", "1");
                 router.push(`${pathname}?${p.toString()}`, { scroll: false });
             } else {
                 router.push(
-                    `/${lang}/search?type=${typeForCategories}&category_id=${id}&page=1`
+                    `/${lang}/search?type=${searchType}&category_id=${id}&page=1`
                 );
             }
             setOpen(false);
         },
-        [isSearchPage, searchParams, router, pathname, lang, typeForCategories]
+        [isSearchPage, searchParams, router, pathname, lang]
     );
 
     if (isSearchPage && urlType === "users") return null;
@@ -164,12 +148,11 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
                 )}
                 <div
                     className={cn(
-                        "fixed left-0 right-0 z-[205] overflow-hidden",
+                        "fixed left-0 right-0 z-[205] overflow-visible",
                         "rounded-b-2xl border-x border-b border-gray-200/80 bg-white",
                         "shadow-[0_18px_48px_-12px_rgba(15,23,42,0.25)]",
                         "top-[60px] min-[1100px]:top-[73px]",
                         "max-h-[min(80vh,calc(100dvh-56px))] min-[1100px]:max-h-[min(80vh,calc(100dvh-72px))]",
-                        /* جسر بصري للهوفر بين الهيدر واللوحة */
                         variant === "desktop" && "-mt-1.5 pt-1.5"
                     )}
                     dir="rtl"
@@ -183,12 +166,18 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
                     }
                     onMouseLeave={variant === "desktop" ? scheduleClose : undefined}
                 >
-                    <div className="w-full max-h-[inherit] overflow-y-auto py-1.5 sm:py-2">
+                    {/* مثلث ربط بصري مع زر الفئات (يمكن ضبط الموضع حسب عرض الشاشة) */}
+                    <div
+                        className="pointer-events-none absolute -top-2 start-[max(1rem,calc(50%-28rem))] z-[1] h-3 w-3 rotate-45 border-s border-t border-gray-200/80 bg-white"
+                        aria-hidden
+                    />
+                    <div className="relative z-0 max-h-[inherit] w-full overflow-y-auto py-1.5 sm:py-2">
                         <CategoryMegaMenuContent
-                            categories={categories}
+                            productCategories={productCategories}
+                            serviceCategories={serviceCategories}
                             selectedId={selectedForMenu}
+                            selectedSearchType={selectedSearchTypeForMenu}
                             onSelect={navigateWithCategory}
-                            searchType={typeForCategories}
                             embedded
                         />
                     </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { Mail, Loader2 } from "lucide-react";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
@@ -10,14 +9,17 @@ import { toast } from "sonner";
 
 const NewsletterFooter = () => {
     const pathname = usePathname();
-    const isAuthPage = pathname?.includes("/login") || pathname?.includes("/signup") || pathname?.includes("/forgot-password");
+    const isAuthPage =
+        pathname?.includes("/login") ||
+        pathname?.includes("/signup") ||
+        pathname?.includes("/forgot-password");
     const [email, setEmail] = useState("");
 
     const { mutate: subscribe, isPending } = useMutation({
         mutationFn: async (emailValue: string) => {
             const formData = new FormData();
             formData.append("email", emailValue);
-            const { data } = await api.post('/newsletters', formData);
+            const { data } = await api.post("/newsletters", formData);
             return data;
         },
         onSuccess: (data) => {
@@ -37,45 +39,65 @@ const NewsletterFooter = () => {
     if (isAuthPage) return null;
 
     return (
-        <div className="my-8 container">
-            <div className="bg-linear-to-l overflow-hidden relative from-[#0A5DC2] to-[#052C5C] text-white p-6 md:p-12 rounded-2xl  text-center md:text-right ">
-                <div className="lg:block hidden absolute w-96 right-0 bottom-0 lg:top-0 h-full">
-                    <Image
-                        src="/NewsletterFooterImage.png"
-                        alt="Newsletter"
-                        fill
-                        className="object-contain"
-                    />
+        <section
+            className="w-full bg-[#E9EFF5] py-12 md:py-16"
+            dir="rtl"
+            aria-labelledby="newsletter-heading"
+        >
+            <div className="container mx-auto flex flex-col items-center px-4 text-center">
+                <div className="mb-8 flex w-full justify-center overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    <p
+                        id="newsletter-heading"
+                        className="inline-block min-w-max whitespace-nowrap text-sm leading-relaxed text-[#2D4362] md:text-base"
+                    >
+                        اكتشف خدمات ومنتجات مميزة من أفضل البائعين في مكان واحد، وسجّل بريدك الإلكتروني لتحصل على عروض حصرية وترشيحات تناسبك
+                    </p>
                 </div>
-                <div className="flex flex-col md:flex-row md:justify-between items-center gap-6 md:gap-4 relative z-10">
-                    <div className="text-2xl md:text-[40px] lg:mr-72 font-bold mt-4 md:mt-0 leading-tight">
-                        ابق على اطلاع <br className="hidden md:block" /> بأحدث عروضنا
-                    </div>
-                    <div className="flex flex-col items-stretch md:items-start gap-2 w-full md:w-[35%]">
-                        <div className="relative flex items-center w-full justify-center md:justify-end">
+
+                <form
+                    className="flex w-full max-w-xl flex-col items-stretch gap-0"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        handleSubscribe();
+                    }}
+                >
+                    <label htmlFor="newsletter-email" className="sr-only">
+                        البريد الإلكتروني للاشتراك في النشرة
+                    </label>
+                    <div className="flex w-full overflow-hidden rounded-full shadow-[0_8px_28px_-10px_rgba(45,67,98,0.18)] ring-1 ring-[#cfd9e6]">
+                        <div className="flex min-w-0 flex-1 items-center gap-3 bg-white py-2 ps-4 pe-3 sm:ps-5 sm:pe-4">
+                            <Mail
+                                className="h-5 w-5 shrink-0 text-gray-400"
+                                aria-hidden
+                            />
                             <input
+                                id="newsletter-email"
                                 type="email"
+                                autoComplete="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="اكتب بريدك الالكتروني"
-                                className="rounded-full bg-white placeholder:text-gray-400 px-4 py-3 text-black/80 text-sm pr-10 focus:outline-none w-full border border-transparent focus:border-blue-3 transition-colors text-right placeholder:text-center"
+                                className="min-h-[44px] w-full min-w-0 flex-1 bg-transparent py-2 text-right text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none md:text-[15px]"
                             />
-                            <Mail className="absolute right-3.5 text-gray-400 w-5 h-5" />
                         </div>
-                        <div className="bg-white w-full rounded-full px-4 py-2 text-center shadow-md cursor-pointer hover:shadow-lg transition-shadow">
-                            <button
-                                onClick={handleSubscribe}
-                                disabled={isPending}
-                                className="bg-linear-to-r from-blue-500 to-cyan-500 text-transparent bg-clip-text font-semibold pt-1 transition disabled:opacity-50 w-full flex items-center justify-center gap-2 cursor-pointer"
-                            >
-                                {isPending && <Loader2 className="w-5 h-5 animate-spin text-blue-500" />}
-                                {isPending ? "جاري الاشتراك..." : "اشترك الآن"}
-                            </button>
-                        </div>
+                        <button
+                            type="submit"
+                            disabled={isPending}
+                            className="shrink-0 bg-[#2D4362] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#24354f] disabled:opacity-60 sm:px-8 sm:text-base"
+                        >
+                            {isPending ? (
+                                <span className="inline-flex items-center justify-center gap-2">
+                                    <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+                                    جاري الاشتراك...
+                                </span>
+                            ) : (
+                                "اشترك الآن"
+                            )}
+                        </button>
                     </div>
-                </div>
+                </form>
             </div>
-        </div>
+        </section>
     );
 };
 
