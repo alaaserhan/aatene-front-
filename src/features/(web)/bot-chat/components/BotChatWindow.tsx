@@ -37,8 +37,11 @@ const HISTORY_ICON_SUPPORT = `/ai/${encodeURIComponent("Chat Bot AI.svg")}`;
 const HISTORY_ICON_USER = `/ai/${encodeURIComponent("Chat Bot AI(1).svg")}`;
 const HISTORY_ICON_BOT = `/ai/${encodeURIComponent("Chat Bot AI(2).svg")}`;
 
-/** للاختبار: إظهار نموذج التقييم بشكل دوري أثناء المحادثة. `0` = معطّل (الإنتاج) */
-const RATING_TEST_INTERVAL_MS = 0;
+/**
+ * بعد «تخطّي لاحقاً»: يُخفى نموذج التقييم ثم يُعاد إظهاره تلقائياً بعد هذه المدة.
+ * عند انتهاء المحادثة (awaiting_rating / resolved بدون تقييم) يظهر النموذج فوراً ما لم يكن التأجيل سارياً.
+ */
+const RATING_PROMPT_SNOOZE_MS = 5 * 60 * 1000;
 
 function historyConversationStatus(conv: Conversation): { label: string; className: string } {
     const st = conv.state;
@@ -282,6 +285,8 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const [ratingComment, setRatingComment] = useState("");
     /** بعد إرسال التقييم: إظهار شكراً قبل العودة لمحادثة جديدة */
     const [ratingThankYou, setRatingThankYou] = useState(false);
+    /** طابع زمني (ms): طالما `Date.now() < هذا` لا نُظهر نموذج التقييم رغم حاجة السيرفر لتقييم */
+    const [ratingSnoozeUntil, setRatingSnoozeUntil] = useState<number | null>(null);
     const [showNewConvConfirm, setShowNewConvConfirm] = useState(false);
     const [typingUser, setTypingUser] = useState<string | null>(null);
     const [viewingConvId, setViewingConvId] = useState<number | null>(null);
@@ -328,12 +333,17 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
     const isAwaitingRating = displayedConv?.state === "awaiting_rating";
     const isResolved = displayedConv?.state === "resolved";
-    /** يشمل انتهاء المحادثة (resolved) قبل التقييم كما في awaiting_rating */
+    const needsRatingFromServer =
+        isAwaitingRating || (!!displayedConv && isResolved && !displayedConv.is_reviewed);
+    const isRatingSnoozed =
+        needsRatingFromServer &&
+        ratingSnoozeUntil != null &&
+        Date.now() < ratingSnoozeUntil;
+    /** تقييم فوري عند انتهاء المحادثة؛ يُؤجَّل 5 دقائق إن ضغط المستخدم «تخطّي لاحقاً» */
     const shouldPromptRating =
         !!conversationId &&
-        (chatView === "rating" ||
-            isAwaitingRating ||
-            (isResolved && !!displayedConv && !displayedConv.is_reviewed));
+        !isRatingSnoozed &&
+        (chatView === "rating" || needsRatingFromServer);
 
     /** قيمة واحدة بدل دمج deps متعددة في useEffect — يجنّب تحذير React عن طول مصفوفة غير ثابت */
     const ratingFlowNeedsScrollToBottom = shouldPromptRating || ratingThankYou;
@@ -463,13 +473,19 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     }, [conversationId, isLoadingMessages, allMessages.length]);
 
     useEffect(() => {
-        if (RATING_TEST_INTERVAL_MS <= 0) return;
-        if (chatView !== "chat" || !conversationId) return;
-        const id = window.setInterval(() => {
-            setChatView("rating");
-        }, RATING_TEST_INTERVAL_MS);
-        return () => window.clearInterval(id);
-    }, [conversationId, chatView]);
+        setRatingSnoozeUntil(null);
+    }, [conversationId]);
+
+    useEffect(() => {
+        if (ratingSnoozeUntil == null) return;
+        const delay = ratingSnoozeUntil - Date.now();
+        if (delay <= 0) {
+            setRatingSnoozeUntil(null);
+            return;
+        }
+        const id = window.setTimeout(() => setRatingSnoozeUntil(null), delay);
+        return () => window.clearTimeout(id);
+    }, [ratingSnoozeUntil]);
 
     useEffect(() => {
         if (isFetchingNextPage) return;
@@ -689,6 +705,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     setRating(0);
                     setRatingComment("");
                     setHoverRating(0);
+                    setRatingSnoozeUntil(null);
                     queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
                     queryClient.invalidateQueries({ queryKey: ["botChat", "messages", conversationId] });
                 },
@@ -1098,13 +1115,13 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                                     className="w-full bg-gray-50/80 rounded-lg border border-gray-200 px-2.5 py-2 text-xs text-gray-800 placeholder:text-gray-400 outline-none resize-none mb-3 focus:border-[#395A7D] focus:bg-white transition-colors"
                                 />
 
-                                <div className="flex justify-start" dir="ltr">
+                                <div className="flex justify-center w-full">
                                     <button
                                         type="button"
                                         onClick={handleSubmitRating}
                                         disabled={rating === 0 || submitRatingMutation.isPending}
                                         className={cn(
-                                            "min-w-[100px] px-4 py-2 rounded-lg text-xs font-semibold text-white transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
+                                            "min-w-[120px] px-4 py-2 rounded-lg text-xs font-semibold text-white transition-opacity cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
                                             rating > 0 ? "bg-[#1e3a5f] hover:bg-[#152a45]" : "bg-gray-300"
                                         )}
                                     >
@@ -1123,6 +1140,9 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                                         setRating(0);
                                         setRatingComment("");
                                         setHoverRating(0);
+                                        if (conversationId && needsRatingFromServer) {
+                                            setRatingSnoozeUntil(Date.now() + RATING_PROMPT_SNOOZE_MS);
+                                        }
                                         setViewingConvId(null);
                                         setViewingConversation(null);
                                         queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
