@@ -93,7 +93,10 @@ export default function FavoritesContent({
         )
         : favoritesList;
 
-    const visibleFavorites = filteredFavorites.filter((item) => item.favs != null);
+    const visibleFavorites = filteredFavorites.filter(
+        (item): item is FavoriteItem & { favs: NonNullable<FavoriteItem["favs"]> } =>
+            item.favs != null
+    );
 
     // Handle list badge click
     const handleListClick = (listId: number | null) => {

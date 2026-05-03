@@ -254,8 +254,8 @@ function HistoryTab({ onSelectConversation }: { onSelectConversation: (conv: Con
                                 )}
                             >
                                 {statusBadge.label}
-                            </span>
-                        </div>
+                                </span>
+                            </div>
                         {/* يسار الصف (نهاية RTL): الوقت النسبي */}
                         <span className="text-[11px] text-gray-400 shrink-0 pt-0.5 w-[78px] text-left tabular-nums leading-snug">
                             {conv.last_message_at ? getRelativeTimeArabic(conv.last_message_at) : ""}
@@ -365,16 +365,16 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
     const handleNewMessage = useCallback(
         (data: Record<string, unknown>) => {
-            const msg = (data.message || data) as ConversationMessage;
-            if (!msg?.id) return;
-            if (msg.sender_type === "user") return;
+        const msg = (data.message || data) as ConversationMessage;
+        if (!msg?.id) return;
+        if (msg.sender_type === "user") return;
             setAwaitingBotReply(false);
             setAwaitingAfterUserMsgId(null);
             stickToBottomRef.current = true;
-            setRealtimeMessages((prev) => {
-                if (prev.some((m) => m.id === msg.id)) return prev;
-                return [...prev, msg];
-            });
+        setRealtimeMessages((prev) => {
+            if (prev.some((m) => m.id === msg.id)) return prev;
+            return [...prev, msg];
+        });
             queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
             queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
         },
@@ -392,8 +392,8 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
     const handleStateChanged = useCallback(
         (data?: Record<string, unknown>) => {
-            queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
-            queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
+        queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
+        queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
             const rawId = data?.conversation_id;
             const msgConvId = typeof rawId === "number" ? rawId : typeof rawId === "string" ? Number(rawId) : NaN;
             if (!Number.isNaN(msgConvId)) {
@@ -405,9 +405,9 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
 
     const echoEvents = useMemo(
         () => [
-            { event: ".message.created", callback: handleNewMessage },
-            { event: ".typing.indicator", callback: handleTypingIndicator },
-            { event: ".state.changed", callback: handleStateChanged },
+        { event: ".message.created", callback: handleNewMessage },
+        { event: ".typing.indicator", callback: handleTypingIndicator },
+        { event: ".state.changed", callback: handleStateChanged },
             { event: ".conversation.awaiting_rating", callback: handleStateChanged },
             // Admin resolve broadcasts ConversationResolved as conversation.resolved (not state.changed)
             { event: ".conversation.resolved", callback: handleStateChanged },
@@ -596,7 +596,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     const id = res?.data?.id;
                     if (id) {
                         markWelcomeSeen();
-                        setInputText("");
+        setInputText("");
                         sendMessageMutation.mutate(
                             { conversationId: id, messageText: text },
                             { onSuccess: afterSendSuccess }
@@ -654,13 +654,13 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         setRealtimeMessages([]);
         setChatView("chat");
 
-        startConversation.mutate("web", {
-            onSuccess: () => {
+                    startConversation.mutate("web", {
+                        onSuccess: () => {
                 markWelcomeSeen();
-                setChatView("chat");
-                queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
-                queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
-            },
+                            setChatView("chat");
+                            queryClient.invalidateQueries({ queryKey: ["botChat", "conversations"] });
+                            queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
+                        },
         });
     };
 
@@ -779,7 +779,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                         disabled={busy}
                         className="flex-1 min-w-0 bg-transparent text-sm text-right text-gray-800 placeholder:text-gray-400 outline-none border-none h-12 disabled:opacity-60"
                     />
-                    <button
+            <button
                         type="button"
                         onClick={handleSend}
                         disabled={!inputText.trim() || busy}
@@ -796,11 +796,11 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                             <Loader2 className="w-5 h-5 animate-spin text-[#64748b]" />
                         ) : (
                             <Send className="w-5 h-5 rtl:-rotate-90" strokeWidth={2} />
-                        )}
-                    </button>
+                )}
+            </button>
                 </div>
-            </div>
-        );
+        </div>
+    );
     };
 
     /** الشاشة الأولى: خلفية مسطّحة #f5f9ff بدون دوائر/ظلال تحت الأيقونة كالتصميم */
@@ -822,7 +822,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 <p className="text-sm font-normal text-[#1e3a5f]/85 text-center leading-relaxed max-w-[280px]">
                     كيف يمكنني مساعدتك اليوم؟
                 </p>
-            </div>
+                </div>
             {renderIntroFooterInput()}
         </div>
     );
@@ -836,14 +836,14 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
             className="relative w-full max-w-[300px] rounded-2xl bg-white px-5 pb-5 pt-11 shadow-[0_20px_50px_rgba(0,0,0,0.22)] animate-in zoom-in-95 fade-in duration-200"
             onClick={(e) => e.stopPropagation()}
         >
-            <button
+                        <button
                 type="button"
                 onClick={() => setShowNewConvConfirm(false)}
                 className="absolute left-3 top-3 rounded-full p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
                 aria-label="إغلاق"
             >
                 <X className="w-[18px] h-[18px]" strokeWidth={2} />
-            </button>
+                        </button>
             <h3 id="new-conv-dialog-title" className="text-center text-lg font-bold text-black mb-3">
                 ابدأ محادثة جديدة
             </h3>
@@ -851,7 +851,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                 بعد بدء محادثة جديدة ، ستتمكن من الوصول إلى المحادثات السابقة من سجل الدردشات
             </p>
             <div className="flex gap-3" dir="rtl">
-                <button
+                    <button
                     type="button"
                     onClick={doStartConversation}
                     disabled={startConversation.isPending}
@@ -859,15 +859,15 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     style={{ background: "linear-gradient(135deg, #2c4460 0%, #4a7ab5 100%)" }}
                 >
                     {startConversation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "ابدأ محادثة جديدة"}
-                </button>
-                <button
+                    </button>
+                    <button
                     type="button"
                     onClick={() => setShowNewConvConfirm(false)}
                     disabled={startConversation.isPending}
                     className="flex-1 min-h-[44px] flex items-center justify-center rounded-xl text-sm font-bold bg-[#e8ecf4] text-[#395A7D] hover:bg-[#dde4ee] transition-colors cursor-pointer disabled:opacity-50"
                 >
                     إلغاء
-                </button>
+                    </button>
             </div>
         </div>
     );
@@ -1006,7 +1006,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                             <div className="flex gap-2 items-end flex-row-reverse">
                                 <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shrink-0 border border-gray-100">
                                     <Bot className="w-4 h-4 text-[#4a7ab5]" />
-                                </div>
+                </div>
                                 <div
                                     className="bg-white px-4 py-2.5 rounded-2xl rounded-tl-sm border border-gray-100 flex items-center gap-1.5"
                                     style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
@@ -1016,7 +1016,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                                         <span className="w-1.5 h-1.5 bg-[#94a3b8] rounded-full animate-bounce [animation-delay:150ms]" />
                                         <span className="w-1.5 h-1.5 bg-[#94a3b8] rounded-full animate-bounce [animation-delay:300ms]" />
                                     </span>
-                                </div>
+            </div>
                             </div>
                         </div>
                     )}
@@ -1273,8 +1273,8 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                         <div className="flex items-center justify-end gap-1.5 mt-1">
                             <span className="text-white/85 text-xs">متصل</span>
                             <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
-                        </div>
                     </div>
+                        </div>
                     <div className="w-12 h-12 rounded-full bg-white/20 border border-white/25 flex items-center justify-center shrink-0 overflow-hidden backdrop-blur-[2px]">
                         <img
                             src={CHATBOT_HEADER_SRC}

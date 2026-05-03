@@ -32,6 +32,20 @@ import {
 import { Calendar } from "@/src/components/ui/calendar"; // تأكد من وجود هذا المكون أو قم بتثبيته عبر shadcn
 import { Stepper } from "@/src/components/ui/Stepper";
 
+/** حدود حقول عرض الكوليكشن (cross-sells) — متوافقة مع التحقق في الـ API */
+const OFFER_NAME_MAX_CHARS = 80;
+const OFFER_NAME_MAX_WORDS = 12;
+const OFFER_DESCRIPTION_MAX_CHARS = 300;
+const OFFER_DESCRIPTION_MAX_WORDS = 45;
+/** طول السعر كنص (منع إدخال غير معقول) */
+const DISCOUNT_PRICE_INPUT_MAX_LEN = 14;
+
+function countWordsWhitespace(text: string): number {
+    const t = text.trim();
+    if (!t) return 0;
+    return t.split(/\s+/).filter(Boolean).length;
+}
+
 interface AddProductStep4Props {
     previousData: Step1FormData;
     initialData?: Step4FormData;
@@ -390,7 +404,7 @@ function DiscountModal({
     initialName,
     initialDescription
 }: DiscountModalProps) {
-    const [price, setPrice] = useState<string>(initialPrice ? String(initialPrice) : "");
+    const [price, setPrice] = useState<string>(initialPrice != null && initialPrice !== undefined ? String(initialPrice) : "");
     const [date, setDate] = useState<Date | undefined>(initialDate ? new Date(initialDate) : undefined);
     const [name, setName] = useState<string>(initialName || "");
     const [description, setDescription] = useState<string>(initialDescription || "");
@@ -402,6 +416,15 @@ function DiscountModal({
     }>({});
 
     const totalOriginalPrice = selectedProducts.reduce((sum, p) => sum + Number(p.price), 0);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        setPrice(initialPrice != null && initialPrice !== undefined ? String(initialPrice) : "");
+        setDate(initialDate ? new Date(initialDate) : undefined);
+        setName(initialName || "");
+        setDescription(initialDescription || "");
+        setErrors({});
+    }, [isOpen, initialPrice, initialDate, initialName, initialDescription]);
 
     const handleConfirm = () => {
         const numPrice = Number(price);
@@ -415,11 +438,21 @@ function DiscountModal({
         if (!date) {
             newErrors.date = "يرجى اختيار تاريخ انتهاء الخصم";
         }
-        if (!name.trim()) {
+        const nameTrim = name.trim();
+        const descTrim = description.trim();
+        if (!nameTrim) {
             newErrors.name = "يرجى إدخال اسم العرض";
+        } else if (nameTrim.length > OFFER_NAME_MAX_CHARS) {
+            newErrors.name = `يجب ألا يتجاوز اسم العرض ${OFFER_NAME_MAX_CHARS} حرفًا`;
+        } else if (countWordsWhitespace(nameTrim) > OFFER_NAME_MAX_WORDS) {
+            newErrors.name = `يجب ألا يتجاوز اسم العرض ${OFFER_NAME_MAX_WORDS} كلمة`;
         }
-        if (!description.trim()) {
+        if (!descTrim) {
             newErrors.description = "يرجى إدخال وصف العرض";
+        } else if (descTrim.length > OFFER_DESCRIPTION_MAX_CHARS) {
+            newErrors.description = `يجب ألا يتجاوز وصف العرض ${OFFER_DESCRIPTION_MAX_CHARS} حرفًا`;
+        } else if (countWordsWhitespace(descTrim) > OFFER_DESCRIPTION_MAX_WORDS) {
+            newErrors.description = `يجب ألا يتجاوز وصف العرض ${OFFER_DESCRIPTION_MAX_WORDS} كلمة`;
         }
 
         if (Object.keys(newErrors).length > 0) {
@@ -428,7 +461,7 @@ function DiscountModal({
         }
 
         if (!date) return;
-        onConfirm(numPrice, date, name, description);
+        onConfirm(numPrice, date, nameTrim, descTrim);
     };
 
     return (
@@ -466,13 +499,20 @@ function DiscountModal({
                                 label="السعر المخفض"
                                 required
                                 value={price}
+                                min={0.01}
+                                max={totalOriginalPrice > 0 ? Math.max(0, totalOriginalPrice - 0.01) : undefined}
+                                step="0.01"
                                 onChange={(e) => {
-                                    setPrice(e.target.value);
+                                    let v = e.target.value;
+                                    if (v.length > DISCOUNT_PRICE_INPUT_MAX_LEN) {
+                                        v = v.slice(0, DISCOUNT_PRICE_INPUT_MAX_LEN);
+                                    }
+                                    setPrice(v);
                                     if (errors.price) setErrors({ ...errors, price: undefined });
                                 }}
                                 placeholder="00.00"
                                 error={errors.price}
-                                hint="يجب ان يكون اقل من السعر الاصلي"
+                                hint={`يجب أن يكون أقل من السعر الأصلي (حد أقصى للأرقام: ${DISCOUNT_PRICE_INPUT_MAX_LEN} خانة)`}
                                 className="h-10 px-4 pe-8 font-medium bg-white shadow-none focus:ring-0"
                             />
                             <span className="absolute left-3 top-[48px] -translate-y-1/2 text-gray-1 font-sans text-lg pointer-events-none">₪</span>
@@ -526,9 +566,14 @@ function DiscountModal({
                                 type="text"
                                 label="اسم العرض"
                                 required
+                                maxLength={OFFER_NAME_MAX_CHARS}
+                                showCounter
                                 value={name}
                                 onChange={(e) => {
-                                    const val = e.target.value.replace(/[0-9٠-٩]/g, "");
+                                    let val = e.target.value.replace(/[0-9٠-٩]/g, "");
+                                    if (val.length > OFFER_NAME_MAX_CHARS) {
+                                        val = val.slice(0, OFFER_NAME_MAX_CHARS);
+                                    }
                                     setName(val);
                                     if (errors.name) setErrors({ ...errors, name: undefined });
                                 }}
@@ -537,6 +582,7 @@ function DiscountModal({
                                 }}
                                 placeholder="ادخل اسم العرض (حروف فقط)"
                                 error={errors.name}
+                                hint={`حد أقصى ${OFFER_NAME_MAX_WORDS} كلمات و${OFFER_NAME_MAX_CHARS} حرفًا`}
                                 className="h-10 px-4 font-medium bg-white shadow-none focus:ring-0"
                             />
                         </div>
@@ -544,12 +590,18 @@ function DiscountModal({
                         {/* Description Input */}
                         <div className="space-y-2">
                             <FormInput
-                                type="text"
+                                multiline
+                                rows={4}
                                 label="وصف العرض"
                                 required
+                                maxLength={OFFER_DESCRIPTION_MAX_CHARS}
+                                showCounter
                                 value={description}
                                 onChange={(e) => {
-                                    const val = e.target.value.replace(/[0-9٠-٩]/g, "");
+                                    let val = e.target.value.replace(/[0-9٠-٩]/g, "");
+                                    if (val.length > OFFER_DESCRIPTION_MAX_CHARS) {
+                                        val = val.slice(0, OFFER_DESCRIPTION_MAX_CHARS);
+                                    }
                                     setDescription(val);
                                     if (errors.description) setErrors({ ...errors, description: undefined });
                                 }}
@@ -558,7 +610,8 @@ function DiscountModal({
                                 }}
                                 placeholder="ادخل وصف العرض (حروف فقط)"
                                 error={errors.description}
-                                className="h-10 px-4 font-medium bg-white shadow-none focus:ring-0"
+                                hint={`حد أقصى ${OFFER_DESCRIPTION_MAX_WORDS} كلمة و${OFFER_DESCRIPTION_MAX_CHARS} حرفًا`}
+                                className="min-h-[100px] px-4 py-3 font-medium bg-white shadow-none focus:ring-0 resize-y"
                             />
                         </div>
 

@@ -31,6 +31,9 @@ interface ImageGallerySelectorProps {
     mainImageAllowedMediaTypes?: ("image" | "gallery" | "avatar" | "video")[];
     className?: string;
     required?: boolean;
+    /** نص منطقة الرفع في مركز الوسائط (يُفضَّل توضيح صور/فيديو) */
+    uploadPrimaryText?: string;
+    uploadSecondaryText?: string;
 }
 
 export function ImageGallerySelector({
@@ -55,6 +58,8 @@ export function ImageGallerySelector({
     mainImageAllowedMediaTypes,
     className,
     required,
+    uploadPrimaryText,
+    uploadSecondaryText,
 }: ImageGallerySelectorProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -196,6 +201,19 @@ export function ImageGallerySelector({
 
     const cardHeight = itemHeight + 35;
 
+    const firstSlotImageOnly =
+        items.length === 0 &&
+        mainImageAllowedMediaTypes &&
+        !mainImageAllowedMediaTypes.includes("video");
+
+    const resolvedUploadSecondary =
+        uploadSecondaryText ??
+        (firstSlotImageOnly
+            ? "هذا الموضع للصورة فقط؛ بعد إضافة الغلاف يمكنك فتح الإضافة مجددًا واختيار تبويب الفيديو لرفع فيديو للمعرض."
+            : allowedMediaTypes?.includes("video")
+              ? "صور أو فيديو — اختر التبويب أعلى النافذة ثم ارفع (MP4, WebM, PNG, JPG…)"
+              : "PNG, JPG, WebP, SVG");
+
     return (
         <div className={cn("space-y-3", className)}>
             {(label || subLabel) && (
@@ -336,6 +354,13 @@ export function ImageGallerySelector({
                 multiple={maxFiles > 1}
                 allowedMediaTypes={items.length === 0 && mainImageAllowedMediaTypes ? mainImageAllowedMediaTypes : allowedMediaTypes}
                 selectionLimit={maxFiles - items.length}
+                uploadPrimaryText={
+                    uploadPrimaryText ??
+                    (items.length === 0
+                        ? "أضف أو اسحب صورة (للغلاف)"
+                        : "أضف أو اسحب صورة أو فيديو")
+                }
+                uploadSecondaryText={resolvedUploadSecondary}
             />
         </div>
     );
