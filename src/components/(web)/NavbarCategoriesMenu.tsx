@@ -161,29 +161,31 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
         open &&
         mounted &&
         variant === "mobile" &&
-        createPortal(
-            <>
-                <button
-                    type="button"
-                    aria-label="إغلاق الفئات"
-                    className="fixed inset-0 z-[390] bg-black/15 cursor-default border-0 p-0"
-                    onClick={() => {
-                        cancelClose();
-                        setPinned(false);
-                        setOpen(false);
-                    }}
-                />
-                <div
-                    className="fixed inset-x-3 top-[4.25rem] z-[400] max-h-[min(72vh,calc(100vh-5.5rem))] overflow-hidden rounded-xl border border-gray-200/90 bg-white shadow-xl"
-                    dir="rtl"
-                >
-                    <div className="max-h-[inherit] overflow-x-auto overflow-y-auto overscroll-x-contain overscroll-y-contain px-1 py-1 [-webkit-overflow-scrolling:touch]">
-                        {menuPanel}
-                    </div>
-                </div>
-            </>,
-            portalTarget
-        );
+        portalTarget
+            ? createPortal(
+                  <>
+                      <button
+                          type="button"
+                          aria-label="إغلاق الفئات"
+                          className="fixed inset-0 z-[390] bg-black/15 cursor-default border-0 p-0"
+                          onClick={() => {
+                              cancelClose();
+                              setPinned(false);
+                              setOpen(false);
+                          }}
+                      />
+                      <div
+                          className="fixed inset-x-3 top-[4.25rem] z-[400] max-h-[min(72vh,calc(100vh-5.5rem))] overflow-hidden rounded-xl border border-gray-200/90 bg-white shadow-xl"
+                          dir="rtl"
+                      >
+                          <div className="max-h-[inherit] overflow-x-auto overflow-y-auto overscroll-x-contain overscroll-y-contain px-1 py-1 [-webkit-overflow-scrolling:touch]">
+                              {menuPanel}
+                          </div>
+                      </div>
+                  </>,
+                  portalTarget
+              )
+            : null;
 
     const triggerDesktop = (
         <button
