@@ -3,7 +3,7 @@
 import { Suspense, useState, useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import { ChevronDown, LayoutGrid } from "lucide-react";
+import { Menu, Plus } from "lucide-react";
 import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
 import {
@@ -19,22 +19,14 @@ interface NavbarCategoriesMenuProps {
     variant: "desktop" | "mobile";
 }
 
-/** يحجز عرض الزر أثناء تعليق Suspense حتى لا يظهر فراغ أو قفزة بجانب الشعار */
+/** يحجز مساحة بجانب الشعار أثناء Suspense */
 function CategoriesMenuPlaceholder({ variant }: { variant: "desktop" | "mobile" }) {
     if (variant === "mobile") {
         return (
-            <span
-                className="inline-block h-9 w-9 shrink-0 rounded-xl bg-[#3D5E83]/8"
-                aria-hidden
-            />
+            <span className="inline-flex h-8 min-w-[5rem] shrink-0 items-center" aria-hidden />
         );
     }
-    return (
-        <span
-            className="inline-flex h-9 w-[7.5rem] shrink-0 items-center rounded-xl bg-[#3D5E83]/8"
-            aria-hidden
-        />
-    );
+    return <span className="inline-flex h-8 min-w-[6.5rem] shrink-0 items-center" aria-hidden />;
 }
 
 const HOVER_CLOSE_MS = 240;
@@ -93,7 +85,6 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
     const validCategoryId =
         categoryId != null && !Number.isNaN(categoryId) ? categoryId : undefined;
 
-    /** شجرتا منتجات وخدمات معًا للقائمة المنسدلة — نفس واجهات البحث الحالية بدون تعديل باكند */
     const { data: productsPageData } = useProductsSearchPage(true);
     const { data: servicesPageData } = useServicesSearchPage(true);
 
@@ -129,57 +120,63 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
 
     if (isSearchPage && urlType === "users") return null;
 
-    const overlay =
+    const menuPanel = (
+        <CategoryMegaMenuContent
+            productCategories={productCategories}
+            serviceCategories={serviceCategories}
+            selectedId={selectedForMenu}
+            selectedSearchType={selectedSearchTypeForMenu}
+            onSelect={navigateWithCategory}
+            embedded
+            layout={variant === "mobile" ? "mobile" : "desktop"}
+        />
+    );
+
+    /** سطح المكتب: أعمدة فقط تحت الزر — بدون شريط بعرض الشاشة */
+    const desktopDropdown =
         open &&
         mounted &&
+        variant === "desktop" && (
+            <div
+                className="absolute right-0 top-full z-[400] overflow-visible pt-2"
+                dir="rtl"
+                onMouseEnter={() => {
+                    cancelClose();
+                    setOpen(true);
+                }}
+                onMouseLeave={scheduleClose}
+            >
+                <div className="relative w-max max-w-[calc(100vw-2rem)] overflow-visible">
+                    <div className="overflow-x-auto overscroll-x-contain [-ms-overflow-style:auto] [scrollbar-gutter:stable]">
+                        <div className="relative inline-block min-w-min pt-0.5">{menuPanel}</div>
+                    </div>
+                </div>
+            </div>
+        );
+
+    /** الجوال: لوحة بعرض المحتوى فقط، لا شريطًا يغطي الصفحة */
+    const mobileOverlay =
+        open &&
+        mounted &&
+        variant === "mobile" &&
         createPortal(
             <>
-                {variant === "mobile" && (
-                    <button
-                        type="button"
-                        aria-label="إغلاق الفئات"
-                        className="fixed inset-0 z-[200] bg-black/20 cursor-default border-0 p-0"
-                        onClick={() => {
-                            cancelClose();
-                            setPinned(false);
-                            setOpen(false);
-                        }}
-                    />
-                )}
+                <button
+                    type="button"
+                    aria-label="إغلاق الفئات"
+                    className="fixed inset-0 z-[390] bg-black/15 cursor-default border-0 p-0"
+                    onClick={() => {
+                        cancelClose();
+                        setPinned(false);
+                        setOpen(false);
+                    }}
+                />
                 <div
-                    className={cn(
-                        "fixed left-0 right-0 z-[205] overflow-visible",
-                        "rounded-b-2xl border-x border-b border-gray-200/80 bg-white",
-                        "shadow-[0_18px_48px_-12px_rgba(15,23,42,0.25)]",
-                        "top-[60px] min-[1100px]:top-[73px]",
-                        "max-h-[min(80vh,calc(100dvh-56px))] min-[1100px]:max-h-[min(80vh,calc(100dvh-72px))]",
-                        variant === "desktop" && "-mt-1.5 pt-1.5"
-                    )}
+                    className="fixed inset-x-3 top-[4.25rem] z-[400] max-h-[min(72vh,calc(100dvh-5.5rem))] overflow-hidden rounded-xl border border-gray-200/90 bg-white shadow-xl"
                     dir="rtl"
-                    onMouseEnter={
-                        variant === "desktop"
-                            ? () => {
-                                  cancelClose();
-                                  setOpen(true);
-                              }
-                            : undefined
-                    }
-                    onMouseLeave={variant === "desktop" ? scheduleClose : undefined}
                 >
-                    {/* مثلث ربط بصري مع زر الفئات (يمكن ضبط الموضع حسب عرض الشاشة) */}
-                    <div
-                        className="pointer-events-none absolute -top-2 start-[max(1rem,calc(50%-28rem))] z-[1] h-3 w-3 rotate-45 border-s border-t border-gray-200/80 bg-white"
-                        aria-hidden
-                    />
-                    <div className="relative z-0 max-h-[inherit] w-full overflow-y-auto py-1.5 sm:py-2">
-                        <CategoryMegaMenuContent
-                            productCategories={productCategories}
-                            serviceCategories={serviceCategories}
-                            selectedId={selectedForMenu}
-                            selectedSearchType={selectedSearchTypeForMenu}
-                            onSelect={navigateWithCategory}
-                            embedded
-                        />
+                    <div className="max-h-[inherit] overflow-x-auto overflow-y-auto overscroll-x-contain overscroll-y-contain px-1 py-1 [-webkit-overflow-scrolling:touch]">
+                        {menuPanel}
                     </div>
                 </div>
             </>,
@@ -210,22 +207,14 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
             aria-pressed={pinned}
             title={pinned ? "إلغاء التثبيت وإغلاق القائمة" : "تثبيت القائمة مفتوحة"}
             className={cn(
-                "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium",
-                "text-[#3D5E83] bg-[#3D5E83]/6 hover:bg-[#3D5E83]/12 transition-colors cursor-pointer shrink-0",
-                "border border-transparent",
-                open && "bg-[#3D5E83]/14 ring-1 ring-[#3D5E83]/25",
-                pinned && open && "ring-2 ring-[#3D5E83]/35"
+                "inline-flex items-center gap-2 shrink-0 border-0 bg-transparent p-0 shadow-none",
+                "text-sm font-medium text-gray-800 cursor-pointer",
+                "hover:text-[#3D5E83] transition-colors",
+                open && "text-[#3D5E83]"
             )}
         >
-            <LayoutGrid className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
-            <span className="whitespace-nowrap">الفئات</span>
-            <ChevronDown
-                className={cn(
-                    "h-4 w-4 shrink-0 opacity-70 transition-transform duration-200",
-                    open && "rotate-180"
-                )}
-                aria-hidden
-            />
+            <Menu className="h-[18px] w-[18px] shrink-0 text-current" strokeWidth={2} aria-hidden />
+            <span className="whitespace-nowrap">كل الفئات</span>
         </button>
     );
 
@@ -238,20 +227,35 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
             }}
             aria-expanded={open}
             aria-haspopup="dialog"
-            aria-label="تصفح الفئات"
+            aria-label="الفئات"
             className={cn(
-                "rounded-xl p-2 text-[#3D5E83] bg-[#3D5E83]/6 hover:bg-[#3D5E83]/12 transition-colors cursor-pointer",
-                open && "bg-[#3D5E83]/14 ring-1 ring-[#3D5E83]/20"
+                "inline-flex shrink-0 items-center gap-1 rounded-md bg-transparent px-1 py-1 text-gray-800 border-0 shadow-none",
+                "hover:text-[#3D5E83] transition-colors cursor-pointer",
+                open && "text-[#3D5E83]"
             )}
         >
-            <LayoutGrid className="h-5 w-5" />
+            <span className="text-sm font-medium whitespace-nowrap">الفئات</span>
+            <Plus
+                className={cn("h-[18px] w-[18px] shrink-0 transition-transform", open && "rotate-45")}
+                strokeWidth={2}
+                aria-hidden
+            />
         </button>
     );
 
+    if (variant === "desktop") {
+        return (
+            <div className="relative inline-flex shrink-0 items-center overflow-visible">
+                {triggerDesktop}
+                {desktopDropdown}
+            </div>
+        );
+    }
+
     return (
         <>
-            {variant === "desktop" ? triggerDesktop : triggerMobile}
-            {overlay}
+            {triggerMobile}
+            {mobileOverlay}
         </>
     );
 }

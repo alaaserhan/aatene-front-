@@ -65,7 +65,7 @@ export default function MobileNav() {
   return (
     <div className="relative z-[280] min-[1100px]:hidden w-full">
       <div className="flex items-center justify-between px-4 py-3 w-full gap-2">
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex shrink-0 items-center">
           <button
             className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
             onClick={toggleMobileMenu}
@@ -73,24 +73,26 @@ export default function MobileNav() {
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-          <NavbarCategoriesMenu variant="mobile" />
         </div>
 
-        <Link href={`/${lang}`} className="shrink-0">
+        <Link href={`/${lang}`} className="shrink-0 min-w-0 max-[45%]">
           {settings?.logo_url ? (
-            <img src={settings.logo_url} className="h-8 w-auto object-contain" alt={settings?.name || "logo"} />
+            <img src={settings.logo_url} className="h-8 w-auto max-h-8 object-contain mx-auto" alt={settings?.name || "logo"} />
           ) : (
-            <img src="/black.svg" className="h-8" alt="logo" />
+            <img src="/black.svg" className="h-8 mx-auto" alt="logo" />
           )}
         </Link>
 
-        <button
-          className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
-          onClick={toggleMobileSearch}
-          aria-label={mobileSearchOpen ? "إغلاق البحث" : "فتح البحث"}
-        >
-          <Search size={24} />
-        </button>
+        <div className="flex shrink-0 items-center gap-0.5">
+          <NavbarCategoriesMenu variant="mobile" />
+          <button
+            className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
+            onClick={toggleMobileSearch}
+            aria-label={mobileSearchOpen ? "إغلاق البحث" : "فتح البحث"}
+          >
+            <Search size={24} />
+          </button>
+        </div>
       </div>
 
       <AnimatePresence>

@@ -28,35 +28,35 @@ const Navbar = () => {
       {/* Desktop Navigation */}
       <div className="hidden min-[1100px]:block container my-2">
         <div className="flex items-center justify-between gap-6">
-          <div className="flex items-center gap-2 shrink-0">
-            <Link href={`/${lang}`} className="flex items-center gap-4">
-              {settings?.logo_url ? (
-                <Image 
-                  src={settings.logo_url} 
-                  className="h-10 w-auto object-contain" 
-                  alt={settings?.name || "logo"} 
-                  width={150}
-                  height={40}
-                  priority
-                />
-              ) : (
-                <Image 
-                  src="/black.svg" 
-                  className="h-10 w-auto object-contain" 
-                  alt="logo" 
-                  width={150}
-                  height={40}
-                  priority
-                />
-              )}
-            </Link>
-            <NavbarCategoriesMenu variant="desktop" />
-          </div>
+          <Link href={`/${lang}`} className="flex shrink-0 items-center gap-4 overflow-visible">
+            {settings?.logo_url ? (
+              <Image 
+                src={settings.logo_url} 
+                className="h-10 w-auto object-contain" 
+                alt={settings?.name || "logo"} 
+                width={150}
+                height={40}
+                priority
+              />
+            ) : (
+              <Image 
+                src="/black.svg" 
+                className="h-10 w-auto object-contain" 
+                alt="logo" 
+                width={150}
+                height={40}
+                priority
+              />
+            )}
+          </Link>
 
-          <div className="flex-1 max-w-2xl">
-            <Suspense fallback={<div className="h-10 w-full rounded-xl bg-gray-100/90 animate-pulse" aria-hidden />}>
-              <SearchBar currentLocale={lang} />
-            </Suspense>
+          <div className="flex min-w-0 flex-1 items-center gap-4 overflow-visible">
+            <NavbarCategoriesMenu variant="desktop" />
+            <div className="min-w-0 flex-1 max-w-2xl">
+              <Suspense fallback={<div className="h-10 w-full rounded-xl bg-gray-100/90 animate-pulse" aria-hidden />}>
+                <SearchBar currentLocale={lang} />
+              </Suspense>
+            </div>
           </div>
 
           <div className="flex items-center gap-4 lg:gap-6">
