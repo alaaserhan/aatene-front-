@@ -70,26 +70,33 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const [activeFilter, setActiveFilter] = useState("all");
     const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
     const [isCreatingFromUrl, setIsCreatingFromUrl] = useState(false);
+    /** يمنع «فراغ» التحديد بين النقر واكتمال تحديث الـ URL أو القائمة */
+    const [pendingConversation, setPendingConversation] = useState<Conversation | null>(null);
 
     const allConversations = useMemo(() => data?.conversations || [], [data]);
 
     const selectedConversation = useMemo(() => {
         const chatId = searchParams.get("chat");
-        if (!chatId || allConversations.length === 0) return null;
-        return allConversations.find(c => String(c.id) === chatId) || null;
-    }, [searchParams, allConversations]);
+        if (!chatId) return null;
+        const fromList = allConversations.find((c) => String(c.id) === chatId);
+        if (fromList) return fromList;
+        if (pendingConversation && String(pendingConversation.id) === chatId) return pendingConversation;
+        return null;
+    }, [searchParams, allConversations, pendingConversation]);
 
     const handleSelectConversation = useCallback((conversation: Conversation) => {
+        setPendingConversation(conversation);
         const params = new URLSearchParams(searchParams.toString());
         params.delete("type");
         params.delete("id");
         params.delete("serviceId");
         params.delete("productId");
         params.set("chat", String(conversation.id));
-        router.push(`${pathname}?${params.toString()}`);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }, [searchParams, pathname, router]);
 
     const handleCloseChat = useCallback(() => {
+        setPendingConversation(null);
         const params = new URLSearchParams(searchParams.toString());
         params.delete("type");
         params.delete("id");
@@ -98,8 +105,20 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         if (params.get("chat")) {
             params.delete("chat");
         }
-        router.push(`${pathname}?${params.toString()}`);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }, [searchParams, pathname, router]);
+
+    useEffect(() => {
+        const chatId = searchParams.get("chat");
+        if (!chatId || !pendingConversation) return;
+        if (String(pendingConversation.id) !== chatId) return;
+        const fromList = allConversations.find((c) => String(c.id) === chatId);
+        if (fromList) setPendingConversation(null);
+    }, [searchParams, allConversations, pendingConversation]);
+
+    useEffect(() => {
+        if (!searchParams.get("chat")) setPendingConversation(null);
+    }, [searchParams]);
 
     const handleFilterChange = useCallback((filter: string) => {
         setActiveFilter(filter);
@@ -385,7 +404,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     </div>
                     <ConversationListSidebar
                         conversations={filteredConversations}
-                        isLoading={isLoading}
+                        isLoading={!data && isLoading}
                         isError={isError}
                         selectedConversationId={selectedConversation?.id || null}
                         onSelectConversation={handleSelectConversation}
