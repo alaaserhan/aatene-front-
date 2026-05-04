@@ -88,18 +88,15 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             const nextPath = qs ? `${pathname}?${qs}` : pathname;
             const cid = params.get("chat");
             setClientChatParam(cid);
-            console.log("[chat-debug] applyChatUrlParams", { nextPath, cidFromParams: cid });
             router.replace(nextPath, { scroll: false });
             if (typeof window !== "undefined") {
-                try {
-                    window.history.replaceState(window.history.state, "", nextPath);
-                    console.log("[chat-debug] history-replaceState-ok", {
-                        nextPath,
-                        href: window.location.pathname + window.location.search,
-                    });
-                } catch (e) {
-                    console.warn("[chat-debug] history-replaceState-error", e);
-                }
+                requestAnimationFrame(() => {
+                    try {
+                        window.history.replaceState(window.history.state, "", nextPath);
+                    } catch {
+                        /* ignore */
+                    }
+                });
             }
         },
         [pathname, router]
@@ -114,21 +111,9 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
 
     const handleSelectConversation = useCallback((conversation: Conversation) => {
         if (activeConversation?.id === conversation.id) {
-            console.log("[chat-debug] sidebar-click-already-active-skip", {
-                activeId: activeConversation.id,
-                conversationId: conversation.id,
-            });
             return;
         }
 
-        console.log("[chat-debug] sidebar-click", {
-            chatParamNext: searchParams.get("chat"),
-            effectiveChatParam,
-            clientChatParam,
-            toConversationId: conversation.id,
-            toConversationName: conversation.name,
-            pathname,
-        });
         setPendingConversation(conversation);
         const params = new URLSearchParams(searchParams.toString());
         params.delete("type");
@@ -137,7 +122,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         params.delete("productId");
         params.set("chat", String(conversation.id));
         applyChatUrlParams(params);
-    }, [searchParams, pathname, activeConversation, applyChatUrlParams, effectiveChatParam, clientChatParam]);
+    }, [searchParams, activeConversation, applyChatUrlParams]);
 
     useEffect(() => {
         const sp = searchParams.get("chat");
@@ -150,43 +135,10 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         if (typeof window === "undefined") return;
         const onPop = () => {
             setClientChatParam(null);
-            console.log("[chat-debug] popstate-clear-clientChatParam");
         };
         window.addEventListener("popstate", onPop);
         return () => window.removeEventListener("popstate", onPop);
     }, []);
-
-    useEffect(() => {
-        const chatParamNext = searchParams.get("chat");
-        console.log("[chat-debug] url-chat-param-changed", {
-            chatParamNext,
-            effectiveChatParam,
-            clientChatParam,
-            locationSearch:
-                typeof window !== "undefined" ? window.location.search : null,
-            selectedConversationId: selectedConversation?.id ?? null,
-            pendingConversationId: pendingConversation?.id ?? null,
-            activeConversationId: activeConversation?.id ?? null,
-            conversationsLoaded: allConversations.length,
-        });
-    }, [
-        searchParams,
-        effectiveChatParam,
-        clientChatParam,
-        selectedConversation,
-        pendingConversation,
-        activeConversation,
-        allConversations.length,
-    ]);
-
-    useEffect(() => {
-        console.log("[chat-debug] active-conversation-changed", {
-            activeConversationId: activeConversation?.id ?? null,
-            activeConversationName: activeConversation?.name ?? null,
-            selectedConversationId: selectedConversation?.id ?? null,
-            pendingConversationId: pendingConversation?.id ?? null,
-        });
-    }, [activeConversation, selectedConversation, pendingConversation]);
 
     const handleCloseChat = useCallback(() => {
         setPendingConversation(null);
