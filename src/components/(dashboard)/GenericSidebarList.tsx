@@ -79,7 +79,7 @@ export function GenericSidebarList<T extends { id: number | string }>({
   return (
     <div
       className={cn(
-        "bg-white rounded-lg max-h-[calc(100vh-193px)] h-full border border-gray-200 flex flex-col overflow-hidden",
+        "bg-white rounded-lg max-h-[calc(100vh-193px)] h-full min-h-0 border border-gray-200 flex flex-col overflow-hidden",
         className
       )}
     >
@@ -116,7 +116,7 @@ export function GenericSidebarList<T extends { id: number | string }>({
 
       {extraHeaderContent}
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y">
         {isLoading ? (
           <div className="flex items-center justify-center h-full min-h-[300px]">
             <Loader2 className="w-6 h-6 animate-spin text-gray-2" />
