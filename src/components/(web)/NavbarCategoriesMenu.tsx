@@ -102,7 +102,7 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
     const selectedSearchTypeForMenu: "products" | "services" | undefined =
         urlType === "services"
             ? "services"
-            : urlType === "products"
+            : urlType === "products" || urlType === "users"
               ? "products"
               : undefined;
 
@@ -112,7 +112,12 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
         (id: number, searchType: "products" | "services") => {
             if (isSearchPage) {
                 const p = new URLSearchParams(searchParams.toString());
-                p.set("type", searchType);
+                const currentType = searchParams.get("type") || "products";
+                if (currentType === "users" || currentType === "stores") {
+                    p.set("type", currentType);
+                } else {
+                    p.set("type", searchType);
+                }
                 p.set("category_id", String(id));
                 p.set("page", "1");
                 router.push(`${pathname}?${p.toString()}`, { scroll: false });
@@ -125,8 +130,6 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
         },
         [isSearchPage, searchParams, router, pathname, lang]
     );
-
-    if (isSearchPage && urlType === "users") return null;
 
     const menuPanel = (
         <CategoryMegaMenuContent

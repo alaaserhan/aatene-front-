@@ -81,6 +81,10 @@ function SearchContent({ type }: { type: SearchType }) {
 
     // Fetch filter options based on type
     const { data: productsPageData } = useProductsSearchPage(type === "products", filters.category_id);
+    const { data: usersCategoriesPageData } = useProductsSearchPage(
+        type === "users",
+        filters.category_id
+    );
     const { data: servicesPageData } = useServicesSearchPage(type === "services", filters.category_id);
     const { data: storesPageData } = useStoresSearchPage(type === "stores", filters.category_id);
     const { data: usersPageData } = useUsersSearchPage(type === "users", filters.category_id);
@@ -119,7 +123,14 @@ function SearchContent({ type }: { type: SearchType }) {
             default:
                 return { categories: [], cities: [], tags: [], attributes: [] };
         }
-    }, [type, productsPageData, servicesPageData, storesPageData, usersPageData]);
+    }, [
+        type,
+        productsPageData,
+        usersCategoriesPageData,
+        servicesPageData,
+        storesPageData,
+        usersPageData,
+    ]);
 
     // Update URL helper
     const updateUrl = (newFilters: FilterState) => {
