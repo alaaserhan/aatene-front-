@@ -64,9 +64,10 @@ function isBypassPath(pathname: string) {
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. "Coming Soon" and Bypass Logic
+  // 1. "Coming Soon" and Bypass Logic 
   const comingSoonEnv = process.env.COMING_SOON_ENABLED;
   // const comingSoonEnabled = comingSoonEnv ? comingSoonEnv === "true" : true;
+  // test
   const comingSoonEnabled = comingSoonEnv === "true";
 
   if (comingSoonEnabled && !isBypassPath(pathname)) {
