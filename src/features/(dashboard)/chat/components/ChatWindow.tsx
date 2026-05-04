@@ -81,14 +81,11 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         !(String(conversation.who_blocked.id) === String(currentParticipantId) &&
             conversation.who_blocked.type === currentParticipantType);
 
-    const [currentConvId, setCurrentConvId] = useState(conversation.id);
-
-    if (conversation.id !== currentConvId) {
+    useEffect(() => {
         setPendingMessages([]);
         setNewMessage("");
         setSelectedFiles([]);
-        setCurrentConvId(conversation.id);
-    }
+    }, [conversation.id]);
 
     useEffect(() => {
         if (scrollAreaRef.current) {
