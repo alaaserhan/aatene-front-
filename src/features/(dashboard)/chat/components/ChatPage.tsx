@@ -72,33 +72,59 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const [isCreatingFromUrl, setIsCreatingFromUrl] = useState(false);
     /** يمنع «فراغ» التحديد بين النقر واكتمال تحديث الـ URL أو القائمة */
     const [pendingConversation, setPendingConversation] = useState<Conversation | null>(null);
+    /**
+     * Next.js أحيانًا لا يحدّث useSearchParams بعد router.replace بينما شريط العنوان يجب أن يطابق المحادثة.
+     * نضبط query المحادثة هنا ونزامن history.replaceState حتى يبقى الرابط والواجهة متطابقين.
+     */
+    const [clientChatParam, setClientChatParam] = useState<string | null>(null);
 
     const allConversations = useMemo(() => data?.conversations || [], [data]);
 
+    const effectiveChatParam = clientChatParam ?? searchParams.get("chat");
+
+    const applyChatUrlParams = useCallback(
+        (params: URLSearchParams) => {
+            const qs = params.toString();
+            const nextPath = qs ? `${pathname}?${qs}` : pathname;
+            const cid = params.get("chat");
+            setClientChatParam(cid);
+            console.log("[chat-debug] applyChatUrlParams", { nextPath, cidFromParams: cid });
+            router.replace(nextPath, { scroll: false });
+            if (typeof window !== "undefined") {
+                try {
+                    window.history.replaceState(window.history.state, "", nextPath);
+                    console.log("[chat-debug] history-replaceState-ok", {
+                        nextPath,
+                        href: window.location.pathname + window.location.search,
+                    });
+                } catch (e) {
+                    console.warn("[chat-debug] history-replaceState-error", e);
+                }
+            }
+        },
+        [pathname, router]
+    );
+
     const selectedConversation = useMemo(() => {
-        const chatId = searchParams.get("chat");
+        const chatId = effectiveChatParam;
         if (!chatId || allConversations.length === 0) return null;
         return allConversations.find(c => String(c.id) === chatId) || null;
-    }, [searchParams, allConversations]);
+    }, [effectiveChatParam, allConversations]);
     const activeConversation = pendingConversation ?? selectedConversation;
 
     const handleSelectConversation = useCallback((conversation: Conversation) => {
-        const urlChat = searchParams.get("chat");
-        const urlMatches = urlChat != null && String(urlChat) === String(conversation.id);
-        const pendingMatches =
-            pendingConversation != null &&
-            String(pendingConversation.id) === String(conversation.id);
-        if (urlMatches && (!pendingConversation || pendingMatches)) {
+        if (activeConversation?.id === conversation.id) {
             console.log("[chat-debug] sidebar-click-already-active-skip", {
-                urlChat,
+                activeId: activeConversation.id,
                 conversationId: conversation.id,
-                pendingId: pendingConversation?.id ?? null,
             });
             return;
         }
 
         console.log("[chat-debug] sidebar-click", {
-            fromChatParam: urlChat,
+            chatParamNext: searchParams.get("chat"),
+            effectiveChatParam,
+            clientChatParam,
             toConversationId: conversation.id,
             toConversationName: conversation.name,
             pathname,
@@ -110,22 +136,48 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         params.delete("serviceId");
         params.delete("productId");
         params.set("chat", String(conversation.id));
-        const qs = params.toString();
-        const nextPath = qs ? `${pathname}?${qs}` : pathname;
-        console.log("[chat-debug] router-replace-next-url", { nextPath });
-        router.replace(nextPath, { scroll: false });
-    }, [searchParams, pathname, router, pendingConversation]);
+        applyChatUrlParams(params);
+    }, [searchParams, pathname, activeConversation, applyChatUrlParams, effectiveChatParam, clientChatParam]);
 
     useEffect(() => {
-        const chatParam = searchParams.get("chat");
+        const sp = searchParams.get("chat");
+        if (clientChatParam != null && sp === clientChatParam) {
+            setClientChatParam(null);
+        }
+    }, [searchParams, clientChatParam]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const onPop = () => {
+            setClientChatParam(null);
+            console.log("[chat-debug] popstate-clear-clientChatParam");
+        };
+        window.addEventListener("popstate", onPop);
+        return () => window.removeEventListener("popstate", onPop);
+    }, []);
+
+    useEffect(() => {
+        const chatParamNext = searchParams.get("chat");
         console.log("[chat-debug] url-chat-param-changed", {
-            chatParam,
+            chatParamNext,
+            effectiveChatParam,
+            clientChatParam,
+            locationSearch:
+                typeof window !== "undefined" ? window.location.search : null,
             selectedConversationId: selectedConversation?.id ?? null,
             pendingConversationId: pendingConversation?.id ?? null,
             activeConversationId: activeConversation?.id ?? null,
             conversationsLoaded: allConversations.length,
         });
-    }, [searchParams, selectedConversation, pendingConversation, activeConversation, allConversations.length]);
+    }, [
+        searchParams,
+        effectiveChatParam,
+        clientChatParam,
+        selectedConversation,
+        pendingConversation,
+        activeConversation,
+        allConversations.length,
+    ]);
 
     useEffect(() => {
         console.log("[chat-debug] active-conversation-changed", {
@@ -146,21 +198,20 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         if (params.get("chat")) {
             params.delete("chat");
         }
-        const qs = params.toString();
-        router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    }, [searchParams, pathname, router]);
+        applyChatUrlParams(params);
+    }, [searchParams, applyChatUrlParams]);
 
     useEffect(() => {
-        const chatId = searchParams.get("chat");
+        const chatId = effectiveChatParam;
         if (!chatId || !pendingConversation) return;
         if (String(pendingConversation.id) !== chatId) return;
         const fromList = allConversations.find((c) => String(c.id) === chatId);
         if (fromList) setPendingConversation(null);
-    }, [searchParams, allConversations, pendingConversation]);
+    }, [effectiveChatParam, allConversations, pendingConversation]);
 
     useEffect(() => {
-        if (!searchParams.get("chat")) setPendingConversation(null);
-    }, [searchParams]);
+        if (!effectiveChatParam) setPendingConversation(null);
+    }, [effectiveChatParam]);
 
     const handleFilterChange = useCallback((filter: string) => {
         setActiveFilter(filter);
@@ -199,7 +250,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     p.delete("serviceId");
                     p.delete("productId");
                     p.set("chat", String(conversationId));
-                    router.replace(`${pathname}?${p.toString()}`, { scroll: false });
+                    applyChatUrlParams(p);
                     queryClient.invalidateQueries({ queryKey: ["conversations"] });
                 }
             });
@@ -291,8 +342,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         selectedConversation,
         queryClient,
         refetch,
-        pathname,
-        router,
+        applyChatUrlParams,
     ]);
 
     useEffect(() => {
