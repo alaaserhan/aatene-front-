@@ -72,16 +72,48 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const [isCreatingFromUrl, setIsCreatingFromUrl] = useState(false);
     /** يمنع «فراغ» التحديد بين النقر واكتمال تحديث الـ URL أو القائمة */
     const [pendingConversation, setPendingConversation] = useState<Conversation | null>(null);
+    /**
+     * Next.js أحيانًا لا يحدّث useSearchParams بعد router.replace بينما شريط العنوان يجب أن يطابق المحادثة.
+     * نضبط query المحادثة هنا ونزامن history.replaceState حتى يبقى الرابط والواجهة متطابقين.
+     */
+    const [clientChatParam, setClientChatParam] = useState<string | null>(null);
 
     const allConversations = useMemo(() => data?.conversations || [], [data]);
 
+    const effectiveChatParam = clientChatParam ?? searchParams.get("chat");
+
+    const applyChatUrlParams = useCallback(
+        (params: URLSearchParams) => {
+            const qs = params.toString();
+            const nextPath = qs ? `${pathname}?${qs}` : pathname;
+            const cid = params.get("chat");
+            setClientChatParam(cid);
+            router.replace(nextPath, { scroll: false });
+            if (typeof window !== "undefined") {
+                requestAnimationFrame(() => {
+                    try {
+                        window.history.replaceState(window.history.state, "", nextPath);
+                    } catch {
+                        /* ignore */
+                    }
+                });
+            }
+        },
+        [pathname, router]
+    );
+
     const selectedConversation = useMemo(() => {
-        const chatId = searchParams.get("chat");
+        const chatId = effectiveChatParam;
         if (!chatId || allConversations.length === 0) return null;
         return allConversations.find(c => String(c.id) === chatId) || null;
-    }, [searchParams, allConversations]);
+    }, [effectiveChatParam, allConversations]);
+    const activeConversation = pendingConversation ?? selectedConversation;
 
     const handleSelectConversation = useCallback((conversation: Conversation) => {
+        if (activeConversation?.id === conversation.id) {
+            return;
+        }
+
         setPendingConversation(conversation);
         const params = new URLSearchParams(searchParams.toString());
         params.delete("type");
@@ -89,8 +121,24 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         params.delete("serviceId");
         params.delete("productId");
         params.set("chat", String(conversation.id));
-        router.push(`${pathname}?${params.toString()}`);
-    }, [searchParams, pathname, router]);
+        applyChatUrlParams(params);
+    }, [searchParams, activeConversation, applyChatUrlParams]);
+
+    useEffect(() => {
+        const sp = searchParams.get("chat");
+        if (clientChatParam != null && sp === clientChatParam) {
+            setClientChatParam(null);
+        }
+    }, [searchParams, clientChatParam]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const onPop = () => {
+            setClientChatParam(null);
+        };
+        window.addEventListener("popstate", onPop);
+        return () => window.removeEventListener("popstate", onPop);
+    }, []);
 
     const handleCloseChat = useCallback(() => {
         setPendingConversation(null);
@@ -102,20 +150,20 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         if (params.get("chat")) {
             params.delete("chat");
         }
-        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    }, [searchParams, pathname, router]);
+        applyChatUrlParams(params);
+    }, [searchParams, applyChatUrlParams]);
 
     useEffect(() => {
-        const chatId = searchParams.get("chat");
+        const chatId = effectiveChatParam;
         if (!chatId || !pendingConversation) return;
         if (String(pendingConversation.id) !== chatId) return;
         const fromList = allConversations.find((c) => String(c.id) === chatId);
         if (fromList) setPendingConversation(null);
-    }, [searchParams, allConversations, pendingConversation]);
+    }, [effectiveChatParam, allConversations, pendingConversation]);
 
     useEffect(() => {
-        if (!searchParams.get("chat")) setPendingConversation(null);
-    }, [searchParams]);
+        if (!effectiveChatParam) setPendingConversation(null);
+    }, [effectiveChatParam]);
 
     const handleFilterChange = useCallback((filter: string) => {
         setActiveFilter(filter);
@@ -154,7 +202,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     p.delete("serviceId");
                     p.delete("productId");
                     p.set("chat", String(conversationId));
-                    router.replace(`${pathname}?${p.toString()}`, { scroll: false });
+                    applyChatUrlParams(p);
                     queryClient.invalidateQueries({ queryKey: ["conversations"] });
                 }
             });
@@ -246,8 +294,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         selectedConversation,
         queryClient,
         refetch,
-        pathname,
-        router,
+        applyChatUrlParams,
     ]);
 
     useEffect(() => {
@@ -356,7 +403,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         conversations: filteredConversations,
         isLoading: !data && isLoading,
         isError,
-        selectedConversationId: selectedConversation?.id ?? null,
+        selectedConversationId: activeConversation?.id ?? null,
         onSelectConversation: handleSelectConversation,
         searchQuery,
         onSearchChange: setSearchQuery,
@@ -406,7 +453,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
               يمنع طبقات DOM تلتقط النقر أو تبقى فوق القائمة.
             */}
             <div className={`md:hidden flex flex-col ${shellHeight} min-h-0 overflow-hidden`}>
-                {!selectedConversation ? (
+                {!activeConversation ? (
                     <div className="flex flex-col flex-1 min-h-0 gap-0">
                         {mobileTypeFilter}
                         <div className="flex-1 min-h-0 flex flex-col relative isolate">
@@ -421,8 +468,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                         className={`flex flex-1 min-h-0 flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0`}
                     >
                         <ChatWindow
-                            key={selectedConversation.id}
-                            conversation={selectedConversation}
+                            key={activeConversation.id}
+                            conversation={activeConversation}
                             onClose={handleCloseChat}
                             context={context}
                         />
@@ -453,10 +500,10 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 </div>
 
                 <div className="flex-1 min-h-0 min-w-0 flex flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0">
-                    {selectedConversation ? (
+                    {activeConversation ? (
                         <ChatWindow
-                            key={selectedConversation.id}
-                            conversation={selectedConversation}
+                            key={activeConversation.id}
+                            conversation={activeConversation}
                             onClose={handleCloseChat}
                             context={context}
                         />
