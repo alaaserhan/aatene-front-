@@ -324,14 +324,45 @@ export const sendMessage = async (payload: SendMessagePayload): Promise<SendMess
     const normalizedMessage = payload.message ?? payload.message_text ?? "";
     const normalizedPlatform = payload.platform;
 
-    // Primary integration for platform conversations from admin messages page.
+    // Platform conversations from admin messages page:
+    // 1) Deliver via webhook.
+    // 2) Persist into ai-support backend so admin dashboard history stays complete.
     if (normalizedPlatform && normalizedMessage) {
-        const { data } = await axios.post<SendMessageResponse>(ADMIN_SEND_MESSAGE_WEBHOOK_URL, {
-            chat_id: payload.chat_id,
-            message_text: normalizedMessage,
-            platform: normalizedPlatform,
-        });
-        return data;
+        let webhookData: unknown = null;
+        let webhookError: unknown = null;
+        try {
+            const { data } = await axios.post(ADMIN_SEND_MESSAGE_WEBHOOK_URL, {
+                chat_id: payload.chat_id,
+                message_text: normalizedMessage,
+                platform: normalizedPlatform,
+            });
+            webhookData = data;
+        } catch (e) {
+            webhookError = e;
+        }
+
+        try {
+            // Keep this write so conversation history in dashboard includes admin messages.
+            const { data } = await api5000Root.post<SendMessageResponse>("/ai-support/send-message", {
+                chat_id: payload.chat_id,
+                platform: normalizedPlatform,
+                message: normalizedMessage,
+            });
+            return data;
+        } catch (persistError) {
+            // If delivery succeeded but persistence failed, don't fail the UI action.
+            if (webhookData) {
+                return {
+                    success: true,
+                    message:
+                        (webhookData as { message?: string })?.message ||
+                        "Workflow was started",
+                    chat_id: String(payload.chat_id),
+                    message_id: 0,
+                };
+            }
+            throw persistError ?? webhookError ?? new Error("Failed to send message");
+        }
     }
 
     // Backward-compatible fallback for older payload consumers.
