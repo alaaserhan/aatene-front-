@@ -15,6 +15,7 @@ export function ChatEmptyState() {
                 // Fallback if image missing
                 e.currentTarget.style.display = 'none';
             }}
+            
          />
 
       </div>
