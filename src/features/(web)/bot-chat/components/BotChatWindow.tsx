@@ -585,6 +585,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
             setAwaitingBotReply(false);
             setAwaitingAfterUserMsgId(null);
         }
+        
     }, [botRepliesEnabled]);
 
     useEffect(() => {
