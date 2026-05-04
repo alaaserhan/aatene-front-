@@ -9,8 +9,7 @@ const PREVIEW_COOKIE = "coming_soon_preview";
 const I18nMiddleware = createI18nMiddleware({
   locales: ["en", "ar", "he"],
   defaultLocale: "ar",
-  // urlMappingStrategy: "rewriteDefault",
-  urlMappingStrategy: "redirect",
+  urlMappingStrategy: "rewriteDefault",
   resolveLocaleFromRequest: () => "ar",
 });
 
@@ -175,7 +174,26 @@ export default function proxy(request: NextRequest) {
     }
   }
 
-  return I18nMiddleware(request);
+  // return I18nMiddleware(request);
+  const i18nResponse = I18nMiddleware(request);
+
+  // منع الـ redirect loop على iOS
+  if (
+    i18nResponse.status === 301 ||
+    i18nResponse.status === 302 ||
+    i18nResponse.status === 307 ||
+    i18nResponse.status === 308
+  ) {
+    const location = i18nResponse.headers.get("location");
+    if (location) {
+      const locationPath = new URL(location, request.url).pathname;
+      if (locationPath === pathname) {
+        return NextResponse.next();
+      }
+    }
+  }
+
+  return i18nResponse;
 }
 
 export const config = {
