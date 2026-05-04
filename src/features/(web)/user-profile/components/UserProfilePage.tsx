@@ -209,7 +209,8 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                         onClick={() => {
                                             if (!authUser) { router.push(`/${lang}/login`); return; }
                                             setIsChatLoading(true);
-                                            router.push(`/chat?type=user&id=${user.id}`);
+                                            router.push(`/${lang}/chat?type=user&id=${user.id}`);
+                                            setIsChatLoading(false);
                                         }}
                                         className="flex items-center min-w-[100px] justify-center cursor-pointer gap-2 border border-[#456A8E] text-[#456A8E] bg-white px-4 md:px-8 py-2 rounded-full font-medium hover:bg-blue-50 transition-colors text-sm flex-1 md:flex-none disabled:opacity-50"
                                     >
