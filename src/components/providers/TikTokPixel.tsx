@@ -3,12 +3,18 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useState } from "react";
+import { isMarketingPixelHostAllowed } from "@/src/lib/marketing-pixels";
 
 export const TikTokPixel = () => {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
+    const [pixelHostOk, setPixelHostOk] = useState(false);
     const [shouldLoad, setShouldLoad] = useState(false);
+
+    useEffect(() => {
+        setPixelHostOk(isMarketingPixelHostAllowed());
+    }, []);
 
     useEffect(() => {
         // ⚡ تأجيل التحميل لحد ما اليوزر يعمل interaction

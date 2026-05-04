@@ -75,8 +75,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
 
     const selectedConversation = useMemo(() => {
         const chatId = searchParams.get("chat");
-        if (!chatId || allConversations.length === 0) return null;
-        return allConversations.find(c => String(c.id) === chatId) || null;
+        if (!chatId) return null;
+        return allConversations.find((c) => String(c.id) === chatId) ?? null;
     }, [searchParams, allConversations]);
 
     const handleSelectConversation = useCallback((conversation: Conversation) => {
@@ -86,7 +86,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         params.delete("serviceId");
         params.delete("productId");
         params.set("chat", String(conversation.id));
-        router.push(`${pathname}?${params.toString()}`);
+        /** `replace` يحدّث الـ query فقط دون دفع history جديد — يقلّل ومض النقر والتعارض مع الرندر */
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }, [searchParams, pathname, router]);
 
     const handleCloseChat = useCallback(() => {
@@ -98,7 +99,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         if (params.get("chat")) {
             params.delete("chat");
         }
-        router.push(`${pathname}?${params.toString()}`);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }, [searchParams, pathname, router]);
 
     const handleFilterChange = useCallback((filter: string) => {
@@ -138,7 +139,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     p.delete("serviceId");
                     p.delete("productId");
                     p.set("chat", String(conversationId));
-                    router.push(`${pathname}?${p.toString()}`);
+                    router.replace(`${pathname}?${p.toString()}`, { scroll: false });
                     queryClient.invalidateQueries({ queryKey: ["conversations"] });
                 }
             });
