@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import {
     Phone,
     Send,
-    Share2,
     CheckCircle2,
     Pen,
     XCircle,
@@ -142,7 +141,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
     const handleFollowClick = () => {
         if (!store?.owner?.id) return;
-        
+
         if (store.owner.am_i_following) {
             unfollowUser(
                 {
@@ -306,15 +305,6 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     {service.title}
                                 </h1>
                                 <div className="flex gap-4 text-gray-2">
-                                    {!isAdmin && (
-                                    <button
-                                        onClick={() => setIsShareModalOpen(true)}
-                                        className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer hover:text-blue-600"
-                                    >
-                                        <Share2 className="w-4 h-4" />
-                                        <span className="text-sm font-medium">مشاركة الخدمة</span>
-                                    </button>
-                                    )}
                                     <button className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer" onClick={() => router.push(`/admin/serviceProviders/services/edit/${serviceId}/${storeId}`)}>
                                         <Pen className="w-4 h-4" />
                                         <span className="text-sm font-medium">تعديل الخدمة</span>
