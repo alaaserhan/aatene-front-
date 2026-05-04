@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { isDuplicateMessage } from "@/src/lib/fcm-dedup";
+import { getNotificationPermission } from "@/src/lib/notification-support";
 
 let notificationAudio: HTMLAudioElement | null = null;
 let audioUnlocked = false;
@@ -45,14 +46,13 @@ const useFCMToken = () => {
         const retrieveToken = async () => {
             try {
                 if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-                    if (Notification.permission === "default") {
-                        // Don't auto-prompt here if we don't want to annoy users.
-                        // But since we removed the prompt, maybe we should just request it?
-                        // Let's just wait for them to click something, or let getFCMToken handle it.
-                    }
-                    
-                    if (Notification.permission !== "granted") {
-                        setNotificationPermissionStatus(Notification.permission);
+                    const permission = getNotificationPermission();
+
+                    // iOS Safari: Notification API غير مدعوم
+                    if (permission === null) return;
+
+                    if (permission !== "granted") {
+                        setNotificationPermissionStatus(permission);
                         return;
                     }
                     setNotificationPermissionStatus("granted");
@@ -77,7 +77,7 @@ const useFCMToken = () => {
     useEffect(() => {
         if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
 
-        if (Notification.permission !== "granted") return;
+        if (getNotificationPermission() !== "granted") return;
 
         let unsubscribe: (() => void) | null = null;
 

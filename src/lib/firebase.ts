@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getMessaging, getToken, deleteToken, isSupported, Messaging } from "firebase/messaging";
 import { getFirestore, Firestore } from "firebase/firestore";
+import { getNotificationPermission, requestNotificationPermission } from "./notification-support";
 // import api from "@/src/lib/axios"; // Removed to avoid lint error until endpoint exists
 
 const firebaseConfig = {
@@ -45,14 +46,22 @@ export const getFCMToken = async () => {
         return null;
     }
 
-    if (Notification.permission === "denied") {
+    const permission = getNotificationPermission();
+
+    // iOS Safari: Notification API غير مدعوم → permission === null
+    if (permission === null) {
+        console.warn("[FCM] Notification API not supported (iOS Safari without PWA)");
+        return null;
+    }
+
+    if (permission === "denied") {
         console.warn("[FCM] Notification permission is denied");
         return null;
     }
 
-    if (Notification.permission === "default") {
+    if (permission === "default") {
         console.log("[FCM] Requesting notification permission...");
-        const perm = await Notification.requestPermission();
+        const perm = await requestNotificationPermission();
         console.log("[FCM] Permission result:", perm);
         if (perm !== "granted") return null;
     }
