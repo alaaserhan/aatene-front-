@@ -81,10 +81,18 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         !(String(conversation.who_blocked.id) === String(currentParticipantId) &&
             conversation.who_blocked.type === currentParticipantType);
 
+    /** إعادة ضبط الحالة المحلية عند تغيير المحادثة — لا يُستدعى setState أثناء الرندر */
     useEffect(() => {
         setPendingMessages([]);
         setNewMessage("");
         setSelectedFiles([]);
+        setShowDeleteModal(false);
+        setShowBlockModal(false);
+        setShowAddMemberModal(false);
+        setShowInfoPanel(false);
+        setMediaViewerState({ isOpen: false, media: [], initialIndex: 0 });
+        setIsDeleted(false);
+        messageIdCounter.current = 0;
     }, [conversation.id]);
 
     useEffect(() => {
@@ -448,8 +456,8 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                 })()}
 
                 {/* Messages Area */}
-                <ScrollArea 
-                    ref={scrollAreaRef} 
+                <ScrollArea
+                    ref={scrollAreaRef}
                     className="flex-1 p-4 bg-auto bg-repeat bg-center bg-[#FAFAFA]"
                     style={{ backgroundImage: "url('/chat frame.svg')" }}
                     dir="rtl"

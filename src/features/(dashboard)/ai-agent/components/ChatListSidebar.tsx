@@ -271,6 +271,7 @@ function StandardChatList({
   selectedChatId,
   onSelectChat,
   needsHuman,
+  
 }: {
   platform: string;
   selectedChatId: string | null;
