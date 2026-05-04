@@ -339,9 +339,11 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         needsRatingFromServer &&
         ratingSnoozeUntil != null &&
         Date.now() < ratingSnoozeUntil;
-    /** تقييم فوري عند انتهاء المحادثة؛ يُؤجَّل 5 دقائق إن ضغط المستخدم «تخطّي لاحقاً» */
+    const alreadyReviewed = displayedConv?.is_reviewed === true;
+    /** تقييم فوري عند انتهاء المحادثة؛ يُؤجَّل 5 دقائق إن ضغط المستخدم «تخطّي لاحقاً». لا يُعاد بعد إتمام التقييم (`is_reviewed`). */
     const shouldPromptRating =
         !!conversationId &&
+        !alreadyReviewed &&
         !isRatingSnoozed &&
         (chatView === "rating" || needsRatingFromServer);
 
@@ -499,11 +501,18 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     useEffect(() => {
         if (RATING_ACTIVE_CHAT_INTERVAL_MS <= 0) return;
         if (!conversationId || !canSendMessages || chatView !== "chat" || ratingThankYou) return;
+        if (displayedConv?.is_reviewed) return;
         const id = window.setInterval(() => {
             setChatView("rating");
         }, RATING_ACTIVE_CHAT_INTERVAL_MS);
         return () => window.clearInterval(id);
-    }, [conversationId, canSendMessages, chatView, ratingThankYou]);
+    }, [conversationId, canSendMessages, chatView, ratingThankYou, displayedConv?.is_reviewed]);
+
+    useEffect(() => {
+        if (displayedConv?.is_reviewed && chatView === "rating") {
+            setChatView("chat");
+        }
+    }, [displayedConv?.is_reviewed, chatView]);
 
     useEffect(() => {
         if (isFetchingNextPage) return;

@@ -875,7 +875,7 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                 <button
                     onClick={() => {
                         if (!user) { router.push(`/${lang}/login`); return; }
-                        router.push(`/chat?type=user&id=${store.owner?.id || store.owner_id}`);
+                        router.push(`/${lang}/chat?type=user&id=${store.owner?.id || store.owner_id}`);
                     }}
                     className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer"
                 >

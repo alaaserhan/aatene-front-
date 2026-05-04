@@ -386,7 +386,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                         <button
                             onClick={() => {
                                 if (!user) { router.push(`/${lang}/login`); return; }
-                                router.push(`/chat?type=store&id=${service.store?.id}&serviceId=${service.id}`);
+                                router.push(`/${lang}/chat?type=store&id=${service.store?.id}&serviceId=${service.id}`);
                             }}
                             className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-11 cursor-pointer rounded-full font-medium  hover:bg-gray-50 transition-colors"
                         >
