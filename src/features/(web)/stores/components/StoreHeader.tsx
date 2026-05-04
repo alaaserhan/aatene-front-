@@ -519,7 +519,8 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                         onClick={() => {
                                             if (!user) { router.push(`/${lang}/login`); return; }
                                             setIsChatLoading(true);
-                                            router.push(`/chat?type=store&id=${store.id}`);
+                                            router.push(`/${lang}/chat?type=store&id=${store.id}`);
+                                            setIsChatLoading(false);
                                         }}
                                         className="h-10 px-6 rounded-full text-sm border border-blue-4 text-blue-4 font-medium flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors cursor-pointer disabled:opacity-50"
                                     >
