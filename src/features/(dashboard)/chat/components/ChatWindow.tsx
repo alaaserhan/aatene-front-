@@ -81,14 +81,19 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         !(String(conversation.who_blocked.id) === String(currentParticipantId) &&
             conversation.who_blocked.type === currentParticipantType);
 
-    const [currentConvId, setCurrentConvId] = useState(conversation.id);
-
-    if (conversation.id !== currentConvId) {
+    /** إعادة ضبط الحالة المحلية عند تغيير المحادثة — لا يُستدعى setState أثناء الرندر */
+    useEffect(() => {
         setPendingMessages([]);
         setNewMessage("");
         setSelectedFiles([]);
-        setCurrentConvId(conversation.id);
-    }
+        setShowDeleteModal(false);
+        setShowBlockModal(false);
+        setShowAddMemberModal(false);
+        setShowInfoPanel(false);
+        setMediaViewerState({ isOpen: false, media: [], initialIndex: 0 });
+        setIsDeleted(false);
+        messageIdCounter.current = 0;
+    }, [conversation.id]);
 
     useEffect(() => {
         if (scrollAreaRef.current) {

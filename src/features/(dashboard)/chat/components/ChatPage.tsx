@@ -424,6 +424,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                         className={`flex flex-1 min-h-0 flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0`}
                     >
                         <ChatWindow
+                            key={selectedConversation.id}
                             conversation={selectedConversation}
                             onClose={handleCloseChat}
                             context={context}
@@ -457,6 +458,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 <div className="flex-1 min-h-0 min-w-0 flex flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0">
                     {selectedConversation ? (
                         <ChatWindow
+                            key={selectedConversation.id}
                             conversation={selectedConversation}
                             onClose={handleCloseChat}
                             context={context}
