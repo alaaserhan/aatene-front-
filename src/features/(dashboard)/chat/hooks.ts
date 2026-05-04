@@ -63,6 +63,7 @@ export const useConversationMessages = (conversationId: number | string, ignoreC
         queryFn: () => api.getConversationMessages(conversationId, ignoreCookie),
         enabled: !!conversationId && enabled,
         staleTime: 0,
+        refetchOnMount: "always",
         refetchOnWindowFocus: true,
         refetchInterval: 5 * 1000, // polling كل 5 ثوانٍ لاستقبال رسائل الطرف الآخر
     });
