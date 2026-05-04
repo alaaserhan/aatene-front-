@@ -77,12 +77,12 @@ function AuthorCard({ blog }: { blog: Blog }) {
     const avatarUrl = isStore ? blog.store?.logo_url : blog.user?.avatar_url;
     const description = isStore ? blog.store?.description : blog.user?.bio;
 
-    const chatHref = `/chat?type=${isStore ? "store" : "user"}&id=${isStore ? blog.store?.id : blog.user?.id}`;
-
     const router = useRouter();
     const params = useParams();
     const lang = params?.locale || params?.lang || "ar";
     const { user: authUser } = useAuthStore();
+
+    const chatHref = `/${lang}/chat?type=${isStore ? "store" : "user"}&id=${isStore ? blog.store?.id : blog.user?.id}`;
 
     return (
         <div className="bg-white border border-[#e0dfdc] rounded-xl p-6 flex flex-col items-center gap-4">
