@@ -7,6 +7,7 @@ const BASE_URL_5000 = "https://api1.mosaady.com/api";
 const BASE_URL_5000_ROOT = "https://api1.mosaady.com";
 const BASE_URL_5002 = "https://api2.mosaady.com/api";
 const BASE_URL_API4 = "https://api4.mosaady.com";
+const ADMIN_SEND_MESSAGE_WEBHOOK_URL = "https://auto.mosaady.com/webhook/send-message-by-admin";
 
 const authInterceptor = (config: InternalAxiosRequestConfig) => {
     const token = Cookies.get("token");
@@ -323,12 +324,12 @@ export const sendMessage = async (payload: SendMessagePayload): Promise<SendMess
     const normalizedMessage = payload.message ?? payload.message_text ?? "";
     const normalizedPlatform = payload.platform;
 
-    // Primary integration from webhook docs.
+    // Primary integration for platform conversations from admin messages page.
     if (normalizedPlatform && normalizedMessage) {
-        const { data } = await api5000Root.post<SendMessageResponse>("/ai-support/send-message", {
+        const { data } = await axios.post<SendMessageResponse>(ADMIN_SEND_MESSAGE_WEBHOOK_URL, {
             chat_id: payload.chat_id,
+            message_text: normalizedMessage,
             platform: normalizedPlatform,
-            message: normalizedMessage,
         });
         return data;
     }
