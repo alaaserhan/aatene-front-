@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { getNotificationPermission, requestNotificationPermission } from "@/src/lib/notification-support";
 import { getFCMToken } from "@/src/lib/firebase";
 import { Bell, X } from "lucide-react";
 
@@ -14,6 +15,7 @@ export default function NotificationPromptPopup() {
 
     useEffect(() => {
         if (typeof window === "undefined") return;
+        // Check if the API is supported using our helper or inline check
         if (!("Notification" in window)) return;
 
         const trySchedulePopup = () => {
@@ -53,9 +55,10 @@ export default function NotificationPromptPopup() {
         
         (async () => {
             try {
-                const permission = Notification.permission === "granted"
+                const currentPermission = getNotificationPermission();
+                const permission = currentPermission === "granted"
                     ? "granted"
-                    : await Notification.requestPermission();
+                    : await requestNotificationPermission();
 
                 if (permission === "granted") {
                     localStorage.setItem("notifications_enabled", "true");
