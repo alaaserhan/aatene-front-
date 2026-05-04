@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
 import { Conversation, Message } from "../api";
 import { cn } from "@/src/lib/utils";
 import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarList";
@@ -120,9 +120,48 @@ export function ConversationListSidebar({
         }
     }, [conversations, activeTab]);
 
+    /** عند فتح محادثة من روابط خارجية (دردشة من البروفايل إلخ): إظهار الصف في القائمة */
+    const displayConversations = useMemo(() => {
+        if (!selectedConversationId) return filteredConversations;
+        const already = filteredConversations.some((c) => c.id === selectedConversationId);
+        if (already) return filteredConversations;
+        const selected = conversations.find((c) => c.id === selectedConversationId);
+        if (!selected) return filteredConversations;
+        return [selected, ...filteredConversations.filter((c) => c.id !== selectedConversationId)];
+    }, [filteredConversations, conversations, selectedConversationId]);
+
+    /** التبويب/البحث الحالي يخفي المحادثة المختارة → أظهر «الكل» وامسح البحث */
+    useEffect(() => {
+        if (!selectedConversationId || conversations.length === 0) return;
+        const conv = conversations.find((c) => c.id === selectedConversationId);
+        if (!conv) return;
+        const visibleInTab = filteredConversations.some((c) => c.id === selectedConversationId);
+        if (!visibleInTab) {
+            setActiveTab("all");
+        }
+    }, [selectedConversationId, conversations, filteredConversations]);
+
+    const scrollTargetDone = useRef<number | null>(null);
+
+    useLayoutEffect(() => {
+        if (!selectedConversationId) {
+            scrollTargetDone.current = null;
+            return;
+        }
+        const el = document.querySelector<HTMLElement>(
+            `[data-chat-row-id="${selectedConversationId}"]`
+        );
+        if (!el) return;
+        if (scrollTargetDone.current === selectedConversationId) return;
+        scrollTargetDone.current = selectedConversationId;
+        requestAnimationFrame(() => {
+            el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        });
+    }, [selectedConversationId, displayConversations]);
+
     return (
         <GenericSidebarList
-            data={filteredConversations}
+            data={displayConversations}
             isLoading={isLoading}
             isError={isError}
             searchQuery={searchQuery}
@@ -192,10 +231,14 @@ export function ConversationListSidebar({
                     <button
                         key={conversation.id}
                         type="button"
+                        data-chat-row-id={conversation.id}
+                        aria-current={isSelected ? "true" : undefined}
                         onClick={() => onSelectConversation(conversation)}
                         className={cn(
-                            "flex w-full gap-3 p-4 cursor-pointer transition-colors text-right border-0 bg-transparent font-inherit",
-                            isSelected ? "bg-blue-5" : "hover:bg-gray-50"
+                            "flex w-full gap-3 p-4 cursor-pointer transition-colors text-right border-0 bg-transparent font-inherit rounded-none",
+                            isSelected
+                                ? "bg-blue-5 shadow-[inset_4px_0_0_0_theme(colors.blue.3)]"
+                                : "hover:bg-gray-50"
                         )}
                     >
                         <div className="shrink-0 relative">
