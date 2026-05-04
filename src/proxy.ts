@@ -9,7 +9,8 @@ const PREVIEW_COOKIE = "coming_soon_preview";
 const I18nMiddleware = createI18nMiddleware({
   locales: ["en", "ar", "he"],
   defaultLocale: "ar",
-  urlMappingStrategy: "rewriteDefault",
+  // urlMappingStrategy: "rewriteDefault",
+  urlMappingStrategy: "redirect",
   resolveLocaleFromRequest: () => "ar",
 });
 
