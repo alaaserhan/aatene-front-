@@ -80,10 +80,19 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         if (!chatId || allConversations.length === 0) return null;
         return allConversations.find(c => String(c.id) === chatId) || null;
     }, [searchParams, allConversations]);
-    const activeConversation = selectedConversation ?? pendingConversation;
+    const activeConversation = pendingConversation ?? selectedConversation;
 
     const handleSelectConversation = useCallback((conversation: Conversation) => {
         const currentChatParam = searchParams.get("chat");
+        const isSameConversation = String(currentChatParam) === String(conversation.id);
+        if (isSameConversation) {
+            console.log("[chat-debug] sidebar-click-same-conversation-skip", {
+                currentChatParam,
+                conversationId: conversation.id,
+            });
+            return;
+        }
+
         console.log("[chat-debug] sidebar-click", {
             fromChatParam: currentChatParam,
             toConversationId: conversation.id,
@@ -97,7 +106,9 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         params.delete("serviceId");
         params.delete("productId");
         params.set("chat", String(conversation.id));
-        router.push(`${pathname}?${params.toString()}`);
+        const nextUrl = `?${params.toString()}`;
+        console.log("[chat-debug] router-replace-next-url", { nextUrl });
+        router.replace(nextUrl, { scroll: false });
     }, [searchParams, pathname, router]);
 
     useEffect(() => {
@@ -130,7 +141,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         if (params.get("chat")) {
             params.delete("chat");
         }
-        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+        router.replace(`?${params.toString()}`, { scroll: false });
     }, [searchParams, pathname, router]);
 
     useEffect(() => {
