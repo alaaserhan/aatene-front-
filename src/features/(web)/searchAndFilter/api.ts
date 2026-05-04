@@ -252,6 +252,8 @@ export interface UsersSearchResponse extends GenericPaginationResponse {
 }
 
 export interface UserSearchParams {
+    search?: string;
+    category_id?: number;
     city_id?: number[];
     tags?: number[];
     review_rate?: number;

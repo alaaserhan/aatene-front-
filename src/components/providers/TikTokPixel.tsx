@@ -42,7 +42,7 @@ export const TikTokPixel = () => {
         }
     }, [pathname, searchParams, shouldLoad]);
 
-    if (!shouldLoad) return null;
+    if (!shouldLoad || !pixelHostOk) return null;
 
     return (
         <Script
