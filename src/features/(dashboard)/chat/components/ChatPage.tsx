@@ -80,6 +80,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         if (!chatId || allConversations.length === 0) return null;
         return allConversations.find(c => String(c.id) === chatId) || null;
     }, [searchParams, allConversations]);
+    const activeConversation = selectedConversation ?? pendingConversation;
 
     const handleSelectConversation = useCallback((conversation: Conversation) => {
         setPendingConversation(conversation);
@@ -356,7 +357,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         conversations: filteredConversations,
         isLoading: !data && isLoading,
         isError,
-        selectedConversationId: selectedConversation?.id ?? null,
+        selectedConversationId: activeConversation?.id ?? null,
         onSelectConversation: handleSelectConversation,
         searchQuery,
         onSearchChange: setSearchQuery,
@@ -406,7 +407,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
               يمنع طبقات DOM تلتقط النقر أو تبقى فوق القائمة.
             */}
             <div className={`md:hidden flex flex-col ${shellHeight} min-h-0 overflow-hidden`}>
-                {!selectedConversation ? (
+                {!activeConversation ? (
                     <div className="flex flex-col flex-1 min-h-0 gap-0">
                         {mobileTypeFilter}
                         <div className="flex-1 min-h-0 flex flex-col relative isolate">
@@ -421,8 +422,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                         className={`flex flex-1 min-h-0 flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0`}
                     >
                         <ChatWindow
-                            key={selectedConversation.id}
-                            conversation={selectedConversation}
+                            key={activeConversation.id}
+                            conversation={activeConversation}
                             onClose={handleCloseChat}
                             context={context}
                         />
@@ -453,10 +454,10 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 </div>
 
                 <div className="flex-1 min-h-0 min-w-0 flex flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0">
-                    {selectedConversation ? (
+                    {activeConversation ? (
                         <ChatWindow
-                            key={selectedConversation.id}
-                            conversation={selectedConversation}
+                            key={activeConversation.id}
+                            conversation={activeConversation}
                             onClose={handleCloseChat}
                             context={context}
                         />
