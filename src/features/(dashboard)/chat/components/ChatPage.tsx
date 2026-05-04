@@ -353,11 +353,88 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         });
     }, [allConversations, searchQuery, activeFilter]);
 
+    const shellHeight = "h-[calc(100vh-100px)] md:h-[calc(100vh-128px)]";
+
+    const conversationListProps = {
+        conversations: filteredConversations,
+        isLoading: !data && isLoading,
+        isError,
+        selectedConversationId: selectedConversation?.id ?? null,
+        onSelectConversation: handleSelectConversation,
+        searchQuery,
+        onSearchChange: setSearchQuery,
+        totalUnreadCount: unreadData?.unread_conversations_count || 0,
+        context,
+    };
+
+    const mobileTypeFilter = (
+        <div className="flex gap-2 p-2 bg-white rounded-t-lg border border-b-0 border-gray-200 overflow-x-auto shrink-0">
+            <button
+                type="button"
+                onClick={() => handleFilterChange("all")}
+                className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "all"
+                    ? "bg-blue-4 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+            >
+                الكل ({allCount})
+            </button>
+            <button
+                type="button"
+                onClick={() => handleFilterChange("direct")}
+                className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "direct"
+                    ? "bg-blue-4 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+            >
+                مباشرة ({directCount})
+            </button>
+            <button
+                type="button"
+                onClick={() => handleFilterChange("group")}
+                className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "group"
+                    ? "bg-blue-4 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+            >
+                مجموعات ({groupsCount})
+            </button>
+        </div>
+    );
+
     return (
         <div className="p-2 md:p-6 space-y-2 md:space-y-4">
-            <div className="flex gap-2 md:gap-4 h-[calc(100vh-100px)] md:h-[calc(100vh-128px)]">
-                {/* Right Sidebar - Filter Panel (Hidden on mobile) */}
-                <div className="hidden lg:block w-64 shrink-0">
+            {/*
+              موبايل: عمود واحد فقط — إما قائمة أو دردشة (بدون عمودين أحدهما hidden)
+              يمنع طبقات DOM تلتقط النقر أو تبقى فوق القائمة.
+            */}
+            <div className={`md:hidden flex flex-col ${shellHeight} min-h-0 overflow-hidden`}>
+                {!selectedConversation ? (
+                    <div className="flex flex-col flex-1 min-h-0 gap-0">
+                        {mobileTypeFilter}
+                        <div className="flex-1 min-h-0 flex flex-col relative isolate">
+                            <ConversationListSidebar
+                                {...conversationListProps}
+                                className="flex-1 min-h-0 max-h-full rounded-b-lg border border-t-0 border-gray-200"
+                            />
+                        </div>
+                    </div>
+                ) : (
+                    <div
+                        className={`flex flex-1 min-h-0 flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0`}
+                    >
+                        <ChatWindow
+                            conversation={selectedConversation}
+                            onClose={handleCloseChat}
+                            context={context}
+                        />
+                    </div>
+                )}
+            </div>
+
+            {/* md+: فلتر يسار + قائمة + منطقة محادثة — تخطيط ثابت مع min-h-0 لتمرير صحيح */}
+            <div className={`hidden md:flex gap-2 md:gap-4 ${shellHeight} min-h-0 w-full`}>
+                <div className="hidden lg:block w-64 shrink-0 min-h-0">
                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden h-full">
                         <SidebarFilterPanel
                             options={sidebarOptions}
@@ -367,60 +444,17 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     </div>
                 </div>
 
-                {/* Conversation List - Full width on mobile when no chat selected */}
-                <div className={`
-                    ${selectedConversation ? 'hidden md:block' : 'flex-1 md:flex-none'}
-                    md:w-96 shrink-0 flex flex-col
-                `}>
-                    {/* Mobile Filter Buttons - Only visible on small screens */}
-                    <div className="lg:hidden flex gap-2 p-2 bg-white rounded-t-lg border border-b-0 border-gray-200 overflow-x-auto">
-                        <button
-                            onClick={() => handleFilterChange("all")}
-                            className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "all"
-                                ? "bg-blue-4 text-white"
-                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                }`}
-                        >
-                            الكل ({allCount})
-                        </button>
-                        <button
-                            onClick={() => handleFilterChange("direct")}
-                            className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "direct"
-                                ? "bg-blue-4 text-white"
-                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                }`}
-                        >
-                            مباشرة ({directCount})
-                        </button>
-                        <button
-                            onClick={() => handleFilterChange("group")}
-                            className={`whitespace-nowrap py-2 px-3 rounded-lg text-sm font-medium transition-colors ${activeFilter === "group"
-                                ? "bg-blue-4 text-white"
-                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                }`}
-                        >
-                            مجموعات ({groupsCount})
-                        </button>
+                <div className="flex w-full md:w-96 shrink-0 flex-col min-h-0 min-w-0 relative z-[1] isolate">
+                    <div className="lg:hidden">{mobileTypeFilter}</div>
+                    <div className="flex-1 min-h-0 flex flex-col min-w-0">
+                        <ConversationListSidebar
+                            {...conversationListProps}
+                            className="flex-1 min-h-0 h-full max-h-[calc(100vh-100px)] md:max-h-[calc(100vh-128px)] lg:rounded-t-lg"
+                        />
                     </div>
-                    <ConversationListSidebar
-                        conversations={filteredConversations}
-                        isLoading={!data && isLoading}
-                        isError={isError}
-                        selectedConversationId={selectedConversation?.id || null}
-                        onSelectConversation={handleSelectConversation}
-                        searchQuery={searchQuery}
-                        onSearchChange={setSearchQuery}
-                        className="max-h-[calc(100vh-100px)] md:max-h-[calc(100vh-128px)] lg:rounded-t-lg"
-                        totalUnreadCount={unreadData?.unread_conversations_count || 0}
-                        context={context}
-                    />
                 </div>
 
-                {/* Chat Area - Full width on mobile when chat is selected */}
-                <div className={`
-                    ${selectedConversation ? 'flex-1' : 'hidden md:flex md:flex-1'}
-                    bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none h-full
-                `}>
+                <div className="flex-1 min-h-0 min-w-0 flex flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0">
                     {selectedConversation ? (
                         <ChatWindow
                             conversation={selectedConversation}
@@ -436,7 +470,6 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 </div>
             </div>
 
-            {/* Create Group Modal */}
             <CreateGroupModal
                 isOpen={showCreateGroupModal}
                 onClose={() => setShowCreateGroupModal(false)}
