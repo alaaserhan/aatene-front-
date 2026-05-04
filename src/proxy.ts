@@ -66,7 +66,8 @@ export default function proxy(request: NextRequest) {
 
   // 1. "Coming Soon" and Bypass Logic
   const comingSoonEnv = process.env.COMING_SOON_ENABLED;
-  const comingSoonEnabled = comingSoonEnv ? comingSoonEnv === "true" : true;
+  // const comingSoonEnabled = comingSoonEnv ? comingSoonEnv === "true" : true;
+  const comingSoonEnabled = comingSoonEnv === "true";
 
   if (comingSoonEnabled && !isBypassPath(pathname)) {
     const hasPreviewAccess = request.cookies.get(PREVIEW_COOKIE)?.value === "1";
