@@ -189,10 +189,12 @@ export function ConversationListSidebar({
                 const time = formatTime(lastMessage?.updated_at || conversation.updated_at || conversation.created_at);
 
                 return (
-                    <div key={conversation.id}
+                    <button
+                        key={conversation.id}
+                        type="button"
                         onClick={() => onSelectConversation(conversation)}
                         className={cn(
-                            "flex gap-3 p-4 cursor-pointer transition-colors",
+                            "flex w-full gap-3 p-4 cursor-pointer transition-colors text-right border-0 bg-transparent font-inherit",
                             isSelected ? "bg-blue-5" : "hover:bg-gray-50"
                         )}
                     >
@@ -248,7 +250,7 @@ export function ConversationListSidebar({
                                 )}
                             </div>
                         </div>
-                    </div>
+                    </button>
                 );
             }}
         />
