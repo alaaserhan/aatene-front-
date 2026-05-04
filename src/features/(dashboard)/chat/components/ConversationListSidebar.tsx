@@ -189,10 +189,19 @@ export function ConversationListSidebar({
                 const time = formatTime(lastMessage?.updated_at || conversation.updated_at || conversation.created_at);
 
                 return (
-                    <div key={conversation.id}
+                    <div
+                        key={conversation.id}
+                        role="button"
+                        tabIndex={0}
                         onClick={() => onSelectConversation(conversation)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                onSelectConversation(conversation);
+                            }
+                        }}
                         className={cn(
-                            "flex gap-3 p-4 cursor-pointer transition-colors",
+                            "flex gap-3 p-4 cursor-pointer transition-colors touch-manipulation select-none",
                             isSelected ? "bg-blue-5" : "hover:bg-gray-50"
                         )}
                     >
