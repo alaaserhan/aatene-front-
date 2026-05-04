@@ -46,7 +46,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
   const isMerchant = userTypeCookie === "merchant";
 
   // Base navigation prefix based on user type
-  const navPrefix = "/admin" ;
+  const navPrefix = "/admin";
 
   // If propStoreId is provided → admin is viewing a specific store (ServicesPage-style)
   const isAdminViewingStore = isAdmin && !!propStoreId;
@@ -303,7 +303,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
             {!showGuide ? (
               <div>
                 <h1 className="text-xl md:text-2xl font-bold text-brand-black-1">إدارة المنتجات</h1>
-                <p className="text-sm text-gray-2 mt-1">عرض وإدارة جميع منتجاتك</p>
+                <p className="text-sm text-gray-2 mt-1">عرض وإدارة جميع المنتجات</p>
               </div>
             ) : (
               <div className="flex items-center gap-2 md:gap-3">
@@ -395,7 +395,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
 
                 {/* Dots - منتصف */}
                 <div className="flex items-center gap-2">
-                  {[1,2,3,4,5].map((s) => (
+                  {[1, 2, 3, 4, 5].map((s) => (
                     <button
                       key={s}
                       onClick={() => setGuideStep(s)}
@@ -450,144 +450,142 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
 
       {/* ── Main (مخفي عند عرض الدليل) ── */}
       {!showGuide && (
-      <>
-      <main className="flex-1 p-4">
-        {/* Search */}
-        <div className="mb-4">
-          <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
-            <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <Input
-              placeholder="ابحث باسم المنتج..."
-              value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-              className="pr-10 h-12 border-none shadow-none focus-visible:ring-0"
-            />
-          </div>
-        </div>
-
-        {isMerchant && !isLoadingSections && !hasSections ? (
-          <ProductEmptyState
-            type="no-sections"
-            onAddSection={() => setIsSectionModalOpen(true)}
-          />
-        ) : (
-          <div className="grid grid-cols-12 gap-6 items-start">
-
-            {/* Sections sidebar (merchant or admin-viewing-store) */}
-            {!isLoadingSections && sections.length > 0 && (
-              <div className="col-span-12 lg:col-span-3 h-full flex flex-col">
-                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
-                  {/* All products row */}
-                  <button
-                    onClick={() => { setSelectedSectionId(null); setCurrentPage(1); }}
-                    className={cn(
-                      "w-full flex items-center justify-between px-3 py-3 transition-colors cursor-pointer",
-                      !selectedSectionId ? "bg-blue-5 text-blue-3 font-medium" : "text-gray-600 hover:bg-gray-50"
-                    )}
-                  >
-                    <span className="flex-1 text-right text-base mx-2">
-                      جميع المنتجات
-                      <span className={cn("mr-1 text-base font-medium", !selectedSectionId ? "text-blue-3" : "text-gray-400")}>
-                        ({totalProductsCount})
-                      </span>
-                    </span>
-                    <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", !selectedSectionId ? "text-blue-3" : "text-gray-400")} />
-                  </button>
-
-                  {sections.map((section) => {
-                    const isActive = selectedSectionId === String(section.id);
-                    return (
-                      <button
-                        key={section.id}
-                        onClick={() => { setSelectedSectionId(String(section.id)); setCurrentPage(1); if (window.innerWidth < 1024) detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
-                        className={cn(
-                          "w-full flex items-center justify-between px-3 py-3 border-t border-gray-100 transition-colors cursor-pointer",
-                          isActive ? "bg-blue-5 text-blue-3 font-medium" : "text-gray-600 hover:bg-gray-50"
-                        )}
-                      >
-                        <span className="flex-1 text-right text-base mx-2">{section.name}</span>
-                        <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", isActive ? "text-blue-3" : "text-gray-400")} />
-                      </button>
-                    );
-                  })}
-
-                  <div className="p-3 border-t border-gray-100">
-                    <Button
-                      onClick={() => setIsSectionModalOpen(true)}
-                      className="w-full gap-2 text-blue-3 border-blue-3 rounded-xs border text-sm"
-                      style={{ backgroundColor: "var(--blue-5)" }}
-                    >
-                      <Plus className="w-4 h-4" />
-                      إضافة أقسام جديدة
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Main content */}
-            <div
-              ref={detailsRef}
-              className={`col-span-12 ${sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col`}
-            >
-              {/* Status tabs */}
-              <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
-                {statusTabs.map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => { setActiveStatus(tab.key); setCurrentPage(1); }}
-                    className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${
-                      activeStatus === tab.key ? tab.activeClass : "border-transparent text-gray-2 hover:text-gray-2"
-                    }`}
-                  >
-                    <span className="font-bold text-sm">{tab.label}</span>
-                    <span className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-sm font-bold text-white ${
-                      activeStatus === tab.key ? tab.badgeClass : "bg-gray-2"
-                    }`}>
-                      {getCountForStatus(tab.key)}
-                    </span>
-                  </button>
-                ))}
-              </div>
-
-              {!isLoadingProducts && products.length === 0 ? (
-                <ProductEmptyState type="no-products" />
-              ) : (
-                <ProductTable
-                  products={products}
-                  isLoading={isLoadingProducts}
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
-                  onToggleShown={handleToggleShown}
-                  onEdit={handleEditClick}
-                  onDelete={handleDeleteClick}
-                  onView={handleViewClick}
-                  onToggleStatus={handleToggleStatus}
-                  activeStatus={activeStatus}
+        <>
+          <main className="flex-1 p-4">
+            {/* Search */}
+            <div className="mb-4">
+              <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
+                <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Input
+                  placeholder="ابحث باسم المنتج..."
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                  className="pr-10 h-12 border-none shadow-none focus-visible:ring-0"
                 />
-              )}
+              </div>
             </div>
 
-          </div>
-        )}
-      </main>
+            {isMerchant && !isLoadingSections && !hasSections ? (
+              <ProductEmptyState
+                type="no-sections"
+                onAddSection={() => setIsSectionModalOpen(true)}
+              />
+            ) : (
+              <div className="grid grid-cols-12 gap-6 items-start">
 
-      <ConfirmDeleteModal
-        isOpen={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="هل أنت متأكد من حذف هذا المنتج؟"
-        description="لا يمكن التراجع عن هذا الإجراء"
-      />
+                {/* Sections sidebar (merchant or admin-viewing-store) */}
+                {!isLoadingSections && sections.length > 0 && (
+                  <div className="col-span-12 lg:col-span-3 h-full flex flex-col">
+                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
+                      {/* All products row */}
+                      <button
+                        onClick={() => { setSelectedSectionId(null); setCurrentPage(1); }}
+                        className={cn(
+                          "w-full flex items-center justify-between px-3 py-3 transition-colors cursor-pointer",
+                          !selectedSectionId ? "bg-blue-5 text-blue-3 font-medium" : "text-gray-600 hover:bg-gray-50"
+                        )}
+                      >
+                        <span className="flex-1 text-right text-base mx-2">
+                          جميع المنتجات
+                          <span className={cn("mr-1 text-base font-medium", !selectedSectionId ? "text-blue-3" : "text-gray-400")}>
+                            ({totalProductsCount})
+                          </span>
+                        </span>
+                        <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", !selectedSectionId ? "text-blue-3" : "text-gray-400")} />
+                      </button>
 
-      <SectionModal
-        isOpen={isSectionModalOpen}
-        onClose={() => setIsSectionModalOpen(false)}
-        onSave={handleSaveSection}
-        mode="add"
-      />
-      </>
+                      {sections.map((section) => {
+                        const isActive = selectedSectionId === String(section.id);
+                        return (
+                          <button
+                            key={section.id}
+                            onClick={() => { setSelectedSectionId(String(section.id)); setCurrentPage(1); if (window.innerWidth < 1024) detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
+                            className={cn(
+                              "w-full flex items-center justify-between px-3 py-3 border-t border-gray-100 transition-colors cursor-pointer",
+                              isActive ? "bg-blue-5 text-blue-3 font-medium" : "text-gray-600 hover:bg-gray-50"
+                            )}
+                          >
+                            <span className="flex-1 text-right text-base mx-2">{section.name}</span>
+                            <ChevronRight className={cn("w-4 h-4 flex-shrink-0 rotate-180", isActive ? "text-blue-3" : "text-gray-400")} />
+                          </button>
+                        );
+                      })}
+
+                      <div className="p-3 border-t border-gray-100">
+                        <Button
+                          onClick={() => setIsSectionModalOpen(true)}
+                          className="w-full gap-2 text-blue-3 border-blue-3 rounded-xs border text-sm"
+                          style={{ backgroundColor: "var(--blue-5)" }}
+                        >
+                          <Plus className="w-4 h-4" />
+                          إضافة أقسام جديدة
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Main content */}
+                <div
+                  ref={detailsRef}
+                  className={`col-span-12 ${sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col`}
+                >
+                  {/* Status tabs */}
+                  <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
+                    {statusTabs.map((tab) => (
+                      <button
+                        key={tab.key}
+                        onClick={() => { setActiveStatus(tab.key); setCurrentPage(1); }}
+                        className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${activeStatus === tab.key ? tab.activeClass : "border-transparent text-gray-2 hover:text-gray-2"
+                          }`}
+                      >
+                        <span className="font-bold text-sm">{tab.label}</span>
+                        <span className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded text-sm font-bold text-white ${activeStatus === tab.key ? tab.badgeClass : "bg-gray-2"
+                          }`}>
+                          {getCountForStatus(tab.key)}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {!isLoadingProducts && products.length === 0 ? (
+                    <ProductEmptyState type="no-products" />
+                  ) : (
+                    <ProductTable
+                      products={products}
+                      isLoading={isLoadingProducts}
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={setCurrentPage}
+                      onToggleShown={handleToggleShown}
+                      onEdit={handleEditClick}
+                      onDelete={handleDeleteClick}
+                      onView={handleViewClick}
+                      onToggleStatus={handleToggleStatus}
+                      activeStatus={activeStatus}
+                    />
+                  )}
+                </div>
+
+              </div>
+            )}
+          </main>
+
+          <ConfirmDeleteModal
+            isOpen={deleteModalOpen}
+            onClose={() => setDeleteModalOpen(false)}
+            onConfirm={handleConfirmDelete}
+            title="هل أنت متأكد من حذف هذا المنتج؟"
+            description="لا يمكن التراجع عن هذا الإجراء"
+          />
+
+          <SectionModal
+            isOpen={isSectionModalOpen}
+            onClose={() => setIsSectionModalOpen(false)}
+            onSave={handleSaveSection}
+            mode="add"
+          />
+        </>
       )}
     </div>
   );

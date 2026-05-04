@@ -322,7 +322,7 @@ function OfferCard({ product }: { product: ProductInPageData }) {
 
     return (
         <div className="group">
-            
+
             {(name || desc) && (
                 <Link href={`/product/${product.slug}`} className="block">
                     <div className="pb-3 text-center" dir="rtl">
@@ -336,14 +336,14 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                 </Link>
             )}
 
-        
+
             <div className="py-4">
                 {hasCrossSells ? (
                     <div className="flex flex-col items-center gap-2">
-                      
+
                         {/* صف واحد: سهم يمين + منتجات + سهم يسار + = + السعر */}
                         <div className="flex items-center gap-1 sm:gap-1.5 md:gap-3 w-full justify-center overflow-x-auto py-1 no-scrollbar">
-                            
+
                             {totalPages > 1 && (
                                 <button
                                     type="button"
@@ -417,7 +417,7 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                     </div>
 
                 ) : (
-                    
+
                     <Link href={`/product/${product.slug}`} className="block">
                         <div className="flex flex-col-reverse sm:flex-row items-center gap-4">
                             <div className="relative w-full sm:w-[160px] aspect-square rounded-xl overflow-hidden bg-gray-100 shrink-0">
@@ -592,7 +592,7 @@ function OverviewTab({ store }: { store: StoreProfile }) {
                         />
                         <StoreStatItem
                             icon={<img src="/icons/heart2.svg" alt="" className="w-6 h-6" />}
-                            label="متابعون"
+                            label="فضلو المتجر"
                             value={String(store.followers_count || 0)}
                         />
                         <StoreStatItem

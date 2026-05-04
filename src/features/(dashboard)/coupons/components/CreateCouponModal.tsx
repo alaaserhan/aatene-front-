@@ -567,7 +567,19 @@ export function CreateCouponModal({
             <DialogContent className="max-w-xl p-0 flex flex-col gap-0 max-h-[calc(100svh-4rem)] text-right bg-white overflow-visible" dir="rtl">
                 <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-100/50 shrink-0 rounded-t-lg">
                     <DialogTitle className="text-lg font-medium">
-                        {isEditMode ? "تعديل كوبون" : "اضافة كوبون جديد"}
+                        {isEditMode ? "تعديل كوبون" :
+
+                            currentStep > 1 && (
+                                <button
+                                    onClick={() => setCurrentStep((s) => (s - 1) as StepId)}
+                                    className="px-4 py-1 rounded-md cursor-pointer bg-gray-100 font-medium hover:bg-gray-200 transition-colors flex items-center gap-1"
+                                    disabled={isPending}
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+
+                                </button>
+                            )
+                        }
                     </DialogTitle>
                 </div>
 
@@ -590,20 +602,7 @@ export function CreateCouponModal({
 
                 </div>
 
-                <div className="p-4 bg-gray-50 flex items-center justify-between gap-3 border-t border-gray-100 shrink-0 rounded-b-lg">
-                    <div>
-                        {currentStep > 1 && (
-                            <button
-                                onClick={() => setCurrentStep((s) => (s - 1) as StepId)}
-                                className="px-4 py-2 rounded-md cursor-pointer bg-gray-100 font-medium hover:bg-gray-200 transition-colors flex items-center gap-1"
-                                disabled={isPending}
-                            >
-                                <ChevronRight className="w-4 h-4" />
-                                رجوع
-                            </button>
-                        )}
-                    </div>
-                    <div className="flex items-center gap-3">
+                <div className="p-4 bg-gray-50 flex items-center justify-between flex-row-reverse gap-3 border-t border-gray-100 rounded-b-lg">
                     <button
                         onClick={onClose}
                         className="px-6 py-2 rounded-md cursor-pointer bg-gray-100 font-medium hover:bg-gray-200 transition-colors"
@@ -629,7 +628,6 @@ export function CreateCouponModal({
                             {isPending ? "جاري الحفظ..." : "حفظ"}
                         </button>
                     )}
-                    </div>
                 </div>
             </DialogContent>
         </Dialog>

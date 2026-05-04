@@ -21,6 +21,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
     const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
     const [selectedCityName, setSelectedCityName] = useState("الناصرة");
     const [tempSelectedCityId, setTempSelectedCityId] = useState<number | null>(null);
+    const [showPhone, setShowPhone] = useState(false);
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -175,9 +176,19 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
 
                     <a
                         href={`tel:${activeCompany?.phone || store.phone}`}
-                        className="flex items-center gap-3 bg-[#EFF6FF] text-blue-4 px-6 py-2 rounded-full text-sm font-bold border border-blue-4 transition-colors hover:bg-blue-100"
+                        onClick={(e) => {
+                            if (!showPhone) {
+                                e.preventDefault();
+                                setShowPhone(true);
+                            }
+                        }}
+                        className="flex items-center gap-3 bg-[#EFF6FF] text-blue-4 px-6 py-2 rounded-full text-sm font-bold border border-blue-4 transition-colors hover:bg-blue-100 cursor-pointer"
                     >
-                        <span dir="ltr">{(activeCompany?.phone || store.phone || "").replace(/(\d{3})(\d{3})(\d{3})(\d+)/, "$1 *** *** ***")}</span>
+                        <span dir="ltr">
+                            {showPhone 
+                                ? (activeCompany?.phone || store.phone || "") 
+                                : (activeCompany?.phone || store.phone || "").replace(/(\d{3})(\d{3})(\d{3})(\d+)/, "$1 *** *** ***")}
+                        </span>
                         <Phone className="w-4 h-4 fill-current" />
                     </a>
                 </div>
