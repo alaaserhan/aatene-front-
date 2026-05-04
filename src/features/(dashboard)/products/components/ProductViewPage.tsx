@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Pen, Phone, Send, Share2, CheckCircle2, XCircle, PauseCircle } from "lucide-react";
+import { Loader2, Pen, Phone, Send, CheckCircle2, XCircle, PauseCircle } from "lucide-react";
 import Cookies from "js-cookie";
 import { useGetSingleProduct, useUpdateProductStatus, useUpdateProductShown } from "../hooks";
 import { useGetSingleStore } from "@/src/features/(dashboard)/stores/hooks";
@@ -75,7 +75,7 @@ export default function ProductViewPage() {
 
     const handleFollowClick = () => {
         if (!store?.owner?.id) return;
-        
+
         if (store.owner.am_i_following) {
             unfollowUser(
                 {
@@ -157,7 +157,7 @@ export default function ProductViewPage() {
         ? (Array.isArray(raw.gallery_url)
             ? raw.gallery_url
             : Object.values(raw.gallery_url as Record<string, string>)
-          ).filter((u): u is string => !!u && typeof u === "string" && u !== coverUrl)
+        ).filter((u): u is string => !!u && typeof u === "string" && u !== coverUrl)
         : [];
 
     const imagesList: string[] = [
@@ -303,19 +303,11 @@ export default function ProductViewPage() {
                                     {raw.name}
                                 </h1>
                                 <div className="flex gap-4 text-gray-2">
-                                    {!isAdmin && (
-                                    <button
-                                        onClick={() => setIsShareModalOpen(true)}
-                                        className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer hover:text-blue-600"
-                                    >
-                                        <Share2 className="w-4 h-4" />
-                                        <span className="text-sm font-medium">مشاركة المنتج</span>
-                                    </button>
-                                    )}
+
                                     <button
                                         onClick={() => {
-                                          const currentViewUrl = `/admin/products/${id}/view${fromUrl ? `?from=${encodeURIComponent(decodeURIComponent(fromUrl))}` : ""}`;
-                                          router.push(`/admin/products/${id}/edit?from=${encodeURIComponent(currentViewUrl)}`);
+                                            const currentViewUrl = `/admin/products/${id}/view${fromUrl ? `?from=${encodeURIComponent(decodeURIComponent(fromUrl))}` : ""}`;
+                                            router.push(`/admin/products/${id}/edit?from=${encodeURIComponent(currentViewUrl)}`);
                                         }}
                                         className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer hover:text-blue-600"
                                     >
@@ -381,11 +373,10 @@ export default function ProductViewPage() {
                                 <div className="flex items-center border-b border-gray-200">
                                     <button
                                         onClick={() => setActiveTab("description")}
-                                        className={`flex-1 py-4 cursor-pointer text-center font-medium text-sm transition-all duration-300 relative ${
-                                            activeTab === "description"
-                                                ? "text-blue-3 bg-[#F8F7FF]"
-                                                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                                        }`}
+                                        className={`flex-1 py-4 cursor-pointer text-center font-medium text-sm transition-all duration-300 relative ${activeTab === "description"
+                                            ? "text-blue-3 bg-[#F8F7FF]"
+                                            : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                                            }`}
                                     >
                                         وصف المنتج
                                         {activeTab === "description" && (
@@ -394,11 +385,10 @@ export default function ProductViewPage() {
                                     </button>
                                     <button
                                         onClick={() => setActiveTab("reviews")}
-                                        className={`flex-1 py-4 cursor-pointer text-center font-medium text-sm transition-all duration-300 relative ${
-                                            activeTab === "reviews"
-                                                ? "text-blue-3 bg-[#F8F7FF]"
-                                                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                                        }`}
+                                        className={`flex-1 py-4 cursor-pointer text-center font-medium text-sm transition-all duration-300 relative ${activeTab === "reviews"
+                                            ? "text-blue-3 bg-[#F8F7FF]"
+                                            : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                                            }`}
                                     >
                                         تقييمات ومراجعات
                                         {activeTab === "reviews" && (
@@ -449,131 +439,131 @@ export default function ProductViewPage() {
 
                             {/* Activate Toggle Row — يظهر فقط للتاجر وفقط إذا كان المنتج مقبولاً */}
                             {!isAdmin && currentStatus === "approved" && (
-                            <div className="flex items-center justify-between px-5 py-3 rounded-md mx-4 mt-4 bg-[#C8D7E8]">
-                                <span className="font-bold text-sm text-[#1e3a52]">تفعيل المنتج</span>
-                                <button
-                                    onClick={() => {
-                                        const newShown = !raw.shown;
-                                        updateShown(
-                                            { id: Number(id), payload: { shown: newShown } },
-                                            {
-                                                onSuccess: () => {
-                                                    refetch();
-                                                    // إذا تم إيقاف التفعيل، أظهر alert التعليق المؤقت
-                                                    if (!newShown) setShownAlertDismissed(false);
+                                <div className="flex items-center justify-between px-5 py-3 rounded-md mx-4 mt-4 bg-[#C8D7E8]">
+                                    <span className="font-bold text-sm text-[#1e3a52]">تفعيل المنتج</span>
+                                    <button
+                                        onClick={() => {
+                                            const newShown = !raw.shown;
+                                            updateShown(
+                                                { id: Number(id), payload: { shown: newShown } },
+                                                {
+                                                    onSuccess: () => {
+                                                        refetch();
+                                                        // إذا تم إيقاف التفعيل، أظهر alert التعليق المؤقت
+                                                        if (!newShown) setShownAlertDismissed(false);
+                                                    }
                                                 }
-                                            }
-                                        );
-                                    }}
-                                    disabled={isUpdatingShown}
-                                    role="switch"
-                                    aria-checked={raw.shown}
-                                    style={{
-                                        width: 44,
-                                        height: 24,
-                                        borderRadius: 9999,
-                                        backgroundColor: raw.shown ? "#34D399" : "#6B7280",
-                                        position: "relative",
-                                        border: "none",
-                                        cursor: "pointer",
-                                        transition: "background-color 0.2s",
-                                        flexShrink: 0,
-                                        opacity: isUpdatingShown ? 0.6 : 1,
-                                    }}
-                                >
-                                    <span
-                                        style={{
-                                            position: "absolute",
-                                            top: 4,
-                                            width: 16,
-                                            height: 16,
-                                            borderRadius: 9999,
-                                            backgroundColor: "white",
-                                            boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-                                            transition: "left 0.2s",
-                                            left: raw.shown ? 24 : 4,
+                                            );
                                         }}
-                                    />
-                                </button>
-                            </div>
+                                        disabled={isUpdatingShown}
+                                        role="switch"
+                                        aria-checked={raw.shown}
+                                        style={{
+                                            width: 44,
+                                            height: 24,
+                                            borderRadius: 9999,
+                                            backgroundColor: raw.shown ? "#34D399" : "#6B7280",
+                                            position: "relative",
+                                            border: "none",
+                                            cursor: "pointer",
+                                            transition: "background-color 0.2s",
+                                            flexShrink: 0,
+                                            opacity: isUpdatingShown ? 0.6 : 1,
+                                        }}
+                                    >
+                                        <span
+                                            style={{
+                                                position: "absolute",
+                                                top: 4,
+                                                width: 16,
+                                                height: 16,
+                                                borderRadius: 9999,
+                                                backgroundColor: "white",
+                                                boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                                                transition: "left 0.2s",
+                                                left: raw.shown ? 24 : 4,
+                                            }}
+                                        />
+                                    </button>
+                                </div>
                             )}
 
                             <div className="p-6">
-                            {/* Category */}
-                            <div className="grid grid-cols-2 py-4 border-b border-gray-100">
-                                <div>
-                                    <p className="font-bold text-sm mb-1">التصنيف الرئيسي</p>
-                                    <p className="text-gray-2 text-sm">{raw.section?.name || "-"}</p>
+                                {/* Category */}
+                                <div className="grid grid-cols-2 py-4 border-b border-gray-100">
+                                    <div>
+                                        <p className="font-bold text-sm mb-1">التصنيف الرئيسي</p>
+                                        <p className="text-gray-2 text-sm">{raw.section?.name || "-"}</p>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-sm mb-1">التصنيف الفرعي</p>
+                                        <p className="text-gray-2 text-sm">{raw.category?.name || "-"}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="font-bold text-sm mb-1">التصنيف الفرعي</p>
-                                    <p className="text-gray-2 text-sm">{raw.category?.name || "-"}</p>
-                                </div>
-                            </div>
 
-                            {/* Price & Condition */}
-                            <div className="grid grid-cols-2 py-4 border-b border-gray-100">
-                                <div>
-                                    <p className="font-bold text-sm mb-1">سعر المنتج</p>
-                                    <p className="text-gray-2 text-sm font-medium">₪ {raw.price}</p>
+                                {/* Price & Condition */}
+                                <div className="grid grid-cols-2 py-4 border-b border-gray-100">
+                                    <div>
+                                        <p className="font-bold text-sm mb-1">سعر المنتج</p>
+                                        <p className="text-gray-2 text-sm font-medium">₪ {raw.price}</p>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-sm mb-1">حالة المنتج</p>
+                                        <p className="text-gray-2 text-sm">{conditionLabel[raw.condition ?? ""] || raw.condition || "-"}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="font-bold text-sm mb-1">حالة المنتج</p>
-                                    <p className="text-gray-2 text-sm">{conditionLabel[raw.condition ?? ""] || raw.condition || "-"}</p>
-                                </div>
-                            </div>
 
-                            {/* SKU */}
-                            {raw.sku && (
+                                {/* SKU */}
+                                {raw.sku && (
+                                    <div className="py-4 border-b border-gray-100">
+                                        <p className="font-bold text-sm mb-1">رمز المنتج (SKU)</p>
+                                        <p className="text-gray-2 text-sm font-mono">{raw.sku}</p>
+                                    </div>
+                                )}
+
+                                {/* Cities */}
                                 <div className="py-4 border-b border-gray-100">
-                                    <p className="font-bold text-sm mb-1">رمز المنتج (SKU)</p>
-                                    <p className="text-gray-2 text-sm font-mono">{raw.sku}</p>
+                                    <p className="font-bold text-sm mb-3">المدن التي يمكنه التوصيل إليها</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {store?.serviceCities && store.serviceCities.length > 0 ? (
+                                            store.serviceCities.map((city) => (
+                                                <span key={city.id} className="px-3 py-1 bg-[#F0F4F8] text-[#3A5779] text-xs rounded-full font-medium border border-[#E1E8F0]">
+                                                    {city.name}
+                                                </span>
+                                            ))
+                                        ) : (
+                                            <span className="text-xs text-gray-2">لا توجد مدن محددة</span>
+                                        )}
+                                    </div>
                                 </div>
-                            )}
 
-                            {/* Cities */}
-                            <div className="py-4 border-b border-gray-100">
-                                <p className="font-bold text-sm mb-3">المدن التي يمكنه التوصيل إليها</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {store?.serviceCities && store.serviceCities.length > 0 ? (
-                                        store.serviceCities.map((city) => (
-                                            <span key={city.id} className="px-3 py-1 bg-[#F0F4F8] text-[#3A5779] text-xs rounded-full font-medium border border-[#E1E8F0]">
-                                                {city.name}
-                                            </span>
-                                        ))
-                                    ) : (
-                                        <span className="text-xs text-gray-2">لا توجد مدن محددة</span>
-                                    )}
+                                {/* Tags / Keywords */}
+                                <div className="py-4 mb-4">
+                                    <p className="font-bold text-sm mb-2">الكلمات المفتاحية</p>
+                                    <div className="flex flex-wrap gap-1">
+                                        {raw.tags && raw.tags.length > 0 ? (
+                                            raw.tags.map((tag: string, idx: number) => (
+                                                <span key={idx} className="text-gray-2 text-xs leading-relaxed bg-gray-50 px-2 py-1 rounded">
+                                                    {tag}
+                                                </span>
+                                            ))
+                                        ) : (
+                                            <span className="text-gray-2 text-xs">لا توجد كلمات مفتاحية</span>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* Tags / Keywords */}
-                            <div className="py-4 mb-4">
-                                <p className="font-bold text-sm mb-2">الكلمات المفتاحية</p>
-                                <div className="flex flex-wrap gap-1">
-                                    {raw.tags && raw.tags.length > 0 ? (
-                                        raw.tags.map((tag: string, idx: number) => (
-                                            <span key={idx} className="text-gray-2 text-xs leading-relaxed bg-gray-50 px-2 py-1 rounded">
-                                                {tag}
-                                            </span>
-                                        ))
-                                    ) : (
-                                        <span className="text-gray-2 text-xs">لا توجد كلمات مفتاحية</span>
-                                    )}
+                                {/* Contact Buttons */}
+                                <div className="flex flex-col gap-3">
+                                    <Button className="w-full bg-[#3A5779] hover:bg-[#2c425e] text-white font-bold h-12 rounded-lg gap-2 text-sm">
+                                        <span>{store?.phone || "+972 *** *** ***"}</span>
+                                        <Phone className="w-5 h-5" />
+                                    </Button>
+                                    <Button variant="outline" className="w-full border-[#3A5779] text-[#3A5779] bg-transparent font-bold h-12 rounded-lg gap-2 text-sm">
+                                        <span>دردشة</span>
+                                        <Send className="w-5 h-5 rotate-45" />
+                                    </Button>
                                 </div>
-                            </div>
-
-                            {/* Contact Buttons */}
-                            <div className="flex flex-col gap-3">
-                                <Button className="w-full bg-[#3A5779] hover:bg-[#2c425e] text-white font-bold h-12 rounded-lg gap-2 text-sm">
-                                    <span>{store?.phone || "+972 *** *** ***"}</span>
-                                    <Phone className="w-5 h-5" />
-                                </Button>
-                                <Button variant="outline" className="w-full border-[#3A5779] text-[#3A5779] bg-transparent font-bold h-12 rounded-lg gap-2 text-sm">
-                                    <span>دردشة</span>
-                                    <Send className="w-5 h-5 rotate-45" />
-                                </Button>
-                            </div>
 
                             </div>{/* end p-6 */}
                         </div>
