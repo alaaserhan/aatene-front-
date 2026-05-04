@@ -60,7 +60,27 @@ export const useSendMessage = () => {
 export const useConversationMessages = (conversationId: number | string, ignoreCookie: boolean = false, enabled: boolean = true) => {
     return useQuery({
         queryKey: ["conversation-messages", conversationId, ignoreCookie],
-        queryFn: () => api.getConversationMessages(conversationId, ignoreCookie),
+        queryFn: async () => {
+            console.log("[chat-debug] messages-query-fetch-start", {
+                conversationId,
+                ignoreCookie,
+                enabled,
+            });
+            try {
+                const response = await api.getConversationMessages(conversationId, ignoreCookie);
+                console.log("[chat-debug] messages-query-fetch-success", {
+                    conversationId,
+                    messagesCount: response.messages?.length ?? 0,
+                });
+                return response;
+            } catch (error) {
+                console.error("[chat-debug] messages-query-fetch-error", {
+                    conversationId,
+                    error,
+                });
+                throw error;
+            }
+        },
         enabled: !!conversationId && enabled,
         staleTime: 0,
         refetchOnMount: "always",

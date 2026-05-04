@@ -83,6 +83,13 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const activeConversation = selectedConversation ?? pendingConversation;
 
     const handleSelectConversation = useCallback((conversation: Conversation) => {
+        const currentChatParam = searchParams.get("chat");
+        console.log("[chat-debug] sidebar-click", {
+            fromChatParam: currentChatParam,
+            toConversationId: conversation.id,
+            toConversationName: conversation.name,
+            pathname,
+        });
         setPendingConversation(conversation);
         const params = new URLSearchParams(searchParams.toString());
         params.delete("type");
@@ -92,6 +99,26 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         params.set("chat", String(conversation.id));
         router.push(`${pathname}?${params.toString()}`);
     }, [searchParams, pathname, router]);
+
+    useEffect(() => {
+        const chatParam = searchParams.get("chat");
+        console.log("[chat-debug] url-chat-param-changed", {
+            chatParam,
+            selectedConversationId: selectedConversation?.id ?? null,
+            pendingConversationId: pendingConversation?.id ?? null,
+            activeConversationId: activeConversation?.id ?? null,
+            conversationsLoaded: allConversations.length,
+        });
+    }, [searchParams, selectedConversation, pendingConversation, activeConversation, allConversations.length]);
+
+    useEffect(() => {
+        console.log("[chat-debug] active-conversation-changed", {
+            activeConversationId: activeConversation?.id ?? null,
+            activeConversationName: activeConversation?.name ?? null,
+            selectedConversationId: selectedConversation?.id ?? null,
+            pendingConversationId: pendingConversation?.id ?? null,
+        });
+    }, [activeConversation, selectedConversation, pendingConversation]);
 
     const handleCloseChat = useCallback(() => {
         setPendingConversation(null);
