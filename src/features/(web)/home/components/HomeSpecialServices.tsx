@@ -24,10 +24,10 @@ export default function HomeSpecialServices({ services: initialServices }: HomeS
                 <div className="flex flex-col mb-10">
                     <h2 className="text-xl md:text-2xl font-medium mb-2">
                         خدمات مميزة تم اختيارها لأجلك
-                    </h2>
+                    {/* </h2>
                     <p className="text-gray-2 text-sm md:text-base">
                         أفضل الخدمات مبيعاً من بائعين موثوق بهم | ممول
-                    </p>
+                    </p> */}
                 </div>
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-6">

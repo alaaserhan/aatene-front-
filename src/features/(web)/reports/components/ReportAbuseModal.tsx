@@ -120,8 +120,8 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent
-                className="z-[200] max-w-[500px] w-[95vw] h-auto max-h-[90vh] overflow-y-auto p-6 rounded-2xl"
-                overlayClassName="z-[199]"
+                className="z-[1001] max-w-[500px] w-[95vw] h-auto max-h-[90vh] overflow-y-auto p-6 rounded-2xl"
+                overlayClassName="z-[1000]"
                 dir="rtl"
             >
                 <DialogDescription className="sr-only">
