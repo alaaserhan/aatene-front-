@@ -355,7 +355,7 @@ export default function SearchFilters({
                             <DualRangeSlider
                                 min={sliderMin}
                                 max={sliderMax}
-                                step={10}
+                                step={1}
                                 value={[minVal, maxVal]}
                                 onValueChange={(val) =>
                                     onFilterChange({ ...filters, min_price: val[0], max_price: val[1] })
