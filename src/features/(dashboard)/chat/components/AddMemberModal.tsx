@@ -9,7 +9,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { usePreviousParticipants, useAddParticipant } from "../hooks";
-import { ParticipantData } from "../api";
+import { Participant, ParticipantData } from "../api";
 import { toast } from "sonner";
 import { cn } from "@/src/lib/utils";
 
@@ -17,10 +17,11 @@ interface AddMemberModalProps {
     isOpen: boolean;
     onClose: () => void;
     conversationId: number;
+    existingParticipants: Participant[];
     ignoreCookie?: boolean;
 }
 
-export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }: AddMemberModalProps) {
+export function AddMemberModal({ isOpen, onClose, conversationId, existingParticipants, ignoreCookie }: AddMemberModalProps) {
     const [selectedParticipant, setSelectedParticipant] = useState<string | null>(null);
 
     const { data: participantsData, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = usePreviousParticipants(ignoreCookie);
@@ -35,14 +36,18 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
 
     const uniqueParticipants = useMemo(() => {
         if (!participantsData?.pages) return [];
+        const existingKeys = new Set(
+            existingParticipants.map((p) => `${p.participant_data.type}-${String(p.participant_data.id)}`)
+        );
         const seen = new Set<string>();
         return participantsData.pages.flatMap(p => p.participants).filter((p) => {
             const key = `${p.type}-${p.id}`;
+            if (existingKeys.has(key)) return false;
             if (seen.has(key)) return false;
             seen.add(key);
             return true;
         });
-    }, [participantsData]);
+    }, [participantsData, existingParticipants]);
 
     const handleSelectParticipant = (participant: ParticipantData) => {
         const key = `${participant.type}-${participant.id}`;
@@ -116,7 +121,7 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
                                         const isSelected = selectedParticipant === key;
                                         return (
                                             <div
-                                                key={participant.id}
+                                                key={`${participant.type}-${participant.id}`}
                                                 className="flex items-center  p-3 hover:bg-gray-50 cursor-pointer"
                                                 onClick={() => handleSelectParticipant(participant)}
                                             >

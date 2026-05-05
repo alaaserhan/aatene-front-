@@ -705,10 +705,12 @@ function WorkingStatusModal({
                     <h3 className={cn("mt-3 text-[28px] sm:text-[30px] leading-tight font-bold", config.titleClass)}>
                         {config.title}
                     </h3>
+                    {/*
                     <p className="mt-2 text-[#6B6B6B] text-[12px] sm:text-[13px] leading-[1.5] max-w-[560px]">
                         ان كنت متابع لهذا المتجر ومفعل الاشعارات سيتم <br />
                         اعلامك بكل الأنشطة الخاصة به
                     </p>
+                    */}
                 </div>
 
                 {/* جدول مواعيد الأسبوع */}
@@ -777,11 +779,13 @@ function WorkingStatusModal({
                 <div className="flex flex-col items-center text-center pt-1 pb-3">
                     <img src={config.image} alt="" className={cn("object-contain", config.imageClass)} />
                     <h3 className={cn("mt-4 text-[26px] leading-tight font-bold", config.titleClass)}>{config.title}</h3>
+                    {/*
                     <p className="mt-2 text-[#6B6B6B] text-[13px] leading-relaxed max-w-[560px]">
                         ان كنت متابع لهذا المتجر ومفعل الاشعارات سيتم
                         <br />
                         اعلامك بكل الأنشطة الخاصة به
                     </p>
+                    */}
                 </div>
                 {isScheduleModal && (
                     <div>

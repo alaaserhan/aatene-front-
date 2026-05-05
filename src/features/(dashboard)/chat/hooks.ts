@@ -98,6 +98,20 @@ export const useBlockUser = () => {
     });
 };
 
+export const useUnblockUser = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationKey: ["unblock-user"],
+        mutationFn: ({ payload, ignoreCookie }: { payload: api.UnblockUserPayload; ignoreCookie?: boolean }) =>
+            api.unblockUser(payload, ignoreCookie),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QK.conversations });
+            queryClient.invalidateQueries({ queryKey: ["blocked-users"] });
+        },
+    });
+};
+
 export const useDeleteConversation = () => {
     const queryClient = useQueryClient();
 

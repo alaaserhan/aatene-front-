@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useMemo } from "react";
-import { useConversationMessages, useSendMessage, useMarkMessageAsSeen, useBlockUser, useDeleteConversation } from "../hooks";
+import { useConversationMessages, useSendMessage, useMarkMessageAsSeen, useBlockUser, useUnblockUser, useDeleteConversation } from "../hooks";
 import { Conversation } from "../api";
 import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon, Star, User, Store, X } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
@@ -43,6 +43,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     const { mutate: sendMessage } = useSendMessage();
     const { mutate: markSeen } = useMarkMessageAsSeen();
     const { mutate: blockUser } = useBlockUser();
+    const { mutate: unblockUser } = useUnblockUser();
     const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversation();
 
     const [newMessage, setNewMessage] = useState("");
@@ -72,6 +73,9 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     const isMerchant = isDashboard && user?.user_type === "merchant";
     const currentParticipantType = isMerchant ? "store" : "user";
     const currentParticipantId = isMerchant ? Cookies.get("current_store_id") : (user?.id ? String(user.id) : undefined);
+    const isCurrentOwner =
+        String(conversation.owner_id) === String(currentParticipantId) &&
+        conversation.owner_type === currentParticipantType;
 
     const otherParticipant = conversation.participants.find(
         p => !(p.participant_data.type === currentParticipantType && String(p.participant_data.id) === String(currentParticipantId))
@@ -327,18 +331,20 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
 
                             <div className="h-px bg-gray-100 my-1" />
 
-                            <DropdownMenuItem
-                                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
-                                onSelect={(e) => {
-                                    e.preventDefault();
-                                    setShowAddMemberModal(true);
-                                }}
-                            >
-                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
-                                    <UserPlus className="w-4 h-4 text-gray-600" />
-                                </div>
-                                <span className="font-medium text-gray-700">اضافة عضو جديد</span>
-                            </DropdownMenuItem>
+                            {conversation.type === "group" && (
+                                <DropdownMenuItem
+                                    className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
+                                    onSelect={(e) => {
+                                        e.preventDefault();
+                                        setShowAddMemberModal(true);
+                                    }}
+                                >
+                                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+                                        <UserPlus className="w-4 h-4 text-gray-600" />
+                                    </div>
+                                    <span className="font-medium text-gray-700">اضافة عضو جديد</span>
+                                </DropdownMenuItem>
+                            )}
 
                             {(conversation.can_chat !== false || isMeBlocked) && conversation.type !== "group" && (
                                 <DropdownMenuItem
@@ -348,14 +354,15 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                         if (!isMeBlocked && conversation.can_chat === false) {
                                             // Already blocked by me → unblock directly
                                             if (otherParticipant) {
-                                                blockUser({
+                                                unblockUser({
                                                     payload: {
                                                         blocked_type: otherParticipant.participant_data.type,
                                                         blocked_id: otherParticipant.participant_data.id,
                                                     },
                                                     ignoreCookie
                                                 }, {
-                                                    onSuccess: () => toast.success("تم إلغاء الحظر بنجاح")
+                                                    onSuccess: () => toast.success("تم إلغاء الحظر بنجاح"),
+                                                    onError: () => toast.error("تعذر إلغاء الحظر"),
                                                 });
                                             }
                                         } else {
@@ -373,7 +380,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             )}
 
 
-                            {String(conversation.owner_id) === String(user?.id) && (
+                            {(conversation.type === "direct" || (conversation.type === "group" && isCurrentOwner)) && (
                                 <>
                                     <div className="h-px bg-gray-100 my-1" />
                                     <DropdownMenuItem
@@ -707,7 +714,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                 <Button
                                     onClick={() => {
                                         if (otherParticipant) {
-                                            blockUser({
+                                            unblockUser({
                                                 payload: {
                                                     blocked_type: otherParticipant.participant_data.type,
                                                     blocked_id: otherParticipant.participant_data.id,
@@ -716,6 +723,9 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                             }, {
                                                 onSuccess: () => {
                                                     toast.success("تم إلغاء الحظر بنجاح");
+                                                },
+                                                onError: () => {
+                                                    toast.error("تعذر إلغاء الحظر");
                                                 }
                                             });
                                         }
@@ -733,6 +743,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                     isOpen={showAddMemberModal}
                     onClose={() => setShowAddMemberModal(false)}
                     conversationId={conversation.id}
+                    existingParticipants={conversation.participants}
                     ignoreCookie={ignoreCookie}
                 />
 
