@@ -18,7 +18,7 @@ import {
 import { ChevronLeft, ChevronRight, SlidersHorizontal, Tag as TagIcon, X } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { CompareFloatingBar } from "../compares/components/CompareFloatingBar";
-import { Category, City, Tag, Attribute } from "@/src/features/(web)/searchAndFilter/api";
+import { Category, City, Tag, Attribute, PriceRange } from "@/src/features/(web)/searchAndFilter/api";
 
 export type SearchType = "products" | "services" | "stores" | "users";
 
@@ -90,7 +90,7 @@ function SearchContent({ type }: { type: SearchType }) {
     const { data: usersPageData } = useUsersSearchPage(type === "users", filters.category_id);
 
     // Current filter data based on type
-    const filterData: { categories: Category[], cities: City[], tags: Tag[], attributes: Attribute[] } = useMemo(() => {
+    const filterData: { categories: Category[], cities: City[], tags: Tag[], attributes: Attribute[], priceRange?: PriceRange } = useMemo(() => {
         switch (type) {
             case "products":
                 return {
@@ -98,6 +98,7 @@ function SearchContent({ type }: { type: SearchType }) {
                     cities: productsPageData?.cities || [],
                     tags: productsPageData?.tags || [],
                     attributes: productsPageData?.attributes || [],
+                    priceRange: productsPageData?.price_range,
                 };
             case "services":
                 return {
@@ -105,6 +106,7 @@ function SearchContent({ type }: { type: SearchType }) {
                     cities: servicesPageData?.cities || [],
                     tags: servicesPageData?.tags || [],
                     attributes: [],
+                    priceRange: servicesPageData?.price_range,
                 };
             case "stores":
                 return {
@@ -399,6 +401,7 @@ function SearchContent({ type }: { type: SearchType }) {
                             cities={filterData.cities}
                             tags={filterData.tags}
                             attributes={filterData.attributes}
+                            priceRange={filterData.priceRange}
                         />
                     </aside>
                 )}
@@ -429,6 +432,7 @@ function SearchContent({ type }: { type: SearchType }) {
                 categories={filterData.categories}
                 cities={filterData.cities}
                 tags={filterData.tags}
+                priceRange={filterData.priceRange}
             />
         </div>
     );

@@ -21,7 +21,9 @@ export interface Category {
     parent_id: string | null;
     products_count: string | number;
     services_count?: string | number;
-    /** من الـ API (CategoryResource) — الفرونت يفردها للفلتر */
+    /** المتغير الجديد من نفس الـ API */
+    childrenWithProducts?: Category[];
+    /** توافق خلفي مؤقت لو رجعت بعض الاستجابات بالحقل القديم */
     children?: Category[];
 }
 

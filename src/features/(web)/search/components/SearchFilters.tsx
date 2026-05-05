@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { Category, City, Tag, Attribute } from "@/src/features/(web)/searchAndFilter/api";
+import { Category, City, Tag, Attribute, PriceRange } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
 import { SlidersHorizontal, ChevronDown } from "lucide-react";
 import { DualRangeSlider } from "@/src/components/ui/DualRangeSlider";
@@ -31,6 +31,7 @@ interface SearchFiltersProps {
     cities?: City[];
     tags?: Tag[];
     attributes?: Attribute[];
+    priceRange?: PriceRange;
     className?: string;
 }
 
@@ -171,6 +172,7 @@ export default function SearchFilters({
     cities = [],
     tags = [],
     attributes = [],
+    priceRange,
     className,
 }: SearchFiltersProps) {
     const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
@@ -260,9 +262,19 @@ export default function SearchFilters({
         });
     };
 
-    // Range slider values
-    const minVal = filters.min_price || 0;
-    const maxVal = filters.max_price || 1000;
+    // Dynamic price range from API (products/services search-page)
+    const sliderMin = useMemo(() => {
+        const parsed = Number(priceRange?.min);
+        return Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0;
+    }, [priceRange?.min]);
+    const sliderMax = useMemo(() => {
+        const parsed = Number(priceRange?.max);
+        if (!Number.isFinite(parsed)) return 5000;
+        return Math.max(sliderMin, Math.ceil(parsed));
+    }, [priceRange?.max, sliderMin]);
+
+    const minVal = filters.min_price ?? sliderMin;
+    const maxVal = filters.max_price ?? sliderMax;
 
     return (
         <div className={cn("flex flex-col gap-0 bg-white rounded-xl border border-gray-200 overflow-hidden", className)}>
@@ -341,8 +353,8 @@ export default function SearchFilters({
                     <FilterSection title=" السعر" defaultOpen={false}>
                         <div className="flex flex-col gap-6 px-1 py-2">
                             <DualRangeSlider
-                                min={0}
-                                max={5000}
+                                min={sliderMin}
+                                max={sliderMax}
                                 step={10}
                                 value={[minVal, maxVal]}
                                 onValueChange={(val) =>
