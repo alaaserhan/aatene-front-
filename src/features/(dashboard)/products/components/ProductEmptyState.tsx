@@ -7,11 +7,11 @@ import { Plus, Layers, PackageX } from "lucide-react";
 
 interface ProductEmptyStateProps {
     type: "no-sections" | "no-products";
-    /** عند التوفّر، يفتح نافذة إضافة القسم بدلاً من الانتقال لصفحة الأقسام */
-    onAddSection?: () => void;
+    /** الإجراء الأساسي للزر (مثلاً التوجه لإضافة منتج) */
+    onAddProduct?: () => void;
 }
 
-export function ProductEmptyState({ type, onAddSection }: ProductEmptyStateProps) {
+export function ProductEmptyState({ type, onAddProduct }: ProductEmptyStateProps) {
     const isNoSections = type === "no-sections";
 
     return (
@@ -32,26 +32,26 @@ export function ProductEmptyState({ type, onAddSection }: ProductEmptyStateProps
 
             <p className="text-sm text-gray-3 mb-8 max-w-sm mx-auto leading-relaxed">
                 {isNoSections
-                    ? "يجب عليك إضافة أقسام للمتجر أولاً لتتمكن من تصنيف وإضافة المنتجات بداخله."
+                    ? "يمكنك إضافة منتجك الأول الآن، ويمكنك إنشاء الأقسام أثناء الإضافة."
                     : "أضف منتجاتك الآن وابدأ في البيع، يمكنك إضافة تفاصيل كاملة وصور للمنتج."}
             </p>
 
-            {isNoSections && onAddSection ? (
+            {isNoSections && onAddProduct ? (
                 <Button
                     type="button"
-                    onClick={onAddSection}
+                    onClick={onAddProduct}
                     className="bg-blue-3 text-white py-5 cursor-pointer rounded-xs"
                 >
                     <Plus className="w-5 h-5" />
-                    إضافة قسم جديد
+                    إضافة منتج جديد
                 </Button>
             ) : (
-                <Link href={isNoSections ? "/admin/sections" : "/admin/products/add"}>
+                <Link href="/admin/products/add">
                     <Button
                         className="bg-blue-3 text-white  py-5 cursor-pointer rounded-xs"
                     >
                         <Plus className="w-5 h-5" />
-                        {isNoSections ? " إضافة قسم جديد" : "إضافة منتج جديد"}
+                        {"إضافة منتج جديد"}
                     </Button>
                 </Link>
             )}

@@ -326,12 +326,12 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
               ) : !isLoadingSections && !hasSections ? (
                 <button
                   type="button"
-                  onClick={() => setIsSectionModalOpen(true)}
+                  onClick={() => router.push(merchantAddHref)}
                   className="flex text-sm items-center gap-2 cursor-pointer px-2 sm:px-6 py-2 text-white rounded-lg font-medium transition-colors"
                   style={{ backgroundColor: "var(--blue-3)" }}
                 >
                   <Plus className="sm:w-5 sm:h-5 w-4 h-4" />
-                  إضافة قسم
+                  أضف منتج
                 </button>
               ) : null}
               <button
@@ -468,7 +468,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
             {isMerchant && !isLoadingSections && !hasSections ? (
               <ProductEmptyState
                 type="no-sections"
-                onAddSection={() => setIsSectionModalOpen(true)}
+                onAddProduct={() => router.push(merchantAddHref)}
               />
             ) : (
               <div className="grid grid-cols-12 gap-6 items-start">
