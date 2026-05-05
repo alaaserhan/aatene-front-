@@ -75,9 +75,6 @@ export default function ComparePage() {
         }
     };
 
-    const toggleType = () => {
-        setCompareType((prev) => (prev === "products" ? "services" : "products"));
-    };
 
     const handleToggleFavorite = (item: { id: number | string; isFavorite: boolean }) => {
         if (item.isFavorite) {
@@ -121,12 +118,30 @@ export default function ComparePage() {
                             <p className="text-gray-2 text-sm">اختر أي {compareType === "products" ? "منتج" : "خدمة"} لإظهار تفاصيلها</p>
                         </div>
                     </div>
-                    <button
-                        onClick={toggleType}
-                        className="bg-blue-4 text-sm text-white px-6 py-2 rounded-md font-medium hover:bg-[#2d4a6b] transition-colors cursor-pointer"
-                    >
-                        {compareType === "products" ? "مقارنة الخدمات" : "مقارنة المنتجات"}
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setCompareType("products")}
+                            className={cn(
+                                "text-sm px-6 py-2 rounded-md font-medium transition-colors cursor-pointer",
+                                compareType === "products"
+                                    ? "bg-blue-4 text-white"
+                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            )}
+                        >
+                            مقارنة المنتجات
+                        </button>
+                        <button
+                            onClick={() => setCompareType("services")}
+                            className={cn(
+                                "text-sm px-6 py-2 rounded-md font-medium transition-colors cursor-pointer",
+                                compareType === "services"
+                                    ? "bg-blue-4 text-white"
+                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            )}
+                        >
+                            مقارنة الخدمات
+                        </button>
+                    </div>
                 </div>
 
                 {/* Compare Table */}

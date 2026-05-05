@@ -389,7 +389,7 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
 
       <ProductFormActions
         onNext={handleSubmit}
-        onCancel={() => router.push(`/admin/blogs/${storeId}`)}
+        onCancel={() => router.push(`/admin/blogs`)}
         nextLabel={isEditMode ? "تعديل المقال" : "إضافة المقال"}
         cancelLabel="إلغاء"
         isSubmitting={isSubmitting}
