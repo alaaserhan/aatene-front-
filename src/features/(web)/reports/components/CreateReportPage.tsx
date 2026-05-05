@@ -23,6 +23,7 @@ const TYPE_TO_CATEGORY: Record<string, string> = {
 };
 
 export default function CreateReportPage({ type, id }: CreateReportPageProps) {
+    const CONTENT_MAX_WORDS = 150;
     const lang = useLanguage();
     const router = useRouter();
     const [step, setStep] = useState(1);
@@ -40,6 +41,16 @@ export default function CreateReportPage({ type, id }: CreateReportPageProps) {
         return true;
     }) || [];
 
+    const countWords = (text: string) => {
+        return text.trim().split(/\s+/).filter(Boolean).length;
+    };
+
+    const trimToWordLimit = (text: string, maxWords: number) => {
+        const words = text.trim().split(/\s+/).filter(Boolean);
+        if (words.length <= maxWords) return text;
+        return words.slice(0, maxWords).join(" ");
+    };
+
     const handleNext = () => {
         if (selectedTypeId) {
             setStep(2);
@@ -48,6 +59,7 @@ export default function CreateReportPage({ type, id }: CreateReportPageProps) {
 
     const handleSubmit = () => {
         if (!selectedTypeId || !content.trim()) return;
+        if (countWords(content) > CONTENT_MAX_WORDS) return;
 
         const payload: CreateReportPayload = {
             report_type_id: selectedTypeId,
@@ -175,17 +187,27 @@ export default function CreateReportPage({ type, id }: CreateReportPageProps) {
                                 </label>
                                 <textarea
                                     value={content}
-                                    onChange={(e) => setContent(e.target.value)}
+                                    onChange={(e) => {
+                                        const next = e.target.value;
+                                        if (countWords(next) <= CONTENT_MAX_WORDS) {
+                                            setContent(next);
+                                            return;
+                                        }
+                                        setContent(trimToWordLimit(next, CONTENT_MAX_WORDS));
+                                    }}
                                     placeholder="اكتب هنا"
                                     rows={5}
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-right text-sm focus:outline-none focus:border-[#3d5e83] transition-colors resize-y placeholder:text-[#bdc4cd]"
                                 />
+                                <div className="text-xs text-gray-500 text-left" dir="ltr">
+                                    {countWords(content)}/{CONTENT_MAX_WORDS} words
+                                </div>
                             </div>
                         </div>
 
                         <button
                             onClick={handleSubmit}
-                            disabled={isPending || !content.trim()}
+                            disabled={isPending || !content.trim() || countWords(content) > CONTENT_MAX_WORDS}
                             className="w-full py-3.5 rounded-full text-white font-medium text-base transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             style={{ backgroundColor: '#3d5e83' }}
                         >

@@ -78,18 +78,18 @@ export default function ReportDetailsModal({ isOpen, onClose, uuid }: ReportDeta
                             </div>
 
                             {/* Description */}
-                            <div className="flex items-center justify-between py-4 border-b border-gray-200">
-                                <span className="font-medium  text-sm md:text-base">الوصف</span>
-                                <span className="text-[#444] text-sm  max-w-[280px]">
+                            <div className="py-4 border-b border-gray-200">
+                                <span className="block font-medium text-sm md:text-base mb-2">الوصف</span>
+                                <span className="block text-[#444] text-sm text-right whitespace-pre-wrap break-all leading-relaxed">
                                     {report.content || "—"}
                                 </span>
                             </div>
 
                             {/* Response (if any) */}
                             {report.response_text && (
-                                <div className="flex items-center justify-between py-4 border-b border-gray-200">
-                                    <span className="font-medium  text-sm md:text-base">الرد</span>
-                                    <span className="text-[#444] text-sm  max-w-[280px] ">
+                                <div className="py-4 border-b border-gray-200">
+                                    <span className="block font-medium text-sm md:text-base mb-2">الرد</span>
+                                    <span className="block text-[#444] text-sm text-right whitespace-pre-wrap break-all leading-relaxed">
                                         {report.response_text}
                                     </span>
                                 </div>
