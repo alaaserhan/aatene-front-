@@ -227,7 +227,7 @@ export function AddKnowledgePage() {
                                             تصفح أو اسحب وأسقط الملف هنا
                                         </p>
                                         <p className="text-xs sm:text-sm text-gray-500 leading-relaxed px-2">
-                                            يدعم ملفات DOCS، CSV. بحجم يصل إلى 0.5 ميغابايت وبحد أقصى 500
+                                            يدعم ملفات PDF وWord (doc/docx) بحجم يصل إلى 10 ميغابايت
                                         </p>
                                         {selectedFile && (
                                             <p className="text-sm font-medium text-[#405D7E] pt-1 break-all">
