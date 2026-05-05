@@ -94,10 +94,10 @@ export default function AboutPage() {
     const vision = aboutUs?.sectionVision;
     const visionCards = vision
         ? [
-              { title: "رؤيتنا",   description: vision.vision  ?? "" },
-              { title: "رسالتنا",  description: vision.message ?? "" },
-              { title: "أهدافنا",  description: vision.goals   ?? "" },
-          ]
+            { title: "رؤيتنا", description: vision.vision ?? "" },
+            { title: "رسالتنا", description: vision.message ?? "" },
+            { title: "أهدافنا", description: vision.goals ?? "" },
+        ]
         : FALLBACK_VISION_CARDS;
 
     // ─── Why us ─────────────────────────────────────────────────────
@@ -116,7 +116,7 @@ export default function AboutPage() {
     });
 
     // ─── Merchants ──────────────────────────────────────────────────
-    const merchantsTitle   = aboutUs?.sectionMerchants?.title?.trim()   || "عندك خدمة أو منتج؟ خلّي الناس القريبين يشتروا منك بسهولة!";
+    const merchantsTitle = aboutUs?.sectionMerchants?.title?.trim() || "عندك خدمة أو منتج؟ خلّي الناس القريبين يشتروا منك بسهولة!";
     const merchantsContent = aboutUs?.sectionMerchants?.content?.trim() || "منصة مخصصة لأصحاب المشاريع الصغيرة، الحرفيين، وبائعي المنتجات والخدمات. نوصلك مباشرةً بعملاء منطقتك بطريقة سهلة وسريعة، مع دعم مستمر وأدوات تساعدك على عرض منتجاتك وزيادة مبيعاتك.";
     const apiMerchantsSections = aboutUs?.sectionMerchants?.sections ?? [];
     const merchantsSections = FALLBACK_MERCHANTS_SECTIONS.map((fallback, i) => {
@@ -130,7 +130,7 @@ export default function AboutPage() {
     });
 
     // ─── Customers ──────────────────────────────────────────────────
-    const customersTitle   = aboutUs?.sectionCustomers?.title?.trim()   || "بدك تشتري من أهل بلدك؟";
+    const customersTitle = aboutUs?.sectionCustomers?.title?.trim() || "بدك تشتري من أهل بلدك؟";
     const customersContent = aboutUs?.sectionCustomers?.content?.trim() || "في \"أعطيني\" تلاقي كل احتياجاتك في مكان واحد، من منتجات وخدمات محلية موثوقة. تقدر تتواصل مباشرة مع البائع، تطلب بسهولة، وتستلم بسرعة وبأسعار تناسب ميزانيتك.";
     const apiCustomersSections = aboutUs?.sectionCustomers?.sections ?? [];
     const customersSections = FALLBACK_CUSTOMERS_SECTIONS.map((fallback, i) => {
@@ -339,7 +339,7 @@ export default function AboutPage() {
                             {merchantsContent}
                         </p>
                         <Link
-                            href={`/signup`}
+                            href={`/admin/stores/add`}
                             className="bg-blue-4 text-white px-8 py-3 rounded-md text-sm font-medium hover:opacity-90 transition-opacity inline-block"
                         >
                             انضم اليوم، وخلّي الناس تشتري منك بسهولة
@@ -381,12 +381,7 @@ export default function AboutPage() {
                             {customersContent}
                         </p>
                         <div className="flex gap-4 justify-start flex-wrap w-full">
-                            <Link
-                                href={`/search?type=products`}
-                                className="bg-white text-black min-w-[180px] text-center px-8 py-3 rounded-[10px] text-[16px] font-bold hover:bg-gray-50 transition-colors shadow-sm"
-                            >
-                                تصفح العروض الآن
-                            </Link>
+
                             <Link
                                 href={`/search`}
                                 className="bg-white text-black min-w-[180px] text-center px-8 py-3 rounded-[10px] text-[16px] font-bold hover:bg-gray-50 transition-colors shadow-sm"
@@ -443,7 +438,7 @@ export default function AboutPage() {
                                     textAlign: "right"
                                 }}
                             >
-                                نرحّب بجميع اقتراحاتك وملاحظاتك اللى بتساعدنا نحسن تجربتك  ونطّور المنصة بشكل مستمر 
+                                نرحّب بجميع اقتراحاتك وملاحظاتك اللى بتساعدنا نحسن تجربتك  ونطّور المنصة بشكل مستمر
                             </p>
                         </div>
                         <div className="flex md:flex-col gap-4 items-center shrink-0">

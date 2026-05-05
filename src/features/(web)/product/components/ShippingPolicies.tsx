@@ -32,7 +32,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                     setSelectedCityId(parsed.id);
                     setSelectedCityName(parsed.name);
                     return;
-                } catch {}
+                } catch { }
             }
         }
         if (shippingDetails?.city?.id) {
@@ -40,7 +40,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
             setSelectedCityName(shippingDetails.city.name);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); 
+    }, []);
 
     const [prevCityId, setPrevCityId] = useState<string | number | undefined>(shippingDetails?.city?.id);
     if (shippingDetails?.city?.id !== prevCityId) {
@@ -51,7 +51,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
 
     const filteredCities = useMemo(() => {
         let cities = citiesData?.cities || [];
-        
+
         if (allShippingCompanies && allShippingCompanies.length > 0) {
             const validCityIds = new Set<string>();
             allShippingCompanies.forEach((company) => {
@@ -185,8 +185,8 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                         className="flex items-center gap-3 bg-[#EFF6FF] text-blue-4 px-6 py-2 rounded-full text-sm font-bold border border-blue-4 transition-colors hover:bg-blue-100 cursor-pointer"
                     >
                         <span dir="ltr">
-                            {showPhone 
-                                ? (activeCompany?.phone || store.phone || "") 
+                            {showPhone
+                                ? (activeCompany?.phone || store.phone || "")
                                 : (activeCompany?.phone || store.phone || "").replace(/(\d{3})(\d{3})(\d{3})(\d+)/, "$1 *** *** ***")}
                         </span>
                         <Phone className="w-4 h-4 fill-current" />
