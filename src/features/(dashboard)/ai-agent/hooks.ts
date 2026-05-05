@@ -437,10 +437,10 @@ export function useGetUserAnalyticsReviews(userId: number, params?: { per_page?:
 
 // ─── Knowledge Bank ───────────────────────────────────────────────────────────
 
-export function useGetKnowledgeBank() {
+export function useGetKnowledgeBank(platform?: api.KnowledgeBankPlatform) {
     return useQuery({
-        queryKey: ["knowledge-bank"],
-        queryFn: api.getKnowledgeBank,
+        queryKey: ["knowledge-bank", platform ?? "all"],
+        queryFn: () => api.getKnowledgeBank(platform),
         refetchInterval: 30000,
     });
 }
@@ -448,7 +448,8 @@ export function useGetKnowledgeBank() {
 export function useUploadKnowledge() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (file: File) => api.uploadKnowledge(file, "web"),
+        mutationFn: ({ file, platform }: { file: File; platform: api.KnowledgeBankPlatform }) =>
+            api.uploadKnowledge(file, platform),
         onSuccess: (data) => {
             toast.success(data.message || "تم رفع الملف بنجاح");
             queryClient.invalidateQueries({ queryKey: ["knowledge-bank"] });
@@ -459,15 +460,16 @@ export function useUploadKnowledge() {
     });
 }
 
-export function useDeleteKnowledge() {
+export function useDeleteKnowledge(platform?: api.KnowledgeBankPlatform) {
     const queryClient = useQueryClient();
+    const listKey = ["knowledge-bank", platform ?? "all"] as const;
     return useMutation({
         mutationFn: api.deleteKnowledge,
         onMutate: async (id) => {
             await queryClient.cancelQueries({ queryKey: ["knowledge-bank"] });
-            const previous = queryClient.getQueryData<api.KnowledgeBankListResponse>(["knowledge-bank"]);
+            const previous = queryClient.getQueryData<api.KnowledgeBankListResponse>(listKey);
             if (previous) {
-                queryClient.setQueryData<api.KnowledgeBankListResponse>(["knowledge-bank"], {
+                queryClient.setQueryData<api.KnowledgeBankListResponse>(listKey, {
                     ...previous,
                     data: previous.data.filter((f) => f.id !== id),
                 });
@@ -479,7 +481,7 @@ export function useDeleteKnowledge() {
         },
         onError: (error: AxiosError<{ message: string }>, _id, context) => {
             if (context?.previous) {
-                queryClient.setQueryData(["knowledge-bank"], context.previous);
+                queryClient.setQueryData(listKey, context.previous);
             }
             toast.error(error.response?.data?.message || "فشل حذف الملف");
         },

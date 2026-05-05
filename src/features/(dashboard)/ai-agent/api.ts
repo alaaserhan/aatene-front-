@@ -591,18 +591,52 @@ export const getWebAnalytics = async (): Promise<WebAnalyticsResponse> => {
 };
 
 // ─── Knowledge Bank ───────────────────────────────────────────────────────────
+/** قيم platform في `ai_support_knowledge_bank` — ما يمرّره الفرونت لـ scopeSearch والـ store */
+export type KnowledgeBankPlatform = "web" | "mobile";
+
+/** يطابق `StoreKnowledgeRequest`: mimes:pdf,doc,docx,txt */
+export const KNOWLEDGE_BANK_ACCEPT_INPUT = ".pdf,.doc,.docx,.txt";
+
+/** يطابق `max:10240` (كيلوبايت) في لارافيل = 10 ميجابايت */
+export const KNOWLEDGE_BANK_MAX_FILE_BYTES = 10240 * 1024;
+
+const KNOWLEDGE_BANK_EXTENSIONS = [".pdf", ".doc", ".docx", ".txt"] as const;
+
+export function knowledgeBankPlatformFromSearchParam(value: string | null): KnowledgeBankPlatform {
+    return value === "mobile" ? "mobile" : "web";
+}
+
+/** رسالة خطأ عربية أو null إن كان الملف مقبولاً للرفع */
+export function validateKnowledgeBankFile(file: File): string | null {
+    const lower = file.name.toLowerCase();
+    const extOk = KNOWLEDGE_BANK_EXTENSIONS.some((ext) => lower.endsWith(ext));
+    if (!extOk) {
+        return "يُقبل فقط: PDF، Word (doc/docx)، أو TXT — كما في إعدادات الخادم";
+    }
+    if (file.size > KNOWLEDGE_BANK_MAX_FILE_BYTES) {
+        return "حجم الملف يتجاوز 10 ميجابايت";
+    }
+    return null;
+}
 
 export interface KnowledgeBankItem {
     id: number;
+    platform?: string | null;
     file_name: string;
     file_path: string;
     url: string;
+    status?: string | null;
+    created_at?: string | null;
+    updated_at?: string | null;
+    trained_at?: string | null;
 }
 
 export interface KnowledgeBankListResponse {
     status: boolean;
     message: string;
     data: KnowledgeBankItem[];
+    recordsTotal?: number;
+    recordsFiltered?: number;
 }
 
 export interface KnowledgeBankUploadResponse {
@@ -616,12 +650,16 @@ export interface KnowledgeBankDeleteResponse {
     message: string;
 }
 
-export const getKnowledgeBank = async (): Promise<KnowledgeBankListResponse> => {
-    const { data } = await mainApi.get<KnowledgeBankListResponse>(`${WEB_ADMIN_BASE}/knowledge-bank`);
+export const getKnowledgeBank = async (platform?: KnowledgeBankPlatform): Promise<KnowledgeBankListResponse> => {
+    const qs = platform ? `?platform=${encodeURIComponent(platform)}` : "";
+    const { data } = await mainApi.get<KnowledgeBankListResponse>(`${WEB_ADMIN_BASE}/knowledge-bank${qs}`);
     return data;
 };
 
-export const uploadKnowledge = async (file: File, platform: string = "web"): Promise<KnowledgeBankUploadResponse> => {
+export const uploadKnowledge = async (
+    file: File,
+    platform: KnowledgeBankPlatform = "web"
+): Promise<KnowledgeBankUploadResponse> => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("platform", platform);
