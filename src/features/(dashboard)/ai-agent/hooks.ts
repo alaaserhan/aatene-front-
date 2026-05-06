@@ -1,4 +1,5 @@
 // src/features/(dashboard)/ai-agent/hooks.ts
+import React from "react";
 import {
     useQuery,
     useMutation,
@@ -267,12 +268,38 @@ export function useDeleteAdminMissedQuestion() {
   });
 }
 
+const WEB_CONV_PAGE_SIZE = 100;
+
 export function useGetWebConversations(params?: api.GetWebConversationsParams) {
-    return useQuery({
+    const query = useInfiniteQuery({
         queryKey: ["web-conversations", params?.state, params?.unresolved_human_support, params?.needs_human, params?.platform],
-        queryFn: () => api.getWebConversations(params),
+        queryFn: ({ pageParam = 1 }) =>
+            api.getWebConversations({ ...params, per_page: WEB_CONV_PAGE_SIZE, page: pageParam as number }),
+        getNextPageParam: (lastPage, allPages) => {
+            const fetched = allPages.reduce((sum, p) => sum + p.data.length, 0);
+            return fetched < lastPage.total ? allPages.length + 1 : undefined;
+        },
+        initialPageParam: 1,
         refetchInterval: 30000,
     });
+
+    // جلب الصفحات التالية تلقائياً حتى يكتمل كل شيء
+    const { hasNextPage, isFetchingNextPage, fetchNextPage } = query;
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+        if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+    // دمج كل الصفحات في response واحدة بنفس شكل WebConversationsResponse
+    const allConversations = query.data?.pages.flatMap((p) => p.data) ?? [];
+    const total = query.data?.pages[0]?.total ?? 0;
+    const mergedData: api.WebConversationsResponse | undefined = query.data
+        ? { status: true, message: "", total, data: allConversations }
+        : undefined;
+
+    return { ...query, data: mergedData };
 }
 
 export function useGetWebConversation(conversationId: number) {
