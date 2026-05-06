@@ -195,7 +195,8 @@ export function KnowledgeBasePage() {
                     <tbody className="divide-y divide-gray-100">
                       {filteredFiles.map((file) => {
                         const isFailed = file.status === "failed" || file.status === "error";
-                        const isTrained = file.status === "added_to_kb" || file.status === "trained" || file.status === "completed";
+                        const isProcessing = !file.status || file.status === "pending" || file.status === "processing" || file.status === "in-progress";
+                        const isTrained = !isFailed && !isProcessing && (file.status === "added_to_kb" || file.status === "trained" || file.status === "completed");
                         const trainedAt = file.trained_at || file.updated_at || file.created_at;
                         const formattedDate = trainedAt
                           ? new Date(trainedAt).toLocaleString("ar-SA", {
@@ -215,13 +216,17 @@ export function KnowledgeBasePage() {
                                 <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-red-100 text-red-600">
                                   فشل التدريب
                                 </span>
+                              ) : isProcessing ? (
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-yellow-100 text-yellow-700">
+                                  جاري المعالجة
+                                </span>
                               ) : isTrained ? (
                                 <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-green-100 text-green-700">
                                   تم التدريب
                                 </span>
                               ) : (
-                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-yellow-100 text-yellow-700">
-                                  جاري المعالجة
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600">
+                                  {file.status ?? "غير معروف"}
                                 </span>
                               )}
                             </td>
