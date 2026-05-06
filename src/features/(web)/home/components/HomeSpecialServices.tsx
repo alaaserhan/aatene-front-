@@ -20,6 +20,7 @@ export default function HomeSpecialServices({ services: initialServices }: HomeS
 
     return (
         <section className="py-12 bg-white" dir="rtl">
+            
             <MaxWidthWrapper>
                 <div className="flex flex-col mb-10">
                     <h2 className="text-xl md:text-2xl font-medium mb-2">

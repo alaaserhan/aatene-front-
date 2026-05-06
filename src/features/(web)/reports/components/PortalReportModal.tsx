@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import { useGetReportTypes, useCreateReport } from "../hooks";
 import { CreateReportPayload } from "../api";
@@ -15,9 +15,20 @@ interface PortalReportModalProps {
     category?: string;
 }
 
+const CATEGORY_LABELS: Record<string, string> = {
+    customer: "بلاغات الزبائن",
+    merchant: "بلاغات التجار",
+    product: "بلاغات المنتجات",
+    service: "بلاغات الخدمات",
+    comment: "بلاغات التعليقات",
+};
+
+const CATEGORY_ORDER = ["customer", "merchant", "product", "service", "comment"];
+
 export function PortalReportModal({ isOpen, onClose, category }: PortalReportModalProps) {
     const [step, setStep] = useState(1);
     const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null);
+    const [activeCategory, setActiveCategory] = useState<string>("");
     const [subject, setSubject] = useState("");
     const [content, setContent] = useState("");
 
@@ -37,11 +48,28 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
     const { data: typesData, isLoading: typesLoading } = useGetReportTypes();
     const { mutate: createReport, isPending } = useCreateReport();
 
-    const reportTypes = typesData?.report_types?.filter((t) => {
-        if (!t.is_active) return false;
-        if (category) return t.category === category;
-        return true;
-    }) || [];
+    const allActiveTypes = useMemo(
+        () => typesData?.report_types?.filter((t) => t.is_active) ?? [],
+        [typesData]
+    );
+
+    // Available categories derived from data
+    const availableCategories = useMemo(() => {
+        const cats = new Set(allActiveTypes.map((t) => t.category).filter(Boolean));
+        return CATEGORY_ORDER.filter((c) => cats.has(c));
+    }, [allActiveTypes]);
+
+    // Initialise activeCategory when data loads or modal opens
+    useEffect(() => {
+        if (availableCategories.length > 0 && !activeCategory) {
+            setActiveCategory(category || availableCategories[0]);
+        }
+    }, [availableCategories, category]);
+
+    const filteredTypes = useMemo(
+        () => allActiveTypes.filter((t) => t.category === activeCategory),
+        [allActiveTypes, activeCategory]
+    );
 
     useEffect(() => {
         if (!isOpen) {
@@ -50,14 +78,20 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
                 setSelectedTypeId(null);
                 setSubject("");
                 setContent("");
+                setActiveCategory(category || "");
             }, 300);
             return () => clearTimeout(timer);
         }
     }, [isOpen]);
 
+    // Reset selected type when category changes
+    useEffect(() => {
+        setSelectedTypeId(null);
+    }, [activeCategory]);
+
     const handleNext = () => {
         if (selectedTypeId) {
-            const selectedType = reportTypes.find(t => t.id === selectedTypeId);
+            const selectedType = filteredTypes.find(t => t.id === selectedTypeId);
             if (selectedType) {
                 setSubject(selectedType.name);
             }
@@ -82,13 +116,13 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-[500px] w-[95vw] h-auto max-h-[90vh] overflow-y-auto p-6 rounded-2xl" dir="rtl">
-                {/* Step 1: Select Report Type */}
+            <DialogContent className="max-w-[520px] w-[95vw] h-auto max-h-[90vh] overflow-y-auto p-6 rounded-2xl" dir="rtl">
+                {/* Step 1: Select Category then Report Type */}
                 {step === 1 && (
-                    <div className="flex flex-col items-center gap-6">
+                    <div className="flex flex-col gap-5">
                         <div className="text-center space-y-2">
-                            <DialogTitle className="text-xl font-bold">الإبلاغ عن إساءة</DialogTitle>
-                            <p className="text-gray-500 text-sm">ما الذي نقدر ان نساعدك بيه ؟</p>
+                            <DialogTitle className="text-xl font-bold">تقديم شكوى أو بلاغ</DialogTitle>
+                            <p className="text-gray-500 text-sm">اختر الفئة المناسبة ثم حدد نوع الشكوى</p>
                         </div>
 
                         {typesLoading ? (
@@ -96,30 +130,67 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
                                 <Loader2 className="w-6 h-6 animate-spin text-[#3d5e83]" />
                             </div>
                         ) : (
-                            <div className="w-full space-y-3">
-                                {reportTypes.map((reportType) => (
-                                    <label
-                                        key={reportType.id}
-                                        className="flex items-center gap-3 w-full px-4 py-3 rounded-lg border border-gray-200 cursor-pointer transition-all duration-200 hover:border-[#3d5e83]/40 hover:bg-gray-50"
-                                        style={{
-                                            borderColor: selectedTypeId === reportType.id ? '#3d5e83' : undefined,
-                                            backgroundColor: selectedTypeId === reportType.id ? 'rgba(61,94,131,0.05)' : undefined,
-                                        }}
-                                    >
-                                        <input
-                                            type="radio"
-                                            name="reportType"
-                                            value={reportType.id}
-                                            checked={selectedTypeId === reportType.id}
-                                            onChange={() => setSelectedTypeId(reportType.id)}
-                                            className="w-4 h-4 accent-[#3d5e83]"
-                                        />
-                                        <span className="font-medium text-sm">
-                                            {reportType.name}
-                                        </span>
-                                    </label>
-                                ))}
-                            </div>
+                            <>
+                                {/* Category tabs */}
+                                <div className="grid grid-cols-3 gap-2">
+                                    {availableCategories.slice(0, 3).map((cat) => (
+                                        <button
+                                            key={cat}
+                                            onClick={() => setActiveCategory(cat)}
+                                            className={`py-2 px-1 rounded-xl text-xs font-semibold border transition-all duration-200 cursor-pointer text-center ${
+                                                activeCategory === cat
+                                                    ? "bg-[#3d5e83] text-white border-[#3d5e83] shadow-sm"
+                                                    : "bg-white text-gray-600 border-gray-200 hover:border-[#3d5e83]/50 hover:bg-gray-50"
+                                            }`}
+                                        >
+                                            {CATEGORY_LABELS[cat] ?? cat}
+                                        </button>
+                                    ))}
+                                </div>
+                                {availableCategories.length > 3 && (
+                                    <div className={`grid gap-2 -mt-1 ${availableCategories.length === 4 ? "grid-cols-1" : "grid-cols-2"}`}>
+                                        {availableCategories.slice(3).map((cat) => (
+                                            <button
+                                                key={cat}
+                                                onClick={() => setActiveCategory(cat)}
+                                                className={`py-2 px-1 rounded-xl text-xs font-semibold border transition-all duration-200 cursor-pointer text-center ${
+                                                    activeCategory === cat
+                                                        ? "bg-[#3d5e83] text-white border-[#3d5e83] shadow-sm"
+                                                        : "bg-white text-gray-600 border-gray-200 hover:border-[#3d5e83]/50 hover:bg-gray-50"
+                                                }`}
+                                            >
+                                                {CATEGORY_LABELS[cat] ?? cat}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Types list */}
+                                <div className="w-full space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                                    {filteredTypes.map((reportType) => (
+                                        <label
+                                            key={reportType.id}
+                                            className="flex items-center gap-3 w-full px-4 py-3 rounded-lg border border-gray-200 cursor-pointer transition-all duration-200 hover:border-[#3d5e83]/40 hover:bg-gray-50"
+                                            style={{
+                                                borderColor: selectedTypeId === reportType.id ? '#3d5e83' : undefined,
+                                                backgroundColor: selectedTypeId === reportType.id ? 'rgba(61,94,131,0.05)' : undefined,
+                                            }}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="reportType"
+                                                value={reportType.id}
+                                                checked={selectedTypeId === reportType.id}
+                                                onChange={() => setSelectedTypeId(reportType.id)}
+                                                className="w-4 h-4 accent-[#3d5e83]"
+                                            />
+                                            <span className="font-medium text-sm">
+                                                {reportType.name}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </>
                         )}
 
                         <button

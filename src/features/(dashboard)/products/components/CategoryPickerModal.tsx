@@ -27,6 +27,9 @@ export function CategoryPickerModal({
   selectedCategoryId,
   type = "product",
 }: CategoryPickerModalProps) {
+  const entityLabel = type === "service" ? "خدمة" : "منتج";
+  const entityLabelWithSuffix = type === "service" ? "خدمتك" : "منتجك";
+
   const [navigationStack, setNavigationStack] = useState<NavItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -187,7 +190,7 @@ export function CategoryPickerModal({
               <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
             )}
             <h2 className="text-base font-semibold text-gray-900">
-              اختر الفئة المناسبة للمنتج
+              {`اختر الفئة المناسبة لل${entityLabel}`}
             </h2>
           </div>
         </div>
@@ -196,8 +199,9 @@ export function CategoryPickerModal({
         <div className="flex-shrink-0 px-5 pb-3">
           {navigationStack.length === 0 ? (
             <p className="text-xs text-gray-500 leading-5">
-              حدد التصنيف الأنسب لمنتجك لتسهيل العثور عليه وعرضه في القسم
+              {`حدد التصنيف الأنسب ل${entityLabelWithSuffix} لتسهيل العثور عليه وعرضه في القسم
               المناسب وزيادة فرص البيع.
+              `}
             </p>
           ) : (
             <div className="flex items-center gap-1 flex-wrap text-xs text-gray-500">
