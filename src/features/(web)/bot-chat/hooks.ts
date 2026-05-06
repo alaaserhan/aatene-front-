@@ -1,3 +1,4 @@
+import React from "react";
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
 import {
     getCurrentConversation,
@@ -45,17 +46,48 @@ export const useCurrentConversation = (enabled = true) => {
     });
 };
 
+const USER_CONV_PAGE_SIZE = 100;
+
 export const useUserConversations = (enabled = true) => {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
-    return useQuery({
+    const query = useInfiniteQuery({
         queryKey: ["botChat", "conversations"],
-        queryFn: async () => {
-            const res = await getUserConversations("web");
+        queryFn: async ({ pageParam = 1 }) => {
+            const res = await getUserConversations("web", USER_CONV_PAGE_SIZE, pageParam as number);
             return normalizeUserConversationsPayload(res);
         },
+        getNextPageParam: (lastPage, allPages) => {
+            const total = lastPage.total ?? 0;
+            const fetched = allPages.reduce((sum, p) => {
+                const convs = p.conversations;
+                return sum + (Array.isArray(convs) ? convs.length : (convs as { data?: unknown[] }).data?.length ?? 0);
+            }, 0);
+            return fetched < total ? allPages.length + 1 : undefined;
+        },
+        initialPageParam: 1,
         enabled: enabled && isLoggedIn,
     });
+
+    // جلب كل الصفحات التالية تلقائياً
+    const { hasNextPage, isFetchingNextPage, fetchNextPage } = query;
+    React.useEffect(() => {
+        if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+    // دمج كل الصفحات في response واحدة بنفس شكل GetUserConversationsResponse
+    const allConversations: Conversation[] = query.data?.pages.flatMap((p) => {
+        const convs = p.conversations;
+        return Array.isArray(convs) ? convs : (convs as { data?: Conversation[] }).data ?? [];
+    }) ?? [];
+    const total = query.data?.pages[0]?.total ?? 0;
+    const mergedData: GetUserConversationsResponse | undefined = query.data
+        ? { status: true, message: "", total, conversations: allConversations }
+        : undefined;
+
+    return { ...query, data: mergedData };
 };
 
 export const useStartConversation = () => {

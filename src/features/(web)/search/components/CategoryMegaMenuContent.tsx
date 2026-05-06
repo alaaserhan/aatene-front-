@@ -162,8 +162,10 @@ export default function CategoryMegaMenuContent({
     const columnsBlock = (
         <div
             className={cn(
-                "flex min-w-0 flex-row flex-nowrap gap-2 bg-transparent px-0.5 py-0.5",
-                isMobileLayout ? "w-max max-w-full" : "w-max"
+                "flex min-w-0 gap-2 bg-transparent px-0.5 py-0.5",
+                isMobileLayout
+                    ? "w-full max-w-full flex-col"
+                    : "w-max flex-row flex-nowrap"
             )}
         >
             {/* العمود 0 — التصنيفات الرئيسية (منتجات + خدمات) */}
@@ -171,11 +173,11 @@ export default function CategoryMegaMenuContent({
                 className={cn(
                     "flex shrink-0 flex-col overflow-hidden",
                     isMobileLayout
-                        ? "w-[min(270px,calc(100vw-2rem))] min-w-[200px] max-w-[270px]"
+                        ? "w-full min-w-0 max-w-full"
                         : "min-w-[240px] max-w-[270px]",
                     columnShell,
                     isMobileLayout
-                        ? "max-h-[min(360px,50vh)]"
+                        ? "max-h-[min(320px,42vh)]"
                         : "max-h-[min(400px,58vh)]"
                 )}
             >
@@ -214,11 +216,11 @@ export default function CategoryMegaMenuContent({
                         className={cn(
                             "flex shrink-0 flex-col overflow-hidden",
                             isMobileLayout
-                                ? "w-[min(260px,calc(100vw-2.25rem))] min-w-[180px] max-w-[260px]"
+                                ? "w-full min-w-0 max-w-full"
                                 : "min-w-[220px] max-w-[260px]",
                             columnShell,
                             isMobileLayout
-                                ? "max-h-[min(360px,50vh)]"
+                                ? "max-h-[min(320px,42vh)]"
                                 : "max-h-[min(400px,58vh)]"
                         )}
                     >
@@ -288,7 +290,7 @@ export default function CategoryMegaMenuContent({
             <div
                 className={cn(
                     "min-w-0 overflow-visible",
-                    isMobileLayout && "w-max max-w-full",
+                    isMobileLayout && "w-full max-w-full",
                     className
                 )}
                 dir="rtl"

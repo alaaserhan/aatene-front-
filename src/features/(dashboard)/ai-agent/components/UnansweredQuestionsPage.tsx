@@ -11,6 +11,7 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { formatDateTime } from "@/src/lib/date-helper";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/dialog";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -85,6 +86,7 @@ export function UnansweredQuestionsPage() {
     }, []);
 
     const [viewQuestion, setViewQuestion] = useState<AdminMissedQuestion | null>(null);
+    const [questionToDelete, setQuestionToDelete] = useState<AdminMissedQuestion | null>(null);
     const [isAnswerModalOpen, setIsAnswerModalOpen] = useState(false);
     const [questionToAnswer, setQuestionToAnswer] = useState<AdminMissedQuestion | null>(null);
     const [adminNotes, setAdminNotes] = useState("");
@@ -426,7 +428,7 @@ export function UnansweredQuestionsPage() {
 
                                                                 {/* حذف */}
                                                                 <button
-                                                                    onClick={() => deleteQuestion(question.id)}
+                                                                    onClick={() => setQuestionToDelete(question)}
                                                                     className="cursor-pointer active:scale-95 transition-all flex-shrink-0 w-10 h-10 flex items-center justify-center"
                                                                     title="حذف"
                                                                 >
@@ -495,6 +497,24 @@ export function UnansweredQuestionsPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Delete Confirm Modal */}
+            <ConfirmDeleteModal
+                isOpen={!!questionToDelete}
+                onClose={() => setQuestionToDelete(null)}
+                onConfirm={() => {
+                    if (questionToDelete) {
+                        deleteQuestion(questionToDelete.id, {
+                            onSuccess: () => setQuestionToDelete(null),
+                            onError: () => setQuestionToDelete(null),
+                        });
+                    }
+                }}
+                title="هل أنت متأكد من حذف السؤال؟"
+                description="لا يمكن التراجع عن هذا الإجراء بعد تأكيده."
+                confirmText="نعم، حذف"
+                cancelText="إلغاء"
+            />
 
             {/* Answer / Edit Modal */}
             <Dialog open={isAnswerModalOpen} onOpenChange={setIsAnswerModalOpen}>

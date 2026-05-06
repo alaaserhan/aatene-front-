@@ -323,7 +323,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         initMessaging().then((msg) => {
             if (!msg) return;
             unsubscribe = onMessage(msg, (payload: MessagePayload) => {
-                if (isDuplicateMessage(payload)) return;
+                const duplicate = isDuplicateMessage(payload);
+                if (duplicate) return;
                 playNotificationSound();
 
                 const title = payload.notification?.title || payload.data?.title || "New Notification";
@@ -348,7 +349,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             const handler = (event: MessageEvent) => {
                 if (event.data && event.data.type === 'FCM_MESSAGE_RECEIVED') {
                     const swPayload = event.data.payload || {};
-                    if (isDuplicateMessage(swPayload)) {
+                    const duplicate = isDuplicateMessage(swPayload);
+                    if (duplicate) {
                         refetch();
                         queryClient.invalidateQueries({ queryKey: ["conversations"] });
                         queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });

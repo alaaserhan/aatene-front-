@@ -16,6 +16,7 @@ import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { Input } from "@/src/components/ui/input";
 
 const ITEMS_PER_PAGE = 7;
 
@@ -119,10 +120,6 @@ export function BannersPage() {
     });
   };
 
-  const handleSearch = () => {
-    setCurrentPage(1);
-  };
-
   return (
     <div className="min-h-screen my-8">
       <div className="container mx-auto py-8 px-4">
@@ -156,25 +153,17 @@ export function BannersPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex ">
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                    placeholder="البحث"
-                    className="w-full px-4 py-2 ps-12 border border-gray-200 rounded-s-sm focus:outline-none  text-start"
-                  />
-                  <Search className="absolute start-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-2" />
-                </div>
-                <button
-                  onClick={handleSearch}
-                  className="px-4 py-2 cursor-pointer text-white border-none rounded-e-sm font-medium transition-colors flex items-center justify-center"
-                  style={{ backgroundColor: "var(--blue-3)" }}
-                >
-                  <Search className="w-5 h-5" />
-                </button>
+              <div className="relative bg-white rounded-lg border border-gray-200 min-w-[220px] sm:min-w-[280px]">
+                <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Input
+                  placeholder="ابحث بعنوان البنر..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="pr-10 h-11 border-none shadow-none focus-visible:ring-0 text-right"
+                />
               </div>
               <ReusableDropdown
                 placeholder="حالة الإعلان"

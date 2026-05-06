@@ -195,6 +195,8 @@ export function KnowledgeBasePage() {
                     <tbody className="divide-y divide-gray-100">
                       {filteredFiles.map((file) => {
                         const isFailed = file.status === "failed" || file.status === "error";
+                        const isProcessing = !file.status || file.status === "pending" || file.status === "processing" || file.status === "in-progress";
+                        const isTrained = !isFailed && !isProcessing && (file.status === "added_to_kb" || file.status === "trained" || file.status === "completed");
                         const trainedAt = file.trained_at || file.updated_at || file.created_at;
                         const formattedDate = trainedAt
                           ? new Date(trainedAt).toLocaleString("ar-SA", {
@@ -210,11 +212,23 @@ export function KnowledgeBasePage() {
                           <tr key={file.id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-5 py-4 text-sm text-gray-900">{file.file_name}</td>
                             <td className="px-5 py-4 text-center">
-                              <span
-                                className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-green-100 text-green-700"
-                              >
-                                تم التدريب
-                              </span>
+                              {isFailed ? (
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-red-100 text-red-600">
+                                  فشل التدريب
+                                </span>
+                              ) : isProcessing ? (
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-yellow-100 text-yellow-700">
+                                  جاري المعالجة
+                                </span>
+                              ) : isTrained ? (
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-green-100 text-green-700">
+                                  تم التدريب
+                                </span>
+                              ) : (
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600">
+                                  {file.status ?? "غير معروف"}
+                                </span>
+                              )}
                             </td>
                             <td className="px-5 py-4 text-sm text-gray-500 text-center">
                               {formattedDate}
