@@ -54,17 +54,15 @@ export interface SingleHighlightResponse extends BaseResponse {
 }
 
 export interface CreateStoryPayload {
-  image: string | null;
+  image: string | null | File;
   text: string | null;
   color: string | null;
-  image_file?: File;
 }
 
 export interface UpdateStoryPayload {
-  image: string | null;
+  image: string | null | File;
   text: string | null;
   color: string | null;
-  image_file?: File;
 }
 
 export interface CreateHighlightPayload {
@@ -115,18 +113,22 @@ export const createStory = async ({
 }): Promise<SingleStoryResponse> => {
   const endpoint = getDynamicEndpoint("/stories");
   const headers = getHeaders(storeId);
-  
-  if (payload.image_file) {
+
+  if (payload.image instanceof File) {
     const formData = new FormData();
-    formData.append("image_file", payload.image_file);
+    formData.append("image", payload.image);
     const { data } = await api.post<SingleStoryResponse>(endpoint, formData, {
       headers: { ...headers, "Content-Type": undefined }, // browser يُعيّن boundary تلقائياً
     });
     return data;
   }
 
-  // قصة نصية
+  // قصة نصية أو صورة من media_center
   const body: Record<string, string> = {};
+  if (payload.image) {
+    const fileName = extractFileName(payload.image);
+    if (fileName) body.image = fileName;
+  }
   if (payload.text) body.text = payload.text;
   if (payload.color) body.color = payload.color;
 
@@ -146,10 +148,10 @@ export const updateStory = async ({
   const endpoint = getDynamicEndpoint(`/stories/${id}`);
   const headers = getHeaders(storeId);
 
-  if (payload.image_file) {
+  if (payload.image instanceof File) {
     // صورة جديدة → multipart POST (الداشبورد يقبل POST على /{id} للتعديل)
     const formData = new FormData();
-    formData.append("image_file", payload.image_file);
+    formData.append("image", payload.image);
     const { data } = await api.post<SingleStoryResponse>(endpoint, formData, {
       headers: { ...headers, "Content-Type": undefined }, // browser يُعيّن boundary تلقائياً
     });

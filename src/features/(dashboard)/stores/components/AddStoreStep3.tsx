@@ -108,8 +108,8 @@ export function AddStoreStep3({
 
     const validatePhone = (phone: string, field: string) => {
       if (!phone) return true;
-      if (phone.length !== 9) {
-        newErrors[field] = "يجب أن يكون رقم الهاتف 9 أرقام";
+      if (phone.length !== 10) {
+        newErrors[field] = "يجب أن يكون رقم الهاتف 10 أرقام";
         return false;
       }
       return true;
