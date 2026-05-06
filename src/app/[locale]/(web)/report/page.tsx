@@ -65,7 +65,6 @@ export default function ReportPortalPage() {
             <PortalReportModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)}
-                category="customer"
             />
         </div>
     );
