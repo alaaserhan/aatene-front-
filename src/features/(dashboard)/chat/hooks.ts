@@ -15,7 +15,10 @@ export const useConversations = (storeId?: number | string, ignoreCookie: boolea
         queryKey: [...QK.conversations, storeId, ignoreCookie],
         queryFn: () => api.getConversations(storeId, ignoreCookie),
         enabled: enabled && isLoggedIn,
-        staleTime: 30 * 1000,
+        staleTime: 0,
+        refetchOnMount: "always",
+        refetchOnWindowFocus: true,
+        refetchInterval: isLoggedIn ? 10 * 1000 : false,
     });
 };
 
