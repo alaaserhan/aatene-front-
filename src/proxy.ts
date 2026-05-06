@@ -10,8 +10,7 @@ const I18nMiddleware = createI18nMiddleware({
   locales: ["en", "ar", "he"],
   defaultLocale: "ar",
    urlMappingStrategy: "rewriteDefault",
-    
-   
+
   resolveLocaleFromRequest: () => "ar",
 });
 
