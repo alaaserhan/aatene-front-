@@ -450,8 +450,19 @@ export function useUploadKnowledge() {
     return useMutation({
         mutationFn: ({ file, platform }: { file: File; platform: api.KnowledgeBankPlatform }) =>
             api.uploadKnowledge(file, platform),
-        onSuccess: (data) => {
+        onSuccess: (data, variables) => {
             toast.success(data.message || "تم رفع الملف بنجاح");
+            // أضف الملف الجديد فوراً بحالة "pending" حتى يُعيد الـ query الـ fetch بالحالة الحقيقية
+            const listKey = ["knowledge-bank", variables.platform] as const;
+            queryClient.setQueryData<api.KnowledgeBankListResponse>(listKey, (old) => {
+                if (!old) return old;
+                const newFile: api.KnowledgeBankItem = { ...data.data, status: "pending" };
+                return {
+                    ...old,
+                    recordsFiltered: (old.recordsFiltered ?? old.data.length) + 1,
+                    data: [newFile, ...old.data],
+                };
+            });
             queryClient.invalidateQueries({ queryKey: ["knowledge-bank"] });
         },
         onError: (error: AxiosError<{ message: string }>) => {
