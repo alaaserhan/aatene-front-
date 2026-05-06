@@ -228,6 +228,8 @@ export function useGetAdminMissedQuestions(params?: { status?: "pending" | "revi
   return useQuery({
     queryKey: ["admin-missed-questions", params?.status, params?.platform, params?.search, params?.page],
     queryFn: () => api.getAdminMissedQuestions(params),
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
   });
 }
 
