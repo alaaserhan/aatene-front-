@@ -99,15 +99,15 @@ export function ConversationListSidebar({
 
     const counts = useMemo(() => {
         const total = conversations.length;
-        // User requested: Read = Total - UnreadCount (using the API value)
-        const read = Math.max(0, total - totalUnreadCount);
+        const unread = conversations.filter(isUnread).length;
+        const read = Math.max(0, total - unread);
 
         return {
             total,
-            unread: totalUnreadCount,
+            unread,
             read
         };
-    }, [conversations, totalUnreadCount]);
+    }, [conversations]);
 
     const filteredConversations = useMemo(() => {
         switch (activeTab) {
@@ -120,26 +120,16 @@ export function ConversationListSidebar({
         }
     }, [conversations, activeTab]);
 
-    /** عند فتح محادثة من روابط خارجية (دردشة من البروفايل إلخ): إظهار الصف في القائمة */
+    /** عند فتح محادثة من روابط خارجية: أظهرها فقط في تبويب «الكل» */
     const displayConversations = useMemo(() => {
+        if (activeTab !== "all") return filteredConversations;
         if (!selectedConversationId) return filteredConversations;
         const already = filteredConversations.some((c) => c.id === selectedConversationId);
         if (already) return filteredConversations;
         const selected = conversations.find((c) => c.id === selectedConversationId);
         if (!selected) return filteredConversations;
         return [selected, ...filteredConversations.filter((c) => c.id !== selectedConversationId)];
-    }, [filteredConversations, conversations, selectedConversationId]);
-
-    /** التبويب/البحث الحالي يخفي المحادثة المختارة → أظهر «الكل» وامسح البحث */
-    useEffect(() => {
-        if (!selectedConversationId || conversations.length === 0) return;
-        const conv = conversations.find((c) => c.id === selectedConversationId);
-        if (!conv) return;
-        const visibleInTab = filteredConversations.some((c) => c.id === selectedConversationId);
-        if (!visibleInTab) {
-            setActiveTab("all");
-        }
-    }, [selectedConversationId, conversations, filteredConversations]);
+    }, [activeTab, filteredConversations, conversations, selectedConversationId]);
 
     const scrollTargetDone = useRef<number | null>(null);
 
@@ -168,7 +158,9 @@ export function ConversationListSidebar({
             extraHeaderContent={
                 <div className="flex items-center px-4 mt-2 border-b border-gray-100 gap-6 text-sm font-medium">
                     <button
-                        onClick={() => setActiveTab("all")}
+                        onClick={() => {
+                            setActiveTab("all");
+                        }}
                         className={cn(
                             "flex items-center gap-2 cursor-pointer pb-3 pt-1 border-b-2 transition-colors",
                             activeTab === "all" ? "border-blue-3 text-blue-3" : "border-transparent text-gray-500"
@@ -184,7 +176,9 @@ export function ConversationListSidebar({
                     </button>
 
                     <button
-                        onClick={() => setActiveTab("unread")}
+                        onClick={() => {
+                            setActiveTab("unread");
+                        }}
                         className={cn(
                             "flex items-center gap-2 cursor-pointer pb-3 pt-1 border-b-2 transition-colors",
                             activeTab === "unread" ? "border-blue-3 text-blue-3" : "border-transparent text-gray-500"
@@ -200,7 +194,9 @@ export function ConversationListSidebar({
                     </button>
 
                     <button
-                        onClick={() => setActiveTab("read")}
+                        onClick={() => {
+                            setActiveTab("read");
+                        }}
                         className={cn(
                             "flex items-center gap-2 cursor-pointer pb-3 pt-1 border-b-2 transition-colors",
                             activeTab === "read" ? "border-blue-3 text-blue-3" : "border-transparent text-gray-500"

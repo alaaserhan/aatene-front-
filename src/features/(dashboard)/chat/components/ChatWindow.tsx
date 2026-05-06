@@ -27,6 +27,9 @@ import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ConversationInfoPanel } from "./ConversationInfoPanel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 
+const recentSeenMarkRequests = new Map<string, number>();
+const SEEN_DEDUP_WINDOW_MS = 8000;
+
 interface ChatWindowProps {
     conversation: Conversation;
     onClose?: () => void;
@@ -67,6 +70,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messageIdCounter = useRef(0);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const lastMarkedSeenMessageIdRef = useRef<number | null>(null);
 
     const serverMessages = useMemo(() => (messagesData?.messages || []).slice().reverse(), [messagesData]);
 
@@ -97,6 +101,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         setMediaViewerState({ isOpen: false, media: [], initialIndex: 0 });
         setIsDeleted(false);
         messageIdCounter.current = 0;
+        lastMarkedSeenMessageIdRef.current = null;
     }, [conversation.id]);
 
     useEffect(() => {
@@ -109,16 +114,35 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     }, [serverMessages.length, pendingMessages.length, conversation.id]);
 
     useEffect(() => {
-        if (serverMessages.length > 0) {
-            const lastMessage = serverMessages[serverMessages.length - 1];
-            const isMyMessage = lastMessage.sender_data.participant_type === currentParticipantType &&
-                String(lastMessage.sender_data.participant_id) === String(currentParticipantId);
+        if (serverMessages.length === 0) return;
 
-            if (!isMyMessage) {
-                markSeen({ id: lastMessage.id, ignoreCookie });
-            }
+        // اختر أحدث رسالة واردة من الطرف الآخر بغض النظر عن ترتيب المصفوفة.
+        const latestIncomingMessage = serverMessages.reduce<typeof serverMessages[number] | null>((latest, msg) => {
+            const isMyMessage = msg.sender_data.participant_type === currentParticipantType &&
+                String(msg.sender_data.participant_id) === String(currentParticipantId);
+            if (isMyMessage) return latest;
+            if (!latest) return msg;
+            return new Date(msg.created_at).getTime() > new Date(latest.created_at).getTime() ? msg : latest;
+        }, null);
+
+        if (!latestIncomingMessage) return;
+
+        if (lastMarkedSeenMessageIdRef.current === latestIncomingMessage.id) {
+            return;
         }
-    }, [serverMessages, currentParticipantType, currentParticipantId, markSeen]);
+
+        const dedupKey = `${conversation.id}:${latestIncomingMessage.id}`;
+        const now = Date.now();
+        const lastGlobalRequestAt = recentSeenMarkRequests.get(dedupKey);
+        if (lastGlobalRequestAt && now - lastGlobalRequestAt < SEEN_DEDUP_WINDOW_MS) {
+            return;
+        }
+
+        recentSeenMarkRequests.set(dedupKey, now);
+        lastMarkedSeenMessageIdRef.current = latestIncomingMessage.id;
+
+        markSeen({ id: latestIncomingMessage.id, ignoreCookie });
+    }, [serverMessages, currentParticipantType, currentParticipantId, markSeen, conversation.id, ignoreCookie]);
 
 
     const handleSend = () => {
@@ -317,20 +341,6 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56 p-2 border-gray-200">
-                            <DropdownMenuItem
-                                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
-                                onSelect={() => {
-                                    onClose?.();
-                                }}
-                            >
-                                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
-                                    <CheckCircle className="w-4 h-4 text-green-600" />
-                                </div>
-                                <span className="font-medium text-gray-700">اغلاق المحادثة</span>
-                            </DropdownMenuItem>
-
-                            <div className="h-px bg-gray-100 my-1" />
-
                             {conversation.type === "group" && (
                                 <DropdownMenuItem
                                     className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
