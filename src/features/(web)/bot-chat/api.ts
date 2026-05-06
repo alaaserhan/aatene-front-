@@ -18,9 +18,14 @@ export const getCurrentConversation = async (platform: string = "web"): Promise<
     return data;
 };
 
-export const getUserConversations = async (platform: string = "web"): Promise<GetUserConversationsResponse> => {
+export const getUserConversations = async (
+    platform: string = "web",
+    perPage = 100,
+    page = 1,
+): Promise<GetUserConversationsResponse> => {
     const { data } = await api.get<GetUserConversationsResponse>(BASE, {
         headers: { platform },
+        params: { per_page: perPage, page },
     });
     return data;
 };

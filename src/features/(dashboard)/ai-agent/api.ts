@@ -509,6 +509,8 @@ export interface GetWebConversationsParams {
     needs_human?: boolean;
     /** يطابق عمود `ai_support_conversations.platform` (مثلاً `web` أو `mobile`) */
     platform?: string;
+    per_page?: number;
+    page?: number;
 }
 
 export interface GetWebMessagesParams {
@@ -527,6 +529,8 @@ export const getWebConversations = async (params?: GetWebConversationsParams): P
     if (params?.unresolved_human_support) queryParams.set("unresolved_human_support", "1");
     if (params?.needs_human) queryParams.set("needs_human", "1");
     if (params?.platform) queryParams.set("platform", params.platform);
+    queryParams.set("per_page", String(params?.per_page ?? 100));
+    if (params?.page) queryParams.set("page", String(params.page));
     const qs = queryParams.toString();
     const { data } = await mainApi.get<WebConversationsResponse>(`${WEB_ADMIN_BASE}/conversations${qs ? `?${qs}` : ""}`);
     return data;
