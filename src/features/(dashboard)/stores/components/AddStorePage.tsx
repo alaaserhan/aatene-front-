@@ -39,10 +39,10 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
     type: storeType,
   });
 
-  const generateAIMutation = useGenerateStoreAI();
-  const isGeneratingAI = generateAIMutation.isPending;
+  const { mutateAsync: generateAI, isPending: isGeneratingAI } = useGenerateStoreAI();
   /** يُحدَّث فقط عند نجاح التوليد فعلياً — لتجنب منع إعادة المحاولة عند استجابة فارغة */
   const lastSuccessfulAiInputRef = useRef<{ name: string; description: string } | null>(null);
+  const isGeneratingRef = useRef(false);
   const [aiKeywords, setAiKeywords] = useState<string[]>([]);
 
   const handleGenerateAI = useCallback(async (step2Data: Step2FormData) => {
@@ -56,22 +56,28 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
       return;
     }
 
+    if (isGeneratingRef.current) return;
+
     try {
-      const data = await generateAIMutation.mutateAsync({ name, description });
+      isGeneratingRef.current = true;
+      const data = await generateAI({ name, description });
       const keywords = data.results?.keywords ?? [];
 
+      lastSuccessfulAiInputRef.current = { name, description };
+
       if (keywords.length > 0) {
-        lastSuccessfulAiInputRef.current = { name, description };
         setAiKeywords(keywords);
         setFormData((prev) => ({
           ...prev,
-          step7: prev.step7?.tags?.length ? prev.step7 : { tags: keywords },
+          step7: { tags: keywords },
         }));
       }
     } catch (error) {
       console.error("AI Generation Error:", error);
+    } finally {
+      isGeneratingRef.current = false;
     }
-  }, [generateAIMutation]);
+  }, [generateAI]);
 
   /** عند الوصول لخطوة الكلمات بدون نتيجة بعد، أعد استدعاء التوليد (مثلاً إن سبق ولم تُستخرج الكلمات من شكل الاستجابة) */
   useEffect(() => {

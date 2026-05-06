@@ -38,9 +38,9 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState<CompleteStoreFormData | null>(null);
 
-  const generateAIMutation = useGenerateStoreAI();
-  const isGeneratingAI = generateAIMutation.isPending;
+  const { mutateAsync: generateAI, isPending: isGeneratingAI } = useGenerateStoreAI();
   const lastSuccessfulAiInputRef = useRef<{ name: string; description: string } | null>(null);
+  const isGeneratingRef = useRef(false);
   const [aiKeywords, setAiKeywords] = useState<string[]>([]);
 
   const handleGenerateAI = useCallback(async (step2Data: Step2FormData) => {
@@ -54,24 +54,28 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
       return;
     }
 
+    if (isGeneratingRef.current) return;
+
     try {
-      const data = await generateAIMutation.mutateAsync({ name, description });
+      isGeneratingRef.current = true;
+      const data = await generateAI({ name, description });
       const keywords = data.results?.keywords ?? [];
 
+      lastSuccessfulAiInputRef.current = { name, description };
+
       if (keywords.length > 0) {
-        lastSuccessfulAiInputRef.current = { name, description };
         setAiKeywords(keywords);
         setFormData((prev) => {
           if (!prev) return prev;
-          const hasTags = (prev.step7?.tags?.length ?? 0) > 0;
-          if (hasTags) return prev;
           return { ...prev, step7: { tags: keywords } };
         });
       }
     } catch (error) {
       console.error("AI Generation Error:", error);
+    } finally {
+      isGeneratingRef.current = false;
     }
-  }, [generateAIMutation]);
+  }, [generateAI]);
 
   useEffect(() => {
     if (currentStep !== 7 || !formData?.step2) return;
