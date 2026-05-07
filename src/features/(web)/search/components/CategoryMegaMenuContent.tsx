@@ -190,8 +190,10 @@ export default function CategoryMegaMenuContent({
                         className={cn(
                             "flex flex-1 items-center gap-2 text-right rounded-md px-2 py-2 text-[13px] transition-colors cursor-pointer hover:bg-gray-100 active:bg-gray-100",
                             isActive
-                                ? "bg-gray-100 text-gray-900 font-medium"
-                                : "text-gray-800"
+                                ? "text-gray-900 font-bold"
+                                : isExpanded
+                                    ? "text-[#3D5E83] font-bold"
+                                    : "text-gray-800"
                         )}
                         style={{ paddingRight: `${8 + depth * 14}px` }}
                     >
@@ -222,12 +224,12 @@ export default function CategoryMegaMenuContent({
                         <button
                             type="button"
                             onClick={() => toggleMobileExpand(cat.id)}
-                            className="h-8 w-8 shrink-0 rounded-md hover:bg-gray-100 cursor-pointer"
+                            className="shrink-0 p-1 text-gray-500 hover:text-gray-700 cursor-pointer"
                             aria-label="توسيع التصنيف"
                         >
                             <ChevronDown
                                 className={cn(
-                                    "mx-auto h-4 w-4 text-gray-500 transition-transform",
+                                    "h-4 w-4 transition-transform",
                                     isExpanded && "rotate-180"
                                 )}
                             />
@@ -254,7 +256,7 @@ export default function CategoryMegaMenuContent({
         >
             {/* Mobile: single-column list */}
             {isMobileLayout ? (
-                <div className={cn("w-full min-w-0 max-w-full", columnShell, "max-h-[min(72vh,60vh)] overflow-y-auto")}>
+                <div className="w-full min-w-0 max-w-full max-h-[min(72vh,60vh)] overflow-y-auto">
                     <div className="shrink-0 border-b border-gray-100 px-3 py-2.5">
                         <h2 className="text-sm font-bold text-gray-900">كل الفئات</h2>
                     </div>
