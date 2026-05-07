@@ -35,19 +35,20 @@ export default function ReportInquiryPage() {
     const router = useRouter();
     const params = useParams();
     const lang = params?.locale || "ar";
-    const { user } = useAuthStore();
+    const { isLoggedIn, isHydrated } = useAuthStore();
 
     useEffect(() => {
-        if (!user) {
+        if (!isHydrated) return;
+        if (!isLoggedIn) {
             router.replace(`/${lang}/login`);
         }
-    }, [user]);
+    }, [isHydrated, isLoggedIn, router, lang]);
 
     const { data: statsData, isLoading: statsLoading } = useGetReportStats();
     const { data: reportsData, isLoading: reportsLoading } = useGetReports(filters);
     const { data: typesData } = useGetReportTypes();
 
-    if (!user) {
+    if (!isHydrated || !isLoggedIn) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
                 <Loader2 className="w-6 h-6 animate-spin text-blue-4" />
