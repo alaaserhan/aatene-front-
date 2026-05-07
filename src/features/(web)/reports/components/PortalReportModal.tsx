@@ -92,10 +92,6 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
 
     const handleNext = () => {
         if (selectedTypeId) {
-            const selectedType = filteredTypes.find(t => t.id === selectedTypeId);
-            if (selectedType) {
-                setSubject(selectedType.name);
-            }
             setStep(2);
         }
     };
