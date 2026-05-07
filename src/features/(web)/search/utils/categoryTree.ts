@@ -1,14 +1,23 @@
 import type { Category } from "@/src/features/(web)/searchAndFilter/api";
 
-/** الـ API يعيد الجذور مع `childrenWithProducts` متداخلة */
+/** الـ API يعيد الجذور مع childrenWithProducts/childrenWithServices متداخلة */
 export function flattenCategoryTree(categories: Category[]): Category[] {
     const out: Category[] = [];
     const seen = new Set<number>();
     function visit(cat: Category) {
         if (seen.has(cat.id)) return;
         seen.add(cat.id);
-        const children = cat.childrenWithProducts ?? cat.children ?? [];
-        const { childrenWithProducts: _childrenWithProducts, children: _children, ...rest } = cat;
+        const children =
+            cat.childrenWithProducts ??
+            cat.childrenWithServices ??
+            cat.children ??
+            [];
+        const {
+            childrenWithProducts: _childrenWithProducts,
+            childrenWithServices: _childrenWithServices,
+            children: _children,
+            ...rest
+        } = cat;
         out.push(rest as Category);
         if (children?.length) {
             for (const child of children) {
