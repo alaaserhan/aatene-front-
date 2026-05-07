@@ -593,7 +593,7 @@ function OverviewTab({ store }: { store: StoreProfile }) {
                         <StoreStatItem
                             icon={<img src="/icons/heart2.svg" alt="" className="w-6 h-6" />}
                             label="فضلو المتجر"
-                            value={String(store.followers_count || 0)}
+                            value={String(store.favorites_count || 0)}
                         />
                         <StoreStatItem
                             icon={<img src="/icons/member.svg" alt="" className="w-6 h-6" />}
