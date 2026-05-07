@@ -119,7 +119,7 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
             <DialogContent className="max-w-[520px] w-[95vw] h-auto max-h-[90vh] overflow-y-auto p-6 rounded-2xl" dir="rtl">
                 {/* Step 1: Select Category then Report Type */}
                 {step === 1 && (
-                    <div className="flex flex-col gap-5">
+                    <div className="flex flex-col gap-5 ">
                         <div className="text-center space-y-2">
                             <DialogTitle className="text-xl font-bold">تقديم شكوى أو بلاغ</DialogTitle>
                             <p className="text-gray-500 text-sm">اختر الفئة المناسبة ثم حدد نوع الشكوى</p>
@@ -137,11 +137,10 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
                                         <button
                                             key={cat}
                                             onClick={() => setActiveCategory(cat)}
-                                            className={`py-2 px-1 rounded-xl text-xs font-semibold border transition-all duration-200 cursor-pointer text-center ${
-                                                activeCategory === cat
-                                                    ? "bg-[#3d5e83] text-white border-[#3d5e83] shadow-sm"
-                                                    : "bg-white text-gray-600 border-gray-200 hover:border-[#3d5e83]/50 hover:bg-gray-50"
-                                            }`}
+                                            className={`py-2 px-1 rounded-xl text-xs font-semibold border transition-all duration-200 cursor-pointer text-center ${activeCategory === cat
+                                                ? "bg-[#3d5e83] text-white border-[#3d5e83] shadow-sm"
+                                                : "bg-white text-gray-600 border-gray-200 hover:border-[#3d5e83]/50 hover:bg-gray-50"
+                                                }`}
                                         >
                                             {CATEGORY_LABELS[cat] ?? cat}
                                         </button>
@@ -153,11 +152,10 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
                                             <button
                                                 key={cat}
                                                 onClick={() => setActiveCategory(cat)}
-                                                className={`py-2 px-1 rounded-xl text-xs font-semibold border transition-all duration-200 cursor-pointer text-center ${
-                                                    activeCategory === cat
-                                                        ? "bg-[#3d5e83] text-white border-[#3d5e83] shadow-sm"
-                                                        : "bg-white text-gray-600 border-gray-200 hover:border-[#3d5e83]/50 hover:bg-gray-50"
-                                                }`}
+                                                className={`py-2 px-1 rounded-xl text-xs font-semibold border transition-all duration-200 cursor-pointer text-center ${activeCategory === cat
+                                                    ? "bg-[#3d5e83] text-white border-[#3d5e83] shadow-sm"
+                                                    : "bg-white text-gray-600 border-gray-200 hover:border-[#3d5e83]/50 hover:bg-gray-50"
+                                                    }`}
                                             >
                                                 {CATEGORY_LABELS[cat] ?? cat}
                                             </button>
@@ -196,7 +194,7 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
                         <button
                             onClick={handleNext}
                             disabled={!selectedTypeId}
-                            className="w-full py-3 rounded-full text-white font-medium text-base transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-[#3d5e83] hover:bg-[#2c4461]"
+                            className="w-full py-3 rounded-full text-white font-medium text-base transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-[#3d5e83] hover:bg-[#2c4461] "
                         >
                             التالي
                         </button>
