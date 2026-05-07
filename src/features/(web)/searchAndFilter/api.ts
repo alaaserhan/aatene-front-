@@ -23,6 +23,8 @@ export interface Category {
     services_count?: string | number;
     /** المتغير الجديد من نفس الـ API */
     childrenWithProducts?: Category[];
+    /** شجرة فئات الخدمات من الباك */
+    childrenWithServices?: Category[];
     /** توافق خلفي مؤقت لو رجعت بعض الاستجابات بالحقل القديم */
     children?: Category[];
 }
