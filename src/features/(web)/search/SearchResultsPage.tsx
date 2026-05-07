@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import SearchFilters from "./components/SearchFilters";
 import SearchResults from "./components/SearchResults";
@@ -15,7 +15,7 @@ import {
     useStoresSearchPage,
     useUsersSearchPage,
 } from "./hooks";
-import { ChevronLeft, ChevronRight, SlidersHorizontal, Tag as TagIcon, X } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { CompareFloatingBar } from "../compares/components/CompareFloatingBar";
 import { Category, City, Tag, Attribute, PriceRange } from "@/src/features/(web)/searchAndFilter/api";
@@ -265,52 +265,11 @@ function SearchContent({ type }: { type: SearchType }) {
         router.push(`?${params.toString()}`);
     };
 
-    // Handle tag toggle
-    const handleTagToggle = (tagId: number) => {
-        const currentTags = filters.tags || [];
-        const newTags = currentTags.includes(tagId)
-            ? currentTags.filter((id) => id !== tagId)
-            : [...currentTags, tagId];
-        handleFilterChange({ ...filters, tags: newTags });
-    };
-
-    const displayTags = filterData.tags;
-    const tagsScrollRef = useRef<HTMLDivElement>(null);
     const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(false);
-    const [tagsCanScroll, setTagsCanScroll] = useState(false);
-
-    // تحقق إذا كانت العلامات تفيض من الحاوية
-    const checkTagsOverflow = useCallback(() => {
-        const el = tagsScrollRef.current;
-        if (el) {
-            setTagsCanScroll(el.scrollWidth > el.clientWidth);
-        }
-    }, []);
-
-    useEffect(() => {
-        checkTagsOverflow();
-        const el = tagsScrollRef.current;
-        if (!el) return;
-        const observer = new ResizeObserver(checkTagsOverflow);
-        observer.observe(el);
-        return () => observer.disconnect();
-    }, [displayTags, checkTagsOverflow]);
-
-    const scrollTagsLeft = () => {
-        if (tagsScrollRef.current) {
-            tagsScrollRef.current.scrollBy({ left: -150, behavior: "smooth" });
-        }
-    };
-
-    const scrollTagsRight = () => {
-        if (tagsScrollRef.current) {
-            tagsScrollRef.current.scrollBy({ left: 150, behavior: "smooth" });
-        }
-    };
 
     return (
         <div className="flex flex-col gap-4">
-            {/* Top Bar: زر الفلتر + العلامات */}
+            {/* Top Bar: filter actions */}
             <div className="flex items-center gap-3">
 
                 {/* زر فتح/إغلاق الفلتر - Desktop */}
@@ -337,55 +296,6 @@ function SearchContent({ type }: { type: SearchType }) {
                     <span className="font-medium text-sm">فلتر</span>
                 </button>
 
-                {/* العلامات - صف قابل للسكرول */}
-                {displayTags.length > 0 && (
-                    <div className="flex items-center gap-1 min-w-0 flex-1">
-                        {/* سهم يمين (بداية القائمة RTL) - يظهر فقط إذا كان هناك overflow */}
-                        {tagsCanScroll && (
-                            <button
-                                onClick={scrollTagsRight}
-                                className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
-                                aria-label="تمرير يمين"
-                            >
-                                <ChevronRight className="w-4 h-4 text-gray-500" />
-                            </button>
-                        )}
-
-                        <div
-                            ref={tagsScrollRef}
-                            className="flex gap-2 overflow-x-auto no-scrollbar flex-1"
-                        >
-                            {displayTags.map((tag) => {
-                                const isSelected = filters.tags?.includes(tag.id);
-                                return (
-                                    <button
-                                        key={tag.id}
-                                        onClick={() => handleTagToggle(tag.id)}
-                                        className={cn(
-                                            "px-3 py-1.5 rounded-full text-sm transition-colors cursor-pointer whitespace-nowrap shrink-0",
-                                            isSelected
-                                                ? "bg-[#3D5E83] text-white"
-                                                : "bg-[#E5E7EB] hover:bg-gray-200"
-                                        )}
-                                    >
-                                        {tag.title}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {/* سهم يسار (نهاية القائمة RTL) - يظهر فقط إذا كان هناك overflow */}
-                        {tagsCanScroll && (
-                            <button
-                                onClick={scrollTagsLeft}
-                                className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
-                                aria-label="تمرير يسار"
-                            >
-                                <ChevronLeft className="w-4 h-4 text-gray-500" />
-                            </button>
-                        )}
-                    </div>
-                )}
             </div>
 
             {/* Main Layout */}
