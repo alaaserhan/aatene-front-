@@ -294,7 +294,7 @@ export default function SearchFilters({
 
             <div className="divide-y divide-gray-100">
                 {/* Categories */}
-                {categories.length > 0 && (
+                {type !== "stores" && categories.length > 0 && (
                     <FilterSection title="الفئات" defaultOpen={true} forceOpen={!!filters.category_id}>
                         <div className="flex flex-col gap-1">
                             {parentCategories.map((parent) => (
