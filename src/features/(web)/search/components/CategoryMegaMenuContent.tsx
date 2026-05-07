@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { ChevronLeft, LayoutGrid } from "lucide-react";
+import { ChevronDown, ChevronLeft, LayoutGrid } from "lucide-react";
 import type { Category } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
 import {
@@ -72,6 +72,7 @@ export default function CategoryMegaMenuContent({
 
     const [previewPath, setPreviewPath] = useState<number[]>([]);
     const [pathTree, setPathTree] = useState<CategoryKind>("product");
+    const [expandedMobile, setExpandedMobile] = useState<Set<number>>(new Set());
 
     useEffect(() => {
         if (selectedId == null || !selectedSearchType) {
@@ -99,6 +100,15 @@ export default function CategoryMegaMenuContent({
 
     const setPathAtColumn = (colIndex: number, catId: number) => {
         setPreviewPath((p) => [...p.slice(0, colIndex), catId]);
+    };
+
+    const toggleMobileExpand = (categoryId: number) => {
+        setExpandedMobile((prev) => {
+            const next = new Set(prev);
+            if (next.has(categoryId)) next.delete(categoryId);
+            else next.add(categoryId);
+            return next;
+        });
     };
 
     const renderRootRow = (cat: Category, kind: CategoryKind) => {
@@ -159,6 +169,80 @@ export default function CategoryMegaMenuContent({
 
     const isMobileLayout = layout === "mobile";
 
+    const renderMobileNode = (
+        cat: Category,
+        kind: CategoryKind,
+        depth: number
+    ) => {
+        const map = kind === "product" ? treeP.childrenMap : treeS.childrenMap;
+        const children = map.get(String(cat.id)) || [];
+        const hasChildren = children.length > 0;
+        const isExpanded = expandedMobile.has(cat.id);
+        const isActive = selectedId === cat.id && selectedSearchType === (kind === "product" ? "products" : "services");
+        const st = kind === "product" ? "products" : "services";
+
+        return (
+            <div key={`${kind}-mobile-${cat.id}`}>
+                <div className="flex items-center gap-1">
+                    <button
+                        type="button"
+                        onClick={() => onSelect(cat.id, st)}
+                        className={cn(
+                            "flex flex-1 items-center gap-2 text-right rounded-md px-2 py-2 text-[13px] transition-colors cursor-pointer hover:bg-gray-100 active:bg-gray-100",
+                            isActive
+                                ? "bg-gray-100 text-gray-900 font-medium"
+                                : "text-gray-800"
+                        )}
+                        style={{ paddingRight: `${8 + depth * 14}px` }}
+                    >
+                        {depth === 0 ? (
+                            cat.image && String(cat.image).trim() !== "" ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={cat.image}
+                                    alt=""
+                                    className="h-8 w-8 shrink-0 rounded-lg object-cover ring-1 ring-gray-100"
+                                />
+                            ) : (
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
+                                    <LayoutGrid className="h-4 w-4" />
+                                </div>
+                            )
+                        ) : null}
+
+                        <span className="min-w-0 flex-1 leading-snug">
+                            {cat.name}
+                            <span className="mr-1 text-[11px] font-normal text-gray-400">
+                                ({countFor(cat, kind)})
+                            </span>
+                        </span>
+
+                    </button>
+                    {hasChildren ? (
+                        <button
+                            type="button"
+                            onClick={() => toggleMobileExpand(cat.id)}
+                            className="h-8 w-8 shrink-0 rounded-md hover:bg-gray-100 cursor-pointer"
+                            aria-label="توسيع التصنيف"
+                        >
+                            <ChevronDown
+                                className={cn(
+                                    "mx-auto h-4 w-4 text-gray-500 transition-transform",
+                                    isExpanded && "rotate-180"
+                                )}
+                            />
+                        </button>
+                    ) : null}
+                </div>
+                {hasChildren && isExpanded ? (
+                    <div className="mt-0.5 space-y-0.5">
+                        {children.map((child) => renderMobileNode(child, kind, depth + 1))}
+                    </div>
+                ) : null}
+            </div>
+        );
+    };
+
     const columnsBlock = (
         <div
             className={cn(
@@ -168,17 +252,39 @@ export default function CategoryMegaMenuContent({
                     : "w-max flex-row flex-nowrap"
             )}
         >
-            {/* العمود 0 — التصنيفات الرئيسية (منتجات + خدمات) */}
+            {/* Mobile: single-column list */}
+            {isMobileLayout ? (
+                <div className={cn("w-full min-w-0 max-w-full", columnShell, "max-h-[min(72vh,60vh)] overflow-y-auto")}>
+                    <div className="shrink-0 border-b border-gray-100 px-3 py-2.5">
+                        <h2 className="text-sm font-bold text-gray-900">كل الفئات</h2>
+                    </div>
+                    <div className="px-1.5 py-2">
+                        <p className="px-1 pb-1 pt-1 text-[11px] font-semibold text-gray-500">
+                            المنتجات
+                        </p>
+                        <div className="space-y-0.5">
+                            {treeP.parentCategories.map((c) => renderMobileNode(c, "product", 0))}
+                        </div>
+
+                        <p className="mb-1 mt-3 px-1 pt-2 text-[11px] font-semibold text-gray-500">
+                            الخدمات
+                        </p>
+                        <div className="space-y-0.5">
+                            {treeS.parentCategories.map((c) => renderMobileNode(c, "service", 0))}
+                        </div>
+                    </div>
+                </div>
+            ) : null}
+
+            {/* Desktop: multi-column mega menu */}
+            {!isMobileLayout ? (
+            <>
             <div
                 className={cn(
                     "flex shrink-0 flex-col overflow-hidden",
-                    isMobileLayout
-                        ? "w-full min-w-0 max-w-full"
-                        : "min-w-[240px] max-w-[270px]",
+                    "min-w-[240px] max-w-[270px]",
                     columnShell,
-                    isMobileLayout
-                        ? "max-h-[min(320px,42vh)]"
-                        : "max-h-[min(400px,58vh)]"
+                    "max-h-[min(400px,58vh)]"
                 )}
             >
                 <div className="shrink-0 border-b border-gray-100 px-3 py-2.5">
@@ -215,13 +321,9 @@ export default function CategoryMegaMenuContent({
                         key={`branch-${subIdx}-${previewPath[subIdx] ?? subIdx}`}
                         className={cn(
                             "flex shrink-0 flex-col overflow-hidden",
-                            isMobileLayout
-                                ? "w-full min-w-0 max-w-full"
-                                : "min-w-[220px] max-w-[260px]",
+                            "min-w-[220px] max-w-[260px]",
                             columnShell,
-                            isMobileLayout
-                                ? "max-h-[min(320px,42vh)]"
-                                : "max-h-[min(400px,58vh)]"
+                            "max-h-[min(400px,58vh)]"
                         )}
                     >
                         <ul className="min-h-0 flex-1 overflow-y-auto py-1">
@@ -268,6 +370,8 @@ export default function CategoryMegaMenuContent({
                     </div>
                 );
             })}
+            </>
+            ) : null}
         </div>
     );
 
