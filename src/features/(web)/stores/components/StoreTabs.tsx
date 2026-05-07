@@ -566,7 +566,7 @@ function OverviewTab({ store }: { store: StoreProfile }) {
 
     // Member since
     const memberSince = store.owner?.created_at
-        ? new Date(store.owner.created_at).toLocaleDateString("ar-SA", {
+        ? new Date(store.owner.created_at).toLocaleDateString("en-GB", {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
