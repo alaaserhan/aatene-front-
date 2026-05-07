@@ -43,6 +43,10 @@ export default function ReportInquiryPage() {
         }
     }, [user]);
 
+    const { data: statsData, isLoading: statsLoading } = useGetReportStats();
+    const { data: reportsData, isLoading: reportsLoading } = useGetReports(filters);
+    const { data: typesData } = useGetReportTypes();
+
     if (!user) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
@@ -50,10 +54,6 @@ export default function ReportInquiryPage() {
             </div>
         );
     }
-
-    const { data: statsData, isLoading: statsLoading } = useGetReportStats();
-    const { data: reportsData, isLoading: reportsLoading } = useGetReports(filters);
-    const { data: typesData } = useGetReportTypes();
 
     const reports = reportsData?.reports || [];
     const reportTypes = typesData?.report_types || [];
