@@ -566,7 +566,11 @@ function OverviewTab({ store }: { store: StoreProfile }) {
 
     // Member since
     const memberSince = store.owner?.created_at
-        ? new Date(store.owner.created_at).getFullYear()
+        ? new Date(store.owner.created_at).toLocaleDateString("ar-SA", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        })
         : "غير متوفر";
 
     return (
