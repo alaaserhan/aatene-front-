@@ -129,7 +129,7 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                 </DialogDescription>
                 {/* Step 1: Select Report Type */}
                 {step === 1 && (
-                    <div className="flex flex-col items-center gap-6 relative">
+                    <div className="flex flex-col items-center gap-6">
                         <div className="text-center space-y-2">
                             <DialogTitle className="text-xl font-bold">الإبلاغ عن إساءة</DialogTitle>
                             <p className="text-gray-500 text-sm">ما الذي نقدر ان نساعدك بيه ؟</p>
@@ -166,16 +166,13 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                             </div>
                         )}
 
-                        <div className="bg-white sticky bottom-0 left-0 right-0 z-[1px] p-4 w-full">
-
-                            <button
-                                onClick={handleNext}
-                                disabled={!selectedTypeId}
-                                className="w-full py-3 rounded-full text-white font-medium text-base transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-[#3d5e83] hover:bg-[#2c4461] mx-auto "
-                            >
-                                التالي
-                            </button>
-                        </div>
+                        <button
+                            onClick={handleNext}
+                            disabled={!selectedTypeId}
+                            className="w-full py-3 rounded-full text-white font-medium text-base transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-[#3d5e83] hover:bg-[#2c4461]"
+                        >
+                            التالي
+                        </button>
                     </div>
                 )}
 
