@@ -43,7 +43,7 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
             onClose();
             router.push(`/${lang}/login`);
         }
-    }, [isOpen, user]);
+    }, [isOpen, user, lang, router, onClose]);
 
     const { data: typesData, isLoading: typesLoading } = useGetReportTypes();
     const { mutate: createReport, isPending } = useCreateReport();
