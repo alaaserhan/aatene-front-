@@ -73,7 +73,7 @@ export default function ReportInquiryPage() {
         setFilters((prev) => ({
             ...prev,
             type: type || undefined,
-            report_type_id: undefined, // Clear standard category id if we use 'type'
+            report_type_id: undefined,
         }));
     };
 
@@ -104,14 +104,21 @@ export default function ReportInquiryPage() {
         },
     ];
 
-    // Prepare dropdown options - Static 5 Types
-    const categoryOptions = [
-        { value: "", label: "الكل" },
+    // Supported types verified against /reports/my endpoint
+    const supportedReportTypes = [
         { value: "store", label: "متاجر" },
+        { value: "customer", label: "عملاء" },
+        { value: "merchant", label: "تجار" },
         { value: "product", label: "منتجات" },
         { value: "service", label: "خدمات" },
         { value: "requested_service", label: "الخدمات المطلوبة" },
         { value: "comment", label: "تعليقات" },
+    ];
+
+    // Prepare dropdown options from backend-supported type values
+    const categoryOptions = [
+        { value: "", label: "الكل" },
+        ...supportedReportTypes,
     ];
 
     return (

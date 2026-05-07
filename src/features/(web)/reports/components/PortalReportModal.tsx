@@ -219,8 +219,7 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
                                     value={subject}
                                     onChange={(e) => setSubject(e.target.value)}
                                     placeholder="اكتب هنا"
-                                    disabled
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-500 focus:outline-none transition-colors placeholder:text-gray-300 cursor-not-allowed"
+                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#3d5e83] transition-colors placeholder:text-gray-300"
                                 />
                             </div>
 
