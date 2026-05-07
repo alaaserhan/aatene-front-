@@ -4,13 +4,14 @@ import { useState, useEffect } from "react";
 import { UserProfile, UserStory, UserFollower, UserProfilePageData } from "../types";
 import Image from "next/image";
 import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, UserMinus, User as UserIcon, MoreHorizontal, Share2, Flag } from "lucide-react";
-import { useUserProfile, useUserProfilePageData, useUserFavProducts, useUserProducts } from "../hooks";
+import { useUserProfile, useUserProfilePageData } from "../hooks";
 import { useParams, useRouter, notFound } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
 import { cn, isVideoFile } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useFollowUserOrStore, useUnfollowUserOrStore, useCreateHighlight, useGetStories } from "@/src/features/(web)/settings/hooks";
 import { useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { CreateHighlightModal } from "@/src/features/(dashboard)/stories/components/CreateHighlightModal";
 import { Story } from "@/src/features/(dashboard)/stories/api";
@@ -19,6 +20,9 @@ import { Pagination } from "@/src/components/ui/Pagination";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { useLanguage } from "@/src/hooks/use-language";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
+import { searchProducts, searchServices, searchStores } from "@/src/features/(web)/searchAndFilter/api";
+import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
+import Link from "next/link";
 
 function UserHeader({ user, isOwnProfile, followers, stories }: {
     user: UserProfile;
@@ -446,72 +450,37 @@ function ProfileTabs({ user }: { user: UserProfile }) {
     );
 }
 
-function FavoritesSection({ userId }: { userId: number }) {
-    const [page, setPage] = useState(1);
-    const { data, isLoading } = useUserFavProducts(userId, page);
+type ActiveFavoritesTab = "all" | "products" | "services" | "stores";
 
-    const products = data?.products || [];
-    const totalPages = data ? Math.ceil(data.total / 5) : 1;
-
+function ServiceCardMini({ service }: { service: any }) {
+    const imageUrl = service.image_url || service.images_urls?.[0] || "/placeholder.png";
     return (
-        <div id="favorites" className="mb-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between mb-4 border-b border-gray-100 pb-3" dir="rtl">
-                <h2 className="text-2xl  font-medium mb-3 sm:mb-0 w-full sm:w-auto text-right">المفضلة</h2>
-                {totalPages > 1 && (
-                    <div dir="rtl" className="hidden sm:block">
-                        <Pagination
-                            totalPages={totalPages}
-                            currentPage={page}
-                            onPageChange={setPage}
-                        />
-                    </div>
-                )}
+        <Link
+            href={`/services/${service.slug}`}
+            className="group flex flex-col rounded-xl overflow-hidden border border-gray-100 bg-white hover:shadow-md transition-shadow"
+        >
+            <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden">
+                <Image
+                    src={imageUrl}
+                    alt={service.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/placeholder.png"; }}
+                />
             </div>
-
-            {isLoading ? (
-                <div className="flex justify-center p-10">
-                    <Loader2 className="animate-spin text-blue-3" />
-                </div>
-            ) : products.length === 0 ? (
-                <div className="text-center py-10 bg-gray-50 rounded-lg">
-                    <p className="text-gray-500">لا توجد منتجات مفضلة</p>
-                </div>
-            ) : (
-                <>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full">
-                        {products.map((product) => (
-                            <ProductCard
-                                key={product.id}
-                                id={product.id}
-                                name={product.name}
-                                slug={product.slug}
-                                cover={product.cover || "/placeholder.png"}
-                                price={product.price}
-                                priceAfterDiscount={product.price_after_discount}
-                                discountPercent={product.discount_present}
-                                reviewRate={product.review_rate}
-                                reviewCount={product.review_count}
-                                isFavorite={product.is_favorite}
-                            />
-                        ))}
-                    </div>
-                    {totalPages > 1 && (
-                        <div className="mt-6 flex justify-center sm:hidden" dir="rtl">
-                            <Pagination
-                                totalPages={totalPages}
-                                currentPage={page}
-                                onPageChange={setPage}
-                            />
-                        </div>
-                    )}
-                </>
-            )}
-        </div>
+            <div className="p-3 flex flex-col gap-1">
+                <p className="font-medium text-sm line-clamp-2 text-gray-800">{service.title}</p>
+                {service.store?.name && (
+                    <p className="text-xs text-gray-400 truncate">{service.store.name}</p>
+                )}
+                <p className="text-blue-4 font-semibold text-sm mt-1">{Number(service.price || 0).toFixed(2)} ₪</p>
+            </div>
+        </Link>
     );
 }
 
-function ProductsSection({ userId, sections }: { userId: number; sections: { id: number; name: string; products_count: string }[] }) {
-    const [selectedSection, setSelectedSection] = useState<number | null>(null);
+function ProductsSection({ userId }: { userId: number }) {
+    const [activeTab, setActiveTab] = useState<ActiveFavoritesTab>("all");
     const [page, setPage] = useState(1);
     const [searchInput, setSearchInput] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -524,55 +493,119 @@ function ProductsSection({ userId, sections }: { userId: number; sections: { id:
         return () => clearTimeout(timer);
     }, [searchInput]);
 
-    const { data, isLoading } = useUserProducts(userId, selectedSection, page, debouncedSearch);
+    const { data: productsData, isLoading: isProductsLoading } = useQuery({
+        queryKey: ["publicProfileFavProducts", userId, page, debouncedSearch, activeTab],
+        queryFn: () => searchProducts({ fav_by_id: userId, page, per_page: 12, search: debouncedSearch || undefined }),
+        enabled: !!userId,
+    });
 
-    const products = data?.products || [];
-    const totalPages = data ? Math.ceil(data.total / 12) : 1;
+    const { data: servicesData, isLoading: isServicesLoading } = useQuery({
+        queryKey: ["publicProfileFavServices", userId, page, debouncedSearch, activeTab],
+        queryFn: () => searchServices({ fav_by_id: userId, page, per_page: 12, search: debouncedSearch || undefined }),
+        enabled: !!userId,
+    });
 
-    const handleSectionChange = (sectionId: number | null) => {
-        setSelectedSection(sectionId);
+    const { data: storesData, isLoading: isStoresLoading } = useQuery({
+        queryKey: ["publicProfileFavStores", userId, page, debouncedSearch, activeTab],
+        queryFn: () => searchStores({ fav_by_id: userId, page, per_page: 12, search: debouncedSearch || undefined }),
+        enabled: !!userId,
+    });
+
+    const products = productsData?.products || [];
+    const services = servicesData?.services || [];
+    const stores = storesData?.stores || [];
+
+    const totalProducts = productsData?.total || 0;
+    const totalServices = servicesData?.total || 0;
+    const totalStores = storesData?.total || 0;
+
+    const totalPages =
+        activeTab === "products"
+            ? Math.ceil(totalProducts / 12)
+            : activeTab === "services"
+                ? Math.ceil(totalServices / 12)
+                : activeTab === "stores"
+                    ? Math.ceil(totalStores / 12)
+                    : 1;
+
+    const isLoading =
+        activeTab === "all"
+            ? (isProductsLoading || isServicesLoading || isStoresLoading)
+            : activeTab === "products"
+                ? isProductsLoading
+                : activeTab === "services"
+                    ? isServicesLoading
+                    : isStoresLoading;
+
+    const handleTabChange = (tab: ActiveFavoritesTab) => {
+        setActiveTab(tab);
         setPage(1);
     };
 
     return (
         <div className="my-8 mt-16">
-            <h2 className=" text-2xl font-medium mb-4 " dir="rtl">كل المنتجات</h2>
+            <h2 className=" text-2xl font-medium mb-4 " dir="rtl">المفضلة</h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6" dir="rtl">
                 <aside className="lg:col-span-1">
                     <div className="bg-white rounded-lg border border-gray-200 p-5 sticky top-4">
-                        <h3 className="font-medium mb-5 text-base border-none pb-0">أقسام المتجر</h3>
                         <ul className="space-y-4">
                             <li>
                                 <button
-                                    onClick={() => handleSectionChange(null)}
+                                    onClick={() => handleTabChange("all")}
                                     className={cn(
                                         "w-full flex items-center justify-between transition-colors cursor-pointer",
-                                        selectedSection === null
+                                        activeTab === "all"
                                             ? "text-blue-3 font-medium border-r-2 border-blue-3 pr-2 bg-transparent"
                                             : "text-gray-600 hover:text-gray-900 font-medium border-r-2 border-transparent pr-2 bg-transparent"
                                     )}
                                 >
                                     <span className="text-[15px]">الكل</span>
-                                    <span className="text-[15px]" dir="ltr">({sections.reduce((acc, s) => acc + Number(s.products_count || 0), 0)})</span>
+                                    <span className="text-[15px]" dir="ltr">({totalProducts + totalServices + totalStores})</span>
                                 </button>
                             </li>
-                            {sections.map(section => (
-                                <li key={section.id}>
-                                    <button
-                                        onClick={() => handleSectionChange(section.id)}
-                                        className={cn(
-                                            "w-full flex items-center justify-between transition-colors cursor-pointer",
-                                            selectedSection === section.id
-                                                ? "text-blue-3 font-medium border-r-2 border-blue-3 pr-2 bg-transparent"
-                                                : "text-gray-600 hover:text-gray-900 font-medium border-r-2 border-transparent pr-2 bg-transparent"
-                                        )}
-                                    >
-                                        <span className="text-[15px]">{section.name}</span>
-                                        <span className="text-[15px]" dir="ltr">({section.products_count})</span>
-                                    </button>
-                                </li>
-                            ))}
+                            <li>
+                                <button
+                                    onClick={() => handleTabChange("products")}
+                                    className={cn(
+                                        "w-full flex items-center justify-between transition-colors cursor-pointer",
+                                        activeTab === "products"
+                                            ? "text-blue-3 font-medium border-r-2 border-blue-3 pr-2 bg-transparent"
+                                            : "text-gray-600 hover:text-gray-900 font-medium border-r-2 border-transparent pr-2 bg-transparent"
+                                    )}
+                                >
+                                    <span className="text-[15px]">منتجات</span>
+                                    <span className="text-[15px]" dir="ltr">({totalProducts})</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    onClick={() => handleTabChange("services")}
+                                    className={cn(
+                                        "w-full flex items-center justify-between transition-colors cursor-pointer",
+                                        activeTab === "services"
+                                            ? "text-blue-3 font-medium border-r-2 border-blue-3 pr-2 bg-transparent"
+                                            : "text-gray-600 hover:text-gray-900 font-medium border-r-2 border-transparent pr-2 bg-transparent"
+                                    )}
+                                >
+                                    <span className="text-[15px]">خدمات</span>
+                                    <span className="text-[15px]" dir="ltr">({totalServices})</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    onClick={() => handleTabChange("stores")}
+                                    className={cn(
+                                        "w-full flex items-center justify-between transition-colors cursor-pointer",
+                                        activeTab === "stores"
+                                            ? "text-blue-3 font-medium border-r-2 border-blue-3 pr-2 bg-transparent"
+                                            : "text-gray-600 hover:text-gray-900 font-medium border-r-2 border-transparent pr-2 bg-transparent"
+                                    )}
+                                >
+                                    <span className="text-[15px]">متاجر</span>
+                                    <span className="text-[15px]" dir="ltr">({totalStores})</span>
+                                </button>
+                            </li>
                         </ul>
                     </div>
                 </aside>
@@ -581,7 +614,7 @@ function ProductsSection({ userId, sections }: { userId: number; sections: { id:
                     <div className="relative w-full bg-white rounded-full">
                         <input
                             type="text"
-                            placeholder="ابحث عن منتج..."
+                            placeholder="ابحث في المفضلة..."
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
                             className="w-full pr-4 py-3 border border-blue-4 rounded-full text-sm focus:outline-none focus:border-blue-3 focus:ring-1 focus:ring-blue-3 transition-colors"
@@ -596,36 +629,86 @@ function ProductsSection({ userId, sections }: { userId: number; sections: { id:
                         <div className="flex justify-center p-10">
                             <Loader2 className="animate-spin text-blue-3" />
                         </div>
-                    ) : products.length === 0 ? (
-                        <div className="text-center py-10 bg-gray-50 rounded-lg">
-                            <p className="text-gray-500">لا توجد منتجات</p>
-                        </div>
                     ) : (
                         <>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4  gap-4">
-                                {products.map((product) => (
-                                    <ProductCard
-                                        key={product.id}
-                                        id={product.id}
-                                        name={product.name}
-                                        slug={product.slug}
-                                        cover={product.cover || "/placeholder.png"}
-                                        price={product.price}
-                                        priceAfterDiscount={product.price_after_discount}
-                                        discountPercent={product.discount_present}
-                                        reviewRate={product.review_rate}
-                                        reviewCount={product.review_count}
-                                        isFavorite={product.is_favorite}
+                            {(activeTab === "all" || activeTab === "products") && (
+                                <section>
+                                    {activeTab === "all" && (
+                                        <h3 className="text-lg font-semibold mb-3">المنتجات</h3>
+                                    )}
+                                    {products.length === 0 ? (
+                                        <div className="text-center py-10 bg-gray-50 rounded-lg">
+                                            <p className="text-gray-500">لا توجد منتجات مفضلة</p>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                            {products.map((product) => (
+                                                <ProductCard
+                                                    key={product.id}
+                                                    id={product.id}
+                                                    name={product.name}
+                                                    slug={product.slug}
+                                                    cover={product.cover || "/placeholder.png"}
+                                                    price={product.price}
+                                                    priceAfterDiscount={product.price_after_discount}
+                                                    discountPercent={product.discount_present}
+                                                    reviewRate={product.review_rate}
+                                                    reviewCount={product.review_count}
+                                                    isFavorite={product.is_favorite}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </section>
+                            )}
+
+                            {(activeTab === "all" || activeTab === "services") && (
+                                <section className={activeTab === "all" ? "mt-6" : ""}>
+                                    {activeTab === "all" && (
+                                        <h3 className="text-lg font-semibold mb-3">الخدمات</h3>
+                                    )}
+                                    {services.length === 0 ? (
+                                        <div className="text-center py-10 bg-gray-50 rounded-lg">
+                                            <p className="text-gray-500">لا توجد خدمات مفضلة</p>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                            {services.map((service) => (
+                                                <ServiceCardMini key={service.id} service={service} />
+                                            ))}
+                                        </div>
+                                    )}
+                                </section>
+                            )}
+
+                            {(activeTab === "all" || activeTab === "stores") && (
+                                <section className={activeTab === "all" ? "mt-6" : ""}>
+                                    {activeTab === "all" && (
+                                        <h3 className="text-lg font-semibold mb-3">المتاجر</h3>
+                                    )}
+                                    {stores.length === 0 ? (
+                                        <div className="text-center py-10 bg-gray-50 rounded-lg">
+                                            <p className="text-gray-500">لا توجد متاجر مفضلة</p>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            {stores.map((store) => (
+                                                <StoreCard key={store.id} store={store} />
+                                            ))}
+                                        </div>
+                                    )}
+                                </section>
+                            )}
+
+                            {activeTab !== "all" && totalPages > 1 && (
+                                <div className="mt-6" dir="ltr">
+                                    <Pagination
+                                        totalPages={totalPages}
+                                        currentPage={page}
+                                        onPageChange={setPage}
                                     />
-                                ))}
-                            </div>
-                            <div className="mt-6" dir="ltr">
-                                <Pagination
-                                    totalPages={totalPages}
-                                    currentPage={page}
-                                    onPageChange={setPage}
-                                />
-                            </div>
+                                </div>
+                            )}
                         </>
                     )}
                 </div>
@@ -673,7 +756,6 @@ export default function UserProfilePage() {
     const isOwnProfile = authUser?.id === user.id;
     const stories = pageData?.stories || [];
     const highlights = pageData?.highlights || [];
-    const sections = pageData?.sections || [];
     const followers = pageData?.followers || [];
 
     return (
@@ -694,11 +776,7 @@ export default function UserProfilePage() {
 
                 <ProfileTabs user={user} />
 
-                <FavoritesSection userId={user.id} />
-
-                {sections.length > 0 && (
-                    <ProductsSection userId={user.id} sections={sections} />
-                )}
+                <ProductsSection userId={user.id} />
             </div>
 
             <CreateHighlightModal
