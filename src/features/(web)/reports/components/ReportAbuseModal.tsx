@@ -131,8 +131,8 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                 {step === 1 && (
                     <div className="flex flex-col items-center gap-6">
                         <div className="text-center space-y-2">
-                            <DialogTitle className="text-xl font-bold">الإبلاغ عن إساءة</DialogTitle>
-                            <p className="text-gray-500 text-sm">ما الذي نقدر ان نساعدك بيه ؟</p>
+                            <DialogTitle className="text-xl font-bold">تقديم شكوى أو بلاغ</DialogTitle>
+                            <p className="text-gray-500 text-sm">اختر نوع الشكوى المناسب</p>
                         </div>
 
                         {typesLoading ? (
@@ -180,8 +180,8 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                 {step === 2 && (
                     <div className="flex flex-col items-center gap-6">
                         <div className="text-center space-y-2">
-                            <DialogTitle className="text-xl font-bold">الإبلاغ عن إساءة</DialogTitle>
-                            <p className="text-gray-500 text-sm">أنت تُبلّغ عن: <span className="font-semibold text-[#3d5e83]">{selectedTypeName}</span></p>
+                            <DialogTitle className="text-xl font-bold">تقديم شكوى أو بلاغ</DialogTitle>
+                            <p className="text-gray-500 text-sm">ما الذي نقدر ان نساعدك بيه ؟</p>
                         </div>
 
                         <div className="w-full space-y-4">
@@ -197,11 +197,11 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                             </div>
 
                             <div className="space-y-2">
-                                <label className="block text-sm font-medium">{selectedTypeName || "تفاصيل البلاغ"}</label>
+                                <label className="block text-sm font-medium">الشكوى/ الأفتراح</label>
                                 <textarea
                                     value={content}
                                     onChange={(e) => setContent(e.target.value)}
-                                    placeholder={`اكتب تفاصيل ${selectedTypeName || "البلاغ"} هنا`}
+                                    placeholder="اكتب هنا"
                                     rows={5}
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#3d5e83] transition-colors resize-none placeholder:text-gray-300"
                                 />
