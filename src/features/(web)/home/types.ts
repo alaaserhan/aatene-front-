@@ -72,6 +72,8 @@ export interface Product {
   shown: boolean;
   is_favorite: boolean;
   in_compare: boolean;
+  /** اختياري؛ إن وُجد يُستخدم لزر «اطلب السعر» بدون طلب إضافي */
+  store_id?: number;
   price: string;
   price_after_discount: string | number;
   discount_present: number;

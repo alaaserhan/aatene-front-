@@ -106,6 +106,9 @@ export interface ProductInPageData {
   shown: boolean;
   is_favorite: boolean;
   in_compare: boolean;
+  ask_for_price?: boolean;
+  /** اختياري لـ ProductCard (زر المحادثة) */
+  store_id?: number;
   price: string;
   price_after_discount: string;
   discount_present: number;
@@ -200,6 +203,7 @@ export interface Product {
   shown: boolean;
   review_rate: string;
   review_count: string;
+  ask_for_price?: boolean;
   price: string;
   cross_sells_price: string;
   cross_sells_name?: string | null;

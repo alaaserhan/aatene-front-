@@ -69,6 +69,7 @@ export function AddProductStep1({
   onStepClick,
   showSaveDraft = true,
 }: AddProductStep1Props) {
+  type PriceVisibilityMode = "show" | "hide";
   const [formData, setFormData] = useState<Step1FormData>({
     category_id: initialData?.category_id || 0,
     category_name: initialData?.category_name || "",
@@ -78,10 +79,17 @@ export function AddProductStep1({
     gallery_previews: initialData?.gallery_previews || [],
     name: initialData?.name || "",
     price: initialData?.price || 0,
+    ask_for_price: initialData?.ask_for_price || false,
     condition: initialData?.condition || "new",
     short_description: initialData?.short_description || "",
     description: initialData?.description || "",
   });
+  const [priceVisibilityMode, setPriceVisibilityMode] = useState<PriceVisibilityMode>(
+    initialData?.ask_for_price ? "hide" : "show"
+  );
+  const [lastVisiblePrice, setLastVisiblePrice] = useState<number>(
+    Number(initialData?.price || 0)
+  );
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -110,6 +118,12 @@ export function AddProductStep1({
         ...initialData,
         // Preserve previews if not in initialData, unless needed
       }));
+      const initialPrice = Number(initialData.price || 0);
+      const shouldShowPrice = !initialData.ask_for_price;
+      setPriceVisibilityMode(shouldShowPrice ? "show" : "hide");
+      if (shouldShowPrice) {
+        setLastVisiblePrice(initialPrice);
+      }
     }
   }, [initialData]);
 
@@ -315,25 +329,101 @@ export function AddProductStep1({
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-1">
-                    السعر
+                    اختار طريقة ظهور سعر سلعتك!
                   </Label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      min="0"
-                      value={formData.price || ""}
-                      onChange={(e) =>
+
+                  <div className="space-y-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPriceVisibilityMode("show");
+                        setFormData((prev) => ({
+                          ...prev,
+                          ask_for_price: false,
+                          price: prev.price > 0 ? prev.price : lastVisiblePrice,
+                        }));
+                      }}
+                      className={cn(
+                        "w-full border rounded-sm p-3 text-right transition-colors",
+                        priceVisibilityMode === "show"
+                          ? "border-blue-4 bg-[#EEF3FB]"
+                          : "border-gray-200 bg-[#F8F8F8]"
+                      )}
+                    >
+                      <div className="flex items-center justify-between text-sm">
+                        <span className={cn(priceVisibilityMode === "show" ? "text-blue-4" : "text-gray-700")}>
+                          إظهار السعر
+                        </span>
+                        <span
+                          className={cn(
+                            "w-4 h-4 rounded-full border flex items-center justify-center",
+                            priceVisibilityMode === "show" ? "border-blue-4" : "border-gray-400"
+                          )}
+                        >
+                          {priceVisibilityMode === "show" && <span className="w-2 h-2 rounded-full bg-blue-4" />}
+                        </span>
+                      </div>
+
+                      {priceVisibilityMode === "show" && (
+                        <div className="mt-3">
+                          <input
+                            type="number"
+                            min="0"
+                            value={formData.price || ""}
+                            onChange={(e) => {
+                              const parsedPrice = Number(e.target.value);
+                              setFormData({
+                                ...formData,
+                                price: parsedPrice,
+                              });
+                              if (parsedPrice > 0) {
+                                setLastVisiblePrice(parsedPrice);
+                              }
+                            }}
+                            placeholder="ادخل سعر السلعة"
+                            className={cn(
+                              "w-full px-4 py-2 border rounded-sm focus:outline-none text-sm bg-white",
+                              errors.price ? "border-red-500" : "border-gray-200"
+                            )}
+                          />
+                        </div>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (formData.price > 0) {
+                          setLastVisiblePrice(formData.price);
+                        }
+                        setPriceVisibilityMode("hide");
                         setFormData({
                           ...formData,
-                          price: Number(e.target.value),
-                        })
-                      }
-                      placeholder="ادخل سعر المنتج"
+                          ask_for_price: true,
+                          price: 0,
+                        });
+                      }}
                       className={cn(
-                        "w-full px-4 py-3 border rounded-sm focus:outline-none  text-sm ",
-                        errors.price ? "border-red-500" : "border-gray-200"
+                        "w-full border rounded-sm p-3 text-right transition-colors",
+                        priceVisibilityMode === "hide"
+                          ? "border-blue-4 bg-[#EEF3FB]"
+                          : "border-gray-200 bg-[#F8F8F8]"
                       )}
-                    />
+                    >
+                      <div className="flex items-center justify-between text-sm">
+                        <span className={cn(priceVisibilityMode === "hide" ? "text-blue-4" : "text-gray-700")}>
+                          لا اريد اظهار السعر
+                        </span>
+                        <span
+                          className={cn(
+                            "w-4 h-4 rounded-full border flex items-center justify-center",
+                            priceVisibilityMode === "hide" ? "border-blue-4" : "border-gray-400"
+                          )}
+                        >
+                          {priceVisibilityMode === "hide" && <span className="w-2 h-2 rounded-full bg-blue-4" />}
+                        </span>
+                      </div>
+                    </button>
                   </div>
                   {errors.price && (
                     <p className="text-xs text-red-500 mt-1">{errors.price}</p>
@@ -454,6 +544,7 @@ export function AddProductStep1({
               data={{
                 name: formData.name,
                 price: formData.price,
+                ask_for_price: formData.ask_for_price,
                 coverImage: formData.cover_preview,
                 galleryImages: formData.gallery_previews,
               }}

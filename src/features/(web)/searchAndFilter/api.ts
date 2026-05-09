@@ -88,6 +88,9 @@ export interface Product {
     shown: boolean;
     is_favorite: boolean;
     in_compare: boolean;
+    /** اختياري إن رجعه الباك؛ وإلا يُستنتج من slug في الواجهة */
+    store_id?: number;
+    ask_for_price?: boolean;
     price: string;
     price_after_discount: string;
     discount_present: number;

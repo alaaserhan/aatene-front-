@@ -14,6 +14,7 @@ import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import Link from "next/link";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { productAskForPriceButtonClassName } from "./productAskForPriceButton";
 
 interface ProductHeroProps {
     product: Product;
@@ -85,6 +86,13 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
     const rating = parseFloat(product.review_rate || "0");
     const hasDiscount = !selectedVariation && product.price_after_discount && product.price_after_discount !== product.price;
     const displayPrice = selectedVariation ? String(selectedVariation.price) : (product.price_after_discount || product.price);
+    const hasAskForPriceFromBackend =
+        product.ask_for_price !== undefined && product.ask_for_price !== null;
+    const shouldAskForPrice = hasAskForPriceFromBackend
+        ? Boolean(product.ask_for_price)
+        : (!selectedVariation &&
+            Number(product.price || 0) <= 0 &&
+            Number(product.price_after_discount || 0) <= 0);
 
     const handlePrev = () => {
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : allMedia.length - 1));
@@ -216,31 +224,49 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                 <div className="flex-1 flex flex-col gap-6">
                     {/* Price Row */}
                     <div className="flex items-center flex-wrap gap-3">
-                        {/* Countdown timer placeholder */}
-                        {hasDiscount && product.discount_present && product.discount_present > 0 && (
-                            <div className="bg-gradient-to-t from-[#d54102] to-[#ff530a] text-white text-xs font-medium px-4 py-1.5 rounded-full">
-                                عرض محدود
-                            </div>
+                        {shouldAskForPrice ? (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (!user) {
+                                        router.push(`/${lang}/login`);
+                                        return;
+                                    }
+                                    router.push(`/${lang}/chat?type=store&id=${store.id}&productId=${product.id}&askPrice=1`);
+                                }}
+                                className={productAskForPriceButtonClassName}
+                            >
+                                اطلب السعر
+                            </button>
+                        ) : (
+                            <>
+                                {/* Countdown timer placeholder */}
+                                {hasDiscount && product.discount_present && product.discount_present > 0 && (
+                                    <div className="bg-gradient-to-t from-[#d54102] to-[#ff530a] text-white text-xs font-medium px-4 py-1.5 rounded-full">
+                                        عرض محدود
+                                    </div>
+                                )}
+
+                                <span className="text-2xl font-normal text-gray-800">
+                                    {parseFloat(displayPrice).toFixed(2)} ₪
+                                </span>
+
+                                {hasDiscount && (
+                                    <span className="text-sm text-red-500 line-through">
+                                        {parseFloat(product.price).toFixed(2)} ₪
+                                    </span>
+                                )}
+
+                                {hasDiscount && product.discount_present && product.discount_present > 0 && (
+                                    <div className="bg-gradient-to-t pb-0.5 from-[rgba(20,97,70,0.3)] to-[rgba(0,255,166,0.3)]  text-xs font-medium px-3 py-1 rounded-full">
+                                        {product.discount_present}% off
+                                    </div>
+                                )}
+
+                                {/* Separator */}
+                                <div className="w-px h-6 bg-gray-300 mx-1 hidden sm:block" />
+                            </>
                         )}
-
-                        <span className="text-2xl font-normal text-gray-800">
-                            {parseFloat(displayPrice).toFixed(2)} ₪
-                        </span>
-
-                        {hasDiscount && (
-                            <span className="text-sm text-red-500 line-through">
-                                {parseFloat(product.price).toFixed(2)} ₪
-                            </span>
-                        )}
-
-                        {hasDiscount && product.discount_present && product.discount_present > 0 && (
-                            <div className="bg-gradient-to-t pb-0.5 from-[rgba(20,97,70,0.3)] to-[rgba(0,255,166,0.3)]  text-xs font-medium px-3 py-1 rounded-full">
-                                {product.discount_present}% off
-                            </div>
-                        )}
-
-                        {/* Separator */}
-                        <div className="w-px h-6 bg-gray-300 mx-1 hidden sm:block" />
 
                         {/* Rating */}
                         <div className="flex items-center gap-2">

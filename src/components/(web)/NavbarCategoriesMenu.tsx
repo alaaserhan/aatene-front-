@@ -184,10 +184,10 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
                           }}
                       />
                       <div
-                          className="fixed inset-x-3 top-[4.25rem] z-[400] max-h-[min(72vh,calc(100vh-5.5rem))] overflow-hidden rounded-xl border border-gray-200/90 bg-white shadow-xl"
+                          className="fixed inset-x-3 top-[4.25rem] z-[400] max-h-[min(72vh,calc(100vh-5.5rem))] overflow-hidden rounded-xl bg-white shadow-xl"
                           dir="rtl"
                       >
-                          <div className="max-h-[inherit] overflow-x-hidden overflow-y-auto overscroll-y-contain px-1 py-1 [-webkit-overflow-scrolling:touch]">
+                          <div className="max-h-[inherit] overflow-x-hidden overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch]">
                               {menuPanel}
                           </div>
                       </div>

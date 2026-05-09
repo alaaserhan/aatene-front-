@@ -9,6 +9,7 @@ export interface Step1FormData {
   gallery_previews: string[];
   name: string;
   price: number;
+  ask_for_price: boolean;
   condition: "new" | "used" | "refurbished";
   short_description: string;
   description: string;
