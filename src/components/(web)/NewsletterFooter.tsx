@@ -50,7 +50,7 @@ const NewsletterFooter = () => {
                         id="newsletter-heading"
                         className="inline-block text-sm leading-relaxed text-[#2D4362] md:min-w-max md:whitespace-nowrap md:text-base"
                     >
-                        اكتشف خدمات ومنتجات مميزة من أفضل البائعين في مكان واحد، وسجّل بريدك الإلكتروني لتحصل على عروض حصرية وترشيحات تناسبك
+                        اكتشف خدمات ومنتجات مميزة من أفضل البائعين في مكان واحد
                     </p>
                 </div>
 
