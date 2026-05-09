@@ -82,6 +82,7 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
                                 reviewRate={product.review_rate}
                                 reviewCount={product.review_count}
                                 isFavorite={product.is_favorite}
+                                storeId={product.store_id}
                             />
                         </div>
                     ))}

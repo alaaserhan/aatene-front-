@@ -209,12 +209,12 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
                 )}
                 {activeTab === "discounts" && (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300" dir="rtl">
-                        <OffersGrid products={offersProducts} emptyMessage="لا توجد عروض حالياً" perPage={3} enablePagination />
+                        <OffersGrid storeId={store.id} products={offersProducts} emptyMessage="لا توجد عروض حالياً" perPage={3} enablePagination />
                     </div>
                 )}
                 {activeTab === "offers" && (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300" dir="rtl">
-                        <OffersGrid products={couponsProducts} emptyMessage="لا توجد تخفيضات حالياً" useProductCard />
+                        <OffersGrid storeId={store.id} products={couponsProducts} emptyMessage="لا توجد تخفيضات حالياً" useProductCard />
                     </div>
                 )}
             </div>
@@ -223,12 +223,14 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
 }
 
 function OffersGrid({
+    storeId,
     products,
     emptyMessage,
     useProductCard,
     perPage,
     enablePagination
 }: {
+    storeId: number;
     products: ProductInPageData[];
     emptyMessage: string;
     useProductCard?: boolean;
@@ -266,6 +268,7 @@ function OffersGrid({
                             reviewCount={p.review_count}
                             isFavorite={p.is_favorite}
                             type="product"
+                            storeId={storeId}
                         />
                     ))}
                 </div>

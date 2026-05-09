@@ -30,6 +30,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
 const recentSeenMarkRequests = new Map<string, number>();
 const SEEN_DEDUP_WINDOW_MS = 8000;
 
+/** سعر المنتج في رسائل الدردشة قد يكون 0 للمنتجات ذات الاختلافات — لا نعرض 0.00 بل «اطلب السعر». */
+function productChatPriceLabel(p: {
+    price: string;
+    price_after_discount: string | null;
+    ask_for_price?: boolean;
+}): { kind: "ask" } | { kind: "money"; amount: number } {
+    if (p.ask_for_price) return { kind: "ask" };
+    const afterRaw = p.price_after_discount;
+    if (afterRaw != null && afterRaw !== "") {
+        const after = Number(afterRaw);
+        if (Number.isFinite(after) && after > 0) return { kind: "money", amount: after };
+    }
+    const base = Number(p.price || 0);
+    if (Number.isFinite(base) && base > 0) return { kind: "money", amount: base };
+    return { kind: "ask" };
+}
+
 interface ChatWindowProps {
     conversation: Conversation;
     onClose?: () => void;
@@ -435,7 +452,11 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                             <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedService.description}</p>
                                         </div>
                                         <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
-                                            <p className="text-sm text-white font-medium whitespace-nowrap">{parseFloat(linkedService.price).toFixed(2)} <span className="text-lg">₪</span></p>
+                                            {Number(linkedService.price || 0) > 0 ? (
+                                                <p className="text-sm text-white font-medium whitespace-nowrap">{parseFloat(linkedService.price).toFixed(2)} <span className="text-lg">₪</span></p>
+                                            ) : (
+                                                <p className="text-sm text-white font-medium whitespace-nowrap">اطلب السعر</p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -461,7 +482,14 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                             <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedProduct.description}</p>
                                         </div>
                                         <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
-                                            <p className="text-sm text-white font-medium whitespace-nowrap">{parseFloat(linkedProduct.price).toFixed(2)} <span className="text-lg">₪</span></p>
+                                            {(() => {
+                                                const pr = productChatPriceLabel(linkedProduct);
+                                                return pr.kind === "ask" ? (
+                                                    <p className="text-sm text-white font-medium whitespace-nowrap">اطلب السعر</p>
+                                                ) : (
+                                                    <p className="text-sm text-white font-medium whitespace-nowrap">{pr.amount.toFixed(2)} <span className="text-lg">₪</span></p>
+                                                );
+                                            })()}
                                         </div>
                                     </div>
                                 </div>
@@ -546,7 +574,12 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                                         <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.product.name}</p>
                                                     </Link>
                                                     <p className="text-[10px] text-gray-400 truncate">{msg.product.description}</p>
-                                                    <p className="text-xs text-blue-3 font-medium mt-1">{parseFloat(msg.product.price).toFixed(2)} ₪</p>
+                                                    <p className="text-xs text-blue-3 font-medium mt-1">
+                                                        {(() => {
+                                                            const pr = productChatPriceLabel(msg.product);
+                                                            return pr.kind === "ask" ? "اطلب السعر" : `${pr.amount.toFixed(2)} ₪`;
+                                                        })()}
+                                                    </p>
                                                     <div className="flex items-center gap-0.5 mt-1">
                                                         {[...Array(5)].map((_, i) => (
                                                             <Star

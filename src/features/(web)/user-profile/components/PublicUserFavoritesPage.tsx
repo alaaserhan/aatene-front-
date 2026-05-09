@@ -322,6 +322,7 @@ export default function PublicUserFavoritesPage() {
                                                         reviewRate={p.review_rate}
                                                         reviewCount={p.review_count}
                                                         isFavorite={true}
+                                                        storeId={p.store_id}
                                                     />
                                                 ))}
                                             </div>

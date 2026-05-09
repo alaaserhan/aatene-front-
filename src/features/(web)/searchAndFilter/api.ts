@@ -88,6 +88,7 @@ export interface Product {
     shown: boolean;
     is_favorite: boolean;
     in_compare: boolean;
+    ask_for_price?: boolean;
     price: string;
     price_after_discount: string;
     discount_present: number;

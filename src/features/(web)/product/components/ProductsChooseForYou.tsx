@@ -28,6 +28,7 @@ export default function ProductsChooseForYou({ products }: ProductsChooseForYouP
                         slug={product.slug}
                         cover={product.cover || ""}
                         price={product.price}
+                        ask_for_price={product.ask_for_price}
                         priceAfterDiscount={product.price_after_discount}
                         discountPercent={product.discount_present}
                         reviewRate={product.review_rate}

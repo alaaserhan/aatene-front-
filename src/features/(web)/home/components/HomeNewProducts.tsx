@@ -42,6 +42,7 @@ export default function HomeNewProducts({ products: initialProducts }: HomeNewPr
                             reviewRate={product.review_rate?.toString()}
                             reviewCount={product.review_count?.toString()}
                             isFavorite={product.is_favorite}
+                            storeId={product.store_id}
                         />
                     ))}
                 </div>

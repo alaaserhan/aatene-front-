@@ -46,6 +46,7 @@ export default function HomeCustomizedProducts({ products: initialProducts }: Ho
                             reviewRate={product.review_rate?.toString()}
                             reviewCount={product.review_count?.toString()}
                             isFavorite={product.is_favorite}
+                            storeId={product.store_id}
                         />
                     ))}
                 </div>
