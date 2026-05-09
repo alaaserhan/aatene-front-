@@ -107,6 +107,8 @@ export interface ProductInPageData {
   is_favorite: boolean;
   in_compare: boolean;
   ask_for_price?: boolean;
+  /** اختياري لـ ProductCard (زر المحادثة) */
+  store_id?: number;
   price: string;
   price_after_discount: string;
   discount_present: number;
