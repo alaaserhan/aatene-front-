@@ -17,12 +17,6 @@ import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { isDuplicateMessage } from "@/src/lib/fcm-dedup";
 
-/**
- * يمنع فتح المحادثة من query (منتج/خدمة) مرتين: سباق بين `setIsCreatingFromUrl(false)` وبين اختفاء
- * `type`/`id` من الرابط، وأيضًا إعادة تشغيل التأثير في React Strict Mode.
- */
-let chatDeepLinkHandledKey: string | null = null;
-
 let notificationAudio: HTMLAudioElement | null = null;
 let audioUnlocked = false;
 
@@ -78,74 +72,25 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const [isCreatingFromUrl, setIsCreatingFromUrl] = useState(false);
     /** يمنع «فراغ» التحديد بين النقر واكتمال تحديث الـ URL أو القائمة */
     const [pendingConversation, setPendingConversation] = useState<Conversation | null>(null);
-    /**
-     * Next.js أحيانًا لا يحدّث useSearchParams بعد router.replace بينما شريط العنوان يجب أن يطابق المحادثة.
-     * نضبط query المحادثة هنا ونزامن history.replaceState حتى يبقى الرابط والواجهة متطابقين.
-     */
-    const [clientChatParam, setClientChatParam] = useState<string | null>(null);
 
     const allConversations = useMemo(() => data?.conversations || [], [data]);
 
-    const effectiveChatParam = clientChatParam ?? searchParams.get("chat");
-
-    const applyChatUrlParams = useCallback(
-        (params: URLSearchParams) => {
-            const qs = params.toString();
-            const nextPath = qs ? `${pathname}?${qs}` : pathname;
-            const cid = params.get("chat");
-            setClientChatParam(cid);
-            router.replace(nextPath, { scroll: false });
-            if (typeof window !== "undefined") {
-                requestAnimationFrame(() => {
-                    try {
-                        window.history.replaceState(window.history.state, "", nextPath);
-                    } catch {
-                        /* ignore */
-                    }
-                });
-            }
-        },
-        [pathname, router]
-    );
-
     const selectedConversation = useMemo(() => {
-        const chatId = effectiveChatParam;
+        const chatId = searchParams.get("chat");
         if (!chatId || allConversations.length === 0) return null;
         return allConversations.find(c => String(c.id) === chatId) || null;
-    }, [effectiveChatParam, allConversations]);
-    const activeConversation = pendingConversation ?? selectedConversation;
+    }, [searchParams, allConversations]);
 
     const handleSelectConversation = useCallback((conversation: Conversation) => {
-        if (activeConversation?.id === conversation.id) {
-            return;
-        }
-
         setPendingConversation(conversation);
         const params = new URLSearchParams(searchParams.toString());
         params.delete("type");
         params.delete("id");
         params.delete("serviceId");
         params.delete("productId");
-        params.delete("askPrice");
         params.set("chat", String(conversation.id));
-        applyChatUrlParams(params);
-    }, [searchParams, activeConversation, applyChatUrlParams]);
-
-    useEffect(() => {
-        const sp = searchParams.get("chat");
-        if (clientChatParam != null && sp === clientChatParam) {
-            setClientChatParam(null);
-        }
-    }, [searchParams, clientChatParam]);
-
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        const onPop = () => {
-            setClientChatParam(null);
-        };
-        window.addEventListener("popstate", onPop);
-        return () => window.removeEventListener("popstate", onPop);
-    }, []);
+        router.push(`${pathname}?${params.toString()}`);
+    }, [searchParams, pathname, router]);
 
     const handleCloseChat = useCallback(() => {
         setPendingConversation(null);
@@ -154,24 +99,23 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         params.delete("id");
         params.delete("serviceId");
         params.delete("productId");
-        params.delete("askPrice");
         if (params.get("chat")) {
             params.delete("chat");
         }
-        applyChatUrlParams(params);
-    }, [searchParams, applyChatUrlParams]);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }, [searchParams, pathname, router]);
 
     useEffect(() => {
-        const chatId = effectiveChatParam;
+        const chatId = searchParams.get("chat");
         if (!chatId || !pendingConversation) return;
         if (String(pendingConversation.id) !== chatId) return;
         const fromList = allConversations.find((c) => String(c.id) === chatId);
         if (fromList) setPendingConversation(null);
-    }, [effectiveChatParam, allConversations, pendingConversation]);
+    }, [searchParams, allConversations, pendingConversation]);
 
     useEffect(() => {
-        if (!effectiveChatParam) setPendingConversation(null);
-    }, [effectiveChatParam]);
+        if (!searchParams.get("chat")) setPendingConversation(null);
+    }, [searchParams]);
 
     const handleFilterChange = useCallback((filter: string) => {
         setActiveFilter(filter);
@@ -183,19 +127,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         const idParam = searchParams.get("id");
         const serviceIdParam = searchParams.get("serviceId");
         const productIdParam = searchParams.get("productId");
-        const askPriceParam = searchParams.get("askPrice");
-        const shouldSendAskPriceMessage = askPriceParam === "1" || askPriceParam === "true";
-
-        if (!typeParam) {
-            chatDeepLinkHandledKey = null;
-        }
 
         if (!typeParam || !idParam || isCreatingFromUrl || selectedConversation) {
-            return;
-        }
-
-        const deepLinkDedupKey = `${typeParam}|${idParam}|${productIdParam ?? ""}|${serviceIdParam ?? ""}|${askPriceParam ?? ""}`;
-        if (chatDeepLinkHandledKey === deepLinkDedupKey) {
             return;
         }
 
@@ -205,19 +138,6 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             toast.error("معرف المحادثة غير صالح");
             return;
         }
-
-        chatDeepLinkHandledKey = deepLinkDedupKey;
-
-        const replaceUrlWithChat = (conversationId: number | string) => {
-            const p = new URLSearchParams(searchParams.toString());
-            p.delete("type");
-            p.delete("id");
-            p.delete("serviceId");
-            p.delete("productId");
-            p.delete("askPrice");
-            p.set("chat", String(conversationId));
-            applyChatUrlParams(p);
-        };
 
         const openConversationFromSendResponse = (conversationId: number | string) => {
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
@@ -233,9 +153,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     p.delete("id");
                     p.delete("serviceId");
                     p.delete("productId");
-                    p.delete("askPrice");
                     p.set("chat", String(conversationId));
-                    applyChatUrlParams(p);
+                    router.replace(`${pathname}?${p.toString()}`, { scroll: false });
                     queryClient.invalidateQueries({ queryKey: ["conversations"] });
                 }
             });
@@ -257,15 +176,6 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     onSuccess: (res) => {
                         setIsCreatingFromUrl(false);
                         if (res.status && res.message) {
-                            if (shouldSendAskPriceMessage) {
-                                sendMessage({
-                                    payload: {
-                                        conversation_id: res.message.conversation_id,
-                                        body: "مرحبًا، أريد معرفة سعر هذا المنتج من فضلك.",
-                                    },
-                                    ignoreCookie
-                                });
-                            }
                             openConversationFromSendResponse(res.message.conversation_id);
                         } else {
                             toast.error("تعذر فتح المحادثة");
@@ -291,15 +201,6 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     onSuccess: (res) => {
                         setIsCreatingFromUrl(false);
                         if (res.status && res.message) {
-                            if (shouldSendAskPriceMessage) {
-                                sendMessage({
-                                    payload: {
-                                        conversation_id: res.message.conversation_id,
-                                        body: "مرحبًا، أريد معرفة سعر هذا المنتج من فضلك.",
-                                    },
-                                    ignoreCookie
-                                });
-                            }
                             openConversationFromSendResponse(res.message.conversation_id);
                         } else {
                             toast.error("تعذر فتح المحادثة");
@@ -345,7 +246,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         selectedConversation,
         queryClient,
         refetch,
-        applyChatUrlParams,
+        pathname,
+        router,
     ]);
 
     useEffect(() => {
@@ -374,8 +276,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         initMessaging().then((msg) => {
             if (!msg) return;
             unsubscribe = onMessage(msg, (payload: MessagePayload) => {
-                const duplicate = isDuplicateMessage(payload);
-                if (duplicate) return;
+                if (isDuplicateMessage(payload)) return;
                 playNotificationSound();
 
                 const title = payload.notification?.title || payload.data?.title || "New Notification";
@@ -400,8 +301,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             const handler = (event: MessageEvent) => {
                 if (event.data && event.data.type === 'FCM_MESSAGE_RECEIVED') {
                     const swPayload = event.data.payload || {};
-                    const duplicate = isDuplicateMessage(swPayload);
-                    if (duplicate) {
+                    if (isDuplicateMessage(swPayload)) {
                         refetch();
                         queryClient.invalidateQueries({ queryKey: ["conversations"] });
                         queryClient.invalidateQueries({ queryKey: ["conversation-messages"] });
@@ -456,7 +356,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         conversations: filteredConversations,
         isLoading: !data && isLoading,
         isError,
-        selectedConversationId: activeConversation?.id ?? null,
+        selectedConversationId: selectedConversation?.id ?? null,
         onSelectConversation: handleSelectConversation,
         searchQuery,
         onSearchChange: setSearchQuery,
@@ -506,7 +406,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
               يمنع طبقات DOM تلتقط النقر أو تبقى فوق القائمة.
             */}
             <div className={`md:hidden flex flex-col ${shellHeight} min-h-0 overflow-hidden`}>
-                {!activeConversation ? (
+                {!selectedConversation ? (
                     <div className="flex flex-col flex-1 min-h-0 gap-0">
                         {mobileTypeFilter}
                         <div className="flex-1 min-h-0 flex flex-col relative isolate">
@@ -521,8 +421,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                         className={`flex flex-1 min-h-0 flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0`}
                     >
                         <ChatWindow
-                            key={activeConversation.id}
-                            conversation={activeConversation}
+                            key={selectedConversation.id}
+                            conversation={selectedConversation}
                             onClose={handleCloseChat}
                             context={context}
                         />
@@ -553,10 +453,10 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 </div>
 
                 <div className="flex-1 min-h-0 min-w-0 flex flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0">
-                    {activeConversation ? (
+                    {selectedConversation ? (
                         <ChatWindow
-                            key={activeConversation.id}
-                            conversation={activeConversation}
+                            key={selectedConversation.id}
+                            conversation={selectedConversation}
                             onClose={handleCloseChat}
                             context={context}
                         />

@@ -15,10 +15,7 @@ export const useConversations = (storeId?: number | string, ignoreCookie: boolea
         queryKey: [...QK.conversations, storeId, ignoreCookie],
         queryFn: () => api.getConversations(storeId, ignoreCookie),
         enabled: enabled && isLoggedIn,
-        staleTime: 0,
-        refetchOnMount: "always",
-        refetchOnWindowFocus: true,
-        refetchInterval: isLoggedIn ? 10 * 1000 : false,
+        staleTime: 30 * 1000,
     });
 };
 
@@ -66,7 +63,6 @@ export const useConversationMessages = (conversationId: number | string, ignoreC
         queryFn: () => api.getConversationMessages(conversationId, ignoreCookie),
         enabled: !!conversationId && enabled,
         staleTime: 0,
-        refetchOnMount: "always",
         refetchOnWindowFocus: true,
         refetchInterval: 5 * 1000, // polling كل 5 ثوانٍ لاستقبال رسائل الطرف الآخر
     });
@@ -94,20 +90,6 @@ export const useBlockUser = () => {
         mutationKey: ["block-user"],
         mutationFn: ({ payload, ignoreCookie }: { payload: api.BlockUserPayload; ignoreCookie?: boolean }) =>
             api.blockUser(payload, ignoreCookie),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: QK.conversations });
-            queryClient.invalidateQueries({ queryKey: ["blocked-users"] });
-        },
-    });
-};
-
-export const useUnblockUser = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationKey: ["unblock-user"],
-        mutationFn: ({ payload, ignoreCookie }: { payload: api.UnblockUserPayload; ignoreCookie?: boolean }) =>
-            api.unblockUser(payload, ignoreCookie),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QK.conversations });
             queryClient.invalidateQueries({ queryKey: ["blocked-users"] });

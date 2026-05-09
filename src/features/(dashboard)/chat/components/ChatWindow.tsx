@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useMemo } from "react";
-import { useConversationMessages, useSendMessage, useMarkMessageAsSeen, useBlockUser, useUnblockUser, useDeleteConversation } from "../hooks";
+import { useConversationMessages, useSendMessage, useMarkMessageAsSeen, useBlockUser, useDeleteConversation } from "../hooks";
 import { Conversation } from "../api";
 import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon, Star, User, Store, X } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
@@ -27,30 +27,40 @@ import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ConversationInfoPanel } from "./ConversationInfoPanel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 
-const recentSeenMarkRequests = new Map<string, number>();
-const SEEN_DEDUP_WINDOW_MS = 8000;
-
-/** سعر المنتج في رسائل الدردشة قد يكون 0 للمنتجات ذات الاختلافات — لا نعرض 0.00 بل «اطلب السعر». */
-function productChatPriceLabel(p: {
-    price: string;
-    price_after_discount: string | null;
-    ask_for_price?: boolean;
-}): { kind: "ask" } | { kind: "money"; amount: number } {
-    if (p.ask_for_price) return { kind: "ask" };
-    const afterRaw = p.price_after_discount;
-    if (afterRaw != null && afterRaw !== "") {
-        const after = Number(afterRaw);
-        if (Number.isFinite(after) && after > 0) return { kind: "money", amount: after };
-    }
-    const base = Number(p.price || 0);
-    if (Number.isFinite(base) && base > 0) return { kind: "money", amount: base };
-    return { kind: "ask" };
-}
-
 interface ChatWindowProps {
     conversation: Conversation;
     onClose?: () => void;
     context?: "web" | "dashboard";
+}
+
+function chatPriceNumeric(price: string | number | null | undefined): number {
+    return typeof price === "number" ? price : parseFloat(String(price ?? ""));
+}
+
+function isAskForPricePrice(price: string | number | null | undefined): boolean {
+    const n = chatPriceNumeric(price);
+    return !Number.isFinite(n) || n <= 0;
+}
+
+/** شريط المنتج/الخدمة العلوي — نص أبيض + شيكل */
+function ChatHeaderPriceBadge({ price }: { price: string | number | null | undefined }) {
+    if (isAskForPricePrice(price)) {
+        return <span className="text-sm text-white font-medium whitespace-nowrap">اطلب السعر</span>;
+    }
+    const n = chatPriceNumeric(price);
+    return (
+        <p className="text-sm text-white font-medium whitespace-nowrap">
+            {n.toFixed(2)} <span className="text-lg">₪</span>
+        </p>
+    );
+}
+
+/** سعر داخل فقاعة الرسالة */
+function ChatMessagePriceLine({ price }: { price: string | number | null | undefined }) {
+    if (isAskForPricePrice(price)) {
+        return <p className="text-xs text-blue-3 font-medium mt-1">اطلب السعر</p>;
+    }
+    return <p className="text-xs text-blue-3 font-medium mt-1">{chatPriceNumeric(price).toFixed(2)} ₪</p>;
 }
 
 export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindowProps) {
@@ -63,7 +73,6 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     const { mutate: sendMessage } = useSendMessage();
     const { mutate: markSeen } = useMarkMessageAsSeen();
     const { mutate: blockUser } = useBlockUser();
-    const { mutate: unblockUser } = useUnblockUser();
     const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversation();
 
     const [newMessage, setNewMessage] = useState("");
@@ -87,16 +96,12 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messageIdCounter = useRef(0);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
-    const lastMarkedSeenMessageIdRef = useRef<number | null>(null);
 
     const serverMessages = useMemo(() => (messagesData?.messages || []).slice().reverse(), [messagesData]);
 
     const isMerchant = isDashboard && user?.user_type === "merchant";
     const currentParticipantType = isMerchant ? "store" : "user";
     const currentParticipantId = isMerchant ? Cookies.get("current_store_id") : (user?.id ? String(user.id) : undefined);
-    const isCurrentOwner =
-        String(conversation.owner_id) === String(currentParticipantId) &&
-        conversation.owner_type === currentParticipantType;
 
     const otherParticipant = conversation.participants.find(
         p => !(p.participant_data.type === currentParticipantType && String(p.participant_data.id) === String(currentParticipantId))
@@ -118,7 +123,6 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         setMediaViewerState({ isOpen: false, media: [], initialIndex: 0 });
         setIsDeleted(false);
         messageIdCounter.current = 0;
-        lastMarkedSeenMessageIdRef.current = null;
     }, [conversation.id]);
 
     useEffect(() => {
@@ -131,35 +135,16 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     }, [serverMessages.length, pendingMessages.length, conversation.id]);
 
     useEffect(() => {
-        if (serverMessages.length === 0) return;
+        if (serverMessages.length > 0) {
+            const lastMessage = serverMessages[serverMessages.length - 1];
+            const isMyMessage = lastMessage.sender_data.participant_type === currentParticipantType &&
+                String(lastMessage.sender_data.participant_id) === String(currentParticipantId);
 
-        // اختر أحدث رسالة واردة من الطرف الآخر بغض النظر عن ترتيب المصفوفة.
-        const latestIncomingMessage = serverMessages.reduce<typeof serverMessages[number] | null>((latest, msg) => {
-            const isMyMessage = msg.sender_data.participant_type === currentParticipantType &&
-                String(msg.sender_data.participant_id) === String(currentParticipantId);
-            if (isMyMessage) return latest;
-            if (!latest) return msg;
-            return new Date(msg.created_at).getTime() > new Date(latest.created_at).getTime() ? msg : latest;
-        }, null);
-
-        if (!latestIncomingMessage) return;
-
-        if (lastMarkedSeenMessageIdRef.current === latestIncomingMessage.id) {
-            return;
+            if (!isMyMessage) {
+                markSeen({ id: lastMessage.id, ignoreCookie });
+            }
         }
-
-        const dedupKey = `${conversation.id}:${latestIncomingMessage.id}`;
-        const now = Date.now();
-        const lastGlobalRequestAt = recentSeenMarkRequests.get(dedupKey);
-        if (lastGlobalRequestAt && now - lastGlobalRequestAt < SEEN_DEDUP_WINDOW_MS) {
-            return;
-        }
-
-        recentSeenMarkRequests.set(dedupKey, now);
-        lastMarkedSeenMessageIdRef.current = latestIncomingMessage.id;
-
-        markSeen({ id: latestIncomingMessage.id, ignoreCookie });
-    }, [serverMessages, currentParticipantType, currentParticipantId, markSeen, conversation.id, ignoreCookie]);
+    }, [serverMessages, currentParticipantType, currentParticipantId, markSeen]);
 
 
     const handleSend = () => {
@@ -358,20 +343,32 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56 p-2 border-gray-200">
-                            {conversation.type === "group" && (
-                                <DropdownMenuItem
-                                    className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
-                                    onSelect={(e) => {
-                                        e.preventDefault();
-                                        setShowAddMemberModal(true);
-                                    }}
-                                >
-                                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
-                                        <UserPlus className="w-4 h-4 text-gray-600" />
-                                    </div>
-                                    <span className="font-medium text-gray-700">اضافة عضو جديد</span>
-                                </DropdownMenuItem>
-                            )}
+                            <DropdownMenuItem
+                                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
+                                onSelect={() => {
+                                    onClose?.();
+                                }}
+                            >
+                                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+                                    <CheckCircle className="w-4 h-4 text-green-600" />
+                                </div>
+                                <span className="font-medium text-gray-700">اغلاق المحادثة</span>
+                            </DropdownMenuItem>
+
+                            <div className="h-px bg-gray-100 my-1" />
+
+                            <DropdownMenuItem
+                                className="flex items-center gap-3 p-3 rounded-lg cursor-pointer data-[highlighted]:bg-blue-50 focus:bg-blue-50 outline-none transition-colors"
+                                onSelect={(e) => {
+                                    e.preventDefault();
+                                    setShowAddMemberModal(true);
+                                }}
+                            >
+                                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+                                    <UserPlus className="w-4 h-4 text-gray-600" />
+                                </div>
+                                <span className="font-medium text-gray-700">اضافة عضو جديد</span>
+                            </DropdownMenuItem>
 
                             {(conversation.can_chat !== false || isMeBlocked) && conversation.type !== "group" && (
                                 <DropdownMenuItem
@@ -381,15 +378,14 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                         if (!isMeBlocked && conversation.can_chat === false) {
                                             // Already blocked by me → unblock directly
                                             if (otherParticipant) {
-                                                unblockUser({
+                                                blockUser({
                                                     payload: {
                                                         blocked_type: otherParticipant.participant_data.type,
                                                         blocked_id: otherParticipant.participant_data.id,
                                                     },
                                                     ignoreCookie
                                                 }, {
-                                                    onSuccess: () => toast.success("تم إلغاء الحظر بنجاح"),
-                                                    onError: () => toast.error("تعذر إلغاء الحظر"),
+                                                    onSuccess: () => toast.success("تم إلغاء الحظر بنجاح")
                                                 });
                                             }
                                         } else {
@@ -407,7 +403,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                             )}
 
 
-                            {(conversation.type === "direct" || (conversation.type === "group" && isCurrentOwner)) && (
+                            {String(conversation.owner_id) === String(user?.id) && (
                                 <>
                                     <div className="h-px bg-gray-100 my-1" />
                                     <DropdownMenuItem
@@ -452,11 +448,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                             <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedService.description}</p>
                                         </div>
                                         <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
-                                            {Number(linkedService.price || 0) > 0 ? (
-                                                <p className="text-sm text-white font-medium whitespace-nowrap">{parseFloat(linkedService.price).toFixed(2)} <span className="text-lg">₪</span></p>
-                                            ) : (
-                                                <p className="text-sm text-white font-medium whitespace-nowrap">اطلب السعر</p>
-                                            )}
+                                            <ChatHeaderPriceBadge price={linkedService.price} />
                                         </div>
                                     </div>
                                 </div>
@@ -482,14 +474,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                             <p className="text-xs text-gray-2 truncate sm:w-full md:max-w-4/5">{linkedProduct.description}</p>
                                         </div>
                                         <div className="bg-blue-4 flex items-center justify-center px-3 py-0.5 pb-1 rounded-full shrink-0 ">
-                                            {(() => {
-                                                const pr = productChatPriceLabel(linkedProduct);
-                                                return pr.kind === "ask" ? (
-                                                    <p className="text-sm text-white font-medium whitespace-nowrap">اطلب السعر</p>
-                                                ) : (
-                                                    <p className="text-sm text-white font-medium whitespace-nowrap">{pr.amount.toFixed(2)} <span className="text-lg">₪</span></p>
-                                                );
-                                            })()}
+                                            <ChatHeaderPriceBadge price={linkedProduct.price} />
                                         </div>
                                     </div>
                                 </div>
@@ -556,7 +541,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                                         <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.service.title}</p>
                                                     </Link>
                                                     <p className="text-xs text-gray-400 truncate">{msg.service.description}</p>
-                                                    <p className="text-xs text-blue-3 font-medium mt-1">{parseFloat(msg.service.price).toFixed(2)} ₪</p>
+                                                    <ChatMessagePriceLine price={msg.service.price} />
                                                 </div>
                                             </div>
                                         )}
@@ -574,12 +559,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                                         <p className="text-xs font-medium truncate  hover:underline transition-colors cursor-pointer">{msg.product.name}</p>
                                                     </Link>
                                                     <p className="text-[10px] text-gray-400 truncate">{msg.product.description}</p>
-                                                    <p className="text-xs text-blue-3 font-medium mt-1">
-                                                        {(() => {
-                                                            const pr = productChatPriceLabel(msg.product);
-                                                            return pr.kind === "ask" ? "اطلب السعر" : `${pr.amount.toFixed(2)} ₪`;
-                                                        })()}
-                                                    </p>
+                                                    <ChatMessagePriceLine price={msg.product.price} />
                                                     <div className="flex items-center gap-0.5 mt-1">
                                                         {[...Array(5)].map((_, i) => (
                                                             <Star
@@ -757,7 +737,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                 <Button
                                     onClick={() => {
                                         if (otherParticipant) {
-                                            unblockUser({
+                                            blockUser({
                                                 payload: {
                                                     blocked_type: otherParticipant.participant_data.type,
                                                     blocked_id: otherParticipant.participant_data.id,
@@ -766,9 +746,6 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                             }, {
                                                 onSuccess: () => {
                                                     toast.success("تم إلغاء الحظر بنجاح");
-                                                },
-                                                onError: () => {
-                                                    toast.error("تعذر إلغاء الحظر");
                                                 }
                                             });
                                         }
@@ -786,7 +763,6 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                     isOpen={showAddMemberModal}
                     onClose={() => setShowAddMemberModal(false)}
                     conversationId={conversation.id}
-                    existingParticipants={conversation.participants}
                     ignoreCookie={ignoreCookie}
                 />
 
