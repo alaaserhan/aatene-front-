@@ -32,41 +32,6 @@ function countFor(cat: Category, kind: CategoryKind) {
         : cat.products_count;
 }
 
-/** أيقونة تصنيف: صورة من الـ API أو أيقونة افتراضية */
-function CategoryListIcon({
-    cat,
-    size = "md",
-}: {
-    cat: Category;
-    size?: "sm" | "md";
-}) {
-    const dim = size === "md" ? "h-9 w-9" : "h-8 w-8";
-    const iconDim = size === "md" ? "h-4 w-4" : "h-3.5 w-3.5";
-    if (cat.image && String(cat.image).trim() !== "") {
-        return (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-                src={cat.image}
-                alt=""
-                className={cn(
-                    dim,
-                    "shrink-0 rounded-lg object-cover ring-1 ring-gray-100"
-                )}
-            />
-        );
-    }
-    return (
-        <div
-            className={cn(
-                dim,
-                "flex shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-400"
-            )}
-        >
-            <LayoutGrid className={iconDim} />
-        </div>
-    );
-}
-
 /** أعمدة الفروع: لكل عنصر في المسار، عمود بأبنائه */
 function buildBranchColumns(
     path: number[],
@@ -220,8 +185,6 @@ export default function CategoryMegaMenuContent({
                         )}
                         style={{ paddingRight: `${8 + depth * 14}px` }}
                     >
-                        <CategoryListIcon cat={cat} size="sm" />
-
                         <span className="min-w-0 flex-1 leading-snug">
                             {cat.name}
                             <span className="mr-1 text-[11px] font-normal text-gray-400">
