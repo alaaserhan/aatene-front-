@@ -17,6 +17,12 @@ import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { isDuplicateMessage } from "@/src/lib/fcm-dedup";
 
+/**
+ * يمنع فتح المحادثة من query (منتج/خدمة) مرتين: سباق بين `setIsCreatingFromUrl(false)` وبين اختفاء
+ * `type`/`id` من الرابط، وأيضًا إعادة تشغيل التأثير في React Strict Mode.
+ */
+let chatDeepLinkHandledKey: string | null = null;
+
 let notificationAudio: HTMLAudioElement | null = null;
 let audioUnlocked = false;
 
@@ -180,7 +186,16 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         const askPriceParam = searchParams.get("askPrice");
         const shouldSendAskPriceMessage = askPriceParam === "1" || askPriceParam === "true";
 
+        if (!typeParam) {
+            chatDeepLinkHandledKey = null;
+        }
+
         if (!typeParam || !idParam || isCreatingFromUrl || selectedConversation) {
+            return;
+        }
+
+        const deepLinkDedupKey = `${typeParam}|${idParam}|${productIdParam ?? ""}|${serviceIdParam ?? ""}|${askPriceParam ?? ""}`;
+        if (chatDeepLinkHandledKey === deepLinkDedupKey) {
             return;
         }
 
@@ -191,6 +206,19 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             return;
         }
 
+        chatDeepLinkHandledKey = deepLinkDedupKey;
+
+        const replaceUrlWithChat = (conversationId: number | string) => {
+            const p = new URLSearchParams(searchParams.toString());
+            p.delete("type");
+            p.delete("id");
+            p.delete("serviceId");
+            p.delete("productId");
+            p.delete("askPrice");
+            p.set("chat", String(conversationId));
+            applyChatUrlParams(p);
+        };
+
         const openConversationFromSendResponse = (conversationId: number | string) => {
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
             refetch().then((result) => {
@@ -200,14 +228,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 if (conv) {
                     handleSelectConversation(conv);
                 } else {
-                    const p = new URLSearchParams(searchParams.toString());
-                    p.delete("type");
-                    p.delete("id");
-                    p.delete("serviceId");
-                    p.delete("productId");
-                    p.delete("askPrice");
-                    p.set("chat", String(conversationId));
-                    applyChatUrlParams(p);
+                    replaceUrlWithChat(conversationId);
                     queryClient.invalidateQueries({ queryKey: ["conversations"] });
                 }
             });
@@ -227,24 +248,28 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 },
                 {
                     onSuccess: (res) => {
-                        setIsCreatingFromUrl(false);
                         if (res.status && res.message) {
+                            const cid = res.message.conversation_id;
+                            replaceUrlWithChat(cid);
                             if (shouldSendAskPriceMessage) {
                                 sendMessage({
                                     payload: {
-                                        conversation_id: res.message.conversation_id,
+                                        conversation_id: cid,
                                         body: "مرحبًا، أريد معرفة سعر هذا المنتج من فضلك.",
                                     },
                                     ignoreCookie
                                 });
                             }
-                            openConversationFromSendResponse(res.message.conversation_id);
+                            openConversationFromSendResponse(cid);
                         } else {
                             toast.error("تعذر فتح المحادثة");
+                            chatDeepLinkHandledKey = null;
                         }
+                        setIsCreatingFromUrl(false);
                     },
                     onError: () => {
                         toast.error("حدث خطأ أثناء إرسال الرسالة");
+                        chatDeepLinkHandledKey = null;
                         setIsCreatingFromUrl(false);
                     }
                 }
@@ -261,24 +286,28 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 },
                 {
                     onSuccess: (res) => {
-                        setIsCreatingFromUrl(false);
                         if (res.status && res.message) {
+                            const cid = res.message.conversation_id;
+                            replaceUrlWithChat(cid);
                             if (shouldSendAskPriceMessage) {
                                 sendMessage({
                                     payload: {
-                                        conversation_id: res.message.conversation_id,
+                                        conversation_id: cid,
                                         body: "مرحبًا، أريد معرفة سعر هذا المنتج من فضلك.",
                                     },
                                     ignoreCookie
                                 });
                             }
-                            openConversationFromSendResponse(res.message.conversation_id);
+                            openConversationFromSendResponse(cid);
                         } else {
                             toast.error("تعذر فتح المحادثة");
+                            chatDeepLinkHandledKey = null;
                         }
+                        setIsCreatingFromUrl(false);
                     },
                     onError: () => {
                         toast.error("حدث خطأ أثناء إرسال الرسالة");
+                        chatDeepLinkHandledKey = null;
                         setIsCreatingFromUrl(false);
                     }
                 }
@@ -299,10 +328,12 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                             handleSelectConversation(res.conversation);
                         } else {
                             toast.error(res.message || "حدث خطأ أثناء إنشاء المحادثة");
+                            chatDeepLinkHandledKey = null;
                         }
                     },
                     onError: () => {
                         toast.error("حدث خطأ أثناء إنشاء المحادثة");
+                        chatDeepLinkHandledKey = null;
                         setIsCreatingFromUrl(false);
                     }
                 }
