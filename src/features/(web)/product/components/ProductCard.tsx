@@ -46,7 +46,7 @@ const ProductCard = memo(({
     slug,
     cover,
     price,
-    ask_for_price = false,
+    ask_for_price,
     priceAfterDiscount,
     discountPercent,
     reviewRate,
@@ -72,8 +72,8 @@ const ProductCard = memo(({
         numBase > effectiveAfter;
     /** طلب السعر من الباك، أو لا يوجد سعر صالح (مثل منتجات variations في البحث حيث price=0) */
     const shouldAskForPrice =
-        ask_for_price === true ||
-        (ask_for_price !== true &&
+        !!ask_for_price ||
+        (!ask_for_price &&
             (!Number.isFinite(numBase) || numBase <= 0) &&
             (!Number.isFinite(effectiveAfter) || effectiveAfter <= 0));
     const rating = typeof reviewRate === 'number' ? reviewRate : parseFloat(reviewRate || "0");
