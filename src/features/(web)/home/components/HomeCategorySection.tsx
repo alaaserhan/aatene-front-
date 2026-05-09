@@ -37,7 +37,7 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
                 <h2 className="text-xl md:text-2xl font-bold text-gray-800">
                     {category.name}
                 </h2>
-                
+
                 <div className="flex items-center gap-3 md:gap-4">
                     <Link
                         href={`/${lang}/search?type=products&category_id=${category.id}`}
