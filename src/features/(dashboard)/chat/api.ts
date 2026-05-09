@@ -1,7 +1,6 @@
 import api from "@/src/lib/axios";
 import Cookies from "js-cookie";
 
-
 // --- Types ---
 
 export interface ParticipantData {
@@ -52,7 +51,6 @@ export interface MessageProduct {
     name: string;
     cover: string;
     price: string;
-    ask_for_price?: boolean;
     price_after_discount: string | null;
     review_rate: string;
     review_count: string | number;
