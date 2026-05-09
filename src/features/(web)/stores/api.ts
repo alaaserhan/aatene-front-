@@ -39,6 +39,7 @@ export interface StoreProfile {
     pending_services_count: string | null;
     rejected_services_count: string | null;
     views_count: string | null;
+    favorites_count: string | number;
     conversations_count: string | null;
     status: string;
     description: string;

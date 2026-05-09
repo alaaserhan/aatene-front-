@@ -19,13 +19,10 @@ export default function HomeNewProducts({ products: initialProducts }: HomeNewPr
     return (
         <section className="pb-12 pt-4 bg-linear-to-b from-gray-50 to-white" dir="rtl">
             <MaxWidthWrapper>
-                <div className="flex flex-col mb-10 text-right">
-                    <h2 className="text-2xl md:text-3xl font-medium mb-2">
+                <div className="flex flex-col mb-6 md:mb-10 text-right">
+                    <h2 className="text-2xl md:text-3xl font-medium">
                         تم اختياره لأجلك
                     </h2>
-                    <p className="text-gray-500 text-sm md:text-base">
-                        أفضل المنتجات مبيعاً من بائعين موثوق بهم | ممول
-                    </p>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-6">
@@ -42,6 +39,7 @@ export default function HomeNewProducts({ products: initialProducts }: HomeNewPr
                             reviewRate={product.review_rate?.toString()}
                             reviewCount={product.review_count?.toString()}
                             isFavorite={product.is_favorite}
+                            storeId={product.store_id}
                         />
                     ))}
                 </div>

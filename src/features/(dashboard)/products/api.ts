@@ -71,6 +71,7 @@ export interface Product {
   review_rate?: string | number | null;
   review_count?: string | number | null;
   price?: string | number;
+  ask_for_price?: boolean;
   store_id?: number | string;
   favorites_count?: string | number;
   messages_count?: string | number;
@@ -117,6 +118,7 @@ export interface ProductCreatePayload {
   store_id: number;
   section_id: number;
   price: number;
+  ask_for_price?: boolean;
   status: ProductStatus;
   cross_sells_price?: number;
   cross_sells_due_date?: string;

@@ -209,12 +209,12 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
                 )}
                 {activeTab === "discounts" && (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300" dir="rtl">
-                        <OffersGrid products={offersProducts} emptyMessage="لا توجد عروض حالياً" perPage={3} enablePagination />
+                        <OffersGrid storeId={store.id} products={offersProducts} emptyMessage="لا توجد عروض حالياً" perPage={3} enablePagination />
                     </div>
                 )}
                 {activeTab === "offers" && (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300" dir="rtl">
-                        <OffersGrid products={couponsProducts} emptyMessage="لا توجد تخفيضات حالياً" useProductCard />
+                        <OffersGrid storeId={store.id} products={couponsProducts} emptyMessage="لا توجد تخفيضات حالياً" useProductCard />
                     </div>
                 )}
             </div>
@@ -223,12 +223,14 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
 }
 
 function OffersGrid({
+    storeId,
     products,
     emptyMessage,
     useProductCard,
     perPage,
     enablePagination
 }: {
+    storeId: number;
     products: ProductInPageData[];
     emptyMessage: string;
     useProductCard?: boolean;
@@ -266,6 +268,7 @@ function OffersGrid({
                             reviewCount={p.review_count}
                             isFavorite={p.is_favorite}
                             type="product"
+                            storeId={storeId}
                         />
                     ))}
                 </div>
@@ -566,7 +569,11 @@ function OverviewTab({ store }: { store: StoreProfile }) {
 
     // Member since
     const memberSince = store.owner?.created_at
-        ? new Date(store.owner.created_at).getFullYear()
+        ? new Date(store.owner.created_at).toLocaleDateString("en-GB", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        })
         : "غير متوفر";
 
     return (
@@ -593,7 +600,7 @@ function OverviewTab({ store }: { store: StoreProfile }) {
                         <StoreStatItem
                             icon={<img src="/icons/heart2.svg" alt="" className="w-6 h-6" />}
                             label="فضلو المتجر"
-                            value={String(store.followers_count || 0)}
+                            value={String(store.favorites_count || 0)}
                         />
                         <StoreStatItem
                             icon={<img src="/icons/member.svg" alt="" className="w-6 h-6" />}

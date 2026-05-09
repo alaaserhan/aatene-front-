@@ -1,7 +1,6 @@
 import api from "@/src/lib/axios";
 import Cookies from "js-cookie";
 
-
 // --- Types ---
 
 export interface ParticipantData {

@@ -48,7 +48,7 @@ const NewsletterFooter = () => {
                 <div className="mb-8 flex w-full justify-center overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     <p
                         id="newsletter-heading"
-                        className="inline-block min-w-max whitespace-nowrap text-sm leading-relaxed text-[#2D4362] md:text-base"
+                        className="inline-block text-sm leading-relaxed text-[#2D4362] md:min-w-max md:whitespace-nowrap md:text-base"
                     >
                         اكتشف خدمات ومنتجات مميزة من أفضل البائعين في مكان واحد، وسجّل بريدك الإلكتروني لتحصل على عروض حصرية وترشيحات تناسبك
                     </p>
@@ -65,9 +65,9 @@ const NewsletterFooter = () => {
                         البريد الإلكتروني للاشتراك في النشرة
                     </label>
                     <div className="flex w-full overflow-hidden rounded-full shadow-[0_8px_28px_-10px_rgba(45,67,98,0.18)] ring-1 ring-[#cfd9e6]">
-                        <div className="flex min-w-0 flex-1 items-center gap-3 bg-white py-2 ps-4 pe-3 sm:ps-5 sm:pe-4">
+                        <div className="flex min-w-0 flex-1 items-center gap-2 bg-white py-1.5 ps-3 pe-2 sm:gap-3 sm:py-2 sm:ps-4 sm:pe-3 md:ps-5 md:pe-4">
                             <Mail
-                                className="h-5 w-5 shrink-0 text-gray-400"
+                                className="h-4 w-4 shrink-0 text-gray-400 sm:h-5 sm:w-5"
                                 aria-hidden
                             />
                             <input
@@ -77,13 +77,13 @@ const NewsletterFooter = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="اكتب بريدك الالكتروني"
-                                className="min-h-[44px] w-full min-w-0 flex-1 bg-transparent py-2 text-right text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none md:text-[15px]"
+                                className="min-h-[40px] w-full min-w-0 flex-1 bg-transparent py-1.5 text-right text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none sm:min-h-[44px] sm:py-2 sm:text-sm md:text-[15px]"
                             />
                         </div>
                         <button
                             type="submit"
                             disabled={isPending}
-                            className="shrink-0 bg-[#2D4362] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#24354f] disabled:opacity-60 sm:px-8 sm:text-base"
+                            className="shrink-0 bg-[#2D4362] px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-[#24354f] disabled:opacity-60 sm:px-5 sm:py-1.5 sm:text-sm md:px-8 md:text-base"
                         >
                             {isPending ? (
                                 <span className="inline-flex items-center justify-center gap-2">

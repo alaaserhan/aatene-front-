@@ -223,9 +223,9 @@ function WhoFavoritedSection({
             <div className="container bg-white rounded-xl p-4 md:p-6 shadow-sm mt-6">
                 <div className="flex  justify-between mb-4 pt-4">
                     <div>
-                        <h2 className="text-xl md:text-2xl font-bold">من تابع هذا المتجر؟</h2>
+                        <h2 className="text-xl md:text-2xl font-bold">من فضّل هذا المتجر؟</h2>
                         <p className="text-sm text-gray-400 mt-1">
-                            {users.length} من الأشخاص تابعو المتجر
+                            {users.length} من الأشخاص فضّلوا المتجر
                         </p>
                     </div>
                     <button
@@ -242,7 +242,7 @@ function WhoFavoritedSection({
                     </div>
                 ) : users.length === 0 ? (
                     <div className="flex items-center justify-center py-16 text-gray-400 text-sm">
-                        لا يوجد متابعين حتى الآن
+                        لا يوجد من فضّل هذا المتجر حتى الآن
                     </div>
                 ) : (
                     <div className="">

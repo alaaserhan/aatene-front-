@@ -177,6 +177,7 @@ export function AddProductPage() {
       store_id: updatedFormData.step2!.store_id,
       section_id: updatedFormData.step2!.section_id || 0,
       price: updatedFormData.step1!.price,
+      ask_for_price: updatedFormData.step1!.ask_for_price,
 
       status: isAdmin ? "approved" : "pending",
       tags: updatedFormData.step2!.tags,
