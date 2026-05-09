@@ -4,6 +4,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getSettings, updateSettings, UpdateSettingsPayload } from "./api";
 import { toast } from "sonner";
+import { useSettingsStore } from "@/src/stores/settings-store";
 
 export const SETTINGS_QUERY_KEY = ["settings"];
 
@@ -30,6 +31,10 @@ export const useUpdateSettings = () => {
       toast.success(data.message || "تم تحديث الإعدادات بنجاح");
       // إعادة جلب بيانات الإعدادات بعد النجاح
       queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["global-settings"] });
+      
+      // Sync Zustand store
+      useSettingsStore.getState().fetchSettings();
     },
     onError: (error) => {
       console.error("Update settings failed:", error);

@@ -34,6 +34,9 @@ export interface GlobalSettingsData {
     youtube: string | null;
     policies?: PolicyTerm[];
     terms?: PolicyTerm[];
+    is_site_under_construction?: boolean | number | string;
+    is_app_under_construction?: boolean | number | string;
+    is_app_needs_update?: boolean | number | string;
 }
 
 export interface GetGlobalSettingsResponse extends BaseResponse {

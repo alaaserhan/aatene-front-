@@ -47,9 +47,11 @@ import {
     getFollowings,
     getFollowersCount,
     RemoveFollowerPayload,
+    getGlobalSettings,
 } from "./api";
 
 const QK = {
+    globalSettings: ["global-settings"] as const,
     cities: {
         all: ["cities"] as const,
         single: (id: string | number) => ["cities", String(id)] as const,
@@ -484,5 +486,13 @@ export const useGetFollowersCount = () => {
     return useQuery({
         queryKey: QK.follows.count,
         queryFn: getFollowersCount,
+    });
+};
+
+export const useGetGlobalSettings = () => {
+    return useQuery({
+        queryKey: QK.globalSettings,
+        queryFn: getGlobalSettings,
+        staleTime: 1000 * 60 * 5, // 5 minutes
     });
 };

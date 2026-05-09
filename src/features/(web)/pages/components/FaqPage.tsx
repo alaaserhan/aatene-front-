@@ -74,7 +74,7 @@ export default function FaqPage() {
 
                 <div className="pb-24">
                     <div className="container mx-auto px-4 max-w-4xl">
-                        <div className="flex flex-wrap justify-center gap-3 mb-10">
+                        <div className="flex overflow-x-auto justify-center gap-3 mb-10">
                             {faqsData.map((cat, index) => (
                                 <button
                                     key={index}

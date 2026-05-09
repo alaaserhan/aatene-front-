@@ -31,6 +31,9 @@ export interface Settings {
   youtube: string;
   policies: PolicyItem[];
   terms: PolicyItem[];
+  is_site_under_construction?: boolean | number | string;
+  is_app_under_construction?: boolean | number | string;
+  is_app_needs_update?: boolean | number | string;
 }
 
 export interface GetSettingsResponse {
@@ -63,6 +66,9 @@ export interface UpdateSettingsPayload {
   youtube: string;
   policies: PolicyItemPayload[];
   terms: PolicyItemPayload[];
+  is_site_under_construction?: boolean;
+  is_app_under_construction?: boolean;
+  is_app_needs_update?: boolean;
 }
 
 export const getSettings = async (): Promise<GetSettingsResponse> => {
