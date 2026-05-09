@@ -24,9 +24,6 @@ const executeTypeMap: Record<string, string> = {
     month: "شهر",
 };
 
-/** إخفاء وسم الكلمات المفتاحية في الواجهة لخدمات محددة (طلب إداري/SEO) */
-const SERVICE_SLUGS_HIDE_KEYWORDS = new Set(["mhamy-syarat-mbyont-omkatb"]);
-
 function SpecialtiesDropdown({ specialties }: { specialties: { id: number; title: string }[] }) {
     const [open, setOpen] = useState(false);
     return (
@@ -345,25 +342,6 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                     {/* Specialties / Field Tags */}
                     {service.specialties && service.specialties.length > 0 && (
                         <SpecialtiesDropdown specialties={service.specialties} />
-                    )}
-
-                    {/* Tags / Keywords */}
-                    {service.tags &&
-                        service.tags.length > 0 &&
-                        !SERVICE_SLUGS_HIDE_KEYWORDS.has(service.slug) && (
-                        <div className="flex flex-col gap-2">
-                            <p className="text-sm font-medium text-gray-700">الكلمات المفتاحية</p>
-                            <div className="flex flex-wrap gap-2">
-                                {service.tags.map((tag) => (
-                                    <span
-                                        key={tag.id}
-                                        className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full border border-gray-200"
-                                    >
-                                        {tag.title}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
                     )}
 
                     {/* CTA Buttons */}
