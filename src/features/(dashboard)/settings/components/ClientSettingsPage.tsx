@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check } from "lucide-react";
+import NextImage from "next/image";
 import {
   Accordion,
   AccordionContent,
@@ -15,6 +15,7 @@ import { BasicInfoSection } from "./BasicInfoSection";
 import { TermsSection } from "./TermsSection";
 import { PrivacyPolicySection } from "./PrivacyPolicySection";
 import { SocialMediaSection } from "./SocialMediaSection";
+import { CaseManagement, type CaseManagementData } from "./CaseManagement";
 import { useGetSettings, useUpdateSettings } from "../hooks";
 import { toast } from "sonner";
 import type { PolicyItemPayload, TranslatableString } from "../api";
@@ -58,6 +59,7 @@ interface SettingsFormData {
   languages: string[];
   privacyPolicies: PolicyParagraph[];
   terms: PolicyParagraph[];
+  caseManagement: CaseManagementData;
 }
 
 const settingsItems = [
@@ -79,6 +81,11 @@ const settingsItems = [
   {
     id: "terms-of-use",
     title: "شروط الاستخدام",
+    isCompleted: true,
+  },
+  {
+    id: "case-management",
+    title: "إدارة الحالة",
     isCompleted: true,
   },
 ];
@@ -128,6 +135,11 @@ export function ClientSettingsPage() {
     languages: ["ar", "en"],
     privacyPolicies: [],
     terms: [],
+    caseManagement: {
+      isSiteUnderConstruction: false,
+      isAppUnderConstruction: false,
+      isAppNeedsUpdate: false,
+    },
   });
 
   useEffect(() => {
@@ -179,6 +191,11 @@ export function ClientSettingsPage() {
             contentEn: term.content?.en || "",
             contentHe: term.content?.he || "",
           })) || [],
+        caseManagement: {
+          isSiteUnderConstruction: !!settings.is_site_under_construction,
+          isAppUnderConstruction: !!settings.is_app_under_construction,
+          isAppNeedsUpdate: !!settings.is_app_needs_update,
+        },
       });
     }
   }, [settingsData]);
@@ -212,6 +229,13 @@ export function ClientSettingsPage() {
     setFormData((prev) => ({
       ...prev,
       terms: paragraphs,
+    }));
+  };
+
+  const handleCaseManagementChange = (data: Partial<CaseManagementData>) => {
+    setFormData((prev) => ({
+      ...prev,
+      caseManagement: { ...prev.caseManagement, ...data },
     }));
   };
 
@@ -280,6 +304,9 @@ export function ClientSettingsPage() {
         youtube: formData.socialMedia.youtube,
         policies: policiesPayload,
         terms: termsPayload,
+        is_site_under_construction: formData.caseManagement.isSiteUnderConstruction,
+        is_app_under_construction: formData.caseManagement.isAppUnderConstruction,
+        is_app_needs_update: formData.caseManagement.isAppNeedsUpdate,
       });
     } catch (error) {
 
@@ -331,7 +358,7 @@ export function ClientSettingsPage() {
                 <div className="flex items-center gap-3">
                   {item.isCompleted && (
                     <div className="flex items-center justify-center w-5 h-5 rounded-full bg-[#1FC16B]">
-                      <img src="/icons/dashboard/correct2.svg" className="w-3" alt="" />
+                      <NextImage src="/icons/dashboard/correct2.svg" width={12} height={12} className="w-3" alt="" />
                     </div>
                   )}
                   <h1 className="font-bold text-lg">{item.title}</h1>
@@ -367,6 +394,13 @@ export function ClientSettingsPage() {
                     selectedLanguages={formData.languages}
                     paragraphs={formData.terms}
                     onChange={handleTermsChange}
+                  />
+                )}
+
+                {item.id === "case-management" && (
+                  <CaseManagement
+                    data={formData.caseManagement}
+                    onChange={handleCaseManagementChange}
                   />
                 )}
               </AccordionContent>

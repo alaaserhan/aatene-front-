@@ -162,7 +162,7 @@ export default function FavoritesContent({
 
             {/* List Badges/Tabs */}
             {lists.length > 0 && (
-                <div className="flex flex-wrap gap-3 items-center">
+                <div className="flex gap-3 items-center overflow-x-auto md:overflow-visible md:flex-wrap">
                     {/* "All Items" badge */}
                     <button
                         onClick={() => handleListClick(null)}
