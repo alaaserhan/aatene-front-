@@ -143,6 +143,7 @@ export default function StoreProductsSection({ storeId, storeType, sections }: S
                                             reviewRate={item.review_rate}
                                             reviewCount={item.review_count}
                                             isFavorite={item.is_favorite}
+                                            storeId={storeId}
                                         />
                                     )
                                 ))}

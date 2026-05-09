@@ -1,14 +1,24 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { cn, isVideoFile } from "@/src/lib/utils";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/src/stores/auth-store";
+import { getProductBySlug } from "@/src/features/(web)/product/api";
+import { toast } from "sonner";
+import { productAskForPriceButtonClassName } from "./productAskForPriceButton";
+
+function normalizeStoreId(v: number | string | undefined | null): number | null {
+    if (v === undefined || v === null || v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? n : null;
+}
 
 export interface ProductCardProps {
     id: number | string;
@@ -16,6 +26,7 @@ export interface ProductCardProps {
     slug?: string;
     cover: string;
     price: string | number;
+    ask_for_price?: boolean;
     priceAfterDiscount?: string | number;
     discountPercent?: number;
     reviewRate?: string | number;
@@ -25,6 +36,8 @@ export interface ProductCardProps {
     onClick?: () => void;
     className?: string;
     type?: "product" | "store" | "service" | "blog";
+    /** لربط «اطلب السعر» بمحادثة المتجر؛ إن لم يُمرَّر يُفتح صفحة المنتج */
+    storeId?: number | string;
 }
 
 const ProductCard = memo(({
@@ -33,6 +46,7 @@ const ProductCard = memo(({
     slug,
     cover,
     price,
+    ask_for_price = false,
     priceAfterDiscount,
     discountPercent,
     reviewRate,
@@ -42,15 +56,64 @@ const ProductCard = memo(({
     onClick,
     className,
     type = "product", // Default type
+    storeId,
 }: ProductCardProps) => {
     const [imgSrc, setImgSrc] = useState(cover || "/placeholder.png");
-    const displayPrice = priceAfterDiscount || price;
-    const hasDiscount = !!priceAfterDiscount && String(priceAfterDiscount) !== String(price);
+    const numBase = Number(price ?? 0);
+    const numAfter =
+        priceAfterDiscount === undefined || priceAfterDiscount === null || priceAfterDiscount === ""
+            ? NaN
+            : Number(priceAfterDiscount);
+    const effectiveAfter = Number.isFinite(numAfter) && numAfter > 0 ? numAfter : NaN;
+    const displayPrice = Number.isFinite(effectiveAfter) ? effectiveAfter : (Number.isFinite(numBase) ? numBase : 0);
+    const hasDiscount =
+        Number.isFinite(effectiveAfter) &&
+        Number.isFinite(numBase) &&
+        numBase > effectiveAfter;
+    /** طلب السعر من الباك، أو لا يوجد سعر صالح (مثل منتجات variations في البحث حيث price=0) */
+    const shouldAskForPrice =
+        ask_for_price === true ||
+        (ask_for_price !== true &&
+            (!Number.isFinite(numBase) || numBase <= 0) &&
+            (!Number.isFinite(effectiveAfter) || effectiveAfter <= 0));
     const rating = typeof reviewRate === 'number' ? reviewRate : parseFloat(reviewRate || "0");
     const count = typeof reviewCount === 'number' ? reviewCount : parseInt(String(reviewCount || "0"), 10);
     const router = useRouter();
+    const params = useParams();
+    const lang = (params?.locale as string) || (params?.lang as string) || "ar";
+    const { user } = useAuthStore();
     const qc = useQueryClient();
     const [localIsFavorite, setLocalIsFavorite] = useState(isFavorite);
+    const [askPriceLoading, setAskPriceLoading] = useState(false);
+
+    const handleAskForPriceClick = async (e: MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        let sid = normalizeStoreId(storeId);
+        if (!sid && slug) {
+            setAskPriceLoading(true);
+            try {
+                const res = await getProductBySlug(slug);
+                if (res.status && res.store?.id != null) {
+                    sid = normalizeStoreId(res.store.id);
+                }
+            } catch {
+                toast.error("تعذر تحميل بيانات المتجر. حاول مرة أخرى.");
+            } finally {
+                setAskPriceLoading(false);
+            }
+        }
+        if (!sid) {
+            if (slug) router.push(`/product/${slug}`);
+            else toast.error("لا يمكن فتح المحادثة لهذا المنتج.");
+            return;
+        }
+        if (!user) {
+            router.push(`/${lang}/login`);
+            return;
+        }
+        router.push(`/${lang}/chat?type=store&id=${sid}&productId=${id}&askPrice=1`);
+    };
 
     return (
         <div
@@ -145,16 +208,30 @@ const ProductCard = memo(({
                 </div>
 
                 {/* Price */}
-                <div className="flex items-baseline gap-2 justify-start">
-                    <span className=" font-medium ">
-                        {parseFloat(String(displayPrice)).toFixed(2)} <span className="text-xl font-medium">₪</span>
-                    </span>
-                    {hasDiscount && (
-                        <span className="font-medium text-gray-400 line-through">
-                            {parseFloat(String(price)).toFixed(2)} <span className="text-xl font-medium">₪</span>
+                {shouldAskForPrice ? (
+                    <button
+                        type="button"
+                        disabled={askPriceLoading}
+                        className={cn(
+                            productAskForPriceButtonClassName,
+                            askPriceLoading && "opacity-75 cursor-wait pointer-events-none"
+                        )}
+                        onClick={handleAskForPriceClick}
+                    >
+                        {askPriceLoading ? "جاري الفتح…" : "اطلب السعر"}
+                    </button>
+                ) : (
+                    <div className="flex items-baseline gap-2 justify-start">
+                        <span className=" font-medium ">
+                            {displayPrice.toFixed(2)} <span className="text-xl font-medium">₪</span>
                         </span>
-                    )}
-                </div>
+                        {hasDiscount && (
+                            <span className="font-medium text-gray-400 line-through">
+                                {numBase.toFixed(2)} <span className="text-xl font-medium">₪</span>
+                            </span>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

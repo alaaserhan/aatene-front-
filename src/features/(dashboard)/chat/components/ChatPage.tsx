@@ -120,6 +120,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         params.delete("id");
         params.delete("serviceId");
         params.delete("productId");
+        params.delete("askPrice");
         params.set("chat", String(conversation.id));
         applyChatUrlParams(params);
     }, [searchParams, activeConversation, applyChatUrlParams]);
@@ -147,6 +148,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         params.delete("id");
         params.delete("serviceId");
         params.delete("productId");
+        params.delete("askPrice");
         if (params.get("chat")) {
             params.delete("chat");
         }
@@ -175,6 +177,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         const idParam = searchParams.get("id");
         const serviceIdParam = searchParams.get("serviceId");
         const productIdParam = searchParams.get("productId");
+        const askPriceParam = searchParams.get("askPrice");
+        const shouldSendAskPriceMessage = askPriceParam === "1" || askPriceParam === "true";
 
         if (!typeParam || !idParam || isCreatingFromUrl || selectedConversation) {
             return;
@@ -201,6 +205,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     p.delete("id");
                     p.delete("serviceId");
                     p.delete("productId");
+                    p.delete("askPrice");
                     p.set("chat", String(conversationId));
                     applyChatUrlParams(p);
                     queryClient.invalidateQueries({ queryKey: ["conversations"] });
@@ -224,6 +229,15 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     onSuccess: (res) => {
                         setIsCreatingFromUrl(false);
                         if (res.status && res.message) {
+                            if (shouldSendAskPriceMessage) {
+                                sendMessage({
+                                    payload: {
+                                        conversation_id: res.message.conversation_id,
+                                        body: "مرحبًا، أريد معرفة سعر هذا المنتج من فضلك.",
+                                    },
+                                    ignoreCookie
+                                });
+                            }
                             openConversationFromSendResponse(res.message.conversation_id);
                         } else {
                             toast.error("تعذر فتح المحادثة");
@@ -249,6 +263,15 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     onSuccess: (res) => {
                         setIsCreatingFromUrl(false);
                         if (res.status && res.message) {
+                            if (shouldSendAskPriceMessage) {
+                                sendMessage({
+                                    payload: {
+                                        conversation_id: res.message.conversation_id,
+                                        body: "مرحبًا، أريد معرفة سعر هذا المنتج من فضلك.",
+                                    },
+                                    ignoreCookie
+                                });
+                            }
                             openConversationFromSendResponse(res.message.conversation_id);
                         } else {
                             toast.error("تعذر فتح المحادثة");

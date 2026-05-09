@@ -9,6 +9,7 @@ interface ProductPreviewSidebarProps {
     data: {
         name: string;
         price: number;
+        ask_for_price?: boolean;
         coverImage: string;
         galleryImages: string[];
     };
@@ -93,11 +94,22 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
                         </div>
 
                         {/* Price */}
-                        <div className="flex items-center  gap-3 mt-1">
-                            <span className=" font-bold ">
-                                {formattedPrice} <span>₪</span>
-                            </span>
-                        </div>
+                        {data.ask_for_price ? (
+                            <div className="mt-1">
+                                <button
+                                    type="button"
+                                    className="h-9 px-5 rounded-sm bg-blue-4 text-white text-sm font-medium"
+                                >
+                                    اطلب السعر
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="flex items-center  gap-3 mt-1">
+                                <span className=" font-bold ">
+                                    {formattedPrice} <span>₪</span>
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     {/* --- Product Card Design End --- */}
