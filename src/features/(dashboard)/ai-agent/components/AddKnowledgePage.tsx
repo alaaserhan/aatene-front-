@@ -9,6 +9,7 @@ import { useUploadKnowledge } from "../hooks";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { cn } from "@/src/lib/utils";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
+import { knowledgeBankPlatformFromSearchParam } from "../api";
 
 export function AddKnowledgePage() {
   const router = useRouter();
@@ -43,7 +44,9 @@ export function AddKnowledgePage() {
 
   const handleUpload = () => {
     if (selectedFile) {
-      uploadFile(selectedFile, {
+      const platform = knowledgeBankPlatformFromSearchParam(searchParams.get("platform"));
+
+      uploadFile({ file: selectedFile, platform }, {
         onSuccess: () => setIsSuccessOpen(true),
       });
     }
