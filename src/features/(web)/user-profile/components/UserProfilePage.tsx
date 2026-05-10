@@ -88,7 +88,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
             </div>
 
             <div className="container relative">
-                <div className="flex flex-col md:grid md:grid-cols-[max-content_1fr] gap-4 md:gap-8 items-center md:items-start text-center md:text-start">
+                <div className="flex flex-col items-center gap-4 text-center max-md:items-stretch md:grid md:grid-cols-[max-content_1fr] md:gap-8 md:items-start md:text-start">
 
                     {/* Column 1: Avatar & Meta Stats */}
                     <div className="flex flex-col items-center relative -mt-20 z-10 w-full md:w-auto">
@@ -145,11 +145,11 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                             <div className="w-px h-8 bg-gray-200 block md:hidden"></div>
 
                             {/* Followers */}
-                            <div className="flex items-center gap-3">
-                                <div className="hidden sm:flex -space-x-2 md:-space-x-3 space-x-reverse">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="flex -space-x-1.5 sm:-space-x-2 md:-space-x-3 space-x-reverse">
                                     {followers && followers.length > 0 && (
                                         followers.slice(0, 3).map((fItem, idx) => (
-                                            <div key={fItem.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100 flex items-center justify-center">
+                                            <div key={fItem.id || idx} className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100 flex items-center justify-center">
                                                 <UserIcon className="w-4 h-4 text-gray-400 absolute" />
                                                 {fItem.follower?.avatar_url && (
                                                     <Image
@@ -174,18 +174,18 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                     </div>
 
                     {/* Column 2: User Personal Information & Action Buttons */}
-                    <div className="flex flex-col py-2">
+                    <div className="flex w-full min-w-0 max-w-full flex-col px-1 py-2 sm:px-0">
                         <h1 className="text-xl lg:text-2xl font-medium pt-2">{user.fullname}</h1>
                         <p className="text-gray-500 text-sm  font-medium mb-3">{user.city?.name}</p>
 
-                        {/* Dynamic Button Action Mapping */}
-                        <div className="flex items-stretch md:items-center justify-center md:justify-start gap-3 flex-1">
+                        {/* الجوال: صف واحد مضغوط | الديسكتوب: كما كان سابقاً */}
+                        <div className="flex w-full max-w-full flex-1 flex-row flex-nowrap items-stretch justify-center gap-1.5 max-md:max-w-full md:max-w-none md:items-center md:justify-start md:gap-3">
                             {isOwnProfile ? (
                                 <button
                                     onClick={() => router.push("/settings")}
-                                    className="flex items-center justify-center gap-2 px-12 py-1.5 border border-blue-1 text-blue-4 rounded-full hover:bg-blue-50 transition-colors cursor-pointer text-sm font-medium w-full md:w-auto"
+                                    className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-blue-1 px-6 py-2 text-sm font-medium text-blue-4 hover:bg-blue-50 transition-colors cursor-pointer md:min-h-0 md:w-auto md:px-12 md:py-1.5"
                                 >
-                                    <img src="/icons/dashboard/edit2.svg" alt="" className="w-4" />
+                                    <img src="/icons/dashboard/edit2.svg" alt="" className="w-4 shrink-0" />
                                     تعديل
                                 </button>
                             ) : (
@@ -194,18 +194,23 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                         onClick={handleFollowToggle}
                                         disabled={isFollowing || isUnfollowing}
                                         className={cn(
-                                            "flex items-center min-w-[100px] justify-center gap-2 px-4 md:px-8 py-2 rounded-full transition-colors cursor-pointer text-sm font-medium flex-1 md:flex-none",
+                                            "flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1 rounded-full px-2 py-2 text-[11px] font-medium transition-colors cursor-pointer max-md:min-w-0 md:h-auto md:min-h-0 md:min-w-[100px] md:flex-none md:gap-2 md:px-8 md:py-2 md:text-sm",
                                             user.is_following
                                                 ? "border border-gray-300 text-gray-700 hover:bg-gray-50"
                                                 : "bg-[#456A8E] text-white hover:bg-[#355A7E]"
                                         )}
                                     >
                                         {(isFollowing || isUnfollowing) ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
                                         ) :
-                                            user.is_following ? <UserMinus className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />
+                                            user.is_following ? <UserMinus className="h-4 w-4 shrink-0" /> : <UserPlus className="h-4 w-4 shrink-0" />
                                         }
-                                        {user.is_following ? "إلغاء المتابعة" : "تابع المستخدم"}
+                                        <span className="min-w-0 truncate md:hidden">
+                                            {user.is_following ? "إلغاء" : "متابعة"}
+                                        </span>
+                                        <span className="hidden md:inline">
+                                            {user.is_following ? "إلغاء المتابعة" : "تابع المستخدم"}
+                                        </span>
                                     </button>
 
                                     <button
@@ -216,28 +221,30 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                             router.push(`/${lang}/chat?type=user&id=${user.id}`);
                                             setIsChatLoading(false);
                                         }}
-                                        className="flex items-center min-w-[100px] justify-center cursor-pointer gap-2 border border-[#456A8E] text-[#456A8E] bg-white px-4 md:px-8 py-2 rounded-full font-medium hover:bg-blue-50 transition-colors text-sm flex-1 md:flex-none disabled:opacity-50"
+                                        className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1 rounded-full border border-[#456A8E] bg-white px-2 py-2 text-[11px] font-medium text-[#456A8E] transition-colors hover:bg-blue-50 max-md:min-w-0 md:h-auto md:min-h-0 md:min-w-[100px] md:flex-none md:gap-2 md:px-8 md:py-2 md:text-sm disabled:opacity-50"
                                     >
                                         {isChatLoading ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
                                         ) : (
-                                            <MessageSquare className="w-4 h-4" />
+                                            <MessageSquare className="h-4 w-4 shrink-0" />
                                         )}
-                                        <span>دردش</span>
+                                        <span className="shrink-0">دردش</span>
                                     </button>
 
-                                    {/* زر الـ 3 نقاط */}
-                                    <div className="relative">
+                                    <div className="relative shrink-0 self-center">
                                         <button
+                                            type="button"
                                             onClick={() => setShowMoreMenu(v => !v)}
-                                            className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer"
+                                            className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer md:h-10 md:w-10"
+                                            aria-expanded={showMoreMenu}
+                                            aria-haspopup="menu"
                                         >
-                                            <MoreHorizontal className="w-4 h-4 text-gray-500" />
+                                            <MoreHorizontal className="h-5 w-5 text-gray-500 md:h-4 md:w-4" />
                                         </button>
                                         {showMoreMenu && (
                                             <>
-                                                <div className="fixed inset-0 z-10" onClick={() => setShowMoreMenu(false)} />
-                                                <div className="absolute left-0 top-12 z-20 bg-white rounded-xl shadow-lg border border-gray-100 min-w-[150px] py-1 overflow-hidden">
+                                                <div className="fixed inset-0 z-10" onClick={() => setShowMoreMenu(false)} aria-hidden />
+                                                <div className="absolute end-0 top-full z-20 mt-1.5 min-w-[160px] rounded-xl border border-gray-100 bg-white py-1 shadow-lg overflow-hidden md:end-auto md:left-0 md:top-12 md:mt-0">
                                                     <button
                                                         onClick={() => { setShowMoreMenu(false); setShowShareModal(true); }}
                                                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
@@ -262,7 +269,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                     </div>
 
                 </div>
-            </div >
+            </div>
             {avatarStoryOpen && (
                 <ShowStoryModal
                     isOpen={avatarStoryOpen}
