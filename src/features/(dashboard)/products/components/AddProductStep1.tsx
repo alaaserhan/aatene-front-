@@ -350,17 +350,18 @@ export function AddProductStep1({
                           : "border-gray-200 bg-[#F8F8F8]"
                       )}
                     >
-                      <div className="flex items-center justify-between text-sm">
-                        <span className={cn(priceVisibilityMode === "show" ? "text-blue-4" : "text-gray-700")}>
-                          إظهار السعر
-                        </span>
+                      <div className="flex items-center gap-3 text-sm">
                         <span
                           className={cn(
-                            "w-4 h-4 rounded-full border flex items-center justify-center",
+                            "shrink-0 w-4 h-4 rounded-full border flex items-center justify-center",
                             priceVisibilityMode === "show" ? "border-blue-4" : "border-gray-400"
                           )}
+                          aria-hidden
                         >
                           {priceVisibilityMode === "show" && <span className="w-2 h-2 rounded-full bg-blue-4" />}
+                        </span>
+                        <span className={cn("text-right", priceVisibilityMode === "show" ? "text-blue-4" : "text-gray-700")}>
+                          إظهار السعر
                         </span>
                       </div>
 
@@ -410,17 +411,18 @@ export function AddProductStep1({
                           : "border-gray-200 bg-[#F8F8F8]"
                       )}
                     >
-                      <div className="flex items-center justify-between text-sm">
-                        <span className={cn(priceVisibilityMode === "hide" ? "text-blue-4" : "text-gray-700")}>
-                          لا اريد اظهار السعر
-                        </span>
+                      <div className="flex items-center gap-3 text-sm">
                         <span
                           className={cn(
-                            "w-4 h-4 rounded-full border flex items-center justify-center",
+                            "shrink-0 w-4 h-4 rounded-full border flex items-center justify-center",
                             priceVisibilityMode === "hide" ? "border-blue-4" : "border-gray-400"
                           )}
+                          aria-hidden
                         >
                           {priceVisibilityMode === "hide" && <span className="w-2 h-2 rounded-full bg-blue-4" />}
+                        </span>
+                        <span className={cn("text-right", priceVisibilityMode === "hide" ? "text-blue-4" : "text-gray-700")}>
+                          لا اريد اظهار السعر
                         </span>
                       </div>
                     </button>
