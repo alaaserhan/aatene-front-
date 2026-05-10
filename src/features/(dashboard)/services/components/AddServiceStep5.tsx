@@ -12,7 +12,7 @@ import {
     Step1ServiceData,
     Step2ServiceData,
     Step3ServiceData,
-    Step5ServiceData
+    Step5ServiceData,
 } from "../types";
 import { toast } from "sonner";
 import Cookies from "js-cookie";

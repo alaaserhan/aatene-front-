@@ -31,17 +31,18 @@ export function SidebarFilterPanel({
   return (
     <div
       className={cn(
-        "bg-white rounded-sm overflow-hidden h-full flex flex-col",
+        "bg-white rounded-sm overflow-hidden h-full flex flex-col min-h-0",
         className
       )}
     >
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <ul className="">
           {options.map((option) => {
             const isActive = option.value === activeValue;
             return (
               <li key={option.value}>
                 <button
+                  type="button"
                   onClick={() => onValueChange(option.value)}
                   className={cn(
                     "w-full flex items-center justify-between p-3 transition-colors cursor-pointer",
@@ -65,8 +66,12 @@ export function SidebarFilterPanel({
             );
           })}
         </ul>
-        {action && <div className="p-3 border-t border-gray-100">{action}</div>}
       </ScrollArea>
+      {action ? (
+        <div className="shrink-0 border-t border-gray-100 p-3 relative z-10 bg-white">
+          {action}
+        </div>
+      ) : null}
     </div>
   );
 }

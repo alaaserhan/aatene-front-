@@ -470,8 +470,9 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                     className="h-full border border-gray-200 rounded-lg bg-white"
                                     action={
                                         <Button
+                                            type="button"
                                             onClick={() => setIsSectionModalOpen(true)}
-                                            className="w-full  gap-2 text-blue-3 border-blue-3 rounded-xs border"
+                                            className="w-full gap-2 text-blue-3 border-blue-3 rounded-xs border"
                                             style={{ backgroundColor: "var(--blue-5)" }}
                                         >
                                             اضافة أقسام جديدة
@@ -508,7 +509,11 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                             </div>
 
                             {!isLoadingSections && sections.length === 0 ? (
-                                <ServiceEmptyState type="no-sections" storeId={String(storeId)} />
+                                <ServiceEmptyState
+                                    type="no-sections"
+                                    storeId={String(storeId)}
+                                    onAddSection={() => setIsSectionModalOpen(true)}
+                                />
                             ) : !isLoadingServices && services.length === 0 ? (
                                 <ServiceEmptyState type="no-services" storeId={String(storeId)} />
                             ) : (
