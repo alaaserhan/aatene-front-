@@ -10,7 +10,8 @@ import { AddServiceStep1 } from "./AddServiceStep1";
 import { AddServiceStep2 } from "./AddServiceStep2";
 import { AddServiceStep3 } from "./AddServiceStep3";
 import { AddServiceStep4 } from "./AddServiceStep4";
-import { AddServiceStep5 } from "./AddServiceStep5";
+/** خطوة المراجعة (5) معطّلة — لإعادتها راجع تعليقات AddServicePage */
+// import { AddServiceStep5 } from "./AddServiceStep5";
 import { useUpdateService, useGetService } from "../hooks";
 import { ServicePayload } from "../api";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
@@ -111,17 +112,16 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
 
   const handleStep4Next = (data: Step4ServiceData) => {
     if (!formData) return;
-    setFormData({ ...formData, step4: data });
-    setCurrentStep(5);
+    const next = { ...formData, step4: data };
+    setFormData(next);
+    submitServiceUpdate(next);
   };
   const handleStep4Back = () => setCurrentStep(3);
 
-  // ✅ تم التعديل هنا: استخدام mutate مع onSuccess callback
-  const handleStep5Submit = () => {
+  const submitServiceUpdate = (fd: CompleteServiceFormData) => {
     if (updateServiceMutation.isPending) return;
 
-    if (!formData) return;
-    const { step1, step2, step3, step4 } = formData;
+    const { step1, step2, step3, step4 } = fd;
 
     if (!step1 || !step2 || !step3 || !step4) {
       toast.error("يرجى إكمال جميع الخطوات السابقة");
@@ -148,7 +148,6 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
       status: serviceResponse?.data.status || "pending",
     };
 
-    // استخدام mutate بدلاً من mutateAsync مع try/catch
     updateServiceMutation.mutate(
       {
         id: serviceId,
@@ -163,7 +162,13 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
     );
   };
 
+  /*
+  const handleStep5Submit = () => {
+    if (!formData) return;
+    submitServiceUpdate(formData);
+  };
   const handleStep5Back = () => setCurrentStep(4);
+  */
 
   if (isLoading && !formData) return <Loader2 className="animate-spin" />;
 
@@ -175,8 +180,8 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
     { number: 1, label: "المعلومات الاساسية", completed: currentStep > 1 },
     { number: 2, label: "سعر الخدمة", completed: currentStep > 2 },
     { number: 3, label: "صور الخدمة", completed: currentStep > 3 },
-    { number: 4, label: "وصف الخدمة", completed: currentStep > 4 },
-    { number: 5, label: "مراجعة", completed: false },
+    { number: 4, label: "وصف الخدمة", completed: false },
+    // { number: 5, label: "مراجعة", completed: false },
   ];
 
   const renderStep = () => {
@@ -191,9 +196,11 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
       case 3:
         return <AddServiceStep3 previousDataStep1={formData.step1!} previousDataStep2={formData.step2!} initialData={formData.step3!} onNext={handleStep3Next} onBack={handleStep3Back} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} />;
       case 4:
-        return <AddServiceStep4 previousDataStep1={formData.step1!} previousDataStep2={formData.step2!} previousDataStep3={formData.step3!} initialData={formData.step4!} onSave={handleStep4Next} onBack={handleStep4Back} isSubmitting={false} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} isEditMode />;
+        return <AddServiceStep4 previousDataStep1={formData.step1!} previousDataStep2={formData.step2!} previousDataStep3={formData.step3!} initialData={formData.step4!} onSave={handleStep4Next} onBack={handleStep4Back} isSubmitting={updateServiceMutation.isPending} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} isEditMode />;
+      /*
       case 5:
         return <AddServiceStep5 previousDataStep1={formData.step1!} previousDataStep2={formData.step2!} previousDataStep3={formData.step3!} onSave={handleStep5Submit} onBack={handleStep5Back} isSubmitting={updateServiceMutation.isPending} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} />;
+      */
       default: return null;
     }
   };
