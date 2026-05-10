@@ -179,23 +179,29 @@ export function AddServiceStep2({
                                     <Label className="text-sm font-medium flex items-center gap-1">
                                         سعر الخدمة
                                     </Label>
-                                    <div className="relative">
+                                    <div
+                                        className={cn(
+                                            "flex h-12 min-w-0 items-center gap-2 rounded-lg border bg-white px-3 transition-all focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100",
+                                            errors.price ? "border-red-500" : "border-gray-200"
+                                        )}
+                                        dir="ltr"
+                                    >
+                                        <span className="shrink-0 text-2xl font-bold leading-none text-gray-900" aria-hidden>
+                                            ₪
+                                        </span>
                                         <Input
                                             name="price"
                                             type="number"
                                             min="0"
+                                            inputMode="decimal"
                                             value={price}
                                             onChange={(e) => {
                                                 setPrice(e.target.value);
                                                 if (errors.price) setErrors({ ...errors, price: "" });
                                             }}
-                                            className={cn(
-                                                "w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all text-sm",
-                                                errors.price ? "border-red-500" : "border-gray-200"
-                                            )}
+                                            className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-left text-sm text-gray-900 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                                             placeholder="0.00"
                                         />
-                                        <span className="absolute left-8 top-1  font-bold text-2xl">₪</span>
                                     </div>
                                     {errors.price && <p className="text-xs text-red-500">{errors.price}</p>}
                                 </div>
@@ -206,17 +212,18 @@ export function AddServiceStep2({
                                         مدة تنفيذ العمل
                                     </Label>
                                     <div className="flex gap-4">
-                                        <div className="flex-1 relative">
+                                        <div className="relative min-w-0 flex-1">
                                             <Input
                                                 name="executeCount"
                                                 type="number"
+                                                inputMode="numeric"
                                                 value={executeCount}
                                                 onChange={(e) => {
                                                     setExecuteCount(e.target.value);
                                                     if (errors.executeCount) setErrors({ ...errors, executeCount: "" });
                                                 }}
                                                 className={cn(
-                                                    "w-full h-12 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition-all text-sm text-center",
+                                                    "h-12 w-full min-w-0 border px-4 text-center text-sm transition-all focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100 rounded-lg",
                                                     errors.executeCount ? "border-red-500" : "border-gray-200"
                                                 )}
                                                 placeholder="0"
@@ -282,20 +289,27 @@ export function AddServiceStep2({
                                                     />
                                                 </div>
                                                 <div className="flex gap-4">
-                                                    <div className="flex-1 relative">
+                                                    <div
+                                                        className="flex h-11 min-w-0 flex-1 items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100"
+                                                        dir="ltr"
+                                                    >
+                                                        <span className="shrink-0 text-sm font-bold leading-none text-gray-900" aria-hidden>
+                                                            ₪
+                                                        </span>
                                                         <Input
                                                             type="number"
-                                                            className="bg-white border-gray-200 h-11 text-left px-8"
+                                                            inputMode="decimal"
+                                                            className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-left text-sm text-gray-900 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                                                             placeholder="0.00"
                                                             value={newExtraPrice}
                                                             onChange={(e) => setNewExtraPrice(e.target.value)}
                                                         />
-                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2  font-bold text-sm">₪</span>
                                                     </div>
-                                                    <div className="flex-1">
+                                                    <div className="min-w-0 flex-1">
                                                         <Input
                                                             type="number"
-                                                            className="bg-white border-gray-200 h-11 text-center"
+                                                            inputMode="numeric"
+                                                            className="h-11 border-gray-200 bg-white px-3 text-center text-gray-900"
                                                             placeholder="0"
                                                             value={newExtraDuration}
                                                             onChange={(e) => setNewExtraDuration(e.target.value)}
