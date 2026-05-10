@@ -19,7 +19,7 @@ export function StepperProgress({ currentStep, steps }: StepperProgressProps) {
   return (
     <div className="w-full py-8" dir="rtl">
       <div className="container mx-auto px-4">
-        <div className="flex items-start justify-between max-w-6xl mx-auto">
+        <div className="flex  items-start  justify-between max-w-6xl mx-auto">
           {steps.map((step, index) => {
             // تحديد حالة الخطوة
             const isCompleted = step.completed || currentStep > step.number;
@@ -36,8 +36,8 @@ export function StepperProgress({ currentStep, steps }: StepperProgressProps) {
                       isCompleted
                         ? "bg-blue-4 border-blue-4" // مكتمل: خلفية وحدود كحلية
                         : isActive
-                        ? "bg-[#D5DEE7] border-blue-4" // حالي: خلفية سماوي فاتح وحدود كحلية
-                        : "bg-white border-blue-4" // قادم: خلفية بيضاء وحدود كحلية
+                          ? "bg-[#D5DEE7] border-blue-4" // حالي: خلفية سماوي فاتح وحدود كحلية
+                          : "bg-white border-blue-4" // قادم: خلفية بيضاء وحدود كحلية
                     )}
                   >
                     {isCompleted ? (
@@ -66,7 +66,7 @@ export function StepperProgress({ currentStep, steps }: StepperProgressProps) {
                       </span>
                     )}
                   </div>
-                  
+
                   {/* Label */}
                   <p className="mt-3 text-sm font-medium text-blue-4 whitespace-nowrap">
                     {step.label}

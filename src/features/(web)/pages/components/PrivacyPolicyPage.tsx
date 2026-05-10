@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Lock, Loader2 } from "lucide-react";
+import { Search, Lock, Loader2, Menu, X } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/src/lib/utils";
@@ -12,6 +12,7 @@ export default function PrivacyPage() {
     const [activeId, setActiveId] = useState(0);
     const [searchQuery, setSearchQuery] = useState("");
     const [lang, setLang] = useState<"ar" | "he">("ar");
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const privacyList = data?.privacyPolicy || [];
 
@@ -21,6 +22,7 @@ export default function PrivacyPage() {
 
     const scrollToSection = (index: number) => {
         setActiveId(index);
+        setIsSidebarOpen(false);
         const element = document.getElementById(`section-${index}`);
         if (element) {
             element.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -37,12 +39,20 @@ export default function PrivacyPage() {
             <div className="gradient-blue w-full relative shadow-sm">
                 <div className="container mx-auto flex items-center justify-between h-[80px]">
                     <div className="flex items-center gap-3 text-white">
+                        <button
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="lg:hidden mr-2 p-2 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
+                            aria-label="Open navigation menu"
+                        >
+                            <Menu className="w-6 h-6" />
+                        </button>
                         <div className="w-10 h-10 rounded-full border-2 border-white/30 flex items-center justify-center bg-white/10">
                             <Lock className="w-5 h-5" />
                         </div>
                         <h1 className="text-xl md:text-2xl font-medium tracking-wide">
                             سياسة الخصوصية
                         </h1>
+
                     </div>
 
                     <div className="hidden md:flex flex-1 max-w-xl gap-4 items-center">
@@ -121,42 +131,64 @@ export default function PrivacyPage() {
                         </p>
                     </div>
                 ) : (
-                    <div className="flex flex-col lg:flex-row items-start">
-                        {/* Sidebar Navigation */}
-                        <div className="w-full lg:w-[280px] shrink-0 sticky top-4 ">
-                            <div className="flex flex-col">
-                                {availableItems.map((item, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => scrollToSection(index)}
-                                        className={cn(
-                                            "w-full cursor-pointer flex  gap-2 py-[10px] px-[10px]  transition-all border-b border-[#e6e6e6]",
-                                            activeId === index
-                                                ? "text-blue-3"
-                                                : ""
-                                        )}
-                                    >
-                                        <span className="bg-blue-4 pt-1 rounded-full size-[22px] flex items-center justify-center text-white text-[12px] font-normal shrink-0">
-                                            {index + 1}
-                                        </span>
-                                        <span className={cn(
-                                            "text-[15px] leading-[1.7] text-start",
-                                            activeId === index
-                                                ? "font-medium"
-                                                : "font-normal"
-                                        )}>
-                                            {item.title?.[lang]}
-                                        </span>
+                    <div className="flex flex-col lg:flex-row items-start justify-center relative">
+                        {/* Mobile Overlay */}
+                        {isSidebarOpen && (
+                            <div
+                                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] lg:hidden"
+                                onClick={() => setIsSidebarOpen(false)}
+                            />
+                        )}
+
+                        {/* Sidebar Navigation - Drawer on Mobile, Sticky on Desktop */}
+                        <div className={cn(
+                            "fixed top-0 bottom-0 right-0 z-[70] w-[280px] bg-white p-6 shadow-2xl transition-transform duration-300 ease-in-out",
+                            "lg:relative lg:top-auto lg:bottom-auto lg:right-auto lg:z-auto lg:p-0 lg:shadow-none lg:translate-x-0 lg:flex lg:w-[260px] lg:lg:w-[280px]",
+                            isSidebarOpen ? "translate-x-0" : "translate-x-full"
+                        )}>
+                            <div className="flex flex-col h-full">
+                                {/* Mobile Header for Drawer */}
+                                <div className="flex items-center justify-between mb-6 lg:hidden">
+                                    <h2 className="text-lg font-bold text-blue-4">الأقسام</h2>
+                                    <button onClick={() => setIsSidebarOpen(false)} className="p-2 text-gray-500">
+                                        <X className="w-6 h-6" />
                                     </button>
-                                ))}
+                                </div>
+
+                                <div className="flex flex-col overflow-y-auto">
+                                    {availableItems.map((item, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => scrollToSection(index)}
+                                            className={cn(
+                                                "w-full cursor-pointer flex  gap-2 py-[10px] px-[10px]  transition-all border-b border-[#e6e6e6]",
+                                                activeId === index
+                                                    ? "text-blue-3"
+                                                    : ""
+                                            )}
+                                        >
+                                            <span className="bg-blue-4 pt-1 rounded-full size-[22px] flex items-center justify-center text-white text-[12px] font-normal shrink-0">
+                                                {index + 1}
+                                            </span>
+                                            <span className={cn(
+                                                "text-[15px] leading-[1.7] text-start",
+                                                activeId === index
+                                                    ? "font-medium"
+                                                    : "font-normal"
+                                            )}>
+                                                {item.title?.[lang]}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
                         {/* Vertical Divider */}
-                        <div className="hidden lg:block w-[2px]  mx-8 bg-blue-4 self-stretch" />
+                        <div className="hidden lg:block w-[2px] mx-6 lg:mx-10 bg-blue-4 self-stretch" />
 
-                        {/* Main Content */}
-                        <div className="flex-1 w-full">
+                        {/* Main Content - Centered Column */}
+                        <div className="flex-1 max-w-4xl w-full">
                             <div className="flex flex-col gap-4">
                                 {filteredContent.length > 0 ? (
                                     filteredContent.map((item, index) => (
@@ -178,6 +210,8 @@ export default function PrivacyPage() {
                                 )}
                             </div>
                         </div>
+                        {/* Left Balancing Spacer to center content on large screens (last child in RTL) */}
+                        <div className="hidden xl:block w-[260px] lg:w-[280px] shrink-0" />
                     </div>
                 )}
             </div>

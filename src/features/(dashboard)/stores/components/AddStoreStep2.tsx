@@ -288,9 +288,10 @@ export function AddStoreStep2({
                   <textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, description: e.target.value });
+                      if (errors.description) setErrors({ ...errors, description: "" });
+                    }}
                     placeholder="هنا مثال لوصف المتجر"
                     maxLength={300}
                     className={cn(

@@ -96,7 +96,7 @@ export function AddToFavoritesModal({ isOpen, onClose, type, itemId, isFavorite,
                     </div>
 
                     {/* Lists Selection */}
-                    <ScrollArea className="h-[200px] pl-2 " dir="rtl">
+                    <ScrollArea className="h-[200px] pl-2" dir="rtl" type="always">
                         <div className="space-y-2 p-2 pt-0">
 
 
