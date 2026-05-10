@@ -8,7 +8,8 @@ import { AddServiceStep1 } from "./AddServiceStep1";
 import { AddServiceStep2 } from "./AddServiceStep2";
 import { AddServiceStep3 } from "./AddServiceStep3";
 import { AddServiceStep4 } from "./AddServiceStep4";
-import { AddServiceStep5 } from "./AddServiceStep5";
+/** خطوة المراجعة (5) معطّلة — لإعادتها: ألغِ التعليق عن السطر التالي وعن `case 5` و`handleStepClick` وأضف الخطوة الخامسة لمصفوفة `steps`. */
+// import { AddServiceStep5 } from "./AddServiceStep5";
 import { useCreateService } from "../hooks";
 import { ServicePayload } from "../api";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
@@ -18,7 +19,6 @@ import {
   Step2ServiceData,
   Step3ServiceData,
   Step4ServiceData,
-  Step5ServiceData,
 } from "../types";
 
 interface AddServicePageProps {
@@ -49,7 +49,7 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
     else if (step === 2 && formData.step1) setCurrentStep(2);
     else if (step === 3 && formData.step1 && formData.step2) setCurrentStep(3);
     else if (step === 4 && formData.step1 && formData.step2 && formData.step3) setCurrentStep(4);
-    else if (step === 5 && formData.step1 && formData.step2 && formData.step3 && formData.step4) setCurrentStep(5);
+    // else if (step === 5 && formData.step1 && formData.step2 && formData.step3 && formData.step4) setCurrentStep(5);
   };
 
   // Step 1
@@ -76,39 +76,37 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
   };
   const handleStep3Back = () => { setCurrentStep(2); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
-  // Step 4
+  // Step 4 — بعدها إرسال مباشر (خطوة المراجعة 5 معطّلة)
   const handleStep4Next = (data: Step4ServiceData) => {
-    setFormData({ ...formData, step4: data });
-    setCurrentStep(5); // Go to review step
+    const next: CompleteServiceFormData = { ...formData, step4: data };
+    setFormData(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
+    void submitNewService(next);
   };
   const handleStep4Back = () => { setCurrentStep(3); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
-  // Step 5 (Final Submit)
-  const handleStep5Submit = async (data: Step5ServiceData) => {
-    // No need to save step5 data to formData necessarily unless needed for something else
-    // Construct Payload
-    if (!formData.step1 || !formData.step2 || !formData.step3 || !formData.step4) {
+  const submitNewService = async (fd: CompleteServiceFormData) => {
+    if (!fd.step1 || !fd.step2 || !fd.step3 || !fd.step4) {
       toast.error("بيانات الخدمة غير مكتملة");
       return;
     }
 
     const payload: ServicePayload = {
-      title: formData.step1.title,
-      category_id: formData.step1.category_id,
-      section_id: formData.step1.section_id,
+      title: fd.step1.title,
+      category_id: fd.step1.category_id,
+      section_id: fd.step1.section_id,
       store_id: Number(storeId),
-      tags: formData.step4.tags,
-      specialties: formData.step1.specialties,
+      tags: fd.step4.tags,
+      specialties: fd.step1.specialties,
 
-      price: formData.step2.price,
-      execute_count: formData.step2.execute_count,
-      execute_type: formData.step2.execute_type,
-      extras: formData.step2.extras,
+      price: fd.step2.price,
+      execute_count: fd.step2.execute_count,
+      execute_type: fd.step2.execute_type,
+      extras: fd.step2.extras,
 
-      images: formData.step3.images,
-      description: formData.step4.description,
-      questions: formData.step4.questions,
+      images: fd.step3.images,
+      description: fd.step4.description,
+      questions: fd.step4.questions,
 
       status: "pending",
     };
@@ -121,14 +119,20 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
       console.error("Error creating service:", error);
     }
   };
+
+  /*
+  const handleStep5Submit = async (_data: Step5ServiceData) => {
+    await submitNewService(formData);
+  };
   const handleStep5Back = () => setCurrentStep(4);
+  */
 
   const steps = [
     { number: 1, label: "المعلومات الاساسية", completed: currentStep > 1 },
     { number: 2, label: "سعر الخدمة", completed: currentStep > 2 },
     { number: 3, label: "صور الخدمة", completed: currentStep > 3 },
-    { number: 4, label: "وصف الخدمة", completed: currentStep > 4 },
-    { number: 5, label: "مراجعة", completed: false },
+    { number: 4, label: "وصف الخدمة", completed: false },
+    // { number: 5, label: "مراجعة", completed: false },
   ];
 
   const renderStep = () => {
@@ -192,11 +196,13 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
             initialData={formData.step4}
             onSave={handleStep4Next} // Note: Changed to Next, not Save API
             onBack={handleStep4Back}
+            isSubmitting={createServiceMutation.isPending}
             barSteps={steps}
             breadcrumbItems={breadcrumbItems}
             onStepClick={handleStepClick}
           />
         );
+      /*
       case 5:
         if (!formData.step1 || !formData.step2 || !formData.step3 || !formData.step4) { setCurrentStep(4); return null; }
         return (
@@ -212,6 +218,7 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
             onStepClick={handleStepClick}
           />
         );
+      */
       default:
         return null;
     }
