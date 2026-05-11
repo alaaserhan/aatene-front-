@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
 import { useGetService, useUpdateServiceStatus, useUpdateServiceShown } from "../hooks";
-import { useGetReportTypes } from "@/src/features/(dashboard)/reports/hooks";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Button } from "@/src/components/ui/button";
@@ -81,9 +80,6 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
         }
     }, [serviceData?.data?.status]);
 
-    // جلب أسباب الرفض فقط للأدمن
-    const { data: reportTypesData, isLoading: isLoadingReportTypes } = useGetReportTypes({ enabled: isAdmin });
-
     // --- Image Handling ---
     const imagesList = service ? (Array.isArray(service.images_urls) ? service.images_urls : (service.images_urls ? [service.images_urls] : [])) : [];
 
@@ -117,12 +113,13 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
         setIsRejectModalOpen(true);
     };
 
-    const confirmReject = (reasonId: string, note: string) => {
+    const confirmReject = (reasonText: string, details: string) => {
+        const fullReason = details ? `${reasonText} - ${details}` : reasonText;
         updateStatus({
             id: serviceId,
             payload: {
                 status: "rejected",
-                reason: note
+                reason: fullReason
             },
             storeId
         }, {
@@ -514,8 +511,6 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 onClose={() => setIsRejectModalOpen(false)}
                 onConfirm={confirmReject}
                 isLoading={isUpdating}
-                reasonsList={reportTypesData?.data}
-                isLoadingReasons={isLoadingReportTypes}
             />
 
             <SuccessModal

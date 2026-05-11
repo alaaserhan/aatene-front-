@@ -116,7 +116,7 @@ export function useUpdateServiceShown() {
   });
 }
 
-// إضافة هوك لجلب أسباب الرفض (مطلوب لـ RejectServiceModal)
+// أسباب رفض الخدمة في الواجهة: RejectServiceModal يستخدم report-types من الويب (فئة reject-service)
 export function useGetRejectionReasons() {
   return useQuery({
     queryKey: ["rejection-reasons"],
