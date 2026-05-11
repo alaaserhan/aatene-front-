@@ -12,6 +12,7 @@ import { initMessaging, getFCMToken } from "@/src/lib/firebase";
 import { onMessage, MessagePayload } from "firebase/messaging";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useLanguage } from "@/src/hooks/use-language";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { isDuplicateMessage } from "@/src/lib/fcm-dedup";
@@ -66,6 +67,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const lang = useLanguage();
 
     const isDashboard = context === "dashboard";
     const ignoreCookie = !isDashboard;
@@ -91,7 +93,17 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         return allConversations.find(c => String(c.id) === chatId) || null;
     }, [searchParams, allConversations]);
 
-    /** بناء رابط المحادثة — استخدام `<Link>` في القائمة أوثق من `router.push` مع تحديث searchParams على الديسكتوب */
+    /**
+     * مسار صفحة الدردشة للروابط والتنقل.
+     * الويب: دائماً `/${locale}/chat` حتى لا يعتمد على `pathname` بعد rewrite (مثل /chat → /ar/chat) فيفشل `<Link>` على Vercel.
+     * لوحة التحكم: `pathname` الفعلي مثل `/ar/admin/chat`.
+     */
+    const chatListPath = useMemo(() => {
+        if (isDashboard) return pathname || "";
+        return `/${lang}/chat`;
+    }, [isDashboard, pathname, lang]);
+
+    /** بناء رابط المحادثة — `<Link>` يستخدم مساراً مطلقاً متسقاً */
     const getConversationHref = useCallback(
         (conversation: Conversation) => {
             const params = new URLSearchParams(searchParams.toString());
@@ -100,9 +112,10 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             params.delete("serviceId");
             params.delete("productId");
             params.set("chat", String(conversation.id));
-            return params.toString() ? `${pathname}?${params.toString()}` : pathname;
+            const q = params.toString();
+            return q ? `${chatListPath}?${q}` : chatListPath;
         },
-        [searchParams, pathname]
+        [searchParams, chatListPath]
     );
 
     /** فتح محادثة برمجياً (إنشاء من الرابط، مجموعة جديدة، إلخ) */
@@ -141,7 +154,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             params.delete("chat");
         }
         const nextQuery = params.toString();
-        const target = nextQuery ? `${pathname}?${nextQuery}` : pathname;
+        const target = nextQuery ? `${chatListPath}?${nextQuery}` : chatListPath;
 
         chatNavLog("handleCloseChat:navigate", { target, nextQuery });
 
@@ -156,7 +169,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 href: typeof window !== "undefined" ? window.location.href : null,
             });
         });
-    }, [searchParams, pathname, router]);
+    }, [searchParams, chatListPath, router]);
 
     useEffect(() => {
         const chatId = searchParams.get("chat");
@@ -207,7 +220,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     p.delete("serviceId");
                     p.delete("productId");
                     p.set("chat", String(conversationId));
-                    router.replace(`${pathname}?${p.toString()}`, { scroll: false });
+                    router.replace(`${chatListPath}?${p.toString()}`, { scroll: false });
                     queryClient.invalidateQueries({ queryKey: ["conversations"] });
                 }
             });
@@ -299,7 +312,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         selectedConversation,
         queryClient,
         refetch,
-        pathname,
+        chatListPath,
         router,
     ]);
 
