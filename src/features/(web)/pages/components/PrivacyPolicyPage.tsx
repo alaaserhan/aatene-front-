@@ -1,18 +1,25 @@
 "use client";
 
 import { Search, Lock, Loader2, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/src/lib/utils";
 import { useGetPrivacyPolicy } from "@/src/features/(web)/pages/hooks";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { useParams } from "next/navigation";
 
 export default function PrivacyPage() {
     const { data, isLoading, isError } = useGetPrivacyPolicy();
+    const params = useParams();
+    const locale = String(params?.locale || "ar");
     const [activeId, setActiveId] = useState(0);
     const [searchQuery, setSearchQuery] = useState("");
     const [lang, setLang] = useState<"ar" | "he">("ar");
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    useEffect(() => {
+        setLang(locale === "he" ? "he" : "ar");
+    }, [locale]);
 
     const privacyList = data?.privacyPolicy || [];
 
