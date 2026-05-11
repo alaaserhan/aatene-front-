@@ -76,7 +76,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       if (typeof window !== "undefined") {
         if (!window.location.pathname.includes("/login")) {
-          toast.error("Your session has expired. Please log in again.");
+          toast.error("انتهت صلاحية جلسة الدخول. يرجى تسجيل الدخول مرة أخرى للمتابعة.");
           /** إزالة كل كوكيز الجلسة — كان يُمسح token فقط فيسبب حالة «مسجّل» في الواجهة بدون token للسيرفر */
           useAuthStore.getState().logout();
           try {
