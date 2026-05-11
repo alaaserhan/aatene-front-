@@ -25,11 +25,10 @@ export function RejectProductModal({ isOpen, onClose, onConfirm, isLoading }: Re
     const { mutate: createReason, isPending: isCreatingReason } = useCreateReportType();
 
     const { data: typesData, isLoading: isLoadingTypes } = useGetWebReportTypes();
-    const allReasons = useMemo(() => {
-        const fromData = Array.isArray(typesData?.data) ? typesData.data : [];
-        const fromReportTypes = Array.isArray(typesData?.report_types) ? typesData.report_types : [];
-        return fromData.length > 0 ? fromData : fromReportTypes;
-    }, [typesData]);
+    const allReasons = useMemo(
+        () => (Array.isArray(typesData?.report_types) ? typesData.report_types : []),
+        [typesData]
+    );
     const reasons = useMemo(() => {
         const isRejectProductCategory = (rawCategory?: string) => {
             const normalized = (rawCategory || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
