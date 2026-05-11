@@ -276,7 +276,6 @@ export default function MobileNav() {
                 <div className="mt-2">
                   <Suspense fallback={<div className="h-11 w-full rounded-xl bg-gray-100 animate-pulse" aria-hidden />}>
                     <SearchBar
-                      currentLocale={lang}
                       variant="mobile"
                       onSearch={() => setMobileSearchOpen(false)}
                     />

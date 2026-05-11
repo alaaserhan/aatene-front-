@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState, Suspense, useEffect } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
 import { Search } from "lucide-react";
 
 export type SearchType = "products" | "services" | "stores" | "users";
 
 interface SearchBarProps {
-  currentLocale: string;
   defaultType?: SearchType;
   variant?: "navbar" | "rounded" | "mobile";
   onSearch?: () => void;
@@ -21,14 +22,20 @@ const SEARCH_TYPES: { value: SearchType; label: string }[] = [
   { value: "users", label: "مستخدمين" },
 ];
 
+function typeTabHref(locale: string, type: SearchType): string {
+  const p = new URLSearchParams();
+  p.set("type", type);
+  return `/${locale}/search?${p.toString()}`;
+}
+
 function SearchBarContent({
-  currentLocale,
   defaultType = "products",
   variant = "navbar",
   onSearch
 }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const locale = useLanguage();
 
   const urlQ = searchParams.get("q") || "";
   const urlType = (searchParams.get("type") as SearchType);
@@ -48,14 +55,6 @@ function SearchBarContent({
     }
   }, [urlQ, urlType]);
 
-  const handleTypeSelect = (newType: SearchType) => {
-    setSelectedType(newType);
-    setSearchQuery("");
-    const params = new URLSearchParams();
-    params.set("type", newType);
-    router.push(`/${currentLocale}/search?${params.toString()}`, { scroll: false });
-  };
-
   const handleSearch = () => {
     const params = new URLSearchParams();
     const query = searchQuery.trim();
@@ -65,7 +64,7 @@ function SearchBarContent({
     }
     params.set("type", selectedType);
 
-    router.push(`/${currentLocale}/search?${params.toString()}`, { scroll: false });
+    router.push(`/${locale}/search?${params.toString()}`, { scroll: false });
     onSearch?.();
   };
 
@@ -105,18 +104,21 @@ function SearchBarContent({
         {/* Type Tabs - Full Width Grid */}
         <div className="grid grid-cols-4 gap-2 mt-4 w-full">
           {SEARCH_TYPES.map((type) => (
-            <button
+            <Link
               key={type.value}
-              onClick={() => handleTypeSelect(type.value)}
+              href={typeTabHref(locale, type.value)}
+              scroll={false}
+              prefetch={false}
+              replace
               className={cn(
-                "py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full",
+                "py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full text-center",
                 selectedType === type.value
                   ? "bg-[#3D5E83] text-white border-[#3D5E83]"
                   : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
               )}
             >
               {type.label}
-            </button>
+            </Link>
           ))}
         </div>
       </div>
@@ -154,18 +156,21 @@ function SearchBarContent({
           {/* Tabs - Grid */}
           <div className="grid grid-cols-4 gap-2 w-full">
             {SEARCH_TYPES.map((type) => (
-              <button
+              <Link
                 key={type.value}
-                onClick={() => handleTypeSelect(type.value)}
+                href={typeTabHref(locale, type.value)}
+                scroll={false}
+                prefetch={false}
+                replace
                 className={cn(
-                  "py-2 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full",
+                  "py-2 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full text-center",
                   selectedType === type.value
                     ? "bg-[#3D5E83] text-white border-[#3D5E83]"
                     : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
                 )}
               >
                 {type.label}
-              </button>
+              </Link>
             ))}
           </div>
         </div>
@@ -194,9 +199,12 @@ function SearchBarContent({
           {/* Type Tabs */}
           <div className="flex items-center gap-1 px-2">
             {SEARCH_TYPES.map((type) => (
-              <button
+              <Link
                 key={type.value}
-                onClick={() => handleTypeSelect(type.value)}
+                href={typeTabHref(locale, type.value)}
+                scroll={false}
+                prefetch={false}
+                replace
                 className={cn(
                   "px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap rounded-full shrink-0",
                   selectedType === type.value
@@ -205,7 +213,7 @@ function SearchBarContent({
                 )}
               >
                 {type.label}
-              </button>
+              </Link>
             ))}
           </div>
 
@@ -237,9 +245,12 @@ function SearchBarContent({
 
       <div className="flex items-center gap-1 px-2">
         {SEARCH_TYPES.map((type) => (
-          <button
+          <Link
             key={type.value}
-            onClick={() => handleTypeSelect(type.value)}
+            href={typeTabHref(locale, type.value)}
+            scroll={false}
+            prefetch={false}
+            replace
             className={cn(
               "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap",
               selectedType === type.value
@@ -248,7 +259,7 @@ function SearchBarContent({
             )}
           >
             {type.label}
-          </button>
+          </Link>
         ))}
       </div>
 
