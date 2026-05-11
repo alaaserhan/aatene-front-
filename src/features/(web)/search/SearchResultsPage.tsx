@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useLanguage } from "@/src/hooks/use-language";
 import SearchFilters from "./components/SearchFilters";
 import SearchResults from "./components/SearchResults";
 import MobileFilterDrawer from "./components/MobileFilterDrawer";
@@ -58,6 +59,8 @@ function SearchContent() {
     const searchParams = useSearchParams();
     const type = normalizeSearchType(searchParams.get("type"));
     const router = useRouter();
+    const lang = useLanguage();
+    const searchPath = `/${lang}/search`;
     const query = searchParams.get("q") || "";
     const page = parseInt(searchParams.get("page") || "1");
 
@@ -178,7 +181,7 @@ function SearchContent() {
         // Reset page to 1 on filter change
         params.set("page", "1");
 
-        router.push(`?${params.toString()}`, { scroll: false });
+        router.push(`${searchPath}?${params.toString()}`, { scroll: false });
     };
 
     const handleFilterChange = (newFilters: FilterState) => {
@@ -271,7 +274,7 @@ function SearchContent() {
     const handlePageChange = (newPage: number) => {
         const params = new URLSearchParams(searchParams.toString());
         params.set("page", newPage.toString());
-        router.push(`?${params.toString()}`);
+        router.push(`${searchPath}?${params.toString()}`, { scroll: false });
     };
 
     const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(false);
