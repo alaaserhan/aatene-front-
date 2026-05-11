@@ -4,10 +4,10 @@ import axios, {
   InternalAxiosRequestConfig,
   AxiosResponse,
 } from "axios";
-import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { ErrorResponse } from "../types";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { toast } from "sonner";
 
 export let isLoggingOut = false;
 export function setLoggingOut(value: boolean) {
@@ -76,7 +76,6 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       if (typeof window !== "undefined") {
         if (!window.location.pathname.includes("/login")) {
-          toast.error("انتهت صلاحية جلسة الدخول. يرجى تسجيل الدخول مرة أخرى للمتابعة.");
           /** إزالة كل كوكيز الجلسة — كان يُمسح token فقط فيسبب حالة «مسجّل» في الواجهة بدون token للسيرفر */
           useAuthStore.getState().logout();
           try {
@@ -85,7 +84,7 @@ api.interceptors.response.use(
             /* ignore */
           }
           const lang = Cookies.get("lang") || "ar";
-          window.location.href = `/${lang}/login`;
+          window.location.href = `/${lang}/login?reason=auth_required`;
         }
       }
     }

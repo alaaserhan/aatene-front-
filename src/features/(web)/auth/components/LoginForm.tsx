@@ -23,6 +23,7 @@ import { useLogin } from "../hooks";
 import { getFCMToken } from "@/src/lib/firebase";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 const loginSchema = z.object({
   login: z.string().min(1, "البريد الإلكتروني أو الهاتف مطلوب"),
@@ -52,6 +53,15 @@ export function LoginForm() {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const tokenParam = searchParams.get("token");
+    const reason = searchParams.get("reason");
+
+    if (reason === "auth_required") {
+      toast.error("يجب تسجيل الدخول أولاً لإكمال هذا الإجراء.");
+      searchParams.delete("reason");
+      const nextQuery = searchParams.toString();
+      const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}`;
+      window.history.replaceState({}, "", nextUrl);
+    }
 
     if (tokenParam) {
       setIsGoogleLoading(true);
