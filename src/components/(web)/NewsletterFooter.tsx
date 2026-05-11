@@ -1,18 +1,13 @@
 "use client";
 
 import { Mail, Loader2 } from "lucide-react";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import api from "@/src/lib/axios";
 import { toast } from "sonner";
 
+/** يُعرض حالياً من صفحة «من نحن» فقط */
 const NewsletterFooter = () => {
-    const pathname = usePathname();
-    const isAuthPage =
-        pathname?.includes("/login") ||
-        pathname?.includes("/signup") ||
-        pathname?.includes("/forgot-password");
     const [email, setEmail] = useState("");
 
     const { mutate: subscribe, isPending } = useMutation({
@@ -35,8 +30,6 @@ const NewsletterFooter = () => {
         }
         subscribe(email);
     };
-
-    if (isAuthPage) return null;
 
     return (
         <section

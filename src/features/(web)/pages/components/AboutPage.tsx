@@ -9,6 +9,7 @@ import { useGetAboutUs } from "@/src/features/(web)/pages/hooks";
 import { useSendContact } from "@/src/features/(web)/pages/hooks";
 import { useSettingsStore } from "@/src/stores/settings-store";
 import { FormInput } from "@/src/components/ui/FormInput";
+import NewsletterFooter from "@/src/components/(web)/NewsletterFooter";
 
 // ─── Fallback static data (used when API returns nothing) ──────────────────
 
@@ -552,6 +553,8 @@ export default function AboutPage() {
                     </div>
                 </div>
             </div>
+
+            <NewsletterFooter />
         </div>
     );
 }
