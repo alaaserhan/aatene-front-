@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
     return [
       { source: "/admin", destination: "/ar/admin" },
       { source: "/admin/:path*", destination: "/ar/admin/:path*" },
+      /** روابط بدون locale (مثل إشعارات أو مشاركة) — يطابق سلوك الإدارة */
+      { source: "/chat", destination: "/ar/chat" },
     ];
   },
   images: {
