@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useCallback, useEffect, useRef } from "react";
+import { Suspense, useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { Menu, Plus } from "lucide-react";
@@ -40,6 +40,9 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
     const lang = useLanguage();
+
+    /** مسار البحث الصريح بالـ locale — لا يعتمد على `pathname` بعد rewrite (مثل /search → /ar/search) */
+    const webSearchBase = useMemo(() => `/${lang}/search`, [lang]);
 
     const cancelClose = useCallback(() => {
         if (closeTimerRef.current != null) {
@@ -120,15 +123,15 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
                 }
                 p.set("category_id", String(id));
                 p.set("page", "1");
-                router.push(`${pathname}?${p.toString()}`, { scroll: false });
+                router.push(`${webSearchBase}?${p.toString()}`, { scroll: false });
             } else {
                 router.push(
-                    `/${lang}/search?type=${searchType}&category_id=${id}&page=1`
+                    `${webSearchBase}?type=${searchType}&category_id=${id}&page=1`
                 );
             }
             setOpen(false);
         },
-        [isSearchPage, searchParams, router, pathname, lang]
+        [isSearchPage, searchParams, router, webSearchBase]
     );
 
     const menuPanel = (

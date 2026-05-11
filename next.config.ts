@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
       { source: "/admin/:path*", destination: "/ar/admin/:path*" },
       /** روابط بدون locale (مثل إشعارات أو مشاركة) — يطابق سلوك الإدارة */
       { source: "/chat", destination: "/ar/chat" },
+      /** روابط الفوتر والصفحة الرئيسية بدون locale — يطابق سلوك الشات */
+      { source: "/search", destination: "/ar/search" },
     ];
   },
   images: {

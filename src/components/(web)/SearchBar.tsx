@@ -53,7 +53,7 @@ function SearchBarContent({
     setSearchQuery("");
     const params = new URLSearchParams();
     params.set("type", newType);
-    router.push(`/${currentLocale}/search?${params.toString()}`);
+    router.push(`/${currentLocale}/search?${params.toString()}`, { scroll: false });
   };
 
   const handleSearch = () => {
@@ -65,7 +65,7 @@ function SearchBarContent({
     }
     params.set("type", selectedType);
 
-    router.push(`/${currentLocale}/search?${params.toString()}`);
+    router.push(`/${currentLocale}/search?${params.toString()}`, { scroll: false });
     onSearch?.();
   };
 
