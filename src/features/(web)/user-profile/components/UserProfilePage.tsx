@@ -733,7 +733,7 @@ export default function UserProfilePage() {
 
     const [isCreateHighlightOpen, setIsCreateHighlightOpen] = useState(false);
     const { mutate: createHighlight, isPending: isCreatingHighlight } = useCreateHighlight();
-    const { data: storiesData } = useGetStories();
+    const { data: storiesData } = useGetStories({ enabled: !!authUser });
 
     const { data: profileData, isLoading: isProfileLoading } = useUserProfile(slugOrId);
     const { data: pageData, isLoading: isPageDataLoading } = useUserProfilePageData(slugOrId);

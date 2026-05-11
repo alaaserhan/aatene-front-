@@ -3,6 +3,7 @@
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useEffect } from "react";
 import { getAccount } from "@/src/features/(web)/settings/api";
+import Cookies from "js-cookie";
 
 /**
  * كومبوننت بيعمل مزامنة للـ Auth Store مع الكوكيز
@@ -19,7 +20,8 @@ export function AuthHydrator() {
 
   // بعد الـ hydration، لو المستخدم مسجل دخول نُحدِّث بياناته من الـ API
   useEffect(() => {
-    if (isHydrated && isLoggedIn) {
+    const token = Cookies.get("token");
+    if (isHydrated && isLoggedIn && token) {
       getAccount()
         .then((data) => {
           if (data?.user) {

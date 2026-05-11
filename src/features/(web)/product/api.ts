@@ -16,6 +16,18 @@ import {
   ReviewStatistics
 } from "./types";
 
+const normalizeAskForPrice = (value: unknown): boolean | undefined => {
+  if (value === null || value === undefined) return undefined;
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value === 1;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "1" || normalized === "true") return true;
+    if (normalized === "0" || normalized === "false") return false;
+  }
+  return Boolean(value);
+};
+
 export type {
   SearchPageData,
   Category,
@@ -42,6 +54,18 @@ export const getSearchPageData = async (): Promise<SearchPageData> => {
 
 export const getProductBySlug = async (slug: string): Promise<ProductDetailsResponse> => {
   const { data } = await api.get<ProductDetailsResponse>(`/products/search/${slug}`);
+  if (data?.product) {
+    data.product = {
+      ...data.product,
+      ask_for_price: normalizeAskForPrice(data.product.ask_for_price),
+    };
+  }
+  if (Array.isArray(data?.similar)) {
+    data.similar = data.similar.map((product) => ({
+      ...product,
+      ask_for_price: normalizeAskForPrice(product.ask_for_price),
+    }));
+  }
   return data;
 };
 
@@ -49,6 +73,10 @@ export const getProductPageDataBySlug = async (slug: string, cityId?: number | n
   const { data } = await api.get<ProductPageDataResponse>(`/products/search/${slug}/pageData`, {
     params: cityId ? { city_id: cityId } : undefined,
   });
+  data.productsChooseForYou = (data.productsChooseForYou || []).map((product) => ({
+    ...product,
+    ask_for_price: normalizeAskForPrice(product.ask_for_price),
+  }));
   return data;
 };
 
