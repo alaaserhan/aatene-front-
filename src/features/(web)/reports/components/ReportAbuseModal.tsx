@@ -25,7 +25,13 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
 
     const router = useRouter();
     const params = useParams();
-    const lang = params?.locale || "ar";
+    const rawLocale = params?.locale;
+    const lang =
+        typeof rawLocale === "string"
+            ? rawLocale
+            : Array.isArray(rawLocale)
+                ? (rawLocale[0] ?? "ar")
+                : "ar";
     const { user } = useAuthStore();
 
     // Redirect to login if not authenticated
