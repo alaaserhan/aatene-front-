@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
+import Link from "next/link";
 import { Conversation, Message } from "../api";
 import { cn } from "@/src/lib/utils";
 import { GenericSidebarList } from "@/src/components/(dashboard)/GenericSidebarList";
@@ -17,6 +18,8 @@ interface ConversationListSidebarProps {
     isError: boolean;
     selectedConversationId: number | null;
     onSelectConversation: (conversation: Conversation) => void;
+    /** عند تعريفه يُستخدم `<Link>` للتنقل — يصلح تعطل التحديث مع query على الديسكتوب */
+    getConversationHref?: (conversation: Conversation) => string;
     searchQuery: string;
     onSearchChange: (query: string) => void;
     className?: string;
@@ -30,6 +33,7 @@ export function ConversationListSidebar({
     isError,
     selectedConversationId,
     onSelectConversation,
+    getConversationHref,
     searchQuery,
     onSearchChange,
     className,
@@ -227,29 +231,19 @@ export function ConversationListSidebar({
                 const lastMessage = conversation.last_message;
                 const time = formatTime(lastMessage?.updated_at || conversation.updated_at || conversation.created_at);
 
-                return (
-                    <button
-                        key={conversation.id}
-                        type="button"
-                        data-chat-row-id={conversation.id}
-                        aria-current={isSelected ? "true" : undefined}
-                        onClick={() => onSelectConversation(conversation)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                onSelectConversation(conversation);
-                            }
-                        }}
-                        className={cn(
-                            "flex w-full gap-3 p-4 cursor-pointer transition-colors text-right border-0 bg-transparent font-inherit rounded-none",
-                            isSelected
-                                ? "bg-blue-5 shadow-[inset_4px_0_0_0_theme(colors.blue.3)]"
-                                : "hover:bg-gray-50"
-                        )}
-                    >
+                const rowClass = cn(
+                    "flex w-full gap-3 p-4 cursor-pointer transition-colors text-right border-0 bg-transparent font-inherit rounded-none no-underline text-inherit",
+                    isSelected
+                        ? "bg-blue-5 shadow-[inset_4px_0_0_0_theme(colors.blue.3)]"
+                        : "hover:bg-gray-50"
+                );
+
+                const href = getConversationHref?.(conversation);
+
+                const rowBody = (
+                    <>
                         <div className="shrink-0 relative">
                             {conversation.type === "group" ? (
-                                // Group: show stacked avatars or group icon
                                 <div className="w-14 h-14 rounded-full bg-blue-4 flex items-center justify-center border-2 border-blue-3 relative">
                                     <div className="flex items-center -space-x-2 rtl:space-x-reverse">
                                         {conversation.participants.slice(0, 2).map((p, i) => (
@@ -299,6 +293,42 @@ export function ConversationListSidebar({
                                 )}
                             </div>
                         </div>
+                    </>
+                );
+
+                if (href) {
+                    return (
+                        <Link
+                            key={conversation.id}
+                            href={href}
+                            scroll={false}
+                            prefetch={false}
+                            data-chat-row-id={conversation.id}
+                            aria-current={isSelected ? "true" : undefined}
+                            onClick={() => onSelectConversation(conversation)}
+                            className={rowClass}
+                        >
+                            {rowBody}
+                        </Link>
+                    );
+                }
+
+                return (
+                    <button
+                        key={conversation.id}
+                        type="button"
+                        data-chat-row-id={conversation.id}
+                        aria-current={isSelected ? "true" : undefined}
+                        onClick={() => onSelectConversation(conversation)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                onSelectConversation(conversation);
+                            }
+                        }}
+                        className={cn(rowClass, "rounded-none")}
+                    >
+                        {rowBody}
                     </button>
                 );
             }}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, startTransition } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useConversations, useTotalUnreadCount, useCreateConversation, useSendMessage } from "../hooks";
 import { Conversation } from "../api";
 import { ConversationListSidebar } from "./ConversationListSidebar";
@@ -12,7 +12,6 @@ import { initMessaging, getFCMToken } from "@/src/lib/firebase";
 import { onMessage, MessagePayload } from "firebase/messaging";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useAuthStore } from "@/src/stores/auth-store";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { isDuplicateMessage } from "@/src/lib/fcm-dedup";
@@ -67,7 +66,6 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const authUser = useAuthStore(state => state.user);
 
     const isDashboard = context === "dashboard";
     const ignoreCookie = !isDashboard;
@@ -93,27 +91,35 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         return allConversations.find(c => String(c.id) === chatId) || null;
     }, [searchParams, allConversations]);
 
-    const handleSelectConversation = useCallback(
+    /** بناء رابط المحادثة — استخدام `<Link>` في القائمة أوثق من `router.push` مع تحديث searchParams على الديسكتوب */
+    const getConversationHref = useCallback(
         (conversation: Conversation) => {
-            setPendingConversation(conversation);
             const params = new URLSearchParams(searchParams.toString());
             params.delete("type");
             params.delete("id");
             params.delete("serviceId");
             params.delete("productId");
             params.set("chat", String(conversation.id));
-            const next = params.toString() ? `${pathname}?${params.toString()}` : pathname;
-            chatNavLog("handleSelectConversation", { next, id: conversation.id });
-            try {
-                startTransition(() => {
-                    router.push(next, { scroll: false });
-                });
-            } catch (e) {
-                chatNavLog("handleSelectConversation:error", e);
-            }
+            return params.toString() ? `${pathname}?${params.toString()}` : pathname;
         },
-        [searchParams, pathname, router]
+        [searchParams, pathname]
     );
+
+    /** فتح محادثة برمجياً (إنشاء من الرابط، مجموعة جديدة، إلخ) */
+    const navigateToConversation = useCallback(
+        (conversation: Conversation) => {
+            setPendingConversation(conversation);
+            const next = getConversationHref(conversation);
+            chatNavLog("navigateToConversation", { next, id: conversation.id });
+            router.push(next, { scroll: false });
+        },
+        [getConversationHref, router]
+    );
+
+    /** النقر من القائمة: التنقل عبر Link؛ هنا فقط حالة الانتظار حتى يتزامن الـ URL */
+    const onSidebarConversationPress = useCallback((conversation: Conversation) => {
+        setPendingConversation(conversation);
+    }, []);
 
     const handleCloseChat = useCallback(() => {
         const before = searchParams.toString();
@@ -140,9 +146,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         chatNavLog("handleCloseChat:navigate", { target, nextQuery });
 
         try {
-            startTransition(() => {
-                router.replace(target, { scroll: false });
-            });
+            router.replace(target, { scroll: false });
         } catch (e) {
             chatNavLog("handleCloseChat:router.replace error", e);
         }
@@ -195,7 +199,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     (c) => String(c.id) === String(conversationId)
                 );
                 if (conv) {
-                    handleSelectConversation(conv);
+                    navigateToConversation(conv);
                 } else {
                     const p = new URLSearchParams(searchParams.toString());
                     p.delete("type");
@@ -274,7 +278,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     onSuccess: (res) => {
                         setIsCreatingFromUrl(false);
                         if (res.status && res.conversation) {
-                            handleSelectConversation(res.conversation);
+                            navigateToConversation(res.conversation);
                         } else {
                             toast.error(res.message || "حدث خطأ أثناء إنشاء المحادثة");
                         }
@@ -291,7 +295,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         createConversation,
         sendMessage,
         isCreatingFromUrl,
-        handleSelectConversation,
+        navigateToConversation,
         selectedConversation,
         queryClient,
         refetch,
@@ -399,26 +403,6 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         });
     }, [allConversations, searchQuery, activeFilter]);
 
-    /** تسمية مختصرة لشريط تبديل المحادثات على الموبايل (نفس منطق «الطرف الآخر» في القائمة) */
-    const getConversationShortLabel = useCallback(
-        (conv: Conversation) => {
-            if (conv.name?.trim()) return conv.name.trim();
-            const currentStoreId = isDashboard ? Cookies.get("current_store_id") : undefined;
-            const currentId = currentStoreId ? String(currentStoreId) : String(authUser?.id ?? "");
-            const currentType = currentStoreId ? "store" : "user";
-            const other = conv.participants.find(
-                (p) =>
-                    String(p.participant_data.id) !== currentId || p.participant_data.type !== currentType
-            );
-            return (
-                other?.participant_data?.name ||
-                conv.participants[0]?.participant_data?.name ||
-                "محادثة"
-            );
-        },
-        [isDashboard, authUser?.id]
-    );
-
     const shellHeight = "h-[calc(100vh-100px)] md:h-[calc(100vh-128px)]";
 
     const conversationListProps = {
@@ -426,7 +410,8 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         isLoading: !data && isLoading,
         isError,
         selectedConversationId: selectedConversation?.id ?? null,
-        onSelectConversation: handleSelectConversation,
+        onSelectConversation: onSidebarConversationPress,
+        getConversationHref,
         searchQuery,
         onSearchChange: setSearchQuery,
         totalUnreadCount: unreadData?.unread_conversations_count || 0,
@@ -489,41 +474,12 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     <div
                         className={`flex flex-1 min-h-0 flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0`}
                     >
-                        {/* على الموبايل كانت القائمة مخفية بالكامل داخل الدردشة — شريط أفقي للتبديل دون الرجوع */}
-                        <div
-                            className="shrink-0 border-b border-gray-100 bg-[#f6f8fb] py-2 px-1 flex gap-1.5 overflow-x-auto overflow-y-hidden [-webkit-overflow-scrolling:touch] touch-pan-x"
-                            dir="rtl"
-                        >
-                            {filteredConversations.map((conv) => {
-                                const label = getConversationShortLabel(conv);
-                                const active = selectedConversation?.id === conv.id;
-                                return (
-                                    <button
-                                        key={conv.id}
-                                        type="button"
-                                        onClick={() => {
-                                            chatNavLog("mobile-conv-strip:click", conv.id);
-                                            handleSelectConversation(conv);
-                                        }}
-                                        className={`shrink-0 max-w-[min(200px,70vw)] truncate rounded-full px-3 py-1.5 text-xs font-medium border transition-colors ${
-                                            active
-                                                ? "bg-[#3D5E83] text-white border-[#3D5E83]"
-                                                : "bg-white text-gray-700 border-gray-200 active:bg-gray-100"
-                                        }`}
-                                    >
-                                        {label}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        <div className="flex-1 min-h-0 min-w-0 flex flex-col overflow-hidden">
-                            <ChatWindow
-                                key={selectedConversation.id}
-                                conversation={selectedConversation}
-                                onClose={handleCloseChat}
-                                context={context}
-                            />
-                        </div>
+                        <ChatWindow
+                            key={selectedConversation.id}
+                            conversation={selectedConversation}
+                            onClose={handleCloseChat}
+                            context={context}
+                        />
                     </div>
                 )}
             </div>
@@ -573,7 +529,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 onSuccess={(conversationId) => {
                     const newConv = allConversations.find(c => c.id === conversationId);
                     if (newConv) {
-                        handleSelectConversation(newConv);
+                        navigateToConversation(newConv);
                     }
                 }}
                 ignoreCookie={ignoreCookie}
