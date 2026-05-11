@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useConversationMessages, useSendMessage, useMarkMessageAsSeen, useBlockUser, useDeleteConversation } from "../hooks";
 import { Conversation } from "../api";
 import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon, Star, User, Store, X } from "lucide-react";
@@ -40,6 +40,17 @@ function chatPriceNumeric(price: string | number | null | undefined): number {
 function isAskForPricePrice(price: string | number | null | undefined): boolean {
     const n = chatPriceNumeric(price);
     return !Number.isFinite(n) || n <= 0;
+}
+
+function chatNavLog(...args: unknown[]) {
+    if (typeof window === "undefined") return;
+    try {
+        if (process.env.NODE_ENV !== "production" || window.localStorage?.getItem("DEBUG_CHAT_NAV") === "1") {
+            console.info("[chat-nav]", ...args);
+        }
+    } catch {
+        /* ignore */
+    }
 }
 
 /** شريط المنتج/الخدمة العلوي — نص أبيض + شيكل */
@@ -235,6 +246,24 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         }
     };
 
+    const handleMobileBack = useCallback(
+        (e: React.MouseEvent<HTMLButtonElement>) => {
+            e.preventDefault();
+            e.stopPropagation();
+            chatNavLog("ChatWindow:mobile-back", {
+                hasOnClose: typeof onClose === "function",
+                conversationId: conversation.id,
+                href: typeof window !== "undefined" ? window.location.href : null,
+            });
+            if (typeof onClose === "function") {
+                onClose();
+            } else {
+                chatNavLog("ChatWindow:mobile-back skipped — onClose missing");
+            }
+        },
+        [onClose, conversation.id]
+    );
+
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setSelectedFiles(Array.from(e.target.files));
@@ -254,14 +283,16 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         <div className="flex h-full bg-white relative overflow-hidden">
             <div className="flex flex-col flex-1 min-w-0">
                 {/* Header */}
-                <div className="px-2 py-3 md:p-4 bg-white border-b border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                <div className="relative z-20 px-2 py-3 md:p-4 bg-white border-b border-gray-100 flex items-center justify-between isolate">
+                    <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0 min-h-0">
                         {/* Back button - only visible on mobile */}
                         <button
-                            onClick={onClose}
-                            className="md:hidden p-1 -mr-1 rounded-full hover:bg-gray-100 transition-colors"
+                            type="button"
+                            aria-label="الرجوع إلى قائمة المحادثات"
+                            onClick={handleMobileBack}
+                            className="md:hidden relative z-30 touch-manipulation p-2 -m-1 -mr-1 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors shrink-0"
                         >
-                            <svg className="w-6 h-6 text-gray-600 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-6 h-6 text-gray-600 rtl:rotate-180 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                             </svg>
                         </button>

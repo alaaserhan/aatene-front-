@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, startTransition } from "react";
 import { useConversations, useTotalUnreadCount, useCreateConversation, useSendMessage } from "../hooks";
 import { Conversation } from "../api";
 import { ConversationListSidebar } from "./ConversationListSidebar";
@@ -16,6 +16,18 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { isDuplicateMessage } from "@/src/lib/fcm-dedup";
+
+/** تفعيله من الكونسول: localStorage.setItem("DEBUG_CHAT_NAV","1") ثم إعادة تحميل */
+function chatNavLog(...args: unknown[]) {
+    if (typeof window === "undefined") return;
+    try {
+        if (process.env.NODE_ENV !== "production" || window.localStorage?.getItem("DEBUG_CHAT_NAV") === "1") {
+            console.info("[chat-nav]", ...args);
+        }
+    } catch {
+        /* ignore */
+    }
+}
 
 let notificationAudio: HTMLAudioElement | null = null;
 let audioUnlocked = false;
@@ -93,6 +105,15 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     }, [searchParams, pathname, router]);
 
     const handleCloseChat = useCallback(() => {
+        const before = searchParams.toString();
+        const chatBefore = searchParams.get("chat");
+        chatNavLog("handleCloseChat:start", {
+            pathname,
+            searchBefore: before,
+            chatBefore,
+            historyLength: typeof window !== "undefined" ? window.history.length : null,
+        });
+
         setPendingConversation(null);
         const params = new URLSearchParams(searchParams.toString());
         params.delete("type");
@@ -102,7 +123,24 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         if (params.get("chat")) {
             params.delete("chat");
         }
-        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+        const nextQuery = params.toString();
+        const target = nextQuery ? `${pathname}?${nextQuery}` : pathname;
+
+        chatNavLog("handleCloseChat:navigate", { target, nextQuery });
+
+        try {
+            startTransition(() => {
+                router.replace(target, { scroll: false });
+            });
+        } catch (e) {
+            chatNavLog("handleCloseChat:router.replace error", e);
+        }
+
+        queueMicrotask(() => {
+            chatNavLog("handleCloseChat:after microtask", {
+                href: typeof window !== "undefined" ? window.location.href : null,
+            });
+        });
     }, [searchParams, pathname, router]);
 
     useEffect(() => {
