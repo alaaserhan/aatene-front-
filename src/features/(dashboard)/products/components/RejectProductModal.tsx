@@ -5,7 +5,8 @@ import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { useGetReportTypes, useCreateReportType } from "@/src/features/(dashboard)/reports/hooks";
+import { useCreateReportType } from "@/src/features/(dashboard)/reports/hooks";
+import { useGetReportTypes as useGetWebReportTypes } from "@/src/features/(web)/reports/hooks";
 import { Loader2 } from "lucide-react";
 
 interface RejectProductModalProps {
@@ -23,17 +24,18 @@ export function RejectProductModal({ isOpen, onClose, onConfirm, isLoading }: Re
     const [newReason, setNewReason] = useState("");
     const { mutate: createReason, isPending: isCreatingReason } = useCreateReportType();
 
-    const { data: typesData, isLoading: isLoadingTypes } = useGetReportTypes({ enabled: isOpen });
-    const allReasons = typesData?.data ?? typesData?.report_types ?? [];
+    const { data: typesData, isLoading: isLoadingTypes } = useGetWebReportTypes();
+    const allReasons = useMemo(() => {
+        const fromData = Array.isArray(typesData?.data) ? typesData.data : [];
+        const fromReportTypes = Array.isArray(typesData?.report_types) ? typesData.report_types : [];
+        return fromData.length > 0 ? fromData : fromReportTypes;
+    }, [typesData]);
     const reasons = useMemo(() => {
-        const hasCategoryInfo = allReasons.some((reason) => typeof reason.category === "string" && reason.category.length > 0);
-        if (!hasCategoryInfo) {
-            // Fallback for responses that don't include category: keep previous behavior and show all.
-            return allReasons;
-        }
-        return allReasons.filter(
-            (reason) => reason.category === "reject-product" || reason.category === "product"
-        );
+        const isRejectProductCategory = (rawCategory?: string) => {
+            const normalized = (rawCategory || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
+            return normalized === "reject-product";
+        };
+        return allReasons.filter((reason) => isRejectProductCategory(reason.category));
     }, [allReasons]);
 
     const reasonOptions = useMemo(() => {
