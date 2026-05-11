@@ -1,18 +1,25 @@
 "use client";
 
 import { Search, FileText, Loader2, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/src/lib/utils";
 import { useGetTermsAndConditions } from "@/src/features/(web)/pages/hooks";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { useParams } from "next/navigation";
 
 export default function TermsPage() {
     const { data, isLoading, isError } = useGetTermsAndConditions();
+    const params = useParams();
+    const locale = String(params?.locale || "ar");
     const [activeId, setActiveId] = useState(0);
     const [searchQuery, setSearchQuery] = useState("");
     const [lang, setLang] = useState<"ar" | "he">("ar");
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    useEffect(() => {
+        setLang(locale === "he" ? "he" : "ar");
+    }, [locale]);
 
     const termsList = data?.termsAndConditions || [];
 
