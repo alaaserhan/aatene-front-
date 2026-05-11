@@ -5,30 +5,38 @@ import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { FormInput } from "@/src/components/ui/FormInput";
-import { Loader2 } from "lucide-react";
 import { useCreateReportType } from "@/src/features/(dashboard)/reports/hooks";
+import { useGetReportTypes as useGetWebReportTypes } from "@/src/features/(web)/reports/hooks";
+import { Loader2 } from "lucide-react";
 
 interface RejectServiceModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onConfirm: (reasonId: string, note: string) => void;
+    /** نص السبب المختار من القائمة + التوضيح الاختياري (يُدمَج في الصفحة الأم كما في المنتجات) */
+    onConfirm: (reasonText: string, details: string) => void;
     isLoading: boolean;
-    reasonsList?: any[];
-    isLoadingReasons?: boolean;
 }
 
-export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading, reasonsList = [], isLoadingReasons = false }: RejectServiceModalProps) {
+export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading }: RejectServiceModalProps) {
     const [reasonId, setReasonId] = useState<string>("");
-    const [note, setNote] = useState<string>("");
+    const [details, setDetails] = useState<string>("");
     const [touched, setTouched] = useState(false);
-
     const [isAddingReason, setIsAddingReason] = useState(false);
     const [newReason, setNewReason] = useState("");
     const { mutate: createReason, isPending: isCreatingReason } = useCreateReportType();
 
-    // استخدام البيانات الممررة عبر Props
-    const reasons = reasonsList || [];
+    const { data: typesData, isLoading: isLoadingTypes } = useGetWebReportTypes();
+    const allReasons = useMemo(
+        () => (Array.isArray(typesData?.report_types) ? typesData.report_types : []),
+        [typesData]
+    );
+    const reasons = useMemo(() => {
+        const isRejectServiceCategory = (rawCategory?: string) => {
+            const normalized = (rawCategory || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
+            return normalized === "reject-service";
+        };
+        return allReasons.filter((reason) => isRejectServiceCategory(reason.category));
+    }, [allReasons]);
 
     const reasonOptions = useMemo(() => {
         return reasons.map((reason) => ({
@@ -39,24 +47,17 @@ export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading, reas
 
     const handleConfirm = () => {
         setTouched(true);
+        if (!reasonId) return;
 
-        // إذا كتب ملاحظة يدوية نعتبرها، وإلا نبحث عن نص السبب المختار
-        let finalReason = note.trim();
-
-        if (!finalReason && reasonId) {
-            const selected = reasons.find(r => String(r.id) === reasonId);
-            if (selected) finalReason = selected.name;
+        const selectedReason = reasons.find((r) => String(r.id) === reasonId);
+        if (selectedReason) {
+            onConfirm(selectedReason.name, details.trim());
         }
-
-        if (!finalReason) return;
-
-        // نرسل النص في الحقل الثاني (note) كما كان في الكود السابق
-        onConfirm("", finalReason);
     };
 
     const handleClose = () => {
         setReasonId("");
-        setNote("");
+        setDetails("");
         setNewReason("");
         setIsAddingReason(false);
         setTouched(false);
@@ -66,7 +67,7 @@ export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading, reas
     const handleCreateReason = () => {
         if (!newReason.trim()) return;
         createReason(
-            { name: newReason, is_active: 1 },
+            { name: newReason, is_active: 1, category: "reject-service" },
             {
                 onSuccess: () => {
                     setIsAddingReason(false);
@@ -79,13 +80,13 @@ export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading, reas
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent className="max-w-xl p-6 rounded-3xl gap-6" dir="rtl">
-                <DialogTitle className="text-lg font-medium  mb-2">
-                    أضف سبب رفض الخدمة هنا مع التوضيح للعميل
+                <DialogTitle className="text-lg font-medium mb-2">
+                    أضف سبب رفض الخدمة هنا مع التوضيح لمقدّم الخدمة
                 </DialogTitle>
 
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col gap-3">
-                        <label className="text-sm font-bold text-gray-700">
+                        <label className="text-sm font-medium">
                             سبب الرفض <span className="text-red-500">*</span>
                         </label>
                         {!isAddingReason ? (
@@ -93,8 +94,8 @@ export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading, reas
                                 options={reasonOptions}
                                 value={reasonId}
                                 onChange={(val) => setReasonId(val)}
-                                placeholder={isLoadingReasons ? "جاري التحميل..." : "اختر من هنا السبب"}
-                                error={touched && !reasonId && !note.trim() ? "يرجى اختيار سبب الرفض أو كتابة سبب آخر" : undefined}
+                                placeholder={isLoadingTypes ? "جاري التحميل..." : "اختر من هنا السبب"}
+                                error={touched && !reasonId ? "يرجى اختيار سبب الرفض" : undefined}
                                 className="h-12"
                                 onAddNew={() => setIsAddingReason(true)}
                                 addNewLabel="إضافة سبب رفض جديد"
@@ -134,22 +135,23 @@ export function RejectServiceModal({ isOpen, onClose, onConfirm, isLoading, reas
                         )}
                     </div>
 
-                    <div className="flex flex-col gap-1">
-                        <FormInput
-                            label="سبب اخر"
-                            value={note}
-                            onChange={(e) => setNote(e.target.value)}
-                            placeholder="اكتب توضيح (اختياري)"
-                            className="h-12 bg-white"
+                    <div className="flex flex-col gap-3">
+                        <label className="text-sm font-medium">التوضيح</label>
+                        <textarea
+                            value={details}
+                            onChange={(e) => setDetails(e.target.value)}
+                            placeholder="اكتب توضيحًا إضافيًا لمقدّم الخدمة (اختياري)..."
+                            rows={3}
+                            className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:border-blue-4 text-sm resize-none"
                         />
                     </div>
 
                     <Button
                         onClick={handleConfirm}
                         disabled={isLoading || isAddingReason}
-                        className="w-full h-12 bg-blue-4 hover:bg-[#4a5d72] text-white font-bold rounded-md mt-2"
+                        className="w-full h-11 bg-[#EF4444] hover:bg-[#d93a3a] text-white font-bold rounded-md mt-2"
                     >
-                        {isLoading ? <Loader2 className="animate-spin" /> : "أرسل"}
+                        {isLoading ? <Loader2 className="animate-spin" /> : "رفض الخدمة"}
                     </Button>
                 </div>
             </DialogContent>
