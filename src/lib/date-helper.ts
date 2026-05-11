@@ -2,8 +2,8 @@ import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
 
 /**
- * Converts a server date string (UTC) to a local Date object.
- * Attempts to handle cases where the server string implies UTC but lacks the 'Z' suffix.
+ * Converts a server date string to a Date object without forcing timezone.
+ * This keeps frontend behavior aligned with backend-provided timestamp format.
  */
 export function toLocal(dateString: string | Date | null | undefined): Date {
     if (!dateString) return new Date();
@@ -15,10 +15,6 @@ export function toLocal(dateString: string | Date | null | undefined): Date {
         str = str.replace(" ", "T");
     }
 
-    // If it doesn't indicate timezone, assume it's UTC from the database
-    if (!str.endsWith("Z") && !str.includes("+")) {
-        str += "Z";
-    }
     return new Date(str);
 }
 
