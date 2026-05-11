@@ -146,10 +146,11 @@ export const useUnblockUser = () => {
 };
 
 // --- Stories ---
-export const useGetStories = () => {
+export const useGetStories = (options?: { enabled?: boolean }) => {
     return useQuery({
         queryKey: QK.stories.all,
         queryFn: getStories,
+        enabled: options?.enabled ?? true,
     });
 };
 
