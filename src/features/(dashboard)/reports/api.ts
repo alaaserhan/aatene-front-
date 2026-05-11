@@ -17,6 +17,7 @@ export interface ReportType {
 export interface ReportTypeDetail {
   id: number;
   name: string;
+  category?: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -85,6 +86,7 @@ export interface ReportTypesListResponse {
   recordsTotal: number;
   recordsFiltered: number;
   data: ReportTypeDetail[];
+  report_types?: ReportTypeDetail[];
 }
 
 export interface SingleReportResponse {
@@ -180,6 +182,7 @@ export const deleteReport = async (id: string | number): Promise<GenericResponse
 export interface CreateReportTypePayload {
   name: string;
   is_active: number | boolean;
+  category?: string;
 }
 
 export const createReportType = async (payload: CreateReportTypePayload): Promise<GenericResponse> => {
