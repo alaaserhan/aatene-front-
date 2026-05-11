@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/src/lib/utils";
 import { Search } from "lucide-react";
@@ -40,17 +40,13 @@ function SearchBarContent({
   const [searchQuery, setSearchQuery] = useState(urlQ);
   const [selectedType, setSelectedType] = useState<SearchType>(initialType);
 
-  const [prevQ, setPrevQ] = useState(urlQ);
-  const [prevType, setPrevType] = useState(urlType);
-
-  if (urlQ !== prevQ || urlType !== prevType) {
-    setPrevQ(urlQ);
-    setPrevType(urlType);
+  /** مزامنة مع الـ URL عند التنقل (لا تستخدم setState أثناء الرندر — كان يكسر تحديث الواجهة مع useSearchParams) */
+  useEffect(() => {
     setSearchQuery(urlQ);
     if (urlType && SEARCH_TYPES.some((t) => t.value === urlType)) {
       setSelectedType(urlType);
     }
-  }
+  }, [urlQ, urlType]);
 
   const handleTypeSelect = (newType: SearchType) => {
     setSelectedType(newType);

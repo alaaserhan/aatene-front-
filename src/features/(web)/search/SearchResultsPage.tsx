@@ -34,20 +34,29 @@ interface FilterState {
 
 const PER_PAGE = 16;
 
+function normalizeSearchType(raw: string | null): SearchType {
+    if (raw === "services" || raw === "stores" || raw === "users" || raw === "products") {
+        return raw;
+    }
+    return "products";
+}
+
 export default function SearchResultsPage() {
     const searchParams = useSearchParams();
-    const type = (searchParams.get("type") as SearchType) || "products";
+    /** أي تغيير في query (مثل type) يعيد تركيب المحتوى حتى تتزامن النتائج مع الـ URL */
+    const searchParamsKey = searchParams.toString();
 
     return (
         <div className="container mx-auto my-6 sm:my-10 px-4 md:px-6" dir="rtl">
-            <SearchContent key={type} type={type} />
+            <SearchContent key={searchParamsKey} />
             <CompareFloatingBar />
         </div>
     );
 }
 
-function SearchContent({ type }: { type: SearchType }) {
+function SearchContent() {
     const searchParams = useSearchParams();
+    const type = normalizeSearchType(searchParams.get("type"));
     const router = useRouter();
     const query = searchParams.get("q") || "";
     const page = parseInt(searchParams.get("page") || "1");
