@@ -78,10 +78,15 @@ const pingAr = localFont({
     },
   ],
   variable: "--font-ping-ar",
-  display: "swap", 
+  display: "swap",
   fallback: ["Tahoma", "Arial", "sans-serif"],
-  preload: true,
-  adjustFontFallback: "Arial", 
+  /**
+   * preload: true يُحقن <link rel="preload"> لكل وزن؛ كروم يُحذّر إن لم يُستخدم كل ملف
+   * في الرسم خلال ثوانٍ بعد load (مثلاً صفحة دردشة تعتمد غالباً على Regular أولاً).
+   * false يزيل التحذير؛ الخطوط ما زالت تُجلب عبر @font-face عند الحاجة (مع display: swap).
+   */
+  preload: false,
+  adjustFontFallback: "Arial",
 });
 
 export default function RootLayout({
