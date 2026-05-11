@@ -24,7 +24,17 @@ export function RejectProductModal({ isOpen, onClose, onConfirm, isLoading }: Re
     const { mutate: createReason, isPending: isCreatingReason } = useCreateReportType();
 
     const { data: typesData, isLoading: isLoadingTypes } = useGetReportTypes({ enabled: isOpen });
-    const reasons = typesData?.data || [];
+    const allReasons = typesData?.data ?? typesData?.report_types ?? [];
+    const reasons = useMemo(() => {
+        const hasCategoryInfo = allReasons.some((reason) => typeof reason.category === "string" && reason.category.length > 0);
+        if (!hasCategoryInfo) {
+            // Fallback for responses that don't include category: keep previous behavior and show all.
+            return allReasons;
+        }
+        return allReasons.filter(
+            (reason) => reason.category === "reject-product" || reason.category === "product"
+        );
+    }, [allReasons]);
 
     const reasonOptions = useMemo(() => {
         return reasons.map((reason) => ({
@@ -55,7 +65,7 @@ export function RejectProductModal({ isOpen, onClose, onConfirm, isLoading }: Re
     const handleCreateReason = () => {
         if (!newReason.trim()) return;
         createReason(
-            { name: newReason, is_active: 1 },
+            { name: newReason, is_active: 1, category: "reject-product" },
             {
                 onSuccess: () => {
                     setIsAddingReason(false);
