@@ -93,16 +93,27 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         return allConversations.find(c => String(c.id) === chatId) || null;
     }, [searchParams, allConversations]);
 
-    const handleSelectConversation = useCallback((conversation: Conversation) => {
-        setPendingConversation(conversation);
-        const params = new URLSearchParams(searchParams.toString());
-        params.delete("type");
-        params.delete("id");
-        params.delete("serviceId");
-        params.delete("productId");
-        params.set("chat", String(conversation.id));
-        router.push(`${pathname}?${params.toString()}`);
-    }, [searchParams, pathname, router]);
+    const handleSelectConversation = useCallback(
+        (conversation: Conversation) => {
+            setPendingConversation(conversation);
+            const params = new URLSearchParams(searchParams.toString());
+            params.delete("type");
+            params.delete("id");
+            params.delete("serviceId");
+            params.delete("productId");
+            params.set("chat", String(conversation.id));
+            const next = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+            chatNavLog("handleSelectConversation", { next, id: conversation.id });
+            try {
+                startTransition(() => {
+                    router.push(next, { scroll: false });
+                });
+            } catch (e) {
+                chatNavLog("handleSelectConversation:error", e);
+            }
+        },
+        [searchParams, pathname, router]
+    );
 
     const handleCloseChat = useCallback(() => {
         const before = searchParams.toString();
@@ -388,6 +399,26 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         });
     }, [allConversations, searchQuery, activeFilter]);
 
+    /** تسمية مختصرة لشريط تبديل المحادثات على الموبايل (نفس منطق «الطرف الآخر» في القائمة) */
+    const getConversationShortLabel = useCallback(
+        (conv: Conversation) => {
+            if (conv.name?.trim()) return conv.name.trim();
+            const currentStoreId = isDashboard ? Cookies.get("current_store_id") : undefined;
+            const currentId = currentStoreId ? String(currentStoreId) : String(authUser?.id ?? "");
+            const currentType = currentStoreId ? "store" : "user";
+            const other = conv.participants.find(
+                (p) =>
+                    String(p.participant_data.id) !== currentId || p.participant_data.type !== currentType
+            );
+            return (
+                other?.participant_data?.name ||
+                conv.participants[0]?.participant_data?.name ||
+                "محادثة"
+            );
+        },
+        [isDashboard, authUser?.id]
+    );
+
     const shellHeight = "h-[calc(100vh-100px)] md:h-[calc(100vh-128px)]";
 
     const conversationListProps = {
@@ -458,12 +489,41 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     <div
                         className={`flex flex-1 min-h-0 flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0`}
                     >
-                        <ChatWindow
-                            key={selectedConversation.id}
-                            conversation={selectedConversation}
-                            onClose={handleCloseChat}
-                            context={context}
-                        />
+                        {/* على الموبايل كانت القائمة مخفية بالكامل داخل الدردشة — شريط أفقي للتبديل دون الرجوع */}
+                        <div
+                            className="shrink-0 border-b border-gray-100 bg-[#f6f8fb] py-2 px-1 flex gap-1.5 overflow-x-auto overflow-y-hidden [-webkit-overflow-scrolling:touch] touch-pan-x"
+                            dir="rtl"
+                        >
+                            {filteredConversations.map((conv) => {
+                                const label = getConversationShortLabel(conv);
+                                const active = selectedConversation?.id === conv.id;
+                                return (
+                                    <button
+                                        key={conv.id}
+                                        type="button"
+                                        onClick={() => {
+                                            chatNavLog("mobile-conv-strip:click", conv.id);
+                                            handleSelectConversation(conv);
+                                        }}
+                                        className={`shrink-0 max-w-[min(200px,70vw)] truncate rounded-full px-3 py-1.5 text-xs font-medium border transition-colors ${
+                                            active
+                                                ? "bg-[#3D5E83] text-white border-[#3D5E83]"
+                                                : "bg-white text-gray-700 border-gray-200 active:bg-gray-100"
+                                        }`}
+                                    >
+                                        {label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        <div className="flex-1 min-h-0 min-w-0 flex flex-col overflow-hidden">
+                            <ChatWindow
+                                key={selectedConversation.id}
+                                conversation={selectedConversation}
+                                onClose={handleCloseChat}
+                                context={context}
+                            />
+                        </div>
                     </div>
                 )}
             </div>
