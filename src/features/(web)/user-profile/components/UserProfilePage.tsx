@@ -19,6 +19,7 @@ import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { useLanguage } from "@/src/hooks/use-language";
+import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 import { searchProducts, searchServices, searchStores } from "@/src/features/(web)/searchAndFilter/api";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
@@ -217,7 +218,10 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                     <button
                                         disabled={isChatLoading}
                                         onClick={() => {
-                                            if (!authUser) { router.push(`/${lang}/login`); return; }
+                                            if (!authUser) {
+                                                router.push(loginUrlWithAuthRequired(lang));
+                                                return;
+                                            }
                                             setIsChatLoading(true);
                                             router.push(`/${lang}/chat?type=user&id=${user.id}`);
                                             setIsChatLoading(false);

@@ -24,6 +24,7 @@ import { getFCMToken } from "@/src/lib/firebase";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { LOGIN_AUTH_REQUIRED_REASON } from "@/src/lib/auth-links";
 
 const loginSchema = z.object({
   login: z.string().min(1, "البريد الإلكتروني أو الهاتف مطلوب"),
@@ -55,8 +56,11 @@ export function LoginForm() {
     const tokenParam = searchParams.get("token");
     const reason = searchParams.get("reason");
 
-    if (reason === "auth_required") {
-      toast.error("يجب تسجيل الدخول أولاً لإكمال هذا الإجراء.");
+    if (reason === LOGIN_AUTH_REQUIRED_REASON) {
+      // بعد التنقل بـ router.push قد لا يُرسم الـ toast فورًا؛ microtask يضمن ظهوره
+      queueMicrotask(() => {
+        toast.error("يجب تسجيل الدخول أولاً لإكمال هذا الإجراء.");
+      });
       searchParams.delete("reason");
       const nextQuery = searchParams.toString();
       const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}`;

@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import { ErrorResponse } from "../types";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { toast } from "sonner";
+import { loginUrlWithAuthRequired } from "./auth-links";
 
 export let isLoggingOut = false;
 export function setLoggingOut(value: boolean) {
@@ -84,7 +85,7 @@ api.interceptors.response.use(
             /* ignore */
           }
           const lang = Cookies.get("lang") || "ar";
-          window.location.href = `/${lang}/login?reason=auth_required`;
+          window.location.href = loginUrlWithAuthRequired(lang);
         }
       }
     }

@@ -8,6 +8,7 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
 
 interface PortalReportModalProps {
     isOpen: boolean;
@@ -34,14 +35,14 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
 
     const router = useRouter();
     const params = useParams();
-    const lang = params?.locale || "ar";
+    const lang = String(params?.locale ?? "ar");
     const { user } = useAuthStore();
 
     // Redirect to login if not authenticated
     useEffect(() => {
         if (isOpen && !user) {
             onClose();
-            router.push(`/${lang}/login`);
+            router.push(loginUrlWithAuthRequired(lang));
         }
     }, [isOpen, user]);
 

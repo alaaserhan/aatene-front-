@@ -13,6 +13,7 @@ import { searchProducts, searchServices, searchStores } from "../../searchAndFil
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "../../settings/hooks";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
+import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
 import { cn } from "@/src/lib/utils";
 import ProductCard from "../../product/components/ProductCard";
 import StoreCard from "../../stores/components/StoreCard";
@@ -85,7 +86,10 @@ export default function PublicUserFavoritesPage() {
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
 
     const handleFollowToggle = () => {
-        if (!authUser) { router.push(`/${lang}/login`); return; }
+        if (!authUser) {
+            router.push(loginUrlWithAuthRequired(lang));
+            return;
+        }
         if (!user) return;
         const onSuccess = () => queryClient.invalidateQueries({ queryKey: ["userProfile", "detail", slugOrId] });
         if (user.is_following) {

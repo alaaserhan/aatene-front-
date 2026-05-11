@@ -8,6 +8,7 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
 
 interface ReportAbuseModalProps {
     isOpen: boolean;
@@ -31,7 +32,7 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
     useEffect(() => {
         if (isOpen && !user) {
             onClose();
-            router.push(`/${lang}/login`);
+            router.push(loginUrlWithAuthRequired(lang));
         }
     }, [isOpen, user]);
 
