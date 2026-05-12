@@ -544,15 +544,16 @@ function ProductsSection({ userId }: { userId: number }) {
     );
 
     const textFilter = debouncedSearch.trim().toLowerCase();
-    const mapFavorites = (items: FavoriteItem[] | undefined): NonNullable<FavoriteItem["favs"]>[] =>
+    const mapFavorites = (items: FavoriteItem[] | undefined) =>
         (items || [])
             .map((item) => item?.favs)
             .filter((fav): fav is NonNullable<FavoriteItem["favs"]> => fav != null)
             .filter((item) => {
                 if (!textFilter) return true;
-                const title = String(item?.name || item?.title || "").toLowerCase();
-                return title.includes(textFilter);
-            });
+                const rec = item as { name?: string; title?: string };
+                const titleStr = String(rec.name || rec.title || "").toLowerCase();
+                return titleStr.includes(textFilter);
+            }) as unknown[];
 
     const products = isOwnProfile ? mapFavorites(ownProductsData?.favorites) : (productsData?.products || []);
     const services = isOwnProfile ? mapFavorites(ownServicesData?.favorites) : (servicesData?.services || []);
