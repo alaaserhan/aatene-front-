@@ -48,7 +48,7 @@ const NewsletterFooter = () => {
                 </div>
 
                 <form
-                    className="flex w-full max-w-xl flex-col items-stretch gap-0"
+                    className="mx-auto flex w-[78%] max-w-xl flex-col items-stretch gap-0 sm:w-[92%] md:w-full"
                     onSubmit={(e) => {
                         e.preventDefault();
                         handleSubscribe();
