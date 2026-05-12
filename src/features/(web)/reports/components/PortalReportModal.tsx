@@ -135,11 +135,10 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
                                         <button
                                             key={cat}
                                             onClick={() => setActiveCategory(cat)}
-                                            className={`py-2 px-1 rounded-xl text-xs font-semibold border transition-all duration-200 cursor-pointer text-center ${
-                                                activeCategory === cat
-                                                    ? "bg-[#3d5e83] text-white border-[#3d5e83] shadow-sm"
-                                                    : "bg-white text-gray-600 border-gray-200 hover:border-[#3d5e83]/50 hover:bg-gray-50"
-                                            }`}
+                                            className={`py-2 px-1 rounded-xl text-xs font-semibold border transition-all duration-200 cursor-pointer text-center ${activeCategory === cat
+                                                ? "bg-[#3d5e83] text-white border-[#3d5e83] shadow-sm"
+                                                : "bg-white text-gray-600 border-gray-200 hover:border-[#3d5e83]/50 hover:bg-gray-50"
+                                                }`}
                                         >
                                             {CATEGORY_LABELS[cat] ?? cat}
                                         </button>
@@ -151,11 +150,10 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
                                             <button
                                                 key={cat}
                                                 onClick={() => setActiveCategory(cat)}
-                                                className={`py-2 px-1 rounded-xl text-xs font-semibold border transition-all duration-200 cursor-pointer text-center ${
-                                                    activeCategory === cat
-                                                        ? "bg-[#3d5e83] text-white border-[#3d5e83] shadow-sm"
-                                                        : "bg-white text-gray-600 border-gray-200 hover:border-[#3d5e83]/50 hover:bg-gray-50"
-                                                }`}
+                                                className={`py-2 px-1 rounded-xl text-xs font-semibold border transition-all duration-200 cursor-pointer text-center ${activeCategory === cat
+                                                    ? "bg-[#3d5e83] text-white border-[#3d5e83] shadow-sm"
+                                                    : "bg-white text-gray-600 border-gray-200 hover:border-[#3d5e83]/50 hover:bg-gray-50"
+                                                    }`}
                                             >
                                                 {CATEGORY_LABELS[cat] ?? cat}
                                             </button>
@@ -191,6 +189,9 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
                             </>
                         )}
 
+
+
+
                         <button
                             onClick={handleNext}
                             disabled={!selectedTypeId}
@@ -198,6 +199,7 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
                         >
                             التالي
                         </button>
+
                     </div>
                 )}
 

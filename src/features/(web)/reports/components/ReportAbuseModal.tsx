@@ -173,13 +173,15 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                             </div>
                         )}
 
-                        <button
-                            onClick={handleNext}
-                            disabled={!selectedTypeId}
-                            className="w-full py-3 rounded-full text-white font-medium text-base transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-[#3d5e83] hover:bg-[#2c4461]"
-                        >
-                            التالي
-                        </button>
+                        <div className="w-full sticky bottom-0 bg-[#ffff]">
+                            <button
+                                onClick={handleNext}
+                                disabled={!selectedTypeId}
+                                className="w-full py-3 rounded-full text-white font-medium text-base transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-[#3d5e83] hover:bg-[#2c4461]"
+                            >
+                                التالي
+                            </button>
+                        </div>
                     </div>
                 )}
 
