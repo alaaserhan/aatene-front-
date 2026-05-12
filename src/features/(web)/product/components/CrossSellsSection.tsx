@@ -113,15 +113,16 @@ export default function CrossSellsSection({
                     <div className="flex items-center gap-1 sm:gap-3 md:gap-4 shrink-0">
                         <span className="text-base sm:text-2xl md:text-3xl font-bold text-gray-400 shrink-0">=</span>
                         <div className="flex flex-col items-center gap-0.5 shrink-0">
-                            <span className="text-xs sm:text-xl md:text-2xl font-bold text-[#128F3C] whitespace-nowrap">
-                                {parseFloat(crossSellsPrice).toFixed(2)} <span className="text-[9px] sm:text-base font-medium">₪</span>
+                            <span className="text-xs sm:text-xl md:text-2xl font-bold text-gray-800 whitespace-nowrap">
+                                {parseFloat(crossSellsPrice).toFixed(2)}{" "}
+                                <span className="text-[9px] sm:text-base font-medium">₪</span>
                             </span>
-                            <span className="text-[7px] sm:text-xs text-gray-500 whitespace-nowrap">بدلاً من</span>
-                            <span className="text-[8px] sm:text-sm text-[#E36161] line-through whitespace-nowrap">
+                            <span className="text-[7px] sm:text-xs text-black whitespace-nowrap">بدلاً من</span>
+                            <span className="text-[8px] sm:text-sm text-black line-through whitespace-nowrap">
                                 {originalTotal.toFixed(2)} ₪
                             </span>
                             {savings > 0 && (
-                                <span className="mt-0.5 text-[7px] sm:text-xs font-semibold bg-green-100 text-green-700 px-1 sm:px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                                <span className="mt-0.5 text-[7px] sm:text-xs font-semibold text-red-1 whitespace-nowrap">
                                     وفّر {savings.toFixed(2)} ₪
                                 </span>
                             )}
