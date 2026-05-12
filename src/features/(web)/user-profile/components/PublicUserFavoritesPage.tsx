@@ -298,15 +298,82 @@ export default function PublicUserFavoritesPage() {
                             </div>
                         ) : (
                             <>
-                                {/* Products section */}
-                                {(activeTab === "products" || activeTab === "all") && (
-                                    <section>
-                                        {activeTab === "all" && (
-                                            <h2 className="text-lg font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-100">
-                                                المنتجات المفضلة
-                                                <span className="text-sm font-normal text-gray-400 mr-2">({totalProducts})</span>
-                                            </h2>
+                                {activeTab === "all" && (
+                                    <>
+                                        {products.length > 0 && (
+                                            <section>
+                                                <h2 className="text-lg font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-100">
+                                                    المنتجات المفضلة
+                                                    <span className="text-sm font-normal text-gray-400 mr-2">
+                                                        ({totalProducts})
+                                                    </span>
+                                                </h2>
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+                                                    {products.map((p) => (
+                                                        <ProductCard
+                                                            key={p.id}
+                                                            id={p.id}
+                                                            name={p.name}
+                                                            slug={p.slug}
+                                                            cover={p.cover || "/placeholder.png"}
+                                                            price={p.price}
+                                                            priceAfterDiscount={p.price_after_discount}
+                                                            discountPercent={p.discount_present}
+                                                            reviewRate={p.review_rate}
+                                                            reviewCount={p.review_count}
+                                                            isFavorite={true}
+                                                            storeId={p.store_id}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </section>
                                         )}
+                                        {services.length > 0 && (
+                                            <section className={products.length > 0 ? "mt-8" : ""}>
+                                                <h2 className="text-lg font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-100">
+                                                    الخدمات المفضلة
+                                                    <span className="text-sm font-normal text-gray-400 mr-2">
+                                                        ({totalServices})
+                                                    </span>
+                                                </h2>
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+                                                    {services.map((s) => (
+                                                        <ServiceCardMini key={s.id} service={s} />
+                                                    ))}
+                                                </div>
+                                            </section>
+                                        )}
+                                        {stores.length > 0 && (
+                                            <section
+                                                className={
+                                                    products.length > 0 || services.length > 0 ? "mt-8" : ""
+                                                }
+                                            >
+                                                <h2 className="text-lg font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-100">
+                                                    المتاجر المفضلة
+                                                    <span className="text-sm font-normal text-gray-400 mr-2">
+                                                        ({totalStores})
+                                                    </span>
+                                                </h2>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                                                    {stores.map((store) => (
+                                                        <StoreCard key={store.id} store={store} />
+                                                    ))}
+                                                </div>
+                                            </section>
+                                        )}
+                                        {products.length === 0 &&
+                                            services.length === 0 &&
+                                            stores.length === 0 && (
+                                                <div className="flex items-center justify-center py-12 bg-white rounded-xl border border-gray-100 text-gray-400 text-sm">
+                                                    لا توجد عناصر في المفضلة
+                                                </div>
+                                            )}
+                                    </>
+                                )}
+
+                                {activeTab === "products" && (
+                                    <section>
                                         {products.length === 0 ? (
                                             <div className="flex items-center justify-center py-12 bg-white rounded-xl border border-gray-100 text-gray-400 text-sm">
                                                 لا توجد منتجات مفضلة
@@ -334,15 +401,8 @@ export default function PublicUserFavoritesPage() {
                                     </section>
                                 )}
 
-                                {/* Services section */}
-                                {(activeTab === "services" || activeTab === "all") && (
-                                    <section className={activeTab === "all" ? "mt-8" : ""}>
-                                        {activeTab === "all" && (
-                                            <h2 className="text-lg font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-100">
-                                                الخدمات المفضلة
-                                                <span className="text-sm font-normal text-gray-400 mr-2">({totalServices})</span>
-                                            </h2>
-                                        )}
+                                {activeTab === "services" && (
+                                    <section>
                                         {services.length === 0 ? (
                                             <div className="flex items-center justify-center py-12 bg-white rounded-xl border border-gray-100 text-gray-400 text-sm">
                                                 لا توجد خدمات مفضلة
@@ -357,15 +417,8 @@ export default function PublicUserFavoritesPage() {
                                     </section>
                                 )}
 
-                                {/* Stores section */}
-                                {(activeTab === "stores" || activeTab === "all") && (
-                                    <section className={activeTab === "all" ? "mt-8" : ""}>
-                                        {activeTab === "all" && (
-                                            <h2 className="text-lg font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-100">
-                                                المتاجر المفضلة
-                                                <span className="text-sm font-normal text-gray-400 mr-2">({totalStores})</span>
-                                            </h2>
-                                        )}
+                                {activeTab === "stores" && (
+                                    <section>
                                         {stores.length === 0 ? (
                                             <div className="flex items-center justify-center py-12 bg-white rounded-xl border border-gray-100 text-gray-400 text-sm">
                                                 لا توجد متاجر مفضلة

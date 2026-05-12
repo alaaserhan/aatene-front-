@@ -35,6 +35,32 @@ const QK = {
     },
 };
 
+function invalidateProfileFavoriteQueries(qc: ReturnType<typeof useQueryClient>) {
+    // صفحات البروفايل تستخدم مفاتيح مختلفة عن مفاتيح /favorites
+    qc.invalidateQueries({
+        predicate: (query) => {
+            const root = query.queryKey?.[0];
+            return (
+                root === "userProfile" ||
+                root === "publicProfileFavProducts" ||
+                root === "publicProfileFavServices" ||
+                root === "publicProfileFavStores" ||
+                root === "publicFavProducts" ||
+                root === "publicFavServices" ||
+                root === "publicFavStores"
+            );
+        },
+    });
+}
+
+function getProfileFavoriteRootsByType(type: string) {
+    const normalized = type === "products" ? "product" : type;
+    if (normalized === "product") return ["publicProfileFavProducts", "publicFavProducts"] as const;
+    if (normalized === "service") return ["publicProfileFavServices", "publicFavServices"] as const;
+    if (normalized === "store") return ["publicProfileFavStores", "publicFavStores"] as const;
+    return [] as const;
+}
+
 export const useGetFavoriteLists = (type?: string, enabled = true) => {
     return useQuery({
         queryKey: [...QK.list(), type],
@@ -139,7 +165,7 @@ export const useAddToFavorites = () => {
             qc.invalidateQueries({
                 queryKey: QK.favorites.check(variables.favs_type, variables.favs_id),
             });
-            qc.invalidateQueries({ queryKey: ["userProfile"] }); // To trigger FavoritesSection update
+            invalidateProfileFavoriteQueries(qc);
         },
     });
 };
@@ -155,7 +181,7 @@ export const useRemoveFromFavorites = () => {
             await qc.cancelQueries({ queryKey: QK.favorites.byType(payload.favs_type) });
             await qc.cancelQueries({ queryKey: ["favorite-lists", "items"] });
 
-            // Helper function to filter out the removed item
+            // Helper function to filter out the removed item (favorites endpoints)
             const updateCache = (oldData: { favorites: { favs_type: string; favs: { id: number | string } }[]; total: number } | undefined) => {
                 if (!oldData?.favorites) return oldData;
                 return {
@@ -171,19 +197,65 @@ export const useRemoveFromFavorites = () => {
                 };
             };
 
+            // Helper function to filter out removed item (profile search endpoints)
+            const removeFromProfileCache = (oldData: any) => {
+                if (!oldData) return oldData;
+                const normalizedType = payload.favs_type === "products" ? "product" : payload.favs_type;
+                const id = String(payload.favs_id);
+
+                if (normalizedType === "product" && Array.isArray(oldData.products)) {
+                    const nextProducts = oldData.products.filter((item: any) => String(item?.id) !== id);
+                    return {
+                        ...oldData,
+                        products: nextProducts,
+                        total: Math.max(0, Number(oldData.total || 0) - (nextProducts.length < oldData.products.length ? 1 : 0)),
+                    };
+                }
+                if (normalizedType === "service" && Array.isArray(oldData.services)) {
+                    const nextServices = oldData.services.filter((item: any) => String(item?.id) !== id);
+                    return {
+                        ...oldData,
+                        services: nextServices,
+                        total: Math.max(0, Number(oldData.total || 0) - (nextServices.length < oldData.services.length ? 1 : 0)),
+                    };
+                }
+                if (normalizedType === "store" && Array.isArray(oldData.stores)) {
+                    const nextStores = oldData.stores.filter((item: any) => String(item?.id) !== id);
+                    return {
+                        ...oldData,
+                        stores: nextStores,
+                        total: Math.max(0, Number(oldData.total || 0) - (nextStores.length < oldData.stores.length ? 1 : 0)),
+                    };
+                }
+                return oldData;
+            };
+
+            const profileRoots = getProfileFavoriteRootsByType(payload.favs_type);
+            const previousProfileEntries = profileRoots.flatMap((root) =>
+                qc.getQueriesData({ queryKey: [root] })
+            );
+
             // Optimistically update all matching queries
             // Using setQueriesData to match all paginated queries
             qc.setQueriesData({ queryKey: QK.favorites.all }, updateCache);
             qc.setQueriesData({ queryKey: QK.favorites.byType(payload.favs_type) }, updateCache);
             qc.setQueriesData({ queryKey: ["favorite-lists", "items"] }, updateCache);
+            for (const root of profileRoots) {
+                qc.setQueriesData({ queryKey: [root] }, removeFromProfileCache);
+            }
 
-            return { payload };
+            return { payload, previousProfileEntries };
         },
         onSuccess: (data) => {
             toast.success(data.message || "تم الحذف من المفضلة بنجاح");
         },
-        onError: () => {
-            // Error handling
+        onError: (_err, _variables, context) => {
+            // rollback optimistic profile updates on error
+            if (context?.previousProfileEntries) {
+                for (const [queryKey, data] of context.previousProfileEntries) {
+                    qc.setQueryData(queryKey, data);
+                }
+            }
         },
         onSettled: (_data, _error, variables) => {
             qc.invalidateQueries({ queryKey: QK.favorites.all });
@@ -192,7 +264,7 @@ export const useRemoveFromFavorites = () => {
                 queryKey: QK.favorites.check(variables.favs_type, variables.favs_id),
             });
             qc.invalidateQueries({ queryKey: ["favorite-lists", "items"] });
-            qc.invalidateQueries({ queryKey: ["userProfile"] }); // To trigger FavoritesSection update
+            invalidateProfileFavoriteQueries(qc);
         },
     });
 };

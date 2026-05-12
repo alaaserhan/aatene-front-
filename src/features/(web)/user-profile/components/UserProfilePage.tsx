@@ -643,11 +643,66 @@ function ProductsSection({ userId }: { userId: number }) {
                         </div>
                     ) : (
                         <>
-                            {(activeTab === "all" || activeTab === "products") && (
-                                <section>
-                                    {activeTab === "all" && (
-                                        <h3 className="text-lg font-semibold mb-3">المنتجات</h3>
+                            {activeTab === "all" && (
+                                <>
+                                    {products.length > 0 && (
+                                        <section>
+                                            <h3 className="text-lg font-semibold mb-3">المنتجات</h3>
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                                {products.map((product) => (
+                                                    <ProductCard
+                                                        key={product.id}
+                                                        id={product.id}
+                                                        name={product.name}
+                                                        slug={product.slug}
+                                                        cover={product.cover || "/placeholder.png"}
+                                                        price={product.price}
+                                                        priceAfterDiscount={product.price_after_discount}
+                                                        discountPercent={product.discount_present}
+                                                        reviewRate={product.review_rate}
+                                                        reviewCount={product.review_count}
+                                                        isFavorite={product.is_favorite}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </section>
                                     )}
+                                    {services.length > 0 && (
+                                        <section className={products.length > 0 ? "mt-6" : ""}>
+                                            <h3 className="text-lg font-semibold mb-3">الخدمات</h3>
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                                {services.map((service) => (
+                                                    <ServiceCardMini key={service.id} service={service} />
+                                                ))}
+                                            </div>
+                                        </section>
+                                    )}
+                                    {stores.length > 0 && (
+                                        <section
+                                            className={
+                                                products.length > 0 || services.length > 0 ? "mt-6" : ""
+                                            }
+                                        >
+                                            <h3 className="text-lg font-semibold mb-3">المتاجر</h3>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                {stores.map((store) => (
+                                                    <StoreCard key={store.id} store={store} />
+                                                ))}
+                                            </div>
+                                        </section>
+                                    )}
+                                    {products.length === 0 &&
+                                        services.length === 0 &&
+                                        stores.length === 0 && (
+                                            <div className="text-center py-10 bg-gray-50 rounded-lg">
+                                                <p className="text-gray-500">لا توجد عناصر في المفضلة</p>
+                                            </div>
+                                        )}
+                                </>
+                            )}
+
+                            {activeTab === "products" && (
+                                <section>
                                     {products.length === 0 ? (
                                         <div className="text-center py-10 bg-gray-50 rounded-lg">
                                             <p className="text-gray-500">لا توجد منتجات مفضلة</p>
@@ -674,11 +729,8 @@ function ProductsSection({ userId }: { userId: number }) {
                                 </section>
                             )}
 
-                            {(activeTab === "all" || activeTab === "services") && (
-                                <section className={activeTab === "all" ? "mt-6" : ""}>
-                                    {activeTab === "all" && (
-                                        <h3 className="text-lg font-semibold mb-3">الخدمات</h3>
-                                    )}
+                            {activeTab === "services" && (
+                                <section>
                                     {services.length === 0 ? (
                                         <div className="text-center py-10 bg-gray-50 rounded-lg">
                                             <p className="text-gray-500">لا توجد خدمات مفضلة</p>
@@ -693,11 +745,8 @@ function ProductsSection({ userId }: { userId: number }) {
                                 </section>
                             )}
 
-                            {(activeTab === "all" || activeTab === "stores") && (
-                                <section className={activeTab === "all" ? "mt-6" : ""}>
-                                    {activeTab === "all" && (
-                                        <h3 className="text-lg font-semibold mb-3">المتاجر</h3>
-                                    )}
+                            {activeTab === "stores" && (
+                                <section>
                                     {stores.length === 0 ? (
                                         <div className="text-center py-10 bg-gray-50 rounded-lg">
                                             <p className="text-gray-500">لا توجد متاجر مفضلة</p>
