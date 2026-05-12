@@ -10,18 +10,27 @@ import { AxiosError } from "axios";
 import * as api from "./api";
 import { toast } from "sonner";
 
-export function useGetBlogs(params?: URLSearchParams, storeId?: number | string | null) {
+export function useGetBlogs(
+    params?: URLSearchParams,
+    storeId?: number | string | null,
+    enabled: boolean = true
+) {
     return useQuery({
         queryKey: ["blogs", params?.toString(), storeId],
         queryFn: () => api.getBlogs(params, storeId),
+        enabled,
     });
 }
 
-export function useGetBlog(id: number | string, storeId?: number | string | null) {
+export function useGetBlog(
+    id: number | string,
+    storeId?: number | string | null,
+    queryEnabled: boolean = true
+) {
     return useQuery({
         queryKey: ["blogs", id, storeId],
         queryFn: () => api.getSingleBlog(id, storeId),
-        enabled: !!id,
+        enabled: !!id && queryEnabled,
     });
 }
 

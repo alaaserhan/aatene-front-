@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Edit2, Save, X, MessageCircle, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { useLanguage } from "@/src/hooks/use-language";
 import Image from "next/image";
 
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
@@ -24,12 +25,16 @@ interface AddEditMyBlogPageProps {
 
 export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
     const router = useRouter();
+    const lang = useLanguage();
     const isEditMode = isEdit;
     const user = useAuthStore((state) => state.user);
 
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-    const { data: blogData } = useBlog(blogId!, !!isEditMode);
+    const { data: blogData } = useBlog(
+        blogId!,
+        !!isEditMode && user?.user_type !== "merchant"
+    );
     const createMutation = useCreateBlog();
     const updateMutation = useUpdateBlog();
     const deleteMutation = useDeleteBlog();
@@ -52,8 +57,15 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
 
     // Initialize with edit data
     const [lastBlogId, setLastBlogId] = useState<string | number | undefined>(undefined);
+
+    useEffect(() => {
+        if (user?.user_type === "merchant") {
+            router.replace(`/${lang}/blogs`);
+        }
+    }, [user?.user_type, lang, router]);
+
     const record = blogData?.blog || blogData?.record;
-    if (isEditMode && record && record.id !== lastBlogId) {
+    if (user?.user_type !== "merchant" && isEditMode && record && record.id !== lastBlogId) {
         setLastBlogId(record.id);
         setFormData({
             title: record.title,
@@ -201,6 +213,14 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
     }
 
     const isSubmitting = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
+
+    if (user?.user_type === "merchant") {
+        return (
+            <div className="min-h-[40vh] flex items-center justify-center">
+                <p className="text-sm text-gray-500">جاري التوجيه…</p>
+            </div>
+        );
+    }
 
     return (
         <div className=" min-h-screen p-4 md:p-8 my-4 md:my-6 flex flex-col gap-4 container mx-auto">
