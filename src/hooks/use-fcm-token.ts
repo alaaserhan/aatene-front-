@@ -114,8 +114,10 @@ const useFCMToken = () => {
     }, [queryClient, router]);
 
     useEffect(() => {
+        let isMounted = true;
         if (typeof window !== "undefined" && "serviceWorker" in navigator) {
             const handler = (event: MessageEvent) => {
+                if (!isMounted) return;
                 if (event.data && event.data.type === 'FCM_MESSAGE_RECEIVED') {
                     const swPayload = event.data.payload || {};
                     console.log("[FCM Hook] SW message received:", swPayload);
@@ -132,7 +134,10 @@ const useFCMToken = () => {
                 }
             };
             navigator.serviceWorker.addEventListener('message', handler);
-            return () => navigator.serviceWorker.removeEventListener('message', handler);
+            return () => {
+                isMounted = false;
+                navigator.serviceWorker.removeEventListener('message', handler);
+            };
         }
     }, [queryClient]);
 

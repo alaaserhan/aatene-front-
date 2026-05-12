@@ -60,9 +60,7 @@ const Navbar = () => {
           <div className="flex min-w-0 flex-1 items-center gap-4 overflow-visible">
             <NavbarCategoriesMenu variant="desktop" />
             <div className="min-w-0 flex-1 max-w-2xl">
-              <Suspense fallback={<div className="h-10 w-full rounded-xl bg-gray-100/90 animate-pulse" aria-hidden />}>
-                <SearchBar />
-              </Suspense>
+              <SearchBar />
             </div>
           </div>
 

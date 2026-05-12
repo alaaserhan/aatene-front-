@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense, useEffect } from "react";
+import React, { useState, Suspense, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -36,6 +36,7 @@ function SearchBarContent({
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLanguage();
+  const [isPending, startTransition] = useTransition();
 
   const urlQ = searchParams.get("q") || "";
   const urlType = (searchParams.get("type") as SearchType);
@@ -64,7 +65,9 @@ function SearchBarContent({
     }
     params.set("type", selectedType);
 
-    router.push(`/${locale}/search?${params.toString()}`, { scroll: false });
+    startTransition(() => {
+      router.push(`/${locale}/search?${params.toString()}`, { scroll: false });
+    });
     onSearch?.();
   };
 
