@@ -23,6 +23,8 @@ import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 import { searchProducts, searchServices, searchStores } from "@/src/features/(web)/searchAndFilter/api";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
+import { FavoriteItem } from "@/src/features/(web)/fav/api";
+import { useGetFavoritesByType } from "@/src/features/(web)/fav/hooks";
 import Link from "next/link";
 
 function UserHeader({ user, isOwnProfile, followers, stories }: {
@@ -496,6 +498,8 @@ function ProductsSection({ userId }: { userId: number }) {
     const [page, setPage] = useState(1);
     const [searchInput, setSearchInput] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
+    const { user: authUser } = useAuthStore();
+    const isOwnProfile = authUser?.id === userId;
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -508,28 +512,55 @@ function ProductsSection({ userId }: { userId: number }) {
     const { data: productsData, isLoading: isProductsLoading } = useQuery({
         queryKey: ["publicProfileFavProducts", userId, page, debouncedSearch, activeTab],
         queryFn: () => searchProducts({ fav_by_id: userId, page, per_page: 12, search: debouncedSearch || undefined }),
-        enabled: !!userId,
+        enabled: !!userId && !isOwnProfile,
     });
 
     const { data: servicesData, isLoading: isServicesLoading } = useQuery({
         queryKey: ["publicProfileFavServices", userId, page, debouncedSearch, activeTab],
         queryFn: () => searchServices({ fav_by_id: userId, page, per_page: 12, search: debouncedSearch || undefined }),
-        enabled: !!userId,
+        enabled: !!userId && !isOwnProfile,
     });
 
     const { data: storesData, isLoading: isStoresLoading } = useQuery({
         queryKey: ["publicProfileFavStores", userId, page, debouncedSearch, activeTab],
         queryFn: () => searchStores({ fav_by_id: userId, page, per_page: 12, search: debouncedSearch || undefined }),
-        enabled: !!userId,
+        enabled: !!userId && !isOwnProfile,
     });
 
-    const products = productsData?.products || [];
-    const services = servicesData?.services || [];
-    const stores = storesData?.stores || [];
+    const { data: ownProductsData, isLoading: isOwnProductsLoading } = useGetFavoritesByType(
+        "product",
+        page,
+        !!userId && isOwnProfile
+    );
+    const { data: ownServicesData, isLoading: isOwnServicesLoading } = useGetFavoritesByType(
+        "service",
+        page,
+        !!userId && isOwnProfile
+    );
+    const { data: ownStoresData, isLoading: isOwnStoresLoading } = useGetFavoritesByType(
+        "store",
+        page,
+        !!userId && isOwnProfile
+    );
 
-    const totalProducts = productsData?.total || 0;
-    const totalServices = servicesData?.total || 0;
-    const totalStores = storesData?.total || 0;
+    const textFilter = debouncedSearch.trim().toLowerCase();
+    const mapFavorites = (items: FavoriteItem[] | undefined) =>
+        (items || [])
+            .map((item) => item?.favs)
+            .filter(Boolean)
+            .filter((item: any) => {
+                if (!textFilter) return true;
+                const title = String(item?.name || item?.title || "").toLowerCase();
+                return title.includes(textFilter);
+            });
+
+    const products = isOwnProfile ? mapFavorites(ownProductsData?.favorites) : (productsData?.products || []);
+    const services = isOwnProfile ? mapFavorites(ownServicesData?.favorites) : (servicesData?.services || []);
+    const stores = isOwnProfile ? mapFavorites(ownStoresData?.favorites) : (storesData?.stores || []);
+
+    const totalProducts = isOwnProfile ? Number(ownProductsData?.total || 0) : (productsData?.total || 0);
+    const totalServices = isOwnProfile ? Number(ownServicesData?.total || 0) : (servicesData?.total || 0);
+    const totalStores = isOwnProfile ? Number(ownStoresData?.total || 0) : (storesData?.total || 0);
 
     const totalPages =
         activeTab === "products"
@@ -542,12 +573,16 @@ function ProductsSection({ userId }: { userId: number }) {
 
     const isLoading =
         activeTab === "all"
-            ? (isProductsLoading || isServicesLoading || isStoresLoading)
+            ? (
+                isOwnProfile
+                    ? (isOwnProductsLoading || isOwnServicesLoading || isOwnStoresLoading)
+                    : (isProductsLoading || isServicesLoading || isStoresLoading)
+            )
             : activeTab === "products"
-                ? isProductsLoading
+                ? (isOwnProfile ? isOwnProductsLoading : isProductsLoading)
                 : activeTab === "services"
-                    ? isServicesLoading
-                    : isStoresLoading;
+                    ? (isOwnProfile ? isOwnServicesLoading : isServicesLoading)
+                    : (isOwnProfile ? isOwnStoresLoading : isStoresLoading);
 
     const handleTabChange = (tab: ActiveFavoritesTab) => {
         setActiveTab(tab);

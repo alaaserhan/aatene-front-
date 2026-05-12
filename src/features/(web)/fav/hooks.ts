@@ -269,19 +269,20 @@ export const useRemoveFromFavorites = () => {
     });
 };
 
-export const useGetFavorites = (page: number = 1) => {
+export const useGetFavorites = (page: number = 1, enabled = true) => {
     return useQuery({
         queryKey: [...QK.favorites.all, page],
         queryFn: () => getFavorites(page),
+        enabled,
         placeholderData: (previousData) => previousData,
     });
 };
 
-export const useGetFavoritesByType = (type: string, page: number = 1) => {
+export const useGetFavoritesByType = (type: string, page: number = 1, enabled = true) => {
     return useQuery({
         queryKey: [...QK.favorites.byType(type), page],
         queryFn: () => getFavoritesByType(type, page),
-        enabled: !!type,
+        enabled: !!type && enabled,
         placeholderData: (previousData) => previousData,
     });
 };
