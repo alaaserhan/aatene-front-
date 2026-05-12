@@ -23,6 +23,21 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(self.clients.claim());
 });
 
+/**
+ * CRITICAL: This fetch handler MUST exist to prevent navigation freezing.
+ * Without it, the browser sends all navigation/fetch requests through the SW
+ * and the FCM compat library may intercept them without properly responding,
+ * causing the "message channel closed" error and frozen navigations.
+ */
+self.addEventListener('fetch', (event) => {
+    // Do NOT intercept navigation requests — let the browser handle them directly.
+    if (event.request.mode === 'navigate') {
+        return;
+    }
+    // For all other requests, also pass through without caching.
+    // This prevents any accidental blocking of API or asset requests.
+});
+
 self.addEventListener('push', (event) => {
     console.log("[FCM SW] Push event received");
 

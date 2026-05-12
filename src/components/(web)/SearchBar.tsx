@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense, useEffect, useTransition } from "react";
+import React, { useState, Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -36,7 +36,6 @@ function SearchBarContent({
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLanguage();
-  const [isPending, startTransition] = useTransition();
 
   const urlQ = searchParams.get("q") || "";
   const urlType = (searchParams.get("type") as SearchType);
@@ -65,9 +64,7 @@ function SearchBarContent({
     }
     params.set("type", selectedType);
 
-    startTransition(() => {
-      router.push(`/${locale}/search?${params.toString()}`, { scroll: false });
-    });
+    router.push(`/${locale}/search?${params.toString()}`, { scroll: false });
     onSearch?.();
   };
 
@@ -112,7 +109,6 @@ function SearchBarContent({
               href={typeTabHref(locale, type.value)}
               scroll={false}
               prefetch={false}
-              replace
               className={cn(
                 "py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full text-center",
                 selectedType === type.value
@@ -164,7 +160,6 @@ function SearchBarContent({
                 href={typeTabHref(locale, type.value)}
                 scroll={false}
                 prefetch={false}
-                replace
                 className={cn(
                   "py-2 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full text-center",
                   selectedType === type.value
@@ -207,7 +202,6 @@ function SearchBarContent({
                 href={typeTabHref(locale, type.value)}
                 scroll={false}
                 prefetch={false}
-                replace
                 className={cn(
                   "px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap rounded-full shrink-0",
                   selectedType === type.value
@@ -253,7 +247,6 @@ function SearchBarContent({
             href={typeTabHref(locale, type.value)}
             scroll={false}
             prefetch={false}
-            replace
             className={cn(
               "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap",
               selectedType === type.value

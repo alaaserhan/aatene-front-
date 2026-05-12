@@ -143,7 +143,6 @@ export default function CreateReportPage({ type, id }: CreateReportPageProps) {
                                 ))}
                             </div>
                         )}
-
                         <button
                             onClick={handleNext}
                             disabled={!selectedTypeId}
@@ -152,6 +151,7 @@ export default function CreateReportPage({ type, id }: CreateReportPageProps) {
                         >
                             التالي
                         </button>
+
                     </div>
                 )}
 
