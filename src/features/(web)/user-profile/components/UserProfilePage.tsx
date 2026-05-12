@@ -553,7 +553,7 @@ function ProductsSection({ userId }: { userId: number }) {
                 const rec = item as { name?: string; title?: string };
                 const titleStr = String(rec.name || rec.title || "").toLowerCase();
                 return titleStr.includes(textFilter);
-            }) as unknown[];
+            }) as any[];
 
     const products = isOwnProfile ? mapFavorites(ownProductsData?.favorites) : (productsData?.products || []);
     const services = isOwnProfile ? mapFavorites(ownServicesData?.favorites) : (servicesData?.services || []);
