@@ -41,6 +41,13 @@ export interface UserFollower {
     follower: Omit<UserProfile, "is_following">;
 }
 
+export interface ProfilePageFavoriteRow {
+    id: number;
+    favs_type: string;
+    favs_id?: string;
+    favs: Record<string, unknown> | null;
+}
+
 export interface UserProfilePageData {
     stories: UserStory[];
     highlights: {
@@ -59,6 +66,9 @@ export interface UserProfilePageData {
         products_count: string;
         store_id: string | null;
     }[];
+    /** مفضلات المستخدم المعروضة علناً (من pageData — نفس منطق الباك) */
+    favorites?: ProfilePageFavoriteRow[];
+    favorite_lists?: unknown[];
 }
 
 export interface UserReview {
