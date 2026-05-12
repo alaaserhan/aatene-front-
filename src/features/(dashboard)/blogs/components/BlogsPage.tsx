@@ -17,14 +17,22 @@ import { useGetBlogs, useDeleteBlog } from "../hooks"; // خطافات المد�
 import { BlogsTable } from "./BlogsTable";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { StoreEmptyState } from "@/src/components/(dashboard)/StoreEmptyState";
+import { useLanguage } from "@/src/hooks/use-language";
 
 export function BlogsPage() {
     const router = useRouter();
+    const lang = useLanguage();
 
     // 1. تحديد هوية المستخدم (أدمن أم تاجر) بناءً على الكوكيز
     const cookieStoreId = Cookies.get("current_store_id");
     const user = useAuthStore((state) => state.user);
     const isMerchant = user?.user_type === "merchant";
+
+    useEffect(() => {
+        if (user?.user_type === "merchant") {
+            router.replace(`/${lang}/admin/home`);
+        }
+    }, [user?.user_type, lang, router]);
 
     // 2. إدارة حالة المتجر المختار
     const [selectedStoreId] = useState<string>(cookieStoreId || "");
@@ -51,10 +59,11 @@ export function BlogsPage() {
         return params;
     }, [currentPage, searchQuery, filterValue, selectedStoreId, isMerchant]);
 
-    // لا نجلب المدونات إلا إذا تم تحديد المتجر
+    // لا نجلب المدونات للتاجر (صفحة غير متاحة) ولا عند تعطيل الاستعلام
     const { data: blogsData, isLoading: isBlogsLoading } = useGetBlogs(
         blogsQueryParams,
-        !isMerchant ? null : selectedStoreId
+        !isMerchant ? null : selectedStoreId,
+        user?.user_type !== "merchant"
     );
 
     const { mutate: deleteBlogMutation } = useDeleteBlog();
@@ -102,6 +111,14 @@ export function BlogsPage() {
             );
         }
     };
+
+    if (user?.user_type === "merchant") {
+        return (
+            <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+                <p className="text-sm text-gray-500">جاري التوجيه…</p>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-gray-50 min-h-screen flex flex-col pb-8">

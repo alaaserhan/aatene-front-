@@ -13,6 +13,8 @@ import { BlogCard } from "./BlogCard";
 export default function BlogsPage() {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     const isHydrated = useAuthStore((state) => state.isHydrated);
+    const user = useAuthStore((state) => state.user);
+    const canAddPersonalArticle = user?.user_type !== "merchant";
     const [page, setPage] = useState(1);
 
     const { data, isLoading, error } = usePublicBlogs({
@@ -45,7 +47,7 @@ export default function BlogsPage() {
             <div className="flex justify-between mb-5">
                 <h1 className="text-2xl font-medium ">جميع المقالات</h1>
 
-                {isHydrated && isLoggedIn && (
+                {isHydrated && isLoggedIn && canAddPersonalArticle && (
                     <Link
                         href="/my/blogs/create"
                         className="bg-blue-3 text-white px-4 py-2 rounded-sm text-sm flex items-center gap-2 font-medium transition-colors shadow-sm"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Edit2 } from "lucide-react";
 import { toast } from "sonner";
@@ -16,6 +16,7 @@ import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { useLanguage } from "@/src/hooks/use-language";
 
 interface AddEditBlogPageProps {
   storeId: number | string;
@@ -25,15 +26,14 @@ interface AddEditBlogPageProps {
 
 export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProps) {
   const router = useRouter();
+  const lang = useLanguage();
   const isEditMode = isEdit;
-
-  const { data: blogData } = useGetBlog(blogId!, storeId);
-  const createMutation = useCreateBlog();
-  const updateMutation = useUpdateBlog();
   const user = useAuthStore((state) => state.user);
   const isMerchant = user?.user_type === "merchant";
 
-
+  const { data: blogData } = useGetBlog(blogId!, storeId, user?.user_type !== "merchant");
+  const createMutation = useCreateBlog();
+  const updateMutation = useUpdateBlog();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -56,11 +56,16 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-
-
   // Handle initialization during render to avoid cascading renders warning
   const [lastBlogId, setLastBlogId] = useState<string | number | undefined>(undefined);
-  if (isEditMode && blogData?.blog && blogData.blog.id !== lastBlogId) {
+
+  useEffect(() => {
+    if (user?.user_type === "merchant") {
+      router.replace(`/${lang}/admin/home`);
+    }
+  }, [user?.user_type, lang, router]);
+
+  if (user?.user_type !== "merchant" && isEditMode && blogData?.blog && blogData.blog.id !== lastBlogId) {
     setLastBlogId(blogData.blog.id);
     const { blog } = blogData;
     setFormData({
@@ -206,6 +211,14 @@ export function AddEditBlogPage({ storeId, blogId, isEdit }: AddEditBlogPageProp
     { label: "المدونات", href: `/admin/blogs` },
     { label: isEditMode ? "تعديل مقال" : "إضافة مقال جديد" },
   ];
+
+  if (user?.user_type === "merchant") {
+    return (
+      <div className="min-h-[40vh] flex items-center justify-center bg-gray-50">
+        <p className="text-sm text-gray-500">جاري التوجيه…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="">
