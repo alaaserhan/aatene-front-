@@ -29,6 +29,7 @@ self.addEventListener('activate', (event) => {
  * and the FCM compat library may intercept them without properly responding,
  * causing the "message channel closed" error and frozen navigations.
  */
+
 self.addEventListener('fetch', (event) => {
     // Do NOT intercept navigation requests — let the browser handle them directly.
     if (event.request.mode === 'navigate') {
