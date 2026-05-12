@@ -544,11 +544,11 @@ function ProductsSection({ userId }: { userId: number }) {
     );
 
     const textFilter = debouncedSearch.trim().toLowerCase();
-    const mapFavorites = (items: FavoriteItem[] | undefined) =>
+    const mapFavorites = (items: FavoriteItem[] | undefined): NonNullable<FavoriteItem["favs"]>[] =>
         (items || [])
             .map((item) => item?.favs)
-            .filter(Boolean)
-            .filter((item: any) => {
+            .filter((fav): fav is NonNullable<FavoriteItem["favs"]> => fav != null)
+            .filter((item) => {
                 if (!textFilter) return true;
                 const title = String(item?.name || item?.title || "").toLowerCase();
                 return title.includes(textFilter);
