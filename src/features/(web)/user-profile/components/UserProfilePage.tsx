@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { UserProfile, UserStory, UserFollower, UserProfilePageData } from "../types";
+import { useState, useEffect, useMemo } from "react";
+import { UserProfile, UserStory, UserFollower, UserProfilePageData, ProfilePageFavoriteRow } from "../types";
 import Image from "next/image";
 import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, UserMinus, User as UserIcon, MoreHorizontal, Share2, Flag } from "lucide-react";
 import { useUserProfile, useUserProfilePageData } from "../hooks";
@@ -11,20 +11,16 @@ import { cn, isVideoFile } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useFollowUserOrStore, useUnfollowUserOrStore, useCreateHighlight, useGetStories } from "@/src/features/(web)/settings/hooks";
 import { useQueryClient } from "@tanstack/react-query";
-import { useQuery } from "@tanstack/react-query";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { CreateHighlightModal } from "@/src/features/(dashboard)/stories/components/CreateHighlightModal";
 import { Story } from "@/src/features/(dashboard)/stories/api";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
+import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { useLanguage } from "@/src/hooks/use-language";
 import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
-import { searchProducts, searchServices, searchStores } from "@/src/features/(web)/searchAndFilter/api";
-import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
-import { FavoriteItem } from "@/src/features/(web)/fav/api";
-import { useGetFavoritesByType } from "@/src/features/(web)/fav/hooks";
 import Link from "next/link";
 
 function UserHeader({ user, isOwnProfile, followers, stories }: {
@@ -493,13 +489,31 @@ function ServiceCardMini({ service }: { service: any }) {
     );
 }
 
-function ProductsSection({ userId }: { userId: number }) {
+const PROFILE_FAV_PAGE_SIZE = 12;
+
+function partitionProfilePageFavorites(rows: ProfilePageFavoriteRow[] | undefined) {
+    const products: Record<string, unknown>[] = [];
+    const services: Record<string, unknown>[] = [];
+    const stores: Record<string, unknown>[] = [];
+    for (const row of rows ?? []) {
+        if (!row?.favs) continue;
+        const t = String(row.favs_type || "").toLowerCase();
+        if (t === "product") products.push(row.favs);
+        else if (t === "service") services.push(row.favs);
+        else if (t === "store") stores.push(row.favs);
+    }
+    return { products, services, stores };
+}
+
+function ProductsSection({
+    pageData,
+}: {
+    pageData: UserProfilePageData | undefined;
+}) {
     const [activeTab, setActiveTab] = useState<ActiveFavoritesTab>("all");
     const [page, setPage] = useState(1);
     const [searchInput, setSearchInput] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
-    const { user: authUser } = useAuthStore();
-    const isOwnProfile = authUser?.id === userId;
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -509,81 +523,84 @@ function ProductsSection({ userId }: { userId: number }) {
         return () => clearTimeout(timer);
     }, [searchInput]);
 
-    const { data: productsData, isLoading: isProductsLoading } = useQuery({
-        queryKey: ["publicProfileFavProducts", userId, page, debouncedSearch, activeTab],
-        queryFn: () => searchProducts({ fav_by_id: userId, page, per_page: 12, search: debouncedSearch || undefined }),
-        enabled: !!userId && !isOwnProfile,
-    });
-
-    const { data: servicesData, isLoading: isServicesLoading } = useQuery({
-        queryKey: ["publicProfileFavServices", userId, page, debouncedSearch, activeTab],
-        queryFn: () => searchServices({ fav_by_id: userId, page, per_page: 12, search: debouncedSearch || undefined }),
-        enabled: !!userId && !isOwnProfile,
-    });
-
-    const { data: storesData, isLoading: isStoresLoading } = useQuery({
-        queryKey: ["publicProfileFavStores", userId, page, debouncedSearch, activeTab],
-        queryFn: () => searchStores({ fav_by_id: userId, page, per_page: 12, search: debouncedSearch || undefined }),
-        enabled: !!userId && !isOwnProfile,
-    });
-
-    const { data: ownProductsData, isLoading: isOwnProductsLoading } = useGetFavoritesByType(
-        "product",
-        page,
-        !!userId && isOwnProfile
-    );
-    const { data: ownServicesData, isLoading: isOwnServicesLoading } = useGetFavoritesByType(
-        "service",
-        page,
-        !!userId && isOwnProfile
-    );
-    const { data: ownStoresData, isLoading: isOwnStoresLoading } = useGetFavoritesByType(
-        "store",
-        page,
-        !!userId && isOwnProfile
-    );
-
     const textFilter = debouncedSearch.trim().toLowerCase();
-    const mapFavorites = (items: FavoriteItem[] | undefined) =>
-        (items || [])
-            .map((item) => item?.favs)
-            .filter((fav): fav is NonNullable<FavoriteItem["favs"]> => fav != null)
-            .filter((item) => {
-                if (!textFilter) return true;
-                const rec = item as { name?: string; title?: string };
-                const titleStr = String(rec.name || rec.title || "").toLowerCase();
-                return titleStr.includes(textFilter);
-            }) as any[];
 
-    const products = isOwnProfile ? mapFavorites(ownProductsData?.favorites) : (productsData?.products || []);
-    const services = isOwnProfile ? mapFavorites(ownServicesData?.favorites) : (servicesData?.services || []);
-    const stores = isOwnProfile ? mapFavorites(ownStoresData?.favorites) : (storesData?.stores || []);
+    const { products: rawProducts, services: rawServices, stores: rawStores } = useMemo(
+        () => partitionProfilePageFavorites(pageData?.favorites),
+        [pageData?.favorites]
+    );
 
-    const totalProducts = isOwnProfile ? Number(ownProductsData?.total || 0) : (productsData?.total || 0);
-    const totalServices = isOwnProfile ? Number(ownServicesData?.total || 0) : (servicesData?.total || 0);
-    const totalStores = isOwnProfile ? Number(ownStoresData?.total || 0) : (storesData?.total || 0);
+    const productsFiltered = useMemo(() => {
+        if (!textFilter) return rawProducts;
+        return rawProducts.filter((item) => {
+            const label = String(item.name ?? item.title ?? "").toLowerCase();
+            return label.includes(textFilter);
+        });
+    }, [rawProducts, textFilter]);
+
+    const servicesFiltered = useMemo(() => {
+        if (!textFilter) return rawServices;
+        return rawServices.filter((item) => {
+            const label = String(item.name ?? item.title ?? "").toLowerCase();
+            return label.includes(textFilter);
+        });
+    }, [rawServices, textFilter]);
+
+    const storesFiltered = useMemo(() => {
+        if (!textFilter) return rawStores;
+        return rawStores.filter((item) => {
+            const label = String(item.name ?? item.title ?? "").toLowerCase();
+            return label.includes(textFilter);
+        });
+    }, [rawStores, textFilter]);
+
+    const totalProducts = productsFiltered.length;
+    const totalServices = servicesFiltered.length;
+    const totalStores = storesFiltered.length;
+
+    const products = useMemo(() => {
+        if (activeTab === "all") return productsFiltered.slice(0, PROFILE_FAV_PAGE_SIZE);
+        if (activeTab === "products") {
+            return productsFiltered.slice(
+                (page - 1) * PROFILE_FAV_PAGE_SIZE,
+                page * PROFILE_FAV_PAGE_SIZE
+            );
+        }
+        return [];
+    }, [activeTab, page, productsFiltered]);
+
+    const services = useMemo(() => {
+        if (activeTab === "all") return servicesFiltered.slice(0, PROFILE_FAV_PAGE_SIZE);
+        if (activeTab === "services") {
+            return servicesFiltered.slice(
+                (page - 1) * PROFILE_FAV_PAGE_SIZE,
+                page * PROFILE_FAV_PAGE_SIZE
+            );
+        }
+        return [];
+    }, [activeTab, page, servicesFiltered]);
+
+    const stores = useMemo(() => {
+        if (activeTab === "all") return storesFiltered.slice(0, PROFILE_FAV_PAGE_SIZE);
+        if (activeTab === "stores") {
+            return storesFiltered.slice(
+                (page - 1) * PROFILE_FAV_PAGE_SIZE,
+                page * PROFILE_FAV_PAGE_SIZE
+            );
+        }
+        return [];
+    }, [activeTab, page, storesFiltered]);
 
     const totalPages =
         activeTab === "products"
-            ? Math.ceil(totalProducts / 12)
+            ? Math.ceil(totalProducts / PROFILE_FAV_PAGE_SIZE)
             : activeTab === "services"
-                ? Math.ceil(totalServices / 12)
+                ? Math.ceil(totalServices / PROFILE_FAV_PAGE_SIZE)
                 : activeTab === "stores"
-                    ? Math.ceil(totalStores / 12)
+                    ? Math.ceil(totalStores / PROFILE_FAV_PAGE_SIZE)
                     : 1;
 
-    const isLoading =
-        activeTab === "all"
-            ? (
-                isOwnProfile
-                    ? (isOwnProductsLoading || isOwnServicesLoading || isOwnStoresLoading)
-                    : (isProductsLoading || isServicesLoading || isStoresLoading)
-            )
-            : activeTab === "products"
-                ? (isOwnProfile ? isOwnProductsLoading : isProductsLoading)
-                : activeTab === "services"
-                    ? (isOwnProfile ? isOwnServicesLoading : isServicesLoading)
-                    : (isOwnProfile ? isOwnStoresLoading : isStoresLoading);
+    const isAllEmpty = totalProducts + totalServices + totalStores === 0;
 
     const handleTabChange = (tab: ActiveFavoritesTab) => {
         setActiveTab(tab);
@@ -673,63 +690,56 @@ function ProductsSection({ userId }: { userId: number }) {
                         </div>
                     </div>
 
-                    {isLoading ? (
-                        <div className="flex justify-center p-10">
-                            <Loader2 className="animate-spin text-blue-3" />
-                        </div>
-                    ) : (
-                        <>
+                    <>
                             {activeTab === "all" && (
                                 <>
-                                    {products.length > 0 && (
+                                    {productsFiltered.length > 0 && (
                                         <section>
                                             <h3 className="text-lg font-semibold mb-3">المنتجات</h3>
                                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                                                 {products.map((product) => (
                                                     <ProductCard
-                                                        key={product.id}
-                                                        id={product.id}
-                                                        name={product.name}
-                                                        slug={product.slug}
-                                                        cover={product.cover || "/placeholder.png"}
-                                                        price={product.price}
-                                                        priceAfterDiscount={product.price_after_discount}
-                                                        discountPercent={product.discount_present}
-                                                        reviewRate={product.review_rate}
-                                                        reviewCount={product.review_count}
-                                                        isFavorite={product.is_favorite}
+                                                        key={String(product.id)}
+                                                        id={Number(product.id)}
+                                                        name={String(product.name ?? "")}
+                                                        slug={product.slug != null ? String(product.slug) : undefined}
+                                                        cover={String(product.cover || "/placeholder.png")}
+                                                        price={String(product.price ?? 0)}
+                                                        priceAfterDiscount={product.price_after_discount != null ? String(product.price_after_discount) : undefined}
+                                                        discountPercent={Number(product.discount_present ?? 0)}
+                                                        reviewRate={String(product.review_rate ?? 0)}
+                                                        reviewCount={String(product.review_count ?? 0)}
+                                                        isFavorite={Boolean(product.is_favorite)}
                                                     />
                                                 ))}
                                             </div>
                                         </section>
                                     )}
-                                    {services.length > 0 && (
-                                        <section className={products.length > 0 ? "mt-6" : ""}>
+                                    {servicesFiltered.length > 0 && (
+                                        <section className={productsFiltered.length > 0 ? "mt-6" : ""}>
                                             <h3 className="text-lg font-semibold mb-3">الخدمات</h3>
                                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                                                 {services.map((service) => (
-                                                    <ServiceCardMini key={service.id} service={service} />
+                                                    <ServiceCardMini key={String(service.id)} service={service} />
                                                 ))}
                                             </div>
                                         </section>
                                     )}
-                                    {stores.length > 0 && (
+                                    {storesFiltered.length > 0 && (
                                         <section
                                             className={
-                                                products.length > 0 || services.length > 0 ? "mt-6" : ""
+                                                productsFiltered.length > 0 || servicesFiltered.length > 0 ? "mt-6" : ""
                                             }
                                         >
                                             <h3 className="text-lg font-semibold mb-3">المتاجر</h3>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                                 {stores.map((store) => (
-                                                    <StoreCard key={store.id} store={store} />
+                                                    <StoreCard key={String(store.id)} store={store as never} />
                                                 ))}
                                             </div>
                                         </section>
                                     )}
-                                    {products.length === 0 &&
-                                        services.length === 0 &&
-                                        stores.length === 0 && (
+                                    {isAllEmpty && (
                                             <div className="text-center py-10 bg-gray-50 rounded-lg">
                                                 <p className="text-gray-500">لا توجد عناصر في المفضلة</p>
                                             </div>
@@ -739,7 +749,7 @@ function ProductsSection({ userId }: { userId: number }) {
 
                             {activeTab === "products" && (
                                 <section>
-                                    {products.length === 0 ? (
+                                    {totalProducts === 0 ? (
                                         <div className="text-center py-10 bg-gray-50 rounded-lg">
                                             <p className="text-gray-500">لا توجد منتجات مفضلة</p>
                                         </div>
@@ -747,17 +757,17 @@ function ProductsSection({ userId }: { userId: number }) {
                                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                                             {products.map((product) => (
                                                 <ProductCard
-                                                    key={product.id}
-                                                    id={product.id}
-                                                    name={product.name}
-                                                    slug={product.slug}
-                                                    cover={product.cover || "/placeholder.png"}
-                                                    price={product.price}
-                                                    priceAfterDiscount={product.price_after_discount}
-                                                    discountPercent={product.discount_present}
-                                                    reviewRate={product.review_rate}
-                                                    reviewCount={product.review_count}
-                                                    isFavorite={product.is_favorite}
+                                                    key={String(product.id)}
+                                                    id={Number(product.id)}
+                                                    name={String(product.name ?? "")}
+                                                    slug={product.slug != null ? String(product.slug) : undefined}
+                                                    cover={String(product.cover || "/placeholder.png")}
+                                                    price={String(product.price ?? 0)}
+                                                    priceAfterDiscount={product.price_after_discount != null ? String(product.price_after_discount) : undefined}
+                                                    discountPercent={Number(product.discount_present ?? 0)}
+                                                    reviewRate={String(product.review_rate ?? 0)}
+                                                    reviewCount={String(product.review_count ?? 0)}
+                                                    isFavorite={Boolean(product.is_favorite)}
                                                 />
                                             ))}
                                         </div>
@@ -767,14 +777,14 @@ function ProductsSection({ userId }: { userId: number }) {
 
                             {activeTab === "services" && (
                                 <section>
-                                    {services.length === 0 ? (
+                                    {totalServices === 0 ? (
                                         <div className="text-center py-10 bg-gray-50 rounded-lg">
                                             <p className="text-gray-500">لا توجد خدمات مفضلة</p>
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                                             {services.map((service) => (
-                                                <ServiceCardMini key={service.id} service={service} />
+                                                <ServiceCardMini key={String(service.id)} service={service} />
                                             ))}
                                         </div>
                                     )}
@@ -783,14 +793,14 @@ function ProductsSection({ userId }: { userId: number }) {
 
                             {activeTab === "stores" && (
                                 <section>
-                                    {stores.length === 0 ? (
+                                    {totalStores === 0 ? (
                                         <div className="text-center py-10 bg-gray-50 rounded-lg">
                                             <p className="text-gray-500">لا توجد متاجر مفضلة</p>
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             {stores.map((store) => (
-                                                <StoreCard key={store.id} store={store} />
+                                                <StoreCard key={String(store.id)} store={store as never} />
                                             ))}
                                         </div>
                                     )}
@@ -807,7 +817,6 @@ function ProductsSection({ userId }: { userId: number }) {
                                 </div>
                             )}
                         </>
-                    )}
                 </div>
             </div>
         </div>
@@ -873,7 +882,7 @@ export default function UserProfilePage() {
 
                 <ProfileTabs user={user} />
 
-                <ProductsSection userId={user.id} />
+                <ProductsSection pageData={pageData} />
             </div>
 
             <CreateHighlightModal

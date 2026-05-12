@@ -22,6 +22,7 @@ import {
     CheckFavoritePayload,
 } from "./api";
 import { toast } from "sonner";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 const QK = {
     all: ["favorite-lists"] as const,
@@ -270,8 +271,9 @@ export const useRemoveFromFavorites = () => {
 };
 
 export const useGetFavorites = (page: number = 1, enabled = true) => {
+    const viewerId = useAuthStore((s) => s.user?.id ?? null);
     return useQuery({
-        queryKey: [...QK.favorites.all, page],
+        queryKey: [...QK.favorites.all, "viewer", viewerId ?? "anon", page],
         queryFn: () => getFavorites(page),
         enabled,
         placeholderData: (previousData) => previousData,
@@ -279,8 +281,9 @@ export const useGetFavorites = (page: number = 1, enabled = true) => {
 };
 
 export const useGetFavoritesByType = (type: string, page: number = 1, enabled = true) => {
+    const viewerId = useAuthStore((s) => s.user?.id ?? null);
     return useQuery({
-        queryKey: [...QK.favorites.byType(type), page],
+        queryKey: [...QK.favorites.byType(type), "viewer", viewerId ?? "anon", page],
         queryFn: () => getFavoritesByType(type, page),
         enabled: !!type && enabled,
         placeholderData: (previousData) => previousData,
