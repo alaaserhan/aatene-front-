@@ -12,7 +12,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Story, CreateStoryPayload } from "../api";
 import { MediaItem } from "@/src/features/(dashboard)/mediaCenter/api";
-import { Loader2, Image as ImageIcon } from "lucide-react";
+import { Loader2, Image as ImageIcon, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/src/lib/utils";
 
@@ -220,8 +220,9 @@ export function AddStoryModal({
                         className="w-full h-full absolute inset-0 object-cover"
                       />
                     }
+                    {/* Desktop: hover overlay */}
                     <div
-                      className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 cursor-pointer"
+                      className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center z-10 cursor-pointer hidden md:flex"
                       onClick={() => setIsMediaModalOpen(true)}
                     >
                       <Button
@@ -232,6 +233,13 @@ export function AddStoryModal({
                         تغيير الصورة أو الفيديو
                       </Button>
                     </div>
+                    {/* Mobile: always-visible edit button */}
+                    <button
+                      onClick={() => setIsMediaModalOpen(true)}
+                      className="md:hidden absolute top-2 left-2 z-10 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white border border-white/30 active:bg-black/70"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
                   </>
                 : <div
                     className="flex flex-col items-center gap-4 cursor-pointer z-10 w-full h-full justify-center bg-gray-50/50"
