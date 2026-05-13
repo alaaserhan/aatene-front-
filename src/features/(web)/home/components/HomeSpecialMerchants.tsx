@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, ChevronsLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import { StoreInPageData } from "@/src/features/(web)/product/types";
@@ -48,9 +48,9 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Link href="/search?type=stores" className="inline-flex items-center justify-center p-2 px-4 rounded-full bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2c4461] transition-colors">
+                        <Link href="/search?type=stores" className="inline-flex items-center justify-center gap-1 p-2 px-4 rounded-full bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2c4461] transition-colors">
                             عرض الكل
-                            <ChevronsLeft className="w-4 h-4 mr-1" />
+                            <ChevronLeft className="w-4 h-4 shrink-0" aria-hidden />
                         </Link>
                     </div>
                 </div>
