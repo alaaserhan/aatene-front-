@@ -1,4 +1,3 @@
-// src/features/(dashboard)/stories/components/AddStoryModal.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -93,7 +92,6 @@ export function AddStoryModal({
         setCurrentMode(initialMode);
         setText("");
         setSelectedColor(COLORS[0]);
-        // إذا كان هناك ملف محدد مسبقاً (من StoriesList) استخدمه مباشرة
         setSelectedFile(preSelectedFile || null);
         setIsMediaModalOpen(false);
       }
@@ -115,14 +113,12 @@ export function AddStoryModal({
       currentMode === "media" ?
         selectedFile?.file instanceof File ?
           {
-            // ملف جديد من SimpleMediaPicker (مستخدمو الويب) → يُرسل كـ image_file (multipart)
             image_file: selectedFile.file,
             image: null,
             text: null,
             color: null,
           }
         : {
-            // صورة موجودة من MediaCenter (مستخدمو الداشبورد) → file_name أو URL
             image: selectedFile?.name || null,
             text: null,
             color: null,
@@ -135,7 +131,6 @@ export function AddStoryModal({
   };
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      {/* ✅ تم رفع z-index ليكون أعلى من ShowStoryModal */}
       <DialogContent
         className="sm:max-w-[500px] bg-white p-0 gap-0 overflow-hidden rounded-lg z-10000"
         dir="rtl"
@@ -178,8 +173,7 @@ export function AddStoryModal({
                 />
                 <div className="absolute bottom-6 left-0 right-0">
                   <div className="flex items-center gap-4 overflow-x-auto py-4 px-2 no-scrollbar snap-x snap-mandatory">
-                    <div className="flex-1 shrink-0" />{" "}
-                    {/* Spacer for centering when few items */}
+                    <div className="flex-1 shrink-0" />
                     {COLORS.map((color) => (
                       <button
                         key={color}
@@ -203,8 +197,7 @@ export function AddStoryModal({
                         )}
                       </button>
                     ))}
-                    <div className="flex-1 shrink-0" />{" "}
-                    {/* Spacer for centering when few items */}
+                    <div className="flex-1 shrink-0" />
                   </div>
                 </div>
               </div>
@@ -227,7 +220,6 @@ export function AddStoryModal({
                         className="w-full h-full absolute inset-0 object-cover"
                       />
                     }
-                    {/* Desktop: hover overlay */}
                     <div
                       className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center z-10 cursor-pointer hidden md:flex"
                       onClick={() => setIsMediaModalOpen(true)}
@@ -240,7 +232,6 @@ export function AddStoryModal({
                         تغيير الصورة أو الفيديو
                       </Button>
                     </div>
-                    {/* Mobile: always-visible edit button */}
                     <button
                       onClick={() => setIsMediaModalOpen(true)}
                       className="md:hidden absolute top-2 left-2 z-10 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white border border-white/30 active:bg-black/70"
@@ -296,14 +287,11 @@ export function AddStoryModal({
         open={isMediaModalOpen}
         onOpenChange={setIsMediaModalOpen}
         onSelect={(items: any) => {
-          // Handle both array (MediaCenter) and single object (SimpleMediaPicker)
           const item = Array.isArray(items) ? items[0] : items;
           if (item) {
-            // MediaItem from MediaCenter has file_name/url.
-            // Local file from SimpleMediaPicker has file_name/url/file.
             const name = item.file_name || item.name || "Upload";
             const url = item.url || item.src;
-            const file = item.file; // Present in local upload
+            const file = item.file;
 
             setSelectedFile({
               name,

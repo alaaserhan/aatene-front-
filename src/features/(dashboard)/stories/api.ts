@@ -1,27 +1,17 @@
-// src/features/(dashboard)/stories/api.ts
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import Cookies from "js-cookie";
 
-/**
- * يستخرج file_name من URL الصورة الكامل
- * مثال: "https://backend.aatene.com/storage/media/abc.jpg" → "media/abc.jpg"
- * مثال: "https://pub-xxx.r2.dev/gallery/abc.webp"         → "gallery/abc.webp"
- * الباك اند يتوقع file_name من جدول media_center وليس URL كامل
- */
 const extractFileName = (url: string | null | undefined): string | null => {
   if (!url) return null;
-  // حالة 1: URL من الـ storage الخاص بالباك اند
   const storageIndex = url.indexOf("/storage/");
   if (storageIndex !== -1) return url.substring(storageIndex + "/storage/".length);
-  // حالة 2: URL من Cloudflare R2
   try {
     const urlObj = new URL(url);
     if (urlObj.hostname.includes(".r2.dev") || urlObj.hostname.includes("r2.cloudflarestorage")) {
-      return urlObj.pathname.substring(1); // إزالة الـ / في البداية
+      return urlObj.pathname.substring(1);
     }
   } catch {}
-  // حالة 3: file_name مباشرة (بدون domain)
   return url;
 };
 
@@ -64,15 +54,15 @@ export interface SingleHighlightResponse extends BaseResponse {
 }
 
 export interface CreateStoryPayload {
-  image: string | null; // file_name من media_center أو URL كامل — الباك اند لا يقبل File upload
-  image_file?: File; // فقط لمستخدمي الويب (profile/stories) — يُتجاهل في dashboard
+  image: string | null;
+  image_file?: File;
   text: string | null;
   color: string | null;
 }
 
 export interface UpdateStoryPayload {
-  image: string | null; // file_name من media_center أو URL كامل — الباك اند لا يقبل File upload
-  image_file?: File; // فقط لمستخدمي الويب (profile/stories) — يُتجاهل في dashboard
+  image: string | null;
+  image_file?: File;
   text: string | null;
   color: string | null;
 }
@@ -126,7 +116,6 @@ export const createStory = async ({
   const endpoint = getDynamicEndpoint("/stories");
   const headers = getHeaders(storeId);
 
-  // الباك اند يقبل image كـ string فقط (file_name من media_center) وليس File
   const body: Record<string, string> = {};
   if (payload.image) {
     const fileName = extractFileName(payload.image);
@@ -151,8 +140,6 @@ export const updateStory = async ({
   const endpoint = getDynamicEndpoint(`/stories/${id}`);
   const headers = getHeaders(storeId);
 
-  // الباك اند يقبل image كـ string فقط (file_name من media_center) وليس File
-  // الـ validation: exists:media_center,file_name
   const body: Record<string, string> = {};
   if (payload.image) {
     const fileName = extractFileName(payload.image);
@@ -161,7 +148,6 @@ export const updateStory = async ({
   if (payload.text) body.text = payload.text;
   if (payload.color) body.color = payload.color;
 
-  // إذا كان الـ body فارغاً (لم يتغير شيء) → أرسل بياناً فارغاً فقط
   if (Object.keys(body).length === 0) {
     const { data } = await api.post<SingleStoryResponse>(endpoint, {}, { headers });
     return data;
