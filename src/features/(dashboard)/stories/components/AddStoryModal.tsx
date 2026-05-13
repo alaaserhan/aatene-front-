@@ -114,9 +114,9 @@ export function AddStoryModal({
     const payload: CreateStoryPayload =
       currentMode === "media" ?
         {
-          // إذا كان هناك ملف جديد → أرسل الملف، وإلا أرسل file_name من الميديا سنتر
-          image:
-            selectedFile?.file ? selectedFile.file : selectedFile?.name || null,
+          // الباك اند يقبل image كـ string فقط (file_name من media_center)
+          // selectedFile.name = file_name أو URL كامل → extractFileName في api.ts يتولى التحويل
+          image: selectedFile?.name || null,
           text: null,
           color: null,
         }
