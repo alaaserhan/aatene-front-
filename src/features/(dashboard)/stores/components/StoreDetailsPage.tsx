@@ -2,13 +2,20 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 import { Loader2, Minus, Plus } from "lucide-react";
-import { useGetSingleStore, useDeleteStore, useUpdateStoreShown } from "../hooks";
+import {
+  useGetSingleStore,
+  useDeleteStore,
+  useUpdateStoreShown,
+  useUpdateStoreStatus,
+} from "../hooks";
 import { Button } from "@/src/components/ui/button";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { cn, isVideoFile } from "@/src/lib/utils";
 import { WorkingTime, StoreManager } from "../api";
+import { RejectStoreModal } from "./RejectStoreModal";
 import { formatDateArabic } from "@/src/lib/date-helper";
 import { useAuthStore } from "@/src/stores/auth-store";
 
@@ -34,6 +41,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
   const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
   const [managersExpanded, setManagersExpanded] = useState(true);
   const [showAllDays, setShowAllDays] = useState(false);
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
 
   const { mutate: deleteStoreMutation, isPending: isDeleting } = useDeleteStore();
@@ -41,6 +49,8 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
     enabled: !isDeleteConfirmed,
   });
   const { mutate: updateShownMutation } = useUpdateStoreShown();
+  const { mutate: updateStatusMutation, isPending: isUpdatingStatus } =
+    useUpdateStoreStatus();
 
   const store = storeData?.record;
 
@@ -77,6 +87,22 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
     });
   };
 
+  const handleApproveStore = () => {
+    updateStatusMutation({ id: storeId, payload: { status: "approved" } });
+  };
+
+  const confirmReject = (reasonText: string, details: string) => {
+    const fullReason = details ? `${reasonText} - ${details}` : reasonText;
+    updateStatusMutation(
+      { id: storeId, payload: { status: "rejected", reject_reason: fullReason } },
+      {
+        onSuccess: () => {
+          setRejectModalOpen(false);
+        },
+      }
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full bg-white rounded-lg">
@@ -104,10 +130,62 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
 
   const showShownControl =
     user?.user_type === "admin" || user?.user_type === "merchant";
+  const isAdmin =
+    user?.user_type === "admin" || Cookies.get("user_type") === "admin";
+  const currentStatus = store.status;
+  const showReviewActions =
+    isAdmin &&
+    (currentStatus === "pending" ||
+      currentStatus === "rejected" ||
+      currentStatus === "approved");
 
   return (
-    <div className="max-h-[calc(100vh-193px)] h-full bg-white rounded-lg border border-gray-200 overflow-auto ">
+    <div
+      className="max-h-[calc(100vh-193px)] h-full bg-white rounded-lg border border-gray-200 overflow-auto "
+      dir="rtl"
+    >
       <div className="p-6 space-y-6">
+        {showReviewActions && (
+          <div className="w-full">
+            <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-gray-100 bg-white rounded-lg">
+              <h2 className="text-lg font-bold">اختر الإجراء المناسب للمتجر</h2>
+              <div className="flex gap-3">
+                {currentStatus !== "approved" && (
+                  <Button
+                    type="button"
+                    onClick={handleApproveStore}
+                    disabled={isUpdatingStatus}
+                    className="bg-[#34D399] hover:bg-[#2cb683] text-white px-8 h-10 font-bold rounded"
+                  >
+                    {isUpdatingStatus
+                      ? "جاري التحديث..."
+                      : currentStatus === "rejected"
+                        ? "قبول المتجر مرة أخرى"
+                        : "قبول المتجر"}
+                  </Button>
+                )}
+                {currentStatus !== "rejected" && (
+                  <Button
+                    type="button"
+                    onClick={() => setRejectModalOpen(true)}
+                    disabled={isUpdatingStatus}
+                    className="bg-[#EF4444] hover:bg-[#d93838] text-white px-8 h-10 font-bold rounded"
+                  >
+                    رفض المتجر
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <RejectStoreModal
+          isOpen={rejectModalOpen}
+          onClose={() => setRejectModalOpen(false)}
+          onConfirm={confirmReject}
+          isLoading={isUpdatingStatus}
+        />
+
         <div className={cn("grid gap-3", showShownControl ? "grid-cols-3" : "grid-cols-2")}>
           {showShownControl && (
               <div className="w-full">
