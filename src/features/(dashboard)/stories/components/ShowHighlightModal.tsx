@@ -46,7 +46,7 @@ export function ShowHighlightModal({
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [storyDuration, setStoryDuration] = useState(IMAGE_DURATION);
 
-    const highlightStories = highlight?.stories || [];
+    const highlightStories = highlight?.stories ? [...highlight.stories].reverse() : [];
     const activeStory = highlightStories?.[activeIndex];
 
     const rafRef = useRef<number>(0);
