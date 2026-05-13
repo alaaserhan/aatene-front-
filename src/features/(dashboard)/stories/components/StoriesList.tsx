@@ -126,9 +126,8 @@ export function StoriesList({
       ) : (
         /* Stories List */
         <div className="flex flex-col gap-4">
-          {stories.map((story, index) => (
-            // ✅ 4. جعل العنصر قابلاً للضغط وتمرير الاندكس
-            <div key={story.id} onClick={() => handleStoryClick(index)} className="cursor-pointer">
+          {[...stories].reverse().map((story, index) => (
+            <div key={story.id} onClick={() => handleStoryClick(stories.length - 1 - index)} className="cursor-pointer">
               <StoryItem story={story} onDelete={onDeleteStory} />
             </div>
           ))}
