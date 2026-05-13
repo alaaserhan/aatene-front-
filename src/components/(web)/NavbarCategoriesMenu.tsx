@@ -96,8 +96,8 @@ function NavbarCategoriesMenuInner({ variant }: NavbarCategoriesMenuProps) {
     const validCategoryId =
         categoryId != null && !Number.isNaN(categoryId) ? categoryId : undefined;
 
-    const { data: productsPageData } = useProductsSearchPage(true);
-    const { data: servicesPageData } = useServicesSearchPage(true);
+    const { data: productsPageData } = useProductsSearchPage(open);
+    const { data: servicesPageData } = useServicesSearchPage(open);
 
     const productCategories: Category[] = productsPageData?.categories ?? [];
     const serviceCategories: Category[] = servicesPageData?.categories ?? [];
