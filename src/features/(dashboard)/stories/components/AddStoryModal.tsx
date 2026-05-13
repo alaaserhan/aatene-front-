@@ -117,6 +117,7 @@ export function AddStoryModal({
           // إذا كان هناك ملف جديد → أرسل الملف، وإلا أرسل file_name من الميديا سنتر
           image:
             selectedFile?.file ? selectedFile.file : selectedFile?.name || null,
+          image_file: selectedFile?.file || undefined,
           text: null,
           color: null,
         }

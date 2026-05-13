@@ -17,7 +17,7 @@ interface StepperProgressProps {
 
 export function StepperProgress({ currentStep, steps }: StepperProgressProps) {
   return (
-    <div className="w-full py-8" dir="rtl">
+    <div className="hidden md:block w-full py-8" dir="rtl">
       <div className="container mx-auto px-4">
         <div className="flex  items-start  justify-between max-w-6xl mx-auto">
           {steps.map((step, index) => {

@@ -136,7 +136,7 @@ export interface GetStoriesResponse extends BaseResponse {
 }
 
 export interface CreateStoryPayload {
-    image?: string | null;
+    image?: string | null | File; // Added File support to match modal
     text?: string | null;
     color?: string | null;
     image_file?: File;
@@ -365,12 +365,14 @@ const extractFileName = (url: string | null | undefined): string | null => {
 };
 
 export const createStory = async (payload: CreateStoryPayload): Promise<BaseResponse & { record: Story }> => {
-    if (payload.image_file) {
+    const fileToUpload = payload.image_file || (payload.image instanceof File ? payload.image : null);
+
+    if (fileToUpload) {
         const formData = new FormData();
-        formData.append("image_file", payload.image_file);
+        formData.append("image_file", fileToUpload);
 
         const { data } = await api.post<BaseResponse & { record: Story }>("/profile/stories", formData, {
-            headers: { "Content-Type": undefined }, // اتركه لـ browser يُعيّنه تلقائياً مع boundary
+            headers: { "Content-Type": undefined },
         });
         return data;
     }
@@ -384,21 +386,24 @@ export const createStory = async (payload: CreateStoryPayload): Promise<BaseResp
 };
 
 export const updateStory = async (id: number | string, payload: CreateStoryPayload): Promise<BaseResponse & { record: Story }> => {
-    if (payload.image_file) {
+    const fileToUpload = payload.image_file || (payload.image instanceof File ? payload.image : null);
+
+    if (fileToUpload) {
         // PHP لا يقرأ $_FILES مع PUT → نستخدم POST + _method=PUT (Laravel method spoofing)
         const formData = new FormData();
         formData.append("_method", "PUT");
-        formData.append("image_file", payload.image_file);
+        formData.append("image_file", fileToUpload);
 
         const { data } = await api.post<BaseResponse & { record: Story }>(`/profile/stories/${id}`, formData, {
-            headers: { "Content-Type": undefined }, // browser يُعيّن boundary تلقائياً
+            headers: { "Content-Type": undefined },
         });
         return data;
     }
 
-    if (payload.image) {
+    const imageUrl = payload.image;
+    if (imageUrl && typeof imageUrl === "string") {
         // الباك اند يتوقع file_name من جدول media_center وليس URL كامل
-        const fileName = extractFileName(payload.image);
+        const fileName = extractFileName(imageUrl);
         const { data } = await api.put<BaseResponse & { record: Story }>(`/profile/stories/${id}`, {
             image: fileName,
         });
