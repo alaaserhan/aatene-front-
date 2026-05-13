@@ -47,7 +47,6 @@ function isComingSoonRoute(pathname: string) {
   return segments.includes(COMING_SOON_PATH);
 }
 
-
 function isPreviewApiRoute(pathname: string) {
   return pathname.startsWith("/api/preview");
 }

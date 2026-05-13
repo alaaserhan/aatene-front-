@@ -354,23 +354,42 @@ export const getStory = async (id: number | string): Promise<BaseResponse & { re
 /**
  * يستخرج file_name من URL الصورة الكامل
  * مثال: "https://backend.aatene.com/storage/media/abc.jpg" → "media/abc.jpg"
- * الباك اند يتوقع file_name من جدول media_center وليس URL كامل
+ * مثال: "https://pub-xxx.r2.dev/images/abc.webp"           → "images/abc.webp"
+ * الباك اند يتوقع file_name من جدول media_center (exists:media_center,file_name)
  */
 const extractFileName = (url: string | null | undefined): string | null => {
     if (!url) return null;
+    // حالة 1: URL من الـ storage الخاص بالباك اند
     const storageIndex = url.indexOf("/storage/");
     if (storageIndex !== -1) return url.substring(storageIndex + "/storage/".length);
-    // إذا كانت قيمة file_name مباشرة (لا تحتوي على /storage/)
+    // حالة 2: URL من Cloudflare R2
+    try {
+        const urlObj = new URL(url);
+        if (urlObj.hostname.includes(".r2.dev") || urlObj.hostname.includes("r2.cloudflarestorage")) {
+            return urlObj.pathname.substring(1); // إزالة الـ / في البداية
+        }
+    } catch {}
+    // حالة 3: file_name مباشرة (بدون domain)
     return url;
 };
 
 export const createStory = async (payload: CreateStoryPayload): Promise<BaseResponse & { record: Story }> => {
     if (payload.image_file) {
+        // ملف جديد → multipart/form-data
         const formData = new FormData();
         formData.append("image_file", payload.image_file);
 
         const { data } = await api.post<BaseResponse & { record: Story }>("/profile/stories", formData, {
-            headers: { "Content-Type": undefined }, // اتركه لـ browser يُعيّنه تلقائياً مع boundary
+            headers: { "Content-Type": undefined },
+        });
+        return data;
+    }
+
+    if (payload.image) {
+        // صورة من media_center → نُرسل file_name وليس URL كامل
+        const fileName = extractFileName(payload.image);
+        const { data } = await api.post<BaseResponse & { record: Story }>("/profile/stories", {
+            image: fileName,
         });
         return data;
     }
