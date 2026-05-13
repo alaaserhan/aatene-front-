@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense, useEffect, useCallback } from "react";
+import React, { useState, Suspense, useEffect, useCallback, useTransition } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
@@ -42,6 +42,8 @@ function SearchBarContent({
   const [searchQuery, setSearchQuery] = useState(urlQ);
   const [selectedType, setSelectedType] = useState<SearchType>(initialType);
 
+  const [isPending, startTransition] = useTransition();
+
   const navigateToType = useCallback((type: SearchType) => {
     const isSearchPage = pathname?.includes("/search");
     if (type === selectedType && isSearchPage) return;
@@ -53,8 +55,14 @@ function SearchBarContent({
     params.set("type", type);
     params.delete("page");
     
-    router.push(`/${locale}/search?${params.toString()}`, { scroll: false });
-    onSearch?.();
+    // We use setTimeout to decouple the navigation from the click event.
+    // This prevents tracking scripts (like Meta Pixel) that intercept the click from blocking the router.
+    setTimeout(() => {
+      startTransition(() => {
+        router.push(`/${locale}/search?${params.toString()}`, { scroll: false });
+        onSearch?.();
+      });
+    }, 0);
   }, [selectedType, searchParams, locale, router, onSearch, pathname]);
 
   /** مزامنة مع الـ URL عند التنقل (لا تستخدم setState أثناء الرندر — كان يكسر تحديث الواجهة مع useSearchParams) */
@@ -112,10 +120,11 @@ function SearchBarContent({
         </div>
 
         {/* Type Tabs - Full Width Grid */}
-        <div className="grid grid-cols-4 gap-2 mt-4 w-full">
+        <div className={cn("grid grid-cols-4 gap-2 mt-4 w-full", isPending && "opacity-50 pointer-events-none")}>
           {SEARCH_TYPES.map((type) => (
             <button
               key={type.value}
+              disabled={isPending}
               onClick={() => navigateToType(type.value)}
               className={cn(
                 "py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full text-center",
@@ -244,10 +253,11 @@ function SearchBarContent({
       />
       <div className="h-6 w-px bg-gray-200" />
 
-      <div className="flex items-center gap-1 px-2">
+      <div className={cn("flex items-center gap-1 px-2", isPending && "opacity-50 pointer-events-none")}>
         {SEARCH_TYPES.map((type) => (
           <button
             key={type.value}
+            disabled={isPending}
             onClick={() => navigateToType(type.value)}
             className={cn(
               "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap bg-transparent border-0 shadow-none",

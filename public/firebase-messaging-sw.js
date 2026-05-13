@@ -30,11 +30,10 @@ self.addEventListener('activate', (event) => {
  * causing the "message channel closed" error and frozen navigations.
  */
 
-self.addEventListener('fetch', (event) => {
-    // PASS THROUGH: Do not intercept any requests.
-    // This allows Next.js internal requests (RSC, etc.) to flow freely.
-    return;
-});
+/**
+ * FETCH Interception removed.
+ * We do not intercept fetch requests to prevent any delays in Next.js RSC payloads.
+ */
 
 self.addEventListener('push', (event) => {
     console.log("[FCM SW] Push event received");
