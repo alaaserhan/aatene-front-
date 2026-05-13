@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense, useEffect, useTransition, useCallback } from "react";
+import React, { useState, Suspense, useTransition, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
@@ -47,13 +47,23 @@ function SearchBarContent({
   const [selectedType, setSelectedType] = useState<SearchType>(initialType);
   const [isSwitchingType, startSwitchingType] = useTransition();
 
-  /** مزامنة مع الـ URL عند التنقل (لا تستخدم setState أثناء الرندر — كان يكسر تحديث الواجهة مع useSearchParams) */
-  useEffect(() => {
+  const [prevUrlQ, setPrevUrlQ] = useState(urlQ);
+  const [prevUrlType, setPrevUrlType] = useState(urlType);
+
+  /** 
+   * مزامنة مع الـ URL عند التنقل.
+   * نستخدم هذا النمط (Adjusting state while rendering) بدلاً من useEffect
+   * لتجنب "cascading renders" وتحسين الأداء في React 19.
+   */
+  if (urlQ !== prevUrlQ || urlType !== prevUrlType) {
+    setPrevUrlQ(urlQ);
+    setPrevUrlType(urlType);
     setSearchQuery(urlQ);
     if (urlType && SEARCH_TYPES.some((t) => t.value === urlType)) {
       setSelectedType(urlType);
     }
-  }, [urlQ, urlType]);
+  }
+
 
   const handleSearch = () => {
     const params = new URLSearchParams();
