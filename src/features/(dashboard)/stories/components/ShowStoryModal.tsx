@@ -100,6 +100,7 @@ export function ShowStoryModal({
         const updateDimensions = () => {
             const vh = window.innerHeight;
             const vw = window.innerWidth;
+            const isMobile = vw < 768;
             const targetHeight = Math.min(vh * 0.85, 850);
             let activeW = targetHeight * (9 / 16);
             if (activeW > vw * 0.85) {
@@ -215,7 +216,7 @@ export function ShowStoryModal({
 
                     <button
                         onClick={onClose}
-                        className="absolute cursor-pointer top-6 left-6 text-white/70 hover:text-white z-50 p-2 transition-colors bg-white/10 rounded-full"
+                        className="absolute cursor-pointer top-6 left-6 text-white/70 hover:text-white z-50 p-2 transition-colors bg-white/10 rounded-full hidden md:flex"
                     >
                         <X className="w-6 h-6" />
                     </button>
@@ -240,22 +241,22 @@ export function ShowStoryModal({
                     <div
                         className="relative w-full h-full flex items-center overflow-hidden"
                         onClick={onClose}
-                        dir="ltr"
+                        dir="rtl"
                     >
                         <div
-                            className="flex items-center gap-8 absolute left-1/2 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
+                            className="flex items-center gap-8 absolute right-1/2 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
                             style={{
-                                transform: `translateX(calc(-${(ACTIVE_WIDTH / 2) + ((stories.length - 1 - activeIndex) * (INACTIVE_WIDTH + GAP))}px))`,
+                                transform: `translateX(calc(${(ACTIVE_WIDTH / 2) + (activeIndex * (INACTIVE_WIDTH + GAP))}px))`,
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            {[...stories].reverse().map((story, index) => {
-                                const isActive = stories.length - 1 - index === activeIndex;
+                            {stories.map((story, index) => {
+                                const isActive = index === activeIndex;
 
                                 return (
                                     <div
                                         key={story.id}
-                                        onClick={() => !isActive && goToIndex(stories.length - 1 - index)}
+                                        onClick={() => !isActive && goToIndex(index)}
                                         className={cn(
                                             "relative bg-white aspect-[9/16] rounded-[24px] overflow-hidden transition-all duration-500 ease-in-out shrink-0 border border-gray-800",
                                             isActive
@@ -324,6 +325,7 @@ export function ShowStoryModal({
                                                             </div>
                                                         </div>
 
+                                                        <div className="flex items-center gap-1">
                                                         {showActions && (
                                                             <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                                                                 <PopoverTrigger asChild>
@@ -331,7 +333,7 @@ export function ShowStoryModal({
                                                                         <MoreHorizontal className="w-6 h-6 text-white" />
                                                                     </button>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="w-56 p-1 bg-white/95 backdrop-blur-md rounded-xl shadow-xl ml-4 border-gray-100" align="start" side="bottom">
+                                                                <PopoverContent className="w-56 p-1 bg-white/95 backdrop-blur-md rounded-xl shadow-xl ml-4 border-gray-100 z-[10000]" align="start" side="bottom">
                                                                     <div className="flex flex-col">
 
                                                                         <button
@@ -355,6 +357,15 @@ export function ShowStoryModal({
                                                                 </PopoverContent>
                                                             </Popover>
                                                         )}
+
+                                                        {/* زر الإغلاق داخل القصة - موبايل فقط */}
+                                                        <button
+                                                            onClick={onClose}
+                                                            className="md:hidden p-2 bg-black/20 cursor-pointer hover:bg-black/40 rounded-full transition-colors backdrop-blur-md"
+                                                        >
+                                                            <X className="w-5 h-5 text-white" />
+                                                        </button>
+                                                        </div>
                                                     </div>
                                                 </div>
 
