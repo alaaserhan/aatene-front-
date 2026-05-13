@@ -44,12 +44,17 @@ function normalizeSearchType(raw: string | null): SearchType {
 
 export default function SearchResultsPage() {
     const searchParams = useSearchParams();
-    /** أي تغيير في query (مثل type) يعيد تركيب المحتوى حتى تتزامن النتائج مع الـ URL */
-    const searchParamsKey = searchParams.toString();
+    /**
+     * KEY FIX: Force SearchContent to fully remount when the search type changes.
+     * Without this key, React keeps the same SearchContent instance when navigating
+     * between types (products → users etc.), leaving it with stale filter state
+     * from the previous type — which caused the navigation freeze bug.
+     */
+    const type = normalizeSearchType(searchParams.get("type"));
 
     return (
         <div className="container mx-auto my-6 sm:my-10 px-4 md:px-6" dir="rtl">
-            <SearchContent />
+            <SearchContent key={type} />
             <CompareFloatingBar />
         </div>
     );
