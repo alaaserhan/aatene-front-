@@ -43,9 +43,13 @@ function SearchBarContent({
   const [selectedType, setSelectedType] = useState<SearchType>(initialType);
 
   const navigateToType = useCallback((type: SearchType) => {
-    if (type === selectedType && pathname?.includes("/search")) return;
+    const isSearchPage = pathname?.includes("/search");
+    if (type === selectedType && isSearchPage) return;
     
-    const params = new URLSearchParams(searchParams.toString());
+    const params = isSearchPage 
+      ? new URLSearchParams(searchParams.toString()) 
+      : new URLSearchParams();
+      
     params.set("type", type);
     params.delete("page");
     

@@ -31,12 +31,9 @@ self.addEventListener('activate', (event) => {
  */
 
 self.addEventListener('fetch', (event) => {
-    // Do NOT intercept navigation requests — let the browser handle them directly.
-    if (event.request.mode === 'navigate') {
-        return;
-    }
-    // For all other requests, also pass through without caching.
-    // This prevents any accidental blocking of API or asset requests.
+    // PASS THROUGH: Do not intercept any requests.
+    // This allows Next.js internal requests (RSC, etc.) to flow freely.
+    return;
 });
 
 self.addEventListener('push', (event) => {
