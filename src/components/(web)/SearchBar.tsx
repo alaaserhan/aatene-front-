@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, Suspense, useEffect, useCallback, useTransition } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import React, { useState, Suspense, useEffect, useTransition, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
 import { Search } from "lucide-react";
@@ -21,6 +21,11 @@ const SEARCH_TYPES: { value: SearchType; label: string }[] = [
   { value: "users", label: "مستخدمين" },
 ];
 
+function typeTabHref(locale: string, type: SearchType): string {
+  const p = new URLSearchParams();
+  p.set("type", type);
+  return `/${locale}/search?${p.toString()}`;
+}
 
 function SearchBarContent({
   defaultType = "products",
@@ -29,7 +34,6 @@ function SearchBarContent({
 }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const pathname = usePathname();
   const locale = useLanguage();
 
   const urlQ = searchParams.get("q") || "";
@@ -41,29 +45,7 @@ function SearchBarContent({
 
   const [searchQuery, setSearchQuery] = useState(urlQ);
   const [selectedType, setSelectedType] = useState<SearchType>(initialType);
-
-  const [isPending, startTransition] = useTransition();
-
-  const navigateToType = useCallback((type: SearchType) => {
-    const isSearchPage = pathname?.includes("/search");
-    if (type === selectedType && isSearchPage) return;
-    
-    const params = isSearchPage 
-      ? new URLSearchParams(searchParams.toString()) 
-      : new URLSearchParams();
-      
-    params.set("type", type);
-    params.delete("page");
-    
-    // We use setTimeout to decouple the navigation from the click event.
-    // This prevents tracking scripts (like Meta Pixel) that intercept the click from blocking the router.
-    setTimeout(() => {
-      startTransition(() => {
-        router.push(`/${locale}/search?${params.toString()}`, { scroll: false });
-        onSearch?.();
-      });
-    }, 0);
-  }, [selectedType, searchParams, locale, router, onSearch, pathname]);
+  const [isSwitchingType, startSwitchingType] = useTransition();
 
   /** مزامنة مع الـ URL عند التنقل (لا تستخدم setState أثناء الرندر — كان يكسر تحديث الواجهة مع useSearchParams) */
   useEffect(() => {
@@ -85,6 +67,14 @@ function SearchBarContent({
     router.push(`/${locale}/search?${params.toString()}`, { scroll: false });
     onSearch?.();
   };
+
+  const handleTypeChange = useCallback((type: SearchType) => {
+    if (type === selectedType) return;
+    setSelectedType(type);
+    startSwitchingType(() => {
+      router.replace(typeTabHref(locale, type), { scroll: false });
+    });
+  }, [locale, router, selectedType]);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -120,17 +110,19 @@ function SearchBarContent({
         </div>
 
         {/* Type Tabs - Full Width Grid */}
-        <div className={cn("grid grid-cols-4 gap-2 mt-4 w-full", isPending && "opacity-50 pointer-events-none")}>
+        <div className="grid grid-cols-4 gap-2 mt-4 w-full">
           {SEARCH_TYPES.map((type) => (
             <button
               key={type.value}
-              disabled={isPending}
-              onClick={() => navigateToType(type.value)}
+              type="button"
+              disabled={isSwitchingType}
+              onClick={() => handleTypeChange(type.value)}
               className={cn(
                 "py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full text-center",
                 selectedType === type.value
                   ? "bg-[#3D5E83] text-white border-[#3D5E83]"
-                  : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
+                  : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50",
+                isSwitchingType && "opacity-70 cursor-wait"
               )}
             >
               {type.label}
@@ -174,12 +166,15 @@ function SearchBarContent({
             {SEARCH_TYPES.map((type) => (
               <button
                 key={type.value}
-                onClick={() => navigateToType(type.value)}
+                type="button"
+                disabled={isSwitchingType}
+                onClick={() => handleTypeChange(type.value)}
                 className={cn(
                   "py-2 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full text-center",
                   selectedType === type.value
                     ? "bg-[#3D5E83] text-white border-[#3D5E83]"
-                    : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
+                    : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50",
+                  isSwitchingType && "opacity-70 cursor-wait"
                 )}
               >
                 {type.label}
@@ -214,12 +209,15 @@ function SearchBarContent({
             {SEARCH_TYPES.map((type) => (
               <button
                 key={type.value}
-                onClick={() => navigateToType(type.value)}
+                type="button"
+                disabled={isSwitchingType}
+                onClick={() => handleTypeChange(type.value)}
                 className={cn(
                   "px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap rounded-full shrink-0",
                   selectedType === type.value
                     ? "bg-gray-100 text-gray-900 "
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50",
+                  isSwitchingType && "opacity-70 cursor-wait"
                 )}
               >
                 {type.label}
@@ -253,17 +251,19 @@ function SearchBarContent({
       />
       <div className="h-6 w-px bg-gray-200" />
 
-      <div className={cn("flex items-center gap-1 px-2", isPending && "opacity-50 pointer-events-none")}>
+      <div className="flex items-center gap-1 px-2">
         {SEARCH_TYPES.map((type) => (
           <button
             key={type.value}
-            disabled={isPending}
-            onClick={() => navigateToType(type.value)}
+            type="button"
+            disabled={isSwitchingType}
+            onClick={() => handleTypeChange(type.value)}
             className={cn(
-              "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap bg-transparent border-0 shadow-none",
+              "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap",
               selectedType === type.value
                 ? "text-blue-3 font-medium"
-                : "text-gray-400 hover:text-gray-700"
+                : "text-gray-400 hover:text-gray-700",
+              isSwitchingType && "opacity-70 cursor-wait"
             )}
           >
             {type.label}
