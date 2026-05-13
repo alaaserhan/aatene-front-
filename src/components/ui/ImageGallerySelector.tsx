@@ -31,7 +31,7 @@ interface ImageGallerySelectorProps {
     mainImageAllowedMediaTypes?: ("image" | "gallery" | "avatar" | "video")[];
     className?: string;
     required?: boolean;
-    /** نص منطقة الرفع في مركز الوسائط (يُفضَّل توضيح صور/فيديو) */
+    /** نص منطقة الرفع في الميديا (يُفضَّل توضيح صور/فيديو) */
     uploadPrimaryText?: string;
     uploadSecondaryText?: string;
 }

@@ -1,4 +1,3 @@
-// src/features/(dashboard)/stories/components/AddStoryModal.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -93,7 +92,6 @@ export function AddStoryModal({
         setCurrentMode(initialMode);
         setText("");
         setSelectedColor(COLORS[0]);
-        // إذا كان هناك ملف محدد مسبقاً (من StoriesList) استخدمه مباشرة
         setSelectedFile(preSelectedFile || null);
         setIsMediaModalOpen(false);
       }
@@ -113,15 +111,19 @@ export function AddStoryModal({
 
     const payload: CreateStoryPayload =
       currentMode === "media" ?
-        {
-          // إذا كان هناك ملف جديد → أرسل الملف، وإلا أرسل file_name من الميديا سنتر
-          image:
-            selectedFile?.file ? selectedFile.file : selectedFile?.name || null,
-          image_file: selectedFile?.file || undefined,
-          text: null,
-          color: null,
-        }
-      : { text, color: selectedColor, image: null };
+        selectedFile?.file instanceof File ?
+          {
+            image_file: selectedFile.file,
+            image: null,
+            text: null,
+            color: null,
+          }
+          : {
+            image: selectedFile?.name || null,
+            text: null,
+            color: null,
+          }
+        : { text, color: selectedColor, image: null };
 
     onSave(payload, () => {
       onClose();
@@ -129,7 +131,6 @@ export function AddStoryModal({
   };
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      {/* ✅ تم رفع z-index ليكون أعلى من ShowStoryModal */}
       <DialogContent
         className="sm:max-w-[500px] bg-white p-0 gap-0 overflow-hidden rounded-lg z-10000"
         dir="rtl"
@@ -138,9 +139,9 @@ export function AddStoryModal({
           <DialogTitle className="text-lg font-bold w-full text-right">
             {storyToEdit ?
               "تعديل القصة"
-            : currentMode === "text" ?
-              "انشاء قصة نصية"
-            : "انشاء قصة مصورة"}
+              : currentMode === "text" ?
+                "انشاء قصة نصية"
+                : "انشاء قصة مصورة"}
           </DialogTitle>
         </DialogHeader>
 
@@ -172,8 +173,7 @@ export function AddStoryModal({
                 />
                 <div className="absolute bottom-6 left-0 right-0">
                   <div className="flex items-center gap-4 overflow-x-auto py-4 px-2 no-scrollbar snap-x snap-mandatory">
-                    <div className="flex-1 shrink-0" />{" "}
-                    {/* Spacer for centering when few items */}
+                    <div className="flex-1 shrink-0" />
                     {COLORS.map((color) => (
                       <button
                         key={color}
@@ -182,14 +182,14 @@ export function AddStoryModal({
                           "w-7 h-7 rounded-full border-2 transition-all duration-300 shrink-0 cursor-pointer relative snap-center",
                           selectedColor === color ?
                             "scale-125 ring-4 ring-white/30 border-white z-10"
-                          : "border-white/20 hover:scale-110 hover:border-white/50",
+                            : "border-white/20 hover:scale-110 hover:border-white/50",
                         )}
                         style={{
                           backgroundColor: color,
                           boxShadow:
                             selectedColor === color ?
                               "0 8px 16px rgba(0,0,0,0.1)"
-                            : "none",
+                              : "none",
                         }}
                       >
                         {selectedColor === color && (
@@ -197,12 +197,11 @@ export function AddStoryModal({
                         )}
                       </button>
                     ))}
-                    <div className="flex-1 shrink-0" />{" "}
-                    {/* Spacer for centering when few items */}
+                    <div className="flex-1 shrink-0" />
                   </div>
                 </div>
               </div>
-            : <div className="w-full h-full min-h-[400px] relative group flex flex-col items-center justify-center">
+              : <div className="w-full h-full min-h-[400px] relative group flex flex-col items-center justify-center">
                 {selectedFile ?
                   <>
                     {isVideoFile(selectedFile.name, selectedFile.file) ?
@@ -215,13 +214,12 @@ export function AddStoryModal({
                         autoPlay
                         loop
                       />
-                    : <img
+                      : <img
                         src={selectedFile.url}
                         alt="Story Preview"
                         className="w-full h-full absolute inset-0 object-cover"
                       />
                     }
-                    {/* Desktop: hover overlay */}
                     <div
                       className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center z-10 cursor-pointer hidden md:flex"
                       onClick={() => setIsMediaModalOpen(true)}
@@ -234,7 +232,6 @@ export function AddStoryModal({
                         تغيير الصورة أو الفيديو
                       </Button>
                     </div>
-                    {/* Mobile: always-visible edit button */}
                     <button
                       onClick={() => setIsMediaModalOpen(true)}
                       className="md:hidden absolute top-2 left-2 z-10 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white border border-white/30 active:bg-black/70"
@@ -242,7 +239,7 @@ export function AddStoryModal({
                       <Pencil className="w-4 h-4" />
                     </button>
                   </>
-                : <div
+                  : <div
                     className="flex flex-col items-center gap-4 cursor-pointer z-10 w-full h-full justify-center bg-gray-50/50"
                     onClick={() => setIsMediaModalOpen(true)}
                   >
@@ -272,9 +269,9 @@ export function AddStoryModal({
           >
             {isPending ?
               <Loader2 className="w-4 h-4 animate-spin" />
-            : storyToEdit ?
-              "حفظ التعديلات"
-            : "نشر"}
+              : storyToEdit ?
+                "حفظ التعديلات"
+                : "نشر"}
           </Button>
           <Button
             variant="secondary"
@@ -290,14 +287,11 @@ export function AddStoryModal({
         open={isMediaModalOpen}
         onOpenChange={setIsMediaModalOpen}
         onSelect={(items: any) => {
-          // Handle both array (MediaCenter) and single object (SimpleMediaPicker)
           const item = Array.isArray(items) ? items[0] : items;
           if (item) {
-            // MediaItem from MediaCenter has file_name/url.
-            // Local file from SimpleMediaPicker has file_name/url/file.
             const name = item.file_name || item.name || "Upload";
             const url = item.url || item.src;
-            const file = item.file; // Present in local upload
+            const file = item.file;
 
             setSelectedFile({
               name,

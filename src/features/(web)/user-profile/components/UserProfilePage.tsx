@@ -36,7 +36,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
     const [showMoreMenu, setShowMoreMenu] = useState(false);
     const { user: authUser } = useAuthStore();
 
-    const mappedAvatarStories: Story[] = stories.map(s => ({
+    const mappedAvatarStories: Story[] = [...stories].reverse().map(s => ({
         id: s.id,
         image: s.image,
         text: s.text,
@@ -318,7 +318,7 @@ function HighlightsSection({ highlights, isOwnProfile, onAddHighlight }: {
     };
 
     const handleHighlightClick = (highlight: UserProfilePageData["highlights"][0]) => {
-        const mapped: Story[] = highlight.stories.map(s => ({
+        const mapped: Story[] = [...highlight.stories].reverse().map(s => ({
             id: s.id,
             image: s.image,
             text: s.text,

@@ -200,7 +200,7 @@ export function StoreBannerSelector({
                         <span className="text-xs text-gray-3 font-medium">
                             أضف أو اسحب بنر
                         </span>
-                        <span className="text-xs text-gray-3">صور أو فيديو (من مركز الوسائط)</span>
+                        <span className="text-xs text-gray-3">صور أو فيديو (من الميديا)</span>
                     </div>
                 )}
             </div>
