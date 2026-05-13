@@ -65,12 +65,14 @@ export interface SingleHighlightResponse extends BaseResponse {
 
 export interface CreateStoryPayload {
   image: string | null; // file_name من media_center أو URL كامل — الباك اند لا يقبل File upload
+  image_file?: File; // فقط لمستخدمي الويب (profile/stories) — يُتجاهل في dashboard
   text: string | null;
   color: string | null;
 }
 
 export interface UpdateStoryPayload {
   image: string | null; // file_name من media_center أو URL كامل — الباك اند لا يقبل File upload
+  image_file?: File; // فقط لمستخدمي الويب (profile/stories) — يُتجاهل في dashboard
   text: string | null;
   color: string | null;
 }
