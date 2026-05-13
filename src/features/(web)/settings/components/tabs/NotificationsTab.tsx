@@ -6,79 +6,39 @@ import { useGetDeviceNotificationSettings, useUpdateDevicePreferences } from "..
 import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { cn } from "@/src/lib/utils";
 
-interface NotificationSettingItem {
-    key: keyof NotificationState;
-    title: string;
-    description: string;
-}
-
-interface NotificationState {
-    notify_activity: boolean;
-    notify_platform_trends: boolean;
-    notify_messages: boolean;
-    notify_following: boolean;
-    notify_recommendations: boolean;
-}
-
-const settingsItems: NotificationSettingItem[] = [
-    {
-        key: "notify_activity",
-        title: "نشاطي",
-        description: "الإشعارات والتنبيهات استنادًا إلى نشاطك في المنصة.",
-    },
-    {
-        key: "notify_platform_trends",
-        title: "اتجاهات وتحديثات المنصة",
-        description: "أحدث الاكتشافات وأبرز ميزات التطبيق الجديدة.",
-    },
-    {
-        key: "notify_messages",
-        title: "الرسائل",
-        description: "رسائل من البائعين أو من أعضاء آخرين في المنصة.",
-    },
-    {
-        key: "notify_following",
-        title: "المتاجر أو الأشخاص الذين تتابعهم",
-        description: "نشاط المتاجر أو الأشخاص الذين قمت بمتابعتهم",
-    },
-    {
-        key: "notify_recommendations",
-        title: "التوصيات المخصصة",
-        description: "اقتراح متاجر أو منتجات أو فعاليات استنادًا إلى تاريخك ونشاطك.",
-    },
-];
-
 export default function NotificationsTab() {
     const { data: settingsData, isLoading } = useGetDeviceNotificationSettings();
     const { mutate: updateSettings, isPending: isUpdating } = useUpdateDevicePreferences();
 
-    const [state, setState] = useState<NotificationState>({
-        notify_activity: false,
-        notify_platform_trends: false,
-        notify_messages: false,
-        notify_following: false,
-        notify_recommendations: false,
-    });
+    const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
 
     // Load initial data
     useEffect(() => {
         if (settingsData?.device) {
-            setState({
-                notify_activity: settingsData.device.notify_activity,
-                notify_platform_trends: settingsData.device.notify_platform_trends,
-                notify_messages: settingsData.device.notify_messages,
-                notify_following: settingsData.device.notify_following,
-                notify_recommendations: settingsData.device.notify_recommendations,
-            });
+            // Consider notifications enabled if any specific setting is true
+            const anyEnabled =
+                settingsData.device.notify_activity ||
+                settingsData.device.notify_platform_trends ||
+                settingsData.device.notify_messages ||
+                settingsData.device.notify_following ||
+                settingsData.device.notify_recommendations;
+
+            setIsNotificationsEnabled(anyEnabled);
         }
     }, [settingsData]);
 
-    const handleToggle = (key: keyof NotificationState, enabled: boolean) => {
-        setState((prev) => ({ ...prev, [key]: enabled }));
+    const handleToggle = (enabled: boolean) => {
+        setIsNotificationsEnabled(enabled);
     };
 
     const handleSave = () => {
-        updateSettings(state);
+        updateSettings({
+            notify_activity: isNotificationsEnabled,
+            notify_platform_trends: isNotificationsEnabled,
+            notify_messages: isNotificationsEnabled,
+            notify_following: isNotificationsEnabled,
+            notify_recommendations: isNotificationsEnabled,
+        });
     };
 
     if (isLoading) {
@@ -103,33 +63,23 @@ export default function NotificationsTab() {
 
             <div className="border-b border-gray-100 mb-8 w-full" />
 
-            {/* Settings Lists */}
+            {/* Master Toggle */}
             <div className="space-y-8">
-                {settingsItems.map((item) => (
-                    <div key={item.key}>
-                        <div className="flex items-center justify-between gap-4">
-
-
-                            {/* Text Content (Right) */}
-                            <div className="text-right flex-1">
-                                <h3 className="text-base font-semibold text-[#3D3D3D] mb-1">
-                                    {item.title}
-                                </h3>
-                                <p className="text-xs text-gray-400 leading-relaxed">
-                                    {item.description}
-                                </p>
-                            </div>
-                            <ToggleSwitch
-                                enabled={state[item.key]}
-                                onChange={(val) => handleToggle(item.key, val)}
-                            />
-                        </div>
-                        {/* Divider for all except last */}
-                        {item.key !== "notify_recommendations" && (
-                            <div className="border-b border-gray-50 mt-6" />
-                        )}
+                <div className="flex items-center justify-between gap-4">
+                    {/* Text Content (Right) */}
+                    <div className="text-right flex-1">
+                        <h3 className="text-base font-semibold text-[#3D3D3D] mb-1">
+                            تفعيل الإشعارات
+                        </h3>
+                        <p className="text-xs text-gray-400 leading-relaxed">
+                            {isNotificationsEnabled ? "الإشعار مفعل حالياً" : "الإشعارات معطلة حالياً"}
+                        </p>
                     </div>
-                ))}
+                    <ToggleSwitch
+                        enabled={isNotificationsEnabled}
+                        onChange={handleToggle}
+                    />
+                </div>
             </div>
 
             {/* Save Button */}

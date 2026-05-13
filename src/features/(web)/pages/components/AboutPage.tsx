@@ -348,19 +348,12 @@ export default function AboutPage() {
                     </div>
 
                     <h3 className="text-xl md:text-2xl font-bold text-right mb-6">شو بتقدر تبيع؟</h3>
-                    <div className="flex flex-col md:flex-row flex-wrap justify-center gap-[30px] w-full">
+                    <div className="flex flex-col md:flex-row flex-wrap justify-center gap-[20px] md:gap-[30px] w-full items-center">
                         {merchantsSections.map((category, index) => {
                             return (
                                 <div
                                     key={index}
-                                    className="bg-white flex flex-col items-center justify-center text-center"
-                                    style={{
-                                        width: "411px",
-                                        height: "283px",
-                                        borderRadius: "20px",
-                                        padding: "32px",
-                                        gap: "24px" // Slightly less than 30px to account for overall fit, but maintaining separation
-                                    }}
+                                    className="bg-white flex flex-col items-center justify-center text-center p-6 md:p-8 rounded-[20px] gap-6 w-full max-w-[360px] md:max-w-none md:w-[calc(50%-15px)] lg:w-[411px] min-h-[250px] md:min-h-[283px] border border-gray-100 shadow-sm transition-all hover:shadow-md"
                                 >
                                     <Image src={category.icon} alt={category.title} width={48} height={48} className="object-contain" unoptimized />
                                     <div>

@@ -54,15 +54,17 @@ export interface SingleHighlightResponse extends BaseResponse {
 }
 
 export interface CreateStoryPayload {
-  image: string | null | File;
-  text: string | null;
-  color: string | null;
+  image?: string | null | File;
+  image_file?: File; // Added to support web profile endpoint
+  text?: string | null;
+  color?: string | null;
 }
 
 export interface UpdateStoryPayload {
-  image: string | null | File;
-  text: string | null;
-  color: string | null;
+  image?: string | null | File;
+  image_file?: File;
+  text?: string | null;
+  color?: string | null;
 }
 
 export interface CreateHighlightPayload {
@@ -114,18 +116,20 @@ export const createStory = async ({
   const endpoint = getDynamicEndpoint("/stories");
   const headers = getHeaders(storeId);
 
-  if (payload.image instanceof File) {
+  const fileToUpload = payload.image_file || (payload.image instanceof File ? payload.image : null);
+
+  if (fileToUpload) {
     const formData = new FormData();
-    formData.append("image", payload.image);
+    formData.append("image", fileToUpload);
     const { data } = await api.post<SingleStoryResponse>(endpoint, formData, {
-      headers: { ...headers, "Content-Type": undefined }, // browser يُعيّن boundary تلقائياً
+      headers: { ...headers, "Content-Type": undefined },
     });
     return data;
   }
 
   // قصة نصية أو صورة من media_center
   const body: Record<string, string> = {};
-  if (payload.image) {
+  if (payload.image && typeof payload.image === "string") {
     const fileName = extractFileName(payload.image);
     if (fileName) body.image = fileName;
   }
@@ -148,19 +152,22 @@ export const updateStory = async ({
   const endpoint = getDynamicEndpoint(`/stories/${id}`);
   const headers = getHeaders(storeId);
 
-  if (payload.image instanceof File) {
+  const fileToUpload = payload.image_file || (payload.image instanceof File ? payload.image : null);
+
+  if (fileToUpload) {
     // صورة جديدة → multipart POST (الداشبورد يقبل POST على /{id} للتعديل)
     const formData = new FormData();
-    formData.append("image", payload.image);
+    formData.append("image", fileToUpload);
     const { data } = await api.post<SingleStoryResponse>(endpoint, formData, {
-      headers: { ...headers, "Content-Type": undefined }, // browser يُعيّن boundary تلقائياً
+      headers: { ...headers, "Content-Type": undefined },
     });
     return data;
   }
 
   // بناء الـ body — الباك اند يتوقع file_name وليس URL كامل
   const body: Record<string, string> = {};
-  if (payload.image) {
+  if (payload.image && typeof payload.image === "string") {
+    // الباك اند يتوقع file_name من جدول media_center وليس URL كامل
     const fileName = extractFileName(payload.image);
     if (fileName) body.image = fileName;
   }

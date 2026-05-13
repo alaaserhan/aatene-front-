@@ -27,7 +27,7 @@ export function Stepper({
   containerClassName,
 }: StepperProps) {
   return (
-    <div className={cn("w-full py-8", className)} dir="rtl">
+    <div className={cn("hidden md:block w-full py-8", className)} dir="rtl">
       <div className="container mx-auto px-4">
         <div
           className={cn(
