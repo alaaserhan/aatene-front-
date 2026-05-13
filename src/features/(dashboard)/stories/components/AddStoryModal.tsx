@@ -113,13 +113,20 @@ export function AddStoryModal({
 
     const payload: CreateStoryPayload =
       currentMode === "media" ?
-        {
-          // الباك اند يقبل image كـ string فقط (file_name من media_center)
-          // selectedFile.name = file_name أو URL كامل → extractFileName في api.ts يتولى التحويل
-          image: selectedFile?.name || null,
-          text: null,
-          color: null,
-        }
+        selectedFile?.file instanceof File ?
+          {
+            // ملف جديد من SimpleMediaPicker (مستخدمو الويب) → يُرسل كـ image_file (multipart)
+            image_file: selectedFile.file,
+            image: null,
+            text: null,
+            color: null,
+          }
+        : {
+            // صورة موجودة من MediaCenter (مستخدمو الداشبورد) → file_name أو URL
+            image: selectedFile?.name || null,
+            text: null,
+            color: null,
+          }
       : { text, color: selectedColor, image: null };
 
     onSave(payload, () => {
