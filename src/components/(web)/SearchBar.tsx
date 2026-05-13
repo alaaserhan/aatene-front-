@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, Suspense, useTransition, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
 import { Search } from "lucide-react";
@@ -27,17 +27,25 @@ function typeTabHref(locale: string, type: SearchType): string {
   return `/${locale}/search?${p.toString()}`;
 }
 
-function SearchBarContent({
+interface SearchBarInnerProps extends SearchBarProps {
+  urlQ: string;
+  urlType: SearchType;
+  searchParams: ReturnType<typeof useSearchParams>;
+  pathname: string;
+  locale: string;
+}
+
+function SearchBarInner({
   defaultType = "products",
   variant = "navbar",
-  onSearch
-}: SearchBarProps) {
+  onSearch,
+  urlQ,
+  urlType,
+  searchParams,
+  pathname,
+  locale
+}: SearchBarInnerProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const locale = useLanguage();
-
-  const urlQ = searchParams.get("q") || "";
-  const urlType = (searchParams.get("type") as SearchType);
 
   const initialType = (urlType && SEARCH_TYPES.some((t) => t.value === urlType))
     ? urlType
@@ -46,24 +54,6 @@ function SearchBarContent({
   const [searchQuery, setSearchQuery] = useState(urlQ);
   const [selectedType, setSelectedType] = useState<SearchType>(initialType);
   const [isSwitchingType, startSwitchingType] = useTransition();
-
-  const [prevUrlQ, setPrevUrlQ] = useState(urlQ);
-  const [prevUrlType, setPrevUrlType] = useState(urlType);
-
-  /** 
-   * مزامنة مع الـ URL عند التنقل.
-   * نستخدم هذا النمط (Adjusting state while rendering) بدلاً من useEffect
-   * لتجنب "cascading renders" وتحسين الأداء في React 19.
-   */
-  if (urlQ !== prevUrlQ || urlType !== prevUrlType) {
-    setPrevUrlQ(urlQ);
-    setPrevUrlType(urlType);
-    setSearchQuery(urlQ);
-    if (urlType && SEARCH_TYPES.some((t) => t.value === urlType)) {
-      setSelectedType(urlType);
-    }
-  }
-
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -74,7 +64,18 @@ function SearchBarContent({
     }
     params.set("type", selectedType);
 
-    router.push(`/${locale}/search?${params.toString()}`, { scroll: false });
+    const searchPath = `/${locale}/search`;
+    const queryString = params.toString();
+    const targetUrl = `${searchPath}?${queryString}`;
+
+    // Navigation Guard: Don't push if we are already at the target URL
+    const currentQuery = searchParams.toString();
+    if (pathname === searchPath && currentQuery === queryString) {
+      onSearch?.();
+      return;
+    }
+
+    router.push(targetUrl, { scroll: false });
     onSearch?.();
   };
 
@@ -297,10 +298,34 @@ function SearchBarContent({
   );
 }
 
+function SearchBarWrapper(props: SearchBarProps) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const locale = useLanguage();
+
+  const q = searchParams.get("q") || "";
+  const urlType = searchParams.get("type") as SearchType;
+  const type = (urlType && SEARCH_TYPES.some((t) => t.value === urlType)) 
+    ? urlType 
+    : (props.defaultType || "products");
+
+  return (
+    <SearchBarInner 
+      key={`${q}-${type}`} 
+      urlQ={q} 
+      urlType={type} 
+      searchParams={searchParams}
+      pathname={pathname}
+      locale={locale}
+      {...props} 
+    />
+  );
+}
+
 export function SearchBar(props: SearchBarProps) {
   return (
     <Suspense fallback={<div className="h-10 w-full animate-pulse bg-gray-50 rounded-md"></div>}>
-      <SearchBarContent {...props} />
+      <SearchBarWrapper {...props} />
     </Suspense>
   );
 }
