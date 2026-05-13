@@ -130,6 +130,8 @@ export interface Store {
   cover_urls: (string | null)[];
   conversations_count?: number;
   status: StoreStatus;
+  /** ظهور المتجر للعملاء في الواجهات العامة (منفصل عن حالة الموافقة) */
+  shown?: boolean;
   pending_services_count: string;
   description: string | null;
   address: string | null;
@@ -244,6 +246,10 @@ export interface UpdateStatusPayload {
   reject_reason?: string | null;
 }
 
+export interface UpdateStoreShownPayload {
+  shown: boolean;
+}
+
 // ============== API Functions ==============
 
 function toFiniteNumber(value: unknown): number | undefined {
@@ -277,17 +283,29 @@ const STORE_LIST_FAVORITES_KEYS = [
   "total_favorites",
 ] as const;
 
+function coerceShownFromRow(row: Store & Record<string, unknown>): boolean | undefined {
+  const v = row.shown;
+  if (v === undefined || v === null) return undefined;
+  if (typeof v === "boolean") return v;
+  if (v === 1 || v === "1" || v === "true") return true;
+  if (v === 0 || v === "0" || v === "false") return false;
+  return undefined;
+}
+
 /** يوحّد أسماء الحقول بين استجابات الـ API (مثل views_count مقابل view_count). */
 function normalizeStoreListRow(item: Store): Store {
+  const r = item as Store & Record<string, unknown>;
   const view = pickNumericField(item, STORE_LIST_VIEW_KEYS);
   const followers = pickNumericField(item, STORE_LIST_FOLLOWERS_KEYS);
   const fav = pickNumericField(item, STORE_LIST_FAVORITES_KEYS);
+  const shownNorm = coerceShownFromRow(r);
 
   return {
     ...item,
     ...(view !== undefined ? { view_count: view } : {}),
     ...(followers !== undefined ? { followers_count: followers } : {}),
     ...(fav !== undefined ? { favorites_count: fav } : {}),
+    ...(shownNorm !== undefined ? { shown: shownNorm } : {}),
   };
 }
 
@@ -337,9 +355,20 @@ export const updateStoreStatus = async (
   id: string | number,
   payload: UpdateStatusPayload
 ): Promise<SingleStoreResponse> => {
-  const endpoint = getDynamicEndpoint(`/stores/${id}/update-status`);
+  const endpoint = `/admin/stores/${id}/update-status`;
   const { data } = await api.post<SingleStoreResponse>(endpoint, payload);
   return data;
+};
+
+export const updateStoreShown = async (
+  id: string | number,
+  payload: UpdateStoreShownPayload
+): Promise<SingleStoreResponse> => {
+  const endpoint = getDynamicEndpoint(`/stores/${id}/update-shown`);
+  const { data } = await api.post<SingleStoreResponse>(endpoint, payload);
+  return data.record
+    ? { ...data, record: normalizeStoreListRow(data.record) }
+    : data;
 };
 
 export const deleteStore = async (

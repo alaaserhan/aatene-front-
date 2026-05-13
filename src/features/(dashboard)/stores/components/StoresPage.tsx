@@ -5,12 +5,13 @@ import { useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search } from "lucide-react";
-import { useGetStores, useUpdateStoreStatus } from "../hooks";
+import { useGetStores, useUpdateStoreShown } from "../hooks";
 import { Store, StoreStatus } from "../api";
 import { StoresAdminTable } from "./StoresAdminTable";
 import { StoresTypeSidebar, StoreTypeFilter } from "./StoresTypeSidebar";
 import { StoreEmptyState } from "./StoreEmptyState";
 import { Input } from "@/src/components/ui/input";
+import { useAuthStore } from "@/src/stores/auth-store";
 
 const storeStatusTabs: {
   key: StoreStatus;
@@ -26,6 +27,9 @@ const storeStatusTabs: {
 export function StoresPage() {
   const router = useRouter();
   const { locale, type } = useParams<{ locale: string; type: string }>();
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.user_type === "admin";
+  const isMerchant = user?.user_type === "merchant";
 
   const [statusTab, setStatusTab] = useState<StoreStatus>("approved");
   const [typeFilter, setTypeFilter] = useState<StoreTypeFilter>("all");
@@ -130,12 +134,12 @@ export function StoresPage() {
     totalStoresAcrossTabs === 0 &&
     !searchQuery.trim();
 
-  const { mutate: updateStatus } = useUpdateStoreStatus();
+  const { mutate: updateShown } = useUpdateStoreShown();
 
-  const handleToggleStatus = (store: Store) => {
+  const handleToggleShown = (store: Store) => {
     if (store.status === "rejected") return;
-    const next: StoreStatus = store.status === "approved" ? "pending" : "approved";
-    updateStatus({ id: store.id, payload: { status: next } });
+    const currentlyVisible = store.shown !== false;
+    updateShown({ id: store.id, payload: { shown: !currentlyVisible } });
   };
 
   const openDetails = (store: Store) => {
@@ -230,8 +234,9 @@ export function StoresPage() {
               totalPages={totalPages}
               onPageChange={setCurrentPage}
               listStatus={statusTab}
-              onToggleStatus={handleToggleStatus}
+              onToggleShown={handleToggleShown}
               onViewDetails={openDetails}
+              canToggleStoreShown={isAdmin || isMerchant}
             />
             </div>
           </div>
