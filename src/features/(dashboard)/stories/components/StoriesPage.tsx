@@ -73,23 +73,8 @@ export function StoriesPage() {
     });
   };
 
-  // Let's fix this in `StoriesPage` by redefining the handlers to accept an optional callback or just using `mutateAsync`.
-  // Actually, `StoriesList` manages the modal state `isAddModalOpen`.
-  // `StoriesList` calls `onCreateStory(payload)`.
-  // Use `mutateAsync` might be better or pass a callback.
-  // Let's look at `StoriesList`: It passes `onCreateStory` to `AddStoryModal`.
-  // `AddStoryModal` calls `onSave(payload)`.
-  // It does NOT close the modal.
-  // The User will be stuck with open modal?
-  // I need to update `AddStoryModal` to accept `onSuccess`?
-  // Or make `onSave` return a Promise?
-
-  // Let's modify handlers to return a Promise so children can wait and close.
-
-
-
   return (
-    <div className="flex flex-col gap-4 p-6">
+    <div className="flex flex-col gap-4 p-4 md:p-6">
       <Breadcrumb items={breadcrumbItems} />
 
       {/* قسم القصص المميزة (Highlights) */}

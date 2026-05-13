@@ -26,8 +26,8 @@ export function StoryItem({ story, onDelete }: StoryItemProps) {
   return (
     <>
       <div className="flex items-center justify-between py-3 hover:bg-gray-50 transition-colors rounded-lg px-2 group">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-blue-4 shadow-sm shrink-0">
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-blue-4 shadow-sm shrink-0">
             {story.image ? (
               isVideoFile(story.image) ? (
                 <video
@@ -45,7 +45,7 @@ export function StoryItem({ story, onDelete }: StoryItemProps) {
               )
             ) : (
               <div
-                className="w-full h-full flex items-center justify-center p-2 text-center text-white text-[8px] font-bold break-words leading-tight"
+                className="w-full h-full flex items-center justify-center p-1.5 md:p-2 text-center text-white text-[7px] md:text-[8px] font-bold break-words leading-tight"
                 style={{ backgroundColor: story.color || "#3A5779" }}
               >
                 {story.text}
@@ -64,9 +64,9 @@ export function StoryItem({ story, onDelete }: StoryItemProps) {
             e.stopPropagation();
             setDeleteOpen(true);
           }}
-          className="w-9 h-9 bg-red-2 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
+          className="w-8 h-8 md:w-9 md:h-9 bg-red-2 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
         >
-          <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
+          <img src="/icons/dashboard/trash.svg" className="w-3.5 h-3.5 md:w-4 md:h-4" />
         </button>
 
 
