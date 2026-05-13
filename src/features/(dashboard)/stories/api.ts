@@ -1,18 +1,18 @@
-// src/features/(dashboard)/stories/api.ts
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
 import Cookies from "js-cookie";
 
-/**
- * يستخرج file_name من URL الصورة الكامل
- * مثال: "https://backend.aatene.com/storage/media/abc.jpg" → "media/abc.jpg"
- * الباك اند يتوقع file_name من جدول media_center وليس URL كامل
- */
 const extractFileName = (url: string | null | undefined): string | null => {
   if (!url) return null;
   const storageIndex = url.indexOf("/storage/");
   if (storageIndex !== -1) return url.substring(storageIndex + "/storage/".length);
-  return url; // إذا كانت قيمة file_name مباشرة
+  try {
+    const urlObj = new URL(url);
+    if (urlObj.hostname.includes(".r2.dev") || urlObj.hostname.includes("r2.cloudflarestorage")) {
+      return urlObj.pathname.substring(1);
+    }
+  } catch { }
+  return url;
 };
 
 export interface Story {
@@ -54,17 +54,17 @@ export interface SingleHighlightResponse extends BaseResponse {
 }
 
 export interface CreateStoryPayload {
-  image?: string | null | File;
-  image_file?: File; // Added to support web profile endpoint
-  text?: string | null;
-  color?: string | null;
+  image: string | null | File;
+  image_file?: File;
+  text: string | null;
+  color: string | null;
 }
 
 export interface UpdateStoryPayload {
-  image?: string | null | File;
+  image: string | null | File;
   image_file?: File;
-  text?: string | null;
-  color?: string | null;
+  text: string | null;
+  color: string | null;
 }
 
 export interface CreateHighlightPayload {
@@ -115,7 +115,6 @@ export const createStory = async ({
 }): Promise<SingleStoryResponse> => {
   const endpoint = getDynamicEndpoint("/stories");
   const headers = getHeaders(storeId);
-
   const fileToUpload = payload.image_file || (payload.image instanceof File ? payload.image : null);
 
   if (fileToUpload) {
@@ -127,7 +126,6 @@ export const createStory = async ({
     return data;
   }
 
-  // قصة نصية أو صورة من media_center
   const body: Record<string, string> = {};
   if (payload.image && typeof payload.image === "string") {
     const fileName = extractFileName(payload.image);
@@ -151,7 +149,6 @@ export const updateStory = async ({
 }): Promise<SingleStoryResponse> => {
   const endpoint = getDynamicEndpoint(`/stories/${id}`);
   const headers = getHeaders(storeId);
-
   const fileToUpload = payload.image_file || (payload.image instanceof File ? payload.image : null);
 
   if (fileToUpload) {
@@ -164,7 +161,6 @@ export const updateStory = async ({
     return data;
   }
 
-  // بناء الـ body — الباك اند يتوقع file_name وليس URL كامل
   const body: Record<string, string> = {};
   if (payload.image && typeof payload.image === "string") {
     // الباك اند يتوقع file_name من جدول media_center وليس URL كامل
@@ -173,6 +169,11 @@ export const updateStory = async ({
   }
   if (payload.text) body.text = payload.text;
   if (payload.color) body.color = payload.color;
+
+  if (Object.keys(body).length === 0) {
+    const { data } = await api.post<SingleStoryResponse>(endpoint, {}, { headers });
+    return data;
+  }
 
   const { data } = await api.post<SingleStoryResponse>(endpoint, body, { headers });
   return data;

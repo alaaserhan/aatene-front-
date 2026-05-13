@@ -45,7 +45,7 @@ export default function StoreStoriesSection({
     };
 
     const handleHighlightClick = (highlight: StoreHighlight) => {
-        const mapped: Story[] = highlight.stories.map(s => ({
+        const mapped: Story[] = [...highlight.stories].reverse().map(s => ({
             id: s.id,
             image: s.image,
             text: s.text,

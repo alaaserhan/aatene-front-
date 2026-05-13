@@ -6,7 +6,6 @@ const LOCALES = new Set(["ar", "en", "he"]);
 const COMING_SOON_PATH = "coming-soon";
 const PREVIEW_COOKIE = "coming_soon_preview";
 
-
 const I18nMiddleware = createI18nMiddleware({
   locales: ["en", "ar", "he"],
   defaultLocale: "ar",
@@ -47,10 +46,10 @@ function isComingSoonRoute(pathname: string) {
   return segments.includes(COMING_SOON_PATH);
 }
 
-
 function isPreviewApiRoute(pathname: string) {
   return pathname.startsWith("/api/preview");
 }
+
 
 function isBypassPath(pathname: string) {
   return (

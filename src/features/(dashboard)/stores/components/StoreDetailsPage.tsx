@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Loader2, Minus, Plus } from "lucide-react";
-import { useGetSingleStore, useDeleteStore, useUpdateStoreStatus } from "../hooks";
+import { useGetSingleStore, useDeleteStore, useUpdateStoreShown } from "../hooks";
 import { Button } from "@/src/components/ui/button";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { cn, isVideoFile } from "@/src/lib/utils";
-import { StoreStatus, WorkingTime, StoreManager } from "../api";
+import { WorkingTime, StoreManager } from "../api";
 import { formatDateArabic } from "@/src/lib/date-helper";
 import { useAuthStore } from "@/src/stores/auth-store";
 
@@ -18,9 +18,9 @@ interface StoreDetailsPageProps {
   onDeleteSuccess?: () => void;
 }
 
-const statusOptions = [
-  { label: "مفعل", value: "approved" },
-  { label: "غير مفعل", value: "pending" },
+const shownOptions = [
+  { label: "مرئي", value: "1" },
+  { label: "غير مرئي", value: "0" },
 ];
 
 export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageProps) {
@@ -40,7 +40,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
   const { data: storeData, isLoading } = useGetSingleStore(storeId, {
     enabled: !isDeleteConfirmed,
   });
-  const { mutate: updateStatusMutation } = useUpdateStoreStatus();
+  const { mutate: updateShownMutation } = useUpdateStoreShown();
 
   const store = storeData?.record;
 
@@ -70,10 +70,11 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
     });
   };
 
-  const handleStatusChange = (newStatus: string) => {
-    updateStatusMutation(
-      { id: storeId, payload: { status: newStatus as StoreStatus } }
-    );
+  const handleShownChange = (value: string) => {
+    updateShownMutation({
+      id: storeId,
+      payload: { shown: value === "1" },
+    });
   };
 
   if (isLoading) {
@@ -101,23 +102,24 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
     ? store.workingtimes
     : store.workingtimes.slice(0, 2);
 
+  const showShownControl =
+    user?.user_type === "admin" || user?.user_type === "merchant";
+
   return (
     <div className="max-h-[calc(100vh-193px)] h-full bg-white rounded-lg border border-gray-200 overflow-auto ">
       <div className="p-6 space-y-6">
-        <div className={cn("grid gap-3", user?.user_type === "admin" ? "grid-cols-3" : "grid-cols-2")}>
-          {
-            user?.user_type === "admin" && (
+        <div className={cn("grid gap-3", showShownControl ? "grid-cols-3" : "grid-cols-2")}>
+          {showShownControl && (
               <div className="w-full">
                 <ReusableDropdown
-                  options={statusOptions}
-                  value={store.status}
-                  onChange={handleStatusChange}
-                  placeholder="حالة المتجر"
+                  options={shownOptions}
+                  value={store.shown === false ? "0" : "1"}
+                  onChange={handleShownChange}
+                  placeholder="ظهور المتجر للعميل"
                   className="w-full rounded-xs bg-gray-100"
                 />
               </div>
-            )
-          }
+            )}
 
           <Button
             onClick={handleEdit}

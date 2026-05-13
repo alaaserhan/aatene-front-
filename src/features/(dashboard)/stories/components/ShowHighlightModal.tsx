@@ -45,8 +45,9 @@ export function ShowHighlightModal({
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [storyDuration, setStoryDuration] = useState(IMAGE_DURATION);
+    const [dimensions, setDimensions] = useState({ width: 400, inactiveWidth: 320 });
 
-    const highlightStories = highlight?.stories || [];
+    const highlightStories = highlight?.stories ? [...highlight.stories].reverse() : [];
     const activeStory = highlightStories?.[activeIndex];
 
     const rafRef = useRef<number>(0);
@@ -57,31 +58,52 @@ export function ShowHighlightModal({
     const isPaused = isMenuOpen || isEditModalOpen;
 
     const goToNext = useCallback(() => {
-        setActiveIndex(prev => {
-            if (prev < highlightStories.length - 1) return prev + 1;
+        if (activeIndex < highlightStories.length - 1) {
+            setActiveIndex((prev) => prev + 1);
+            setProgress(0);
+            setStoryDuration(IMAGE_DURATION);
+            pausedElapsedRef.current = 0;
+        } else {
             onClose();
-            return prev;
-        });
-        setProgress(0);
-        setStoryDuration(IMAGE_DURATION);
-        pausedElapsedRef.current = 0;
-    }, [highlightStories.length, onClose]);
+        }
+    }, [activeIndex, highlightStories.length, onClose]);
 
     const goToPrev = useCallback(() => {
-        setActiveIndex(prev => {
-            if (prev > 0) return prev - 1;
-            return prev;
-        });
-        setProgress(0);
-        setStoryDuration(IMAGE_DURATION);
-        pausedElapsedRef.current = 0;
-    }, []);
+        if (activeIndex > 0) {
+            setActiveIndex((prev) => prev - 1);
+            setProgress(0);
+            setStoryDuration(IMAGE_DURATION);
+            pausedElapsedRef.current = 0;
+        }
+    }, [activeIndex]);
 
     const goToIndex = useCallback((index: number) => {
         setActiveIndex(index);
         setProgress(0);
         setStoryDuration(IMAGE_DURATION);
         pausedElapsedRef.current = 0;
+    }, []);
+
+    useEffect(() => {
+        const updateDimensions = () => {
+            const vh = window.innerHeight;
+            const vw = window.innerWidth;
+            const targetHeight = Math.min(vh * 0.85, 850);
+            let activeW = targetHeight * (9 / 16);
+            if (activeW > vw * 0.85) {
+                activeW = vw * 0.85;
+            }
+            setDimensions({
+                width: activeW,
+                inactiveWidth: activeW * 0.8
+            });
+        };
+
+        if (typeof window !== "undefined") {
+            updateDimensions();
+            window.addEventListener("resize", updateDimensions);
+            return () => window.removeEventListener("resize", updateDimensions);
+        }
     }, []);
 
     useEffect(() => {
@@ -126,7 +148,7 @@ export function ShowHighlightModal({
     useEffect(() => {
         if (isOpen && activeStory?.image && isVideoFile(activeStory.image) && videoRef.current) {
             videoRef.current.currentTime = 0;
-            videoRef.current.play().catch(err => console.log("Video play error:", err));
+            videoRef.current.play().catch((err) => console.log("Video play error:", err));
         }
     }, [activeIndex, isOpen, activeStory?.image]);
 
@@ -152,8 +174,8 @@ export function ShowHighlightModal({
         setIsMenuOpen(false);
     };
 
-    const ACTIVE_WIDTH = 400;
-    const INACTIVE_WIDTH = 320;
+    const ACTIVE_WIDTH = dimensions.width;
+    const INACTIVE_WIDTH = dimensions.inactiveWidth;
     const GAP = 32;
 
     return (
@@ -166,7 +188,7 @@ export function ShowHighlightModal({
 
                     <button
                         onClick={onClose}
-                        className="absolute cursor-pointer top-6 left-6 text-white/70 hover:text-white z-50 p-2 transition-colors bg-white/10 rounded-full"
+                        className="absolute cursor-pointer top-6 left-6 text-white/70 hover:text-white z-50 p-2 transition-colors bg-white/10 rounded-full hidden md:flex"
                     >
                         <X className="w-6 h-6" />
                     </button>
@@ -188,12 +210,17 @@ export function ShowHighlightModal({
                         </button>
                     )}
 
-                    <div className="relative w-full h-full flex items-center overflow-hidden" dir="ltr">
+                    <div
+                        className="relative w-full h-full flex items-center overflow-hidden"
+                        onClick={onClose}
+                        dir="rtl"
+                    >
                         <div
-                            className="flex items-center gap-8 absolute left-1/2 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
+                            className="flex items-center gap-8 absolute right-1/2 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
                             style={{
-                                transform: `translateX(calc(-${(ACTIVE_WIDTH / 2) + (activeIndex * (INACTIVE_WIDTH + GAP))}px))`,
+                                transform: `translateX(calc(${(ACTIVE_WIDTH / 2) + (activeIndex * (INACTIVE_WIDTH + GAP))}px))`,
                             }}
+                            onClick={(e) => e.stopPropagation()}
                         >
                             {highlightStories.map((story, index) => {
                                 const isActive = index === activeIndex;
@@ -203,13 +230,14 @@ export function ShowHighlightModal({
                                         key={story.id}
                                         onClick={() => !isActive && goToIndex(index)}
                                         className={cn(
-                                            "relative aspect-[9/16] bg-black rounded-[24px] overflow-hidden transition-all duration-500 ease-in-out shrink-0 border border-gray-800",
+                                            "relative bg-white aspect-[9/16] rounded-[24px] overflow-hidden transition-all duration-500 ease-in-out shrink-0 border border-gray-800",
                                             isActive
-                                                ? "w-[400px] opacity-100 scale-100 z-20 shadow-2xl"
-                                                : "w-[320px] opacity-40 scale-90 blur-[1px] cursor-pointer hover:opacity-60"
+                                                ? "opacity-100 scale-100 z-20 shadow-2xl"
+                                                : "opacity-40 scale-90 blur-[1px] cursor-pointer hover:opacity-60"
                                         )}
+                                        style={{ width: `${isActive ? ACTIVE_WIDTH : INACTIVE_WIDTH}px` }}
                                     >
-                                        <div className="w-full h-full flex items-center justify-center bg-[#1a1a1a]">
+                                        <div className="w-full h-full flex items-center justify-center">
                                             {story.image ? (
                                                 isVideoFile(story.image) ? (
                                                     <video
@@ -246,7 +274,7 @@ export function ShowHighlightModal({
                                                 <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/70 to-transparent pointer-events-none" />
 
                                                 <div className="absolute top-4 left-0 right-0 px-4 z-30" dir="rtl">
-                                                    <div className="flex gap-1.5 direction-ltr mb-4">
+                                                    <div className="flex gap-1.5 mb-4">
                                                         {highlightStories.map((_, barIdx) => (
                                                             <div key={barIdx} className="h-1 flex-1 bg-white/30 rounded-full overflow-hidden backdrop-blur-sm">
                                                                 <div
@@ -270,32 +298,40 @@ export function ShowHighlightModal({
                                                             </div>
                                                         </div>
 
-                                                        <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                                                            <PopoverTrigger asChild>
-                                                                <button className="p-2 cursor-pointer bg-black/20 hover:bg-black/40 rounded-full transition-colors backdrop-blur-md">
-                                                                    <MoreHorizontal className="w-6 h-6 text-white" />
-                                                                </button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-56 p-1 bg-white/95 backdrop-blur-md rounded-xl shadow-xl ml-4 border-gray-100" align="start" side="bottom">
-                                                                <div className="flex flex-col">
-
-                                                                    <button
-                                                                        onClick={handleEdit}
-                                                                        className="flex items-center cursor-pointer gap-3 p-3 hover:bg-blue-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl"
-                                                                    >
-                                                                        <img src="/icons/dashboard/edit3.svg" className="w-4 h-4 " />
-                                                                        <span className="font-bold text-sm">تعديل المجموعة</span>
+                                                        <div className="flex items-center gap-1">
+                                                            <Popover open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                                                                <PopoverTrigger asChild>
+                                                                    <button className="p-2 cursor-pointer bg-black/20 hover:bg-black/40 rounded-full transition-colors backdrop-blur-md">
+                                                                        <MoreHorizontal className="w-6 h-6 text-white" />
                                                                     </button>
+                                                                </PopoverTrigger>
+                                                                <PopoverContent className="w-56 p-1 bg-white/95 backdrop-blur-md rounded-xl shadow-xl ml-4 border-gray-100 z-[10000]" align="start" side="bottom">
+                                                                    <div className="flex flex-col">
+                                                                        <button
+                                                                            onClick={handleEdit}
+                                                                            className="flex items-center cursor-pointer gap-3 p-3 hover:bg-blue-50 text-gray-700 rounded-lg transition-colors w-full text-right" dir="rtl"
+                                                                        >
+                                                                            <img src="/icons/dashboard/edit3.svg" className="w-4 h-4 " alt="" />
+                                                                            <span className="font-bold text-sm">تعديل المجموعة</span>
+                                                                        </button>
 
-                                                                    <div className="h-px bg-gray-100 my-1 mx-2" />
+                                                                        <div className="h-px bg-gray-100 my-1 mx-2" />
 
-                                                                    <button onClick={handleDelete} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-red-50 text-red-600 rounded-lg transition-colors w-full text-right" dir="rtl">
-                                                                        <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
-                                                                        <span className="font-bold text-sm">حذف المجموعة</span>
-                                                                    </button>
-                                                                </div>
-                                                            </PopoverContent>
-                                                        </Popover>
+                                                                        <button onClick={handleDelete} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-red-50 text-red-600 rounded-lg transition-colors w-full text-right" dir="rtl">
+                                                                            <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
+                                                                            <span className="font-bold text-sm">حذف المجموعة</span>
+                                                                        </button>
+                                                                    </div>
+                                                                </PopoverContent>
+                                                            </Popover>
+
+                                                            <button
+                                                                onClick={onClose}
+                                                                className="md:hidden p-2 bg-black/20 cursor-pointer hover:bg-black/40 rounded-full transition-colors backdrop-blur-md"
+                                                            >
+                                                                <X className="w-5 h-5 text-white" />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
 

@@ -19,6 +19,7 @@ import {
   StoreCreatePayload,
   StoreUpdatePayload,
   UpdateStatusPayload,
+  UpdateStoreShownPayload,
 } from "./api";
 
 const StoresQK = {
@@ -242,6 +243,87 @@ export function useUpdateStoreStatus() {
 
     onError: (_err, vars, ctx) => {
       toast.error("حدث خطأ أثناء تحديث الحالة");
+      qc.invalidateQueries({ queryKey: StoresQK.listAny });
+    },
+
+    onSettled: (_data, _err, vars) => {
+      qc.invalidateQueries({ queryKey: StoresQK.listAny });
+      qc.invalidateQueries({ queryKey: StoresQK.single(vars.id) });
+    },
+  });
+}
+
+export function useUpdateStoreShown() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string | number;
+      payload: UpdateStoreShownPayload;
+    }) => api.updateStoreShown(id, payload),
+
+    onMutate: async (vars) => {
+      await qc.cancelQueries({ queryKey: StoresQK.any });
+
+      const prevLists = qc.getQueriesData<PaginatedStoresResponse | InfiniteData<PaginatedStoresResponse>>({
+        queryKey: StoresQK.listAny,
+      });
+      const prevSingle = qc.getQueryData<SingleStoreResponse>(
+        StoresQK.single(vars.id)
+      );
+
+      qc.setQueriesData<PaginatedStoresResponse | InfiniteData<PaginatedStoresResponse>>(
+        { queryKey: StoresQK.listAny },
+        (old) => {
+          if (!old) return undefined;
+
+          if ("pages" in old) {
+            return {
+              ...old,
+              pages: old.pages.map((page) => ({
+                ...page,
+                data: page.data.map((s) =>
+                  s.id === Number(vars.id)
+                    ? { ...s, shown: vars.payload.shown }
+                    : s
+                ),
+              })),
+            };
+          }
+
+          if ("data" in old && Array.isArray(old.data)) {
+            return {
+              ...old,
+              data: old.data.map((s) =>
+                s.id === Number(vars.id)
+                  ? { ...s, shown: vars.payload.shown }
+                  : s
+              ),
+            };
+          }
+
+          return old;
+        }
+      );
+
+      if (prevSingle?.record) {
+        qc.setQueryData(StoresQK.single(vars.id), {
+          ...prevSingle,
+          record: { ...prevSingle.record, shown: vars.payload.shown },
+        });
+      }
+
+      return { prevLists, prevSingle };
+    },
+
+    onSuccess: (data) => {
+      toast.success(data.message || "تم تحديث الظهور بنجاح");
+    },
+
+    onError: (_err, _vars, _ctx) => {
+      toast.error("حدث خطأ أثناء تحديث الظهور");
       qc.invalidateQueries({ queryKey: StoresQK.listAny });
     },
 

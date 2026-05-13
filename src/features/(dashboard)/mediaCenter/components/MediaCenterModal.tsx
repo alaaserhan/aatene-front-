@@ -186,7 +186,7 @@ export function MediaCenterModal({
     <Dialog open={open} onOpenChange={handleClose} >
       <DialogContent className="max-w-[95vw] lg:max-w-[65vw] p-0 gap-0 overflow-hidden border-0 [&>button]:hidden z-[11000]">
         <VisuallyHidden>
-          <DialogTitle>مركز الوسائط</DialogTitle>
+          <DialogTitle>الميديا</DialogTitle>
           <DialogDescription>
             نافذة لاختيار أو رفع الملفات. يمكنك البحث عن ملفات موجودة أو رفع
             ملفات جديدة.
@@ -198,7 +198,7 @@ export function MediaCenterModal({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <h1 className="text-base lg:text-lg font-bold ">
-                  مركز الوسائط
+                  الميديا
                 </h1>
               </div>
 

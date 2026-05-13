@@ -57,7 +57,7 @@ export function HighlightsSection({
         <h2 className="text-lg font-bold ">القصص المميزة (highlights)</h2>
       </div>
 
-      <div className="flex items-start gap-0 sm:gap-2 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-200">
+      <div className="flex items-start gap-0 sm:gap-2 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-200" dir="rtl">
 
         <div className="flex flex-col items-center gap-2 cursor-pointer group" onClick={() => setIsCreateModalOpen(true)}>
           <div className="w-18 h-18 rounded-full border-3 border-blue-4 flex items-center justify-center bg-blue-5  transition-colors">

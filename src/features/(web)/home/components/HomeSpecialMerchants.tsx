@@ -15,12 +15,11 @@ interface HomeSpecialMerchantsProps {
 export default function HomeSpecialMerchants({ merchants: initialMerchants }: HomeSpecialMerchantsProps) {
     const { data: response } = useSpecialMerchants();
     const merchants = initialMerchants || response?.data || [];
-
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const scroll = (direction: "left" | "right") => {
         if (scrollContainerRef.current) {
-            const scrollAmount = 350 + 24; // Card width + gap
+            const scrollAmount = 350;
             const newScrollLeft =
                 direction === "left"
                     ? scrollContainerRef.current.scrollLeft - scrollAmount
@@ -41,38 +40,40 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
         >
 
             <MaxWidthWrapper className="relative z-20">
-                <div className="flex items-cen justify-between mb-10">
+                <div className="flex items-center justify-between mb-10">
                     <div className="flex flex-col">
                         <h2 className="text-2xl md:text-3xl text-blue-4 font-medium relative inline-block">
                             متاجر مميزة
                         </h2>
                     </div>
 
-                    {/* Navigation Buttons */}
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => scroll("right")}
-                            className="w-8 h-8 cursor-pointer rounded-full bg-blue-3 flex items-center justify-center hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
-                            aria-label="Scroll Right"
-                        >
-                            <ChevronRight className="w-5 h-5 text-white" />
-                        </button>
-                        <button
-                            onClick={() => scroll("left")}
-                            className="w-8 h-8 cursor-pointer rounded-full bg-blue-3 flex items-center justify-center hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
-                            aria-label="Scroll Left"
-                        >
-                            <ChevronLeft className="w-5 h-5 text-white" />
-                        </button>
+                    <div className="flex items-center gap-3">
+                        <Link href="/search?type=stores" className="inline-flex items-center justify-center gap-1 p-2 px-4 rounded-full bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2c4461] transition-colors">
+                            عرض الكل
+                            <ChevronLeft className="w-4 h-4 shrink-0" aria-hidden />
+                        </Link>
                     </div>
                 </div>
 
-                {/* Horizontal Scroll / Slider */}
-                <div
-                    ref={scrollContainerRef}
-                    className="flex overflow-x-auto gap-6 pb-8 -mx-4 px-4 scroll-smooth scrollbar-hide snap-x snap-mandatory"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
+                <div className="relative group/nav">
+                    <button
+                        onClick={() => scroll("right")}
+                        className="absolute top-1/2 -right-4 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-100 flex items-center justify-center hover:bg-gray-50 transition-all opacity-0 group-hover/nav:opacity-100 cursor-pointer text-gray-700 z-10"
+                    >
+                        <ChevronRight className="w-5 h-5" />
+                    </button>
+                    <button
+                        onClick={() => scroll("left")}
+                        className="absolute top-1/2 -left-4 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-100 flex items-center justify-center hover:bg-gray-50 transition-all opacity-0 group-hover/nav:opacity-100 cursor-pointer text-gray-700 z-10"
+                    >
+                        <ChevronLeft className="w-5 h-5" />
+                    </button>
+
+                    <div
+                        ref={scrollContainerRef}
+                        className="flex overflow-x-auto gap-6 pb-8 scroll-smooth scrollbar-hide snap-x snap-mandatory"
+                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    >
                     {merchants.map((merchant) => (
                         <div key={merchant.id} className="min-w-[280px] sm:min-w-[320px] snap-start">
                             <StoreCard
@@ -81,15 +82,8 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
                             />
                         </div>
                     ))}
+                    </div>
                 </div>
-
-                {/* View All / More Link (Optional based on design pattern) */}
-                {/* <div className="mt-8 text-center">
-                    <Link href="/stores" className="text-green-600 font-medium hover:underline inline-flex items-center gap-1">
-                        عرض كل المتاجر
-                        <ChevronLeft className="w-4 h-4" />
-                    </Link>
-                </div> */}
             </MaxWidthWrapper>
         </section>
     );

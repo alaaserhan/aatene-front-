@@ -40,8 +40,10 @@ interface StoresAdminTableProps {
   totalPages: number;
   onPageChange: (page: number) => void;
   listStatus: StoreStatus;
-  onToggleStatus: (store: Store) => void;
+  onToggleShown: (store: Store) => void;
   onViewDetails: (store: Store) => void;
+  /** تغيير الظهور (shown) عبر API الأدمن فقط */
+  canToggleStoreShown?: boolean;
 }
 
 export function StoresAdminTable({
@@ -51,8 +53,9 @@ export function StoresAdminTable({
   totalPages,
   onPageChange,
   listStatus,
-  onToggleStatus,
+  onToggleShown,
   onViewDetails,
+  canToggleStoreShown = false,
 }: StoresAdminTableProps) {
   if (isLoading) {
     return (
@@ -71,7 +74,7 @@ export function StoresAdminTable({
   }
 
   const showRejectedCols = listStatus === "rejected";
-  const canToggleStatus = listStatus !== "rejected";
+  const canToggleShown = listStatus !== "rejected" && canToggleStoreShown;
 
   return (
     <div className="flex flex-col h-full bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -94,7 +97,7 @@ export function StoresAdminTable({
                   <th className="px-4 py-4 text-sm font-medium text-center">مشاهدات</th>
                   <th className="px-4 py-4 text-sm font-medium text-center">عدد المتابعين</th>
                   <th className="px-4 py-4 text-sm font-medium text-center">للمفضلة</th>
-                  <th className="px-4 py-4 text-sm font-medium text-center">الحالة (مفعل - غير مفعل)</th>
+                  <th className="px-4 py-4 text-sm font-medium text-center">الظهور (مرئي - غير مرئي)</th>
                 </>
               )}
               <th className="px-4 py-4 text-sm font-medium text-center">عمليات</th>
@@ -152,9 +155,9 @@ export function StoresAdminTable({
                     <td className="px-4 py-4">
                       <div className="flex justify-center">
                         <ToggleSwitch
-                          enabled={store.status === "approved"}
-                          disabled={!canToggleStatus}
-                          onChange={() => onToggleStatus(store)}
+                          enabled={store.shown !== false}
+                          disabled={!canToggleShown}
+                          onChange={() => onToggleShown(store)}
                         />
                       </div>
                     </td>
