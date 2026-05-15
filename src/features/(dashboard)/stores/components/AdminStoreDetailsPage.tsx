@@ -19,7 +19,7 @@ export function AdminStoreDetailsPage({ storeId }: { storeId: number }) {
           العودة إلى إدارة المتاجر
         </Link>
       </header>
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-4 sm:p-6">
         <StoreDetailsPage
           storeId={storeId}
           onDeleteSuccess={() => {
