@@ -144,18 +144,18 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
       className="max-h-[calc(100vh-193px)] h-full bg-white rounded-lg border border-gray-200 overflow-auto "
       dir="rtl"
     >
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-6">
         {showReviewActions && (
           <div className="w-full">
-            <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-gray-100 bg-white rounded-lg">
-              <h2 className="text-lg font-bold">اختر الإجراء المناسب للمتجر</h2>
-              <div className="flex gap-3">
+            <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-gray-100 bg-white rounded-lg">
+              <h2 className="text-base sm:text-lg font-bold">اختر الإجراء المناسب للمتجر</h2>
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 {currentStatus !== "approved" && (
                   <Button
                     type="button"
                     onClick={handleApproveStore}
                     disabled={isUpdatingStatus}
-                    className="bg-[#34D399] hover:bg-[#2cb683] text-white px-8 h-10 font-bold rounded"
+                    className="w-full sm:w-auto bg-[#34D399] hover:bg-[#2cb683] text-white px-6 sm:px-8 h-10 font-bold rounded"
                   >
                     {isUpdatingStatus
                       ? "جاري التحديث..."
@@ -169,7 +169,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
                     type="button"
                     onClick={() => setRejectModalOpen(true)}
                     disabled={isUpdatingStatus}
-                    className="bg-[#EF4444] hover:bg-[#d93838] text-white px-8 h-10 font-bold rounded"
+                    className="w-full sm:w-auto bg-[#EF4444] hover:bg-[#d93838] text-white px-6 sm:px-8 h-10 font-bold rounded"
                   >
                     رفض المتجر
                   </Button>
@@ -186,9 +186,16 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
           isLoading={isUpdatingStatus}
         />
 
-        <div className={cn("grid gap-3", showShownControl ? "grid-cols-3" : "grid-cols-2")}>
+        <div
+          className={cn(
+            "grid gap-3",
+            showShownControl
+              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              : "grid-cols-1 sm:grid-cols-2"
+          )}
+        >
           {showShownControl && (
-              <div className="w-full">
+              <div className="w-full min-w-0">
                 <ReusableDropdown
                   options={shownOptions}
                   value={store.shown === false ? "0" : "1"}
@@ -201,21 +208,21 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
 
           <Button
             onClick={handleEdit}
-            className="flex items-center gap-2 px-6 py-5 bg-blue-5 text-blue-4 border-none cursor-pointer rounded-xs"
+            className="flex w-full min-w-0 items-center justify-center gap-2 px-4 py-3 sm:px-6 sm:py-5 text-sm sm:text-base bg-blue-5 text-blue-4 border-none cursor-pointer rounded-xs"
           >
-            <img src="/icons/dashboard/edit.svg" alt="تعديل" className="w-5 h-5" />
+            <img src="/icons/dashboard/edit.svg" alt="تعديل" className="w-5 h-5 shrink-0" />
             تعديل بيانات المتجر
           </Button>
 
           <Button
             onClick={handleDeleteClick}
             disabled={isDeleting}
-            className="flex items-center gap-2 px-6 py-5 bg-red-2 text-red-1  border-none cursor-pointer rounded-xs"
+            className="flex w-full min-w-0 items-center justify-center gap-2 px-4 py-3 sm:px-6 sm:py-5 text-sm sm:text-base bg-red-2 text-red-1 border-none cursor-pointer rounded-xs"
           >
             {isDeleting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
             ) : (
-              <img src="/icons/dashboard/trash.svg" alt="حذف" className="w-5 h-5" />
+              <img src="/icons/dashboard/trash.svg" alt="حذف" className="w-5 h-5 shrink-0" />
             )}
             حذف المتجر
           </Button>
