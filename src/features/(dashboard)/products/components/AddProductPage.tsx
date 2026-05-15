@@ -159,17 +159,16 @@ export function AddProductPage() {
   const handleStep4Save = async (data: Step4FormData) => {
     const updatedFormData = { ...formData, step4: data };
 
-    const isMissingSteps =
-      !updatedFormData.step1 ||
-      !updatedFormData.step2 ||
-      !updatedFormData.step3;
+    const step1 = updatedFormData.step1;
+    const step2 = updatedFormData.step2;
+    const step3 = updatedFormData.step3;
 
-    if (isMissingSteps) {
+    if (!step1 || !step2 || !step3) {
       toast.error("يرجى إكمال جميع الخطوات المطلوبة");
       return;
     }
 
-    const step1Errors = validateProductStep1(updatedFormData.step1);
+    const step1Errors = validateProductStep1(step1);
     if (Object.keys(step1Errors).length > 0) {
       toast.error("يرجى إكمال المعلومات الأساسية (السعر والحقول المطلوبة)");
       setCurrentStep(1);

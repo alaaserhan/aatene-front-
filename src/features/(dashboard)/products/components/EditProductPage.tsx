@@ -287,12 +287,16 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     if (!formData) return;
     const updatedFormData = { ...formData, step4: data };
 
-    if (!updatedFormData.step1 || !updatedFormData.step2 || !updatedFormData.step3) {
+    const step1 = updatedFormData.step1;
+    const step2 = updatedFormData.step2;
+    const step3 = updatedFormData.step3;
+
+    if (!step1 || !step2 || !step3) {
       toast.error("يرجى إكمال جميع الخطوات المطلوبة");
       return;
     }
 
-    const step1Errors = validateProductStep1(updatedFormData.step1);
+    const step1Errors = validateProductStep1(step1);
     if (Object.keys(step1Errors).length > 0) {
       toast.error("يرجى إكمال المعلومات الأساسية (السعر والحقول المطلوبة)");
       setCurrentStep(1);
