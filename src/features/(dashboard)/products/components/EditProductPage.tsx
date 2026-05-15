@@ -23,6 +23,10 @@ import {
   RelatedProduct,
 } from "../types";
 import { useAuthStore } from "@/src/stores/auth-store";
+import {
+  normalizeProductCondition,
+  validateProductStep1,
+} from "../product-step1-validation";
 
 interface EditProductPageProps {
   productId: number;
@@ -125,7 +129,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             name: product.name,
             price: Number(product.price) || 0,
             ask_for_price: Boolean(product.ask_for_price),
-            condition: product.condition || "new",
+            condition: normalizeProductCondition(product.condition),
             short_description: product.short_description || "",
             description: product.description || "",
           },
@@ -176,7 +180,20 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     ];
   }, [fromUrl, formData?.step2?.store_id]);
 
+  const handleStep1Sync = (data: Step1FormData) => {
+    if (!formData) return;
+    setFormData({ ...formData, step1: data });
+  };
+
   const handleStepClick = (step: number) => {
+    if (step > 1 && formData?.step1) {
+      const step1Errors = validateProductStep1(formData.step1);
+      if (Object.keys(step1Errors).length > 0) {
+        toast.error("يرجى إكمال المعلومات الأساسية قبل الانتقال");
+        setCurrentStep(1);
+        return;
+      }
+    }
     setCurrentStep(step);
   };
 
@@ -272,6 +289,13 @@ export function EditProductPage({ productId }: EditProductPageProps) {
 
     if (!updatedFormData.step1 || !updatedFormData.step2 || !updatedFormData.step3) {
       toast.error("يرجى إكمال جميع الخطوات المطلوبة");
+      return;
+    }
+
+    const step1Errors = validateProductStep1(updatedFormData.step1);
+    if (Object.keys(step1Errors).length > 0) {
+      toast.error("يرجى إكمال المعلومات الأساسية (السعر والحقول المطلوبة)");
+      setCurrentStep(1);
       return;
     }
 
@@ -388,6 +412,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
           <AddProductStep1
             initialData={formData.step1}
             onNext={handleStep1Next}
+            onStep1Sync={handleStep1Sync}
             onCancel={handleStep1Cancel}
             barSteps={steps}
             breadcrumbItems={breadcrumbItems}
@@ -456,6 +481,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
           <AddProductStep1
             initialData={formData.step1}
             onNext={handleStep1Next}
+            onStep1Sync={handleStep1Sync}
             onCancel={handleStep1Cancel}
             barSteps={steps}
             breadcrumbItems={breadcrumbItems}
