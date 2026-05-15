@@ -22,6 +22,11 @@ import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { CityMultiSelect } from "./CityMultiSelect";
+import {
+  STORE_DESCRIPTION_MIN_WORDS_FOR_AI,
+  countDescriptionWords,
+  getStoreDescriptionValidationError,
+} from "../store-ai-validation";
 
 interface AddStoreStep2Props {
   storeType: StoreType;
@@ -139,8 +144,9 @@ export function AddStoreStep2({
       newErrors.name = "اسم المتجر مطلوب";
     }
 
-    if (!formData.description.trim()) {
-      newErrors.description = "وصف المتجر مطلوب";
+    const descriptionError = getStoreDescriptionValidationError(formData.description);
+    if (descriptionError) {
+      newErrors.description = descriptionError;
     }
     if (formData.email.trim() === "") {
       newErrors.email = "البريد الإلكتروني مطلوب";
@@ -299,11 +305,14 @@ export function AddStoreStep2({
                       { "border-red-500": errors.description }
                     )}
                   />
-                  {errors.description && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {errors.description}
+                  {errors.description ? (
+                    <p className="text-sm text-red-500 mt-1">{errors.description}</p>
+                  ) : countDescriptionWords(formData.description) <
+                    STORE_DESCRIPTION_MIN_WORDS_FOR_AI ? (
+                    <p className="text-xs text-gray-500 mt-1">
+                      يجب كتابة الوصف بمقدار {STORE_DESCRIPTION_MIN_WORDS_FOR_AI} كلمات على الأقل
                     </p>
-                  )}
+                  ) : null}
                 </div>
 
                 <FormInput

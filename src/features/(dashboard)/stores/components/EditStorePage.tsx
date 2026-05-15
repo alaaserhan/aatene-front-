@@ -20,6 +20,7 @@ import {
   Step7FormData,
 } from "../types";
 import { toast } from "sonner";
+import { getStoreDescriptionValidationError } from "../store-ai-validation";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { Loader2 } from "lucide-react";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
@@ -47,7 +48,13 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
     const name = step2Data.name.trim();
     const description = step2Data.description.trim();
 
-    if (!name || !description) return;
+    if (!name) return;
+
+    const descriptionError = getStoreDescriptionValidationError(description);
+    if (descriptionError) {
+      toast.error(descriptionError);
+      return;
+    }
 
     const prevOk = lastSuccessfulAiInputRef.current;
     if (prevOk && prevOk.name === name && prevOk.description === description) {
@@ -61,14 +68,15 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
       const data = await generateAI({ name, description });
       const keywords = data.results?.keywords ?? [];
 
-      lastSuccessfulAiInputRef.current = { name, description };
-
       if (keywords.length > 0) {
+        lastSuccessfulAiInputRef.current = { name, description };
         setAiKeywords(keywords);
         setFormData((prev) => {
           if (!prev) return prev;
           return { ...prev, step7: { tags: keywords } };
         });
+      } else {
+        toast.error("لم نتمكن من إكمال العملية. حاول توسيع وصف المتجر ثم أعد المحاولة.");
       }
     } catch (error) {
       console.error("AI Generation Error:", error);

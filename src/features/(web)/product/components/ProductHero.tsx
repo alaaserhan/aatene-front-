@@ -16,6 +16,12 @@ import Link from "next/link";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { productAskForPriceButtonClassName } from "./productAskForPriceButton";
 
+const PRODUCT_CONDITION_LABELS: Record<string, string> = {
+    new: "جديد",
+    used: "مستعمل",
+    refurbished: "مجدد",
+};
+
 interface ProductHeroProps {
     product: Product;
     store: Store;
@@ -93,6 +99,9 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
         : (!selectedVariation &&
             Number(product.price || 0) <= 0 &&
             Number(product.price_after_discount || 0) <= 0);
+
+    const conditionLabel =
+        PRODUCT_CONDITION_LABELS[product.condition] ?? product.condition;
 
     const handlePrev = () => {
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : allMedia.length - 1));
@@ -364,6 +373,15 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                         <p className="text-gray-600 text-[15px] leading-relaxed">
                             وصف موجز: {product.short_description}
                         </p>
+                    )}
+
+                    {product.condition && conditionLabel && (
+                        <div className="flex items-center gap-2">
+                            <span className="text-gray-600 text-[15px]">الحالة :</span>
+                            <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700">
+                                {conditionLabel}
+                            </span>
+                        </div>
                     )}
 
                     {attributes && attributes.length > 0 && (

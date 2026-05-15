@@ -22,6 +22,7 @@ import {
 } from "../types";
 import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { getStoreDescriptionValidationError } from "../store-ai-validation";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 
 interface AddStorePageProps {
@@ -49,7 +50,13 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
     const name = step2Data.name.trim();
     const description = step2Data.description.trim();
 
-    if (!name || !description) return;
+    if (!name) return;
+
+    const descriptionError = getStoreDescriptionValidationError(description);
+    if (descriptionError) {
+      toast.error(descriptionError);
+      return;
+    }
 
     const prevOk = lastSuccessfulAiInputRef.current;
     if (prevOk && prevOk.name === name && prevOk.description === description) {
@@ -63,14 +70,15 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
       const data = await generateAI({ name, description });
       const keywords = data.results?.keywords ?? [];
 
-      lastSuccessfulAiInputRef.current = { name, description };
-
       if (keywords.length > 0) {
+        lastSuccessfulAiInputRef.current = { name, description };
         setAiKeywords(keywords);
         setFormData((prev) => ({
           ...prev,
           step7: { tags: keywords },
         }));
+      } else {
+        toast.error("لم نتمكن من إكمال العملية. حاول توسيع وصف المتجر ثم أعد المحاولة.");
       }
     } catch (error) {
       console.error("AI Generation Error:", error);
