@@ -19,7 +19,6 @@ import { productAskForPriceButtonClassName } from "./productAskForPriceButton";
 const PRODUCT_CONDITION_LABELS: Record<string, string> = {
     new: "جديد",
     used: "مستعمل",
-    refurbished: "مجدد",
 };
 
 interface ProductHeroProps {

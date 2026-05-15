@@ -20,6 +20,7 @@ import {
 
 import { toast } from "sonner";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { validateProductStep1 } from "../product-step1-validation";
 
 export function AddProductPage() {
   const router = useRouter();
@@ -116,6 +117,10 @@ export function AddProductPage() {
     else if (step === 4 && formData.step1 && formData.step2 && formData.step3) setCurrentStep(4);
   };
 
+  const handleStep1Sync = (data: Step1FormData) => {
+    setFormData((prev) => ({ ...prev, step1: data }));
+  };
+
   const handleStep1Next = (data: Step1FormData) => {
     const newData = { ...formData, step1: data };
     setFormData(newData);
@@ -161,6 +166,13 @@ export function AddProductPage() {
 
     if (isMissingSteps) {
       toast.error("يرجى إكمال جميع الخطوات المطلوبة");
+      return;
+    }
+
+    const step1Errors = validateProductStep1(updatedFormData.step1);
+    if (Object.keys(step1Errors).length > 0) {
+      toast.error("يرجى إكمال المعلومات الأساسية (السعر والحقول المطلوبة)");
+      setCurrentStep(1);
       return;
     }
 
@@ -281,6 +293,7 @@ export function AddProductPage() {
           <AddProductStep1
             initialData={formData.step1}
             onNext={handleStep1Next}
+            onStep1Sync={handleStep1Sync}
             onCancel={handleStep1Cancel}
             onSaveDraft={() => handleSaveDraft(null)}
             barSteps={steps}
@@ -353,6 +366,7 @@ export function AddProductPage() {
           <AddProductStep1
             initialData={formData.step1}
             onNext={handleStep1Next}
+            onStep1Sync={handleStep1Sync}
             onCancel={handleStep1Cancel}
             onSaveDraft={() => handleSaveDraft(null)}
             barSteps={steps}

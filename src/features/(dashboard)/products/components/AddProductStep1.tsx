@@ -12,6 +12,7 @@ import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
 import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
 import { Step1FormData } from "../types";
+import { validateProductStep1 } from "../product-step1-validation";
 import { cn } from "@/src/lib/utils";
 import { CategoryPickerModal } from "./CategoryPickerModal";
 import { Stepper } from "@/src/components/ui/Stepper";
@@ -25,6 +26,8 @@ interface AddProductStep1Props {
   storeId?: string;
   breadcrumbItems?: { label: string; href?: string }[];
   onStepClick?: (step: number) => void;
+  /** مزامنة بيانات الخطوة 1 مع الأب عند القفز من الـ stepper (إضافة/تعديل) */
+  onStep1Sync?: (data: Step1FormData) => void;
   showSaveDraft?: boolean;
 }
 
@@ -67,6 +70,7 @@ export function AddProductStep1({
   barSteps,
   breadcrumbItems,
   onStepClick,
+  onStep1Sync,
   showSaveDraft = true,
 }: AddProductStep1Props) {
   type PriceVisibilityMode = "show" | "hide";
@@ -147,9 +151,15 @@ export function AddProductStep1({
       hasChanges = true;
     }
 
-    if (errors.price && formData.price >= 0) {
-      delete newErrors.price;
-      hasChanges = true;
+    if (errors.price) {
+      const priceValid =
+        priceVisibilityMode === "hide" ||
+        formData.ask_for_price ||
+        Number(formData.price) > 0;
+      if (priceValid) {
+        delete newErrors.price;
+        hasChanges = true;
+      }
     }
 
     if (errors.short_description && formData.short_description.trim()) {
@@ -164,44 +174,16 @@ export function AddProductStep1({
     if (hasChanges) {
       setErrors(newErrors);
     }
-  }, [formData, errors]);
+  }, [formData, errors, priceVisibilityMode]);
   // --------------------------------------------------
 
-  const validate = (): Record<string, string> => {
-    const newErrors: Record<string, string> = {};
+  const getStep1Payload = (): Step1FormData => ({
+    ...formData,
+    ask_for_price: priceVisibilityMode === "hide",
+    price: priceVisibilityMode === "hide" ? 0 : formData.price,
+  });
 
-    if (!formData.name.trim()) {
-      newErrors.name = "اسم المنتج مطلوب";
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = "وصف المنتج مطلوب";
-    }
-
-    if (!formData.cover) {
-      newErrors.cover = "صورة المنتج مطلوبة (يجب إضافة صورة واحدة على الأقل)";
-    }
-
-    if (!formData.category_id) {
-      newErrors.category_id = "الفئة مطلوبة";
-    }
-
-    if (formData.price < 0) {
-      newErrors.price = "لا يمكن أن يكون السعر أقل من صفر";
-    }
-
-    setErrors(newErrors);
-    return newErrors;
-  };
-
-  const handleNext = () => {
-    const newErrors = validate();
-    const keys = Object.keys(newErrors);
-    if (keys.length === 0) {
-      onNext(formData);
-      return;
-    }
-    const firstKey = keys[0];
+  const scrollToFirstError = (firstKey: string) => {
     const element =
       (firstKey === "cover"
         ? document.getElementById("product-step1-cover")
@@ -209,6 +191,35 @@ export function AddProductStep1({
       document.querySelector(`[name="${firstKey}"]`) ||
       document.querySelector(".text-red-500");
     element?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const runStep1Validation = (): Record<string, string> => {
+    const newErrors = validateProductStep1(getStep1Payload());
+    setErrors(newErrors);
+    return newErrors;
+  };
+
+  const handleStepperClick = (targetStep: number) => {
+    if (targetStep > 1) {
+      const newErrors = runStep1Validation();
+      const keys = Object.keys(newErrors);
+      if (keys.length > 0) {
+        scrollToFirstError(keys[0]);
+        return;
+      }
+      onStep1Sync?.(getStep1Payload());
+    }
+    onStepClick?.(targetStep);
+  };
+
+  const handleNext = () => {
+    const newErrors = runStep1Validation();
+    const keys = Object.keys(newErrors);
+    if (keys.length === 0) {
+      onNext(getStep1Payload());
+      return;
+    }
+    scrollToFirstError(keys[0]);
   };
 
   const combinedFiles = useMemo(() => {
@@ -260,7 +271,7 @@ export function AddProductStep1({
         <Stepper
           currentStep={1}
           steps={barSteps}
-          onStepClick={onStepClick}
+          onStepClick={onStepClick ? handleStepperClick : undefined}
         />
 
         <div className="grid grid-cols-12 gap-4 mt-8">
@@ -329,7 +340,7 @@ export function AddProductStep1({
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-1">
-                    اختار طريقة ظهور سعر سلعتك!
+                    اختار طريقة ظهور سعر سلعتك! <span className="text-red-500">*</span>
                   </Label>
 
                   <div className="space-y-3">
@@ -403,6 +414,13 @@ export function AddProductStep1({
                           ask_for_price: true,
                           price: 0,
                         });
+                        if (errors.price) {
+                          setErrors((prev) => {
+                            const next = { ...prev };
+                            delete next.price;
+                            return next;
+                          });
+                        }
                       }}
                       className={cn(
                         "w-full border rounded-sm p-3 text-right transition-colors",

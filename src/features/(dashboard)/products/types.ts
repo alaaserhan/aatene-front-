@@ -10,7 +10,7 @@ export interface Step1FormData {
   name: string;
   price: number;
   ask_for_price: boolean;
-  condition: "new" | "used" | "refurbished";
+  condition: "new" | "used";
   short_description: string;
   description: string;
 }

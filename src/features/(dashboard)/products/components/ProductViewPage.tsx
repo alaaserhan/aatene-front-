@@ -170,7 +170,6 @@ export default function ProductViewPage() {
     const conditionLabel: Record<string, string> = {
         new: "جديد",
         used: "مستعمل",
-        refurbished: "مجدد",
     };
 
     const breadcrumbItems = [
