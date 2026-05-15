@@ -13,7 +13,6 @@ const I18nMiddleware = createI18nMiddleware({
   resolveLocaleFromRequest: () => "ar",
 });
 
-
 const MERCHANT_BLOCKED_SEGMENTS = new Set([
   'users',
   'productProviders',
