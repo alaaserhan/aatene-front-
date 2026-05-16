@@ -11,7 +11,9 @@ import HomeSpecialServices from "./HomeSpecialServices";
 import {
     BannerSkeleton,
     StoriesSkeleton,
+    ServicesCarouselSkeleton,
     ServicesGridSkeleton,
+    ProductsCarouselSkeleton,
     MultiBannersSkeleton,
     SingleBannerSkeleton,
     HomeSectionSkeleton,
@@ -66,7 +68,7 @@ export default function HomePage({ initialData }: HomePageProps) {
                 <HomeStories initialOwners={stories} />
             </Suspense>
 
-            <Suspense fallback={<ServicesGridSkeleton />}>
+            <Suspense fallback={<ServicesCarouselSkeleton showViewAll={false} />}>
                 <HomeSpecialServices services={specialServices} />
             </Suspense>
 
@@ -84,7 +86,7 @@ export default function HomePage({ initialData }: HomePageProps) {
                 <HomeCategoriesWithProducts />
             </LazySection>
 
-            <LazySection fallback={<ServicesGridSkeleton />}>
+            <LazySection fallback={<ProductsCarouselSkeleton showViewAll={false} />}>
                 <HomeNewProducts />
             </LazySection>
 
@@ -94,11 +96,11 @@ export default function HomePage({ initialData }: HomePageProps) {
                 </LazySection>
             ) : null}
 
-            <LazySection fallback={<ServicesGridSkeleton />}>
+            <LazySection fallback={<ServicesCarouselSkeleton />}>
                 <HomeMostPopularServices />
             </LazySection>
 
-            <LazySection fallback={<ServicesGridSkeleton />}>
+            <LazySection fallback={<ProductsCarouselSkeleton />}>
                 <HomeTodayOffers />
             </LazySection>
 
@@ -112,7 +114,7 @@ export default function HomePage({ initialData }: HomePageProps) {
                 </LazySection>
             ) : null}
 
-            <LazySection fallback={<ServicesGridSkeleton />}>
+            <LazySection fallback={<ProductsCarouselSkeleton />}>
                 <HomeCustomizedProducts />
             </LazySection>
 
@@ -122,7 +124,7 @@ export default function HomePage({ initialData }: HomePageProps) {
                 </LazySection>
             ) : null}
 
-            <LazySection fallback={<ServicesGridSkeleton />}>
+            <LazySection fallback={<ProductsCarouselSkeleton />}>
                 <HomeProductsYouMayLike />
             </LazySection>
 

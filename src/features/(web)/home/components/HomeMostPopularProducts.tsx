@@ -4,8 +4,7 @@ import React from "react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { ProductInPageData } from "@/src/features/(web)/product/types";
-import { ChevronsLeft } from "lucide-react";
-import Link from "next/link";
+import HomeViewAllLink from "./HomeViewAllLink";
 
 interface HomeMostPopularProductsProps {
     products: ProductInPageData[];
@@ -21,10 +20,7 @@ export default function HomeMostPopularProducts({ products }: HomeMostPopularPro
                     <h2 className="text-2xl md:text-3xl font-medium">
                         المنتجات الأكثر شعبية
                     </h2>
-                    <Link href="/search?type=products" className="inline-flex items-center justify-center p-2 px-4 rounded-full bg-[#3D5E83] text-white text-sm font-medium hover:bg-[#2c4461] transition-colors">
-                        عرض الكل
-                        <ChevronsLeft className="w-4 h-4 mr-1" />
-                    </Link>
+                    <HomeViewAllLink href="/search?type=products" />
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
