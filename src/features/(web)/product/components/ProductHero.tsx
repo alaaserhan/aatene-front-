@@ -367,12 +367,12 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                     {/* Divider */}
                     <hr className="border-gray-200" />
 
-                    {/* Short Description */}
-                    {product.short_description && (
+                    {/* ا*/}
+                    {/* {product.short_description && (
                         <p className="text-gray-600 text-[15px] leading-relaxed">
                             وصف موجز: {product.short_description}
                         </p>
-                    )}
+                    )} */}
 
                     {product.condition && conditionLabel && (
                         <div className="flex items-center gap-2">
