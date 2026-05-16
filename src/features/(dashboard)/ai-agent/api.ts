@@ -806,10 +806,24 @@ export interface UserAnalyticsResponse {
     data: UserAnalyticsSummary[];
 }
 
-export interface SingleUserAnalyticsResponse {
+/** استجابة `GET analytics/users/{userId}` — الحقول في الجذر (returnData merge) */
+export interface LaravelSingleUserAnalyticsResponse {
     status: boolean;
     message: string;
-    data: UserAnalyticsSummary & Record<string, unknown>;
+    user: {
+        id: number;
+        first_name: string;
+        last_name: string;
+        email: string;
+        phone: string | null;
+        avatar_url: string | null;
+        ai_support_bot_active?: boolean;
+    } | null;
+    last_conversation_at: string | null;
+    conversations_count: number;
+    total_messages: number;
+    avg_rating: number;
+    rating_distribution: Record<string, number>;
 }
 
 export interface UserAnalyticsReview {
@@ -818,11 +832,28 @@ export interface UserAnalyticsReview {
     rate_text: string | null;
 }
 
+export interface UserAnalyticsReviewsPaginated {
+    data: UserAnalyticsReview[];
+    meta?: {
+        current_page?: number;
+        last_page?: number;
+        per_page?: number;
+        total?: number;
+    };
+}
+
 export interface UserAnalyticsReviewsResponse {
     status: boolean;
     message: string;
     total: number;
-    rateing: UserAnalyticsReview[];
+    rateing: UserAnalyticsReview[] | UserAnalyticsReviewsPaginated;
+}
+
+export interface UserAnalyticsReviewsParams {
+    per_page?: number;
+    page?: number;
+    rate?: string;
+    orderby?: "recent" | "highest_rate" | "lowest_rate";
 }
 
 export const getUserAnalytics = async (params?: Record<string, string>): Promise<UserAnalyticsResponse> => {
@@ -831,13 +862,21 @@ export const getUserAnalytics = async (params?: Record<string, string>): Promise
     return data;
 };
 
-export const getSingleUserAnalytics = async (userId: number): Promise<SingleUserAnalyticsResponse> => {
-    const { data } = await mainApi.get<SingleUserAnalyticsResponse>(`${WEB_ADMIN_BASE}/analytics/users/${userId}`);
+export const getSingleUserAnalytics = async (userId: number): Promise<LaravelSingleUserAnalyticsResponse> => {
+    const { data } = await mainApi.get<LaravelSingleUserAnalyticsResponse>(`${WEB_ADMIN_BASE}/analytics/users/${userId}`);
     return data;
 };
 
-export const getUserAnalyticsReviews = async (userId: number, params?: { per_page?: number }): Promise<UserAnalyticsReviewsResponse> => {
-    const qs = params?.per_page ? `?per_page=${params.per_page}` : "";
+export const getUserAnalyticsReviews = async (
+    userId: number,
+    params?: UserAnalyticsReviewsParams
+): Promise<UserAnalyticsReviewsResponse> => {
+    const q = new URLSearchParams();
+    if (params?.per_page) q.set("per_page", String(params.per_page));
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.rate) q.set("rate", params.rate);
+    if (params?.orderby) q.set("orderby", params.orderby);
+    const qs = q.toString() ? `?${q.toString()}` : "";
     const { data } = await mainApi.get<UserAnalyticsReviewsResponse>(`${WEB_ADMIN_BASE}/analytics/users/${userId}/reviews${qs}`);
     return data;
 };
