@@ -14,7 +14,6 @@ interface ChatListSidebarProps {
   platform: string;
   selectedChatId: string | null;
   onSelectChat: (chatId: string) => void;
-  needsHuman: boolean;
 }
 
 function UserCard({
@@ -103,23 +102,18 @@ function ConversationStateBadgeInline({ state }: { state: WebConversationState }
 function WebsiteChatList({
   selectedChatId,
   onSelectChat,
-  needsHuman,
   /** فلتر Laravel `platform`؛ مثال: `mobile` لمحادثات التطبيق */
   platformFilter,
 }: {
   selectedChatId: string | null;
   onSelectChat: (id: string) => void;
-  needsHuman: boolean;
   platformFilter?: string;
 }) {
   const queryClient = useQueryClient();
   const webConversationsParams = useMemo((): GetWebConversationsParams | undefined => {
-    const p: GetWebConversationsParams = {};
-    if (needsHuman) p.needs_human = true;
-    if (platformFilter) p.platform = platformFilter;
-    if (Object.keys(p).length === 0) return undefined;
-    return p;
-  }, [needsHuman, platformFilter]);
+    if (!platformFilter) return undefined;
+    return { platform: platformFilter };
+  }, [platformFilter]);
 
   const { data, isLoading } = useGetWebConversations(webConversationsParams);
 
@@ -271,19 +265,15 @@ function StandardChatList({
   platform,
   selectedChatId,
   onSelectChat,
-  needsHuman,
-  
 }: {
   platform: string;
   selectedChatId: string | null;
   onSelectChat: (id: string) => void;
-  needsHuman: boolean;
 }) {
   const isApiPlatform = ["whatsapp", "instagram", "messenger"].includes(platform);
   const { data, isLoading } = useGetPlatformUsers({
     platform: (isApiPlatform ? platform : "whatsapp") as PlatformType,
     limit: 50,
-    needs_human: needsHuman,
   });
 
   if (isLoading) {
@@ -324,14 +314,13 @@ function StandardChatList({
   );
 }
 
-export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsHuman }: ChatListSidebarProps) {
+export function ChatListSidebar({ platform, selectedChatId, onSelectChat }: ChatListSidebarProps) {
   /** يطابق عمود Laravel `ai_support_conversations.platform` (`web` افتراضي إنشاء المحادثة من الموقع، `mobile` من التطبيق) */
   if (platform === "website") {
     return (
       <WebsiteChatList
         selectedChatId={selectedChatId}
         onSelectChat={onSelectChat}
-        needsHuman={needsHuman}
         platformFilter="web"
       />
     );
@@ -342,7 +331,6 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsH
       <WebsiteChatList
         selectedChatId={selectedChatId}
         onSelectChat={onSelectChat}
-        needsHuman={needsHuman}
         platformFilter="mobile"
       />
     );
@@ -361,7 +349,6 @@ export function ChatListSidebar({ platform, selectedChatId, onSelectChat, needsH
       platform={platform}
       selectedChatId={selectedChatId}
       onSelectChat={onSelectChat}
-      needsHuman={needsHuman}
     />
   );
 }
