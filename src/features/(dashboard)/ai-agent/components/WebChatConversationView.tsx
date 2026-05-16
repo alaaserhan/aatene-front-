@@ -239,23 +239,44 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         allMessages.find((m) => m.sender_type === "user")?.sender?.full_name ||
         "مستخدم";
 
+    const webUserId = conversationLoaded.user?.id;
+    const webPlatform =
+        conversationLoaded.platform === "mobile" || conversationLoaded.platform === "app"
+            ? "mobile"
+            : "website";
+
+    const handleOpenUserStats = () => {
+        if (!webUserId) return;
+        const q = new URLSearchParams({
+            platform: webPlatform,
+            chatId: String(conversationId),
+        });
+        router.push(`/admin/mosa3edy/users/web/${webUserId}?${q.toString()}`);
+    };
+
     const botRepliesEnabled = conversationLoaded.user!.ai_support_bot_active !== false;
 
     return (
         <div className="flex flex-col h-full max-h-[calc(100vh-220px)] lg:max-h-none bg-white">
 
             <div className="bg-white px-4 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-3 z-10 shrink-0 border-b border-gray-50">
-                <div className="flex items-center gap-3 min-w-0">
+                <button
+                    type="button"
+                    onClick={handleOpenUserStats}
+                    disabled={!webUserId}
+                    className="flex items-center gap-3 min-w-0 text-right rounded-lg transition-colors hover:bg-gray-50 disabled:cursor-default disabled:hover:bg-transparent"
+                    title={webUserId ? "عرض إحصائيات المستخدم" : undefined}
+                >
                     <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center border border-blue-4 overflow-hidden shrink-0">
                         <img src="/icons/dashboard/user.svg" className="w-10 h-10 object-cover" alt="User" />
                     </div>
                     <div className="min-w-0">
-                        <h2 className="text-base font-bold truncate">
+                        <h2 className={cn("text-base font-bold truncate", webUserId && "hover:text-blue-4")}>
                             {userName}
                         </h2>
                         <span className="text-xs text-gray-2">محادثة #{conversationId}</span>
                     </div>
-                </div>
+                </button>
 
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 justify-end">
                 <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-100 shrink-0">

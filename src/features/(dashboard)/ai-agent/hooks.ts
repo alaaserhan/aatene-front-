@@ -495,7 +495,7 @@ export function useGetSingleUserAnalytics(userId: number) {
     });
 }
 
-export function useGetUserAnalyticsReviews(userId: number, params?: { per_page?: number }) {
+export function useGetUserAnalyticsReviews(userId: number, params?: api.UserAnalyticsReviewsParams) {
     return useQuery({
         queryKey: ["web-analytics-user-reviews", userId, params],
         queryFn: () => api.getUserAnalyticsReviews(userId, params),
