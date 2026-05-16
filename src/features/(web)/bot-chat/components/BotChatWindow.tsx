@@ -1292,11 +1292,11 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         <div
             className={cn(
                 "relative z-[9999] bg-white w-[420px] max-w-[calc(100vw-32px)] rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 fade-in duration-300",
-                "fixed max-md:top-1/2 max-md:left-1/2 max-md:-translate-x-1/2 max-md:-translate-y-1/2",
+                "fixed max-md:top-16 max-md:left-1/2 max-md:-translate-x-1/2",
                 "md:fixed md:bottom-24 md:right-6"
             )}
             style={{
-                height: "min(560px, calc(100vh - 120px))",
+                height: "min(560px, calc(100svh - 120px))",
                 boxShadow: "0 12px 48px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.1)",
             }}
         >

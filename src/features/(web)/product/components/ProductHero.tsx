@@ -140,7 +140,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
             </nav>
 
             {/* Main Content: Info Left, Gallery Right */}
-            <div className="flex flex-col-reverse lg:flex-row gap-10">
+            <div className="flex flex-col min-[573px]:flex-col-reverse lg:flex-row gap-10">
                 {/* Right Side: Image Gallery */}
                 <div className="flex flex-col-reverse lg:flex-row gap-3 lg:w-[55%]">
                     {/* Thumbnails Strip */}

@@ -74,12 +74,12 @@ export default function FaqPage() {
 
                 <div className="pb-24">
                     <div className="container mx-auto px-4 max-w-4xl">
-                        <div className="flex overflow-x-auto justify-center gap-3 mb-10">
+                        <div className="flex overflow-x-auto justify-start md:justify-center gap-3 mb-10 pb-2 hide-scrollbar">
                             {faqsData.map((cat, index) => (
                                 <button
                                     key={index}
                                     onClick={() => handleCategoryChange(index)}
-                                    className={`px-6 md:px-10 py-3 md:py-4 rounded-md cursor-pointer text-[15px] md:text-[16px] font-medium transition-colors ${activeCategoryIndex === index
+                                    className={`px-6 md:px-10 py-3 md:py-4 rounded-md cursor-pointer text-[15px] md:text-[16px] font-medium transition-colors whitespace-nowrap shrink-0 ${activeCategoryIndex === index
                                         ? "bg-blue-4 text-white shadow-sm border border-transparent"
                                         : "bg-white border border-gray-200 text-gray-2 hover:border-blue-4 hover:text-blue-4"
                                         }`}

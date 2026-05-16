@@ -7,6 +7,7 @@ import {
     useGetFavoritesByType,
     useGetFavoriteLists,
     useGetFavoritesInList,
+    useDeleteFavoriteList,
 } from "../hooks";
 import { FavoriteItem } from "../api";
 import EmptyFavorites from "./EmptyFavorites";
@@ -15,11 +16,12 @@ import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { Store } from "@/src/features/(web)/searchAndFilter/api";
 import { Service } from "@/src/features/(web)/services/api";
-import { Search, CheckSquare, Plus } from "lucide-react";
+import { Search, Plus, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { cn } from "@/src/lib/utils";
 import { CreateCollectionModal } from "./CreateCollectionModal";
 import { Pagination } from "@/src/components/ui/Pagination";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
 interface FavoritesContentProps {
     selectedType: FavoritesType;
@@ -38,6 +40,9 @@ export default function FavoritesContent({
     const [editListData, setEditListData] = useState<any>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+    const { mutate: deleteList, isPending: isDeletingList } = useDeleteFavoriteList();
 
     // Reset selected list and pagination when type changes
     useEffect(() => {
@@ -109,6 +114,20 @@ export default function FavoritesContent({
             setEditListData(currentList);
             setIsCreateModalOpen(true);
         }
+    };
+
+    const handleDeleteList = () => {
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (!selectedListId) return;
+        deleteList(selectedListId, {
+            onSuccess: () => {
+                setSelectedListId(null);
+                setIsDeleteModalOpen(false);
+            }
+        });
     };
 
     if (isLoading) {
@@ -196,18 +215,29 @@ export default function FavoritesContent({
 
             {/* Selected List Info */}
             {selectedListId && (
-                <div className="flex items-center gap-3 text-right">
-                    <div onClick={handleEditList} className="cursor-pointer">
-                        <img src="icons/dashboard/edit.svg" alt="" className="w-5 h-5" />
+                <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-3 text-right">
+                        <div onClick={handleEditList} className="cursor-pointer bg-gray-50 hover:bg-gray-100 p-2 rounded-md transition-colors">
+                            <img src="icons/dashboard/edit.svg" alt="" className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-[#1F2A37]">
+                                قسم {lists.find(l => l.id === selectedListId)?.name || "المفضلة"}
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                                {lists.find(l => l.id === selectedListId)?.is_private ? "مجموعة خاصة" : "مجموعة عامة"} - عدد العناصر: {totalItems}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="font-semibold text-[#1F2A37]">
-                            قسم {lists.find(l => l.id === selectedListId)?.name || "المفضلة"}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                            {lists.find(l => l.id === selectedListId)?.is_private ? "مجموعة خاصة" : "مجموعة عامة"} - عدد العناصر: {totalItems}
-                        </p>
-                    </div>
+
+                    <button
+                        onClick={handleDeleteList}
+                        disabled={isDeletingList}
+                        className="flex items-center justify-center p-2 text-red-500 bg-red-50 hover:bg-red-100 rounded-md transition-colors disabled:opacity-50 cursor-pointer"
+                        title="حذف المجموعة"
+                    >
+                        <Trash2 className="w-5 h-5" />
+                    </button>
                 </div>
             )}
 
@@ -272,6 +302,15 @@ export default function FavoritesContent({
                 }}
                 editData={editListData}
                 type={selectedType === "all" ? "product" : selectedType} // Default to product if all, otherwise specific type
+            />
+
+            <ConfirmDeleteModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                title="هل أنت متأكد من حذف هذه المجموعة؟"
+                description="لا يمكن التراجع عن هذا الإجراء بعد التأكيد."
+                confirmText={isDeletingList ? "جاري الحذف..." : "حذف المجموعة"}
             />
         </div>
     );

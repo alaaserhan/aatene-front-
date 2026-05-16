@@ -30,7 +30,14 @@ export default function RequestedServicesPage() {
 
     const { data, isLoading } = useRequestedServices(params);
 
-    const totalPages = Math.ceil((data?.recordsFiltered || 0) / PER_PAGE);
+    const recordsFiltered = data?.recordsFiltered || (data as unknown as { total?: number })?.total || 0;
+    let totalPages = Math.ceil(recordsFiltered / PER_PAGE);
+
+    // Fallback for incorrect API totals: If the current page returns fewer items than PER_PAGE,
+    // it means there are no more items after this page.
+    if (data?.data && data.data.length < PER_PAGE) {
+        totalPages = Math.min(totalPages || page, page);
+    }
 
     const handleSearch = () => {
         setSearchQuery(searchValue);

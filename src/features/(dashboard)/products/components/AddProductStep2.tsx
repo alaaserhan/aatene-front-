@@ -410,15 +410,17 @@ export function AddProductStep2({
           </div>
 
           <div className="col-span-12 lg:col-span-3">
-            <ProductPreviewSidebar
-              data={{
-                name: previousData.name,
-                price: previousData.price,
-                coverImage: previousData.cover_preview,
-                galleryImages: previousData.gallery_previews,
-              }}
-            />
-            <GuideVideoCard location="add-product" />
+            <div className="sticky top-6 flex flex-col gap-4">
+              <ProductPreviewSidebar
+                data={{
+                  name: previousData.name,
+                  price: previousData.price,
+                  coverImage: previousData.cover_preview,
+                  galleryImages: previousData.gallery_previews,
+                }}
+              />
+              <GuideVideoCard location="add-product" />
+            </div>
           </div>
         </div>
       </div>

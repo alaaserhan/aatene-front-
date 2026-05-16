@@ -28,7 +28,7 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
 
 
     return (
-        <div className="sticky top-6">
+        <div className="">
 
 
             {/* Mobile Frame Simulation */}
