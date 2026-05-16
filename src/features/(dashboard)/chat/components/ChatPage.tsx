@@ -302,7 +302,14 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     onSuccess: (res) => {
                         setIsCreatingFromUrl(false);
                         if (res.status && res.conversation) {
-                            navigateToConversation(res.conversation);
+                            queryClient.invalidateQueries({ queryKey: ["conversations"] });
+                            refetch().then((result) => {
+                                const conv =
+                                    result.data?.conversations?.find(
+                                        (c) => String(c.id) === String(res.conversation.id)
+                                    ) ?? res.conversation;
+                                navigateToConversation(conv);
+                            });
                         } else {
                             toast.error(res.message || "حدث خطأ أثناء إنشاء المحادثة");
                         }
@@ -321,6 +328,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         isCreatingFromUrl,
         navigateToConversation,
         queryClient,
+        refetch,
         ignoreCookie,
         refetch,
         chatListPath,
@@ -411,7 +419,15 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     ];
 
     const filteredConversations = useMemo(() => {
-        return allConversations.filter((conv) => {
+        let list = allConversations;
+        /** محادثة مفتوحة للتو (متجر/مستخدم) — تظهر في القائمة حتى ينتهي refetch */
+        if (pendingConversation) {
+            const exists = list.some((c) => String(c.id) === String(pendingConversation.id));
+            if (!exists) {
+                list = [pendingConversation, ...list];
+            }
+        }
+        return list.filter((conv) => {
             let matchesSearch = true;
             if (searchQuery) {
                 const name = conv.name || conv.participants[0]?.participant_data?.name || "";
@@ -425,7 +441,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             }
             return matchesSearch && matchesFilter;
         });
-    }, [allConversations, searchQuery, activeFilter]);
+    }, [allConversations, pendingConversation, searchQuery, activeFilter]);
 
     const shellHeight = "h-[calc(100vh-100px)] md:h-[calc(100vh-128px)]";
 
