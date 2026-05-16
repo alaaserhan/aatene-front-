@@ -103,7 +103,7 @@ export const ProductsCarouselSkeleton = ({ showViewAll = true }: { showViewAll?:
                 {[1, 2, 3, 4].map((i) => (
                     <div
                         key={i}
-                        className="min-w-[200px] sm:min-w-[240px] shrink-0 aspect-3/4 bg-gray-100 animate-pulse rounded-xl"
+                        className="w-[168px] shrink-0 aspect-[3/4] bg-gray-100 animate-pulse rounded-xl sm:w-[200px] md:w-[220px]"
                     />
                 ))}
             </div>

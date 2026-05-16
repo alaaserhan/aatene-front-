@@ -66,20 +66,22 @@ export default function HomeProductsCarousel({
 
           <div
             ref={scrollContainerRef}
-            className="flex flex-row flex-nowrap overflow-x-auto gap-4 md:gap-6 pb-8 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-pan-x overscroll-x-contain"
+            className="flex flex-row flex-nowrap items-stretch overflow-x-auto gap-4 md:gap-6 pb-8 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-pan-x overscroll-x-contain"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
           >
             {products.map((product) => (
               <div
                 key={product.id}
-                className="flex-none w-[44vw] max-w-[200px] sm:min-w-[220px] sm:w-auto sm:max-w-none snap-start"
+                className="flex w-[168px] shrink-0 snap-start flex-col sm:w-[200px] md:w-[220px]"
               >
                 <ProductCard
+                  className="h-full w-full"
                   id={product.id}
                   name={product.name}
                   slug={product.slug}
                   cover={product.cover || "/placeholder.png"}
                   price={product.price}
+                  ask_for_price={product.ask_for_price}
                   priceAfterDiscount={product.price_after_discount}
                   discountPercent={product.discount_present}
                   reviewRate={product.review_rate?.toString()}
