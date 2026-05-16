@@ -155,7 +155,8 @@ function WebsiteChatList({
     );
   }
 
-  const conversations: WebConversation[] = data?.data || [];
+  /** محادثة بدون مستخدم في DB = سجل يتيم (حساب محذوف أو بيانات قديمة) — لا نعرضها */
+  const conversations: WebConversation[] = (data?.data || []).filter((conv) => conv.user != null);
 
   return (
     <div className="flex flex-col h-full">
