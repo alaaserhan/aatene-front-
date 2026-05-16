@@ -25,6 +25,10 @@ function patchWebConversationInListCaches(queryClient: ReturnType<typeof useQuer
             return { ...old, data: next };
         }
     );
+    queryClient.setQueryData<api.WebConversationSingleResponse>(
+        ["web-conversation", updated.id],
+        (old) => (old?.data ? { ...old, data: { ...old.data, ...updated } } : old)
+    );
 }
 
 /** يزيل المحادثة من كل كاشات القائمة فور الحذف في الباكند (حتى لا تبقى ظاهرة حتى انتهاء الـ refetch) */
@@ -417,8 +421,42 @@ export function useWebToggleBot() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: api.webToggleBot,
-        onSuccess: (data) => {
-            if (data.data) patchWebConversationInListCaches(queryClient, data.data);
+        onSuccess: (data, conversationId) => {
+            if (!data.data) return;
+            let updated = data.data;
+
+            const prevDetail = queryClient.getQueryData<api.WebConversationSingleResponse>([
+                "web-conversation",
+                conversationId,
+            ]);
+            let prevActive = prevDetail?.data?.user?.ai_support_bot_active;
+
+            if (prevActive === undefined) {
+                const listCaches = queryClient.getQueriesData<api.WebConversationsResponse>({
+                    queryKey: ["web-conversations"],
+                });
+                for (const [, list] of listCaches) {
+                    const found = list?.data?.find((c) => c.id === conversationId);
+                    if (found?.user) {
+                        prevActive = found.user.ai_support_bot_active;
+                        break;
+                    }
+                }
+            }
+
+            // الباك قد يرجع ai_support_bot_active قديماً — نعكس القيمة محلياً بعد نجاح الطلب
+            if (prevActive !== undefined && updated.user) {
+                const staleFromApi = updated.user.ai_support_bot_active === prevActive;
+                updated = {
+                    ...updated,
+                    user: {
+                        ...updated.user,
+                        ai_support_bot_active: staleFromApi ? !prevActive : updated.user.ai_support_bot_active,
+                    },
+                };
+            }
+
+            patchWebConversationInListCaches(queryClient, updated);
             toast.success(data.message || "تم تحديث حالة رد البوت");
         },
         onError: (error: AxiosError<{ message: string }>) => {

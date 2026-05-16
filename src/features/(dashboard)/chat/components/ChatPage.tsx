@@ -87,11 +87,22 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
 
     const allConversations = useMemo(() => data?.conversations || [], [data]);
 
-    const selectedConversation = useMemo(() => {
+  /** محادثة مفتوحة: من القائمة أو من `pendingConversation` بعد الإنشاء (قبل اكتمال refetch) */
+    const activeConversation = useMemo(() => {
         const chatId = searchParams.get("chat");
-        if (!chatId || allConversations.length === 0) return null;
-        return allConversations.find(c => String(c.id) === chatId) || null;
-    }, [searchParams, allConversations]);
+        if (!chatId) return null;
+        const fromList = allConversations.find((c) => String(c.id) === chatId);
+        if (fromList) return fromList;
+        if (pendingConversation && String(pendingConversation.id) === chatId) {
+            return pendingConversation;
+        }
+        return null;
+    }, [searchParams, allConversations, pendingConversation]);
+
+    const chatIdFromUrl = searchParams.get("chat");
+    const isResolvingChatFromUrl = Boolean(
+        chatIdFromUrl && !activeConversation && (isLoading || isCreatingFromUrl)
+    );
 
     /**
      * مسار صفحة الدردشة للروابط والتنقل.
@@ -194,7 +205,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         const serviceIdParam = searchParams.get("serviceId");
         const productIdParam = searchParams.get("productId");
 
-        if (!typeParam || !idParam || isCreatingFromUrl || selectedConversation) {
+        if (!typeParam || !idParam || isCreatingFromUrl) {
             return;
         }
 
@@ -291,7 +302,14 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     onSuccess: (res) => {
                         setIsCreatingFromUrl(false);
                         if (res.status && res.conversation) {
-                            navigateToConversation(res.conversation);
+                            queryClient.invalidateQueries({ queryKey: ["conversations"] });
+                            refetch().then((result) => {
+                                const conv =
+                                    result.data?.conversations?.find(
+                                        (c) => String(c.id) === String(res.conversation.id)
+                                    ) ?? res.conversation;
+                                navigateToConversation(conv);
+                            });
                         } else {
                             toast.error(res.message || "حدث خطأ أثناء إنشاء المحادثة");
                         }
@@ -309,8 +327,9 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         sendMessage,
         isCreatingFromUrl,
         navigateToConversation,
-        selectedConversation,
         queryClient,
+        refetch,
+        ignoreCookie,
         refetch,
         chatListPath,
         router,
@@ -400,7 +419,15 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
     ];
 
     const filteredConversations = useMemo(() => {
-        return allConversations.filter((conv) => {
+        let list = allConversations;
+        /** محادثة مفتوحة للتو (متجر/مستخدم) — تظهر في القائمة حتى ينتهي refetch */
+        if (pendingConversation) {
+            const exists = list.some((c) => String(c.id) === String(pendingConversation.id));
+            if (!exists) {
+                list = [pendingConversation, ...list];
+            }
+        }
+        return list.filter((conv) => {
             let matchesSearch = true;
             if (searchQuery) {
                 const name = conv.name || conv.participants[0]?.participant_data?.name || "";
@@ -414,7 +441,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
             }
             return matchesSearch && matchesFilter;
         });
-    }, [allConversations, searchQuery, activeFilter]);
+    }, [allConversations, pendingConversation, searchQuery, activeFilter]);
 
     const shellHeight = "h-[calc(100vh-100px)] md:h-[calc(100vh-128px)]";
 
@@ -422,7 +449,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
         conversations: filteredConversations,
         isLoading: !data && isLoading,
         isError,
-        selectedConversationId: selectedConversation?.id ?? null,
+        selectedConversationId: activeConversation?.id ?? null,
         onSelectConversation: onSidebarConversationPress,
         getConversationHref,
         searchQuery,
@@ -473,7 +500,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
               يمنع طبقات DOM تلتقط النقر أو تبقى فوق القائمة.
             */}
             <div className={`md:hidden flex flex-col ${shellHeight} min-h-0 overflow-hidden`}>
-                {!selectedConversation ? (
+                {!activeConversation && !isResolvingChatFromUrl ? (
                     <div className="flex flex-col flex-1 min-h-0 gap-0">
                         {mobileTypeFilter}
                         <div className="flex-1 min-h-0 flex flex-col relative isolate">
@@ -487,12 +514,18 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                     <div
                         className={`flex flex-1 min-h-0 flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0`}
                     >
-                        <ChatWindow
-                            key={selectedConversation.id}
-                            conversation={selectedConversation}
-                            onClose={handleCloseChat}
-                            context={context}
-                        />
+                        {isResolvingChatFromUrl || !activeConversation ? (
+                            <div className="flex flex-1 items-center justify-center text-gray-500 text-sm">
+                                جاري فتح المحادثة…
+                            </div>
+                        ) : (
+                            <ChatWindow
+                                key={activeConversation.id}
+                                conversation={activeConversation}
+                                onClose={handleCloseChat}
+                                context={context}
+                            />
+                        )}
                     </div>
                 )}
             </div>
@@ -520,13 +553,17 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 </div>
 
                 <div className="flex-1 min-h-0 min-w-0 flex flex-col bg-white rounded-lg border border-gray-200 overflow-hidden shadow-none relative z-0">
-                    {selectedConversation ? (
+                    {activeConversation ? (
                         <ChatWindow
-                            key={selectedConversation.id}
-                            conversation={selectedConversation}
+                            key={activeConversation.id}
+                            conversation={activeConversation}
                             onClose={handleCloseChat}
                             context={context}
                         />
+                    ) : isResolvingChatFromUrl ? (
+                        <div className="flex flex-1 items-center justify-center text-gray-500 text-sm">
+                            جاري فتح المحادثة…
+                        </div>
                     ) : (
                         <ChatEmptyState
                             isGroupsFilter={activeFilter === "group"}
