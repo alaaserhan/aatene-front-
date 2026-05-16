@@ -399,11 +399,11 @@ export interface WebConversationUser {
 
 export interface WebConversation {
     id: number;
-    user_id: number;
+    user_id: number | null;
     platform: string;
     state: WebConversationState;
     needs_human: boolean;
-    user: WebConversationUser;
+    user: WebConversationUser | null;
     last_message_at: string;
     latest_message?: { message_text: string | null } | null;
     closed_at: string | null;

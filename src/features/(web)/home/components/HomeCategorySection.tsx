@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useRef } from "react";
-import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { CategoryWithProducts } from "@/src/features/(web)/home/types";
 import { useLanguage } from "@/src/hooks/use-language";
+import HomeViewAllLink from "./HomeViewAllLink";
+import HomeCarouselNav from "./HomeCarouselNav";
 
 interface HomeCategorySectionProps {
     category: CategoryWithProducts;
@@ -39,44 +39,35 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
                 </h2>
 
                 <div className="flex items-center gap-3 md:gap-4">
-                    <Link
+                    <HomeViewAllLink
                         href={`/${lang}/search?type=products&category_id=${category.id}`}
-                        className="inline-flex items-center justify-center p-1.5 px-3 md:p-2 md:px-4 rounded-full bg-[#3D5E83] text-white text-xs md:text-sm font-medium hover:bg-[#2c4461] transition-colors gap-1"
-                    >
-                        عرض الكل
-                        <ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                    </Link>
+                        className="text-xs md:text-sm p-1.5 px-3 md:p-2 md:px-4"
+                    />
                 </div>
             </div>
 
             {/* Products Slider */}
             <div className="relative group/nav bg-white border border-gray-100 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
-                {/* Navigation Arrows for Slider (visible on hover) */}
-                <button
-                    onClick={() => scroll("right")}
-                    className="absolute top-1/2 -right-4 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-100 flex items-center justify-center hover:bg-gray-50 transition-all opacity-0 group-hover/nav:opacity-100 cursor-pointer text-gray-700 z-10"
-                >
-                    <ChevronRight className="w-5 h-5" />
-                </button>
-                <button
-                    onClick={() => scroll("left")}
-                    className="absolute top-1/2 -left-4 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-lg border border-gray-100 flex items-center justify-center hover:bg-gray-50 transition-all opacity-0 group-hover/nav:opacity-100 cursor-pointer text-gray-700 z-10"
-                >
-                    <ChevronLeft className="w-5 h-5" />
-                </button>
+                <HomeCarouselNav onPrev={() => scroll("left")} onNext={() => scroll("right")} />
 
                 <div
                     ref={scrollContainerRef}
-                    className="flex overflow-x-auto gap-3 md:gap-4 scroll-smooth scrollbar-hide pb-2"
+                    className="flex flex-row flex-nowrap items-stretch overflow-x-auto gap-3 md:gap-4 scroll-smooth scrollbar-hide pb-2 touch-pan-x overscroll-x-contain"
+                    style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
                 >
                     {category.products.map((product) => (
-                        <div key={product.id} className="min-w-[160px] md:min-w-[200px] lg:min-w-[220px] max-w-[220px] shrink-0">
+                        <div
+                            key={product.id}
+                            className="flex w-[168px] shrink-0 snap-start flex-col sm:w-[200px] md:w-[220px]"
+                        >
                             <ProductCard
+                                className="h-full w-full"
                                 id={product.id}
                                 name={product.name}
                                 slug={product.slug}
                                 cover={product.cover || "/placeholder.png"}
                                 price={product.price}
+                                ask_for_price={product.ask_for_price}
                                 priceAfterDiscount={product.price_after_discount}
                                 discountPercent={product.discount_present}
                                 reviewRate={product.review_rate}

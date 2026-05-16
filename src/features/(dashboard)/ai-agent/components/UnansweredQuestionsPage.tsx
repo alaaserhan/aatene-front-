@@ -533,12 +533,12 @@ export function UnansweredQuestionsPage() {
                                 <button
                                     type="button"
                                     onClick={() => setIsAnswerPlatformOpen((prev) => !prev)}
-                                    className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl bg-white flex items-center justify-between text-sm text-[#374151]"
+                                    className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl bg-white flex items-center justify-between gap-3 text-sm text-[#374151]"
                                 >
-                                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isAnswerPlatformOpen ? "rotate-180" : ""}`} />
-                                    <span>
+                                    <span className="flex-1 text-right">
                                         {ANSWER_PLATFORM_OPTIONS.find((opt) => opt.value === answerPlatform)?.label ?? "اختر القاعدة"}
                                     </span>
+                                    <ChevronDown className={`w-4 h-4 shrink-0 text-gray-400 transition-transform ${isAnswerPlatformOpen ? "rotate-180" : ""}`} />
                                 </button>
                                 {isAnswerPlatformOpen && (
                                     <div className="absolute top-12 left-0 w-full z-50 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
@@ -550,10 +550,11 @@ export function UnansweredQuestionsPage() {
                                                     setAnswerPlatform(option.value);
                                                     setIsAnswerPlatformOpen(false);
                                                 }}
-                                                className="w-full flex items-center justify-between px-4 py-3 text-sm text-right hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                                                className="w-full flex items-center justify-between gap-3 px-4 py-3 text-sm hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                                             >
+                                                <span className="flex-1 text-right text-gray-700">{option.label}</span>
                                                 <span
-                                                    className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                                                    className={`w-5 h-5 shrink-0 rounded-full border flex items-center justify-center ${
                                                         answerPlatform === option.value ? "border-blue-3" : "border-gray-300"
                                                     }`}
                                                 >
@@ -563,7 +564,6 @@ export function UnansweredQuestionsPage() {
                                                         }`}
                                                     />
                                                 </span>
-                                                <span className="text-gray-700">{option.label}</span>
                                             </button>
                                         ))}
                                     </div>

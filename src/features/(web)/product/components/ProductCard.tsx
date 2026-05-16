@@ -118,7 +118,7 @@ const ProductCard = memo(({
     return (
         <div
             className={cn(
-                "flex flex-col cursor-pointer group relative",
+                "flex w-full flex-col cursor-pointer group relative",
                 className
             )}
             onClick={onClick}
@@ -126,7 +126,10 @@ const ProductCard = memo(({
             <CompareCheckbox id={id} type="product" />
 
             {/* Image Container */}
-            <Link href={slug ? `/product/${slug}` : "#"} className="relative w-full aspect-3/4 rounded-xl overflow-hidden bg-gray-100 block">
+            <Link
+                href={slug ? `/product/${slug}` : "#"}
+                className="relative block w-full shrink-0 overflow-hidden rounded-xl bg-gray-100 aspect-[3/4]"
+            >
                 {isVideoFile(imgSrc) ? (
                     <video
                         src={imgSrc}
@@ -140,7 +143,8 @@ const ProductCard = memo(({
                         src={imgSrc}
                         alt={name}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 640px) 168px, (max-width: 768px) 200px, 220px"
+                        className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
                         onError={() => {
                             setImgSrc("/placeholder.png");
                         }}
@@ -175,18 +179,18 @@ const ProductCard = memo(({
                 )}
             </Link>
 
-            {/* Content - RTL aligned */}
-            <div className="pt-3 text-right" dir="rtl">
+            {/* Content — ارتفاع ثابت لمحاذاة كل الكروت في السلايدر والشبكة */}
+            <div className="flex h-[8.25rem] shrink-0 flex-col pt-3 text-right" dir="rtl">
                 {/* Product Name */}
-                <Link href={slug ? `/product/${slug}` : "#"} className="block">
-                    <h3 className="font-semibold text-base mb-1.5 line-clamp-2 group-hover:text-blue-3 transition-colors">
+                <Link href={slug ? `/product/${slug}` : "#"} className="block shrink-0">
+                    <h3 className="font-semibold text-base mb-1.5 line-clamp-2 min-h-[2.75rem] leading-snug group-hover:text-blue-3 transition-colors">
                         {name || "اسم المنتج"}
                     </h3>
                 </Link>
 
                 {/* Rating */}
-                <div className="flex items-center gap-1.5 mb-2">
-                    <div className="flex items-center gap-0.5" >
+                <div className="mb-2 flex h-5 shrink-0 items-center gap-1.5">
+                    <div className="flex items-center gap-0.5">
                         {[...Array(5)].map((_, i) => (
                             <Star
                                 key={i}
@@ -207,31 +211,34 @@ const ProductCard = memo(({
                     </div>
                 </div>
 
-                {/* Price */}
-                {shouldAskForPrice ? (
-                    <button
-                        type="button"
-                        disabled={askPriceLoading}
-                        className={cn(
-                            productAskForPriceButtonClassName,
-                            askPriceLoading && "opacity-75 cursor-wait pointer-events-none"
-                        )}
-                        onClick={handleAskForPriceClick}
-                    >
-                        {askPriceLoading ? "جاري الفتح…" : "اطلب السعر"}
-                    </button>
-                ) : (
-                    <div className="flex items-baseline gap-2 justify-start">
-                        <span className=" font-medium ">
-                            {displayPrice.toFixed(2)} <span className="text-xl font-medium">₪</span>
-                        </span>
-                        {hasDiscount && (
-                            <span className="font-medium text-gray-400 line-through">
-                                {numBase.toFixed(2)} <span className="text-xl font-medium">₪</span>
+                {/* Price / اطلب السعر — نفس الارتفاع في كل البطاقات */}
+                <div className="mt-auto flex min-h-9 shrink-0 items-center justify-start">
+                    {shouldAskForPrice ? (
+                        <button
+                            type="button"
+                            disabled={askPriceLoading}
+                            className={cn(
+                                productAskForPriceButtonClassName,
+                                "w-full max-w-full sm:w-auto",
+                                askPriceLoading && "opacity-75 cursor-wait pointer-events-none"
+                            )}
+                            onClick={handleAskForPriceClick}
+                        >
+                            {askPriceLoading ? "جاري الفتح…" : "اطلب السعر"}
+                        </button>
+                    ) : (
+                        <div className="flex items-baseline gap-2 justify-start">
+                            <span className="font-medium">
+                                {displayPrice.toFixed(2)} <span className="text-xl font-medium">₪</span>
                             </span>
-                        )}
-                    </div>
-                )}
+                            {hasDiscount && (
+                                <span className="font-medium text-gray-400 line-through">
+                                    {numBase.toFixed(2)} <span className="text-xl font-medium">₪</span>
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

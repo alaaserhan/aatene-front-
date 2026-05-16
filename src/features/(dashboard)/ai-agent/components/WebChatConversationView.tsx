@@ -202,6 +202,30 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         return null;
     }
 
+    const conversationLoaded = convDetail?.data ?? conversation;
+    const hasRegisteredUser = conversationLoaded?.user != null;
+
+    if (!hasRegisteredUser) {
+        const backToList = () => {
+            const params = new URLSearchParams(searchParams.toString());
+            params.delete("chatId");
+            router.push(`${pathname}?${params.toString()}`);
+        };
+        return (
+            <div className="flex flex-col items-center justify-center h-full gap-3 p-6 text-center">
+                <p className="text-base font-semibold text-gray-800">
+                    لا يوجد حساب مرتبط بهذه المحادثة
+                </p>
+                <p className="text-sm text-gray-500 max-w-sm">
+                    المحادثة #{conversationId} إما بدون مستخدم أو الحساب حُذف من قاعدة البيانات. لا يمكن إدارتها من هنا.
+                </p>
+                <Button type="button" variant="outline" onClick={backToList}>
+                    العودة للقائمة
+                </Button>
+            </div>
+        );
+    }
+
     if (isMessagesLoading && !messagesInfinite?.pages?.length) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -210,10 +234,12 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         );
     }
 
-    const userName = conversation?.user?.name || allMessages.find((m) => m.sender_type === "user")?.sender?.full_name || "مستخدم";
+    const userName =
+        conversationLoaded.user?.name ||
+        allMessages.find((m) => m.sender_type === "user")?.sender?.full_name ||
+        "مستخدم";
 
-    /** عند غياب الحقل نفترض true (مطابق سلوك الباك للزائر/القيم الافتراضية). */
-    const botRepliesEnabled = (conversation?.user?.ai_support_bot_active ?? true) !== false;
+    const botRepliesEnabled = conversationLoaded.user!.ai_support_bot_active !== false;
 
     return (
         <div className="flex flex-col h-full max-h-[calc(100vh-220px)] lg:max-h-none bg-white">
@@ -232,24 +258,22 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 justify-end">
-                {conversation?.user != null && (
-                    <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-100 shrink-0">
-                        <Switch
-                            id={`bot-reply-${conversationId}`}
-                            checked={botRepliesEnabled}
-                            disabled={isTogglingBot}
-                            onCheckedChange={() => toggleBot(conversationId)}
-                            dir="ltr"
-                            className="data-[state=checked]:bg-[#1DC355]"
-                        />
-                        <Label
-                            htmlFor={`bot-reply-${conversationId}`}
-                            className="text-xs sm:text-sm font-medium text-gray-700 cursor-pointer select-none whitespace-nowrap"
-                        >
-                            رد البوت التلقائي
-                        </Label>
-                    </div>
-                )}
+                <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-100 shrink-0">
+                    <Switch
+                        id={`bot-reply-${conversationId}`}
+                        checked={botRepliesEnabled}
+                        disabled={isTogglingBot}
+                        onCheckedChange={() => toggleBot(conversationId)}
+                        dir="ltr"
+                        className="data-[state=checked]:bg-[#1DC355]"
+                    />
+                    <Label
+                        htmlFor={`bot-reply-${conversationId}`}
+                        className="text-xs sm:text-sm font-medium text-gray-700 cursor-pointer select-none whitespace-nowrap"
+                    >
+                        رد البوت التلقائي
+                    </Label>
+                </div>
 
                 {!conversation?.resolved_at && (
                     <div className="flex items-center gap-2 flex-wrap justify-end">

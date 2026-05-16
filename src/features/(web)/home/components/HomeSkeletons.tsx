@@ -22,6 +22,28 @@ export const StoriesSkeleton = () => (
     </section>
 );
 
+/** يطابق شكل HomeServicesCarousel لتجنب أخطاء hydration مع Suspense */
+export const ServicesCarouselSkeleton = ({ showViewAll = true }: { showViewAll?: boolean }) => (
+    <section className="py-8 relative overflow-hidden py-12 bg-white" dir="rtl">
+        <MaxWidthWrapper className="relative z-20">
+            <div className="flex items-center justify-between mb-10">
+                <div className="h-8 w-64 bg-gray-200 animate-pulse rounded-md" />
+                {showViewAll ? (
+                    <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-full shrink-0" />
+                ) : null}
+            </div>
+            <div className="flex flex-row flex-nowrap gap-4 overflow-hidden pb-4">
+                {[1, 2, 3].map((i) => (
+                    <div
+                        key={i}
+                        className="flex-none w-[72vw] max-w-[280px] sm:min-w-[260px] aspect-[4/5] bg-gray-100 animate-pulse rounded-2xl"
+                    />
+                ))}
+            </div>
+        </MaxWidthWrapper>
+    </section>
+);
+
 export const ServicesGridSkeleton = () => (
     <section className="py-12 bg-white" dir="rtl">
         <MaxWidthWrapper>
@@ -65,6 +87,28 @@ export const MultiBannersSkeleton = () => (
              ))}
         </div>
     </MaxWidthWrapper>
+);
+
+/** يطابق HomeProductsCarousel (تم اختياره لأجلك) */
+export const ProductsCarouselSkeleton = ({ showViewAll = true }: { showViewAll?: boolean }) => (
+    <section className="py-8 relative overflow-hidden pb-12 pt-4 bg-linear-to-b from-gray-50 to-white" dir="rtl">
+        <MaxWidthWrapper className="relative z-20">
+            <div className="flex items-center justify-between mb-10">
+                <div className="h-8 w-48 bg-gray-200 animate-pulse rounded-md" />
+                {showViewAll ? (
+                    <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-full shrink-0" />
+                ) : null}
+            </div>
+            <div className="flex overflow-x-auto gap-6 pb-8">
+                {[1, 2, 3, 4].map((i) => (
+                    <div
+                        key={i}
+                        className="w-[168px] shrink-0 aspect-[3/4] bg-gray-100 animate-pulse rounded-xl sm:w-[200px] md:w-[220px]"
+                    />
+                ))}
+            </div>
+        </MaxWidthWrapper>
+    </section>
 );
 
 export const HomeSectionSkeleton = () => (
