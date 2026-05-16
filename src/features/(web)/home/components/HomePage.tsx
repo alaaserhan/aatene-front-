@@ -86,7 +86,7 @@ export default function HomePage({ initialData }: HomePageProps) {
                 <HomeCategoriesWithProducts />
             </LazySection>
 
-            <LazySection fallback={<ProductsCarouselSkeleton showViewAll={false} />}>
+            <LazySection fallback={<ProductsCarouselSkeleton />}>
                 <HomeNewProducts />
             </LazySection>
 

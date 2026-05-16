@@ -17,7 +17,7 @@ export default function HomeNewProducts({ products: initialProducts }: HomeNewPr
     <HomeProductsCarousel
       title="تم اختياره لأجلك"
       products={products}
-      showViewAll={false}
+      showViewAll
       className="pb-12 pt-4 bg-linear-to-b from-gray-50 to-white"
     />
   );
