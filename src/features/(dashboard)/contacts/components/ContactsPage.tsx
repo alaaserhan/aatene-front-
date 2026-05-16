@@ -151,7 +151,7 @@ export function ContactsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <div className="flex items-center gap-2 mb-1">
-                        <Mail className="w-5 h-5 text-blue-500" />
+                        <Mail className="w-5 h-5 text-[#2D496A]" />
                         <h1 className="text-xl font-bold text-gray-900">رسائل التواصل</h1>
                     </div>
                     <p className="text-sm text-gray-500">الرسائل المُرسلة من صفحة "من نحن"</p>

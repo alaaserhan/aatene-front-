@@ -136,9 +136,9 @@ export default function HomePage({ initialData }: HomePageProps) {
                 <HomeRequestedServices />
             </LazySection>
 
-            <LazySection fallback={<HomeSectionSkeleton />}>
+            {/* <LazySection fallback={<HomeSectionSkeleton />}>
                 <HomeLatestBlogs />
-            </LazySection>
+            </LazySection> */}
         </div>
     );
 }

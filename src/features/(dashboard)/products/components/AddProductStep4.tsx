@@ -338,15 +338,17 @@ export function AddProductStep4({
                     </div>
 
                     <div className="col-span-12 lg:col-span-3">
-                        <ProductPreviewSidebar
-                            data={{
-                                name: previousData.name,
-                                price: previousData.price,
-                                coverImage: previousData.cover_preview,
-                                galleryImages: previousData.gallery_previews,
-                            }}
-                        />
-                        <GuideVideoCard location="add-product" />
+                        <div className="sticky top-6 flex flex-col gap-4">
+                            <ProductPreviewSidebar
+                                data={{
+                                    name: previousData.name,
+                                    price: previousData.price,
+                                    coverImage: previousData.cover_preview,
+                                    galleryImages: previousData.gallery_previews,
+                                }}
+                            />
+                            <GuideVideoCard location="add-product" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -466,10 +468,10 @@ function DiscountModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden bg-white" dir="rtl">
+            <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden bg-white flex flex-col max-h-[90vh]" dir="rtl">
 
                 {/* Header with simple styling */}
-                <div className="p-4 pb-2">
+                <div className="p-4 pb-2 shrink-0">
                     <DialogHeader>
                         <DialogTitle className="text-base font-medium  border-b border-gray-100 pb-4 ">
                             اضافة خصم علي الكوليكشن
@@ -477,9 +479,9 @@ function DiscountModal({
                     </DialogHeader>
                 </div>
 
-                <div className="px-8 py-2">
+                <div className="px-4 sm:px-8 py-4 overflow-y-auto flex-1 hide-scrollbar">
                     {/* Original Price Display */}
-                    <div className="flex flex-col items-start mb-8 gap-2">
+                    <div className="flex flex-col items-start mb-6 sm:mb-8 gap-2">
                         <p className="text-sm  font-medium">السعر الاصلي</p>
                         <div className="flex items-center gap-2" dir="ltr">
                             <span className="text-4xl font-normal">₪</span>
@@ -490,7 +492,7 @@ function DiscountModal({
                     </div>
 
                     {/* Inputs Grid */}
-                    <div className="grid grid-cols-2 gap-8 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 mb-6">
 
                         {/* Discount Price Input */}
                         <div className="space-y-2 relative">
@@ -651,7 +653,7 @@ function DiscountModal({
                                         <>
                                             <span className="text-gray-400 font-bold text-sm mx-2">=</span>
                                             <div className="flex items-center gap-1">
-                                                <span className="text-lg font-bold text-green-600">{Number(price || 0).toFixed(2)}</span>
+                                                <span className="text-lg font-bold text-brand-black-1">{Number(price || 0).toFixed(2)}</span>
                                                 <span className="text-sm text-gray-500">₪</span>
                                                 <span className="text-xs text-red-400 line-through mr-2">{totalOriginalPrice.toFixed(2)} ₪</span>
                                             </div>
@@ -664,7 +666,7 @@ function DiscountModal({
                     </div>
                 </div>
 
-                <DialogFooter className="p-4 bg-whit shadow-2xl border-gray-100 border-t flex flex-row-reverse items-center justify-between w-full">
+                <DialogFooter className="p-4 bg-white shadow-2xl border-gray-100 border-t flex flex-row-reverse items-center justify-between w-full shrink-0">
 
                     <div className="text-sm font-bold  flex-1 ">
                         الخصم علي {selectedProducts.length} من المنتجات
