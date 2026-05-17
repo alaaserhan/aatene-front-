@@ -106,7 +106,7 @@ export function AddServiceStep3({
                                     mainImageLabel="الصورة الاساسية"
                                     showDragHint={true}
                                     mainImageAllowedMediaTypes={["image"]}
-                                    allowedMediaTypes={["image", "gallery", "video"]}
+                                    allowedMediaTypes={["image", "gallery"]}
                                     uploadPrimaryText="أضف أو اسحب صورة أو فيديو"
                                     uploadSecondaryText="الصور: تبويب الصور — الفيديو: تبويب الفيديو أو المعرض"
                                 />
@@ -120,6 +120,7 @@ export function AddServiceStep3({
                             data={{
                                 title: previousDataStep1.title,
                                 price: previousDataStep2.price,
+                                ask_for_price: previousDataStep2.ask_for_price,
                                 coverImage: imagesPreviews[0] || ""
                             }}
                             storeInfo={{

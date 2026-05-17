@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import { ImageIcon, MapPin } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 
@@ -8,6 +9,7 @@ interface ServicePreviewSidebarProps {
   data: {
     title: string;
     price: number;
+    ask_for_price?: boolean;
     coverImage: string;
   };
   storeInfo?: {
@@ -21,12 +23,7 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
 
   const getFormattedPrice = (price?: number) => {
     if (!price || price === 0) return "-";
-
-    const number = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 0,
-    }).format(price);
-
-    return `${number} ₪`;
+    return `${formatPrice(price)} ₪`;
   };
 
   const formattedPrice = getFormattedPrice(data.price);
@@ -71,10 +68,16 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
 
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-gray-2">سعر الخدمة</span>
-                {/* تم استخدام المتغير الجديد formattedPrice */}
-                <span className="font-medium text-lg text-blue-3">
-                  {formattedPrice}
-                </span>
+                {data.ask_for_price ? (
+                  <button
+                    type="button"
+                    className="h-9 px-5 rounded-sm bg-blue-4 text-white text-sm font-medium"
+                  >
+                    اطلب السعر
+                  </button>
+                ) : (
+                  <span className="font-medium text-lg text-blue-3">{formattedPrice}</span>
+                )}
               </div>
             </div>
 

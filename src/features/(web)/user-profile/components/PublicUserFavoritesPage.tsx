@@ -15,6 +15,7 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import ProductCard from "../../product/components/ProductCard";
 import StoreCard from "../../stores/components/StoreCard";
 import { Pagination } from "@/src/components/ui/Pagination";
@@ -50,7 +51,7 @@ function ServiceCardMini({ service }: { service: any }) {
                 {service.store?.name && (
                     <p className="text-xs text-gray-400 truncate">{service.store.name}</p>
                 )}
-                <p className="text-blue-4 font-semibold text-sm mt-1">${service.price}</p>
+                <p className="text-blue-4 font-semibold text-sm mt-1">{formatPrice(service.price)} ₪</p>
             </div>
         </Link>
     );

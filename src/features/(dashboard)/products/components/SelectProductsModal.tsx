@@ -7,6 +7,7 @@ import { Button } from "@/src/components/ui/button";
 import { useInfiniteGetProducts } from "../hooks";
 import { RelatedProduct } from "../types";
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import {
   Dialog,
@@ -209,7 +210,7 @@ export function SelectProductsModal({
                       {/* Left Side: Price */}
                       <div className="text-left pl-2">
                         <div className="text-sm font-bold text-gray-1  flex items-center gap-1">
-                          <span>{Number(product.price).toFixed(2)}</span>
+                          <span>{formatPrice(product.price)}</span>
                           <span className="text-xl mb-1">₪</span>
                         </div>
                       </div>

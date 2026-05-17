@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Product } from "../api";
 import Link from "next/link";
+import { formatPrice } from "@/src/lib/format-price";
 
 interface CrossSellsSectionProps {
     crossSells: Product[];
@@ -114,16 +115,16 @@ export default function CrossSellsSection({
                         <span className="text-base sm:text-2xl md:text-3xl font-bold text-gray-400 shrink-0">=</span>
                         <div className="flex flex-col items-center gap-0.5 shrink-0">
                             <span className="text-xs sm:text-xl md:text-2xl font-bold text-gray-800 whitespace-nowrap">
-                                {parseFloat(crossSellsPrice).toFixed(2)}{" "}
+                                {formatPrice(crossSellsPrice)}{" "}
                                 <span className="text-[9px] sm:text-base font-medium">₪</span>
                             </span>
                             <span className="text-[7px] sm:text-xs text-black whitespace-nowrap">بدلاً من</span>
                             <span className="text-[8px] sm:text-sm text-black line-through whitespace-nowrap">
-                                {originalTotal.toFixed(2)} ₪
+                                {formatPrice(originalTotal)} ₪
                             </span>
                             {savings > 0 && (
                                 <span className="mt-0.5 text-[7px] sm:text-xs font-semibold text-red-1 whitespace-nowrap">
-                                    وفّر {savings.toFixed(2)} ₪
+                                    وفّر {formatPrice(savings)} ₪
                                 </span>
                             )}
                         </div>

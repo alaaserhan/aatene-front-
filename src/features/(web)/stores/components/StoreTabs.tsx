@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { StoreProfile, StorePageData } from "../api";
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import {
     Loader2,
     Star,
@@ -402,16 +403,16 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                                 <span className="text-base sm:text-2xl md:text-3xl font-bold text-gray-400 shrink-0">=</span>
                                 <div className="flex flex-col items-center gap-0.5 shrink-0">
                                     <span className="text-xs sm:text-xl md:text-2xl font-bold text-gray-800 whitespace-nowrap">
-                                        {parseFloat(mainPrice).toFixed(2)}{" "}
+                                        {formatPrice(mainPrice)}{" "}
                                         <span className="text-[9px] sm:text-base font-medium">₪</span>
                                     </span>
                                     <span className="text-[7px] sm:text-xs text-black whitespace-nowrap">بدلاً من</span>
                                     <span className="text-[8px] sm:text-sm text-black line-through whitespace-nowrap">
-                                        {(originalTotal ?? parseFloat(oldPrice || mainPrice)).toFixed(2)} ₪
+                                        {formatPrice(originalTotal ?? parseFloat(oldPrice || mainPrice))} ₪
                                     </span>
                                     {savings !== null && savings > 0 && (
                                         <span className="mt-0.5 text-[7px] sm:text-xs font-semibold text-red-1 whitespace-nowrap">
-                                            وفّر {savings.toFixed(2)} ₪
+                                            وفّر {formatPrice(savings)} ₪
                                         </span>
                                     )}
                                 </div>
@@ -435,14 +436,14 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                             <div className="flex flex-col gap-2 text-center sm:text-right flex-1" dir="rtl">
                                 <div className="flex items-baseline gap-2 justify-center sm:justify-start flex-wrap">
                                     <span className="text-xl md:text-2xl font-bold text-gray-800">
-                                        {parseFloat(mainPrice).toFixed(2)}{" "}
+                                        {formatPrice(mainPrice)}{" "}
                                         <span className="text-base font-medium">₪</span>
                                     </span>
                                     {oldPrice && parseFloat(mainPrice) !== parseFloat(oldPrice) && (
                                         <>
                                             <span className="text-xs text-black">بدلاً من</span>
                                             <span className="text-sm text-black line-through">
-                                                {parseFloat(oldPrice).toFixed(2)} ₪
+                                                {formatPrice(oldPrice)} ₪
                                             </span>
                                         </>
                                     )}

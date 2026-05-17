@@ -8,6 +8,7 @@ import { useUserProfile, useUserProfilePageData } from "../hooks";
 import { useParams, useRouter, notFound } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
 import { cn, isVideoFile } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useFollowUserOrStore, useUnfollowUserOrStore, useCreateHighlight, useGetStories } from "@/src/features/(web)/settings/hooks";
 import { useQueryClient } from "@tanstack/react-query";
@@ -483,7 +484,7 @@ function ServiceCardMini({ service }: { service: any }) {
                 {service.store?.name && (
                     <p className="text-xs text-gray-400 truncate">{service.store.name}</p>
                 )}
-                <p className="text-blue-4 font-semibold text-sm mt-1">{Number(service.price || 0).toFixed(2)} ₪</p>
+                <p className="text-blue-4 font-semibold text-sm mt-1">{formatPrice(service.price || 0)} ₪</p>
             </div>
         </Link>
     );
