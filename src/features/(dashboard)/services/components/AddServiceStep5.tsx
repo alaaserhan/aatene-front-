@@ -177,6 +177,7 @@ export function AddServiceStep5({
                             data={{
                                 title: previousDataStep1.title,
                                 price: previousDataStep2.price,
+                                ask_for_price: previousDataStep2.ask_for_price,
                                 coverImage: previousDataStep3.images_previews[0] || ""
                             }}
                             storeInfo={{

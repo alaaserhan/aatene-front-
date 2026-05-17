@@ -1,17 +1,6 @@
 
 import api from "@/src/lib/axios";
-
-const normalizeAskForPrice = (value: unknown): boolean | undefined => {
-    if (value === null || value === undefined) return undefined;
-    if (typeof value === "boolean") return value;
-    if (typeof value === "number") return value === 1;
-    if (typeof value === "string") {
-        const normalized = value.trim().toLowerCase();
-        if (normalized === "1" || normalized === "true") return true;
-        if (normalized === "0" || normalized === "false") return false;
-    }
-    return Boolean(value);
-};
+import { normalizeAskForPrice } from "@/src/lib/normalizeAskForPrice";
 
 // --- Base Types ---
 export interface BaseResponse {
@@ -200,6 +189,7 @@ export interface Service {
     image_url: string | null;
     is_favorite: boolean;
     in_compare: boolean;
+    ask_for_price?: boolean;
     price: string;
     execute_type: string;
     execute_count: string;
@@ -231,6 +221,10 @@ export interface ServiceSearchParams {
 
 export const searchServices = async (params: ServiceSearchParams): Promise<ServicesSearchResponse> => {
     const { data } = await api.get<ServicesSearchResponse>("/services/search", { params });
+    data.services = (data.services || []).map((service) => ({
+        ...service,
+        ask_for_price: normalizeAskForPrice(service.ask_for_price),
+    }));
     return data;
 };
 

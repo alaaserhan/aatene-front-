@@ -1,5 +1,13 @@
 import api from "@/src/lib/axios";
+import { normalizeAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import * as Types from "./types";
+
+function mapHomeServices(services: Types.Service[]): Types.Service[] {
+    return services.map((service) => ({
+        ...service,
+        ask_for_price: normalizeAskForPrice(service.ask_for_price),
+    }));
+}
 
 export const getFirstBanners = async (): Promise<Types.FirstBannersResponse> => {
     const { data } = await api.get<Types.FirstBannersResponse>("/pages/v2/home/banners/first");
@@ -68,11 +76,17 @@ export const getWeekOffers = async (): Promise<Types.WeekOffersResponse> => {
 
 export const getSpecialServices = async (): Promise<Types.SpecialServicesResponse> => {
     const { data } = await api.get<Types.SpecialServicesResponse>("/pages/v2/home/services/special");
+    if (Array.isArray(data?.data)) {
+        data.data = mapHomeServices(data.data);
+    }
     return data;
 };
 
 export const getPopularServices = async (): Promise<Types.PopularServicesResponse> => {
     const { data } = await api.get<Types.PopularServicesResponse>("/pages/v2/home/services/popular");
+    if (Array.isArray(data?.data)) {
+        data.data = mapHomeServices(data.data);
+    }
     return data;
 };
 

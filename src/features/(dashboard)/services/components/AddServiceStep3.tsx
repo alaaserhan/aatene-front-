@@ -120,6 +120,7 @@ export function AddServiceStep3({
                             data={{
                                 title: previousDataStep1.title,
                                 price: previousDataStep2.price,
+                                ask_for_price: previousDataStep2.ask_for_price,
                                 coverImage: imagesPreviews[0] || ""
                             }}
                             storeInfo={{

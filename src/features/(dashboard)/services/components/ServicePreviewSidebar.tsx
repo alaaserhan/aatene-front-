@@ -8,6 +8,7 @@ interface ServicePreviewSidebarProps {
   data: {
     title: string;
     price: number;
+    ask_for_price?: boolean;
     coverImage: string;
   };
   storeInfo?: {
@@ -71,10 +72,16 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
 
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-gray-2">سعر الخدمة</span>
-                {/* تم استخدام المتغير الجديد formattedPrice */}
-                <span className="font-medium text-lg text-blue-3">
-                  {formattedPrice}
-                </span>
+                {data.ask_for_price ? (
+                  <button
+                    type="button"
+                    className="h-9 px-5 rounded-sm bg-blue-4 text-white text-sm font-medium"
+                  >
+                    اطلب السعر
+                  </button>
+                ) : (
+                  <span className="font-medium text-lg text-blue-3">{formattedPrice}</span>
+                )}
               </div>
             </div>
 

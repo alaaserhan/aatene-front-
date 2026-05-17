@@ -8,6 +8,8 @@ import { Service } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddServiceToCompare, useRemoveServiceFromCompare } from "@/src/features/(web)/compares/hooks";
 import { cn, isVideoFile } from "@/src/lib/utils";
+import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
+import { productAskForPriceButtonClassName } from "@/src/features/(web)/product/components/productAskForPriceButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { ShareModal } from "@/src/components/ui/ShareModal";
@@ -95,6 +97,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
 
     // Calculate total price with extras
     const basePrice = parseFloat(service.price || "0");
+    const shouldAskForPrice = shouldShowAskForPrice(service.ask_for_price, service.price);
 
     const extrasTotal = selectedExtras.reduce((sum, id) => {
         const extra = service.extras?.find(e => e.id === id);
@@ -216,10 +219,30 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                 <div className="flex-1 flex flex-col gap-6">
                     {/* Price & Rating Row */}
                     <div className="flex items-center justify-between flex-wrap gap-3">
-                        <div className="flex items-center gap-2">
-                            <span className="text-2xl font-normal">
-                                {totalPrice.toFixed(2)} ₪
-                            </span>
+                        <div className="flex items-center gap-2 flex-wrap">
+                            {shouldAskForPrice ? (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (!user) {
+                                            router.push(`/${lang}/login`);
+                                            return;
+                                        }
+                                        const storeId = service.store?.id;
+                                        if (!storeId) return;
+                                        router.push(
+                                            `/${lang}/chat?type=store&id=${storeId}&serviceId=${service.id}&askPrice=1`
+                                        );
+                                    }}
+                                    className={productAskForPriceButtonClassName}
+                                >
+                                    اطلب السعر
+                                </button>
+                            ) : (
+                                <span className="text-2xl font-normal">
+                                    {totalPrice.toFixed(2)} ₪
+                                </span>
+                            )}
                             <div className="w-px h-4 bg-gray-300 mx-2" />
                             <div className="flex items-center gap-0.5">
                                 {[...Array(5)].map((_, i) => (
