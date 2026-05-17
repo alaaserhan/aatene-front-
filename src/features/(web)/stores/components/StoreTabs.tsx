@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { StoreProfile, StorePageData } from "../api";
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import {
     Loader2,
     Star,
