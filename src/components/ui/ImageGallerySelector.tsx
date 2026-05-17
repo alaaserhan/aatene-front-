@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { MediaCenterModal } from "@/src/features/(dashboard)/mediaCenter/components/MediaCenterModal";
 import { MediaItem } from "@/src/features/(dashboard)/mediaCenter/api";
 import { DragHint } from "@/src/components/ui/DragHint";
+import { allowsGalleryVideos } from "@/src/lib/media-center-types";
 
 interface ImageGallerySelectorProps {
     accept?: string;
@@ -27,8 +28,9 @@ interface ImageGallerySelectorProps {
     itemWidth?: number;
     itemHeight?: number;
     // containerMinHeight?: number; // لم نعد بحاجة لهذا الـ Prop بالشكل القديم
+    /** تبويبات الميديا؛ `video` يُحوَّل تلقائياً إلى `gallery` (مطابق للباكند) */
     allowedMediaTypes?: ("image" | "gallery" | "avatar" | "video")[];
-    mainImageAllowedMediaTypes?: ("image" | "gallery" | "avatar" | "video")[];
+    mainImageAllowedMediaTypes?: ("image" | "gallery" | "avatar")[];
     className?: string;
     required?: boolean;
     /** نص منطقة الرفع في الميديا (يُفضَّل توضيح صور/فيديو) */
@@ -86,7 +88,12 @@ export function ImageGallerySelector({
             }
 
             // إذا كان النوع معروفاً وغير مسموح به
-            if (fileType && !mainImageAllowedMediaTypes.includes(fileType as "image" | "gallery" | "avatar" | "video")) {
+            if (
+              fileType &&
+              !mainImageAllowedMediaTypes.includes(
+                fileType as "image" | "gallery" | "avatar"
+              )
+            ) {
                 return "لا يمكن تعيين هذا النوع من الملفات كصورة رئيسية";
             }
         }
@@ -204,14 +211,14 @@ export function ImageGallerySelector({
     const firstSlotImageOnly =
         items.length === 0 &&
         mainImageAllowedMediaTypes &&
-        !mainImageAllowedMediaTypes.includes("video");
+        !mainImageAllowedMediaTypes.includes("gallery");
 
     const resolvedUploadSecondary =
         uploadSecondaryText ??
         (firstSlotImageOnly
-            ? "هذا الموضع للصورة فقط؛ بعد إضافة الغلاف يمكنك فتح الإضافة مجددًا واختيار تبويب الفيديو لرفع فيديو للمعرض."
-            : allowedMediaTypes?.includes("video")
-              ? "صور أو فيديو — اختر التبويب أعلى النافذة ثم ارفع (MP4, WebM, PNG, JPG…)"
+            ? "هذا الموضع للصورة فقط (تبويب الصور). بعد الغلاف يمكنك إضافة فيديو من تبويب المعرض."
+            : allowsGalleryVideos(allowedMediaTypes)
+              ? "صور: تبويب الصور — فيديو: تبويب المعرض (MP4, WebM, PNG, JPG…)"
               : "PNG, JPG, WebP, SVG");
 
     return (

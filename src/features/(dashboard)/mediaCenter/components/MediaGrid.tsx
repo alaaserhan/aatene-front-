@@ -28,8 +28,8 @@ export function MediaGrid({
 }: MediaGridProps) {
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full space-y-4 min-h-[400px]">
-        <Loader2 className="h-12 w-12 animate-spin text-blue-3" />
+      <div className="flex flex-col items-center justify-center h-full space-y-4 min-h-[220px] sm:min-h-[400px] px-4">
+        <Loader2 className="h-10 w-10 sm:h-12 sm:w-12 animate-spin text-blue-3" />
         <p className="text-gray-2 text-sm">جاري تحميل الملفات...</p>
       </div>
     );
@@ -37,7 +37,7 @@ export function MediaGrid({
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-full space-y-4 min-h-[400px]">
+      <div className="flex flex-col items-center justify-center h-full space-y-4 min-h-[220px] sm:min-h-[400px] px-4">
         <div className="p-4 bg-red-100 rounded-full">
           <AlertCircle className="h-8 w-8 text-red-500" />
         </div>
@@ -48,7 +48,7 @@ export function MediaGrid({
 
   if (!items || items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full space-y-6 min-h-[400px]">
+      <div className="flex flex-col items-center justify-center h-full space-y-6 min-h-[220px] sm:min-h-[400px] px-4">
         <div className="p-6 bg-gray-100 rounded-2xl">
           <File className="h-16 w-16 text-gray-2 mx-auto" />
         </div>
@@ -66,7 +66,7 @@ export function MediaGrid({
       : false;
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5  gap-3 lg:gap-4 p-4">
+    <div className="grid grid-cols-2 min-[380px]:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-4 p-3 sm:p-4">
       {items.map((item) => {
         const isSelected = selectedItems.some(
           (selected) => selected.id === item.id

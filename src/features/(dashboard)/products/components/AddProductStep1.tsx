@@ -316,9 +316,9 @@ export function AddProductStep1({
                   showDragHint={true}
                   dragHintText="يمكنك سحب وإفلات الصور أو الفيديو لإعادة الترتيب"
                   emptyStateText="أضف صورة الغلاف"
-                  emptyStateSubText="الموضع الأول صورة فقط؛ بعدها يمكن إضافة صور وفيديو للمعرض"
+                  emptyStateSubText="الموضع الأول صورة فقط؛ بعدها صور وفيديو من تبويب المعرض"
                   mainImageAllowedMediaTypes={["image"]}
-                  allowedMediaTypes={["gallery", "image", "video"]}
+                  allowedMediaTypes={["gallery", "image"]}
                   required
                 />
                 </div>
