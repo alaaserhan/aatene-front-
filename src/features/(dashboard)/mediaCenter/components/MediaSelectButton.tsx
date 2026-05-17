@@ -124,9 +124,10 @@ export function MediaSelectButton({
           <button
             onClick={handleRemove}
             type="button"
-            className="absolute top-2 left-2 p-2 bg-red-100 hover:bg-red-200 text-white rounded-lg transition-colors cursor-pointer"
+            className="absolute top-2 left-2 z-10 flex min-w-[44px] min-h-[44px] items-center justify-center bg-red-2 hover:bg-red-200 rounded-lg transition-colors cursor-pointer touch-manipulation"
+            aria-label="حذف الصورة"
           >
-            <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="delete" />
+            <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
           </button>
         </div>
       )}

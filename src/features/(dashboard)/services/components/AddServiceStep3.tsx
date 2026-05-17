@@ -106,7 +106,9 @@ export function AddServiceStep3({
                                     mainImageLabel="الصورة الاساسية"
                                     showDragHint={true}
                                     mainImageAllowedMediaTypes={["image"]}
-                                    allowedMediaTypes={["gallery", "image"]}
+                                    allowedMediaTypes={["image", "gallery", "video"]}
+                                    uploadPrimaryText="أضف أو اسحب صورة أو فيديو"
+                                    uploadSecondaryText="الصور: تبويب الصور — الفيديو: تبويب الفيديو أو المعرض"
                                 />
                             </div>
                         </div>

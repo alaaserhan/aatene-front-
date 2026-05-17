@@ -12,6 +12,8 @@ interface MediaGridProps {
   isLoading?: boolean;
   error?: string | null;
   selectionLimit?: number;
+  emptyTitle?: string;
+  emptyHint?: string;
 }
 
 export function MediaGrid({
@@ -21,6 +23,8 @@ export function MediaGrid({
   isLoading = false,
   error = null,
   selectionLimit,
+  emptyTitle = "لا توجد ملفات",
+  emptyHint = "جرب رفع بعض الملفات!",
 }: MediaGridProps) {
   if (isLoading) {
     return (
@@ -49,8 +53,8 @@ export function MediaGrid({
           <File className="h-16 w-16 text-gray-2 mx-auto" />
         </div>
         <div className="text-center space-y-2">
-          <p className="text-lg font-semibold text-gray-700">لا توجد ملفات</p>
-          <p className="text-sm text-gray-2">جرب رفع بعض الملفات!</p>
+          <p className="text-lg font-semibold text-gray-700">{emptyTitle}</p>
+          <p className="text-sm text-gray-2">{emptyHint}</p>
         </div>
       </div>
     );
