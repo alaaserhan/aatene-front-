@@ -45,7 +45,9 @@ export function StoreShippingSettingsPage({ storeId }: StoreShippingSettingsPage
       logo: store.logo,
       logo_preview: store.logo_url,
       cover: store.cover || [],
-      cover_previews: store.cover_urls?.filter(Boolean) || [],
+      cover_previews: (store.cover_urls ?? []).filter(
+        (url): url is string => typeof url === "string" && url.length > 0
+      ),
       description: store.description || "",
       email: store.email || "",
       locationCities: [],
