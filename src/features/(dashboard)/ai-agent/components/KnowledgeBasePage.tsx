@@ -48,63 +48,67 @@ export function KnowledgeBasePage() {
   };
 
   return (
-    <div className="px-3 py-3 sm:p-3 lg:p-5 min-w-0">
-      <div className="lg:grid lg:grid-cols-[280px_1fr] flex flex-col gap-3 sm:gap-4 items-stretch">
+    <div className="p-3 lg:p-5">
+      <div className="lg:grid lg:grid-cols-[280px_1fr] flex flex-col gap-4 items-stretch">
 
-        <div className="w-full lg:sticky lg:top-25 lg:self-start min-w-0">
+        <div className="w-full lg:sticky lg:top-25 lg:self-start">
           <Mosa3edySidebar />
         </div>
 
         <div className="w-full min-w-0 flex flex-col">
-          <div className="bg-white rounded-lg border border-gray-200 flex-1 flex flex-col min-w-0 shadow-sm sm:shadow-none">
+          <div className="bg-white rounded-lg border border-gray-200 flex-1 flex flex-col">
 
-            {/* Header — عمودي على الهاتف، صف على الشاشات الأكبر */}
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between px-4 py-4 sm:px-6 sm:py-5">
-              <div className="text-right flex-1 min-w-0">
-                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold mb-1 leading-snug break-words">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5">
+              <div className="text-right flex-1">
+                <h1 className="text-xl lg:text-2xl font-bold mb-1">
                   {platform === "mobile" ? "اضافة قاعدة المعرفة للتطبيق" : "اضافة قاعدة المعرفة للمنصة"}
                 </h1>
-                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed">
+                <p className="text-gray-500 text-xs lg:text-sm">
                   زود قاعدة المعرفة بالملفات التي يحتوي على البيانات
                 </p>
               </div>
 
-              {/* Toggle Switch - iOS Style — منطقة لمس أوضح على الهاتف */}
-              <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2 sm:justify-end sm:gap-3 w-full lg:w-auto shrink-0 px-1">
+              {/* Toggle Switch - iOS Style */}
+              <div className="flex items-center gap-3">
+                {/* Label: web */}
                 <span
                   onClick={() => applyPlatform("web")}
                   className={cn(
-                    "text-xs sm:text-sm cursor-pointer transition-all duration-200 px-3 py-2.5 sm:py-1 rounded-md min-h-[44px] sm:min-h-0 inline-flex items-center justify-center",
+                    "text-sm cursor-pointer transition-all duration-200 whitespace-nowrap px-3 py-1 rounded-md",
                     platform === "web"
                       ? "font-semibold text-[#3A5779] bg-gray-100"
-                      : "font-medium text-gray-400 active:bg-gray-50"
+                      : "font-medium text-gray-400"
                   )}
                 >
                   قاعدة معرفة المنصة
                 </span>
 
+                {/* Toggle pill - div to avoid button press shift */}
                 <div
                   role="switch"
                   aria-checked={platform === "mobile"}
                   aria-label="تبديل المنصة"
                   onClick={() => applyPlatform(platform === "web" ? "mobile" : "web")}
-                  className="relative flex-shrink-0 w-[52px] h-8 sm:w-14 sm:h-7 rounded-full bg-gray-200 cursor-pointer select-none touch-manipulation"
+                  className="relative flex-shrink-0 w-14 h-7 rounded-full bg-gray-200 cursor-pointer select-none"
+                  style={{ minWidth: "56px" }}
                 >
                   <span
                     className={cn(
-                      "absolute top-0.5 w-7 h-7 sm:w-6 sm:h-6 bg-[#3A5779] rounded-full shadow-md transition-all duration-300",
+                      "absolute top-0.5 w-6 h-6 bg-[#3A5779] rounded-full shadow-md transition-all duration-300",
                       platform === "web" ? "right-0.5" : "left-0.5"
                     )}
                   />
                 </div>
 
+                {/* Label: mobile */}
                 <span
                   onClick={() => applyPlatform("mobile")}
                   className={cn(
-                    "text-xs sm:text-sm cursor-pointer transition-all duration-200 px-3 py-2.5 sm:py-1 rounded-md min-h-[44px] sm:min-h-0 inline-flex items-center justify-center",
+                    "text-sm cursor-pointer transition-all duration-200 whitespace-nowrap px-3 py-1 rounded-md",
                     platform === "mobile"
                       ? "font-semibold text-[#3A5779] bg-gray-100"
-                      : "font-medium text-gray-400 active:bg-gray-50"
+                      : "font-medium text-gray-400"
                   )}
                 >
                   قاعدة معرفة التطبيق
@@ -116,48 +120,47 @@ export function KnowledgeBasePage() {
             <hr className="border-gray-200" />
 
             {isLoading ? (
-              <div className="flex-1 flex items-center justify-center py-16 sm:py-24">
+              <div className="flex-1 flex items-center justify-center py-24">
                 <Loader2 className="w-8 h-8 animate-spin text-[#3A5779]" />
               </div>
             ) : files.length === 0 ? (
               /* Empty State */
-              <div className="flex-1 flex flex-col items-center justify-center py-16 sm:py-24 px-4 sm:px-8">
-                <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 text-center">لا يوجد وثائق</h2>
-                <p className="text-sm text-gray-500 mb-6 text-center max-w-sm">أضغط على إضافة الوثائق</p>
+              <div className="flex-1 flex flex-col items-center justify-center py-24 px-8">
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">لا يوجد وثائق</h2>
+                <p className="text-sm text-gray-500 mb-6">أضغط على إضافة الوثائق</p>
                 <Button
                   onClick={() => router.push(`${pathname}/add?platform=${platform}`)}
-                  className="bg-[#3A5779] hover:bg-[#2c4460] text-white rounded-full px-8 py-3 sm:py-2.5 h-auto min-h-[44px] text-sm font-medium w-full max-w-xs touch-manipulation"
+                  className="bg-[#3A5779] hover:bg-[#2c4460] text-white rounded-full px-8 py-2.5 h-auto text-sm font-medium"
                 >
                   إضافة الوثائق
                 </Button>
               </div>
             ) : (
               /* Files State */
-              <div className="p-4 space-y-3 sm:p-5 sm:space-y-4 min-w-0">
-                {/* بحث + إضافة — عمودي على الهاتف، زر بعرض كامل للمس */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <Button
-                    type="button"
-                    onClick={() => router.push(`${pathname}/add?platform=${platform}`)}
-                    className="bg-[#3A5779] hover:bg-[#2c4460] text-white rounded-full px-6 min-h-[44px] h-11 text-sm font-medium w-full sm:w-auto sm:shrink-0 order-1 sm:order-2 touch-manipulation"
-                  >
-                    إضافة الوثائق
-                  </Button>
-                  <div className="relative flex-1 w-full min-w-0 order-2 sm:order-1">
+              <div className="p-5 space-y-4">
+                {/* Search + Add Button */}
+                <div className="flex items-center gap-3">
+                  <div className="relative flex-1">
                     <Input
                       placeholder="بحث..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="h-11 pr-10 pl-3 text-right text-base sm:text-sm"
+                      className="h-10 pl-10 pr-10 text-right"
                       dir="rtl"
                     />
-                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                   </div>
+                  <Button
+                    onClick={() => router.push(`${pathname}/add?platform=${platform}`)}
+                    className="bg-[#3A5779] hover:bg-[#2c4460] text-white rounded-full px-6 h-10 text-sm font-medium whitespace-nowrap"
+                  >
+                    إضافة الوثائق
+                  </Button>
                 </div>
 
                 {/* Info Alert */}
                 <div
-                  className="rounded-lg px-4 py-3 sm:px-5 sm:min-h-[88px] flex flex-col justify-center"
+                  className="rounded-[8px] px-5 py-3 flex flex-col justify-center"
                   dir="rtl"
                   style={{
                     backgroundColor: "#e8eef8",
@@ -166,26 +169,27 @@ export function KnowledgeBasePage() {
                     borderColor: "#c5d5ea",
                     borderRightWidth: "5px",
                     borderRightColor: "#3A5779",
+                    minHeight: "88px",
                   }}
                 >
                   <div className="flex items-center gap-1.5 mb-1">
-                    <Info className="w-4 h-4 shrink-0" style={{ color: "#3A5779" }} />
+                    <Info className="w-4 h-4 flex-shrink-0" style={{ color: "#3A5779" }} />
                     <p className="text-sm font-bold text-gray-800">تنبيه هام</p>
                   </div>
-                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                  <p className="text-xs text-gray-600 leading-relaxed">
                     بعد رفع أو حذف الملفات، سيكون اختبار الذكاء الاصطناعي متاحًا بعد 10 دقائق فقط، حتى يتم تطبيق جميع التحديثات بنجاح.
                   </p>
                 </div>
 
-                {/* Table — تمرير أفقي على الشاشات الضيقة */}
-                <div className="border border-gray-200 rounded-lg overflow-x-auto overscroll-x-contain touch-pan-x -mx-px sm:mx-0 [scrollbar-gutter:stable]">
-                  <table className="w-full min-w-[640px] lg:min-w-0" dir="rtl">
+                {/* Table */}
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <table className="w-full" dir="rtl">
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
-                        <th className="px-3 py-3 sm:px-5 sm:py-3.5 text-right text-xs sm:text-sm font-semibold text-gray-600 max-w-[42%]">الملف</th>
-                        <th className="px-2 py-3 sm:px-5 sm:py-3.5 text-center text-xs sm:text-sm font-semibold text-gray-600 whitespace-nowrap">الحالة</th>
-                        <th className="px-2 py-3 sm:px-5 sm:py-3.5 text-center text-xs sm:text-sm font-semibold text-gray-600 leading-tight max-w-[7rem] sm:max-w-none sm:whitespace-nowrap">أخر وقت تم تدريب البوت فيه</th>
-                        <th className="px-3 py-3 sm:px-5 sm:py-3.5 text-center text-xs sm:text-sm font-semibold text-gray-600 whitespace-nowrap">إجراء</th>
+                        <th className="px-5 py-3.5 text-right text-sm font-semibold text-gray-600">الملف</th>
+                        <th className="px-5 py-3.5 text-center text-sm font-semibold text-gray-600">الحالة</th>
+                        <th className="px-5 py-3.5 text-center text-sm font-semibold text-gray-600">أخر وقت تم تدريب البوت فيه</th>
+                        <th className="px-5 py-3.5 text-center text-sm font-semibold text-gray-600">إجراء</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -206,38 +210,34 @@ export function KnowledgeBasePage() {
 
                         return (
                           <tr key={file.id} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-xs sm:text-sm text-gray-900 break-words max-w-[12rem] sm:max-w-md">
-                              {file.file_name}
-                            </td>
-                            <td className="px-2 py-3 sm:px-5 sm:py-4 text-center align-middle">
+                            <td className="px-5 py-4 text-sm text-gray-900">{file.file_name}</td>
+                            <td className="px-5 py-4 text-center">
                               {isFailed ? (
-                                <span className="inline-block px-2 py-1 sm:px-4 sm:py-1 rounded-lg text-xs sm:text-sm font-semibold bg-red-100 text-red-600 max-w-[9rem] leading-snug">
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-red-100 text-red-600">
                                   فشل التدريب
                                 </span>
                               ) : isProcessing ? (
-                                <span className="inline-block px-2 py-1 sm:px-4 sm:py-1 rounded-lg text-xs sm:text-sm font-semibold bg-yellow-100 text-yellow-700 max-w-[9rem] leading-snug">
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-yellow-100 text-yellow-700">
                                   جاري المعالجة
                                 </span>
                               ) : isTrained ? (
-                                <span className="inline-block px-2 py-1 sm:px-4 sm:py-1 rounded-lg text-xs sm:text-sm font-semibold bg-green-100 text-green-700">
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-green-100 text-green-700">
                                   تم التدريب
                                 </span>
                               ) : (
-                                <span className="inline-block px-2 py-1 sm:px-4 sm:py-1 rounded-lg text-xs sm:text-sm font-semibold bg-gray-100 text-gray-600 max-w-[9rem] break-words">
+                                <span className="inline-block px-4 py-1 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600">
                                   {file.status ?? "غير معروف"}
                                 </span>
                               )}
                             </td>
-                            <td className="px-2 py-3 sm:px-5 sm:py-4 text-[11px] sm:text-sm text-gray-500 text-center leading-snug whitespace-normal sm:whitespace-nowrap">
+                            <td className="px-5 py-4 text-sm text-gray-500 text-center">
                               {formattedDate}
                             </td>
-                            <td className="px-3 py-3 sm:px-5 sm:py-4 text-center align-middle">
+                            <td className="px-5 py-4 text-center">
                               <div className="flex justify-center">
                                 <button
-                                  type="button"
                                   onClick={() => { setFileToDelete(file); setIsDeleteConfirmOpen(true); }}
-                                  className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center rounded-md bg-red-50 text-red-500 hover:bg-red-100 active:bg-red-100 transition-colors touch-manipulation"
-                                  aria-label={`حذف ${file.file_name}`}
+                                  className="w-9 h-9 flex items-center justify-center rounded-md bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
