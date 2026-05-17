@@ -16,6 +16,7 @@ const I18nMiddleware = createI18nMiddleware({
 const MERCHANT_BLOCKED_SEGMENTS = new Set([
   'users',
   'productProviders',
+  'cities',
   'banners',
   'mosa3edy',
   'requested-services',
