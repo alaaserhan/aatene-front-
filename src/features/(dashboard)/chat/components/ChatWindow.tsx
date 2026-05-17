@@ -15,6 +15,7 @@ import {
 import { useAuthStore } from "@/src/stores/auth-store";
 import Cookies from "js-cookie";
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import { format } from "date-fns";
 import { ar, arSA } from "date-fns/locale";
 import { toast } from "sonner";
@@ -61,7 +62,7 @@ function ChatHeaderPriceBadge({ price }: { price: string | number | null | undef
     const n = chatPriceNumeric(price);
     return (
         <p className="text-sm text-white font-medium whitespace-nowrap">
-            {n.toFixed(2)} <span className="text-lg">₪</span>
+            {formatPrice(n)} <span className="text-lg">₪</span>
         </p>
     );
 }
@@ -71,7 +72,7 @@ function ChatMessagePriceLine({ price }: { price: string | number | null | undef
     if (isAskForPricePrice(price)) {
         return <p className="text-xs text-blue-3 font-medium mt-1">اطلب السعر</p>;
     }
-    return <p className="text-xs text-blue-3 font-medium mt-1">{chatPriceNumeric(price).toFixed(2)} ₪</p>;
+    return <p className="text-xs text-blue-3 font-medium mt-1">{formatPrice(chatPriceNumeric(price))} ₪</p>;
 }
 
 export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindowProps) {

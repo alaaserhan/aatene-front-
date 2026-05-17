@@ -8,6 +8,7 @@ import { Service } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddServiceToCompare, useRemoveServiceFromCompare } from "@/src/features/(web)/compares/hooks";
 import { cn, isVideoFile } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { productAskForPriceButtonClassName } from "@/src/features/(web)/product/components/productAskForPriceButton";
 import { useQueryClient } from "@tanstack/react-query";
@@ -240,7 +241,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                                 </button>
                             ) : (
                                 <span className="text-2xl font-normal">
-                                    {totalPrice.toFixed(2)} ₪
+                                    {formatPrice(totalPrice)} ₪
                                 </span>
                             )}
                             <div className="w-px h-4 bg-gray-300 mx-2" />
@@ -349,7 +350,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                                             <span className="font-medium text-sm">{extra.title}</span>
                                             <div className="flex items-center gap-4 text-xs text-gray-2">
                                                 <span className="font-medium text-gray-2  ">
-                                                    {parseFloat(extra.price).toFixed(2)} <span className="text-base">₪ </span>
+                                                    {formatPrice(extra.price)} <span className="text-base">₪ </span>
                                                 </span>
                                                 <span className="flex items-center gap-1">
                                                     <Clock4 className="w-3 h-3 mb-0.5" /> {extra.execute_count} {executeTypeMap[extra.execute_type] || extra.execute_type}

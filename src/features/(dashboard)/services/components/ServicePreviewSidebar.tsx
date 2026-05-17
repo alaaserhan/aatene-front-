@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import { ImageIcon, MapPin } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 
@@ -22,12 +23,7 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
 
   const getFormattedPrice = (price?: number) => {
     if (!price || price === 0) return "-";
-
-    const number = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 0,
-    }).format(price);
-
-    return `${number} ₪`;
+    return `${formatPrice(price)} ₪`;
   };
 
   const formattedPrice = getFormattedPrice(data.price);

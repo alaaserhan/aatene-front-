@@ -3,6 +3,7 @@
 import { useState, type MouseEvent } from "react";
 import { Service, getService } from "../api";
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { Star, MapPin, User } from "lucide-react";
 import Image from "next/image";
@@ -156,7 +157,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                         </button>
                     ) : (
                         <p className="flex font-medium items-baseline gap-1">
-                            <span>{price.toFixed(2)}</span>
+                            <span>{formatPrice(price)}</span>
                             <span className="text-xl">₪</span>
                         </p>
                     )}

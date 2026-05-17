@@ -12,6 +12,7 @@ import { ServicePreviewSidebar } from "./ServicePreviewSidebar";
 import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Step1ServiceData, Step2ServiceData } from "../types";
+import { formatPrice } from "@/src/lib/format-price";
 import { ExecuteType, ServiceExtra } from "../api";
 import { cn } from "@/src/lib/utils";
 import { Button } from "@/src/components/ui/button";
@@ -384,7 +385,7 @@ export function AddServiceStep2({
                                                     <div className="flex items-center gap-4 text-sm text-gray-1">
                                                         <div className="flex items-center gap-1 font-bold ">
                                                             <span>₪</span>
-                                                            <span>{Number(extra.price).toFixed(2)}</span>
+                                                            <span>{formatPrice(extra.price)}</span>
                                                         </div>
                                                         <div className="text-xs text-gray-2 bg-gray-100 px-2 py-1 rounded">
                                                             {extra.execute_count} {getExecuteLabel(extra.execute_type)}

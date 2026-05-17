@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 
 interface DualRangeSliderProps {
     min: number;
@@ -109,7 +110,7 @@ export function DualRangeSlider({
                 >
                     {/* Label below thumb */}
                     <div className="absolute top-6 left-1/2 -translate-x-1/2 text-xs font-semibold text-blue-4">
-                        ₪{localValue[0]}
+                        ₪{formatPrice(localValue[0])}
                     </div>
                 </div>
 
@@ -122,7 +123,7 @@ export function DualRangeSlider({
                 >
                     {/* Label below thumb */}
                     <div className="absolute top-6 left-1/2 -translate-x-1/2 text-xs font-semibold text-blue-4">
-                        ₪{localValue[1]}
+                        ₪{formatPrice(localValue[1])}
                     </div>
                 </div>
             </div>

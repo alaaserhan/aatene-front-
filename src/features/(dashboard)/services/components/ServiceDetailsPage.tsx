@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
 import { useGetService, useUpdateServiceStatus, useUpdateServiceShown } from "../hooks";
+import { formatPrice } from "@/src/lib/format-price";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Button } from "@/src/components/ui/button";
@@ -426,7 +427,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 <div className="grid grid-cols-2 py-4 border-b border-gray-100">
                                     <div className="t">
                                         <p className=" font-bold text-sm mb-1">سعر الخدمة</p>
-                                        <p className="text-gray-2 text-sm font-medium">₪  {service.price}</p>
+                                        <p className="text-gray-2 text-sm font-medium">₪ {formatPrice(service.price)}</p>
                                     </div>
                                     <div className="">
                                         <p className=" font-bold text-sm mb-1">التسليم خلال</p>
