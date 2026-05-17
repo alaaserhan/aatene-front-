@@ -44,7 +44,8 @@ export function MediaItem({
       <button
         type="button"
         onClick={handleDelete}
-        className="absolute cursor-pointer left-2 top-2 z-20 flex opacity-0 group-hover:opacity-100 items-center justify-center rounded-md bg-white/90 p-1.5 shadow-sm backdrop-blur-sm transition-all hover:bg-red-50 focus:opacity-100"
+        className="absolute cursor-pointer left-2 top-2 z-20 flex items-center justify-center rounded-md bg-white/95 p-2 min-w-[36px] min-h-[36px] shadow-sm backdrop-blur-sm transition-all hover:bg-red-50 opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
+        aria-label="حذف الملف"
       >
         <img src="/icons/dashboard/trash.svg" alt="delete" className="h-4 w-4" />
       </button>

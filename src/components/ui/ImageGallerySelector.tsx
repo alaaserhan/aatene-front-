@@ -275,14 +275,25 @@ export function ImageGallerySelector({
                                     className="w-full h-full object-cover"
                                 />
                             )}
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemove(index);
+                                }}
+                                className="absolute top-2 left-2 z-20 flex min-w-[36px] min-h-[36px] items-center justify-center rounded-md bg-red-2 shadow-sm md:hidden"
+                                aria-label="حذف الصورة"
+                            >
+                                <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
+                            </button>
+                            <div className="absolute inset-0 hidden md:flex bg-black/0 group-hover:bg-black/10 transition-colors items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
                                 <GripHorizontal className="text-white w-6 h-6 drop-shadow-md" />
                             </div>
                         </div>
 
-                        <div className="h-[35px] px-3 flex items-center justify-between bg-white border-t border-gray-200">
+                        <div className="min-h-[44px] h-auto py-1.5 px-2 sm:px-3 flex items-center justify-between gap-2 bg-white border-t border-gray-200">
                             {showMainSelector ? (
-                                <label className="flex items-center gap-2 cursor-pointer">
+                                <label className="flex items-center gap-2 cursor-pointer min-w-0 flex-1">
                                     <div
                                         onClick={() => handleSetMain(index)}
                                         className={cn(
@@ -312,12 +323,13 @@ export function ImageGallerySelector({
                             <button
                                 type="button"
                                 onClick={() => handleRemove(index)}
-                                className="w-5 h-5 flex items-center justify-center rounded bg-red-2 cursor-pointer"
+                                className="shrink-0 flex min-w-[36px] min-h-[36px] items-center justify-center rounded-md bg-red-2 cursor-pointer touch-manipulation"
+                                aria-label="حذف الصورة"
                             >
                                 <img
                                     src="/icons/dashboard/trash.svg"
-                                    className="w-3 h-3"
-                                    alt="delete"
+                                    className="w-4 h-4"
+                                    alt=""
                                 />
                             </button>
                         </div>

@@ -69,9 +69,10 @@ export function MediaMultiSelect({
             <button
               type="button"
               onClick={() => handleRemoveImage(idx)}
-              className="absolute top-2 start-2 p-1 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              className="absolute top-2 start-2 z-10 flex min-w-[36px] min-h-[36px] items-center justify-center rounded-full bg-white shadow-sm opacity-100 transition-opacity cursor-pointer md:opacity-0 md:group-hover:opacity-100"
+              aria-label="حذف الصورة"
             >
-              <img src="/icons/dashboard/trash.svg" className="w-4 h-4" />
+              <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
             </button>
           </div>
         ))}

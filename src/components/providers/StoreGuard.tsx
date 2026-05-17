@@ -62,9 +62,13 @@ export function StoreGuard({ children }: { children: ReactNode }) {
             }
 
             try {
-                const response = await getStores(new URLSearchParams());
-                if (response.data && response.data.length > 0) {
-                    const store = response.data[0];
+                const params = new URLSearchParams();
+                params.set("status", "approved");
+                params.set("per_page", "100");
+                const response = await getStores(params);
+                const approvedStores = (response.data ?? []).filter((s) => s.status === "approved");
+                if (approvedStores.length > 0) {
+                    const store = approvedStores[0];
                     Cookies.set("current_store_id", store.id.toString(), {
                         expires: 365,
                     });

@@ -70,30 +70,47 @@ export function DashboardUserMenu() {
     const isAdmin = user?.user_type === "admin";
     const isMerchant = user?.user_type === "merchant";
 
-    // --- Fetch Stores (Only if Merchant) ---
+    // --- Fetch Stores (Only if Merchant) — المعتمدة فقط في مبدّل المتاجر ---
+    const merchantStoresParams = useMemo(() => {
+        const p = new URLSearchParams();
+        p.set("per_page", "100");
+        p.set("status", "approved");
+        return p;
+    }, []);
+
     const { data: storesData, isLoading: isLoadingStores } = useGetStores(
-        new URLSearchParams("per_page=100"),
+        merchantStoresParams,
         { enabled: isMerchant }
     );
 
-    const storesRaw = storesData?.data;
-    const stores = useMemo(() => storesRaw || [], [storesRaw]);
+    const stores = useMemo(
+        () => (storesData?.data ?? []).filter((s) => s.status === "approved"),
+        [storesData?.data]
+    );
 
-    // قراءة المتجر الحالي من الكوكيز عند التحميل
+    // مزامنة المتجر النشط: فقط متاجر معتمدة (إن كان الكوكي لمتجر pending يُستبدل)
     useEffect(() => {
-        if (!currentStoreId && stores.length > 0) {
-            const timer = setTimeout(() => {
-                const firstStoreId = String(stores[0].id);
-                setCurrentStoreId(firstStoreId);
-                Cookies.set("current_store_id", firstStoreId, { expires: 365 });
-                Cookies.set("store_type", stores[0].type, { expires: 365 });
-                if (stores[0].role_in_store) {
-                    Cookies.set("store_role", stores[0].role_in_store, { expires: 365 });
-                    setStoreRole(stores[0].role_in_store);
-                }
-            }, 0);
-            return () => clearTimeout(timer);
-        }
+        if (stores.length === 0) return;
+
+        const currentValid = stores.find((s) => String(s.id) === currentStoreId);
+        const target = currentValid ?? stores[0];
+        const targetId = String(target.id);
+
+        if (currentValid && currentStoreId === targetId) return;
+
+        const timer = setTimeout(() => {
+            setCurrentStoreId(targetId);
+            Cookies.set("current_store_id", targetId, { expires: 365 });
+            Cookies.set("store_type", target.type, { expires: 365 });
+            if (target.role_in_store) {
+                Cookies.set("store_role", target.role_in_store, { expires: 365 });
+                setStoreRole(target.role_in_store);
+            } else {
+                Cookies.remove("store_role");
+                setStoreRole(null);
+            }
+        }, 0);
+        return () => clearTimeout(timer);
     }, [stores, currentStoreId]);
 
     // تحديد المتجر النشط حالياً لعرض بياناته في الهيدر
@@ -248,7 +265,7 @@ export function DashboardUserMenu() {
                                 {isLoadingStores ? (
                                     <p className="text-xs text-center text-gray-2 py-2">جاري التحميل...</p>
                                 ) : filteredStores.length === 0 ? (
-                                    <p className="text-xs text-center text-gray-2 py-2">لا يوجد متاجر</p>
+                                    <p className="text-xs text-center text-gray-2 py-2">لا يوجد متاجر معتمدة</p>
                                 ) : (
                                     filteredStores.map((store) => {
                                         const isActive = String(store.id) === currentStoreId;
@@ -267,9 +284,9 @@ export function DashboardUserMenu() {
                                                     {store.logo_url ? (
                                                         <img src={store.logo_url} alt={store.name} className="w-full h-full object-cover" />
                                                     ) : store.type === "services" ? (
-                                                        <img src="/icons/dashboard/nav_services.svg" alt="service" className="w-4 h-4" style={{ filter: "brightness(0)" }} />
+                                                        <img src="/icons/dashboard/nav_services.svg" alt="" aria-hidden className="w-4 h-4" style={{ filter: "brightness(0)" }} />
                                                     ) : (
-                                                        <img src="/icons/dashboard/nav_products.svg" alt="product" className="w-4 h-4" style={{ filter: "brightness(0)" }} />
+                                                        <img src="/icons/dashboard/nav_products.svg" alt="" aria-hidden className="w-4 h-4" style={{ filter: "brightness(0)" }} />
                                                     )}
                                                 </div>
                                                 <span className={cn(
@@ -279,9 +296,9 @@ export function DashboardUserMenu() {
                                                     {store.name}
                                                 </span>
                                                 {store.type === "services" ? (
-                                                    <img src="/icons/dashboard/nav_services.svg" alt="service" className="w-4 h-4" />
+                                                    <img src="/icons/dashboard/nav_services.svg" alt="" aria-hidden className="w-4 h-4" />
                                                 ) : (
-                                                    <img src="/icons/dashboard/nav_products.svg" alt="product" className="w-4 h-4" />
+                                                    <img src="/icons/dashboard/nav_products.svg" alt="" aria-hidden className="w-4 h-4" />
                                                 )}
                                             </div>
                                         );

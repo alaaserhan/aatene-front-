@@ -194,7 +194,6 @@ export default function proxy(request: NextRequest) {
     }
   }
   
-
   return i18nResponse;
 }
 
