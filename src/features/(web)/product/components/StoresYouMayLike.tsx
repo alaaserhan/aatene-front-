@@ -28,8 +28,7 @@ export default function StoresYouMayLike({ stores }: StoresYouMayLikeProps) {
         <div className="mt-16 mb-8">
             {/* Header */}
             <div className="mb-8">
-                <h2 className="text-2xl font-bold mb-2">متاجر قد تنال اعجابك</h2>
-                <p className="text-gray-500 text-sm">أفضل المنتجات مبيعاً من بائعين موثوق بهم | ممول</p>
+                <h2 className="text-2xl font-bold">متاجر قد تنال اعجابك</h2>
             </div>
 
             {/* Stores Grid */}
