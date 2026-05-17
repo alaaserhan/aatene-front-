@@ -24,7 +24,20 @@ export function StoreGuard({ children }: { children: ReactNode }) {
     const [showModal, setShowModal] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
-    const params = useParams();
+    const routeParams = useParams();
+
+    const locale =
+        typeof routeParams?.locale === "string"
+            ? routeParams.locale
+            : Array.isArray(routeParams?.locale)
+              ? (routeParams.locale[0] ?? "ar")
+              : "ar";
+    const dashboardType =
+        typeof routeParams?.type === "string"
+            ? routeParams.type
+            : Array.isArray(routeParams?.type)
+              ? (routeParams.type[0] ?? "admin")
+              : "admin";
 
     useEffect(() => {
         if (!isHydrated) return;
@@ -40,20 +53,18 @@ export function StoreGuard({ children }: { children: ReactNode }) {
             const storeType = Cookies.get("store_type");
 
             if (storeId && storeType) {
-                const locale = params?.locale || "ar";
-                const type = params?.type || "admin";
                 const currentPath = pathname || "";
 
                 const isOnProductsPage = currentPath.includes("/products") && !currentPath.includes("/stores");
                 const isOnServicesPage = (currentPath.includes("/serviceProviders") || currentPath.includes("/services")) && !currentPath.includes("/stores");
 
                 if ((storeType === "services") && isOnProductsPage) {
-                    router.push(`/${locale}/${type}/serviceProviders/${storeId}`);
+                    router.push(`/${locale}/${dashboardType}/serviceProviders/${storeId}`);
                     return;
                 }
 
                 if (storeType === "products" && isOnServicesPage) {
-                    router.push(`/${locale}/${type}/products`);
+                    router.push(`/${locale}/${dashboardType}/products`);
                     return;
                 }
 
@@ -62,10 +73,10 @@ export function StoreGuard({ children }: { children: ReactNode }) {
             }
 
             try {
-                const params = new URLSearchParams();
-                params.set("status", "approved");
-                params.set("per_page", "100");
-                const response = await getStores(params);
+                const storeListParams = new URLSearchParams();
+                storeListParams.set("status", "approved");
+                storeListParams.set("per_page", "100");
+                const response = await getStores(storeListParams);
                 const approvedStores = (response.data ?? []).filter((s) => s.status === "approved");
                 if (approvedStores.length > 0) {
                     const store = approvedStores[0];
@@ -83,10 +94,8 @@ export function StoreGuard({ children }: { children: ReactNode }) {
                     const isStoresPage = pathname?.includes("/stores");
 
                     if (!isStoresPage) {
-                        const locale = params?.locale || "ar";
-                        const type = params?.type || "admin";
                         setShowModal(true);
-                        router.push(`/${locale}/${type}/stores`);
+                        router.push(`/${locale}/${dashboardType}/stores`);
                     }
                     setIsReady(true);
                 }
@@ -97,7 +106,7 @@ export function StoreGuard({ children }: { children: ReactNode }) {
         };
 
         initializeStore();
-    }, [user, isHydrated, pathname, router, params]);
+    }, [user, isHydrated, pathname, router, locale, dashboardType]);
 
     if (!isReady) {
         return (
