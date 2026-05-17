@@ -9,11 +9,14 @@ import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
+import { resolvePortalDefaultReportType } from "../portal-report";
 
 interface PortalReportModalProps {
     isOpen: boolean;
     onClose: () => void;
     category?: string;
+    /** بوابة /report فقط: تخطي اختيار الفئة والسبب والانتقال مباشرة للموضوع والتفاصيل */
+    skipTypeSelection?: boolean;
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -26,8 +29,13 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 const CATEGORY_ORDER = ["customer", "merchant", "product", "service", "comment"];
 
-export function PortalReportModal({ isOpen, onClose, category }: PortalReportModalProps) {
-    const [step, setStep] = useState(1);
+export function PortalReportModal({
+    isOpen,
+    onClose,
+    category,
+    skipTypeSelection = false,
+}: PortalReportModalProps) {
+    const [step, setStep] = useState(skipTypeSelection ? 2 : 1);
     const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null);
     const [activeCategory, setActiveCategory] = useState<string>("");
     const [subject, setSubject] = useState("");
@@ -71,12 +79,24 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
         () => allActiveTypes.filter((t) => t.category === activeCategory),
         [allActiveTypes, activeCategory]
     );
-    const selectedTypeName = filteredTypes.find((t) => t.id === selectedTypeId)?.name || "";
+    const selectedTypeName =
+        allActiveTypes.find((t) => t.id === selectedTypeId)?.name ||
+        (skipTypeSelection ? "شكوى أو اقتراح" : "");
+
+    // بوابة /report: نوع بلاغ افتراضي ثم خطوة الموضوع والتفاصيل مباشرة
+    useEffect(() => {
+        if (!isOpen || !skipTypeSelection || typesLoading) return;
+        const defaultType = resolvePortalDefaultReportType(allActiveTypes);
+        if (!defaultType) return;
+        setSelectedTypeId(defaultType.id);
+        if (defaultType.category) setActiveCategory(defaultType.category);
+        setStep(2);
+    }, [isOpen, skipTypeSelection, typesLoading, allActiveTypes]);
 
     useEffect(() => {
         if (!isOpen) {
             const timer = setTimeout(() => {
-                setStep(1);
+                setStep(skipTypeSelection ? 2 : 1);
                 setSelectedTypeId(null);
                 setSubject("");
                 setContent("");
@@ -84,12 +104,13 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
             }, 300);
             return () => clearTimeout(timer);
         }
-    }, [isOpen]);
+    }, [isOpen, skipTypeSelection, category]);
 
-    // Reset selected type when category changes
+    // Reset selected type when category changes (فقط عند اختيار النوع يدوياً)
     useEffect(() => {
+        if (skipTypeSelection) return;
         setSelectedTypeId(null);
-    }, [activeCategory]);
+    }, [activeCategory, skipTypeSelection]);
 
     const handleNext = () => {
         if (selectedTypeId) {
@@ -115,8 +136,8 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="max-w-[520px] w-[95vw] h-auto max-h-[90vh] overflow-y-auto p-6 rounded-2xl" dir="rtl">
-                {/* Step 1: Select Category then Report Type */}
-                {step === 1 && (
+                {/* Step 1: Select Category then Report Type (لا يُعرض في بوابة /report المباشرة) */}
+                {step === 1 && !skipTypeSelection && (
                     <div className="flex flex-col gap-5">
                         <div className="text-center space-y-2">
                             <DialogTitle className="text-xl font-bold">الإبلاغ عن إساءة</DialogTitle>
@@ -204,11 +225,30 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
                 )}
 
                 {/* Step 2: Report Form */}
-                {step === 2 && (
+                {skipTypeSelection && typesLoading && step === 2 && (
+                    <div className="flex flex-col items-center justify-center py-12 gap-3">
+                        <DialogTitle className="text-xl font-bold text-center">شكوى أو اقتراح</DialogTitle>
+                        <Loader2 className="w-8 h-8 animate-spin text-[#3d5e83]" />
+                        <p className="text-sm text-gray-500">جاري تحميل النموذج...</p>
+                    </div>
+                )}
+
+                {step === 2 && !(skipTypeSelection && typesLoading) && (
                     <div className="flex flex-col items-center gap-6">
                         <div className="text-center space-y-2">
-                            <DialogTitle className="text-xl font-bold">الإبلاغ عن إساءة</DialogTitle>
-                            <p className="text-gray-500 text-sm">أنت تُبلّغ عن: <span className="font-semibold text-[#3d5e83]">{selectedTypeName}</span></p>
+                            <DialogTitle className="text-xl font-bold">
+                                {skipTypeSelection ? "شكوى أو اقتراح" : "الإبلاغ عن إساءة"}
+                            </DialogTitle>
+                            <p className="text-gray-500 text-sm">
+                                {skipTypeSelection
+                                    ? "شاركنا تفاصيل شكواك أو اقتراحك وسنعود إليك قريباً"
+                                    : (
+                                        <>
+                                            أنت تُبلّغ عن:{" "}
+                                            <span className="font-semibold text-[#3d5e83]">{selectedTypeName}</span>
+                                        </>
+                                    )}
+                            </p>
                         </div>
 
                         <div className="w-full space-y-4">
@@ -224,11 +264,17 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
                             </div>
 
                             <div className="space-y-2">
-                                <label className="block text-sm font-medium">{selectedTypeName || "تفاصيل البلاغ"}</label>
+                                <label className="block text-sm font-medium">
+                                    {skipTypeSelection ? "التفاصيل" : selectedTypeName || "تفاصيل البلاغ"}
+                                </label>
                                 <textarea
                                     value={content}
                                     onChange={(e) => setContent(e.target.value)}
-                                    placeholder={`اكتب تفاصيل ${selectedTypeName || "البلاغ"} هنا`}
+                                    placeholder={
+                                        skipTypeSelection
+                                            ? "اكتب تفاصيل شكواك أو اقتراحك هنا"
+                                            : `اكتب تفاصيل ${selectedTypeName || "البلاغ"} هنا`
+                                    }
                                     rows={5}
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#3d5e83] transition-colors resize-none placeholder:text-gray-300"
                                 />
@@ -237,7 +283,7 @@ export function PortalReportModal({ isOpen, onClose, category }: PortalReportMod
 
                         <button
                             onClick={handleSubmit}
-                            disabled={isPending || !content.trim()}
+                            disabled={isPending || !content.trim() || !selectedTypeId}
                             className="w-full py-3 rounded-full text-white font-medium text-base transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-[#3d5e83] hover:bg-[#2c4461]"
                         >
                             {isPending ? (
