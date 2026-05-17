@@ -340,11 +340,6 @@ export function ForgotPasswordForm() {
                         name="value"
                         render={({ field }) => (
                             <FormItem className="space-y-3">
-                                <FormLabel className="block text-gray-2 text-sm font-normal">
-                                    {selectedChannel === "email"
-                                        ? "البريد الإلكتروني"
-                                        : "رقم الهاتف"}
-                                </FormLabel>
                                 <FormControl>
                                     <Input
                                         key={selectedChannel}
