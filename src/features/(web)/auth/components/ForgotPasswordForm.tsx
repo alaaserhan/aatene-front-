@@ -5,8 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { Loader2, Eye, EyeOff, Mail, Phone } from "lucide-react";
-import { cn } from "@/src/lib/utils";
+import { Loader2, Eye, EyeOff, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/src/components/ui/button";
@@ -31,25 +30,12 @@ import { useLanguage } from "@/src/hooks/use-language";
 
 // --- Schemas ---
 
-const sendCodeSchema = z.discriminatedUnion("channel", [
-    z.object({
-        channel: z.literal("email"),
-        value: z
-            .string()
-            .min(1, "البريد الإلكتروني مطلوب")
-            .email("أدخل بريداً إلكترونياً صحيحاً"),
-    }),
-    z.object({
-        channel: z.literal("phone"),
-        value: z
-            .string()
-            .min(1, "رقم الهاتف مطلوب")
-            .refine(
-                (val) => /^\+?[0-9]{7,15}$/.test(val.replace(/\s/g, "")),
-                "أدخل رقم هاتف صحيحاً مع رمز الدولة"
-            ),
-    }),
-]);
+const sendCodeSchema = z.object({
+    email: z
+        .string()
+        .min(1, "البريد الإلكتروني مطلوب")
+        .email("أدخل بريداً إلكترونياً صحيحاً"),
+});
 
 const verifyCodeSchema = z.object({
     code: z.string().min(4, "الكود يجب أن يكون 4 أرقام").max(6, "الكود يجب أن يكون 6 أرقام"),
@@ -66,8 +52,6 @@ const resetPasswordSchema = z.object({
 type SendCodeData = z.infer<typeof sendCodeSchema>;
 type VerifyCodeData = z.infer<typeof verifyCodeSchema>;
 type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
-
-type IdentifierChannel = "email" | "phone";
 
 // --- OTP Input Component ---
 interface OTPInputProps {
@@ -149,7 +133,6 @@ export function ForgotPasswordForm() {
 
     // State to hold data across steps
     const [identifier, setIdentifier] = useState("");
-    const [identifierChannel, setIdentifierChannel] = useState<IdentifierChannel>("email");
     const [requestId, setRequestId] = useState(""); // The 'id' returned from sendCode/verifyCode
     const [verifiedCode, setVerifiedCode] = useState("");
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
@@ -177,25 +160,16 @@ export function ForgotPasswordForm() {
     // --- Step 1: Send Code Form ---
     const sendCodeForm = useForm<SendCodeData>({
         resolver: zodResolver(sendCodeSchema),
-        defaultValues: { channel: "email", value: "" },
+        defaultValues: { email: "" },
     });
 
-    const selectedChannel = sendCodeForm.watch("channel");
-
-    const switchChannel = (channel: IdentifierChannel) => {
-        sendCodeForm.setValue("channel", channel);
-        sendCodeForm.setValue("value", "");
-        sendCodeForm.clearErrors("value");
-    };
-
     const onSendCode = (data: SendCodeData) => {
-        const trimmed = data.value.trim();
+        const trimmed = data.email.trim();
         sendCode(
             { identifier: trimmed },
             {
                 onSuccess: (res) => {
                     setIdentifier(trimmed);
-                    setIdentifierChannel(data.channel);
                     setRequestId(res.id);
                     setResendTimer(59);
                     setStep(2);
@@ -282,86 +256,46 @@ export function ForgotPasswordForm() {
                     نسيت كلمة السر؟
                 </h1>
                 <p className="text-[#717171] text-sm leading-relaxed">
-                    اختر طريقة استلام رمز التحقق ثم أدخل البيانات المسجّلة في حسابك
+                    أدخل بريدك الإلكتروني المسجّل في حسابك لاستلام رمز التحقق
                 </p>
             </div>
 
             <Form {...sendCodeForm}>
                 <form onSubmit={sendCodeForm.handleSubmit(onSendCode)} className="space-y-6">
-                    <FormField
-                        control={sendCodeForm.control}
-                        name="channel"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormControl>
-                                    <div
-                                        className="grid grid-cols-2 gap-2 p-1.5 bg-[#F5F7FA] rounded-full border border-[#E3E3E3]"
-                                        role="tablist"
-                                        aria-label="طريقة استلام الرمز"
-                                    >
-                                        <button
-                                            type="button"
-                                            role="tab"
-                                            aria-selected={field.value === "email"}
-                                            onClick={() => switchChannel("email")}
-                                            className={cn(
-                                                "flex items-center justify-center gap-2 h-11 rounded-full text-sm font-medium transition-colors cursor-pointer",
-                                                field.value === "email"
-                                                    ? "bg-white text-[#3D5E83] shadow-sm border border-[#E3E3E3]"
-                                                    : "text-[#717171] hover:text-[#3D5E83]"
-                                            )}
-                                        >
-                                            <Mail className="h-4 w-4 shrink-0" />
-                                            بريد إلكتروني
-                                        </button>
-                                        <button
-                                            type="button"
-                                            role="tab"
-                                            aria-selected={field.value === "phone"}
-                                            onClick={() => switchChannel("phone")}
-                                            className={cn(
-                                                "flex items-center justify-center gap-2 h-11 rounded-full text-sm font-medium transition-colors cursor-pointer",
-                                                field.value === "phone"
-                                                    ? "bg-white text-[#3D5E83] shadow-sm border border-[#E3E3E3]"
-                                                    : "text-[#717171] hover:text-[#3D5E83]"
-                                            )}
-                                        >
-                                            <Phone className="h-4 w-4 shrink-0" />
-                                            رقم الهاتف
-                                        </button>
-                                    </div>
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
+                    <div
+                        role="tablist"
+                        aria-label="طريقة استلام الرمز"
+                        className="w-full p-1.5 rounded-full"
+                        style={{ backgroundColor: "var(--blue-3)" }}
+                    >
+                        <div
+                            role="tab"
+                            aria-selected
+                            className="flex w-full items-center justify-center gap-2 h-11 rounded-full text-sm font-medium bg-white text-[#3D5E83] shadow-sm border border-[#E3E3E3] cursor-default"
+                        >
+                            <Mail className="h-4 w-4 shrink-0" aria-hidden />
+                            <span className="text-center">بريد إلكتروني</span>
+                        </div>
+                    </div>
 
                     <FormField
                         control={sendCodeForm.control}
-                        name="value"
+                        name="email"
                         render={({ field }) => (
                             <FormItem className="space-y-3">
                                 <FormControl>
                                     <Input
-                                        key={selectedChannel}
-                                        placeholder={
-                                            selectedChannel === "email"
-                                                ? "example@aatene.com"
-                                                : "+970501234567"
-                                        }
-                                        type={selectedChannel === "email" ? "email" : "tel"}
-                                        inputMode={selectedChannel === "email" ? "email" : "tel"}
-                                        autoComplete={
-                                            selectedChannel === "email" ? "email" : "tel"
-                                        }
+                                        placeholder="example@aatene.com"
+                                        type="email"
+                                        inputMode="email"
+                                        autoComplete="email"
                                         dir="ltr"
                                         className="h-[44px] text-base bg-white border border-[#E3E3E3] rounded-full focus:border-[#3D5E83] focus:ring-1 focus:ring-[#3D5E83] transition-colors text-[#555555] placeholder:text-[#AAAAAA] text-right"
                                         {...field}
                                     />
                                 </FormControl>
                                 <p className="text-[#AAAAAA] text-xs leading-relaxed">
-                                    {selectedChannel === "email"
-                                        ? "استخدم نفس البريد الذي سجّلت به في المنصة"
-                                        : "استخدم نفس رقم الهاتف مع رمز الدولة كما عند التسجيل"}
+                                    استخدم نفس البريد الذي سجّلت به في المنصة
                                 </p>
                                 <FormMessage />
                             </FormItem>
@@ -393,22 +327,18 @@ export function ForgotPasswordForm() {
         </div>
     );
 
-    const renderStep2 = () => {
-        const usedEmail = identifierChannel === "email";
-        return (
+    const renderStep2 = () => (
         <div className="w-full max-w-[480px] mx-auto bg-white rounded-md shadow-sm border border-[#F0F0F0] p-8 sm:p-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
             {/* Title */}
             <div className="text-center mb-6 space-y-2">
                 <h1 className="text-2xl sm:text-[28px] font-bold text-[#1C1C1C]">
-                    {usedEmail ? "تحقق من بريدك الإلكتروني" : "تحقق من هاتفك"}
+                    تحقق من بريدك الإلكتروني
                 </h1>
                 <p className="text-[#717171] text-sm font-medium" dir="ltr">
                     {identifier}
                 </p>
                 <p className="text-[#717171] text-sm leading-relaxed">
-                    {usedEmail
-                        ? "أرسلنا رمز التحقق إلى بريدك الإلكتروني. قد يصلك الرمز أيضًا على هاتفك المسجّل."
-                        : "أرسلنا رمز التحقق برسالة نصية إلى رقمك. قد يصلك الرمز أيضًا على بريدك الإلكتروني المسجّل."}
+                    أرسلنا رمز التحقق إلى بريدك الإلكتروني. تحقق من صندوق الوارد أو مجلد الرسائل غير المرغوب فيها.
                 </p>
                 <p className="text-[#717171] text-sm">
                     أدخل الرمز أدناه للمتابعة.
@@ -465,8 +395,7 @@ export function ForgotPasswordForm() {
                             type="button"
                             className="text-gray-2 cursor-pointer text-sm hover:text-[#1C1C1C] hover:underline p-0"
                             onClick={() => {
-                                sendCodeForm.setValue("channel", identifierChannel);
-                                sendCodeForm.setValue("value", identifier);
+                                sendCodeForm.setValue("email", identifier);
                                 verifyCodeForm.reset();
                                 setStep(1);
                             }}
@@ -477,8 +406,7 @@ export function ForgotPasswordForm() {
                 </form>
             </Form>
         </div>
-        );
-    };
+    );
 
     const renderStep3 = () => (
         <div className="w-full max-w-[480px] mx-auto bg-white rounded-md shadow-sm border border-[#F0F0F0] p-8 sm:p-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
