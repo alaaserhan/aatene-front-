@@ -198,7 +198,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && (storeType === "services") && isAllowedByRole(`/serviceProviders/${activeStoreId}`) },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: hasAdminPerm("/serviceProviders"), desc: "إدارة ومتابعة مقدمي الخدمات" },
     { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: hasAdminPerm("/sections") || (isMerchant && isAllowedByRole("/sections")), desc: "إدارة وتصنيف الاقسام" },
-    { label: "مدن الشحن", icon: Map, href: "/cities", show: hasAdminPerm("/cities") || (isMerchant && isAllowedByRole("/cities")), desc: "اختر وجهات الشحن المتاحة" },
+    { label: "مدن الشحن", icon: Map, href: "/cities", show: hasAdminPerm("/cities"), desc: "اختر وجهات الشحن المتاحة" },
     { label: "الفئات", icon: Boxes, href: "/categories", show: hasAdminPerm("/categories"), desc: "إدارة وعرض الفئات" },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: hasAdminPerm("/banners"), desc: "ادارة ومتابعة البنرات الإعلانية" },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: hasAdminPerm("/mosa3edy"), desc: "إدارة التشات بوت والإحصائيات" },
