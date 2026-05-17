@@ -21,7 +21,9 @@ export function MediaItem({
   isDisabled = false,
 }: MediaItemProps) {
   const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(item.file_name);
-  const isVideo = /\.(mp4|webm|ogg|mov|mkv|av1|avi)$/i.test(item.file_name) || item.file_type?.startsWith('video');
+  const isVideo = /\.(mp4|webm|ogg|mov|mkv|av1|avi|m4v|3gp)$/i.test(
+    item.file_name || item.url || ""
+  );
 
   const { mutate: deleteMedia, isPending: isDeleting } = useDeleteMedia();
 
@@ -86,9 +88,9 @@ export function MediaItem({
           )}
         </div>
 
-        <div className="border-t border-gray-200 bg-white px-3 py-2">
+        <div className="border-t border-gray-200 bg-white px-2 py-1.5 sm:px-3 sm:py-2">
           <p
-            className="truncate text-center text-sm"
+            className="truncate text-center text-xs sm:text-sm"
             title={item.title}
           >
             <span className="font-medium text-neutral-800">{item.title}</span>

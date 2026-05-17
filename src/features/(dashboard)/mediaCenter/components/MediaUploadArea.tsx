@@ -78,7 +78,7 @@ export function MediaUploadArea({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "border-2 border-dashed rounded-lg p-8 cursor-pointer transition-all duration-200",
+          "border-2 border-dashed rounded-lg p-4 sm:p-8 cursor-pointer transition-all duration-200",
           isDragging
             ? "border-blue-3 bg-blue-50 scale-[1.02]"
             : "border-gray-300 hover:border-blue-3 hover:bg-blue-50",
