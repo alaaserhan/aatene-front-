@@ -22,6 +22,10 @@ interface AddStoreStep6Props {
   onNext: (data: Step6FormData) => void;
   onBack: () => void;
   barSteps: { number: number; label: string; completed: boolean }[];
+  variant?: "wizard" | "standalone";
+  onSave?: (data: Step6FormData) => void;
+  isSaving?: boolean;
+  breadcrumbItems?: { label: string; href?: string }[];
 }
 
 export function AddStoreStep6({
@@ -31,6 +35,10 @@ export function AddStoreStep6({
   onNext,
   onBack,
   barSteps,
+  variant = "wizard",
+  onSave,
+  isSaving = false,
+  breadcrumbItems: breadcrumbItemsProp,
 }: AddStoreStep6Props) {
   const [deliveryType, setDeliveryType] = useState<DeliveryType>(
     initialData?.delivery_type || "hand_delivery"
@@ -51,8 +59,9 @@ export function AddStoreStep6({
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
 
+  const isStandalone = variant === "standalone";
   const steps = barSteps;
-  const breadcrumbItems = [
+  const breadcrumbItems = breadcrumbItemsProp ?? [
     { label: "الرئيسية", href: "/admin/home" },
     { label: "المتاجر", href: "/admin/stores" },
     { label: "إضافة متجر" },
@@ -129,14 +138,19 @@ export function AddStoreStep6({
     return true;
   };
 
+  const buildStep6Data = (): Step6FormData => ({
+    delivery_type: deliveryType,
+    shippingCompanies: deliveryType === "shipping" ? shippingCompanies : [],
+  });
+
   const handleNext = () => {
-    if (validate()) {
-      onNext({
-        delivery_type: deliveryType,
-        shippingCompanies:
-          deliveryType === "shipping" ? shippingCompanies : [],
-      });
+    if (!validate()) return;
+    const data = buildStep6Data();
+    if (isStandalone && onSave) {
+      onSave(data);
+      return;
     }
+    onNext(data);
   };
 
   const getCompanyCities = (company: ShippingCompanyPayload) => {
@@ -155,7 +169,7 @@ export function AddStoreStep6({
     <div className="">
       <div className="container mx-auto py-4 px-4">
         <Breadcrumb items={breadcrumbItems} className="mb-4" />
-        <StepperProgress currentStep={5} steps={steps} />
+        {!isStandalone && <StepperProgress currentStep={5} steps={steps} />}
 
         <div className="grid grid-cols-12 gap-6 mt-8">
           <div className="col-span-12 lg:col-span-8">
@@ -311,7 +325,12 @@ export function AddStoreStep6({
         </div>
       </div>
 
-      <StoreFormActions onNext={handleNext} onBack={onBack} />
+      <StoreFormActions
+        onNext={handleNext}
+        onBack={onBack}
+        isSubmitting={isSaving}
+        nextLabel={isStandalone ? "حفظ" : "حفظ والتالي"}
+      />
 
       <AddShippingCompanyDialog
         isOpen={isDialogOpen}

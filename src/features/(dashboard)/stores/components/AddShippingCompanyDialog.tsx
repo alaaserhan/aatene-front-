@@ -181,8 +181,9 @@ export function AddShippingCompanyDialog({
     }));
 
     const company: ShippingCompanyPayload = {
+      ...(editingCompany?.id != null ? { id: editingCompany.id } : {}),
       name: storeName,
-      phone: `${phoneCountryCode}${storePhone}`,
+      phone: `${phoneCountryCode}${storePhone}`.replace(/\D/g, ""),
       prices,
     };
 
