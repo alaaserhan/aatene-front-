@@ -15,6 +15,7 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import ProductCard from "../../product/components/ProductCard";
 import StoreCard from "../../stores/components/StoreCard";
 import { Pagination } from "@/src/components/ui/Pagination";
