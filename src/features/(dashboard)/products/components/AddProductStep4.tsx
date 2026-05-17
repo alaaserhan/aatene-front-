@@ -565,7 +565,8 @@ function DiscountModal({
                         {/* Name Input */}
                         <div className="space-y-2">
                             <FormInput
-                                type="text"
+                                multiline
+                                rows={1}
                                 label="اسم العرض"
                                 required
                                 maxLength={OFFER_NAME_MAX_CHARS}
@@ -585,7 +586,7 @@ function DiscountModal({
                                 placeholder="ادخل اسم العرض (حروف فقط)"
                                 error={errors.name}
                                 hint={`حد أقصى ${OFFER_NAME_MAX_WORDS} كلمات و${OFFER_NAME_MAX_CHARS} حرفًا`}
-                                className="h-10 px-4 font-medium bg-white shadow-none focus:ring-0"
+                                className="min-h-[100px] px-4 py-3 font-medium bg-white shadow-none focus:ring-0 resize-y"
                             />
                         </div>
 
