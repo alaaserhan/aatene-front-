@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Pen, Phone, Send, CheckCircle2, XCircle, PauseCircle } from "lucide-react";
 import Cookies from "js-cookie";
 import { useGetSingleProduct, useUpdateProductStatus, useUpdateProductShown } from "../hooks";
+import { formatPrice } from "@/src/lib/format-price";
 import { useGetSingleStore } from "@/src/features/(dashboard)/stores/hooks";
 import { useGetProductReviews, useGetProductReviewReplies, useAddProductReview } from "@/src/features/(web)/product/hooks";
 import { ReviewStatisticsDisplay } from "@/src/features/(web)/product/components/ReviewStatisticsDisplay";
@@ -504,7 +505,7 @@ export default function ProductViewPage() {
                                 <div className="grid grid-cols-2 py-4 border-b border-gray-100">
                                     <div>
                                         <p className="font-bold text-sm mb-1">سعر المنتج</p>
-                                        <p className="text-gray-2 text-sm font-medium">₪ {raw.price}</p>
+                                        <p className="text-gray-2 text-sm font-medium">₪ {formatPrice(raw.price)}</p>
                                     </div>
                                     <div>
                                         <p className="font-bold text-sm mb-1">حالة المنتج</p>

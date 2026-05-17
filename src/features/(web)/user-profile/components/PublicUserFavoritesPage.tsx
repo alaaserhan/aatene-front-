@@ -50,7 +50,7 @@ function ServiceCardMini({ service }: { service: any }) {
                 {service.store?.name && (
                     <p className="text-xs text-gray-400 truncate">{service.store.name}</p>
                 )}
-                <p className="text-blue-4 font-semibold text-sm mt-1">${service.price}</p>
+                <p className="text-blue-4 font-semibold text-sm mt-1">{formatPrice(service.price)} ₪</p>
             </div>
         </Link>
     );

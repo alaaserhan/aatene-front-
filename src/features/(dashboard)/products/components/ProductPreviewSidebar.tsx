@@ -2,6 +2,7 @@
 "use client";
 
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { Heart, Star, Share2, ChevronRight } from "lucide-react";
 
@@ -20,10 +21,7 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
     const allImages = [data.coverImage, ...data.galleryImages].filter(Boolean);
     const displayImages = allImages.length > 0 ? allImages : [""];
 
-    // تنسيق السعر الحالي
-    const formattedPrice = new Intl.NumberFormat("en-US", {
-        minimumFractionDigits: 2,
-    }).format(data.price || 0);
+    const formattedPrice = formatPrice(data.price || 0);
 
 
 

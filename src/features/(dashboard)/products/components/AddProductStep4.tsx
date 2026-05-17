@@ -12,6 +12,7 @@ import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Step1FormData, Step4FormData, RelatedProduct } from "../types";
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { SelectProductsModal } from "./SelectProductsModal";
 import { Button } from "@/src/components/ui/button";
@@ -286,7 +287,7 @@ export function AddProductStep4({
                                                                     <div className="flex items-center gap-3 text-xs text-gray-2 mt-1">
                                                                         <span className="flex items-center gap-1">
                                                                             <Tag className="w-3 h-3" />
-                                                                            <span className="font-sans font-medium">{product.price}</span>
+                                                                            <span className="font-sans font-medium">{formatPrice(product.price)}</span>
                                                                         </span>
                                                                         <span>{product.category_name}</span>
                                                                     </div>
@@ -486,7 +487,7 @@ function DiscountModal({
                         <div className="flex items-center gap-2" dir="ltr">
                             <span className="text-4xl font-normal">₪</span>
                             <span className="text-5xl font-medium tracking-tight">
-                                {totalOriginalPrice.toFixed(2)}
+                                {formatPrice(totalOriginalPrice)}
                             </span>
                         </div>
                     </div>
@@ -653,9 +654,9 @@ function DiscountModal({
                                         <>
                                             <span className="text-gray-400 font-bold text-sm mx-2">=</span>
                                             <div className="flex items-center gap-1">
-                                                <span className="text-lg font-bold text-brand-black-1">{Number(price || 0).toFixed(2)}</span>
+                                                <span className="text-lg font-bold text-brand-black-1">{formatPrice(price || 0)}</span>
                                                 <span className="text-sm text-gray-500">₪</span>
-                                                <span className="text-xs text-red-400 line-through mr-2">{totalOriginalPrice.toFixed(2)} ₪</span>
+                                                <span className="text-xs text-red-400 line-through mr-2">{formatPrice(totalOriginalPrice)} ₪</span>
                                             </div>
                                         </>
                                     )}

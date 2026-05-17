@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Star, Trash2, Heart, Maximize2, PlusCircle, ArrowLeftRight } from "lucide-react";
 import { cn } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import { useQueryClient } from "@tanstack/react-query";
 import {
     useGetProductCompareList,
@@ -303,11 +304,11 @@ function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: Product
             {/* Price */}
             <div className="flex-1 flex flex-col items-center justify-center gap-1">
                 <span className="text-2xl text-gray-700">
-                    {(hasDiscount ? priceAfterDiscount : price).toFixed(2)} ₪
+                    {formatPrice(hasDiscount ? priceAfterDiscount : price)} ₪
                 </span>
                 {hasDiscount && (
                     <div className="flex items-center gap-1">
-                        <span className="text-sm text-red-500 line-through">{price.toFixed(0)} ₪</span>
+                        <span className="text-sm text-red-500 line-through">{formatPrice(price)} ₪</span>
                         <span className="bg-emerald-500 text-white text-xs font-medium px-3  py-0.5 rounded-full">
                             {item.discount_present}% off
                         </span>
@@ -317,7 +318,7 @@ function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: Product
 
             {/* Delivery Fee */}
             <div className="flex-1 text-center text-base text-black">
-                {price.toFixed(2)} ₪
+                {formatPrice(price)} ₪
             </div>
 
             {/* Rating */}
@@ -396,7 +397,7 @@ function ServiceCompareRow({ item, onRemove, onToggleFavorite }: { item: Service
             {/* Price */}
             <div className="flex-1 flex flex-col items-center justify-center gap-1">
                 <span className="text-2xl text-gray-700">
-                    {price.toFixed(2)} ₪
+                    {formatPrice(price)} ₪
                 </span>
             </div>
 
