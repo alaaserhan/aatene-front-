@@ -11,6 +11,7 @@ const ROLE_ALLOWED_SEGMENTS: Record<MerchantRole, Set<string> | "all"> = {
         "serviceProviders",
         "sections",
         "categories",
+        "cities",
         "coupons",
         // "financial-record", // ⚠️ COINS_DISABLED - مرتبط بنظام coins
         // "coins", // ⚠️ معطّل مؤقتاً - نظام شراء العملات الذهبية
