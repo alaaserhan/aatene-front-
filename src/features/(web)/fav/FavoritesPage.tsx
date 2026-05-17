@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import FavoritesSidebar from "./components/FavoritesSidebar";
 import FavoritesContent from "./components/FavoritesContent";
 
@@ -8,6 +8,7 @@ export type FavoritesType = "all" | "product" | "store" | "service";
 
 export default function FavoritesPage() {
     const router = useRouter();
+    const pathname = usePathname();
     const searchParams = useSearchParams();
 
     // Get type from URL or default to "all"
@@ -21,7 +22,10 @@ export default function FavoritesPage() {
         } else {
             params.set("type", type);
         }
-        router.push(`?${params.toString()}`);
+        
+        const queryString = params.toString();
+        const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+        router.push(newUrl, { scroll: false });
     };
 
     return (
