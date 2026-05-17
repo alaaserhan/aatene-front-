@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import FavoritesSidebar from "./components/FavoritesSidebar";
 import FavoritesContent from "./components/FavoritesContent";
@@ -11,11 +12,22 @@ export default function FavoritesPage() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    // Get type from URL or default to "all"
-    const selectedType = (searchParams.get("type") as FavoritesType) || "all";
+    // 1. Maintain local state for selectedType to provide instant, lag-free UI updates
+    const urlType = (searchParams.get("type") as FavoritesType) || "all";
+    const [prevUrlType, setPrevUrlType] = useState<FavoritesType>(urlType);
+    const [selectedType, setSelectedType] = useState<FavoritesType>(urlType);
+
+    // Sync state synchronously during render if the URL query parameter changes
+    if (urlType !== prevUrlType) {
+        setPrevUrlType(urlType);
+        setSelectedType(urlType);
+    }
 
     const handleTypeSelect = (type: FavoritesType) => {
-        // Update URL when type changes
+        // Update local state instantly so the sidebar button selection updates without lag
+        setSelectedType(type);
+
+        // Update URL query parameter
         const params = new URLSearchParams(searchParams.toString());
         if (type === "all") {
             params.delete("type");
@@ -25,7 +37,9 @@ export default function FavoritesPage() {
         
         const queryString = params.toString();
         const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
-        router.push(newUrl, { scroll: false });
+        
+        // Use HTML5 pushState to update address bar instantly without making Next.js App Router RSC requests
+        window.history.pushState(null, '', newUrl);
     };
 
     return (
