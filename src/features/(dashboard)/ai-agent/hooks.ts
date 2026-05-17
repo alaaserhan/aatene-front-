@@ -495,7 +495,7 @@ export function useGetSingleUserAnalytics(userId: number) {
     });
 }
 
-export function useGetUserAnalyticsReviews(userId: number, params?: { per_page?: number }) {
+export function useGetUserAnalyticsReviews(userId: number, params?: api.UserAnalyticsReviewsParams) {
     return useQuery({
         queryKey: ["web-analytics-user-reviews", userId, params],
         queryFn: () => api.getUserAnalyticsReviews(userId, params),
@@ -533,8 +533,27 @@ export function useUploadKnowledge() {
             });
             queryClient.invalidateQueries({ queryKey: ["knowledge-bank"] });
         },
-        onError: (error: AxiosError<{ message: string }>) => {
-            toast.error(error.response?.data?.message || "فشل رفع الملف");
+        onError: (error: AxiosError<{ message?: string; errors?: Record<string, string[]> }>) => {
+            const fieldErrors = error.response?.data?.errors;
+            if (fieldErrors) {
+                const first = Object.values(fieldErrors).flat().find(Boolean);
+                if (first) {
+                    toast.error(first);
+                    return;
+                }
+            }
+            const msg = error.response?.data?.message;
+            const isBackendSystemError =
+                error.response?.status === 422 &&
+                !!msg &&
+                /system error|try again later|خطأ في النظام|حاول لاحقاً/i.test(msg);
+            if (isBackendSystemError) {
+                toast.error(
+                    "الملف صحيح لكن الخادم فشل في حفظه — يلزم تعديل الباكند (إضافة txt في MediaCenter)."
+                );
+                return;
+            }
+            toast.error(msg || "فشل رفع الملف");
         },
     });
 }

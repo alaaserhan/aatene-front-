@@ -598,27 +598,39 @@ export const getWebAnalytics = async (): Promise<WebAnalyticsResponse> => {
 /** قيم platform في `ai_support_knowledge_bank` — ما يمرّره الفرونت لـ scopeSearch والـ store */
 export type KnowledgeBankPlatform = "web" | "mobile";
 
-/** القيم الفعلية المقبولة في مسار الحفظ الحالي (MediaCenter): PDF/Word */
-export const KNOWLEDGE_BANK_ACCEPT_INPUT = ".pdf,.doc,.docx";
+/** يطابق واجهة الإضافة و Laravel `StoreKnowledgeRequest` */
+export const KNOWLEDGE_BANK_ACCEPT_INPUT = ".txt,text/plain";
 
 /** يطابق `max:10240` (كيلوبايت) في لارافيل = 10 ميجابايت */
 export const KNOWLEDGE_BANK_MAX_FILE_BYTES = 10240 * 1024;
-
-const KNOWLEDGE_BANK_EXTENSIONS = [".pdf", ".doc", ".docx"] as const;
 
 export function knowledgeBankPlatformFromSearchParam(value: string | null): KnowledgeBankPlatform {
     return value === "mobile" ? "mobile" : "web";
 }
 
+/** يضمن امتداد .txt و MIME text/plain قبل الإرسال (يتجنب رفض Laravel لـ application/octet-stream) */
+export function prepareTxtUploadFile(file: File): File {
+    const name = file.name.toLowerCase().endsWith(".txt")
+        ? file.name
+        : `${file.name.replace(/\.[^.]+$/, "") || "document"}.txt`;
+    return new File([file], name, { type: "text/plain", lastModified: file.lastModified });
+}
+
 /** رسالة خطأ عربية أو null إن كان الملف مقبولاً للرفع */
 export function validateKnowledgeBankFile(file: File): string | null {
     const lower = file.name.toLowerCase();
-    const extOk = KNOWLEDGE_BANK_EXTENSIONS.some((ext) => lower.endsWith(ext));
-    if (!extOk) {
-        return "يُقبل فقط: PDF أو Word (doc/docx)";
+    if (!lower.endsWith(".txt")) {
+        return "يُقبل ملفات .txt فقط";
+    }
+    const mime = (file.type || "").toLowerCase();
+    if (mime && mime !== "text/plain" && mime !== "text/txt") {
+        return "يُقبل ملفات نصية بصيغة .txt فقط";
     }
     if (file.size > KNOWLEDGE_BANK_MAX_FILE_BYTES) {
         return "حجم الملف يتجاوز 10 ميجابايت";
+    }
+    if (file.size === 0) {
+        return "الملف فارغ";
     }
     return null;
 }
@@ -665,7 +677,7 @@ export const uploadKnowledge = async (
     platform: KnowledgeBankPlatform = "web"
 ): Promise<KnowledgeBankUploadResponse> => {
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", prepareTxtUploadFile(file));
     formData.append("platform", platform);
     const { data } = await mainApi.post<KnowledgeBankUploadResponse>(
         `${WEB_ADMIN_BASE}/knowledge-bank`,
@@ -806,10 +818,24 @@ export interface UserAnalyticsResponse {
     data: UserAnalyticsSummary[];
 }
 
-export interface SingleUserAnalyticsResponse {
+/** استجابة `GET analytics/users/{userId}` — الحقول في الجذر (returnData merge) */
+export interface LaravelSingleUserAnalyticsResponse {
     status: boolean;
     message: string;
-    data: UserAnalyticsSummary & Record<string, unknown>;
+    user: {
+        id: number;
+        first_name: string;
+        last_name: string;
+        email: string;
+        phone: string | null;
+        avatar_url: string | null;
+        ai_support_bot_active?: boolean;
+    } | null;
+    last_conversation_at: string | null;
+    conversations_count: number;
+    total_messages: number;
+    avg_rating: number;
+    rating_distribution: Record<string, number>;
 }
 
 export interface UserAnalyticsReview {
@@ -818,11 +844,28 @@ export interface UserAnalyticsReview {
     rate_text: string | null;
 }
 
+export interface UserAnalyticsReviewsPaginated {
+    data: UserAnalyticsReview[];
+    meta?: {
+        current_page?: number;
+        last_page?: number;
+        per_page?: number;
+        total?: number;
+    };
+}
+
 export interface UserAnalyticsReviewsResponse {
     status: boolean;
     message: string;
     total: number;
-    rateing: UserAnalyticsReview[];
+    rateing: UserAnalyticsReview[] | UserAnalyticsReviewsPaginated;
+}
+
+export interface UserAnalyticsReviewsParams {
+    per_page?: number;
+    page?: number;
+    rate?: string;
+    orderby?: "recent" | "highest_rate" | "lowest_rate";
 }
 
 export const getUserAnalytics = async (params?: Record<string, string>): Promise<UserAnalyticsResponse> => {
@@ -831,13 +874,21 @@ export const getUserAnalytics = async (params?: Record<string, string>): Promise
     return data;
 };
 
-export const getSingleUserAnalytics = async (userId: number): Promise<SingleUserAnalyticsResponse> => {
-    const { data } = await mainApi.get<SingleUserAnalyticsResponse>(`${WEB_ADMIN_BASE}/analytics/users/${userId}`);
+export const getSingleUserAnalytics = async (userId: number): Promise<LaravelSingleUserAnalyticsResponse> => {
+    const { data } = await mainApi.get<LaravelSingleUserAnalyticsResponse>(`${WEB_ADMIN_BASE}/analytics/users/${userId}`);
     return data;
 };
 
-export const getUserAnalyticsReviews = async (userId: number, params?: { per_page?: number }): Promise<UserAnalyticsReviewsResponse> => {
-    const qs = params?.per_page ? `?per_page=${params.per_page}` : "";
+export const getUserAnalyticsReviews = async (
+    userId: number,
+    params?: UserAnalyticsReviewsParams
+): Promise<UserAnalyticsReviewsResponse> => {
+    const q = new URLSearchParams();
+    if (params?.per_page) q.set("per_page", String(params.per_page));
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.rate) q.set("rate", params.rate);
+    if (params?.orderby) q.set("orderby", params.orderby);
+    const qs = q.toString() ? `?${q.toString()}` : "";
     const { data } = await mainApi.get<UserAnalyticsReviewsResponse>(`${WEB_ADMIN_BASE}/analytics/users/${userId}/reviews${qs}`);
     return data;
 };

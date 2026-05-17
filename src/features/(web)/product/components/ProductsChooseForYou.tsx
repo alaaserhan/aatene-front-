@@ -14,8 +14,7 @@ export default function ProductsChooseForYou({ products }: ProductsChooseForYouP
         <div className="mt-16 mb-8">
             {/* Header */}
             <div className="mb-8">
-                <h2 className="text-2xl font-medium mb-2">تم اختياره لأجلك</h2>
-                <p className="text-gray-2 text-sm">أفضل المنتجات مبيعاً من بائعين موثوق بهم | ممول</p>
+                <h2 className="text-2xl font-medium">تم اختياره لأجلك</h2>
             </div>
 
             {/* Products Grid */}

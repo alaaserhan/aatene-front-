@@ -12,7 +12,6 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { ScrollArea, ScrollBar } from "@/src/components/ui/scroll-area";
-import { Badge } from "@/src/components/ui/badge";
 import { cn } from "@/src/lib/utils";
 import {
   X,
@@ -70,10 +69,10 @@ export function MediaCenterModal({
   const [showUploadArea, setShowUploadArea] = useState(false);
 
   const mediaTypes = useMemo(() => {
-    if (allowedMediaTypes) {
-      return ALL_MEDIA_TYPES.filter((type) =>
-        allowedMediaTypes.includes(type.value)
-      );
+    if (allowedMediaTypes?.length) {
+      return allowedMediaTypes
+        .map((value) => ALL_MEDIA_TYPES.find((t) => t.value === value))
+        .filter((t): t is (typeof ALL_MEDIA_TYPES)[number] => Boolean(t));
     }
     return ALL_MEDIA_TYPES;
   }, [allowedMediaTypes]);
@@ -89,7 +88,10 @@ export function MediaCenterModal({
       const initialType = mediaTypes[0]?.value || "gallery";
       setActiveType(initialType);
     }
-  }, [open]); // Reduced dependencies to avoid cascading loops
+  }, [open, mediaTypes]);
+
+  const activeTypeLabel =
+    mediaTypes.find((t) => t.value === activeType)?.label ?? "هذا القسم";
 
   const params = useMemo(() => {
     const p = new URLSearchParams();
@@ -102,7 +104,7 @@ export function MediaCenterModal({
     return p;
   }, [searchQuery, activeType]);
 
-  const { data: mediaData, isLoading, error } = useGetMediaList(params, open);
+  const { data: mediaData, isLoading, isFetching, error } = useGetMediaList(params, open);
   const mediaItems: MediaItemType[] = mediaData?.data?.data ?? [];
 
   const uploadMutation = useUploadMedia();
@@ -262,20 +264,21 @@ export function MediaCenterModal({
                     const isActive = activeType === type.value;
 
                     return (
-                      <Badge
+                      <button
                         key={type.value}
-                        variant={isActive ? "default" : "secondary"}
+                        type="button"
+                        aria-pressed={isActive}
+                        onClick={() => handleTypeChange(type.value)}
                         className={cn(
-                          "cursor-pointer px-3 py-2 h-8 text-xs font-medium transition-all duration-200 hover:scale-105 whitespace-nowrap flex items-center gap-1.5 flex-shrink-0",
+                          "cursor-pointer px-3 py-2 min-h-[36px] text-xs font-medium transition-all duration-200 whitespace-nowrap flex items-center gap-1.5 shrink-0 rounded-md border touch-manipulation",
                           isActive
-                            ? "bg-blue-3 hover:bg-blue-3/90"
+                            ? "bg-blue-3 text-white border-blue-3 shadow-sm"
                             : "bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-200"
                         )}
-                        onClick={() => handleTypeChange(type.value)}
                       >
-                        <span className="hidden md:inline">{type.label}</span>
-                        <Icon className="w-3.5 h-3.5" />
-                      </Badge>
+                        <Icon className="w-3.5 h-3.5 shrink-0" />
+                        <span>{type.label}</span>
+                      </button>
                     );
                   })}
                 </div>
@@ -314,9 +317,11 @@ export function MediaCenterModal({
               items={mediaItems}
               selectedItems={selectedItems}
               onSelectItem={handleSelectItem}
-              isLoading={isLoading}
+              isLoading={isLoading || isFetching}
               error={error ? "حدث خطأ أثناء تحميل الملفات" : null}
               selectionLimit={selectionLimit}
+              emptyTitle={`لا توجد ملفات في «${activeTypeLabel}»`}
+              emptyHint="جرّب تبويباً آخر أو اضغط «رفع ملف» لإضافة صورة جديدة"
             />
           </ScrollArea>
 

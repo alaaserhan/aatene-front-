@@ -62,9 +62,10 @@ export default function ReportPortalPage() {
             </div>
 
             {/* Render the Generic Report Modal */}
-            <PortalReportModal 
-                isOpen={isModalOpen} 
+            <PortalReportModal
+                isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
+                skipTypeSelection
             />
         </div>
     );
