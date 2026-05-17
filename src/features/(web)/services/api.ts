@@ -1,5 +1,13 @@
 import api from "@/src/lib/axios";
+import { normalizeAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { Store, Category } from "../product/types";
+
+function mapService<T extends { ask_for_price?: unknown }>(service: T): T & { ask_for_price?: boolean } {
+    return {
+        ...service,
+        ask_for_price: normalizeAskForPrice(service.ask_for_price),
+    };
+}
 
 export interface ServiceCity {
     id: number;
@@ -53,6 +61,7 @@ export interface Service {
 
     is_favorite: boolean;
     is_compare?: boolean;
+    ask_for_price?: boolean;
     price: string;
     execute_type: string;
     execute_count: string;
@@ -84,11 +93,16 @@ export interface GetServicePageDataResponse {
 
 export const getService = async (slugOrId: string | number): Promise<GetServiceResponse> => {
     const { data } = await api.get<GetServiceResponse>(`/services/${slugOrId}`);
+    if (data?.service) {
+        data.service = mapService(data.service);
+    }
     return data;
 };
 
 export const getServicePageData = async (slugOrId: string | number): Promise<GetServicePageDataResponse> => {
     const { data } = await api.get<GetServicePageDataResponse>(`/services/${slugOrId}/pageData`);
+    data.chooseForYou = (data.chooseForYou || []).map(mapService);
+    data.similar = (data.similar || []).map(mapService);
     return data;
 };
 

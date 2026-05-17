@@ -100,6 +100,7 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
       specialties: fd.step1.specialties,
 
       price: fd.step2.price,
+      ask_for_price: fd.step2.ask_for_price,
       execute_count: fd.step2.execute_count,
       execute_type: fd.step2.execute_type,
       extras: fd.step2.extras,

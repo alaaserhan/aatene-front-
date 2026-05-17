@@ -60,6 +60,11 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
         },
         step2: {
           price: Number(service.price) || 0,
+          ask_for_price: Boolean(
+            service.ask_for_price === true ||
+            service.ask_for_price === 1 ||
+            service.ask_for_price === "1"
+          ),
           execute_count: Number(service.execute_count) || 1,
           execute_type: service.execute_type,
           extras: service.extras || [],
@@ -137,6 +142,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
       specialties: step1.specialties,
 
       price: step2.price,
+      ask_for_price: step2.ask_for_price,
       execute_count: step2.execute_count,
       execute_type: step2.execute_type,
       extras: step2.extras,

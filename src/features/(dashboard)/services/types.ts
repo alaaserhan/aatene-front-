@@ -19,6 +19,7 @@ export interface Step1ServiceData {
 
 export interface Step2ServiceData {
   price: number;
+  ask_for_price?: boolean;
   execute_count: number;
   execute_type: ExecuteType;
   extras: ServiceExtra[];
