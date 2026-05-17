@@ -42,77 +42,80 @@ export default function PrivacyPage() {
 
     return (
         <div className="min-h-screen flex flex-col">
-            {/* Header */}
-            <div className="gradient-blue w-full relative shadow-sm">
-                <div className="container mx-auto flex items-center justify-between h-[80px]">
-                    <div className="flex items-center gap-3 text-white">
-                        <button
-                            onClick={() => setIsSidebarOpen(true)}
-                            className="lg:hidden mr-2 p-2 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
-                            aria-label="Open navigation menu"
-                        >
-                            <Menu className="w-6 h-6" />
-                        </button>
-                        <div className="w-10 h-10 rounded-full border-2 border-white/30 flex items-center justify-center bg-white/10">
-                            <Lock className="w-5 h-5" />
-                        </div>
-                        <h1 className="text-xl md:text-2xl font-medium tracking-wide">
-                            سياسة الخصوصية
-                        </h1>
+            {/* Sticky Header Container */}
+            <div className="sticky top-0 z-50 w-full">
+                {/* Header */}
+                <div className="gradient-blue w-full relative shadow-sm">
+                    <div className="container mx-auto flex items-center justify-between h-[80px]">
+                        <div className="flex items-center gap-3 text-white">
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="lg:hidden mr-2 p-2 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
+                                aria-label="Open navigation menu"
+                            >
+                                <Menu className="w-6 h-6" />
+                            </button>
+                            <div className="w-10 h-10 rounded-full border-2 border-white/30 flex items-center justify-center bg-white/10">
+                                <Lock className="w-5 h-5" />
+                            </div>
+                            <h1 className="text-xl md:text-2xl font-medium tracking-wide">
+                                سياسة الخصوصية
+                            </h1>
 
-                    </div>
-
-                    <div className="hidden md:flex flex-1 max-w-xl gap-4 items-center">
-                        <div className="relative flex-1">
-                            <input
-                                type="text"
-                                placeholder="ابحث عن أي كلمة ...."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full h-10 pr-10 pl-4 rounded-md bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none text-sm border-none transition-colors"
-                            />
-                            <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
                         </div>
-                        <div className="w-32">
-                            <ReusableDropdown
-                                options={[
-                                    { value: "ar", label: "العربية" },
-                                    { value: "he", label: "עברית" },
-                                ]}
-                                value={lang}
-                                onChange={(val) => setLang(val as "ar" | "he")}
-                                placeholder="اختر اللغة"
-                                className="h-10 bg-white/20 border-white/30 ove"
-                            />
+
+                        <div className="hidden md:flex flex-1 max-w-xl gap-4 items-center">
+                            <div className="relative flex-1">
+                                <input
+                                    type="text"
+                                    placeholder="ابحث عن أي كلمة ...."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full h-10 pr-10 pl-4 rounded-md bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none text-sm border-none transition-colors"
+                                />
+                                <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                            </div>
+                            <div className="w-32">
+                                <ReusableDropdown
+                                    options={[
+                                        { value: "ar", label: "العربية" },
+                                        { value: "he", label: "עברית" },
+                                    ]}
+                                    value={lang}
+                                    onChange={(val) => setLang(val as "ar" | "he")}
+                                    placeholder="اختر اللغة"
+                                    className="h-10 bg-white/20 border-white/30 ove"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Mobile Search Bar & Language */}
-            <div className="md:hidden gradient-blue px-4 pb-4 flex gap-3">
-                <div className="relative flex-1">
-                    <input
-                        type="text"
-                        placeholder="ابحث عن أي كلمة ...."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full h-10 pr-10 pl-4 rounded bg-white/90 focus:bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none text-sm border-none transition-colors"
-                    />
-                    <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
-                </div>
-                <div className="w-28 shrink-0 ">
-                    <ReusableDropdown
-                        options={[
-                            { value: "ar", label: "العربية" },
-                            { value: "he", label: "עברית" },
-                        ]}
-                        value={lang}
-                        onChange={(val) => setLang(val as "ar" | "he")}
-                        placeholder="اللغة"
-                        className="h-10 bg-white/20 border-white/30 "
-                        dropdownPosition="bottom"
-                    />
+                {/* Mobile Search Bar & Language */}
+                <div className="md:hidden gradient-blue px-4 pb-4 flex gap-3">
+                    <div className="relative flex-1">
+                        <input
+                            type="text"
+                            placeholder="ابحث عن أي كلمة ...."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full h-10 pr-10 pl-4 rounded bg-white/90 focus:bg-white text-gray-800 placeholder:text-gray-400 focus:outline-none text-sm border-none transition-colors"
+                        />
+                        <Search className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                    </div>
+                    <div className="w-28 shrink-0 ">
+                        <ReusableDropdown
+                            options={[
+                                { value: "ar", label: "العربية" },
+                                { value: "he", label: "עברית" },
+                            ]}
+                            value={lang}
+                            onChange={(val) => setLang(val as "ar" | "he")}
+                            placeholder="اللغة"
+                            className="h-10 bg-white/20 border-white/30 "
+                            dropdownPosition="bottom"
+                        />
+                    </div>
                 </div>
             </div>
 
