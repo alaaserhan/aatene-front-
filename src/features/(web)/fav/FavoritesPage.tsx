@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import FavoritesSidebar from "./components/FavoritesSidebar";
 import FavoritesContent from "./components/FavoritesContent";
 
 export type FavoritesType = "all" | "product" | "store" | "service";
 
 export default function FavoritesPage() {
-    const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
@@ -34,10 +33,10 @@ export default function FavoritesPage() {
         } else {
             params.set("type", type);
         }
-        
+
         const queryString = params.toString();
         const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
-        
+
         // Use HTML5 pushState to update address bar instantly without making Next.js App Router RSC requests
         window.history.pushState(null, '', newUrl);
     };
