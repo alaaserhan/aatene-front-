@@ -10,6 +10,30 @@ import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { cn } from "@/src/lib/utils";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
 import { knowledgeBankPlatformFromSearchParam } from "../api";
+import { toast } from "sonner";
+
+/** يطابق Laravel `StoreKnowledgeRequest` max:10240 (KB) ≈ 10MB */
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+
+function isTxtFile(file: File): boolean {
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".txt")) return true;
+  const mime = (file.type || "").toLowerCase();
+  return mime === "text/plain" || mime === "text/txt";
+}
+
+function validateTxtFile(file: File): string | null {
+  if (!isTxtFile(file)) {
+    return "يُقبل ملفات .txt فقط";
+  }
+  if (file.size > MAX_FILE_BYTES) {
+    return "حجم الملف يجب ألا يتجاوز 10 ميغابايت";
+  }
+  if (file.size === 0) {
+    return "الملف فارغ";
+  }
+  return null;
+}
 
 export function AddKnowledgePage() {
   const router = useRouter();
@@ -27,29 +51,44 @@ export function AddKnowledgePage() {
     else if (e.type === "dragleave") setDragActive(false);
   };
 
+  const pickFile = (file: File | undefined, input?: HTMLInputElement | null) => {
+    if (!file) return;
+    const error = validateTxtFile(file);
+    if (error) {
+      toast.error(error);
+      if (input) input.value = "";
+      return;
+    }
+    setSelectedFile(file);
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setSelectedFile(e.dataTransfer.files[0]);
-    }
+    pickFile(e.dataTransfer.files?.[0]);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
-    }
+    pickFile(e.target.files?.[0], e.target);
   };
 
   const handleUpload = () => {
-    if (selectedFile) {
-      const platform = knowledgeBankPlatformFromSearchParam(searchParams.get("platform"));
-
-      uploadFile({ file: selectedFile, platform }, {
-        onSuccess: () => setIsSuccessOpen(true),
-      });
+    if (!selectedFile) return;
+    const error = validateTxtFile(selectedFile);
+    if (error) {
+      toast.error(error);
+      setSelectedFile(null);
+      return;
     }
+    const platform = knowledgeBankPlatformFromSearchParam(searchParams.get("platform"));
+
+    uploadFile(
+      { file: selectedFile, platform },
+      {
+        onSuccess: () => setIsSuccessOpen(true),
+      }
+    );
   };
 
   return (
@@ -89,18 +128,18 @@ export function AddKnowledgePage() {
                   type="file"
                   className="hidden"
                   onChange={handleChange}
-                  accept=".pdf,.doc,.docx,.csv"
+                  accept=".txt,text/plain"
                 />
                 <Upload className="w-7 h-7 text-[#3A5779] mb-4" />
                 <p className="text-base font-medium mb-1">تصفح أو اسحب وأسقط الملف هنا</p>
                 <p className="text-gray-400 text-sm">
-                  يدعم ملفات CSV، DOCS بحجم يصل إلى 0.5 ميغابايت وبحد أقصى 500
+                  ملفات نصية بصيغة .txt فقط — حتى 10 ميغابايت
                 </p>
               </div>
             ) : (
               <div className="border border-gray-200 rounded-lg p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center text-red-500">
+                  <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-4">
                     <FileText className="w-5 h-5" />
                   </div>
                   <div>
