@@ -158,6 +158,7 @@ export interface Service {
   image_url: string | null;
   is_favorite: boolean;
   is_compare: boolean;
+  ask_for_price?: boolean;
   price: string;
   execute_type: string;      // e.g. "hour" | "day" | ""
   execute_count: string;

@@ -5,6 +5,7 @@ import { Pencil, Phone, Building2, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/dialog";
 import { Product, Store, ShippingCompany, ShippingDetails, ShippingPrice } from "../types";
 import { useGetCities } from "@/src/features/(web)/settings/hooks";
+import { formatPrice } from "@/src/lib/format-price";
 
 interface ShippingPoliciesProps {
     product: Product;
@@ -140,7 +141,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                         <img src="/icons/car.svg" alt="توصيل" width={24} height={24} />
                     </div>
                     <span className="font-medium ">
-                        {(!activeCompany || String(activeDetails?.price) === "0") ? "توصيل مجاني" : `توصيل: ${activeDetails?.price} ₪ `}
+                        {(!activeCompany || String(activeDetails?.price) === "0") ? "توصيل مجاني" : `توصيل: ${formatPrice(activeDetails?.price)} ₪ `}
                     </span>
                 </div>
 

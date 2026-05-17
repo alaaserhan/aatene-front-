@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { cn, isVideoFile } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
 import { useRouter, useParams } from "next/navigation";
@@ -229,11 +230,11 @@ const ProductCard = memo(({
                     ) : (
                         <div className="flex items-baseline gap-2 justify-start">
                             <span className="font-medium">
-                                {displayPrice.toFixed(2)} <span className="text-xl font-medium">₪</span>
+                                {formatPrice(displayPrice)} <span className="text-xl font-medium">₪</span>
                             </span>
                             {hasDiscount && (
                                 <span className="font-medium text-gray-400 line-through">
-                                    {numBase.toFixed(2)} <span className="text-xl font-medium">₪</span>
+                                    {formatPrice(numBase)} <span className="text-xl font-medium">₪</span>
                                 </span>
                             )}
                         </div>

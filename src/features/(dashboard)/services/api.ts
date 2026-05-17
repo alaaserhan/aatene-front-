@@ -93,6 +93,7 @@ export interface Service {
   slug: string;
   title: string;
   price: string | number;
+  ask_for_price?: boolean | number | string;
   description: string;
   images: string[]; 
   images_urls: string | string[]; // ✅ تم التحديث ليقبل نص أو مصفوفة
@@ -154,6 +155,7 @@ export interface ServicePayload {
   tags?: string[];
   status: ServiceStatus;
   price: number;
+  ask_for_price?: boolean;
   execute_type: ExecuteType;
   execute_count: number;
   extras?: ServiceExtra[];

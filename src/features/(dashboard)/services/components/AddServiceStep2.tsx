@@ -1,7 +1,7 @@
 // src/features/(dashboard)/services/components/AddServiceStep2.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { ProductFormActions } from "../../products/components/ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -12,6 +12,7 @@ import { ServicePreviewSidebar } from "./ServicePreviewSidebar";
 import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Step1ServiceData, Step2ServiceData } from "../types";
+import { formatPrice } from "@/src/lib/format-price";
 import { ExecuteType, ServiceExtra } from "../api";
 import { cn } from "@/src/lib/utils";
 import { Button } from "@/src/components/ui/button";
@@ -30,6 +31,8 @@ interface AddServiceStep2Props {
     onStepClick?: (step: number) => void;
     showSaveDraft?: boolean;
 }
+
+type PriceVisibilityMode = "show" | "hide";
 
 const EXECUTE_TYPE_OPTIONS = [
     { value: "hour", label: "ساعة" },
@@ -55,12 +58,34 @@ export function AddServiceStep2({
     const store = storeData?.record;
 
     // --- Main Form State ---
-    const [price, setPrice] = useState<number | string>(initialData?.price || "");
+    const initialPrice = Number(initialData?.price || 0);
+    const [priceVisibilityMode, setPriceVisibilityMode] = useState<PriceVisibilityMode>(
+        initialData?.ask_for_price ? "hide" : "show"
+    );
+    const [lastVisiblePrice, setLastVisiblePrice] = useState<number>(
+        initialData?.ask_for_price ? 0 : initialPrice
+    );
+    const [price, setPrice] = useState<number | string>(
+        initialData?.ask_for_price ? "" : initialData?.price || ""
+    );
     const [executeCount, setExecuteCount] = useState<number | string>(initialData?.execute_count || "");
     const [executeType, setExecuteType] = useState<ExecuteType>(initialData?.execute_type || "day");
     const [extras, setExtras] = useState<ServiceExtra[]>(initialData?.extras || []);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        if (!initialData) return;
+        const nextPrice = Number(initialData.price || 0);
+        const shouldShowPrice = !initialData.ask_for_price;
+        setPriceVisibilityMode(shouldShowPrice ? "show" : "hide");
+        setPrice(shouldShowPrice ? (initialData.price || "") : "");
+        if (shouldShowPrice && nextPrice > 0) {
+            setLastVisiblePrice(nextPrice);
+        }
+    }, [initialData]);
+
+    const askForPrice = priceVisibilityMode === "hide";
 
     // --- Add Extra Form State ---
     const [showAddExtra, setShowAddExtra] = useState(false);
@@ -73,7 +98,13 @@ export function AddServiceStep2({
     const validate = () => {
         const newErrors: Record<string, string> = {};
 
-        if (price !== "" && Number(price) < 0) {
+        if (askForPrice) {
+            if (price !== "" && Number(price) < 0) {
+                newErrors.price = "السعر لا يمكن أن يكون أقل من صفر";
+            }
+        } else if (price === "" || Number(price) <= 0) {
+            newErrors.price = "السعر مطلوب عند اختيار إظهار السعر";
+        } else if (Number(price) < 0) {
             newErrors.price = "السعر لا يمكن أن يكون أقل من صفر";
         }
 
@@ -88,7 +119,8 @@ export function AddServiceStep2({
     const handleNext = () => {
         if (validate()) {
             onNext({
-                price: Number(price) || 0,
+                price: askForPrice ? 0 : Number(price) || 0,
+                ask_for_price: askForPrice,
                 execute_count: Number(executeCount),
                 execute_type: executeType,
                 extras: extras,
@@ -174,36 +206,129 @@ export function AddServiceStep2({
 
                             <div className="space-y-6">
 
-                                {/* 1. Price */}
+                                {/* 1. Price visibility — نفس تصميم المنتجات */}
                                 <div className="space-y-2">
                                     <Label className="text-sm font-medium flex items-center gap-1">
-                                        سعر الخدمة
+                                        اختار طريقة ظهور سعر خدمتك! <span className="text-red-500">*</span>
                                     </Label>
-                                    <div
-                                        className={cn(
-                                            "flex h-12 min-w-0 items-center gap-2 rounded-lg border bg-white px-3 transition-all focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100",
-                                            errors.price ? "border-red-500" : "border-gray-200"
-                                        )}
-                                        dir="ltr"
-                                    >
-                                        <span className="shrink-0 text-2xl font-bold leading-none text-gray-900" aria-hidden>
-                                            ₪
-                                        </span>
-                                        <Input
-                                            name="price"
-                                            type="number"
-                                            min="0"
-                                            inputMode="decimal"
-                                            value={price}
-                                            onChange={(e) => {
-                                                setPrice(e.target.value);
-                                                if (errors.price) setErrors({ ...errors, price: "" });
+
+                                    <div className="space-y-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setPriceVisibilityMode("show");
+                                                setPrice((prev) => {
+                                                    const n = Number(prev);
+                                                    if (n > 0) return prev;
+                                                    return lastVisiblePrice > 0 ? lastVisiblePrice : "";
+                                                });
                                             }}
-                                            className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-left text-sm text-gray-900 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                                            placeholder="0.00"
-                                        />
+                                            className={cn(
+                                                "w-full border rounded-sm p-3 text-right transition-colors",
+                                                priceVisibilityMode === "show"
+                                                    ? "border-blue-4 bg-[#EEF3FB]"
+                                                    : "border-gray-200 bg-[#F8F8F8]"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-3 text-sm">
+                                                <span
+                                                    className={cn(
+                                                        "shrink-0 w-4 h-4 rounded-full border flex items-center justify-center",
+                                                        priceVisibilityMode === "show" ? "border-blue-4" : "border-gray-400"
+                                                    )}
+                                                    aria-hidden
+                                                >
+                                                    {priceVisibilityMode === "show" && (
+                                                        <span className="w-2 h-2 rounded-full bg-blue-4" />
+                                                    )}
+                                                </span>
+                                                <span
+                                                    className={cn(
+                                                        "text-right",
+                                                        priceVisibilityMode === "show" ? "text-blue-4" : "text-gray-700"
+                                                    )}
+                                                >
+                                                    إظهار السعر
+                                                </span>
+                                            </div>
+
+                                            {priceVisibilityMode === "show" && (
+                                                <div
+                                                    className={cn(
+                                                        "mt-3 flex h-12 min-w-0 items-center gap-2 rounded-lg border bg-white px-3 transition-all focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100",
+                                                        errors.price ? "border-red-500" : "border-gray-200"
+                                                    )}
+                                                    dir="ltr"
+                                                >
+                                                    <span className="shrink-0 text-2xl font-bold leading-none text-gray-900" aria-hidden>
+                                                        ₪
+                                                    </span>
+                                                    <Input
+                                                        name="price"
+                                                        type="number"
+                                                        min="0"
+                                                        inputMode="decimal"
+                                                        value={price}
+                                                        onChange={(e) => {
+                                                            setPrice(e.target.value);
+                                                            const parsed = Number(e.target.value);
+                                                            if (parsed > 0) setLastVisiblePrice(parsed);
+                                                            if (errors.price) setErrors({ ...errors, price: "" });
+                                                        }}
+                                                        className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-left text-sm text-gray-900 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                                                        placeholder="0.00"
+                                                    />
+                                                </div>
+                                            )}
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (price !== "" && Number(price) > 0) {
+                                                    setLastVisiblePrice(Number(price));
+                                                }
+                                                setPriceVisibilityMode("hide");
+                                                setPrice("");
+                                                if (errors.price) {
+                                                    setErrors((prev) => {
+                                                        const next = { ...prev };
+                                                        delete next.price;
+                                                        return next;
+                                                    });
+                                                }
+                                            }}
+                                            className={cn(
+                                                "w-full border rounded-sm p-3 text-right transition-colors",
+                                                priceVisibilityMode === "hide"
+                                                    ? "border-blue-4 bg-[#EEF3FB]"
+                                                    : "border-gray-200 bg-[#F8F8F8]"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-3 text-sm">
+                                                <span
+                                                    className={cn(
+                                                        "shrink-0 w-4 h-4 rounded-full border flex items-center justify-center",
+                                                        priceVisibilityMode === "hide" ? "border-blue-4" : "border-gray-400"
+                                                    )}
+                                                    aria-hidden
+                                                >
+                                                    {priceVisibilityMode === "hide" && (
+                                                        <span className="w-2 h-2 rounded-full bg-blue-4" />
+                                                    )}
+                                                </span>
+                                                <span
+                                                    className={cn(
+                                                        "text-right",
+                                                        priceVisibilityMode === "hide" ? "text-blue-4" : "text-gray-700"
+                                                    )}
+                                                >
+                                                    لا اريد اظهار السعر
+                                                </span>
+                                            </div>
+                                        </button>
                                     </div>
-                                    {errors.price && <p className="text-xs text-red-500">{errors.price}</p>}
+                                    {errors.price && <p className="text-xs text-red-500 mt-1">{errors.price}</p>}
                                 </div>
 
                                 {/* 2. Execution Time */}
@@ -260,7 +385,7 @@ export function AddServiceStep2({
                                                     <div className="flex items-center gap-4 text-sm text-gray-1">
                                                         <div className="flex items-center gap-1 font-bold ">
                                                             <span>₪</span>
-                                                            <span>{Number(extra.price).toFixed(2)}</span>
+                                                            <span>{formatPrice(extra.price)}</span>
                                                         </div>
                                                         <div className="text-xs text-gray-2 bg-gray-100 px-2 py-1 rounded">
                                                             {extra.execute_count} {getExecuteLabel(extra.execute_type)}
@@ -360,7 +485,8 @@ export function AddServiceStep2({
                         <ServicePreviewSidebar
                             data={{
                                 title: previousData.title,
-                                price: Number(price) || 0,
+                                price: askForPrice ? 0 : Number(price) || 0,
+                                ask_for_price: askForPrice,
                                 coverImage: previousData.images_previews?.[0] || ""
                             }}
                             storeInfo={{

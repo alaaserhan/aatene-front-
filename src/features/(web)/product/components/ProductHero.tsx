@@ -7,6 +7,7 @@ import { Product, Store, Attribute, AttributeOption } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddProductToCompare, useRemoveProductFromCompare } from "@/src/features/(web)/compares/hooks";
 import { cn, isVideoFile } from "@/src/lib/utils";
+import { formatPrice } from "@/src/lib/format-price";
 import Cookies from "js-cookie";
 
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -256,12 +257,12 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                 )}
 
                                 <span className="text-2xl font-normal text-gray-800">
-                                    {parseFloat(displayPrice).toFixed(2)} ₪
+                                    {formatPrice(displayPrice)} ₪
                                 </span>
 
                                 {hasDiscount && (
                                     <span className="text-sm text-red-500 line-through">
-                                        {parseFloat(product.price).toFixed(2)} ₪
+                                        {formatPrice(product.price)} ₪
                                     </span>
                                 )}
 

@@ -106,6 +106,7 @@ export interface ShippingCompany {
 }
 
 export interface ShippingCompanyPayload {
+  id?: number;
   name: string;
   phone: string | number;
   prices: ShippingPricePayload[];

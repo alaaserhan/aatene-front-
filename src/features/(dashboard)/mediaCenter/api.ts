@@ -45,16 +45,19 @@ export interface SingleMediaResponse extends BaseResponse {
 }
 
 export interface AddMediaPayload {
+  /** أنواع الباكند: gallery (صور+فيديو), image, avatar, pdf, … — لا يوجد type=video */
   type:
     | "image"
-    | "video"
     | "file"
     | "pdf"
     | "avatar"
     | "gallery"
     | "word"
     | "excel"
-    | "powerpoint"
+    | "thumbnail"
+    | "chat-files"
+    | "media"
+    | "txt"
     | string;
   file: File;
 }

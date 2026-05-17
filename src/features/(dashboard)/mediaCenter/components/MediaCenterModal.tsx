@@ -13,33 +13,17 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { ScrollArea, ScrollBar } from "@/src/components/ui/scroll-area";
 import { cn } from "@/src/lib/utils";
-import {
-  X,
-  Search,
-  Upload,
-  Image as ImageIcon,
-  File,
-  FileText,
-  Grid3X3,
-  User,
-  FileSpreadsheet,
-} from "lucide-react";
+import { X, Search, Upload } from "lucide-react";
 import { MediaGrid } from "./MediaGrid";
 import { MediaUploadArea } from "./MediaUploadArea";
 import { useGetMediaList, useUploadMedia } from "../hooks";
 import { MediaItem as MediaItemType } from "../api";
 import { toast } from "sonner";
-
-const ALL_MEDIA_TYPES = [
-  { value: "pdf", label: "ملفات PDF", icon: FileText },
-  { value: "word", label: "ملفات Word", icon: FileText },
-  { value: "excel", label: "ملفات Excel", icon: FileSpreadsheet },
-  { value: "file", label: "ملفات", icon: File },
-  { value: "avatar", label: "افاتار", icon: User },
-  { value: "gallery", label: "المعرض", icon: Grid3X3 },
-  { value: "image", label: "الصور", icon: ImageIcon },
-  { value: "video", label: "الفيديو", icon: FileText },
-];
+import {
+  getUploadTypeForTab,
+  mediaSelectionLimitNoun,
+  resolveAllowedMediaTabs,
+} from "@/src/lib/media-center-types";
 
 interface MediaCenterModalProps {
   open: boolean;
@@ -68,14 +52,10 @@ export function MediaCenterModal({
   const [selectedItems, setSelectedItems] = useState<MediaItemType[]>([]);
   const [showUploadArea, setShowUploadArea] = useState(false);
 
-  const mediaTypes = useMemo(() => {
-    if (allowedMediaTypes?.length) {
-      return allowedMediaTypes
-        .map((value) => ALL_MEDIA_TYPES.find((t) => t.value === value))
-        .filter((t): t is (typeof ALL_MEDIA_TYPES)[number] => Boolean(t));
-    }
-    return ALL_MEDIA_TYPES;
-  }, [allowedMediaTypes]);
+  const mediaTypes = useMemo(
+    () => resolveAllowedMediaTabs(allowedMediaTypes),
+    [allowedMediaTypes]
+  );
 
   // Initialize state properly or use a key
   const [activeType, setActiveType] = useState(() =>
@@ -110,9 +90,7 @@ export function MediaCenterModal({
   const uploadMutation = useUploadMedia();
 
   const handleUpload = async (files: FileList) => {
-    // "video" is not a valid backend type — map it to "gallery" which accepts mp4
-    const backendTypeMap: Record<string, string> = { video: "gallery" };
-    const fileType = backendTypeMap[activeType] ?? activeType ?? (accept.includes("image") ? "image" : "file");
+    const fileType = getUploadTypeForTab(activeType);
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -136,22 +114,8 @@ export function MediaCenterModal({
         );
       } else {
         if (selectionLimit && selectedItems.length >= selectionLimit) {
-          const types = allowedMediaTypes ?? [];
-          const hasImage =
-            types.includes("image") ||
-            types.includes("gallery") ||
-            types.includes("avatar");
-          const hasVideo = types.includes("video");
-          const limitNoun =
-            hasImage && hasVideo
-              ? "صور أو فيديوهات"
-              : hasVideo && !hasImage
-                ? "فيديوهات"
-                : hasImage
-                  ? "صور"
-                  : "ملفات";
           toast.warning(
-            `لا يمكنك اختيار أكثر من ${selectionLimit} ${limitNoun}`
+            `لا يمكنك اختيار أكثر من ${selectionLimit} ${mediaSelectionLimitNoun(allowedMediaTypes)}`
           );
           return;
         }
@@ -184,9 +148,43 @@ export function MediaCenterModal({
     setActiveType(mediaTypes[0]?.value || "gallery");
   };
 
+  const selectionBar =
+    multiple && selectedItems.length > 0 ? (
+      <>
+        <div className="flex gap-2 items-center min-w-0 flex-1">
+          <button
+            type="button"
+            onClick={() => setSelectedItems([])}
+            className="text-[#406896] hover:text-red-600 transition-colors cursor-pointer shrink-0"
+            aria-label="إلغاء التحديد"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <p className="text-xs sm:text-sm font-medium truncate">
+            تم اختيار {selectedItems.length} ملف
+          </p>
+        </div>
+        <Button
+          type="button"
+          onClick={handleConfirmSelection}
+          className="cursor-pointer shrink-0 h-9 px-4 font-medium"
+          style={{ backgroundColor: "var(--blue-3)" }}
+        >
+          نشر
+        </Button>
+      </>
+    ) : null;
+
   return (
-    <Dialog open={open} onOpenChange={handleClose} >
-      <DialogContent className="max-w-[95vw] lg:max-w-[65vw] p-0 gap-0 overflow-hidden border-0 [&>button]:hidden z-[11000]">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent
+        className={cn(
+          "flex flex-col p-0 gap-0 overflow-hidden border-0 [&>button]:hidden z-[11000]",
+          "fixed inset-0 left-0 top-0 h-[100dvh] w-full max-w-none translate-x-0 translate-y-0 rounded-none",
+          "sm:inset-auto sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-h-[92dvh] sm:w-[95vw] sm:max-w-[95vw] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg",
+          "lg:max-w-[65vw]"
+        )}
+      >
         <VisuallyHidden>
           <DialogTitle>الميديا</DialogTitle>
           <DialogDescription>
@@ -195,8 +193,9 @@ export function MediaCenterModal({
           </DialogDescription>
         </VisuallyHidden>
 
-        <div className="flex flex-col gap-4 border-b border-gray-200 bg-white">
-          <div className="border-b border-gray-200 p-4">
+        <div className="flex flex-col h-full min-h-0 max-h-[100dvh] sm:max-h-[92dvh]">
+        <div className="flex flex-col shrink-0 gap-2 sm:gap-4 border-b border-gray-200 bg-white">
+          <div className="border-b border-gray-200 p-3 sm:p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <h1 className="text-base lg:text-lg font-bold ">
@@ -255,7 +254,7 @@ export function MediaCenterModal({
             </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row justify-between gap-4 px-4 pb-4">
+          <div className="flex flex-col lg:flex-row justify-between gap-3 sm:gap-4 px-3 sm:px-4 pb-3 sm:pb-4">
             <div className="flex-1 lg:flex-none overflow-hidden">
               <ScrollArea className="w-full max-w-full">
                 <div className="flex gap-2 pb-1 w-max ">
@@ -278,6 +277,11 @@ export function MediaCenterModal({
                       >
                         <Icon className="w-3.5 h-3.5 shrink-0" />
                         <span>{type.label}</span>
+                        {type.hint && (
+                          <span className="hidden sm:inline text-[10px] opacity-80">
+                            ({type.hint})
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -285,24 +289,31 @@ export function MediaCenterModal({
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>
             </div>
-            <div className="flex justify-center lg:justify-start">
-              <Button
-                onClick={() => setShowUploadArea(!showUploadArea)}
-                className="w-full max-w-xs lg:w-auto h-9 font-medium cursor-pointer"
-                style={{ backgroundColor: "var(--blue-3)" }}
-              >
-                <Upload className="ml-2 h-4 w-4" />
-                {showUploadArea ? "إخفاء منطقة الرفع" : "رفع ملف"}
-              </Button>
+            <div className="flex flex-col gap-3 w-full lg:w-auto">
+              <div className="flex flex-wrap items-center gap-2 justify-center lg:justify-start">
+                <Button
+                  onClick={() => setShowUploadArea(!showUploadArea)}
+                  className="w-full sm:w-auto sm:min-w-[140px] h-9 font-medium cursor-pointer"
+                  style={{ backgroundColor: "var(--blue-3)" }}
+                >
+                  <Upload className="ml-2 h-4 w-4" />
+                  {showUploadArea ? "إخفاء منطقة الرفع" : "رفع ملف"}
+                </Button>
+              </div>
+              {selectionBar && (
+                <div className="flex md:hidden items-center justify-between gap-3 p-3 rounded-lg border border-[#9eb5cf] bg-[#C8D7E8]">
+                  {selectionBar}
+                </div>
+              )}
             </div>
 
           </div>
         </div>
 
-        <div className="flex flex-col h-[calc(90vh-130px)] justify-between overflow-hidden">
-          <ScrollArea className="flex-1" dir="rtl">
+        <div className="flex flex-col flex-1 min-h-0 overflow-hidden md:justify-between">
+          <ScrollArea className="flex-1 min-h-0" dir="rtl">
             {showUploadArea && (
-              <div className="p-4">
+              <div className="p-3 sm:p-4">
                 <MediaUploadArea
                   onUpload={handleUpload}
                   accept={accept}
@@ -325,28 +336,12 @@ export function MediaCenterModal({
             />
           </ScrollArea>
 
-          {multiple && selectedItems.length > 0 && (
-            <div className="flex items-center justify-between gap-3 p-4 border-t border-gray-200 bg-[#C8D7E8]">
-              <div className="flex gap-2 items-center">
-                <button
-                  onClick={() => setSelectedItems([])}
-                  className="text-[#406896] hover:text-red-600 transition-colors cursor-pointer"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-                <p className="text-sm font-medium">
-                  تم اختيار {selectedItems.length} ملف
-                </p>
-              </div>
-              <Button
-                onClick={handleConfirmSelection}
-                className="cursor-pointer"
-                style={{ backgroundColor: "var(--blue-3)" }}
-              >
-                نشر
-              </Button>
+          {selectionBar && (
+            <div className="hidden md:flex items-center justify-between gap-3 p-4 border-t border-gray-200 bg-[#C8D7E8] shrink-0">
+              {selectionBar}
             </div>
           )}
+        </div>
         </div>
       </DialogContent>
     </Dialog>

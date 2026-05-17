@@ -181,8 +181,9 @@ export function AddShippingCompanyDialog({
     }));
 
     const company: ShippingCompanyPayload = {
+      ...(editingCompany?.id != null ? { id: editingCompany.id } : {}),
       name: storeName,
-      phone: `${phoneCountryCode}${storePhone}`,
+      phone: `${phoneCountryCode}${storePhone}`.replace(/\D/g, ""),
       prices,
     };
 
@@ -222,8 +223,11 @@ export function AddShippingCompanyDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0" dir="rtl">
-        <DialogHeader className="p-6 border-b border-gray-200">
+      <DialogContent
+        className="w-[calc(100vw-1.5rem)] max-w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0"
+        dir="rtl"
+      >
+        <DialogHeader className="p-4 sm:p-6 border-b border-gray-200">
           <div className="flex items-center gap-2">
             <button
               onClick={handleBack}
@@ -231,13 +235,13 @@ export function AddShippingCompanyDialog({
             >
               <ChevronRight className="w-5 h-5" />
             </button>
-            <DialogTitle className="text-xl font-bold">
+            <DialogTitle className="text-base sm:text-xl font-bold leading-snug">
               {editingCompany ? "تعديل شركة الشحن" : "إضافة بيانات شركة الشحن"}
             </DialogTitle>
           </div>
         </DialogHeader>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {step === 1 ? (
             <div className="space-y-6">
               {/* Removed Company Name Input */}
