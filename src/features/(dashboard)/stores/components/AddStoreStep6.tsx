@@ -166,27 +166,27 @@ export function AddStoreStep6({
   };
 
   return (
-    <div className="">
-      <div className="container mx-auto py-4 px-4">
-        <Breadcrumb items={breadcrumbItems} className="mb-4" />
+    <div className={cn(isStandalone && "pb-28")}>
+      <div className="container mx-auto py-3 sm:py-4 px-3 sm:px-4">
+        <Breadcrumb items={breadcrumbItems} className="mb-3 sm:mb-4" />
         {!isStandalone && <StepperProgress currentStep={5} steps={steps} />}
 
-        <div className="grid grid-cols-12 gap-6 mt-8">
+        <div className="grid grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-8">
           <div className="col-span-12 lg:col-span-8">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h2 className="text-xl font-bold ">
+              <div className="p-4 sm:p-6 border-b border-gray-100">
+                <h2 className="text-lg sm:text-xl font-bold">
                   اختيار طريقة الشحن
                 </h2>
               </div>
 
-              <div className="p-6">
-                <div className="mb-8">
-                  <h3 className="text-base font-medium  mb-4 text-right">
+              <div className="p-4 sm:p-6">
+                <div className="mb-6 sm:mb-8">
+                  <h3 className="text-sm sm:text-base font-medium mb-3 sm:mb-4 text-right">
                     كيف تود شحن المنتجات؟
                   </h3>
 
-                  <div className="flex flex-row items-center gap-8">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-8">
                     {/* <DeliveryOption
                       value="free"
                       label="مجاني"
@@ -212,9 +212,9 @@ export function AddStoreStep6({
 
                 {deliveryType === "shipping" && (
                   <div className="space-y-6 pt-6 border-t border-gray-200">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">شركات الشحن</h3>
-                      <div className="flex gap-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+                      <h3 className="text-base sm:text-lg font-semibold">شركات الشحن</h3>
+                      <div className="flex flex-wrap gap-2 sm:gap-3">
                         {shippingCompanies.length > 0 && (
                           <Button
                             onClick={handleRemoveAllClick}
@@ -226,7 +226,7 @@ export function AddStoreStep6({
                         )}
                         <Button
                           onClick={handleAddCompany}
-                          className="bg-blue-6 border-blue-4 border text-blue-4 rounded-full px-4"
+                          className="bg-blue-6 border-blue-4 border text-blue-4 rounded-full px-3 sm:px-4 text-sm sm:text-base flex-1 sm:flex-none"
                         >
                           إضافة شركة شحن
                         </Button>
@@ -247,26 +247,24 @@ export function AddStoreStep6({
                             <div
                               key={index}
                               className={cn(
-                                "flex items-center justify-between p-4 border rounded-md transition-colors",
+                                "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 border rounded-md transition-colors",
                                 "bg-white border-gray-200"
                               )}
                             >
-                              <div className="flex flex-col">
-                                <div className="flex items-center gap-2">
-                                  <h4 className="text-base font-semibold mb-1">
-                                    {company.name}
-                                  </h4>
-                                </div>
-                                <p className="text-sm text-gray-2">
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <h4 className="text-sm sm:text-base font-semibold mb-1 break-words">
+                                  {company.name}
+                                </h4>
+                                <p className="text-xs sm:text-sm text-gray-2 break-words">
                                   {getCompanyCities(company)}
                                 </p>
                               </div>
 
-                              <div className="flex items-center gap-2">
+                              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:justify-end">
                                 <Button
                                   onClick={() => handleRemoveCompanyClick(index)} // تم التعديل هنا لفتح المودال
                                   variant="outline"
-                                  className="p-2 border-red-1 bg-red-2 text-red-1 font-medium px-4 rounded-full"
+                                  className="p-2 border-red-1 bg-red-2 text-red-1 font-medium px-3 sm:px-4 rounded-full text-xs sm:text-sm h-9"
                                 >
                                   <img
                                     src="/icons/dashboard/trash.svg"
@@ -278,7 +276,7 @@ export function AddStoreStep6({
                                 <Button
                                   onClick={() => handleEditCompany(index)}
                                   variant="outline"
-                                  className="p-2 border-blue-4 bg-blue-6 hover:bg-blue-1 text-blue-4 font-medium px-4 rounded-full"
+                                  className="p-2 border-blue-4 bg-blue-6 hover:bg-blue-1 text-blue-4 font-medium px-3 sm:px-4 rounded-full text-xs sm:text-sm h-9"
                                 >
                                   <img
                                     src="/icons/dashboard/edit2.svg"
@@ -311,7 +309,12 @@ export function AddStoreStep6({
               </div>
             </div>
           </div>
-          <div className="col-span-12 lg:col-span-4">
+          <div
+            className={cn(
+              "col-span-12 lg:col-span-4 space-y-4",
+              isStandalone && "hidden lg:block"
+            )}
+          >
             <StorePreviewSidebar
               data={{
                 logo: previousData.logo_preview,
@@ -320,7 +323,7 @@ export function AddStoreStep6({
                 coverImages: previousData.cover_previews,
               }}
             />
-            <GuideVideoCard location="create-store" />
+            {!isStandalone && <GuideVideoCard location="create-store" />}
           </div>
         </div>
       </div>
@@ -330,6 +333,7 @@ export function AddStoreStep6({
         onBack={onBack}
         isSubmitting={isSaving}
         nextLabel={isStandalone ? "حفظ" : "حفظ والتالي"}
+        sticky={isStandalone}
       />
 
       <AddShippingCompanyDialog
