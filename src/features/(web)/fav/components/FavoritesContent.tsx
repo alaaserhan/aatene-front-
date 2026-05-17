@@ -44,17 +44,23 @@ export default function FavoritesContent({
 
     const { mutate: deleteList, isPending: isDeletingList } = useDeleteFavoriteList();
 
-    // Reset selected list and pagination when type changes
-    useEffect(() => {
+    // Track previous values for render-phase resets
+    const [prevType, setPrevType] = useState<FavoritesType>(selectedType);
+    const [prevListId, setPrevListId] = useState<number | null>(selectedListId);
+
+    // Sync state synchronously during render when type changes
+    if (selectedType !== prevType) {
+        setPrevType(selectedType);
         setSelectedListId(null);
         setCurrentPage(1);
         setSearchQuery("");
-    }, [selectedType]);
+    }
 
-    // Reset pagination when list changes
-    useEffect(() => {
+    // Sync page synchronously during render when list changes
+    if (selectedListId !== prevListId) {
+        setPrevListId(selectedListId);
         setCurrentPage(1);
-    }, [selectedListId]);
+    }
 
     // Fetch all favorites (for "all" type)
     const { data: allFavorites, isLoading: isLoadingAll } = useGetFavorites(currentPage);
