@@ -182,7 +182,8 @@ export function ShowHighlightModal({
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
                 <DialogContent
-                    className="max-w-none w-screen h-screen p-0 bg-black/55 border-none flex items-center justify-center overflow-hidden z-[9990] rounded-none sm:rounded-none"
+                    overlayClassName="z-[9999]"
+                    className="max-w-none w-screen h-screen p-0 bg-black/55 border-none flex items-center justify-center overflow-hidden z-[10000] rounded-none sm:rounded-none"
                 >
                     <VisuallyHidden><DialogTitle>عرض الهايلايت</DialogTitle></VisuallyHidden>
 
