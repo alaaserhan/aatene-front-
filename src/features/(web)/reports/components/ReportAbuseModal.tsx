@@ -127,7 +127,7 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent
-                className="z-[1001] max-w-[500px] w-[95vw] h-auto max-h-[90vh] overflow-y-auto p-6 rounded-2xl"
+                className="z-[1001] max-w-[500px] w-[95vw] max-h-[90vh] overflow-hidden p-6 rounded-2xl !flex !flex-col"
                 overlayClassName="z-[1000]"
                 dir="rtl"
             >
@@ -136,18 +136,18 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                 </DialogDescription>
                 {/* Step 1: Select Report Type */}
                 {step === 1 && (
-                    <div className="flex flex-col items-center gap-6">
-                        <div className="text-center space-y-2">
+                    <div className="flex flex-col w-full min-h-0 flex-1 gap-4">
+                        <div className="text-center space-y-2 shrink-0">
                             <DialogTitle className="text-xl font-bold">الإبلاغ عن إساءة</DialogTitle>
                             <p className="text-gray-500 text-sm">ما الذي نقدر ان نساعدك بيه ؟</p>
                         </div>
 
                         {typesLoading ? (
-                            <div className="flex items-center justify-center py-8">
+                            <div className="flex flex-1 items-center justify-center py-8 min-h-[120px]">
                                 <Loader2 className="w-6 h-6 animate-spin text-[#3d5e83]" />
                             </div>
                         ) : (
-                            <div className="w-full space-y-3">
+                            <div className="w-full flex-1 min-h-0 overflow-y-auto space-y-3 overscroll-contain pr-1">
                                 {reportTypes.map((reportType) => (
                                     <label
                                         key={reportType.id}
@@ -163,7 +163,7 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                                             value={reportType.id}
                                             checked={selectedTypeId === reportType.id}
                                             onChange={() => setSelectedTypeId(reportType.id)}
-                                            className="w-4 h-4 accent-[#3d5e83]"
+                                            className="w-4 h-4 shrink-0 accent-[#3d5e83]"
                                         />
                                         <span className="font-medium text-sm">
                                             {reportType.name}
@@ -173,7 +173,7 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                             </div>
                         )}
 
-                        <div className="w-full sticky bottom-0 bg-[#ffff]">
+                        <div className="w-full shrink-0 pt-3 mt-auto bg-white border-t border-gray-100">
                             <button
                                 onClick={handleNext}
                                 disabled={!selectedTypeId}
@@ -187,7 +187,7 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
 
                 {/* Step 2: Report Form */}
                 {step === 2 && (
-                    <div className="flex flex-col items-center gap-6">
+                    <div className="flex flex-col items-center gap-6 overflow-y-auto min-h-0 flex-1">
                         <div className="text-center space-y-2">
                             <DialogTitle className="text-xl font-bold">الإبلاغ عن إساءة</DialogTitle>
                             <p className="text-gray-500 text-sm">أنت تُبلّغ عن: <span className="font-semibold text-[#3d5e83]">{selectedTypeName}</span></p>
