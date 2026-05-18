@@ -21,6 +21,7 @@ import { ar, arSA } from "date-fns/locale";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { BlockUserModal } from "./BlockUserModal";
 import { AddMemberModal } from "./AddMemberModal";
@@ -41,6 +42,13 @@ function chatPriceNumeric(price: string | number | null | undefined): number {
 function isAskForPricePrice(price: string | number | null | undefined): boolean {
     const n = chatPriceNumeric(price);
     return !Number.isFinite(n) || n <= 0;
+}
+
+function chatMutationErrorMessage(error: Error, fallback: string): string {
+    if (error instanceof AxiosError) {
+        return error.response?.data?.message || fallback;
+    }
+    return fallback;
 }
 
 function chatNavLog(...args: unknown[]) {
@@ -419,8 +427,8 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                                     ignoreCookie
                                                 }, {
                                                     onSuccess: () => toast.success("تم إلغاء الحظر بنجاح"),
-                                                    onError: (err: { response?: { data?: { message?: string } } }) => {
-                                                        toast.error(err.response?.data?.message || "فشل إلغاء الحظر");
+                                                    onError: (error) => {
+                                                        toast.error(chatMutationErrorMessage(error, "فشل إلغاء الحظر"));
                                                     },
                                                 });
                                             }
@@ -783,8 +791,8 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                                 onSuccess: () => {
                                                     toast.success("تم إلغاء الحظر بنجاح");
                                                 },
-                                                onError: (err: { response?: { data?: { message?: string } } }) => {
-                                                    toast.error(err.response?.data?.message || "فشل إلغاء الحظر");
+                                                onError: (error) => {
+                                                    toast.error(chatMutationErrorMessage(error, "فشل إلغاء الحظر"));
                                                 },
                                             });
                                         }
