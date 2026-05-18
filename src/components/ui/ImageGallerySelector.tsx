@@ -216,9 +216,9 @@ export function ImageGallerySelector({
     const resolvedUploadSecondary =
         uploadSecondaryText ??
         (firstSlotImageOnly
-            ? "هذا الموضع للصورة فقط (تبويب الصور). بعد الغلاف يمكنك إضافة فيديو من تبويب المعرض."
+            ? "الغلاف: تبويب «الغلاف والشعار» فقط. بعده يمكنك إضافة فيديو من تبويب «المعرض»."
             : allowsGalleryVideos(allowedMediaTypes)
-              ? "صور: تبويب الصور — فيديو: تبويب المعرض (MP4, WebM, PNG, JPG…)"
+              ? "الغلاف: تبويب الغلاف والشعار — الفيديو والصور الإضافية: تبويب المعرض"
               : "PNG, JPG, WebP, SVG");
 
     return (
@@ -282,17 +282,6 @@ export function ImageGallerySelector({
                                     className="w-full h-full object-cover"
                                 />
                             )}
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemove(index);
-                                }}
-                                className="absolute top-2 left-2 z-20 flex min-w-[36px] min-h-[36px] items-center justify-center rounded-md bg-red-2 shadow-sm md:hidden"
-                                aria-label="حذف الصورة"
-                            >
-                                <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
-                            </button>
                             <div className="absolute inset-0 hidden md:flex bg-black/0 group-hover:bg-black/10 transition-colors items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
                                 <GripHorizontal className="text-white w-6 h-6 drop-shadow-md" />
                             </div>
@@ -331,7 +320,7 @@ export function ImageGallerySelector({
                                 type="button"
                                 onClick={() => handleRemove(index)}
                                 className="shrink-0 flex min-w-[36px] min-h-[36px] items-center justify-center rounded-md bg-red-2 cursor-pointer touch-manipulation"
-                                aria-label="حذف الصورة"
+                                aria-label="حذف الملف"
                             >
                                 <img
                                     src="/icons/dashboard/trash.svg"
