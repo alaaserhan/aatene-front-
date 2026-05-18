@@ -76,8 +76,17 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401) {
       if (typeof window !== "undefined") {
-        if (!window.location.pathname.includes("/login")) {
-          /** إزالة كل كوكيز الجلسة — كان يُمسح token فقط فيسبب حالة «مسجّل» في الواجهة بدون token للسيرفر */
+        const token = Cookies.get("token");
+        /**
+         * Only redirect to login if the user HAD a valid token (i.e. a logged-in
+         * session has expired or been invalidated by the server).
+         *
+         * A guest user (no token) hitting a protected endpoint will naturally
+         * receive 401 — that is expected and should NOT force a redirect to the
+         * login page.  We simply propagate the error so TanStack Query can show
+         * an empty / error state while the user stays on the current page.
+         */
+        if (token && !window.location.pathname.includes("/login")) {
           useAuthStore.getState().logout();
           try {
             localStorage.removeItem("auth-storage");
@@ -87,6 +96,7 @@ api.interceptors.response.use(
           const lang = Cookies.get("lang") || "ar";
           window.location.href = loginUrlWithAuthRequired(lang);
         }
+        // No token → already a guest → reject silently, no redirect
       }
     }
 

@@ -21,7 +21,6 @@ const SEARCH_TYPES: { value: SearchType; label: string }[] = [
   { value: "users", label: "مستخدمين" },
 ];
 
-
 interface SearchBarInnerProps extends SearchBarProps {
   urlQ: string;
   urlType: SearchType;
@@ -38,18 +37,18 @@ function SearchBarInner({
   urlType,
   searchParams,
   pathname,
-  locale
+  locale,
 }: SearchBarInnerProps) {
   const router = useRouter();
 
-  const initialType = (urlType && SEARCH_TYPES.some((t) => t.value === urlType))
+  const initialType = urlType && SEARCH_TYPES.some((t) => t.value === urlType)
     ? urlType
     : defaultType;
 
   const [searchQuery, setSearchQuery] = useState(urlQ);
   const [selectedType, setSelectedType] = useState<SearchType>(initialType);
-  const [isSwitchingType, setIsSwitchingType] = useState(false);
 
+  // --- Render-level sync: update local state when URL changes (Back/Forward, cross-page nav) ---
   const [prevPathname, setPrevPathname] = useState(pathname);
   const [prevUrlQ, setPrevUrlQ] = useState(urlQ);
   const [prevUrlType, setPrevUrlType] = useState(urlType);
@@ -60,23 +59,21 @@ function SearchBarInner({
     setPrevPathname(pathname);
     setSearchQuery(urlQ);
     setSelectedType(urlType);
-    setIsSwitchingType(false);
   }
+  // ---------------------------------------------------------------------------------------------
 
   const handleSearch = () => {
     const params = new URLSearchParams();
     const query = searchQuery.trim();
 
-    if (query) {
-      params.set("q", query);
-    }
+    if (query) params.set("q", query);
     params.set("type", selectedType);
 
     const searchPath = `/${locale}/search`;
     const queryString = params.toString();
     const targetUrl = `${searchPath}?${queryString}`;
 
-    // Navigation Guard: Don't push if we are already at the target URL
+    // Don't push if we're already at the exact target URL
     const currentQuery = searchParams.toString();
     if (pathname === searchPath && currentQuery === queryString) {
       onSearch?.();
@@ -87,20 +84,36 @@ function SearchBarInner({
     onSearch?.();
   };
 
+  /**
+   * handleTypeChange — switches the active search category tab.
+   *
+   * Key design decisions:
+   * 1. No `isSwitchingType` / no button disabling.  The Next.js router processing
+   *    window (50–400 ms) was the direct cause of the perceived UI freeze: buttons
+   *    were disabled the moment the tab was clicked and only re-enabled once the
+   *    URL finally updated.  Removing that state makes tab switching feel instant.
+   * 2. `setSelectedType(type)` is called optimistically so the active-tab indicator
+   *    switches immediately — before the URL updates — giving zero-latency feedback.
+   * 3. When already on the search page we use `router.replace` (preserves history
+   *    clean) and build the URL from the current `pathname` directly (supports both
+   *    the locale-stripped `/search` and the explicit `/${locale}/search` path that
+   *    `next-international` may produce).
+   */
   const handleTypeChange = useCallback((type: SearchType) => {
-    const isAlreadyOnSearchPage = pathname === "/search" || pathname === `/${locale}/search` || pathname.endsWith("/search");
+    const isAlreadyOnSearchPage =
+      pathname === "/search" ||
+      pathname === `/${locale}/search` ||
+      pathname.endsWith("/search");
 
-    if (isAlreadyOnSearchPage && type === selectedType) {
-      setIsSwitchingType(false);
-      return;
-    }
+    // Already on this tab — nothing to do
+    if (isAlreadyOnSearchPage && type === selectedType) return;
 
-    setIsSwitchingType(true);
+    // Optimistic UI: switch active indicator instantly, no button disabled state
     setSelectedType(type);
 
+    // Build the target URL, carry over the search query, drop type-specific filters
     const p = new URLSearchParams(searchParams.toString());
     p.set("type", type);
-    // Remove search results pagination & specific filters when switching types to prevent carrying over invalid filters
     p.delete("page");
     p.delete("category_id");
     p.delete("city_id");
@@ -110,27 +123,21 @@ function SearchBarInner({
     p.delete("max_price");
     p.delete("review_rate");
 
-    // Carry over search query 'q' if it exists in current search params or searchQuery
     const currentQ = searchParams.get("q") || searchQuery.trim();
-    if (currentQ) {
-      p.set("q", currentQ);
-    } else {
-      p.delete("q");
-    }
+    if (currentQ) p.set("q", currentQ);
+    else p.delete("q");
 
     if (isAlreadyOnSearchPage) {
-      const targetUrl = `${pathname}?${p.toString()}`;
-      router.replace(targetUrl, { scroll: false });
+      // Use the live pathname so we never accidentally introduce a locale prefix
+      // that triggers a next-international redirect loop
+      router.replace(`${pathname}?${p.toString()}`, { scroll: false });
     } else {
-      const targetUrl = `/${locale}/search?${p.toString()}`;
-      router.push(targetUrl);
+      router.push(`/${locale}/search?${p.toString()}`);
     }
   }, [locale, router, selectedType, pathname, searchParams, searchQuery]);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
+    if (e.key === "Enter") handleSearch();
   };
 
 
@@ -166,14 +173,12 @@ function SearchBarInner({
             <button
               key={type.value}
               type="button"
-              disabled={isSwitchingType}
               onClick={() => handleTypeChange(type.value)}
               className={cn(
                 "py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full text-center",
                 selectedType === type.value
                   ? "bg-[#3D5E83] text-white border-[#3D5E83]"
-                  : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50",
-                isSwitchingType && "opacity-70 cursor-wait"
+                  : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
               )}
             >
               {type.label}
@@ -218,14 +223,12 @@ function SearchBarInner({
               <button
                 key={type.value}
                 type="button"
-                disabled={isSwitchingType}
                 onClick={() => handleTypeChange(type.value)}
                 className={cn(
                   "py-2 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer border flex justify-center items-center w-full text-center",
                   selectedType === type.value
                     ? "bg-[#3D5E83] text-white border-[#3D5E83]"
-                    : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50",
-                  isSwitchingType && "opacity-70 cursor-wait"
+                    : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
                 )}
               >
                 {type.label}
@@ -261,14 +264,12 @@ function SearchBarInner({
               <button
                 key={type.value}
                 type="button"
-                disabled={isSwitchingType}
                 onClick={() => handleTypeChange(type.value)}
                 className={cn(
                   "px-4 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap rounded-full shrink-0",
                   selectedType === type.value
-                    ? "bg-gray-100 text-gray-900 "
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50",
-                  isSwitchingType && "opacity-70 cursor-wait"
+                    ? "bg-gray-100 text-gray-900"
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                 )}
               >
                 {type.label}
@@ -307,23 +308,18 @@ function SearchBarInner({
           <button
             key={type.value}
             type="button"
-            disabled={isSwitchingType}
             onClick={() => handleTypeChange(type.value)}
             className={cn(
               "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap",
               selectedType === type.value
                 ? "text-blue-3 font-medium"
-                : "text-gray-400 hover:text-gray-700",
-              isSwitchingType && "opacity-70 cursor-wait"
+                : "text-gray-400 hover:text-gray-700"
             )}
           >
             {type.label}
           </button>
         ))}
       </div>
-
-
-
 
       {/* Search Button (Left in RTL) */}
       <button
@@ -333,7 +329,6 @@ function SearchBarInner({
       >
         <span>البحث</span>
       </button>
-
     </div>
   );
 }
@@ -345,26 +340,29 @@ function SearchBarWrapper(props: SearchBarProps) {
 
   const q = searchParams.get("q") || "";
   const urlType = searchParams.get("type") as SearchType;
-  const type = (urlType && SEARCH_TYPES.some((t) => t.value === urlType)) 
-    ? urlType 
+  const type = (urlType && SEARCH_TYPES.some((t) => t.value === urlType))
+    ? urlType
     : (props.defaultType || "products");
 
   return (
-    <SearchBarInner 
-      key={`${q}-${type}`} 
-      urlQ={q} 
-      urlType={type} 
+    <SearchBarInner
+      // key={q} — only remount when the user submits a completely new text search.
+      // Tab changes do NOT remount: the render-level sync block handles state sync
+      // cheaply without destroying/recreating the component.
+      key={q}
+      urlQ={q}
+      urlType={type}
       searchParams={searchParams}
       pathname={pathname}
       locale={locale}
-      {...props} 
+      {...props}
     />
   );
 }
 
 export function SearchBar(props: SearchBarProps) {
   return (
-    <Suspense fallback={<div className="h-10 w-full animate-pulse bg-gray-50 rounded-md"></div>}>
+    <Suspense fallback={<div className="h-10 w-full animate-pulse bg-gray-50 rounded-md" />}>
       <SearchBarWrapper {...props} />
     </Suspense>
   );
