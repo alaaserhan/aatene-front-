@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { PlatformsSidebar } from "../components/PlatformsSidebar";
 import { Mosa3edySidebar } from "../home/components/Mosa3edySidebar";
@@ -7,7 +8,10 @@ import { ChatListSidebar } from "../components/ChatListSidebar";
 import { ChatEmptyState } from "../components/ChatEmptyState";
 import { ChatConversationView } from "../components/ChatConversationView";
 import { WebChatConversationView } from "../components/WebChatConversationView";
+import { Switch } from "@/src/components/ui/switch";
+import { Label } from "@/src/components/ui/label";
 import { ArrowRight } from "lucide-react";
+import { cn } from "@/src/lib/utils";
 
 export function MessagesPage() {
     const router = useRouter();
@@ -16,6 +20,8 @@ export function MessagesPage() {
 
     const activePlatform = searchParams.get("platform") || "website";
     const selectedChatId = searchParams.get("chatId");
+
+    const [showNeedsHuman, setShowNeedsHuman] = useState(false);
 
     /** محادثات عبر Laravel ai-support (الموقع أو التطبيق) */
     const isLaravelConversationUi = activePlatform === "website" || activePlatform === "mobile";
@@ -32,12 +38,17 @@ export function MessagesPage() {
         }
     };
 
+    const showHumanFilter = activePlatform !== "deleted_chats";
+
     const handlePlatformSelect = (id: string) => {
         const params = new URLSearchParams(searchParams.toString());
         params.set("platform", id);
         params.delete("chatId");
         params.delete("state");
         router.push(`${pathname}?${params.toString()}`);
+        if (id === "deleted_chats") {
+            setShowNeedsHuman(false);
+        }
     };
 
     const handleChatSelect = (chatId: string) => {
@@ -67,18 +78,48 @@ export function MessagesPage() {
 
                 <div className="flex-1 w-full bg-white rounded-2xl border border-gray-200 h-[calc(100vh-140px)] lg:h-[calc(100vh-124px)] flex flex-col overflow-hidden">
 
-                    <div className="px-4 lg:px-6 py-3 lg:py-4 pt-4 lg:pt-6 border-b border-gray-100 flex flex-row items-center gap-3 bg-white">
-                        {selectedChatId && (
-                            <button
-                                onClick={handleBackToList}
-                                className="lg:hidden p-2 -me-2 hover:bg-gray-100 rounded-lg transition-colors"
-                            >
-                                <ArrowRight className="w-5 h-5" />
-                            </button>
+                    <div
+                        className={cn(
+                            "px-4 lg:px-6 py-3 lg:py-4 pt-4 lg:pt-6 border-b border-gray-100 flex flex-row gap-3 bg-white",
+                            showHumanFilter ? "justify-between items-start" : "items-center"
                         )}
-                        <h1 className="text-xl lg:text-2xl font-semibold">
-                            {getPlatformTitle(activePlatform)}
-                        </h1>
+                    >
+                        <div className="flex items-center gap-3">
+                            {selectedChatId && (
+                                <button
+                                    onClick={handleBackToList}
+                                    className="lg:hidden p-2 -me-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                >
+                                    <ArrowRight className="w-5 h-5" />
+                                </button>
+                            )}
+                            <h1 className="text-xl lg:text-2xl font-semibold">
+                                {getPlatformTitle(activePlatform)}
+                            </h1>
+                        </div>
+
+                        {showHumanFilter && (
+                            <div className="flex items-center gap-2 lg:gap-3 bg-gray-50 px-3 lg:px-4 py-2 rounded-lg border border-gray-100 shrink-0">
+                                <Switch
+                                    id="human-filter"
+                                    checked={showNeedsHuman}
+                                    onCheckedChange={(checked) => {
+                                        setShowNeedsHuman(checked);
+                                        const params = new URLSearchParams(searchParams.toString());
+                                        params.delete("chatId");
+                                        router.push(`${pathname}?${params.toString()}`);
+                                    }}
+                                    dir="ltr"
+                                    className="data-[state=checked]:bg-[#D97706]"
+                                />
+                                <Label
+                                    htmlFor="human-filter"
+                                    className="text-xs lg:text-sm font-medium text-gray-2 cursor-pointer select-none whitespace-nowrap"
+                                >
+                                    يحتاج تدخل بشري
+                                </Label>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex flex-1 overflow-hidden">
@@ -91,6 +132,7 @@ export function MessagesPage() {
                                 platform={activePlatform}
                                 selectedChatId={selectedChatId}
                                 onSelectChat={handleChatSelect}
+                                needsHuman={showHumanFilter && showNeedsHuman}
                             />
                         </div>
 
