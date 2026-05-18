@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import { useConversationMessages, useSendMessage, useMarkMessageAsSeen, useBlockUser, useDeleteConversation } from "../hooks";
+import { useConversationMessages, useSendMessage, useMarkMessageAsSeen, useBlockUser, useUnblockUser, useDeleteConversation } from "../hooks";
 import { Conversation } from "../api";
 import { Loader2, Send, MoreVertical, UserPlus, Ban, Trash2, CheckCircle, Image as ImageIcon, Star, User, Store, X } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
@@ -85,6 +85,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     const { mutate: sendMessage } = useSendMessage();
     const { mutate: markSeen } = useMarkMessageAsSeen();
     const { mutate: blockUser } = useBlockUser();
+    const { mutate: unblockUser } = useUnblockUser();
     const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversation();
 
     const [newMessage, setNewMessage] = useState("");
@@ -410,14 +411,17 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                         if (!isMeBlocked && conversation.can_chat === false) {
                                             // Already blocked by me → unblock directly
                                             if (otherParticipant) {
-                                                blockUser({
+                                                unblockUser({
                                                     payload: {
                                                         blocked_type: otherParticipant.participant_data.type,
                                                         blocked_id: otherParticipant.participant_data.id,
                                                     },
                                                     ignoreCookie
                                                 }, {
-                                                    onSuccess: () => toast.success("تم إلغاء الحظر بنجاح")
+                                                    onSuccess: () => toast.success("تم إلغاء الحظر بنجاح"),
+                                                    onError: (err: { response?: { data?: { message?: string } } }) => {
+                                                        toast.error(err.response?.data?.message || "فشل إلغاء الحظر");
+                                                    },
                                                 });
                                             }
                                         } else {
@@ -769,7 +773,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                 <Button
                                     onClick={() => {
                                         if (otherParticipant) {
-                                            blockUser({
+                                            unblockUser({
                                                 payload: {
                                                     blocked_type: otherParticipant.participant_data.type,
                                                     blocked_id: otherParticipant.participant_data.id,
@@ -778,7 +782,10 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                             }, {
                                                 onSuccess: () => {
                                                     toast.success("تم إلغاء الحظر بنجاح");
-                                                }
+                                                },
+                                                onError: (err: { response?: { data?: { message?: string } } }) => {
+                                                    toast.error(err.response?.data?.message || "فشل إلغاء الحظر");
+                                                },
                                             });
                                         }
                                     }}
