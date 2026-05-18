@@ -31,8 +31,10 @@ export interface MediaTabConfig {
   value: string;
   label: string;
   icon: LucideIcon;
-  /** وصف قصير للمستخدم */
+  /** يظهر بجانب اسم التبويب على الشاشات الأوسع */
   hint?: string;
+  /** يظهر تحت التبويبات عند التفعيل */
+  description?: string;
 }
 
 /** تبويبات الميديا المعروضة في الواجهة (مطابقة للباكند فقط) */
@@ -46,13 +48,17 @@ export const MEDIA_TAB_CONFIGS: MediaTabConfig[] = [
     value: "gallery",
     label: "المعرض",
     icon: Grid3X3,
-    hint: "صور وفيديو (MP4, WebM…)",
+    hint: "صور + فيديو",
+    description:
+      "مكتبة معرض المنتج: صور إضافية وفيديو (MP4, WebM…). الرفع هنا يُخزَّن كنوع gallery.",
   },
   {
     value: "image",
-    label: "الصور",
+    label: "الغلاف والشعار",
     icon: ImageIcon,
-    hint: "صور مضغوطة للغلاف والشعار",
+    hint: "صور فقط",
+    description:
+      "مكتبة الصور الثابتة: غلاف المنتج والشعار. لا يُخزَّن الفيديو هنا — للفيديو استخدم تبويب المعرض.",
   },
 ];
 
