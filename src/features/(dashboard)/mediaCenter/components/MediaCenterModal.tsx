@@ -70,8 +70,10 @@ export function MediaCenterModal({
     }
   }, [open, mediaTypes]);
 
-  const activeTypeLabel =
-    mediaTypes.find((t) => t.value === activeType)?.label ?? "هذا القسم";
+  const activeTab =
+    mediaTypes.find((t) => t.value === activeType) ?? mediaTypes[0];
+
+  const activeTypeLabel = activeTab?.label ?? "هذا القسم";
 
   const params = useMemo(() => {
     const p = new URLSearchParams();
@@ -254,7 +256,13 @@ export function MediaCenterModal({
             </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row justify-between gap-3 sm:gap-4 px-3 sm:px-4 pb-3 sm:pb-4">
+          <div className="flex flex-col gap-2 px-3 sm:px-4">
+            {activeTab?.description && (
+              <p className="text-xs text-gray-2 leading-relaxed bg-gray-50 border border-gray-100 rounded-md p-2.5">
+                {activeTab.description}
+              </p>
+            )}
+          <div className="flex flex-col lg:flex-row justify-between gap-3 sm:gap-4 pb-1">
             <div className="flex-1 lg:flex-none overflow-hidden">
               <ScrollArea className="w-full max-w-full">
                 <div className="flex gap-2 pb-1 w-max ">
@@ -307,6 +315,7 @@ export function MediaCenterModal({
               )}
             </div>
 
+          </div>
           </div>
         </div>
 
