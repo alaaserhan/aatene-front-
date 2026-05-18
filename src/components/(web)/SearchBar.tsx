@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense, useTransition, useCallback } from "react";
+import React, { useState, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
@@ -53,7 +53,20 @@ function SearchBarInner({
 
   const [searchQuery, setSearchQuery] = useState(urlQ);
   const [selectedType, setSelectedType] = useState<SearchType>(initialType);
-  const [isSwitchingType, startSwitchingType] = useTransition();
+  const [isSwitchingType, setIsSwitchingType] = useState(false);
+
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  const [prevUrlQ, setPrevUrlQ] = useState(urlQ);
+  const [prevUrlType, setPrevUrlType] = useState(urlType);
+
+  if (urlQ !== prevUrlQ || urlType !== prevUrlType || pathname !== prevPathname) {
+    setPrevUrlQ(urlQ);
+    setPrevUrlType(urlType);
+    setPrevPathname(pathname);
+    setSearchQuery(urlQ);
+    setSelectedType(urlType);
+    setIsSwitchingType(false);
+  }
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -80,12 +93,21 @@ function SearchBarInner({
   };
 
   const handleTypeChange = useCallback((type: SearchType) => {
-    if (type === selectedType) return;
+    const searchPath = `/${locale}/search`;
+    const isAlreadyOnSearchPage = pathname === searchPath;
+
+    if (isAlreadyOnSearchPage && type === selectedType) return;
+
+    setIsSwitchingType(true);
     setSelectedType(type);
-    startSwitchingType(() => {
-      router.replace(typeTabHref(locale, type), { scroll: false });
-    });
-  }, [locale, router, selectedType]);
+
+    const targetUrl = typeTabHref(locale, type);
+    if (isAlreadyOnSearchPage) {
+      router.replace(targetUrl, { scroll: false });
+    } else {
+      router.push(targetUrl);
+    }
+  }, [locale, router, selectedType, pathname]);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
