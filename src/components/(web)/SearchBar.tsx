@@ -21,11 +21,6 @@ const SEARCH_TYPES: { value: SearchType; label: string }[] = [
   { value: "users", label: "مستخدمين" },
 ];
 
-function typeTabHref(locale: string, type: SearchType): string {
-  const p = new URLSearchParams();
-  p.set("type", type);
-  return `/${locale}/search?${p.toString()}`;
-}
 
 interface SearchBarInnerProps extends SearchBarProps {
   urlQ: string;
@@ -93,21 +88,44 @@ function SearchBarInner({
   };
 
   const handleTypeChange = useCallback((type: SearchType) => {
-    const searchPath = `/${locale}/search`;
-    const isAlreadyOnSearchPage = pathname === searchPath;
+    const isAlreadyOnSearchPage = pathname === "/search" || pathname === `/${locale}/search` || pathname.endsWith("/search");
 
-    if (isAlreadyOnSearchPage && type === selectedType) return;
+    if (isAlreadyOnSearchPage && type === selectedType) {
+      setIsSwitchingType(false);
+      return;
+    }
 
     setIsSwitchingType(true);
     setSelectedType(type);
 
-    const targetUrl = typeTabHref(locale, type);
+    const p = new URLSearchParams(searchParams.toString());
+    p.set("type", type);
+    // Remove search results pagination & specific filters when switching types to prevent carrying over invalid filters
+    p.delete("page");
+    p.delete("category_id");
+    p.delete("city_id");
+    p.delete("tags");
+    p.delete("variation_options");
+    p.delete("min_price");
+    p.delete("max_price");
+    p.delete("review_rate");
+
+    // Carry over search query 'q' if it exists in current search params or searchQuery
+    const currentQ = searchParams.get("q") || searchQuery.trim();
+    if (currentQ) {
+      p.set("q", currentQ);
+    } else {
+      p.delete("q");
+    }
+
     if (isAlreadyOnSearchPage) {
+      const targetUrl = `${pathname}?${p.toString()}`;
       router.replace(targetUrl, { scroll: false });
     } else {
+      const targetUrl = `/${locale}/search?${p.toString()}`;
       router.push(targetUrl);
     }
-  }, [locale, router, selectedType, pathname]);
+  }, [locale, router, selectedType, pathname, searchParams, searchQuery]);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
