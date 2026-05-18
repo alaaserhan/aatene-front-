@@ -206,23 +206,11 @@ export function ShowStoryModal({
     const INACTIVE_WIDTH = dimensions.inactiveWidth;
     const GAP = 32;
 
-    const getActiveSlideCenterOffset = (index: number) => {
-        let offset = 0;
-        for (let i = 0; i < index; i++) {
-            offset += INACTIVE_WIDTH + GAP;
-        }
-        offset += ACTIVE_WIDTH / 2;
-        return offset;
-    };
-
-    const storiesToRender = showActions ? stories : [stories[activeIndex]];
-
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
                 <DialogContent
-                    overlayClassName="z-[9999] bg-black/50 backdrop-blur-md"
-                    className="max-w-none w-screen h-screen p-0 bg-transparent border-none shadow-none flex items-center justify-center overflow-hidden z-[10000] rounded-none sm:rounded-none [&>button]:hidden"
+                    className="max-w-none w-screen h-screen p-0 bg-black/55 border-none flex items-center justify-center overflow-hidden z-[9990] rounded-none sm:rounded-none"
                 >
                     <VisuallyHidden><DialogTitle>عرض القصة</DialogTitle></VisuallyHidden>
 
@@ -251,34 +239,29 @@ export function ShowStoryModal({
                     )}
 
                     <div
-                        className="relative w-full h-full flex items-center justify-center overflow-hidden"
+                        className="relative w-full h-full flex items-center overflow-hidden"
                         onClick={onClose}
+                        dir="rtl"
                     >
                         <div
-                            className={cn(
-                                "flex items-center gap-8 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform",
-                                showActions && "absolute left-1/2"
-                            )}
-                            style={
-                                showActions
-                                    ? { transform: `translateX(calc(-${getActiveSlideCenterOffset(activeIndex)}px))` }
-                                    : undefined
-                            }
+                            className="flex items-center gap-8 absolute right-1/2 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
+                            style={{
+                                transform: `translateX(calc(${(ACTIVE_WIDTH / 2) + (activeIndex * (INACTIVE_WIDTH + GAP))}px))`,
+                            }}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            {storiesToRender.map((story, index) => {
-                                const storyIndex = showActions ? index : activeIndex;
-                                const isActive = storyIndex === activeIndex;
+                            {stories.map((story, index) => {
+                                const isActive = index === activeIndex;
 
                                 return (
                                     <div
                                         key={story.id}
-                                        onClick={() => showActions && !isActive && goToIndex(storyIndex)}
+                                        onClick={() => !isActive && goToIndex(index)}
                                         className={cn(
                                             "relative bg-white aspect-[9/16] rounded-[24px] overflow-hidden transition-all duration-500 ease-in-out shrink-0 border border-gray-800",
                                             isActive
                                                 ? "opacity-100 scale-100 z-20 shadow-2xl"
-                                                : "opacity-60 scale-95 cursor-pointer hover:opacity-80"
+                                                : "opacity-40 scale-90 blur-[1px] cursor-pointer hover:opacity-60"
                                         )}
                                         style={{ width: `${isActive ? ACTIVE_WIDTH : INACTIVE_WIDTH}px` }}
                                     >

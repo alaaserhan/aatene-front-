@@ -182,8 +182,7 @@ export function ShowHighlightModal({
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
                 <DialogContent
-                    overlayClassName="z-[9999] bg-black/50 backdrop-blur-md"
-                    className="max-w-none w-screen h-screen p-0 bg-transparent border-none shadow-none flex items-center justify-center overflow-hidden z-[10000] rounded-none sm:rounded-none [&>button]:hidden"
+                    className="max-w-none w-screen h-screen p-0 bg-black/55 border-none flex items-center justify-center overflow-hidden z-[9990] rounded-none sm:rounded-none"
                 >
                     <VisuallyHidden><DialogTitle>عرض الهايلايت</DialogTitle></VisuallyHidden>
 
@@ -234,7 +233,7 @@ export function ShowHighlightModal({
                                             "relative bg-white aspect-[9/16] rounded-[24px] overflow-hidden transition-all duration-500 ease-in-out shrink-0 border border-gray-800",
                                             isActive
                                                 ? "opacity-100 scale-100 z-20 shadow-2xl"
-                                                : "opacity-60 scale-95 cursor-pointer hover:opacity-80"
+                                                : "opacity-40 scale-90 blur-[1px] cursor-pointer hover:opacity-60"
                                         )}
                                         style={{ width: `${isActive ? ACTIVE_WIDTH : INACTIVE_WIDTH}px` }}
                                     >
