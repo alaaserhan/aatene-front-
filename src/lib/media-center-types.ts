@@ -29,10 +29,9 @@ export type BackendMediaType = (typeof BACKEND_MEDIA_TYPES)[number];
 
 export interface MediaTabConfig {
   value: string;
-  label: string;
+  /** إن وُجد يُعرض بجانب الأيقونة؛ وإلا تبويب بأيقونة فقط */
+  label?: string;
   icon: LucideIcon;
-  /** يظهر بجانب اسم التبويب على الشاشات الأوسع */
-  hint?: string;
   /** يظهر تحت التبويبات عند التفعيل */
   description?: string;
 }
@@ -44,18 +43,8 @@ export const MEDIA_TAB_CONFIGS: MediaTabConfig[] = [
   { value: "excel", label: "ملفات Excel", icon: FileSpreadsheet },
   { value: "file", label: "ملفات", icon: File },
   { value: "avatar", label: "أفاتار", icon: User },
-  {
-    value: "gallery",
-    label: "المعرض",
-    icon: Grid3X3,
-    hint: "صور + فيديو",
-  },
-  {
-    value: "image",
-    label: "صور",
-    icon: ImageIcon,
-    hint: "صور فقط",
-  },
+  { value: "gallery", label: "المعرض", icon: Grid3X3 },
+  { value: "image", icon: ImageIcon },
 ];
 
 const TAB_BY_VALUE = new Map(MEDIA_TAB_CONFIGS.map((t) => [t.value, t]));

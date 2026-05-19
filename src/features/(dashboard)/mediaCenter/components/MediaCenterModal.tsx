@@ -275,6 +275,7 @@ export function MediaCenterModal({
                         key={type.value}
                         type="button"
                         aria-pressed={isActive}
+                        aria-label={type.label ?? (type.value === "image" ? "صور" : type.value)}
                         onClick={() => handleTypeChange(type.value)}
                         className={cn(
                           "cursor-pointer px-3 py-2 min-h-[36px] text-xs font-medium transition-all duration-200 whitespace-nowrap flex items-center gap-1.5 shrink-0 rounded-md border touch-manipulation",
@@ -283,13 +284,8 @@ export function MediaCenterModal({
                             : "bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-200"
                         )}
                       >
-                        <Icon className="w-3.5 h-3.5 shrink-0" />
-                        <span>{type.label}</span>
-                        {type.hint && (
-                          <span className="hidden sm:inline text-[10px] opacity-80">
-                            ({type.hint})
-                          </span>
-                        )}
+                        <Icon className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                        {type.label ? <span>{type.label}</span> : null}
                       </button>
                     );
                   })}
