@@ -49,8 +49,6 @@ export const MEDIA_TAB_CONFIGS: MediaTabConfig[] = [
     label: "المعرض",
     icon: Grid3X3,
     hint: "صور + فيديو",
-    description:
-      "مكتبة معرض المنتج: صور إضافية وفيديو (MP4, WebM…). الرفع هنا يُخزَّن كنوع gallery.",
   },
   {
     value: "image",
