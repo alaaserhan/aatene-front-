@@ -216,9 +216,9 @@ export function ImageGallerySelector({
     const resolvedUploadSecondary =
         uploadSecondaryText ??
         (firstSlotImageOnly
-            ? "الغلاف: تبويب «الغلاف والشعار» فقط. بعده يمكنك إضافة فيديو من تبويب «المعرض»."
+            ? "الموضع الأول: تبويب الصور فقط. بعده يمكنك إضافة فيديو من تبويب المعرض."
             : allowsGalleryVideos(allowedMediaTypes)
-              ? "الغلاف: تبويب الغلاف والشعار — الفيديو والصور الإضافية: تبويب المعرض"
+              ? "الموضع الأول: تبويب الصور — الفيديو والصور الإضافية: تبويب المعرض"
               : "PNG, JPG, WebP, SVG");
 
     return (
@@ -365,7 +365,7 @@ export function ImageGallerySelector({
                 uploadPrimaryText={
                     uploadPrimaryText ??
                     (items.length === 0
-                        ? "أضف أو اسحب صورة (للغلاف)"
+                        ? "أضف أو اسحب صورة"
                         : "أضف أو اسحب صورة أو فيديو")
                 }
                 uploadSecondaryText={resolvedUploadSecondary}

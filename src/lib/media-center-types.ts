@@ -54,11 +54,9 @@ export const MEDIA_TAB_CONFIGS: MediaTabConfig[] = [
   },
   {
     value: "image",
-    label: "الغلاف والشعار",
+    label: "صور",
     icon: ImageIcon,
     hint: "صور فقط",
-    description:
-      "مكتبة الصور الثابتة: غلاف المنتج والشعار. لا يُخزَّن الفيديو هنا — للفيديو استخدم تبويب المعرض.",
   },
 ];
 
