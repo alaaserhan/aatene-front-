@@ -15,7 +15,6 @@ import {
     StoreSearchParams,
     UserSearchParams,
 } from "@/src/features/(web)/searchAndFilter/api";
-
 const QK = {
     products: {
         search: (params: ProductSearchParams) => ["products", "search", params] as const,
