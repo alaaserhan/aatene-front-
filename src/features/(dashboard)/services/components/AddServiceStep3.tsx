@@ -96,7 +96,7 @@ export function AddServiceStep3({
                             <div >
                                 <ImageGallerySelector
                                     label="معرض الخدمة"
-                                    subLabel="حتى 10 ملفات: غلاف (صورة فقط) + صور أو فيديو واحد من المعرض"
+                                    subLabel="حتى 10 ملفات: الموضع الأول صورة فقط — باقي المواضع صور أو فيديو من المعرض"
                                     value={images}
                                     previews={imagesPreviews}
                                     onChange={handleImagesChange}
@@ -108,7 +108,7 @@ export function AddServiceStep3({
                                     mainImageAllowedMediaTypes={["image"]}
                                     allowedMediaTypes={["image", "gallery"]}
                                     uploadPrimaryText="أضف أو اسحب صورة أو فيديو"
-                                    uploadSecondaryText="الغلاف: تبويب الغلاف والشعار — الفيديو: تبويب المعرض فقط"
+                                    uploadSecondaryText="الموضع الأول: تبويب الصور — الفيديو: تبويب المعرض"
                                 />
                             </div>
                         </div>

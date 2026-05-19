@@ -305,7 +305,7 @@ export function AddProductStep1({
                 <div id="product-step1-cover">
                 <ImageGallerySelector
                   label="معرض المنتج"
-                  subLabel="حتى 10 ملفات: الموضع الأول غلاف (صورة فقط من تبويب الغلاف) — باقي المواضع صور أو فيديو واحد من تبويب المعرض"
+                  subLabel="حتى 10 ملفات: الموضع الأول صورة فقط — باقي المواضع صور أو فيديو من تبويب المعرض"
                   value={combinedFiles}
                   previews={combinedPreviews}
                   onChange={handleImagesChange}
@@ -315,8 +315,8 @@ export function AddProductStep1({
                   mainImageLabel="الصوره الرئيسية"
                   showDragHint={true}
                   dragHintText="يمكنك سحب وإفلات الصور أو الفيديو لإعادة الترتيب"
-                  emptyStateText="أضف صورة الغلاف"
-                  emptyStateSubText="الموضع الأول: غلاف من تبويب الغلاف والشعار"
+                  emptyStateText="أضف الصورة الرئيسية"
+                  emptyStateSubText="الموضع الأول: صورة من تبويب الصور"
                   mainImageAllowedMediaTypes={["image"]}
                   allowedMediaTypes={["gallery", "image"]}
                   required
