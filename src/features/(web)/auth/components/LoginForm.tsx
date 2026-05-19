@@ -34,7 +34,7 @@ const generateFallbackToken = () => {
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const fieldClassName =
-  "rounded-xl border-gray-200 py-3.5 text-sm focus:border-[#3d5e83] focus:ring-1 focus:ring-[#3d5e83]/20";
+  "rounded-full border-gray-200 py-3.5 text-sm focus:border-[#3d5e83] focus:ring-1 focus:ring-[#3d5e83]/20";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -181,6 +181,8 @@ export function LoginForm() {
             </span>
           )}
         </Button>
+
+        <div className="h-px w-full shrink-0 bg-[#e8e8e8]" role="presentation" />
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-7 lg:gap-[33px]">
