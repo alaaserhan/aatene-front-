@@ -1,4 +1,3 @@
-// src/app/(web)/signup/components/SignupForm.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -22,11 +21,8 @@ import {
 import { FormInput } from "@/src/components/ui/FormInput";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
 import { cn } from "@/src/lib/utils";
-import { Card, CardContent, CardDescription, CardTitle } from "@/src/components/ui/card";
-import { Separator } from "@/src/components/ui/separator";
 import { useRegister } from "../hooks";
 import { Loader2 } from "lucide-react";
-import Image from "next/image";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { ApiError, User } from "../types";
@@ -49,6 +45,34 @@ const signupSchema = z
   });
 
 type SignupFormData = z.infer<typeof signupSchema>;
+
+const SIGNUP_PANEL_IMAGE = "/Frame%201261155080.svg";
+
+const fieldClassName =
+  "rounded-full border-gray-200 py-3.5 text-sm focus:border-[#3d5e83] focus:ring-1 focus:ring-[#3d5e83]/20";
+
+function GoogleIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden>
+      <path
+        fill="#4285F4"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+      />
+    </svg>
+  );
+}
 
 export function SignupForm() {
   const [countryCode, setCountryCode] = useState("+972");
@@ -82,16 +106,18 @@ export function SignupForm() {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       });
-      getAccount().then((data) => {
-        if (data?.user) {
-          storeLogin(tokenParam, data.user as unknown as User);
-          router.push("/");
-        } else {
+      getAccount()
+        .then((data) => {
+          if (data?.user) {
+            storeLogin(tokenParam, data.user as unknown as User);
+            router.push("/");
+          } else {
+            setIsGoogleLoading(false);
+          }
+        })
+        .catch(() => {
           setIsGoogleLoading(false);
-        }
-      }).catch(() => {
-        setIsGoogleLoading(false);
-      });
+        });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -104,245 +130,267 @@ export function SignupForm() {
 
   const onSubmit = (data: SignupFormData) => {
     const { confirmPassword, terms, ...credentials } = data;
+    const formattedPhone = `${countryCode}${data.phone.startsWith("0") ? data.phone.slice(1) : data.phone}`;
 
-    // Combine country code and phone number. 
-    // If the phone starts with 0, we usually strip it when prepending country code, 
-    // but the backend error suggests it might want a specific format. 
-    // Let's prepend the code.
-    const formattedPhone = `${countryCode}${data.phone.startsWith('0') ? data.phone.slice(1) : data.phone}`;
-
-    signupMutation({ ...credentials, phone: formattedPhone }, {
-      onSuccess: () => {
-        if (typeof window !== "undefined") {
-          localStorage.setItem("new_user_registered", "true");
-          localStorage.removeItem("notification_prompt_dismissed");
-          localStorage.setItem("notifications_enabled", "false");
-        }
-      },
-      onError: (error) => {
-        form.clearErrors();
-        if (error instanceof AxiosError) {
-          const responseData = error.response?.data as ApiError | undefined;
-
-          if (responseData?.errors && Object.keys(responseData.errors).length > 0) {
-            Object.entries(responseData.errors).forEach(([field, messages]) => {
-              if (Array.isArray(messages) && messages.length > 0) {
-                // نضع الخطأ على الحقل فقط - الـ toast يتكفل به الـ axios interceptor تلقائياً
-                form.setError(field as keyof SignupFormData, {
-                  type: "manual",
-                  message: messages[0],
-                });
-              }
-            });
-          } else if (responseData?.message) {
-            form.setError("root", { message: responseData.message });
+    signupMutation(
+      { ...credentials, phone: formattedPhone },
+      {
+        onSuccess: () => {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("new_user_registered", "true");
+            localStorage.removeItem("notification_prompt_dismissed");
+            localStorage.setItem("notifications_enabled", "false");
           }
-          // لا نعرض toast هنا - الـ axios interceptor يعرضه مرة واحدة تلقائياً
-        } else {
-          toast.error("حدث خطأ ما، يرجى المحاولة مرة أخرى");
-        }
-      },
-    });
+        },
+        onError: (error) => {
+          form.clearErrors();
+          if (error instanceof AxiosError) {
+            const responseData = error.response?.data as ApiError | undefined;
+
+            if (responseData?.errors && Object.keys(responseData.errors).length > 0) {
+              Object.entries(responseData.errors).forEach(([field, messages]) => {
+                if (Array.isArray(messages) && messages.length > 0) {
+                  form.setError(field as keyof SignupFormData, {
+                    type: "manual",
+                    message: messages[0],
+                  });
+                }
+              });
+            } else if (responseData?.message) {
+              form.setError("root", { message: responseData.message });
+            }
+          } else {
+            toast.error("حدث خطأ ما، يرجى المحاولة مرة أخرى");
+          }
+        },
+      }
+    );
   };
 
   return (
-    <Card className="grid overflow-hidden rounded-xl shadow-none lg:grid-cols-2 border-none">
-      <CardContent className="flex flex-col items-center justify-center p-6 sm:p-12">
-        <div className="w-full space-y-6">
-          <div className="text-center lg:text-start">
-            <CardTitle className="text-2xl sm:text-3xl font-bold mb-1">
-              إنشاء حساب جديد
-            </CardTitle>
-            <CardDescription className="text-gray-2 text-sm">
-              لديك حساب بالفعل؟
-              <Link href="/login" className="underline hover:text-primary">
-                تسجيل الدخول
-              </Link>
-            </CardDescription>
-          </div>
-
-          <Button 
-            type="button"
-            onClick={handleGoogleLogin}
-            disabled={isGoogleLoading || isPending}
-            variant="outline" 
-            className="w-full bg-blue-3 hover:text-white gap-3 text-white rounded-full p-3 sm:p-5"
-          >
-            {isGoogleLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <span>تسجيل الدخول بواسطة جوجل</span>
-            )}
-          </Button>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <Separator />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">
-                أو أكمل بواسطة
-              </span>
-            </div>
-          </div>
-
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="first_name"
-                  render={({ field, fieldState }) => (
-                    <FormInput
-                      label="الاسم الأول"
-                      placeholder="أدخل اسمك الأول"
-                      required
-                      error={fieldState.error?.message}
-                      {...field}
-                    />
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="last_name"
-                  render={({ field, fieldState }) => (
-                    <FormInput
-                      label="الاسم الأخير"
-                      placeholder="أدخل اسمك الأخير"
-                      required
-                      error={fieldState.error?.message}
-                      {...field}
-                    />
-                  )}
-                />
-              </div>
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field, fieldState }) => (
-                  <FormInput
-                    label="البريد الإلكتروني"
-                    type="email"
-                    placeholder="أدخل بريدك الإلكتروني"
-                    required
-                    error={fieldState.error?.message}
-                    {...field}
-                  />
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field, fieldState }) => (
-                  <PhoneNumberInput
-                    label="رقم الهاتف"
-                    placeholder="أدخل رقم هاتفك"
-                    required
-                    countryCode={countryCode}
-                    onCountryCodeChange={setCountryCode}
-                    error={fieldState.error?.message}
-                    {...field}
-                    rounded="rounded-sm"
-                    height="h-11"
-                  />
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field, fieldState }) => (
-                  <FormInput
-                    label="كلمة المرور"
-                    type="password"
-                    placeholder="أدخل كلمة مرور قوية"
-                    required
-                    error={fieldState.error?.message}
-                    {...field}
-                  />
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field, fieldState }) => (
-                  <FormInput
-                    label="تأكيد كلمة المرور"
-                    type="password"
-                    placeholder="أعد إدخال كلمة المرور"
-                    required
-                    error={fieldState.error?.message}
-                    {...field}
-                  />
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="terms"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rtl:space-x-reverse group">
-                    <FormControl>
-                      <button
-                        type="button"
-                        onClick={() => field.onChange(!field.value)}
-                        className={cn(
-                          "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center ms-2 flex-shrink-0",
-                          "cursor-pointer",
-                          field.value
-                            ? "bg-blue-5 border-blue-4"
-                            : "bg-white border-gray-300 group-hover:border-gray-2"
-                        )}
-                        aria-checked={field.value}
-                        role="checkbox"
-                      >
-                        {field.value && (
-                          <svg
-                            className="w-4 h-4 text-blue-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={3}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        )}
-                      </button>
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-xs text-gray-2 cursor-pointer mx-2">
-                        لقد قرأت و وافقت على
-                        <Link href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
-                          سياسة الخصوصية
-                        </Link>
-                      </FormLabel>
-                      <FormMessage />
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              <Button type="submit" className="w-full bg-blue-3 p-3 sm:p-5 hover:text-white" disabled={isPending}>
-                {isPending ? "جاري الإنشاء..." : "إنشاء حساب"}
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              </Button>
-            </form>
-          </Form>
-        </div>
-      </CardContent>
-
-      <div className="relative hidden h-full w-full bg-muted lg:block">
-        <Image
-          src="/singup.png"
-          alt="Signup illustration"
-          fill
-          style={{ objectFit: 'cover' }}
-          priority
+    <div
+      className="mx-auto flex w-full max-w-[1018px] flex-col overflow-hidden rounded-[10px] border border-[#e8e8e8] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.05)] lg:flex-row lg:items-stretch"
+      dir="ltr"
+    >
+      <div className="relative order-2 hidden h-[280px] w-full shrink-0 overflow-hidden sm:h-[340px] lg:order-1 lg:block lg:h-auto lg:min-h-0 lg:w-[509px] lg:shrink-0">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={SIGNUP_PANEL_IMAGE}
+          alt=""
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center select-none"
+          draggable={false}
         />
       </div>
-    </Card>
+
+      <div
+        className="order-1 flex w-full flex-col gap-6 p-8 sm:p-9 lg:order-2 lg:w-[509px] lg:shrink-0 lg:gap-7 lg:overflow-y-auto lg:p-[50px]"
+        dir="rtl"
+      >
+        <div className="space-y-2 text-right">
+          <h1 className="text-[28px] font-bold leading-tight text-[#1c1c1c] lg:text-[32px]">
+            إنشاء حساب جديد
+          </h1>
+          <p className="text-sm text-[#6b7280]">
+            لديك حساب بالفعل؟{" "}
+            <Link
+              href="/login"
+              className="font-medium text-[#3d5e83] underline-offset-2 hover:underline"
+            >
+              تسجيل الدخول
+            </Link>
+          </p>
+        </div>
+
+        <Button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={isGoogleLoading || isPending}
+          variant="outline"
+          className="h-12 w-full shrink-0 items-center gap-3 rounded-full border-0 bg-[#ececec] text-base font-normal text-[#3c4043] shadow-none hover:bg-[#e2e2e2] hover:text-[#202124]"
+        >
+          {isGoogleLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <span className="inline-flex items-center gap-2.5 text-base leading-none">
+              <span>Google</span>
+              <GoogleIcon className="h-[1.35em] w-[1.35em] shrink-0 scale-110 -translate-y-px" />
+            </span>
+          )}
+        </Button>
+
+        <div className="h-px w-full shrink-0 bg-[#e8e8e8]" role="presentation" />
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="first_name"
+                render={({ field, fieldState }) => (
+                  <FormInput
+                    label="الاسم الأول"
+                    placeholder="أدخل اسمك الأول"
+                    required
+                    error={fieldState.error?.message}
+                    className={fieldClassName}
+                    containerClassName="space-y-2"
+                    {...field}
+                  />
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="last_name"
+                render={({ field, fieldState }) => (
+                  <FormInput
+                    label="الاسم الأخير"
+                    placeholder="أدخل اسمك الأخير"
+                    required
+                    error={fieldState.error?.message}
+                    className={fieldClassName}
+                    containerClassName="space-y-2"
+                    {...field}
+                  />
+                )}
+              />
+            </div>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field, fieldState }) => (
+                <FormInput
+                  label="البريد الإلكتروني"
+                  type="email"
+                  placeholder="أدخل بريدك الإلكتروني"
+                  required
+                  error={fieldState.error?.message}
+                  className={fieldClassName}
+                  containerClassName="space-y-2"
+                  {...field}
+                />
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field, fieldState }) => (
+                <PhoneNumberInput
+                  label="رقم الهاتف"
+                  placeholder="أدخل رقم هاتفك"
+                  required
+                  countryCode={countryCode}
+                  onCountryCodeChange={setCountryCode}
+                  error={fieldState.error?.message}
+                  roundedFull
+                  height="h-12"
+                  {...field}
+                />
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <FormInput
+                  label="كلمة المرور"
+                  type="password"
+                  placeholder="أدخل كلمة مرور قوية"
+                  required
+                  error={fieldState.error?.message}
+                  className={fieldClassName}
+                  containerClassName="space-y-2"
+                  {...field}
+                />
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field, fieldState }) => (
+                <FormInput
+                  label="تأكيد كلمة المرور"
+                  type="password"
+                  placeholder="أعد إدخال كلمة المرور"
+                  required
+                  error={fieldState.error?.message}
+                  className={fieldClassName}
+                  containerClassName="space-y-2"
+                  {...field}
+                />
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="terms"
+              render={({ field }) => (
+                <FormItem className="group flex flex-row items-start space-x-3 space-y-0 rtl:space-x-reverse">
+                  <FormControl>
+                    <button
+                      type="button"
+                      onClick={() => field.onChange(!field.value)}
+                      className={cn(
+                        "ms-2 flex h-4 w-4 shrink-0 items-center justify-center rounded-xs border transition-colors",
+                        "cursor-pointer",
+                        field.value
+                          ? "border-[#3d5e83] bg-[#3d5e83]"
+                          : "border-gray-300 bg-white group-hover:border-gray-400"
+                      )}
+                      aria-checked={field.value}
+                      role="checkbox"
+                    >
+                      {field.value && (
+                        <svg
+                          className="h-4 w-4 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </FormControl>
+                  <div className="mx-2 space-y-1 leading-none">
+                    <FormLabel className="cursor-pointer text-xs text-[#6b7280]">
+                      لقد قرأت و وافقت على{" "}
+                      <Link
+                        href="/privacy-policy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#3d5e83] underline-offset-2 hover:underline"
+                      >
+                        سياسة الخصوصية
+                      </Link>
+                    </FormLabel>
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              className="h-12 w-full rounded-full bg-[#3d5e83] text-base font-semibold text-white hover:bg-[#2c4461]"
+              disabled={isPending}
+            >
+              {isPending ? (
+                <>
+                  جاري الإنشاء...
+                  <Loader2 className="ms-2 h-4 w-4 animate-spin" />
+                </>
+              ) : (
+                "إنشاء حساب"
+              )}
+            </Button>
+          </form>
+        </Form>
+      </div>
+    </div>
   );
 }
