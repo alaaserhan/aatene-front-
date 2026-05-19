@@ -19,7 +19,9 @@ export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
 
   // If loading settings and we don't have data yet
   if (isLoading && !settings) {
-    return <>{children}</>;
+    return (
+      <div className="flex min-h-0 w-full flex-1 flex-col">{children}</div>
+    );
   }
 
   // If is_site_under_construction is truthy (e.g. true, 1, "1") and NOT in the dashboard
@@ -27,5 +29,7 @@ export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
     return <MaintenancePage />;
   }
 
-  return <>{children}</>;
+  return (
+    <div className="flex min-h-0 w-full flex-1 flex-col">{children}</div>
+  );
 }

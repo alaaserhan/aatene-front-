@@ -14,11 +14,5 @@ export default async function LoginPage({
   const { locale } = await params;
   setStaticParamsLocale(locale);
 
-  return (
-    <div className="container mx-auto flex items-center justify-center my-12">
-      <div className="w-full max-w-6xl">
-        <LoginForm />
-      </div>
-    </div>
-  );
+  return <LoginForm />;
 }
