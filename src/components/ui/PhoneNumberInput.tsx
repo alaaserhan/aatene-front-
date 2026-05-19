@@ -44,6 +44,7 @@ const PhoneNumberInput = React.forwardRef<
             height,
             rounded,
             disableCountryCode = true,
+            placeholder,
             ...props
         },
         ref
@@ -53,6 +54,8 @@ const PhoneNumberInput = React.forwardRef<
 
         // Remove complex internal validation per user request
         const errorMessage = error;
+
+        const isAuthStyle = Boolean(roundedFull);
 
         // Calculate radius classes
         const containerRounded = rounded || (roundedFull ? "rounded-full" : "rounded-lg");
@@ -83,7 +86,9 @@ const PhoneNumberInput = React.forwardRef<
                         height || "h-10",
                         errorMessage
                             ? "border-red-500 focus-within:ring-1 focus-within:ring-red-200"
-                            : "border-gray-200 focus-within:border-[#3A5779] focus-within:border-blue-3 focus-within:ring-1 focus-within:ring-[#3A5779]/20",
+                            : isAuthStyle
+                              ? "border-gray-200 focus-within:border-[#3d5e83] focus-within:ring-1 focus-within:ring-[#3d5e83]/20"
+                              : "border-gray-200 focus-within:border-[#3A5779] focus-within:border-blue-3 focus-within:ring-1 focus-within:ring-[#3A5779]/20",
                         containerRounded
                     )}
                     dir="ltr"
@@ -162,14 +167,14 @@ const PhoneNumberInput = React.forwardRef<
                     <Input
                         type="tel"
                         className={cn(
-                            "flex-1 h-full border-none shadow-none focus-visible:ring-0 rounded-none font-sans text-right rtl bg-transparent pr-3",
+                            "flex-1 h-full border-none shadow-none focus-visible:ring-0 rounded-none font-sans text-right rtl bg-transparent pr-3 placeholder:text-[#AAAAAA]",
                             rightRounded,
                             className
                         )}
                         ref={ref}
                         value={value}
                         onChange={onChange}
-                        placeholder={"0000000000"}
+                        placeholder={placeholder ?? "0000000000"}
                         {...props}
                     />
                 </div>
