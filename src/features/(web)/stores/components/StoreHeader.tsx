@@ -312,7 +312,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
 
     return (
         <>
-            <div className="relative bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] pb-4">
+            <div className="relative bg-white shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)] pb-4">
                 <div className="relative h-48 md:h-[250px] lg:h-[300px] w-full overflow-hidden group">
                     {covers.length > 0 ? (
                         currentCoverIsVideo ? (
@@ -370,26 +370,32 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                     )}
                 </div>
 
-                <div className="relative container">
-                    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:justify-between items-center lg:items-end text-center lg:text-start" dir="rtl">
-
-                        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-5 lg:gap-8 -mt-16  z-10 w-full lg:w-auto flex-1">
-
-                            <div className="flex flex-col gap-3 items-center relative w-full lg:w-auto shrink-0">
+                <div
+                    className="relative w-full max-w-[1400px] mx-auto px-5 sm:px-6 pb-4"
+                    dir="rtl"
+                >
+                    <div className="-mt-14 sm:-mt-16 lg:-mt-20 z-10">
+                        <div className="flex flex-col gap-4 w-full lg:flex-row lg:items-end lg:justify-between lg:gap-8">
+                            {/* الشعار على الجانب (يمين) + التقييم والمتابعين تحته */}
+                            <div className="flex flex-col items-center gap-2 me-auto ms-0 lg:me-0 shrink-0 w-[100px] sm:w-[108px] lg:w-[150px]">
                                 <div
                                     className={cn("relative group", hasStories && "cursor-pointer")}
                                     onClick={() => hasStories && setAvatarStoryOpen(true)}
                                 >
-                                    <div className={cn(
-                                        "w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] rounded-full -mt-5 shrink-0 bg-gray-100 overflow-hidden relative flex items-center justify-center",
-                                        hasStories
-                                            ? "border-[3.5px] border-[#F05A28] shadow-md p-[3px]"
-                                            : "border-2 border-white shadow-sm"
-                                    )}>
-                                        <div className={cn(
-                                            "w-full h-full rounded-full overflow-hidden relative flex items-center justify-center bg-gray-100",
-                                            hasStories && "border-2 border-white"
-                                        )}>
+                                    <div
+                                        className={cn(
+                                            "w-[100px] h-[100px] sm:w-[108px] sm:h-[108px] lg:w-[150px] lg:h-[150px] rounded-full shrink-0 bg-gray-100 overflow-hidden relative flex items-center justify-center",
+                                            hasStories
+                                                ? "border-[3.5px] border-[#F05A28] shadow-md p-[3px]"
+                                                : "border-[3px] border-[#FACC15] shadow-md lg:border-2 lg:border-white lg:shadow-sm"
+                                        )}
+                                    >
+                                        <div
+                                            className={cn(
+                                                "w-full h-full rounded-full overflow-hidden relative flex items-center justify-center bg-gray-100",
+                                                hasStories && "border-2 border-white"
+                                            )}
+                                        >
                                             {store.logo_url ? (
                                                 <Image
                                                     src={store.logo_url}
@@ -398,7 +404,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                                     className="object-contain"
                                                 />
                                             ) : (
-                                                <StoreIcon className="w-16 h-16 text-gray-400" />
+                                                <StoreIcon className="w-14 h-14 sm:w-16 sm:h-16 text-gray-400" />
                                             )}
                                         </div>
                                     </div>
@@ -415,158 +421,200 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                     )}
                                 </div>
 
-                                <div className="flex flex-row lg:flex-col items-center justify-center gap-6 lg:gap-3 mt-2 lg:mt-3 px-2">
-                                    <div className="flex flex-col items-center">
-                                        <div className="flex items-center gap-1 mb-1">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star
-                                                    key={i}
-                                                    className={cn(
-                                                        "w-4 h-4 md:w-[18px] md:h-[18px]",
-                                                        i < Math.round(Number(store.review_rate || 0))
-                                                            ? "fill-[#FACC15] text-[#FACC15]"
-                                                            : "fill-[#D4D4D8] text-[#D4D4D8]"
-                                                    )}
-                                                />
-                                            ))}
-                                        </div>
-                                        <span className="text-gray-500 text-xs md:text-sm font-medium">( {store.review_count || 0} مراجعة )</span>
+                                <div className="flex flex-col items-center w-full">
+                                    <div className="flex items-center gap-0.5">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star
+                                                key={i}
+                                                className={cn(
+                                                    "w-4 h-4 lg:w-[18px] lg:h-[18px]",
+                                                    i < Math.round(Number(store.review_rate || 0))
+                                                        ? "fill-[#FACC15] text-[#FACC15]"
+                                                        : "fill-[#D4D4D8] text-[#D4D4D8]"
+                                                )}
+                                            />
+                                        ))}
                                     </div>
-
-                                    <div className="w-px h-8 bg-gray-200 block lg:hidden"></div>
-
-                                    <button
-                                        onClick={() => setShowWhoFavorited((prev) => !prev)}
-                                        className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-                                    >
-                                        <div className="hidden sm:flex -space-x-2 md:-space-x-3 space-x-reverse">
-                                            {(followers && followers.length > 0) ? (
-                                                followers.slice(0, 3).map((fItem, idx) => {
-                                                    const avatarUrl = fItem.follower_type === "store" ? fItem.follower.logo_url : fItem.follower.avatar_url;
-                                                    return (
-                                                        <div key={fItem.id || idx} className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100 flex items-center justify-center">
-                                                            <UserIcon className="w-4 h-4 text-gray-400 absolute" />
-                                                            {avatarUrl && (
-                                                                <Image
-                                                                    src={avatarUrl}
-                                                                    fill
-                                                                    className="object-cover z-10"
-                                                                    alt="follower"
-                                                                    onError={(e) => {
-                                                                        e.currentTarget.style.display = 'none';
-                                                                    }}
-                                                                />
-                                                            )}
-                                                        </div>
-                                                    )
-                                                })
-                                            ) : (
-                                                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-white overflow-hidden relative shadow-sm z-10 bg-gray-100" />
-                                            )}
-                                        </div>
-                                        <span className="text-gray-500 text-xs md:text-sm font-medium">
-                                            {followersCount > 0 ? `${followersCount} متابع` : "لا يوجد متابعين"}
-                                        </span>
-                                    </button>
+                                    <span className="text-gray-500 text-xs font-medium mt-0.5">
+                                        ( {store.review_count || 0} مراجعة )
+                                    </span>
                                 </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setShowWhoFavorited((prev) => !prev)}
+                                    className="flex flex-col items-center gap-1.5 lg:flex-row lg:gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                                >
+                                    <span className="flex -space-x-2 space-x-reverse shrink-0">
+                                        {followers && followers.length > 0 ? (
+                                            followers.slice(0, 3).map((fItem, idx) => {
+                                                const avatarUrl =
+                                                    fItem.follower_type === "store"
+                                                        ? fItem.follower.logo_url
+                                                        : fItem.follower.avatar_url;
+                                                return (
+                                                    <div
+                                                        key={fItem.id || idx}
+                                                        className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border-2 border-white overflow-hidden relative shadow-sm bg-gray-100 flex items-center justify-center"
+                                                    >
+                                                        <UserIcon className="w-3.5 h-3.5 text-gray-400 absolute" />
+                                                        {avatarUrl && (
+                                                            <Image
+                                                                src={avatarUrl}
+                                                                fill
+                                                                className="object-cover z-10"
+                                                                alt="follower"
+                                                                onError={(e) => {
+                                                                    e.currentTarget.style.display = "none";
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                );
+                                            })
+                                        ) : (
+                                            <span className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border-2 border-white bg-gray-100 block" />
+                                        )}
+                                    </span>
+                                    <span className="text-gray-600 text-[11px] sm:text-xs lg:text-sm font-medium text-center leading-tight">
+                                        {followersCount > 0
+                                            ? `${followersCount} متابع`
+                                            : "لا يوجد متابعين"}
+                                    </span>
+                                </button>
                             </div>
 
-                            <div className="flex flex-col items-center lg:items-start gap-1 py-2 lg:mt-20">
-                                <h1 className="text-xl lg:text-2xl font-medium ">{store.name}</h1>
-                                {store.address && (
-                                    <p className="text-gray-400 text-xs mt-1">{store.address}</p>
-                                )}
+                            {/* الاسم والأزرار — متناسقة مع تصميم Etnix (بدون وصف) */}
+                            <div className="w-full flex flex-col gap-3 lg:gap-4 lg:flex-1 lg:min-w-0 lg:pb-2">
+                                <div className="w-full text-right">
+                                    <h1 className="text-2xl font-bold text-[#1e3a5f] leading-tight break-words">
+                                        {store.name}
+                                    </h1>
+                                    {store.address && (
+                                        <p className="text-gray-400 text-sm mt-1.5">{store.address}</p>
+                                    )}
+                                </div>
 
-                                <div className="flex items-center justify-center lg:justify-start gap-2 mt-4 flex-wrap">
-                                    <button
-                                        disabled={isFollowing || isUnfollowing}
-                                        onClick={() => {
-                                            if (store.am_i_following) {
-                                                unfollow(
-                                                    { followed_type: "store", followed_id: store.id },
-                                                    {
-                                                        onSuccess: () => {
-                                                            queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
-                                                            queryClient.invalidateQueries({ queryKey: ["storePageData"] });
-                                                        },
-                                                    }
-                                                );
-                                            } else {
-                                                follow(
-                                                    { followed_type: "store", followed_id: store.id },
-                                                    {
-                                                        onSuccess: () => {
-                                                            queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
-                                                            queryClient.invalidateQueries({ queryKey: ["storePageData"] });
-                                                        },
-                                                    }
-                                                );
-                                            }
-                                        }}
-                                        className={cn(
-                                            "h-10 px-6 rounded-full text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50",
-                                            store.am_i_following
-                                                ? "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                                                : "bg-blue-4 text-white hover:bg-blue-3"
-                                        )}
-                                    >
-                                        <UserPlus className="w-4 h-4" />
-                                        <span>{store.am_i_following ? "إلغاء المتابعة" : "تابع المتجر"}</span>
-                                    </button>
+                                <div className="flex flex-col gap-3 w-full lg:flex-row lg:flex-wrap lg:items-center lg:gap-2">
+                                <button
+                                    type="button"
+                                    disabled={isFollowing || isUnfollowing}
+                                    onClick={() => {
+                                        if (store.am_i_following) {
+                                            unfollow(
+                                                { followed_type: "store", followed_id: store.id },
+                                                {
+                                                    onSuccess: () => {
+                                                        queryClient.invalidateQueries({
+                                                            queryKey: ["storeProfile"],
+                                                        });
+                                                        queryClient.invalidateQueries({
+                                                            queryKey: ["storePageData"],
+                                                        });
+                                                    },
+                                                }
+                                            );
+                                        } else {
+                                            follow(
+                                                { followed_type: "store", followed_id: store.id },
+                                                {
+                                                    onSuccess: () => {
+                                                        queryClient.invalidateQueries({
+                                                            queryKey: ["storeProfile"],
+                                                        });
+                                                        queryClient.invalidateQueries({
+                                                            queryKey: ["storePageData"],
+                                                        });
+                                                    },
+                                                }
+                                            );
+                                        }
+                                    }}
+                                    className={cn(
+                                        "w-full h-12 px-5 rounded-full text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50",
+                                        "lg:w-auto lg:h-10 lg:px-6",
+                                        store.am_i_following
+                                            ? "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                            : "bg-blue-4 text-white hover:bg-blue-3"
+                                    )}
+                                >
+                                    <UserPlus className="w-5 h-5 shrink-0" strokeWidth={2} />
+                                    <span>
+                                        {store.am_i_following ? "إلغاء المتابعة" : "تابع المتجر"}
+                                    </span>
+                                </button>
 
-                                    <button
-                                        disabled={isChatLoading}
-                                        onClick={() => {
-                                            if (!user) { router.push(`/${lang}/login`); return; }
-                                            setIsChatLoading(true);
-                                            router.push(`/${lang}/chat?type=store&id=${store.id}`);
-                                            setIsChatLoading(false);
-                                        }}
-                                        className="h-10 px-6 rounded-full text-sm border border-blue-4 text-blue-4 font-medium flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors cursor-pointer disabled:opacity-50"
-                                    >
-                                        {isChatLoading ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                            <MessageCircle className="w-4 h-4" />
-                                        )}
-                                        <span>دردش</span>
-                                    </button>
+                                <button
+                                    type="button"
+                                    disabled={isChatLoading}
+                                    onClick={() => {
+                                        if (!user) {
+                                            router.push(`/${lang}/login`);
+                                            return;
+                                        }
+                                        setIsChatLoading(true);
+                                        router.push(`/${lang}/chat?type=store&id=${store.id}`);
+                                        setIsChatLoading(false);
+                                    }}
+                                    className="w-full h-12 px-5 rounded-full text-sm border border-blue-4 text-blue-4 font-medium flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors cursor-pointer disabled:opacity-50 lg:w-auto lg:h-10 lg:px-6"
+                                >
+                                    {isChatLoading ? (
+                                        <Loader2 className="w-5 h-5 animate-spin shrink-0" />
+                                    ) : (
+                                        <MessageCircle className="w-5 h-5 shrink-0" strokeWidth={2} />
+                                    )}
+                                    <span>الدردشة</span>
+                                </button>
+                                </div>
 
-                                    <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer">
+                                <div className="flex items-center justify-center gap-2 w-full lg:w-auto lg:justify-start">
+                                    <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0">
                                         <FavoriteButton
                                             id={store.id}
                                             type="store"
                                             isFavorite={store.is_favorite}
                                             onSuccess={() => {
-                                                queryClient.invalidateQueries({ queryKey: ["storeProfile"] });
-                                                queryClient.invalidateQueries({ queryKey: ["storePageData"] });
+                                                queryClient.invalidateQueries({
+                                                    queryKey: ["storeProfile"],
+                                                });
+                                                queryClient.invalidateQueries({
+                                                    queryKey: ["storePageData"],
+                                                });
                                             }}
                                             className="w-full h-full"
                                             iconClassName="w-4 h-4"
                                         />
                                     </div>
 
-                                    {/* زر الـ 3 نقاط */}
                                     <div className="relative">
                                         <button
-                                            onClick={() => setShowMoreMenu(v => !v)}
+                                            onClick={() => setShowMoreMenu((v) => !v)}
                                             className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer"
                                         >
                                             <MoreHorizontal className="w-4 h-4 text-gray-500" />
                                         </button>
                                         {showMoreMenu && (
                                             <>
-                                                <div className="fixed inset-0 z-10" onClick={() => setShowMoreMenu(false)} />
+                                                <div
+                                                    className="fixed inset-0 z-10"
+                                                    onClick={() => setShowMoreMenu(false)}
+                                                />
                                                 <div className="absolute left-0 top-12 z-20 bg-white rounded-xl shadow-lg border border-gray-100 min-w-[150px] py-1 overflow-hidden">
                                                     <button
-                                                        onClick={() => { setShowMoreMenu(false); setShowShareModal(true); }}
+                                                        onClick={() => {
+                                                            setShowMoreMenu(false);
+                                                            setShowShareModal(true);
+                                                        }}
                                                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
                                                     >
                                                         <Share2 className="w-4 h-4 text-gray-500" />
                                                         مشاركة
                                                     </button>
                                                     <button
-                                                        onClick={() => { setShowMoreMenu(false); setShowReportModal(true); }}
+                                                        onClick={() => {
+                                                            setShowMoreMenu(false);
+                                                            setShowReportModal(true);
+                                                        }}
                                                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
                                                     >
                                                         <Flag className="w-4 h-4 text-red-500" />
@@ -578,9 +626,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                     </div>
                                 </div>
                             </div>
-
                         </div>
-
                     </div>
                 </div>
 
@@ -593,7 +639,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                         showActions={false}
                     />
                 )}
-            </div >
+            </div>
 
             {showWhoFavorited && (
                 <WhoFavoritedSection

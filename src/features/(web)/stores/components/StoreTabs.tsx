@@ -175,7 +175,7 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
     const couponsProducts = pageData?.coupons?.flatMap(c => c.products) || [];
 
     return (
-        <div className="mt-6 overflow-hidden bg-white rounded-lg border border-gray-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]">
+        <div className="mt-6 overflow-hidden bg-white rounded-lg border border-gray-100 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]">
             <div className="flex items-center border-b border-gray-200 overflow-x-auto scrollbar-hide">
                 {tabs.map((tab) => (
                     <button
@@ -471,15 +471,21 @@ function ShortcutButton({
     className?: string;
 }) {
     const commonClasses = cn(
-        "w-7 h-7 rounded-sm border border-blue-4 text-blue-4 flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0",
+        "w-10 h-10 sm:w-11 sm:h-11 lg:w-8 lg:h-8 rounded-sm border border-blue-4 text-blue-4 flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0",
         className
     );
 
     const renderIcon = () => {
         if (typeof Icon === "string") {
-            return <img src={Icon} alt="" className="w-4 h-4 object-contain" />;
+            return (
+                <img
+                    src={Icon}
+                    alt=""
+                    className="w-6 h-6 sm:w-7 sm:h-7 lg:w-4 lg:h-4 object-contain"
+                />
+            );
         }
-        return <Icon className="w-5 h-5" />;
+        return <Icon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-4 lg:h-4" />;
     };
 
     if (onClick) {
@@ -549,9 +555,14 @@ function StoreShortcuts({ store }: { store: StoreProfile }) {
     if (!hasShortcuts) return null;
 
     return (
-        <div className="mb-2 bg-white border border-[#e0dfdc] rounded-[10px] p-[10px_14px] flex flex-col gap-1.5 justify-between" dir="rtl">
-            <h4 className="text-sm font-medium text-center text-blue-4">اختصارات المتجر:</h4>
-            <div className="flex items-center justify-center gap-1 flex-wrap flex-1 ">
+        <div
+            className="mb-2 bg-white border border-[#e0dfdc] rounded-[10px] px-3 py-2.5 sm:px-3.5 lg:px-2.5 lg:py-2 flex flex-row items-center gap-2 sm:gap-3 lg:gap-2 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]"
+            dir="rtl"
+        >
+            <h4 className="text-base sm:text-lg lg:text-sm font-bold text-blue-4 shrink-0 whitespace-nowrap">
+                اختصارات المتجر:
+            </h4>
+            <div className="flex items-center justify-end gap-1.5 sm:gap-2 lg:gap-1 flex-wrap flex-1 min-w-0">
                 {shortcuts.filter(s => s.show).map((s, idx) => (
                     <ShortcutButton
                         key={idx}
@@ -581,17 +592,16 @@ function OverviewTab({ store }: { store: StoreProfile }) {
 
     return (
         <>
-            <div className="flex flex-col lg:flex-row gap-6" dir="rtl">
-                {/* Right Side: Store Owner Card */}
-                <div className="w-full lg:w-[280px] shrink-0 order-1 lg:order-2">
+            <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8" dir="rtl">
+                {/* اختصارات + بائع: آخراً على الجوال | يسار الديسكتوب */}
+                <div className="w-full lg:w-[340px] shrink-0 order-2 flex flex-col gap-2">
                     <StoreShortcuts store={store} />
                     <StoreOwnerCard store={store} />
                 </div>
 
-                {/* Left Side: Description + Stats */}
-                <div className="grid grid-cols-12 md:grid-cols-8 gap-6 w-full">
-                    {/* Stats Row */}
-                    <div className="flex flex-row md:justify-start justify-center md:flex-col gap-6 col-span-12 md:col-span-1">
+                {/* الوصف + إحصائيات: أولاً على الجوال | يمين الديسكتوب */}
+                <div className="flex-1 min-w-0 w-full order-1 flex flex-col lg:flex-row items-start gap-6 lg:gap-8">
+                    <div className="flex flex-row lg:flex-col flex-wrap justify-center lg:justify-start gap-6 lg:gap-8 shrink-0">
                         <StoreStatItem
                             icon={<img src="/icons/clock.svg" alt="" className="w-6 h-6" />}
                             label="مواعيد العمل"
@@ -611,9 +621,8 @@ function OverviewTab({ store }: { store: StoreProfile }) {
                             value={String(memberSince)}
                         />
                     </div>
-                    {/* Description */}
                     <div
-                        className="prose prose-lg max-w-none leading-relaxed font-sans text-sm col-span-12 md:col-span-7"
+                        className="store-overview-description prose prose-lg !max-w-none flex-1 min-w-0 w-full text-gray-700 leading-relaxed font-sans text-right [&_p]:mb-4 [&_p:last-child]:mb-0 [&_div]:mb-4 [&_p]:max-w-none [&_div]:max-w-none [&_*]:max-w-none [&_a]:text-blue-4"
                         dangerouslySetInnerHTML={{ __html: store.description || "<p>لا يوجد وصف</p>" }}
                     />
                 </div>
@@ -849,7 +858,7 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
     const ownerAvatar = store.owner?.avatar_url || store.logo_url;
 
     return (
-        <div className="bg-white border border-[#e0dfdc] rounded-lg p-4 flex flex-col items-center gap-4">
+        <div className="bg-white border border-[#e0dfdc] rounded-lg p-4 flex flex-col items-center gap-4 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]">
             <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100 flex items-center justify-center bg-gray-50">
                 {ownerAvatar ? (
                     <Image
@@ -882,26 +891,29 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                     ))}
                 </div>
             </div>
-            <p className="text-xs text-gray-2 leading-[17px] text-center">
-                {store.description?.slice(0, 150) || "لا يوجد وصف"}
-            </p>
-            <div className="flex items-center gap-2 w-full">
+            <div className="grid grid-cols-2 gap-2.5 w-full" dir="rtl">
                 <button
+                    type="button"
                     onClick={() => {
                         if (!user) { router.push(`/${lang}/login`); return; }
                         router.push(`/${lang}/chat?type=user&id=${store.owner?.id || store.owner_id}`);
                     }}
-                    className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer"
+                    className="w-full h-[34px] flex items-center justify-center gap-1.5 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full px-3 text-[11px] sm:text-xs font-medium cursor-pointer"
                 >
-                    <MessageSquare size={13} />
-                    تواصل مع البائع
+                    <MessageSquare size={15} className="shrink-0" strokeWidth={2} />
+                    <span className="whitespace-nowrap">تواصل مع البائع</span>
                 </button>
-                <ReportAbuse type="store" id={store.id}>
-                    <button className="flex cursor-pointer items-center justify-center gap-1 border border-[#b75959] text-[#b75959] rounded-full px-4 h-[25px] text-[11px] font-medium whitespace-nowrap">
-                        <Flag size={13} />
-                        ابلغ عن إساءة
-                    </button>
-                </ReportAbuse>
+                <div className="min-w-0">
+                    <ReportAbuse type="store" id={store.id}>
+                        <button
+                            type="button"
+                            className="w-full h-[34px] flex cursor-pointer items-center justify-center gap-1.5 bg-white border border-[#b75959] text-[#b75959] rounded-full px-3 text-[11px] sm:text-xs font-medium"
+                        >
+                            <Flag size={15} className="shrink-0" strokeWidth={2} />
+                            <span className="whitespace-nowrap">ابلغ عن إساءة</span>
+                        </button>
+                    </ReportAbuse>
+                </div>
             </div>
         </div>
     );
