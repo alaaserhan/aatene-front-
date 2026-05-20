@@ -71,7 +71,7 @@ export default function StoreStoriesSection({
     };
 
     return (
-        <div className="mb-8 bg-white p-3 rounded-lg border border-gray-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]">
+        <div className="mb-8 bg-white p-3 rounded-lg border border-gray-100 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]">
             <h2 className="font-bold text-gray-900 mb-2 px-1 border-b border-gray-100 pb-2" dir="rtl">أبرز الأحداث</h2>
             <div className="flex gap-4 overflow-x-auto py-2 px-1 scrollbar-hide" dir="rtl">
                 {isOwnStore && onAddHighlight && (
