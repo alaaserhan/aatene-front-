@@ -565,9 +565,8 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                     )}
                                     <span>الدردشة</span>
                                 </button>
-                                </div>
 
-                                <div className="flex items-center justify-center gap-2 w-full lg:w-auto lg:justify-start">
+                                <div className="flex items-center justify-center gap-2 w-full lg:w-auto lg:justify-start lg:shrink-0">
                                     <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0">
                                         <FavoriteButton
                                             id={store.id}
@@ -624,6 +623,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                             </>
                                         )}
                                     </div>
+                                </div>
                                 </div>
                             </div>
                         </div>
