@@ -4,6 +4,8 @@ import {
   ShippingCompanyPayload,
   WorkingTimePayload,
   WorkingTime,
+  normalizeStoreCoverForApi,
+  normalizeStoreLogoForApi,
 } from "./api";
 import { Step6FormData } from "./types";
 
@@ -129,13 +131,12 @@ export function buildStoreShippingUpdatePayload(
   shipping: Step6FormData
 ): StoreUpdatePayload {
   const email = (store.email || "").trim();
-  const cover = (store.cover || []).filter(Boolean);
 
   return {
     type: store.type,
     name: store.name,
-    logo: store.logo || undefined,
-    cover,
+    logo: normalizeStoreLogoForApi(store.logo),
+    cover: normalizeStoreCoverForApi(store.cover),
     description: store.description || "",
     email,
     address: store.address || "",
