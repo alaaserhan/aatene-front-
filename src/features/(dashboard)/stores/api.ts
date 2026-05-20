@@ -251,6 +251,21 @@ export interface UpdateStoreShownPayload {
   shown: boolean;
 }
 
+/** Backend keeps the old logo if the field is omitted; send `null` to clear it. */
+export function normalizeStoreLogoForApi(
+  logo: string | null | undefined
+): string | null {
+  if (logo == null || logo.trim() === "") return null;
+  return logo;
+}
+
+/** Always send cover as an array so removing all banners persists as empty. */
+export function normalizeStoreCoverForApi(
+  cover: string[] | null | undefined
+): string[] {
+  return cover ?? [];
+}
+
 // ============== API Functions ==============
 
 function toFiniteNumber(value: unknown): number | undefined {

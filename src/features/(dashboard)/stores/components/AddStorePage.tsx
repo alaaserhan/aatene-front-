@@ -9,7 +9,12 @@ import { AddStoreStep4 } from "./AddStoreStep4";
 import { AddStoreStep5 } from "./AddStoreStep5";
 import { AddStoreStep6 } from "./AddStoreStep6";
 import { AddStoreStep7 } from "./AddStoreStep7";
-import { StoreType, StoreCreatePayload } from "../api";
+import {
+  StoreType,
+  StoreCreatePayload,
+  normalizeStoreCoverForApi,
+  normalizeStoreLogoForApi,
+} from "../api";
 import { useCreateStore, useGenerateStoreAI } from "../hooks";
 import {
   CompleteStoreFormData,
@@ -175,9 +180,9 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
     const payload: StoreCreatePayload = {
       type: updatedFormData.type,
       name: updatedFormData.step2!.name,
-      logo: updatedFormData.step2!.logo || undefined,
+      logo: normalizeStoreLogoForApi(updatedFormData.step2!.logo),
       status: "approved",
-      cover: updatedFormData.step2!.cover,
+      cover: normalizeStoreCoverForApi(updatedFormData.step2!.cover),
       description: updatedFormData.step2!.description,
       email: updatedFormData.step2!.email,
       address: updatedFormData.step2!.address,
