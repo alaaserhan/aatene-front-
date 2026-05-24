@@ -190,6 +190,82 @@ export interface UserReviewsResponse {
     reviews_summary: ReviewsSummary;
 }
 
+/** `GET /ai-support/user/profile/{chat_id}` — ملف مستخدم واتساب/إنستغرام (api1) */
+export interface AiSupportUserProfileReviewItem {
+    id: number;
+    rating: number;
+    created_at: string;
+    feedback_text: string | null;
+    platform: string;
+}
+
+export interface AiSupportUserProfileResponse {
+    success: boolean;
+    user: {
+        chat_id: string;
+        platform: string;
+        first_name: string | null;
+        last_name: string | null;
+        username: string | null;
+        phone_number: string | null;
+        first_seen: string;
+        last_seen: string;
+        total_messages: number;
+        reviews: {
+            average_rating: number;
+            count: number;
+            by_stars: Record<string, number>;
+            list: AiSupportUserProfileReviewItem[];
+        };
+    };
+}
+
+function mapAiSupportProfileToUserReviews(
+    raw: AiSupportUserProfileResponse
+): UserReviewsResponse {
+    const u = raw.user;
+    const rev = u.reviews ?? { average_rating: 0, count: 0, by_stars: {}, list: [] };
+    const by = rev.by_stars ?? {};
+
+    const starCount = (key: string) => Number(by[key] ?? 0);
+
+    const displayName =
+        u.username?.trim() ||
+        [u.first_name, u.last_name].filter(Boolean).join(" ").trim() ||
+        u.phone_number ||
+        u.chat_id;
+
+    return {
+        success: raw.success,
+        user_info: {
+            chat_id: u.chat_id,
+            platform: u.platform,
+            first_name: u.first_name ?? "",
+            last_seen: u.last_seen,
+            phone_number: u.phone_number ?? "",
+            total_messages: u.total_messages,
+            username: displayName,
+        },
+        reviews_summary: {
+            average_reviews: rev.average_rating ?? 0,
+            total_reviews: rev.count ?? 0,
+            total_messages: u.total_messages ?? 0,
+            star_breakdown: {
+                five_star: starCount("5"),
+                four_star: starCount("4"),
+                three_star: starCount("3"),
+                two_star: starCount("2"),
+                one_star: starCount("1"),
+            },
+        },
+        reviews: (rev.list ?? []).map((item) => ({
+            rating: item.rating,
+            review: item.feedback_text ?? "",
+            timestamp: item.created_at,
+        })),
+    };
+}
+
 export interface OverviewData {
     total_users: number;
     total_bot_responses: number;
@@ -374,8 +450,10 @@ export const sendMessage = async (payload: SendMessagePayload): Promise<SendMess
 };
 
 export const getUserReviews = async (chatId: string): Promise<UserReviewsResponse> => {
-    const { data } = await api5000Root.get<UserReviewsResponse>(`/users/${encodeURIComponent(chatId)}/reviews`);
-    return data;
+    const { data } = await api5000Root.get<AiSupportUserProfileResponse>(
+        `/ai-support/user/profile/${encodeURIComponent(chatId)}`
+    );
+    return mapAiSupportProfileToUserReviews(data);
 };
 
 export const getOverview = async (): Promise<OverviewResponse> => {

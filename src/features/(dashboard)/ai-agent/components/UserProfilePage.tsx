@@ -20,6 +20,7 @@ import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
 import { cn } from "@/src/lib/utils";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { PlatformBrandIcon } from "../utils/platform-icons";
 
 export function UserProfilePage() {
     const params = useParams();
@@ -154,8 +155,8 @@ export function UserProfilePage() {
                                         {user_info.username || "اسم العميل"}
                                     </h3>
                                     <div className="flex items-center gap-2 text-blue-4 font-medium text-sm">
-                                        <span >{user_info.chat_id}</span>
-                                        <img src="/icons/dashboard/whatsapp.svg" className="w-5 h-5" alt="Phone" />
+                                        <span dir="ltr">{user_info.phone_number || user_info.chat_id}</span>
+                                        <PlatformBrandIcon platform={user_info.platform || "whatsapp"} size="md" />
                                     </div>
                                 </div>
                             </div>
