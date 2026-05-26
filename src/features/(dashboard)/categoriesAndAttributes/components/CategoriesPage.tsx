@@ -138,21 +138,11 @@ export function CategoriesPage() {
     });
 
   
-  const allAttributesParams = useMemo(() => {
-    const params = new URLSearchParams();
-    params.set("per_page", "1000");
-    return params;
-  }, []);
-
-  const { data: allAttributesData } = useGetAttributes(allAttributesParams, {
-    enabled: isLinkAttributesMode,
-  });
-    
   const { data: categoryOptionsData } = useGetCategoryOptions();
 
   const { data: attributesData, isLoading: attributesLoading } =
     useGetAttributes(queryParams, {
-      enabled: isAttributeMode || isLinkAttributesMode,
+      enabled: isAttributeMode,
     });
 
   const isLoading = categoriesLoading || attributesLoading || allCategoriesLoading;
@@ -171,7 +161,6 @@ export function CategoriesPage() {
   const categories = categoriesData?.data || [];
   const allCategories = allCategoriesData?.data || [];
   const attributes = attributesData?.data || [];
-  const allAttributes = allAttributesData?.data || [];
   const totalCategoriesPages = Math.ceil(
     (categoriesData?.recordsFiltered || 0) / ITEMS_PER_PAGE
   );
@@ -451,7 +440,6 @@ export function CategoriesPage() {
             {isLinkAttributesMode ? (
               <LinkAttributesView
                 categories={allCategories}
-                attributes={allAttributes}
                 onSave={handleSaveFromView}
               />
             ) : (

@@ -3,17 +3,24 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { Search, ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { Category, Attribute, getCategoryAttributes, addAttributeToCategory, removeAttributeFromCategory } from "../api";
+import {
+  Category,
+  Attribute,
+  getCategoryAttributes,
+  addAttributeToCategory,
+  removeAttributeFromCategory,
+  buildLinkAttributesListParams,
+} from "../api";
 import { Input } from "@/src/components/ui/input";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { AttributeModal } from "./AttributeModal";
-import { useCreateAttribute, useUpdateAttribute } from "../hooks";
+import { useCreateAttribute, useUpdateAttribute, useGetAttributes } from "../hooks";
+import { useQueryClient } from "@tanstack/react-query";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { cn } from "@/src/lib/utils";
 
 interface LinkAttributesViewProps {
   categories: Category[];
-  attributes: Attribute[];
   onSave?: (categoryId: number, attributeIds: number[], previousAttributeIds: number[]) => void;
   onAttributesChanged?: () => void;
 }
@@ -46,10 +53,10 @@ function CustomToggle({ checked, onChange }: { checked: boolean; onChange: () =>
 
 export function LinkAttributesView({
   categories,
-  attributes,
   onSave,
   onAttributesChanged,
 }: LinkAttributesViewProps) {
+  const queryClient = useQueryClient();
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [categorySearch, setCategorySearch] = useState("");
   const [attributeSearch, setAttributeSearch] = useState("");
@@ -70,6 +77,26 @@ export function LinkAttributesView({
 
   const createAttributeMutation = useCreateAttribute();
   const updateAttributeMutation = useUpdateAttribute();
+
+  const attributeListParams = useMemo(
+    () => (selectedCategoryId ? buildLinkAttributesListParams(selectedCategoryId) : null),
+    [selectedCategoryId]
+  );
+
+  const {
+    data: orderedAttributesData,
+    isLoading: isLoadingOrderedAttributes,
+    isFetching: isFetchingOrderedAttributes,
+  } = useGetAttributes(attributeListParams ?? new URLSearchParams(), {
+    enabled: !!attributeListParams,
+  });
+
+  const attributes = orderedAttributesData?.data ?? [];
+
+  const invalidateAttributeLists = () => {
+    queryClient.invalidateQueries({ queryKey: ["attributes", "list"] });
+    onAttributesChanged?.();
+  };
 
   const buildCategoryBreadcrumb = (category: Category, allCats: Category[]): string[] => {
     const parts: string[] = [];
@@ -145,6 +172,11 @@ export function LinkAttributesView({
   const totalValuePages = Math.ceil(filteredValues.length / itemsPerPage);
 
   useEffect(() => {
+    setAttributePage(1);
+    setActiveAttributeId(null);
+  }, [selectedCategoryId]);
+
+  useEffect(() => {
     if (selectedCategoryId) {
       setLoadingAttributes(true);
       getCategoryAttributes(selectedCategoryId)
@@ -171,7 +203,7 @@ export function LinkAttributesView({
     createAttributeMutation.mutate(data, {
       onSuccess: () => {
         setAddAttributeModalOpen(false);
-        onAttributesChanged?.();
+        invalidateAttributeLists();
       },
     });
   };
@@ -201,7 +233,7 @@ export function LinkAttributesView({
       {
         onSuccess: () => {
           setAddValueModalOpen(false);
-          onAttributesChanged?.();
+          invalidateAttributeLists();
         },
       }
     );
@@ -315,7 +347,11 @@ export function LinkAttributesView({
           <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: '#9CA3AF' }} />
         </div>
         <ScrollArea className="flex-1 px-2.5">
-          {loadingAttributes ? (
+          {!selectedCategoryId ? (
+            <div className="text-center py-12 text-sm px-2" style={{ color: '#9CA3AF' }}>
+              اختر فئة لعرض السمات وربطها
+            </div>
+          ) : loadingAttributes || isLoadingOrderedAttributes || isFetchingOrderedAttributes ? (
             <div className="text-center py-12 text-sm" style={{ color: '#9CA3AF' }}>جاري التحميل...</div>
           ) : paginatedAttributes.length === 0 ? (
             <div className="text-center py-12 text-sm" style={{ color: '#9CA3AF' }}>لا توجد سمات</div>
@@ -355,6 +391,7 @@ export function LinkAttributesView({
                             await addAttributeToCategory(selectedCategoryId, attribute.id);
                             setSelectedAttributes(prev => new Set(prev).add(attribute.id));
                           }
+                          invalidateAttributeLists();
                         } catch (err) {
                           console.error('Error toggling attribute:', err);
                         } finally {

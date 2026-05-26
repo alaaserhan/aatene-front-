@@ -229,6 +229,14 @@ export interface AttributeUpdatePayload {
   is_active?: "0" | "1";
 }
 
+/** قائمة السمات في شاشة الربط — المربوطة بالفئة تظهر أولاً (order_by_category في الباكند) */
+export function buildLinkAttributesListParams(categoryId: number): URLSearchParams {
+  const params = new URLSearchParams();
+  params.set("per_page", "1000");
+  params.set("order_by_category", String(categoryId));
+  return params;
+}
+
 export const getAttributes = async (
   params: URLSearchParams
 ): Promise<PaginatedAttributesResponse> => {
