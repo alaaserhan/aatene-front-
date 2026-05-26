@@ -741,7 +741,11 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     };
 
     // ─── Derived state ──────────────────────────────────────────────────────────
-    const inputLocked = sendMessageMutation.isPending || awaitingBotReply;
+    /** يمنع الإرسال فقط (زر + Enter) — الحقل يبقى قابلاً للكتابة أثناء انتظار رد البوت */
+    const sendBlocked =
+        sendMessageMutation.isPending ||
+        startConversation.isPending ||
+        awaitingBotReply;
 
     const sendQuickReply = useCallback(
         (text: string) => {
@@ -802,7 +806,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     // ─── Render helpers ─────────────────────────────────────────────────────────
 
     const renderIntroFooterInput = () => {
-        const busy = sendMessageMutation.isPending || startConversation.isPending || awaitingBotReply;
         return (
             <div className="bg-white px-4 py-3.5 shrink-0 rounded-t-2xl" dir="rtl">
                 <div className="flex items-center gap-3">
@@ -812,24 +815,27 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                         value={inputText}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
-                        placeholder=".. اكتب رسالتك هنا"
-                        disabled={busy}
-                        className="flex-1 min-w-0 bg-transparent text-sm text-right text-gray-800 placeholder:text-gray-400 outline-none border-none h-12 disabled:opacity-60"
+                        placeholder={
+                            awaitingBotReply
+                                ? "اكتب رسالتك التالية — الإرسال بعد رد المساعد"
+                                : ".. اكتب رسالتك هنا"
+                        }
+                        className="flex-1 min-w-0 bg-transparent text-sm text-right text-gray-800 placeholder:text-gray-400 outline-none border-none h-12"
                     />
             <button
                         type="button"
                         onClick={handleSend}
-                        disabled={!inputText.trim() || busy}
+                        disabled={!inputText.trim() || sendBlocked}
                         className={cn(
                             "w-12 h-12 shrink-0 rounded-xl flex items-center justify-center transition-all",
-                            !inputText.trim() || busy ? "cursor-not-allowed" : "cursor-pointer"
+                            !inputText.trim() || sendBlocked ? "cursor-not-allowed" : "cursor-pointer"
                         )}
                         style={{
                             background: "#e8ecf2",
-                            color: inputText.trim() && !busy ? "#475569" : "#94a3b8",
+                            color: inputText.trim() && !sendBlocked ? "#475569" : "#94a3b8",
                         }}
                     >
-                        {busy ? (
+                        {sendBlocked ? (
                             <Loader2 className="w-5 h-5 animate-spin text-[#64748b]" />
                         ) : (
                             <Send className="w-5 h-5 rtl:-rotate-90" strokeWidth={2} />
@@ -991,7 +997,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                                             <MessageMetaBlock
                                                 meta={msg.meta}
                                                 isUserBubble={isUser}
-                                                disabled={inputLocked || !canSendMessages}
+                                                disabled={sendBlocked || !canSendMessages}
                                                 onQuickReply={sendQuickReply}
                                             />
                                             <div className={cn("text-[10px] mt-1 opacity-50", isUser ? "text-right" : "text-left")}>
@@ -1037,7 +1043,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                     )}
 
                     {/* نقاط كتابة البوت — نفس محاذاة رسائل المساعد (يمين في RTL) */}
-                    {!typingUser && inputLocked && !displayedConv?.needs_human && (
+                    {!typingUser && awaitingBotReply && !displayedConv?.needs_human && (
                         <div className="flex flex-col gap-0.5 items-end mt-1 animate-in fade-in duration-200">
                             <span className="text-[10px] text-gray-400 px-1">: المساعد الذكي</span>
                             <div className="flex gap-2 items-end flex-row-reverse">
@@ -1219,22 +1225,25 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
                             value={inputText}
                             onChange={handleInputChange}
                             onKeyDown={handleKeyDown}
-                            placeholder="اكتب رسالتك هنا ..."
-                            disabled={inputLocked}
-                            className="flex-1 bg-transparent text-base md:text-sm text-right text-gray-700 placeholder:text-gray-400 outline-none border-none h-12 md:h-10 disabled:opacity-60"
+                            placeholder={
+                                awaitingBotReply
+                                    ? "اكتب رسالتك التالية"
+                                    : "اكتب رسالتك هنا ..."
+                            }
+                            className="flex-1 bg-transparent text-base md:text-sm text-right text-gray-700 placeholder:text-gray-400 outline-none border-none h-12 md:h-10"
                         />
                         <button
                             onClick={handleSend}
                             type="button"
-                            disabled={!inputText.trim() || inputLocked}
+                            disabled={!inputText.trim() || sendBlocked}
                             className={cn(
                                 "w-12 h-12 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 transition-all",
-                                inputLocked || !inputText.trim()
+                                sendBlocked || !inputText.trim()
                                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                                     : "bg-[#395A7D] hover:bg-[#2c4460] text-white shadow-md cursor-pointer"
                             )}
                         >
-                            {inputLocked ? (
+                            {sendBlocked ? (
                                 <Loader2 className="w-5 h-5 animate-spin text-[#64748b]" />
                             ) : (
                                 <Send className="w-5 h-5 rtl:-rotate-90" style={{ marginRight: "-1px" }} />
