@@ -6,6 +6,7 @@ import { Button } from "@/src/components/ui/button";
 import { MapPin, Flag, Plus, Star, ShieldCheck, ShoppingCart, AlarmClock } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { Store } from "@/src/features/(dashboard)/stores/api";
+import { useLanguage } from "@/src/hooks/use-language";
 
 // src/components/(dashboard)/ProviderInfoCard.tsx
 export interface ProviderData {
@@ -36,6 +37,7 @@ import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse
 import Link from "next/link";
 
 export function ProviderInfoCard({ store, provider, className, onReport, onFollow, isFollowing, isOwner, isAdmin }: ProviderInfoCardProps) {
+    const lang = useLanguage();
     // If store is provided, map it to ProviderData
     const data: ProviderData | null = store ? {
         id: store.id,
@@ -63,7 +65,7 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div className="flex items-center gap-4  w-full md:w-auto ">
                  
-                        <Link href={`/store/${data.slug}`}>
+                        <Link href={`/${lang}/store/${data.slug}`}>
                             <Avatar className="w-14 h-14 border-2 border-white shadow-sm">
                                 <AvatarImage src={data.avatar} className="object-cover"/>
                                 <AvatarFallback>{data.name?.[0]}</AvatarFallback>
@@ -72,7 +74,7 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
                     
 
                     <div className="">
-                        <Link href={`/store/${data.slug}`}>
+                        <Link href={`/${lang}/store/${data.slug}`}>
                             <h3 className=" font-medium  mb-1">
                                 {data.name}
                             </h3>

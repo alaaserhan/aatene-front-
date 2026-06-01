@@ -203,15 +203,15 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
       desc: "إعداد طريقة الشحن وشركات التوصيل للمتجر الحالي",
     },
     { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: hasAdminPerm("/productProviders") },
-    { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: `/serviceProviders/${activeStoreId}`, show: isMerchant && (storeType === "services") && isAllowedByRole(`/serviceProviders/${activeStoreId}`) },
+    { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: activeStoreId ? `/serviceProviders/${activeStoreId}` : "/serviceProviders", show: isMerchant && (storeType === "services") && !!activeStoreId && isAllowedByRole("/serviceProviders") },
     { label: "مقدمي الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: "/serviceProviders", show: hasAdminPerm("/serviceProviders"), desc: "إدارة ومتابعة مقدمي الخدمات" },
-    { label: "الاقسام", icon: PanelsRightBottom, href: `/sections?storeId=${activeStoreId}`, show: hasAdminPerm("/sections") || (isMerchant && isAllowedByRole("/sections")), desc: "إدارة وتصنيف الاقسام" },
+    { label: "الاقسام", icon: PanelsRightBottom, href: activeStoreId ? `/sections?storeId=${activeStoreId}` : "/sections", show: hasAdminPerm("/sections") || (isMerchant && isAllowedByRole("/sections")), desc: "إدارة وتصنيف الاقسام" },
     { label: "مدن الشحن", icon: Map, href: "/cities", show: hasAdminPerm("/cities"), desc: "اختر وجهات الشحن المتاحة" },
     { label: "الفئات", icon: Boxes, href: "/categories", show: hasAdminPerm("/categories"), desc: "إدارة وعرض الفئات" },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: hasAdminPerm("/banners"), desc: "ادارة ومتابعة البنرات الإعلانية" },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: hasAdminPerm("/mosa3edy"), desc: "إدارة التشات بوت والإحصائيات" },
-    { label: "القصص", icon: ImageIcon, href: "/stories ", show: isMerchant && isAllowedByRole("/stories"), desc: "إضافة وإدارة القصص" },
-    { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services ", show: hasAdminPerm("/requested-services"), desc: "الطلبات الغير موجودة والمخصصة" },
+    { label: "القصص", icon: ImageIcon, href: "/stories", show: isMerchant && isAllowedByRole("/stories"), desc: "إضافة وإدارة القصص" },
+    { label: "طلبات الخدمات", icon: Wand2Icon, href: "/requested-services", show: hasAdminPerm("/requested-services"), desc: "الطلبات الغير موجودة والمخصصة" },
     { label: "المدونات", icon: Newspaper, href: "/blogs", show: hasAdminPerm("/blogs"), desc: "إضافة وإدارة المدونات والمقالات" },
     { label: "المتابعات", icon: Users, href: "/following", show: isMerchant && isAllowedByRole("/following"), desc: "إدارة واحصائيات المتابعات" },
     { label: "المفضله", icon: Heart, href: "/favorites", show: hasAdminPerm("/favorites"), desc: "ادارة ومتابعة المفضلة" },
@@ -539,7 +539,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                       {/* User Profile Card */}
                       <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-4 mb-4">
                         <div className="flex gap-4 mb-4">
-                          <Link href={`/profile/${user?.slug}`} onClick={() => setMobileMenuOpen(false)}>
+                          <Link href={`/${lang}/profile/${user?.slug}`} onClick={() => setMobileMenuOpen(false)}>
                             {user?.avatar_url ? (
                               <img
                                 src={user.avatar_url}
@@ -563,16 +563,18 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
 
                         {/* User Details */}
                         <div className="space-y-2">
-                          <Link
-                            href={`/${lang}/report/inquiry`}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="flex items-center gap-3 text-sm text-gray-600"
-                          >
-                            <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
-                              <Headset size={12} />
-                            </div>
-                            <span className="font-medium">استعلام عن شكوى</span>
-                          </Link>
+                          {!isAdmin && (
+                            <Link
+                              href={`/${lang}/report/inquiry`}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="flex items-center gap-3 text-sm text-gray-600"
+                            >
+                              <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
+                                <Headset size={12} />
+                              </div>
+                              <span className="font-medium">استعلام عن شكوى</span>
+                            </Link>
+                          )}
 
                           {
                             isAdmin && (

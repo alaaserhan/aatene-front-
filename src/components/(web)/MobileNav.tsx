@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronLeft, Menu, X, Search } from "lucide-react";
 import Link from "next/link";
@@ -44,7 +44,7 @@ const searchVariants: Variants = {
 export default function MobileNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [mobileLogoBroken, setMobileLogoBroken] = useState(false);
+  const [failedMobileLogoUrl, setFailedMobileLogoUrl] = useState<string | null>(null);
 
   const lang = useLanguage();
   const user = useAuthStore((state) => state.user);
@@ -53,10 +53,10 @@ export default function MobileNav() {
   const { data: statsData } = useMyNotificationStats(!!user);
   const unreadCount = statsData?.unseen || 0;
   const { settings } = useSettingsStore();
-
-  useEffect(() => {
-    setMobileLogoBroken(false);
-  }, [settings?.logo_url]);
+  const mobileLogoUrl = settings?.logo_url
+    ? upgradeHttpToHttps(fixMediaUrl(settings.logo_url))
+    : null;
+  const showRemoteMobileLogo = Boolean(mobileLogoUrl && failedMobileLogoUrl !== mobileLogoUrl);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -81,19 +81,19 @@ export default function MobileNav() {
           </button>
         </div>
 
-        <Link href={`/${lang}`} className="shrink-0 min-w-0 max-[45%]">
-          {settings?.logo_url && !mobileLogoBroken ? (
+        <Link href={`/${lang}`} className="flex min-w-0 max-w-[45%] shrink-0 justify-center overflow-hidden">
+          {showRemoteMobileLogo && mobileLogoUrl ? (
             <img
-              src={upgradeHttpToHttps(fixMediaUrl(settings.logo_url))}
-              className="h-8 w-auto max-h-8 object-contain mx-auto"
+              src={mobileLogoUrl}
+              className="mx-auto h-8 max-h-8 max-w-full object-contain"
               alt={settings?.name || "logo"}
               width={150}
               height={32}
               style={{ width: "auto", height: "2rem" }}
-              onError={() => setMobileLogoBroken(true)}
+              onError={() => setFailedMobileLogoUrl(mobileLogoUrl)}
             />
           ) : (
-            <img src="/black.svg" className="h-8 mx-auto" alt="logo" width={120} height={32} style={{ width: "auto", height: "2rem" }} />
+            <img src="/black.svg" className="mx-auto h-8 max-w-full object-contain" alt="logo" width={120} height={32} style={{ width: "auto", height: "2rem" }} />
           )}
         </Link>
 
@@ -134,7 +134,7 @@ export default function MobileNav() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="hover:scale-105 transition-transform duration-200"
                   >
-                    <img src="/black.svg" className="h-8" alt="logo" />
+                    <img src="/black.svg" className="h-8 w-auto" alt="logo" />
                   </Link>
                   <button
                     onClick={toggleMobileMenu}

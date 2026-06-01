@@ -135,7 +135,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
         {/* User Profile Card */}
         <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-4 mb-4">
           <div className="flex items-center gap-4 mb-4">
-            <Link href={`/profile/${user.slug}`} onClick={handleLinkClick}>
+            <Link href={`/${lang}/profile/${user.slug}`} onClick={handleLinkClick}>
               {user.avatar_url ? (
                 <Image
                   src={user.avatar_url}
@@ -168,7 +168,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               <span className="font-medium">بوابة الشكاوى والاقتراحات</span>
             </Link>
 
-             <Link href={`/requested-services/my`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
+             <Link href={`/${lang}/my/requested-services`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
               <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
                 <MessageSquarePlus size={16} />
               </div>
@@ -281,7 +281,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
           {/* Header Section */}
           <div className="px-6 py-4 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100">
             <div className="flex items-center gap-4">
-              <Link href={`/profile/${user.slug}`} onClick={handleLinkClick}>
+              <Link href={`/${lang}/profile/${user.slug}`} onClick={handleLinkClick}>
                 {user.avatar_url ? (
                   <Image
                     src={user.avatar_url}
@@ -315,7 +315,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               <span className="font-medium">بوابة الشكاوى والاقتراحات</span>
             </Link>
 
-            <Link href={`/requested-services/my`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
+            <Link href={`/${lang}/my/requested-services`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
               <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
                 <MessageSquarePlus size={16} />
               </div>

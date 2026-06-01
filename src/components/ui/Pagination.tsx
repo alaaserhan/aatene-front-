@@ -49,15 +49,28 @@ export function Pagination({
     return pages;
   }, [totalPages, currentPage]);
 
+  const changePage = (page: number) => {
+    const scrollY = typeof window !== "undefined" ? window.scrollY : 0;
+    onPageChange(page);
+    if (typeof window === "undefined") return;
+
+    const restoreScroll = () => window.scrollTo({ top: scrollY, behavior: "auto" });
+    window.requestAnimationFrame(() => {
+      restoreScroll();
+      window.requestAnimationFrame(restoreScroll);
+    });
+    window.setTimeout(restoreScroll, 100);
+  };
+
   const handlePrevious = () => {
     if (!isFirstPage) {
-      onPageChange(currentPage - 1);
+      changePage(currentPage - 1);
     }
   };
 
   const handleNext = () => {
     if (!isLastPage) {
-      onPageChange(currentPage + 1);
+      changePage(currentPage + 1);
     }
   };
 
@@ -88,7 +101,7 @@ export function Pagination({
             key={index}
             variant={currentPage === page ? "link" : "outline"}
             size="icon"
-            onClick={() => onPageChange(page)}
+            onClick={() => changePage(page)}
             className={` cursor-pointer pt-1`}
           >
             {page}
