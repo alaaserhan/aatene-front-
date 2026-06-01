@@ -53,11 +53,11 @@ function ContactRow({ contact, onStatusChange, onDelete, isUpdating, isDeleting 
         <>
             <tr className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-4 text-center">
-                    <span className="text-sm font-medium text-gray-700">#{contact.id}</span>
+                    <span className="text-sm font-bold text-gray-700">#{contact.id}</span>
                 </td>
                 <td className="px-4 py-4 text-center">
                     <div className="flex flex-col items-center gap-0.5">
-                        <span className="text-sm font-bold">{contact.name}</span>
+                        <span className="text-sm font-bold text-gray-800">{contact.name}</span>
                         <span className="text-xs text-gray-400" dir="ltr">{contact.email}</span>
                         {contact.phone && (
                             <span className="text-xs text-gray-400" dir="ltr">{contact.phone}</span>
@@ -65,10 +65,12 @@ function ContactRow({ contact, onStatusChange, onDelete, isUpdating, isDeleting 
                     </div>
                 </td>
                 <td className="px-4 py-4 text-center">
-                    <span className="text-sm text-gray-600">{contact.subject || "—"}</span>
+                    <span className="text-sm font-medium text-gray-700 bg-gray-50 px-3 py-1 rounded-full">
+                        {contact.subject || "—"}
+                    </span>
                 </td>
-                <td className="px-4 py-4 text-center max-w-[240px]">
-                    <div className="text-sm text-gray-700 line-clamp-2 text-right leading-relaxed">
+                <td className="px-4 py-4 max-w-[280px]">
+                    <div className="text-sm text-gray-600 line-clamp-2 text-right leading-relaxed bg-gray-50/50 rounded-lg p-2">
                         {contact.message}
                     </div>
                     {contact.message.length > 80 && (
@@ -83,7 +85,7 @@ function ContactRow({ contact, onStatusChange, onDelete, isUpdating, isDeleting 
                 </td>
                 <td className="px-4 py-4 text-center">
                     <div className="flex flex-col items-center gap-0.5">
-                        <span className="text-xs text-gray-500">{getRelativeTimeArabic(contact.created_at)}</span>
+                        <span className="text-xs font-medium text-gray-500">{getRelativeTimeArabic(contact.created_at)}</span>
                         <span className="text-xs text-gray-400" dir="ltr">{formatDateTime(contact.created_at)}</span>
                     </div>
                 </td>
@@ -154,7 +156,7 @@ export function ContactsPage() {
                         <Mail className="w-5 h-5 text-[#2D496A]" />
                         <h1 className="text-xl font-bold text-gray-900">رسائل التواصل</h1>
                     </div>
-                    <p className="text-sm text-gray-500">الرسائل المُرسلة من صفحة "من نحن"</p>
+                    <p className="text-sm text-gray-500">الرسائل المُرسلة من صفحة &quot;من نحن&quot;</p>
                 </div>
 
                 <div className="flex items-center gap-3">

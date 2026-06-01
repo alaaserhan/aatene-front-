@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import type { CSSProperties } from "react";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { toast } from "sonner";
@@ -50,6 +51,11 @@ export function MediaSelectButton({
   onValidate,
 }: MediaSelectButtonProps) {
   const [modalOpen, setModalOpen] = useState(false);
+  const frameStyle: CSSProperties = {
+    width: "100%",
+    maxWidth: width,
+    minHeight: height,
+  };
 
   const handleSelect = (file: MediaItem | MediaItem[]) => {
     if (Array.isArray(file)) {
@@ -95,8 +101,9 @@ export function MediaSelectButton({
       {!previewUrl ? (
         <div
           onClick={handleOpenModal}
+          style={frameStyle}
           className={cn(
-            "border border-dashed rounded-lg p-8 cursor-pointer transition-colors h-52 flex items-center justify-center",
+            "border border-dashed rounded-lg p-4 cursor-pointer transition-colors flex items-center justify-center",
             "hover:border-blue-3 hover:bg-gray-50",
             error ? "border-red-500" : "border-gray-200"
           )}
@@ -113,13 +120,15 @@ export function MediaSelectButton({
         </div>
       ) : (
         <div className={cn(
-          "relative h-52 flex justify-center items-center border rounded-lg overflow-hidden",
+          "relative flex justify-center items-center border rounded-lg overflow-hidden",
           error ? "border-red-500" : "border-gray-200"
-        )}>
+        )}
+          style={frameStyle}
+        >
           <img
             src={previewUrl}
             alt="Preview"
-            className="max-h-44 max-w-11/12 object-cover"
+            className="max-h-[calc(100%-1rem)] max-w-[calc(100%-1rem)] object-cover"
           />
           <button
             onClick={handleRemove}

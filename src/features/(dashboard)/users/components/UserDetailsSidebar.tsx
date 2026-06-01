@@ -500,7 +500,7 @@ export function UserDetailsSidebar({
               </div>
             </div>
 
-            <div className="flex items-center gap-3 mt-6">
+            <div className="flex items-center gap-3 mt-6 flex-wrap">
               <Button
                 type="submit"
                 disabled={updateUserMutation.isPending}
@@ -530,29 +530,29 @@ export function UserDetailsSidebar({
         </div>
 
         {/* --- User Info Card (Read Only) --- */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 flex flex-col gap-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 flex flex-col gap-4 sm:gap-6">
           <h3 className="text-lg font-medium text-blue-4">
             معلومات المستخدم
           </h3>
 
-          <div className="flex flex-row justify-between items-center ">
-            <div className="flex flex-row gap-3 items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-row gap-3 items-center flex-wrap">
               {user.avatar_url ? (
                 <img
                   src={user.avatar_url}
                   alt={fullName}
-                  className="w-22 h-22 rounded-full object-cover mb-3"
+                  className="w-16 sm:w-22 h-16 sm:h-22 rounded-full object-cover mb-3"
                 />
               ) : (
-                <div className="w-22 h-22 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center mb-3">
+                <div className="w-16 sm:w-22 h-16 sm:h-22 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center mb-3">
                   <UserIcon className="w-10 h-10 text-gray-300" />
                 </div>
               )}
               <div className="flex flex-col gap-2.5">
                 <h4 className="text-base font-medium ">{fullName}</h4>
-                <div className="flex gap-3">
+                <div className="flex gap-3 flex-wrap">
                   <p className="text-sm text-gray-2 ">{user.phone}</p>
-                  <div className="flex items-center  gap-3 ">
+                  <div className="flex items-center gap-3 ">
                     <a
                       href={`mailto:${user.email}`}
                       className="cursor-pointer"
@@ -606,7 +606,7 @@ export function UserDetailsSidebar({
 
           </div>
 
-          <div className="text-sm flex flex-row gap-5">
+          <div className="text-sm flex flex-col sm:flex-row gap-4 sm:gap-5">
             <div className="flex flex-col gap-1 ">
               <span className="text-gray-2">الدور الوظيفي</span>
               <span className="font-medium ">{roleNames}</span>

@@ -354,7 +354,7 @@ export function ClientSettingsPage() {
               value={item.id}
               className="bg-white rounded-lg border border-gray-200 overflow-hidden"
             >
-              <AccordionTrigger iconStyle="plus-minus" className="w-full flex items-center justify-between p-6 hover:no-underline hover:bg-gray-50 transition-colors [&[data-state=open]>div>svg]:rotate-180">
+              <AccordionTrigger iconStyle="plus-minus" className="w-full flex items-center justify-between p-4 sm:p-6 hover:no-underline hover:bg-gray-50 transition-colors [&[data-state=open]>div>svg]:rotate-180">
                 <div className="flex items-center gap-3">
                   {item.isCompleted && (
                     <div className="flex items-center justify-center w-5 h-5 rounded-full bg-[#1FC16B]">
@@ -364,7 +364,7 @@ export function ClientSettingsPage() {
                   <h1 className="font-bold text-lg">{item.title}</h1>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="border-t border-gray-200 p-6 bg-gray-50/50">
+              <AccordionContent className="border-t border-gray-200 p-4 sm:p-6 bg-gray-50/50">
                 {item.id === "basic-info" && (
                   <BasicInfoSection
                     data={formData.basicInfo}

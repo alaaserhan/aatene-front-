@@ -120,19 +120,229 @@ export function BannersPage() {
     });
   };
 
-  return (
-    <div className="min-h-screen my-8">
-      <div className="container mx-auto py-8 px-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div className="flex-1">
-            <h1 className="text-xl md:text-2xl font-bold text-brand-black-1">
-              بنرات إعلانية
-            </h1>
-            <p className="text-sm text-gray-2 mt-1">
-              تميز لك رفع بنرات جديدة مع تحديد العنوان والرابط وترتيب العرض
-              بالإضافة الى إدارة البنرات الحالية خلال تعديلها أو حذفها
-            </p>
-          </div>
+    return (
+        <div className="min-h-screen my-4 md:my-8">
+            <div className="container mx-auto py-4 md:py-8 px-3 md:px-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                    <div className="flex-1">
+                        <h1 className="text-xl md:text-2xl font-bold text-brand-black-1">
+                            بنرات إعلانية
+                        </h1>
+                        <p className="text-sm text-gray-2 mt-1">
+                            تميز لك رفع بنرات جديدة مع تحديد العنوان والرابط وترتيب العرض
+                            بالإضافة الى إدارة البنرات الحالية خلال تعديلها أو حذفها
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={handleAddBanner}
+                        className="flex w-full sm:w-auto text-sm items-center justify-center gap-2 cursor-pointer px-4 sm:px-6 py-2.5 sm:py-3 text-white rounded-lg font-medium transition-all hover:opacity-90 active:scale-[0.98] whitespace-nowrap"
+                        style={{ backgroundColor: "var(--blue-3)" }}
+                    >
+                        <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                        أضف بنر إعلاني
+                    </button>
+                </div>
+
+                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                    <div className="p-4 sm:p-6 border-b border-gray-200 flex flex-col lg:flex-row sm:justify-between gap-3">
+                        <div>
+                            <p className="text-lg sm:text-xl font-bold">
+                                جميع البنرات <span className="text-blue-3">({bannersData?.recordsFiltered || 0})</span>
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <div className="relative bg-white rounded-lg border border-gray-200 min-w-[220px] sm:min-w-[260px]">
+                                <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <Input
+                                    placeholder="ابحث بعنوان البنر..."
+                                    value={searchQuery}
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                    className="pr-10 h-11 border-none shadow-none focus-visible:ring-0 text-right"
+                                />
+                            </div>
+                            <ReusableDropdown
+                                placeholder="حالة الإعلان"
+                                options={filterOptions}
+                                value={filterStatus}
+                                onChange={(value) => {
+                                    setFilterStatus(value as FilterStatus);
+                                    setCurrentPage(1);
+                                }}
+                                className="min-w-[140px]"
+                            />
+                            <ReusableDropdown
+                                placeholder="ترتيب حسب..."
+                                options={sortOptions}
+                                value={sortBy}
+                                onChange={(value) => {
+                                    setSortBy(value);
+                                    setCurrentPage(1);
+                                }}
+                                className="min-w-[140px]"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[900px]">
+                            <thead>
+                                <tr className="bg-gray-50 border-b border-gray-200">
+                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-500">
+                                        رقم الإعلان
+                                    </th>
+                                    <th className="px-4 py-4 text-center text-sm font-medium text-gray-500 w-44">
+                                        صورة الإعلان
+                                    </th>
+                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-500">
+                                        مكان العرض
+                                    </th>
+                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-500 max-w-[200px]">
+                                        الرابط
+                                    </th>
+                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-500 whitespace-nowrap">
+                                        تاريخ البدء والانتهاء
+                                    </th>
+                                    <th className="px-4 py-4 text-center text-sm font-medium text-gray-500">
+                                        ترتيب
+                                    </th>
+                                    <th className="px-4 py-4 text-center text-sm font-medium text-gray-500">
+                                        فعال
+                                    </th>
+                                    <th className="px-4 py-4 text-center text-sm font-medium text-gray-500 min-w-36">
+                                        عمليات
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isLoading ? (
+                                    <tr>
+                                        <td colSpan={9} className="text-center p-12">
+                                            <div className="flex justify-center items-center gap-2">
+                                                <Loader2 className="w-5 h-5 animate-spin text-brand-blue-3" />
+                                                <span className="text-gray-2">
+                                                    جاري تحميل البيانات...
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : isError ? (
+                                    <tr>
+                                        <td colSpan={9} className="text-center p-12 text-red-500">
+                                            حدث خطأ أثناء جلب البيانات.
+                                        </td>
+                                    </tr>
+                                ) : banners.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={9} className="text-center p-12 text-gray-2">
+                                            لا توجد بيانات لعرضها.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    banners.map((banner) => (
+                                        <tr
+                                            key={banner.id}
+                                            className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors last:border-0"
+                                        >
+                                            <td className="px-4 py-4">
+                                                <span className="text-sm font-medium text-gray-700">
+                                                    #{banner.id}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-4 py-4">
+                                                <div className="flex justify-center">
+                                                    <img
+                                                        src={banner.labtop_banner_url}
+                                                        alt={banner.title}
+                                                        className="h-16 w-28 object-cover rounded-lg border border-gray-100"
+                                                    />
+                                                </div>
+                                            </td>
+
+                                            <td className="px-4 py-4">
+                                                <span className="text-sm text-gray-600">
+                                                    {banner.place}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-4 py-4">
+                                                <a
+                                                    href={banner.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-sm text-blue-500 hover:underline truncate block max-w-[180px]"
+                                                    title={banner.url}
+                                                >
+                                                    {banner.url}
+                                                </a>
+                                            </td>
+
+                                            <td className="px-4 py-4">
+                                                <div className="text-sm text-gray-600 whitespace-nowrap">
+                                                    {formatDate(banner.start_date)} - {formatDate(banner.end_date)}
+                                                </div>
+                                            </td>
+
+                                            <td className="px-4 py-4">
+                                                <span className="text-sm text-gray-600 text-center block">
+                                                    {banner.priority}
+                                                </span>
+                                            </td>
+
+                                            <td className="px-4 py-4">
+                                                <div className="flex justify-center">
+                                                    <ToggleSwitch
+                                                        enabled={
+                                                            banner.is_active === "1" ||
+                                                            banner.is_active === true
+                                                        }
+                                                        onChange={() => handleToggleBanner(banner)}
+                                                    />
+                                                </div>
+                                            </td>
+
+                                            <td className="px-4 py-4">
+                                                <div className="flex items-center justify-center gap-1.5">
+                                                    <button
+                                                        onClick={() => handleViewBanner(banner.id)}
+                                                        className="p-2 bg-blue-50 cursor-pointer rounded-lg transition-colors hover:bg-blue-100"
+                                                        title="عرض"
+                                                    >
+                                                        <Eye className="w-4 h-4 text-blue-500" />
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => handleEditBanner(banner.id)}
+                                                        className="p-2 bg-blue-50 cursor-pointer rounded-lg transition-colors hover:bg-blue-100"
+                                                        title="تعديل"
+                                                    >
+                                                        <Pencil className="w-4 h-4 text-blue-500" />
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => handleDeleteClick(banner.id)}
+                                                        className="p-2 bg-red-50 cursor-pointer rounded-lg transition-colors hover:bg-red-100"
+                                                        title="حذف"
+                                                    >
+                                                        <img
+                                                            src="/icons/dashboard/trash.svg"
+                                                            alt="Delete"
+                                                            className="w-4 h-4"
+                                                        />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
 
           <button
             onClick={handleAddBanner}
@@ -152,8 +362,8 @@ export function BannersPage() {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative bg-white rounded-lg border border-gray-200 min-w-[220px] sm:min-w-[280px]">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <div className="relative bg-white rounded-lg border border-gray-200 w-full sm:min-w-[220px] sm:max-w-[280px]">
                 <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <Input
                   placeholder="ابحث بعنوان البنر..."
@@ -173,7 +383,7 @@ export function BannersPage() {
                   setFilterStatus(value as FilterStatus);
                   setCurrentPage(1);
                 }}
-                className="min-w-[140px]"
+                className="w-full sm:min-w-[140px]"
               />
               <ReusableDropdown
                 placeholder="ترتيب حسب..."
@@ -183,37 +393,35 @@ export function BannersPage() {
                   setSortBy(value);
                   setCurrentPage(1);
                 }}
-                className="min-w-[140px]"
+                className="w-full sm:min-w-[140px]"
               />
             </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1200px]">
+            <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1 ">
-                    رقم الإعلان
-                  </th>
-                  <th className="px-4 py-4 text-center text-sm font-medium text-gray-1 w-48">
+                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1">#</th>
+                  <th className="hidden sm:table-cell px-3 sm:px-4 py-4 text-center text-xs sm:text-sm font-medium text-gray-1 w-48">
                     صورة الإعلان
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">
-                    مكان العرض
+                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1">
+                    المكان
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">
+                  <th className="hidden md:table-cell px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1">
                     الرابط
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1 ">
+                  <th className="hidden lg:table-cell px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1">
                     تاريخ البدء والانتهاء
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1">
-                    ترتيب العرض
+                  <th className="hidden sm:table-cell px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1">
+                    الترتيب
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1 ">
+                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1">
                     فعال
                   </th>
-                  <th className="px-4 py-4 text-start text-sm font-medium text-gray-1 min-w-40">
+                  <th className="px-3 sm:px-4 py-4 text-start text-xs sm:text-sm font-medium text-gray-1 min-w-32 sm:min-w-40">
                     عمليات
                   </th>
                 </tr>
@@ -248,32 +456,34 @@ export function BannersPage() {
                       key={banner.id}
                       className="border-b border-gray-200  last:border-0 "
                     >
-                      <td className="px-4 py-4">
-                        <span className="text-sm font-medium ">
+                      <td className="px-3 sm:px-4 py-4">
+                        <span className="text-xs sm:text-sm font-medium">
                           #{banner.id}
                         </span>
                       </td>
 
-                      <td className="px-4 py-4 flex justify-center items-center">
-                        <img
-                          src={banner.labtop_banner_url}
-                          alt={banner.title}
-                          className="max-h-24 max-w-44 object-cover rounded"
-                        />
+                      <td className="hidden sm:table-cell px-3 sm:px-4 py-4 text-center">
+                        <div className="flex justify-center">
+                          <img
+                            src={banner.labtop_banner_url}
+                            alt={banner.title}
+                            className="max-h-16 sm:max-h-24 max-w-28 sm:max-w-44 object-cover rounded"
+                          />
+                        </div>
                       </td>
 
-                      <td className="px-4 py-4">
-                        <span className="text-sm">
+                      <td className="px-3 sm:px-4 py-4">
+                        <span className="text-xs sm:text-sm">
                           {banner.place}
                         </span>
                       </td>
 
-                      <td className="px-4 py-4">
+                      <td className="hidden md:table-cell px-3 sm:px-4 py-4">
                         <a
                           href={banner.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm hover:underline truncate block max-w-xs"
+                          className="text-xs sm:text-sm hover:underline truncate block max-w-[120px] sm:max-w-xs"
                           title={banner.url}
                         >
                           {banner.url}
@@ -281,8 +491,8 @@ export function BannersPage() {
                       </td>
 
 
-                      <td className="px-4 py-4">
-                        <div className="text-sm ">
+                      <td className="hidden lg:table-cell px-3 sm:px-4 py-4">
+                        <div className="text-xs sm:text-sm">
                           <div className="whitespace-nowrap">
                             {formatDate(banner.start_date)} - {formatDate(banner.end_date)}
                           </div>
@@ -290,13 +500,13 @@ export function BannersPage() {
                       </td>
 
 
-                      <td className="px-4 py-4">
-                        <span className="text-sm   text-center block">
+                      <td className="hidden sm:table-cell px-3 sm:px-4 py-4">
+                        <span className="text-xs sm:text-sm text-center block">
                           {banner.priority}
                         </span>
                       </td>
 
-                      <td className="px-4 py-4">
+                      <td className="px-3 sm:px-4 py-4">
                         <ToggleSwitch
                           enabled={
                             banner.is_active === "1" ||
@@ -306,8 +516,8 @@ export function BannersPage() {
                         />
                       </td>
 
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-2">
+                      <td className="px-3 sm:px-4 py-4">
+                        <div className="flex items-center gap-1 sm:gap-2">
                           <button
                             onClick={() => handleViewBanner(banner.id)}
                             className="p-2.5 bg-blue-5 cursor-pointer rounded transition-colors group"

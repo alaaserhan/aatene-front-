@@ -8,6 +8,8 @@ import { Category, Attribute, AttributeOption } from "../api";
 import { useGetSubCategories } from "../hooks";
 import { useAuthStore } from "@/src/stores/auth-store";
 
+const LEVEL_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"];
+
 
 interface AttributeOptionRowProps {
   option: AttributeOption;
@@ -216,6 +218,7 @@ function CategoryAccordionContent(props: CategoryProps) {
   }
   const images = validImageUrls.filter((img) => img && typeof img === 'string' && img.trim() !== "");
 
+  const isSelected = selectedCategories.has(category.id);
   const subCategoriesCount = Number(category.sub_categories_count || 0);
   const hasSubCategories = subCategoriesCount > 0;
   const isActive = category.is_active === true || category.is_active === "1";
@@ -239,9 +242,22 @@ function CategoryAccordionContent(props: CategoryProps) {
   return (
     <div className="group">
       <div
-        className="flex items-center gap-1 p-2 border border-input rounded mb-2 hover:bg-gray-50 transition-colors"
+        className={cn(
+          "flex items-center gap-1 p-2 border rounded mb-2 transition-colors",
+          isSelected
+            ? "bg-blue-50 border-blue-3"
+            : "border-input hover:bg-gray-50"
+        )}
         style={{ marginInlineEnd: level === 0 ? "0rem" : `${level * 3.5}rem` }}
       >
+        {/* Depth indicator bar */}
+        {level > 0 && (
+          <div
+            className="w-[3px] h-8 rounded-full shrink-0"
+            style={{ backgroundColor: LEVEL_COLORS[(level - 1) % LEVEL_COLORS.length] }}
+          />
+        )}
+
         {/* ✅ إخفاء زر الحذف */}
         {isAdmin && (
           <button
@@ -319,6 +335,14 @@ function CategoryAccordionContent(props: CategoryProps) {
             category.type === "service" && "flex-1 ms-4 justify-end"
           )}
         >
+          {level > 0 && (
+            <span
+              className="w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold text-white shrink-0 ms-1"
+              style={{ backgroundColor: LEVEL_COLORS[(level - 1) % LEVEL_COLORS.length] }}
+            >
+              {level}
+            </span>
+          )}
           <span className="text-sm font-medium pe-2">{category?.name}</span>
 
           {hasSubCategories && (

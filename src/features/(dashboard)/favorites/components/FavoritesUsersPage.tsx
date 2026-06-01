@@ -32,7 +32,7 @@ export function FavoritesUsersPage() {
     ];
 
     return (
-        <div className="flex flex-col gap-6 p-6 ">
+        <div className="flex flex-col gap-6 p-4 sm:p-6 ">
             <div className="flex flex-col gap-2">
                 <Breadcrumb items={breadcrumbItems} />
                 <h1 className="text-2xl font-bold  mt-2">إدارة المفضلة</h1>
@@ -63,12 +63,12 @@ export function FavoritesUsersPage() {
                     <table className="w-full">
                         <thead className=" border-b bg-[#FAFAFA] border-gray-100">
                             <tr>
-                                <th className="px-6 py-4 text-right text-xs font-medium">المستخدم</th>
-                                <th className="px-6 py-4 text-center text-xs font-medium">عدد المجموعات</th>
-                                <th className="px-6 py-4 text-center text-xs font-medium">عدد المنتجات المفضلة</th>
-                                <th className="px-6 py-4 text-center text-xs font-medium">عدد المتاجر المفضلة</th>
-                                <th className="px-6 py-4 text-center text-xs font-medium">عدد الخدمات المفضلة</th>
-                                <th className="px-6 py-4 text-center text-xs font-medium">العمليات</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-right text-xs font-medium">المستخدم</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium hidden sm:table-cell">عدد المجموعات</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium">عدد المنتجات المفضلة</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium">عدد المتاجر المفضلة</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium hidden sm:table-cell">عدد الخدمات المفضلة</th>
+                                <th className="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs font-medium">العمليات</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -91,7 +91,7 @@ export function FavoritesUsersPage() {
                                 usersData?.users.map((user) => (
                                     <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
                                         {/* User Info */}
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-right">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border border-gray-200 flex items-center justify-center">
                                                     {user.avatar_url ? (
@@ -107,14 +107,14 @@ export function FavoritesUsersPage() {
                                         </td>
 
                                         {/* Total Collections */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center hidden sm:table-cell">
                                             <span className="text-sm font-medium ">
                                                 {user.favs_count.total}
                                             </span>
                                         </td>
 
                                         {/* Products Count - Clickable */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center">
                                             <Link
                                                 href={`/${type}/favorites/${user.id}?type=product`}
                                                 className="text-sm font-medium hover:text-blue-800 transition-colors"
@@ -124,7 +124,7 @@ export function FavoritesUsersPage() {
                                         </td>
 
                                         {/* Stores Count - Clickable */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center">
                                             <Link
                                                 href={`/${type}/favorites/${user.id}?type=store`}
                                                 className="text-sm font-medium hover:text-blue-800 transition-colors"
@@ -134,7 +134,7 @@ export function FavoritesUsersPage() {
                                         </td>
 
                                         {/* Services Count - Clickable */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center hidden sm:table-cell">
                                             <Link
                                                 href={`/${type}/favorites/${user.id}?type=service`}
                                                 className="text-sm font-medium hover:text-blue-800 transition-colors"
@@ -144,7 +144,7 @@ export function FavoritesUsersPage() {
                                         </td>
 
                                         {/* Actions */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-center">
                                             <Link
                                                 href={`/${type}/favorites/${user.id}`}
                                                 className="inline-flex items-center justify-center w-8 h-8 rounded-xs bg-[#E0F7FA] text-[#00ACC1] hover:bg-[#B2EBF2] transition-colors"

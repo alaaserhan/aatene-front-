@@ -62,13 +62,14 @@ export function TrashTable({
           return (
             <div
               key={`${activeSlug}-${item.id}`}
-              className="flex items-center gap-1 p-2 border border-input rounded hover:bg-gray-50 transition-colors"
+              className="flex flex-col gap-3 p-3 border border-input rounded hover:bg-gray-50 transition-colors sm:flex-row sm:items-center"
             >
+              <div className="flex w-full items-start gap-3 sm:flex-1 sm:items-center">
               <button
                 type="button"
                 onClick={() => onToggleSelect(item.id)}
                 className={cn(
-                  "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center me-2 shrink-0 cursor-pointer",
+                  "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center mt-1 shrink-0 cursor-pointer sm:mt-0",
                   isSelected
                     ? "bg-blue-5 border-blue-4"
                     : "bg-white border-gray-300 hover:border-gray-400"
@@ -93,15 +94,16 @@ export function TrashTable({
                 )}
               </button>
 
-              <div className="flex items-center flex-1 me-4">
-                <span className="text-sm font-medium">{item.name}</span>
+              <div className="min-w-0 flex-1">
+                <span className="block text-sm font-medium leading-6 break-words">{item.name}</span>
+              </div>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:shrink-0">
                 {/* استعادة */}
                 <Button
                   size="sm"
-                  className="gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer text-xs px-3 h-8 rounded-sm"
+                  className="w-full gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer text-xs px-3 h-8 rounded-sm sm:w-auto"
                   onClick={() => onRestore(item.id)}
                   disabled={restoringId === item.id}
                 >
@@ -116,7 +118,7 @@ export function TrashTable({
                 {/* حذف نهائي */}
                 <Button
                   size="sm"
-                  className="gap-1.5 bg-red-500 hover:bg-red-600 text-white cursor-pointer text-xs px-3 h-8 rounded-sm"
+                  className="w-full gap-1.5 bg-red-500 hover:bg-red-600 text-white cursor-pointer text-xs px-3 h-8 rounded-sm sm:w-auto"
                   onClick={() => onForceDelete(item.id)}
                   disabled={deletingId === item.id}
                 >

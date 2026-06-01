@@ -78,7 +78,7 @@ export function StoriesPage() {
       <Breadcrumb items={breadcrumbItems} />
 
       {/* قسم القصص المميزة (Highlights) */}
-      <div className="bg-white p-6 rounded-lg border border-gray-200">
+      <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
         <HighlightsSection
           highlights={highlightsData?.data || []}
           stories={storiesData?.data || []} // نحتاج القصص لإنشاء هايلايت جديد
@@ -108,7 +108,7 @@ export function StoriesPage() {
       </div>
 
       {/* قسم القصص (Stories) */}
-      <div className="bg-white p-6 rounded-lg border border-gray-200 min-h-[300px]">
+      <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 min-h-[300px]">
         <StoriesList
           stories={storiesData?.data || []}
           onCreateStory={handleCreateStory}

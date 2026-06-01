@@ -63,11 +63,11 @@ export function AllReportsPage() {
 
     return (
         <div className="flex flex-col gap-0">
-            <ReportsTabs className="px-6 bg-white" />
+            <ReportsTabs className="px-4 sm:px-6 bg-white" />
 
-            <main className="flex-1 p-6">
+            <main className="flex-1 p-4 sm:p-6">
                 <div className="bg-white rounded-lg border border-gray-200 overflow-visible">
-                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 border-b border-gray-100 gap-4">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 sm:p-6 border-b border-gray-100 gap-4">
                         <div className="flex flex-col">
                             <h2 className="text-lg font-bold">{getReportTitle(currentType)} ( {totalRecords} )</h2>
                             {/* <span className="text-xs text-gray-2 flex items-center gap-1 mt-1">
@@ -77,7 +77,7 @@ export function AllReportsPage() {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <div className="w-[180px]">
+                            <div className="w-full sm:w-[180px]">
                                 <ReusableDropdown
                                     options={filterOptions}
                                     value={statusFilter}

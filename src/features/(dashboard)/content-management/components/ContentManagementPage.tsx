@@ -61,7 +61,7 @@ export default function ContentManagementPage() {
                         key={tab.id}
                         onClick={() => handleTabChange(tab.id)}
                         className={cn(
-                            "py-4 px-6 rounded-sm text-base font-medium transition-all border text-center cursor-pointer",
+                            "py-4 px-4 sm:px-6 rounded-sm text-base font-medium transition-all border text-center cursor-pointer",
                             activeTabId === tab.id
                                 ? "bg-(--blue-4) text-white border-(--blue-4)"
                                 : "bg-white text-gray-700 border-gray-100"
@@ -73,7 +73,7 @@ export default function ContentManagementPage() {
             </div>
 
             {/* Tabs Content */}
-            <div className="min-h-[500px] mt-8">
+            <div className="min-h-[300px] sm:min-h-[500px] mt-8">
                 {tabs.find((t) => t.id === activeTabId)?.component}
             </div>
         </div>

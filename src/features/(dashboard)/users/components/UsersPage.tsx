@@ -123,14 +123,14 @@ export function UsersPage() {
 
   return (
     <div className="bg-gray-50 h-full lg:h-[calc(100vh-80px)]  flex flex-col">
-      <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
-        <div className="flex items-center justify-between h-16 px-6">
+      <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 min-h-[65px]">
+        <div className="flex items-center justify-between h-16 px-4 sm:px-6 gap-3 flex-wrap">
           <nav className="flex items-center h-full">
-            <ul className="flex items-center gap-8 h-full">
+            <ul className="flex items-center gap-4 sm:gap-8 h-full">
               <li className="h-full flex items-center">
                 <Link
                   href="/admin/users"
-                  className="text-sm font-semibold text-[#3A5779] border-b-2 border-[#3A5779] h-full flex items-center transition-colors"
+                  className="text-xs sm:text-sm font-semibold text-[#3A5779] border-b-2 border-[#3A5779] h-full flex items-center transition-colors whitespace-nowrap"
                 >
                   الحسابات
                 </Link>
@@ -138,7 +138,7 @@ export function UsersPage() {
               <li className="h-full flex items-center">
                 <Link
                   href="/admin/permissions"
-                  className="text-sm font-semibold text-gray-2 hover:text-[#3A5779] h-full flex items-center transition-colors"
+                  className="text-xs sm:text-sm font-semibold text-gray-2 hover:text-[#3A5779] h-full flex items-center transition-colors whitespace-nowrap"
                 >
                   الادوار والصلاحيات
                 </Link>
@@ -148,17 +148,17 @@ export function UsersPage() {
 
           <Link
             href="/admin/users/add"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-3 rounded-xs text-white text-sm font-semibold cursor-pointer"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-3 rounded-xs text-white text-xs sm:text-sm font-semibold cursor-pointer whitespace-nowrap"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
             إضافة مستخدم
           </Link>
         </div>
       </header>
 
-      <main className="flex-1 p-1 md:p-6 h-[calc(100vh-65px)]">
-        <div className="grid grid-cols-12 gap-4 h-full">
-          <div className="col-span-12 lg:col-span-2 h-full">
+      <main className="flex-1 p-2 sm:p-1 md:p-6 min-h-0">
+        <div className="grid grid-cols-12 gap-3 sm:gap-4 h-full">
+          <div className="col-span-12 lg:col-span-2 h-full max-h-[200px] lg:max-h-none">
             <SidebarFilterPanel
               options={filterCategories}
               activeValue={activeRoleName}

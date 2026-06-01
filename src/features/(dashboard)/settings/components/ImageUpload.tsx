@@ -82,7 +82,7 @@ export function ImageUpload({
           className="flex items-center gap-3 px-4 py-3.5 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
         >
           <span className="text-sm text-gray-2 font-medium">اضف صورة السياسة ...</span>
-          <div className="mr-auto p-2 bg-blue-4 rounded-lg">
+          <div className="ml-auto p-2 bg-blue-4 rounded-lg">
             <Upload className="w-5 h-5 text-white" strokeWidth={2} />
           </div>
         </div>

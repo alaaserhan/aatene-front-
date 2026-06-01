@@ -93,7 +93,7 @@ function PermissionForm({
 
   return (
     <div>
-      <div className="bg-white rounded-lg p-6">
+      <div className="bg-white rounded-lg p-4 sm:p-6">
         <div className="mb-6">
           <h2 className="text-xl font-bold text-blue-4">
             {mode === "create"
@@ -132,7 +132,7 @@ function PermissionForm({
       </div>
 
       {roleNameInput !== "admin" && roleNameInput !== "merchant" && (
-        <div className="bg-white rounded-lg p-6 mt-6">
+        <div className="bg-white rounded-lg p-4 sm:p-6 mt-4 sm:mt-6">
           <div className="space-y-4">
             <h3 className="text-lg text-blue-4 font-semibold">
               صلاحية الموظف
@@ -180,13 +180,6 @@ function PermissionForm({
                         {permission.title}
                       </span>
                     </div>
-                    <button
-                      type="button"
-                      className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded text-gray-2 hover:bg-gray-50 cursor-pointer opacity-50"
-                      disabled
-                    >
-                      +
-                    </button>
                   </div>
                 );
               })}
@@ -195,8 +188,8 @@ function PermissionForm({
         </div>
       )}
 
-      <div className="bg-white rounded-lg p-6 mt-6">
-        <div className="flex gap-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 mt-4 sm:mt-6">
+        <div className="flex flex-col sm:flex-row gap-4">
           <Button
             type="button"
             onClick={handleSaveClick}
@@ -233,10 +226,10 @@ export function PermissionsPage() {
   const [mode, setMode] = useState<"edit" | "create">("edit");
   const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
 
-  const { data: rolesData } = useGetRoles(new URLSearchParams());
+  const { data: rolesData, isLoading: isLoadingRoles } = useGetRoles(new URLSearchParams());
   const roles = rolesData?.data || [];
 
-  const { data: permissionsData } = useGetPermissions(new URLSearchParams());
+  const { data: permissionsData, isLoading: isLoadingPermissions } = useGetPermissions(new URLSearchParams());
   const allPermissions = permissionsData?.data || [];
 
   const { data: roleDetailsData, isLoading: isLoadingRole } = useGetSingleRole(
@@ -254,6 +247,11 @@ export function PermissionsPage() {
       value: String(role.id),
     }));
   }, [roles]);
+
+  useEffect(() => {
+    if (mode !== "edit" || selectedRoleId || roles.length === 0) return;
+    setSelectedRoleId(roles[0].id);
+  }, [mode, roles, selectedRoleId]);
 
   const handleRoleSelect = (roleId: string) => {
     setMode("edit");
@@ -318,7 +316,7 @@ export function PermissionsPage() {
   return (
     <div className="bg-gray-50  flex flex-col">
       <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="flex items-center justify-between h-16 px-6">
+        <div className="flex items-center justify-between h-16 px-4 sm:px-6">
           <nav className="flex items-center h-full">
             <ul className="flex items-center gap-8 h-full">
               <li className="h-full flex items-center">
@@ -350,19 +348,33 @@ export function PermissionsPage() {
         </div>
       </header>
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-4 sm:p-6">
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-3">
-            <SidebarFilterPanel
-              options={filterCategories}
-              activeValue={selectedRoleId ? String(selectedRoleId) : ""}
-              onValueChange={handleRoleSelect}
-              className="max-h-[calc(100vh-193px)]"
-            />
+            {isLoadingRoles ? (
+              <div className="bg-white rounded-lg p-6 flex items-center justify-center min-h-[220px]">
+                <Loader2 className="w-6 h-6 animate-spin text-blue-3" />
+              </div>
+            ) : roles.length === 0 ? (
+              <div className="bg-white rounded-lg p-6 text-center text-sm text-gray-2">
+                لا توجد أدوار وظيفية بعد. ابدأ بإضافة دور جديد.
+              </div>
+            ) : (
+              <SidebarFilterPanel
+                options={filterCategories}
+                activeValue={selectedRoleId ? String(selectedRoleId) : ""}
+                onValueChange={handleRoleSelect}
+                className="max-h-[calc(100vh-193px)]"
+              />
+            )}
           </div>
 
           <div className="col-span-12 lg:col-span-9 max-h-[calc(100vh-193px)]">
-            {!selectedRoleId && mode === "edit" ? (
+            {(isLoadingRoles || isLoadingPermissions) && mode === "edit" ? (
+              <div className="bg-white rounded-lg p-8 flex items-center justify-center min-h-[400px]">
+                <Loader2 className="w-6 h-6 animate-spin text-blue-3" />
+              </div>
+            ) : !selectedRoleId && mode === "edit" ? (
               <div className="bg-white rounded-lg p-8 flex items-center justify-center h-full ">
                 <p className="text-gray-3">
                   الرجاء اختيار دور وظيفي من القائمة أو إضافة دور جديد
