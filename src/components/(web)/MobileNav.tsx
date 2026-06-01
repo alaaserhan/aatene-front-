@@ -11,7 +11,7 @@ import { useLanguage } from "@/src/hooks/use-language";
 import { useMyNotificationStats } from "@/src/features/(web)/notifications/hooks";
 import { Badge } from "@/src/components/ui/badge";
 import { useSettingsStore } from "@/src/stores/settings-store";
-import NavbarCategoriesMenu from "./NavbarCategoriesMenu";
+
 import { upgradeHttpToHttps, fixMediaUrl } from "@/src/lib/utils";
 
 const menuVariants: Variants = {
@@ -98,7 +98,7 @@ export default function MobileNav() {
         </Link>
 
         <div className="flex shrink-0 items-center gap-0.5">
-          <NavbarCategoriesMenu variant="mobile" />
+
           <button
             className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
             onClick={toggleMobileSearch}

@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = generatePageMetadata("forgotPassword");
+export const dynamic = "force-dynamic";
 
 export default async function ForgotPasswordPage({
     params,
