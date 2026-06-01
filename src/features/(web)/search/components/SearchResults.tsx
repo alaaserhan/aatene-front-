@@ -1,7 +1,7 @@
 "use client";
 
 import { Pagination } from "@/src/components/ui/Pagination";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
@@ -34,36 +34,52 @@ export default function SearchResults({
 }: SearchResultsProps) {
     const paginationRef = useRef<HTMLDivElement>(null);
     const pendingPaginationTopRef = useRef<number | null>(null);
+    const keepPaginationPinnedUntilRef = useRef<number>(0);
     const totalPages = Math.ceil(total / perPage);
     const startItem = (currentPage - 1) * perPage + 1;
     const endItem = Math.min(currentPage * perPage, total);
 
+    const restorePaginationPosition = useCallback(() => {
+        const pagination = paginationRef.current;
+        const previousTop = pendingPaginationTopRef.current;
+        if (!pagination || previousTop === null) return;
+
+        const nextTop = pagination.getBoundingClientRect().top;
+        const offset = nextTop - previousTop;
+        if (Math.abs(offset) > 1) {
+            window.scrollBy({ top: offset, behavior: "auto" });
+        }
+    }, []);
+
+    useLayoutEffect(() => {
+        restorePaginationPosition();
+    }, [currentPage, items, total, restorePaginationPosition]);
+
     useEffect(() => {
-        if (isLoading || isFetching || pendingPaginationTopRef.current === null) return;
+        if (pendingPaginationTopRef.current === null) return;
 
-        const restorePaginationPosition = () => {
-            const pagination = paginationRef.current;
-            const previousTop = pendingPaginationTopRef.current;
-            if (!pagination || previousTop === null) return;
+        let frameId: number | null = null;
+        const keepPinned = () => {
+            restorePaginationPosition();
 
-            const nextTop = pagination.getBoundingClientRect().top;
-            window.scrollBy({ top: nextTop - previousTop, behavior: "auto" });
+            if (performance.now() < keepPaginationPinnedUntilRef.current || isFetching) {
+                frameId = window.requestAnimationFrame(keepPinned);
+                return;
+            }
+
             pendingPaginationTopRef.current = null;
         };
 
-        let secondFrame: number | null = null;
-        const firstFrame = window.requestAnimationFrame(() => {
-            secondFrame = window.requestAnimationFrame(restorePaginationPosition);
-        });
+        frameId = window.requestAnimationFrame(keepPinned);
 
         return () => {
-            window.cancelAnimationFrame(firstFrame);
-            if (secondFrame !== null) window.cancelAnimationFrame(secondFrame);
+            if (frameId !== null) window.cancelAnimationFrame(frameId);
         };
-    }, [currentPage, isLoading, isFetching, items]);
+    }, [currentPage, isFetching, items, restorePaginationPosition]);
 
     const handlePageChange = (page: number) => {
         pendingPaginationTopRef.current = paginationRef.current?.getBoundingClientRect().top ?? null;
+        keepPaginationPinnedUntilRef.current = performance.now() + 1200;
         onPageChange(page);
     };
 
