@@ -1,7 +1,7 @@
 // src/features/(dashboard)/products/components/ProductProvidersTable.tsx
 "use client";
 
-import { Eye, Loader2 } from "lucide-react";
+import { Eye, Loader2, PackageSearch } from "lucide-react";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Store } from "../../stores/api";
@@ -15,7 +15,8 @@ interface ProductProvidersTableProps {
     onPageChange: (page: number) => void;
     onDelete: (store: Store) => void;
     onEdit: (store: Store) => void;
-    onShow: (store: Store) => void;
+    onPreview: (store: Store) => void;
+    onManageProducts: (store: Store) => void;
 }
 
 export function ProductProvidersTable({
@@ -26,7 +27,8 @@ export function ProductProvidersTable({
     onPageChange,
     onDelete,
     onEdit,
-    onShow,
+    onPreview,
+    onManageProducts,
 }: ProductProvidersTableProps) {
 
     if (isLoading) {
@@ -154,9 +156,16 @@ export function ProductProvidersTable({
                                                 <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="delete" />
                                             </button>
                                             <button
-                                                onClick={() => onShow(store)}
+                                                onClick={() => onManageProducts(store)}
+                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#EEF2F6] text-[#3A5779] hover:bg-[#dbe5ef] transition-colors"
+                                                title="إدارة منتجات المتجر"
+                                            >
+                                                <PackageSearch className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => onPreview(store)}
                                                 className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E5FBFF] text-[#1298B2] hover:bg-[#d0f5fc] transition-colors"
-                                                title="عرض التفاصيل"
+                                                title="معاينة المتجر"
                                             >
                                                 <Eye className="w-4 h-4" />
                                             </button>

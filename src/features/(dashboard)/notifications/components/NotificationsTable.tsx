@@ -19,6 +19,78 @@ interface NotificationsTableProps {
     onEdit?: (notification: NotificationModel) => void;
 }
 
+const HTML_ENTITY_MAP: Record<string, string> = {
+    amp: "&",
+    lt: "<",
+    gt: ">",
+    quot: "\"",
+    apos: "'",
+    nbsp: " ",
+};
+
+function decodeHtmlEntities(value: string) {
+    return value.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (match, entity) => {
+        const normalized = entity.toLowerCase();
+
+        if (normalized.startsWith("#x")) {
+            const codePoint = Number.parseInt(normalized.slice(2), 16);
+            return Number.isNaN(codePoint) ? match : String.fromCodePoint(codePoint);
+        }
+
+        if (normalized.startsWith("#")) {
+            const codePoint = Number.parseInt(normalized.slice(1), 10);
+            return Number.isNaN(codePoint) ? match : String.fromCodePoint(codePoint);
+        }
+
+        return HTML_ENTITY_MAP[normalized] ?? match;
+    });
+}
+
+function stripHtmlToText(value: string) {
+    return decodeHtmlEntities(value)
+        .replace(/<!--[\s\S]*?-->/g, " ")
+        .replace(/<!doctype[^>]*>/gi, " ")
+        .replace(/<script[\s\S]*?<\/script>/gi, " ")
+        .replace(/<style[\s\S]*?<\/style>/gi, " ")
+        .replace(/<head[\s\S]*?<\/head>/gi, " ")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function isHtmlContent(value?: string | null) {
+    return Boolean(value && /<\/?[a-z][\s\S]*>|<!doctype/i.test(value));
+}
+
+function truncateText(value: string, maxLength = 120) {
+    if (value.length <= maxLength) return value;
+    return `${value.slice(0, maxLength).trim()}...`;
+}
+
+function getNotificationPreview(row: NotificationModel) {
+    const rawContent = row.message || row.body || row.template?.content || "";
+
+    if (!rawContent.trim()) {
+        return row.template?.title ? `قالب بريد إلكتروني: ${row.template.title}` : "-";
+    }
+
+    if (isHtmlContent(rawContent)) {
+        const cleanedText = stripHtmlToText(rawContent);
+
+        if (cleanedText && cleanedText.length <= 80) {
+            return cleanedText;
+        }
+
+        if (row.template?.title) {
+            return `قالب بريد إلكتروني: ${row.template.title}`;
+        }
+
+        return truncateText(cleanedText || "قالب بريد إلكتروني");
+    }
+
+    return truncateText(rawContent.replace(/\s+/g, " ").trim());
+}
+
 export function NotificationsTable({ data, isLoading, onEdit }: NotificationsTableProps) {
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -87,6 +159,7 @@ export function NotificationsTable({ data, isLoading, onEdit }: NotificationsTab
                         {data.map((row) => {
                             const date = formatDate(row.created_at, "dd-MM-yyyy");
                             const time = format(toLocal(row.created_at), "hh:mm a");
+                            const notificationPreview = getNotificationPreview(row);
 
                             const sendToMap: Record<string, string> = {
                                 all: "الكل",
@@ -113,9 +186,9 @@ export function NotificationsTable({ data, isLoading, onEdit }: NotificationsTab
                                     <td className="px-6 py-4">
                                         <div
                                             className="bg-[#F4F9FF] px-4 py-3 rounded-xl border border-blue-50 max-w-[340px] text-[#4B5563] text-sm whitespace-normal line-clamp-2 leading-relaxed"
-                                            title={row.message || row.body}
+                                            title={notificationPreview}
                                         >
-                                            {row.message || row.body}
+                                            {notificationPreview}
                                         </div>
                                     </td>
 
@@ -187,6 +260,7 @@ export function NotificationsTable({ data, isLoading, onEdit }: NotificationsTab
                 {data.map((row) => {
                     const date = formatDate(row.created_at, "dd-MM-yyyy");
                     const time = format(toLocal(row.created_at), "hh:mm a");
+                    const notificationPreview = getNotificationPreview(row);
 
                     const sendToMap: Record<string, string> = {
                         all: "الكل",
@@ -230,7 +304,7 @@ export function NotificationsTable({ data, isLoading, onEdit }: NotificationsTab
                             <div className="space-y-1">
                                 <span className="text-sm text-gray-400 mb-1">محتوى الإشعار:</span>
                                 <div className="bg-[#F4F9FF] p-3 mt-1 rounded-lg border border-blue-50 text-gray-600 text-sm leading-relaxed">
-                                    {row.message || row.body}
+                                    {notificationPreview}
                                 </div>
                             </div>
 

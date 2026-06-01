@@ -11,6 +11,7 @@ import {
     XCircle,
     PauseCircle,
     Trash2,
+    Clock4,
 } from "lucide-react";
 import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
 import { useDeleteService, useGetService, useUpdateServiceStatus, useUpdateServiceShown } from "../hooks";
@@ -24,6 +25,7 @@ import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteMo
 
 import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
 import { ShareModal } from "@/src/components/ui/ShareModal";
+import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
 import { cn } from "@/src/lib/utils";
 import Cookies from "js-cookie"; // ✅ للتحقق من الصلاحيات
 import { useQueryClient } from "@tanstack/react-query";
@@ -199,8 +201,18 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     if (!service) return <div className="flex h-screen items-center justify-center">الخدمة غير موجودة</div>;
 
     const currentStatus = service.status;
-    const isOwner = !isAdmin && currentStoreId !== null && currentStoreId === store?.id;
+    const routeStoreId = Number(storeId);
+    const serviceStoreId = Number(service.store_id);
+    const loadedStoreId = Number(store?.id);
+    const isOwner = !isAdmin && isMerchant && (
+        currentStoreId === routeStoreId ||
+        currentStoreId === serviceStoreId ||
+        currentStoreId === loadedStoreId ||
+        serviceStoreId === routeStoreId
+    );
     const isShown = (service as unknown as { shown?: boolean })?.shown;
+    const canManageService = isAdmin || isOwner;
+    const showInlineEdit = canManageService && !(isOwner && (currentStatus === "pending" || currentStatus === "rejected"));
     const dashboardBase =
         routeParams?.locale && routeParams?.type
             ? `/${routeParams.locale}/${routeParams.type}`
@@ -215,7 +227,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     ];
 
     return (
-        <div className="flex flex-col pb-10">
+        <div className="flex min-h-screen flex-col bg-[#F7F8FA] pb-10">
             {/* Header Area */}
             <div className="space-y-4">
                 <div className="container mx-auto px-4 md:px-0">
@@ -224,7 +236,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                 {isOwner && (currentStatus === "pending" || currentStatus === "rejected") && (
                     <div className="container mx-auto px-4 md:px-0">
-                        <div className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between" dir="rtl">
+                        <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between" dir="rtl">
                             <div>
                                 <p className="text-base font-bold text-gray-900">إدارة الخدمة قبل اعتمادها</p>
                                 <p className="mt-1 text-sm text-gray-2">
@@ -254,82 +266,31 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                     </div>
                 )}
 
-                {/* ✅ تم قبول الخدمه */}
-                {isOwner && !alertDismissed && currentStatus === "approved" && (
-                    <div className="container mx-auto mt-4 px-4 md:px-0">
-                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#66FF99]/60 bg-[#E6FFF1] relative" dir="rtl">
-                            <CheckCircle2 className="w-5 h-5 text-[#00A846] mt-0.5 shrink-0" />
-                            <div className="flex-1">
-                                <p className="font-bold text-[#006B2E] text-sm">تم قبول الخدمة بنجاح</p>
-                                <p className="text-[#008A3A] text-sm mt-1 leading-relaxed">
-                                    نحيطك علمًا بأنه تم قبول عرض الخدمة على الموقع، وهي الآن متاحة للزوار ويمكن للعملاء طلبها في أي وقت.
-                                </p>
-                            </div>
-                            <button onClick={dismissAlert} className="text-[#00A846] hover:text-[#006B2E] transition-colors shrink-0 mt-0.5">
-                                <XCircle className="w-5 h-5" />
-                            </button>
-                        </div>
+                {/* Status Alerts */}
+                {isOwner && (
+                    <div className="container mx-auto px-4 md:px-0">
+                        <PreviewStatusAlert
+                            status={isShown === false && currentStatus === "approved" ? "deactivated" : currentStatus}
+                            type="service"
+                            rejectReason={service.reason ?? undefined}
+                            isDismissed={alertDismissed || (isShown === false && currentStatus === "approved" && shownAlertDismissed)}
+                            onDismiss={() => {
+                                if (isShown === false && currentStatus === "approved") {
+                                    setShownAlertDismissed(true);
+                                } else {
+                                    dismissAlert();
+                                }
+                            }}
+                            className={cn(currentStatus === "pending" || currentStatus === "rejected" ? "mt-4" : "")}
+                        />
                     </div>
                 )}
 
-                {/* ❌ تم رفض الخدمه */}
-                {isOwner && !alertDismissed && currentStatus === "rejected" && (
-                    <div className="container mx-auto mt-4 px-4 md:px-0">
-                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#FF9999]/60 bg-[#FFF0F0] relative" dir="rtl">
-                            <XCircle className="w-5 h-5 text-[#D00739] mt-0.5 shrink-0" />
-                            <div className="flex-1">
-                                <p className="font-bold text-[#D00739] text-sm">تم رفض الخدمة</p>
-                                <p className="text-[#A00028] text-sm mt-1 leading-relaxed">
-                                    نعتذر، لم يتم قبول عرض الخدمة في الوقت الحالي، وذلك لعدم استيفائها متطلبات النشر على المنصة. يرجى مراجعة الإرشادات وإجراء التعديلات اللازمة، ثم إعادة الإرسال.
-                                </p>
-                            </div>
-                            <button onClick={dismissAlert} className="text-[#D00739] hover:text-[#A00028] transition-colors shrink-0 mt-0.5">
-                                <XCircle className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* 🕐 الخدمه قيد المراجعة */}
-                {isOwner && !alertDismissed && currentStatus === "pending" && (
-                    <div className="container mx-auto mt-4 px-4 md:px-0">
-                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#FFD87D]/60 bg-[#FFFBF0] relative" dir="rtl">
-                            <PauseCircle className="w-5 h-5 text-[#C48A00] mt-0.5 shrink-0" />
-                            <div className="flex-1">
-                                <p className="font-bold text-[#8A6000] text-sm">الخدمة قيد المراجعة من قبل فريق أعطيني</p>
-                                <p className="text-[#6B4A00] text-sm mt-1 leading-relaxed">
-                                    سيتم نشر الخدمة بعد الانتهاء من مراجعتها واعتمادها من قبل الإدارة.
-                                </p>
-                            </div>
-                            <button onClick={dismissAlert} className="text-[#C48A00] hover:text-[#8A6000] transition-colors shrink-0 mt-0.5">
-                                <XCircle className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* ⏸ إلغاء تفعيل مؤقت من التاجر */}
-                {isOwner && isShown === false && !shownAlertDismissed && currentStatus === "approved" && (
-                    <div className="container mx-auto mt-4 px-4 md:px-0">
-                        <div className="flex items-start gap-3 px-5 py-4 rounded-xl border border-[#6D6D6D]/30 bg-[#F5F5F5] relative" dir="rtl">
-                            <PauseCircle className="w-5 h-5 text-[#6D6D6D] mt-0.5 shrink-0" />
-                            <div className="flex-1">
-                                <p className="font-bold text-[#3D3D3D] text-sm">لقد قمت بإلغاء تفعيل الخدمة مؤقتاً</p>
-                                <p className="text-[#555555] text-sm mt-1 leading-relaxed">
-                                    تم تعليق الخدمة بشكل مؤقت من قبلك، وهي حالياً غير متاحة للطلب حتى يتم تفعيلها مجددًا. يمكنك إعادة تفعيل الخدمة في أي وقت من خلال لوحة التحكم.
-                                </p>
-                            </div>
-                            <button onClick={() => setShownAlertDismissed(true)} className="text-[#6D6D6D] hover:text-[#3D3D3D] transition-colors shrink-0 mt-0.5">
-                                <XCircle className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                )}
 
                 {/* ✅ Action Bar: يظهر للأدمن عندما تكون الحالة pending أو rejected أو approved */}
                 {isAdmin && (service.status === "pending" || service.status === "rejected" || service.status === "approved") && (
                     <div className="container mx-auto mt-4 px-4 md:px-0">
-                        <div className="px-6 py-4 flex items-center justify-between border border-gray-100 bg-white rounded-lg">
+                        <div className="px-6 py-4 flex items-center justify-between border border-gray-100 bg-white rounded-2xl shadow-sm">
                             <h2 className="text-lg font-bold ">اختر الاجراء المناسب للخدمة</h2>
                             <div className="flex gap-3">
                                 {service.status !== "approved" && (
@@ -358,22 +319,24 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
             </div>
 
             <div className="container mx-auto px-4 md:px-0 mt-6">
-                <div className="grid grid-cols-12 gap-6">
+                <div className="grid grid-cols-12 gap-6 items-start">
 
                     {/* Main Content Area */}
                     <div className="col-span-12 lg:col-span-8 flex flex-col gap-6 order-2 lg:order-1">
-                        <div className="bg-white rounded-2xl p-4  border border-gray-100">
+                        <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
                             {/* Title & Actions */}
                             <div className="flex justify-between items-center mb-6">
                                 <h1 className="text-2xl font-bold  leading-tight max-w-[70%]">
                                     {service.title}
                                 </h1>
-                                <div className="flex gap-4 text-gray-2">
-                                    <button className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer" onClick={() => router.push(`${dashboardBase}/serviceProviders/services/edit/${serviceId}/${storeId}`)}>
-                                        <Pen className="w-4 h-4" />
-                                        <span className="text-sm font-medium">تعديل الخدمة</span>
-                                    </button>
-                                </div>
+                                {showInlineEdit && (
+                                    <div className="flex gap-4 text-gray-2">
+                                        <button className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer" onClick={() => router.push(`${dashboardBase}/serviceProviders/services/edit/${serviceId}/${storeId}`)}>
+                                            <Pen className="w-4 h-4" />
+                                            <span className="text-sm font-medium">تعديل الخدمة</span>
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Main Image Display */}
@@ -387,13 +350,13 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                             {/* Thumbnails */}
                             {imagesList.length > 1 && (
-                                <div className="flex gap-4 mb-8 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-200">
+                                <div className="grid grid-cols-3 gap-4 mb-8 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-200">
                                     {imagesList.map((img, idx) => (
                                         <div
                                             key={idx}
                                             onClick={() => setActiveImage(img)}
                                             className={cn(
-                                                "w-24 h-16 rounded-lg overflow-hidden border shrink-0 cursor-pointer transition-all duration-200",
+                                                "aspect-[16/9] min-w-0 rounded-lg overflow-hidden border cursor-pointer transition-all duration-200",
                                                 activeImage === img
                                                     ? "border-blue-500 ring-2 ring-blue-100 opacity-100"
                                                     : "border-gray-200 opacity-70 hover:opacity-100 hover:border-blue-300"
@@ -412,22 +375,62 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                             {/* Provider Info Card */}
                             {store && (
                                 <div className="mb-6">
-                                    <ProviderInfoCard store={store} isAdmin={true} isFollowing={store.owner?.am_i_following} onFollow={handleFollowClick} />
+                                    <ProviderInfoCard store={store} isAdmin={true} isOwner={isOwner} isFollowing={store.owner?.am_i_following} onFollow={handleFollowClick} />
                                 </div>
                             )}
 
-                            <ServiceTabs service={service as unknown as WebService} />
+                            {/* Service Details Section */}
+                            <div className="mt-8">
+                                <h2 className="text-xl font-bold mb-6 text-[#1e3a52]">تفاصيل الخدمة</h2>
+                                <div className="border-b border-blue-4 bg-[#F7F4FF] py-3 text-center text-sm font-medium text-blue-4 mb-4 rounded-t-sm">
+                                    وصف الخدمة
+                                </div>
+                                <div className="prose prose-sm max-w-none leading-relaxed text-gray-700 px-2">
+                                    {service.description ? (
+                                        <div dangerouslySetInnerHTML={{ __html: service.description }} />
+                                    ) : (
+                                        <p>لا يوجد وصف متاح لهذه الخدمة.</p>
+                                    )}
+                                </div>
+
+                                <div className="mt-10 mb-4 px-2">
+                                    <h3 className="text-lg font-bold mb-1 text-[#1e3a52]">الأسئلة الشائعة (اختياري)</h3>
+                                    <p className="text-gray-400 text-sm">شاهد إجابات الأسئلة الشائعة</p>
+                                </div>
+
+                                <div className="divide-y divide-gray-100 px-2">
+                                    {service.questions && service.questions.length > 0 ? (
+                                        service.questions.map((q, index) => (
+                                            <div key={index} className="py-4">
+                                                <button className="flex items-center justify-between w-full text-right group">
+                                                    <span className="font-bold text-sm transition-colors text-[#1e3a52]">
+                                                        {index + 1}. {q.question}
+                                                    </span>
+                                                </button>
+                                                <div className="overflow-hidden transition-all duration-300 ease-in-out mt-2">
+                                                    <p className="text-gray-500 leading-relaxed text-sm">
+                                                        {q.answer}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-6 text-gray-400 text-sm">لا توجد أسئلة شائعة مضافة</div>
+                                    )}
+                                </div>
+                            </div>
 
                         </div>
                     </div>
 
+
                     {/* Sidebar Area */}
-                    <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-1 lg:order-2">
-                        <div className="bg-white rounded-2xl border border-gray-100 h-fit overflow-hidden">
+                    <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-1 lg:order-2 lg:sticky lg:top-6">
+                        <div className="bg-white rounded-2xl border border-gray-100 h-fit overflow-hidden shadow-sm">
 
                             {/* Activate Toggle Row — يظهر فقط للتاجر وفقط إذا كان الخدمه مقبولاً */}
                             {isOwner && currentStatus === "approved" && (
-                                <div className="flex items-center justify-between px-5 py-3 rounded-md mx-4 mt-4 bg-[#C8D7E8]">
+                                <div className="flex items-center justify-between px-5 py-3 rounded-lg mx-4 mt-4 bg-[#F2F6F9]">
                                     <span className="font-bold text-sm text-[#1e3a52]">تفعيل الخدمة</span>
                                     <button
                                         onClick={() => {
@@ -478,19 +481,14 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                             <div className="p-6 py-2">
 
                                 {/* Service Metadata */}
-                                <div className="py-4 border-b border-gray-100 text-right">
+                                <div className="py-4 border-b border-gray-100 text-start">
                                     <p className="font-bold text-sm mb-1">فئة الخدمة</p>
                                     <p className="text-gray-2 text-sm">
                                         {service.section?.name || "-"} {service.category?.name ? `‹ ${service.category.name}` : ""}
                                     </p>
                                 </div>
 
-                                <div className="py-4 border-b border-gray-100 text-right">
-                                    <p className="font-bold text-sm mb-1">قسم الخدمة</p>
-                                    <p className="text-gray-2 text-sm">{service.section?.name || "-"}</p>
-                                </div>
-
-                                <div className="py-4 border-b border-gray-100 text-right">
+                                <div className="py-4 border-b border-gray-100 text-start">
                                     <p className="font-bold text-sm mb-1">سعر الخدمة</p>
                                     <p className="text-gray-2 text-sm font-medium">₪ {formatPrice(service.price)}</p>
                                 </div>
@@ -498,10 +496,10 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 {/* Cities Section */}
                                 <div className="py-4 border-b border-gray-100 text-right">
                                     <p className="font-bold text-sm mb-3">المدن التي يمكنه العمل بها</p>
-                                    <div className="flex flex-wrap justify-end gap-2">
+                                    <div className="flex flex-wrap justify-start gap-2">
                                         {store?.serviceCities && store.serviceCities.length > 0 ? (
                                             store.serviceCities.map((city) => (
-                                                <span key={city.id} className="px-3 py-1 bg-[#F0F4F8] text-[#3A5779] text-xs rounded-full font-medium border border-[#D9E4F0]">
+                                                <span key={city.id} className="px-3 py-1 bg-[#3A5779]/10 text-[#3A5779] text-xs rounded-full font-medium border border-[#3A5779]/40">
                                                     {city.name}
                                                 </span>
                                             ))
@@ -513,10 +511,10 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                                 <div className="py-4 border-b border-gray-100 text-right">
                                     <p className="font-bold text-sm mb-3">تخصصات أو مجالات العمل</p>
-                                    <div className="flex flex-wrap justify-end gap-2">
+                                    <div className="flex flex-wrap justify-start gap-2">
                                         {service.specialties && service.specialties.length > 0 ? (
                                             service.specialties.map((spec: string | { id: number; title: string }, idx: number) => (
-                                                <span key={idx} className="text-[#395a7d] text-xs leading-relaxed bg-[#eef2f7] px-3 py-1 rounded-full border border-[#d0dcea]">
+                                                <span key={idx} className="text-[#3A5779] text-xs leading-relaxed bg-[#3A5779]/10 px-3 py-1 rounded-full border border-[#3A5779]/40">
                                                     {typeof spec === "object" ? spec.title : spec}
                                                 </span>
                                             ))
@@ -529,10 +527,10 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 {/* Keywords Section */}
                                 <div className="py-4 border-b border-gray-100 text-right">
                                     <p className="font-bold text-sm mb-3">الكلمات المفتاحية</p>
-                                    <div className="flex flex-wrap justify-end gap-2">
+                                    <div className="flex flex-wrap justify-start gap-2">
                                         {service.tags && service.tags.length > 0 ? (
                                             service.tags.map((tag: string | { id: number; title: string }, idx: number) => (
-                                                <span key={idx} className="text-[#395a7d] text-xs leading-relaxed bg-[#eef2f7] px-3 py-1 rounded-full border border-[#d0dcea]">
+                                                <span key={idx} className="text-[#3A5779] text-xs leading-relaxed bg-[#3A5779]/10 px-3 py-1 rounded-full border border-[#3A5779]/40">
                                                     {typeof tag === "object" ? tag.title : tag}
                                                 </span>
                                             ))
@@ -547,17 +545,20 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                         <p className="font-bold text-sm mb-3">تطويرات اختيارية</p>
                                         <div className="space-y-2">
                                             {service.extras.map((extra, idx) => (
-                                                <div key={`${extra.title}-${idx}`} className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2">
-                                                    <div className="min-w-0 text-right">
+                                                <div key={`${extra.title}-${idx}`} className="flex items-start justify-start gap-3 rounded-lg border border-gray-200 px-3 py-2 bg-[#fdfdfd]">
+                                                    <span className="h-4 w-4 mt-0.5 rounded-sm border border-gray-300 shrink-0" aria-hidden="true" />
+                                                    <div className="min-w-0 text-right flex-1">
                                                         <p className="text-xs font-medium text-gray-900 line-clamp-1">{extra.title}</p>
-                                                        <p className="mt-1 text-[11px] text-gray-500">
-                                                            ₪ {formatPrice(extra.price)}
+                                                        <div className="mt-1 flex items-center gap-2 text-[11px] text-gray-500">
+                                                            <span>₪ {formatPrice(extra.price)}</span>
                                                             {formatExecuteDuration(extra.execute_count, extra.execute_type) && (
-                                                                <span> | {formatExecuteDuration(extra.execute_count, extra.execute_type)}</span>
+                                                                <span className="flex items-center gap-1">
+                                                                    <Clock4 className="w-3 h-3" />
+                                                                    {formatExecuteDuration(extra.execute_count, extra.execute_type)}
+                                                                </span>
                                                             )}
-                                                        </p>
+                                                        </div>
                                                     </div>
-                                                    <span className="h-4 w-4 rounded-sm border border-gray-300 shrink-0" aria-hidden="true" />
                                                 </div>
                                             ))}
                                         </div>
@@ -565,20 +566,18 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 )}
 
                                 {/* Contact Buttons */}
-                                {currentStoreId !== store?.id && (
+                                {!isOwner && (
                                     <div className="flex flex-col gap-3 mt-4">
-                                        {
-                                            store?.phone && (
-                                                <Button className="w-full bg-[#3A5779] hover:bg-[#2c425e] text-white font-bold h-12 rounded-lg gap-2 text-sm ">
-                                                    <span>{store?.phone}</span>
-                                                    <Phone className="w-5 h-5 " />
-                                                </Button>
-                                            )
-                                        }
+                                        {store?.phone && (
+                                            <Button className="w-full bg-[#3A5779] hover:bg-[#2c425e] text-white font-bold h-12 rounded-lg flex items-center justify-center gap-2 text-sm">
+                                                <Phone className="w-4 h-4 text-white" />
+                                                <span dir="ltr">{store?.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** *** ***") || "+972 *** *** ***"}</span>
+                                            </Button>
+                                        )}
                                         <Link href={`${dashboardBase}/chat?type=store&id=${store?.id}`}>
-                                            <Button variant="outline" className="w-full border-[#3A5779] text-[#3A5779] bg-transparent font-bold h-12 rounded-lg gap-2 text-sm">
+                                            <Button variant="outline" className="w-full border-[#3A5779] text-[#3A5779] hover:bg-[#3A5779]/5 bg-transparent font-bold h-12 rounded-lg flex items-center justify-center gap-2 text-sm">
                                                 <span>دردشة</span>
-                                                <Send className="w-5 h-5 rotate-45" />
+                                                <Send className="w-4 h-4" />
                                             </Button>
                                         </Link>
                                     </div>
@@ -589,7 +588,6 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                     </div>
                 </div>
             </div>
-
             <RejectServiceModal
                 isOpen={isRejectModalOpen}
                 onClose={() => setIsRejectModalOpen(false)}
