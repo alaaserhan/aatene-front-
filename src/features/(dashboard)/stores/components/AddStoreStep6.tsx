@@ -3,10 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/src/components/ui/button";
 import { StepperProgress } from "./StepperProgress";
-import { StorePreviewSidebar } from "./StorePreviewSidebar";
-import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { StoreFormActions } from "./StoreFormActions";
-import { StoreType, DeliveryType, ShippingCompanyPayload } from "../api";
+import { StoreType, ShippingCompanyPayload } from "../api";
 import { AddShippingCompanyDialog } from "./AddShippingCompanyDialog";
 import { useGetCities } from "../../cities/hooks";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -29,8 +27,6 @@ interface AddStoreStep6Props {
 }
 
 export function AddStoreStep6({
-  storeType,
-  previousData,
   initialData,
   onNext,
   onBack,
@@ -40,9 +36,6 @@ export function AddStoreStep6({
   isSaving = false,
   breadcrumbItems: breadcrumbItemsProp,
 }: AddStoreStep6Props) {
-  const [deliveryType, setDeliveryType] = useState<DeliveryType>(
-    initialData?.delivery_type || "hand_delivery"
-  );
   const [shippingCompanies, setShippingCompanies] = useState<
     ShippingCompanyPayload[]
   >(initialData?.shippingCompanies || []);
@@ -129,18 +122,16 @@ export function AddStoreStep6({
   };
 
   const validate = () => {
-    if (deliveryType === "shipping") {
-      if (shippingCompanies.length === 0) {
-        toast.error("يجب إضافة شركة شحن واحدة على الأقل");
-        return false;
-      }
+    if (shippingCompanies.length === 0) {
+      toast.error("يجب إضافة شركة شحن واحدة على الأقل");
+      return false;
     }
     return true;
   };
 
   const buildStep6Data = (): Step6FormData => ({
-    delivery_type: deliveryType,
-    shippingCompanies: deliveryType === "shipping" ? shippingCompanies : [],
+    delivery_type: "shipping",
+    shippingCompanies,
   });
 
   const handleNext = () => {
@@ -171,47 +162,17 @@ export function AddStoreStep6({
         <Breadcrumb items={breadcrumbItems} className="mb-3 sm:mb-4" />
         {!isStandalone && <StepperProgress currentStep={5} steps={steps} />}
 
-        <div className="grid grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-8">
-          <div className="col-span-12 lg:col-span-8">
+        <div className="mt-4 sm:mt-8">
+          <div>
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="p-4 sm:p-6 border-b border-gray-100">
                 <h2 className="text-lg sm:text-xl font-bold">
-                  اختيار طريقة الشحن
+                  شركات الشحن
                 </h2>
               </div>
 
               <div className="p-4 sm:p-6">
-                <div className="mb-6 sm:mb-8">
-                  <h3 className="text-sm sm:text-base font-medium mb-3 sm:mb-4 text-right">
-                    كيف تود شحن المنتجات؟
-                  </h3>
-
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-8">
-                    {/* <DeliveryOption
-                      value="free"
-                      label="مجاني"
-                      selected={deliveryType === "free"}
-                      onClick={() => setDeliveryType("free")}
-                    /> */}
-
-                    <DeliveryOption
-                      value="hand_delivery"
-                      label='من يد لـ يد "دون شركات توصيل"'
-                      selected={deliveryType === "hand_delivery"}
-                      onClick={() => setDeliveryType("hand_delivery")}
-                    />
-
-                    <DeliveryOption
-                      value="shipping"
-                      label="من خلال شركة توصيل"
-                      selected={deliveryType === "shipping"}
-                      onClick={() => setDeliveryType("shipping")}
-                    />
-                  </div>
-                </div>
-
-                {deliveryType === "shipping" && (
-                  <div className="space-y-6 pt-6 border-t border-gray-200">
+                <div className="space-y-6">
                     <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
                       <h3 className="text-base sm:text-lg font-semibold">شركات الشحن</h3>
                       <div className="flex flex-wrap gap-2 sm:gap-3">
@@ -304,26 +265,9 @@ export function AddStoreStep6({
                         })}
                       </div>
                     )}
-                  </div>
-                )}
+                </div>
               </div>
             </div>
-          </div>
-          <div
-            className={cn(
-              "col-span-12 lg:col-span-4 space-y-4",
-              isStandalone && "hidden lg:block"
-            )}
-          >
-            <StorePreviewSidebar
-              data={{
-                logo: previousData.logo_preview,
-                name: previousData.name,
-                description: previousData.description,
-                coverImages: previousData.cover_previews,
-              }}
-            />
-            {!isStandalone && <GuideVideoCard location="create-store" />}
           </div>
         </div>
       </div>
@@ -369,38 +313,3 @@ export function AddStoreStep6({
   );
 }
 
-interface DeliveryOptionProps {
-  value: string;
-  label: string;
-  selected: boolean;
-  onClick: () => void;
-}
-
-function DeliveryOption({ label, selected, onClick }: DeliveryOptionProps) {
-  return (
-    <div onClick={onClick} className="flex items-start gap-2 cursor-pointer">
-      <div className="flex-shrink-0 mt-0.5">
-        <div
-          className={cn(
-            "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
-            selected ? "border-[#3A5779]" : "border-gray-300"
-          )}
-        >
-          {selected && (
-            <div className="w-2.5 h-2.5 rounded-full bg-[#3A5779]" />
-          )}
-        </div>
-      </div>
-      <div className="flex-1">
-        <h4
-          className={cn(
-            "font-medium text-sm",
-            selected ? "text-[#3A5779]" : "text-gray-2"
-          )}
-        >
-          {label}
-        </h4>
-      </div>
-    </div>
-  );
-}

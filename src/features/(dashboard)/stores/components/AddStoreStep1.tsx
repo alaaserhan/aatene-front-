@@ -51,21 +51,22 @@ export function AddStoreStep1() {
                         <div
                             onClick={() => setSelectedType("products")}
                             className={cn(
-                                "relative p-8 rounded-xl border cursor-pointer ",
-                                "flex flex-col items-center justify-center min-h-[240px]",
+                                "relative p-8 rounded-2xl border-2 cursor-pointer",
+                                "flex flex-col items-center justify-center min-h-[260px]",
+                                "transition-all duration-200 hover:shadow-lg hover:scale-[1.02]",
                                 selectedType !== "products"
-                                    ? "bg-white border-blue-1"
-                                    : "bg-blue-5 border-none"
+                                    ? "bg-white border-gray-200 hover:border-blue-3/30"
+                                    : "bg-blue-5 border-blue-3 shadow-md shadow-blue-3/10"
                             )}
                         >
                             {/* Radio Button */}
                             <div className="absolute top-4 right-4">
                                 <div
                                     className={cn(
-                                        "w-6 h-6 rounded-full border flex items-center justify-center transition-all",
+                                        "w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all",
                                         selectedType === "products"
-                                            ? "border-blue-4 bg-blue-4"
-                                            : "border-gray-2 bg-transparent"
+                                            ? "border-blue-4 bg-blue-4 shadow-sm"
+                                            : "border-gray-300 bg-transparent"
                                     )}
                                 >
                                     {selectedType === "products" && (
@@ -75,14 +76,17 @@ export function AddStoreStep1() {
                             </div>
 
                             {/* Icon */}
-                            <div className="mb-3">
-                                <img src="/icons/dashboard/shop.svg" alt="" className="" />
+                            <div className={cn(
+                                "mb-3 p-4 rounded-2xl transition-all",
+                                selectedType === "products" ? "bg-blue-3/10" : "bg-gray-50"
+                            )}>
+                                <img src="/icons/dashboard/shop.svg" alt="" className="w-12 h-12" />
                             </div>
 
                             {/* Label */}
                             <h3
                                 className={cn(
-                                    "text-xl  transition-colors",
+                                    "text-xl font-bold transition-colors",
                                     selectedType === "products" ? "text-blue-3" : "text-blue-4"
                                 )}
                             >
@@ -94,21 +98,22 @@ export function AddStoreStep1() {
                         <div
                             onClick={() => setSelectedType("services")}
                             className={cn(
-                                "relative p-8 rounded-xl border cursor-pointer",
-                                "flex flex-col items-center justify-center min-h-[240px]",
+                                "relative p-8 rounded-2xl border-2 cursor-pointer",
+                                "flex flex-col items-center justify-center min-h-[260px]",
+                                "transition-all duration-200 hover:shadow-lg hover:scale-[1.02]",
                                 selectedType !== "services"
-                                    ? "bg-white border-blue-1"
-                                    : "bg-blue-5 border-none"
+                                    ? "bg-white border-gray-200 hover:border-blue-3/30"
+                                    : "bg-blue-5 border-blue-3 shadow-md shadow-blue-3/10"
                             )}
                         >
                             {/* Radio Button */}
                             <div className="absolute top-4 right-4">
                                 <div
                                     className={cn(
-                                        "w-6 h-6 rounded-full border flex items-center justify-center transition-all",
+                                        "w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all",
                                         selectedType === "services"
-                                            ? "border-blue-4 bg-blue-4"
-                                            : "border-gray-2 bg-transparent"
+                                            ? "border-blue-4 bg-blue-4 shadow-sm"
+                                            : "border-gray-300 bg-transparent"
                                     )}
                                 >
                                     {selectedType === "services" && (
@@ -118,14 +123,17 @@ export function AddStoreStep1() {
                             </div>
 
                             {/* Icon */}
-                            <div className="mb-3">
-                                <img src="/icons/dashboard/service.svg" alt="" className="" />
+                            <div className={cn(
+                                "mb-3 p-4 rounded-2xl transition-all",
+                                selectedType === "services" ? "bg-blue-3/10" : "bg-gray-50"
+                            )}>
+                                <img src="/icons/dashboard/service.svg" alt="" className="w-12 h-12" />
                             </div>
 
                             {/* Label */}
                             <h3
                                 className={cn(
-                                    "text-xl  transition-colors",
+                                    "text-xl font-bold transition-colors",
                                     selectedType === "services" ? "text-blue-3" : "text-blue-4"
                                 )}
                             >
