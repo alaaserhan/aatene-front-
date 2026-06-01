@@ -84,30 +84,38 @@ export function AddStoreStep6({
 
   // 3. تنفيذ الحذف بناءً على الحالة
   const handleConfirmDelete = () => {
+    let newCompanies = shippingCompanies;
     if (companyToDeleteIndex !== null) {
-      // حذف شركة واحدة
-      setShippingCompanies(shippingCompanies.filter((_, i) => i !== companyToDeleteIndex));
+      newCompanies = shippingCompanies.filter((_, i) => i !== companyToDeleteIndex);
       toast.success("تم حذف شركة الشحن بنجاح");
     } else {
-      // حذف الكل
-      setShippingCompanies([]);
+      newCompanies = [];
       toast.success("تم حذف جميع شركات الشحن");
     }
+    setShippingCompanies(newCompanies);
     setDeleteModalOpen(false);
     setCompanyToDeleteIndex(null);
+
+    if (isStandalone && onSave) {
+      onSave({ delivery_type: "shipping", shippingCompanies: newCompanies });
+    }
   };
 
   const handleSaveCompany = (company: ShippingCompanyPayload) => {
+    let newCompanies;
     if (editingCompanyIndex !== null) {
-      setShippingCompanies(
-        shippingCompanies.map((c, i) =>
-          i === editingCompanyIndex ? company : c
-        )
+      newCompanies = shippingCompanies.map((c, i) =>
+        i === editingCompanyIndex ? company : c
       );
       toast.success("تم تحديث شركة الشحن بنجاح");
     } else {
-      setShippingCompanies([...shippingCompanies, company]);
+      newCompanies = [...shippingCompanies, company];
       toast.success("تمت إضافة شركة الشحن بنجاح");
+    }
+    setShippingCompanies(newCompanies);
+
+    if (isStandalone && onSave) {
+      onSave({ delivery_type: "shipping", shippingCompanies: newCompanies });
     }
   };
 
@@ -116,9 +124,14 @@ export function AddStoreStep6({
 
     const companyToMove = shippingCompanies[index];
     const otherCompanies = shippingCompanies.filter((_, i) => i !== index);
+    const newCompanies = [companyToMove, ...otherCompanies];
 
-    setShippingCompanies([companyToMove, ...otherCompanies]);
+    setShippingCompanies(newCompanies);
     toast.success("تم تعيين الشركة كخيار أساسي");
+
+    if (isStandalone && onSave) {
+      onSave({ delivery_type: "shipping", shippingCompanies: newCompanies });
+    }
   };
 
   const validate = () => {
@@ -157,7 +170,7 @@ export function AddStoreStep6({
   };
 
   return (
-    <div className={cn(isStandalone && "pb-28")}>
+    <div className={cn(!isStandalone && "pb-28")}>
       <div className="container mx-auto py-3 sm:py-4 px-3 sm:px-4">
         <Breadcrumb items={breadcrumbItems} className="mb-3 sm:mb-4" />
         {!isStandalone && <StepperProgress currentStep={5} steps={steps} />}
@@ -271,14 +284,6 @@ export function AddStoreStep6({
           </div>
         </div>
       </div>
-
-      <StoreFormActions
-        onNext={handleNext}
-        onBack={onBack}
-        isSubmitting={isSaving}
-        nextLabel={isStandalone ? "حفظ" : "حفظ والتالي"}
-        sticky={isStandalone}
-      />
 
       <AddShippingCompanyDialog
         isOpen={isDialogOpen}
