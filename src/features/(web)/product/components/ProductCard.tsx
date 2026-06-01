@@ -15,6 +15,7 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import { getProductBySlug } from "@/src/features/(web)/product/api";
 import { toast } from "sonner";
 import { productAskForPriceButtonClassName } from "./productAskForPriceButton";
+import { HoverPlayVideo } from "@/src/components/ui/HoverPlayVideo";
 
 function normalizeStoreId(v: number | string | undefined | null): number | null {
     if (v === undefined || v === null || v === "") return null;
@@ -129,13 +130,11 @@ const ProductCard = memo(({
                 href={slug ? `/product/${slug}` : "#"}
                 className="relative block w-full shrink-0 overflow-hidden bg-gray-100 aspect-[4/5] rounded-t-2xl"
             >
-                {isVideoFile(mediaSrc) ? (
-                    <video
+                {isVideoFile(normalizedCover) ? (
+                    <HoverPlayVideo
                         src={mediaSrc}
-                        muted
-                        playsInline
-                        preload="metadata"
-                        className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="absolute inset-0"
+                        videoClassName="group-hover:scale-105 transition-transform duration-300"
                     />
                 ) : (
                     <Image

@@ -19,7 +19,7 @@ export function validateProductStep1(formData: Step1FormData): Record<string, st
   }
 
   if (!formData.cover) {
-    newErrors.cover = "صورة المنتج مطلوبة (يجب إضافة صورة واحدة على الأقل)";
+    newErrors.cover = "غلاف المنتج مطلوب (صورة أو فيديو في الموضع الأول)";
   }
 
   if (!formData.category_id) {

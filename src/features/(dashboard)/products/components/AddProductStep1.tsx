@@ -305,19 +305,17 @@ export function AddProductStep1({
                 <div id="product-step1-cover">
                 <ImageGallerySelector
                   label="معرض المنتج"
-                  subLabel="حتى 10 ملفات: الموضع الأول صورة فقط — باقي المواضع صور أو فيديو من تبويب المعرض"
+                  subLabel="حتى 10 ملفات — العنصر الأول يُحفظ كغلاف المنتج"
                   value={combinedFiles}
                   previews={combinedPreviews}
                   onChange={handleImagesChange}
                   maxFiles={10}
                   error={errors.cover}
                   showMainSelector={true}
-                  mainImageLabel="الصوره الرئيسية"
+                  mainImageLabel="الغلاف"
                   showDragHint={true}
                   dragHintText="يمكنك سحب وإفلات الصور أو الفيديو لإعادة الترتيب"
-                  emptyStateText="أضف الصورة الرئيسية"
-                  emptyStateSubText="الموضع الأول: صورة من تبويب الصور"
-                  mainImageAllowedMediaTypes={["image"]}
+                  emptyStateText="أضف صورة أو فيديو"
                   allowedMediaTypes={["gallery", "image"]}
                   required
                 />

@@ -12,6 +12,7 @@ import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import Cookies from "js-cookie";
 
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { HoverPlayVideo } from "@/src/components/ui/HoverPlayVideo";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import Link from "next/link";
@@ -63,23 +64,32 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
 
     const allMedia = useMemo(() => {
         const items: { type: "image" | "video"; url: string }[] = [];
-        if (product.cover) items.push({ type: isVideoFile(product.cover) ? "video" : "image", url: sanitizeMediaUrl(product.cover) });
-        if (product.gallery) {
-            product.gallery.forEach((url) => items.push({ type: isVideoFile(url) ? "video" : "image", url: sanitizeMediaUrl(url) }));
-        }
-        if (product.video) items.push({ type: "video", url: sanitizeMediaUrl(product.video) });
+        const seen = new Set<string>();
 
-        // Ensure variation image is in the list
+        const addMedia = (url: string | null | undefined) => {
+            const sanitized = sanitizeMediaUrl(url);
+            if (!sanitized || seen.has(sanitized)) return;
+            seen.add(sanitized);
+            items.push({
+                type: isVideoFile(sanitized) ? "video" : "image",
+                url: sanitized,
+            });
+        };
+
+        addMedia(product.cover);
+        product.gallery?.forEach((url) => addMedia(url));
+        addMedia(product.video);
+
         if (selectedVariation?.image) {
             const sanitizedVarImg = sanitizeMediaUrl(selectedVariation.image);
-            const exists = items.find(i => i.url === sanitizedVarImg);
-            if (!exists) {
+            if (sanitizedVarImg && !seen.has(sanitizedVarImg)) {
+                seen.add(sanitizedVarImg);
                 items.unshift({ type: "image", url: sanitizedVarImg });
             }
         }
 
         return items;
-    }, [product, selectedVariation]);
+    }, [product.cover, product.gallery, product.video, selectedVariation?.image]);
 
     const currentStoreId = Cookies.get("current_store_id");
     const isProductOwner = !!currentStoreId && !!product.store_id && Number(currentStoreId) === product.store_id;
@@ -186,10 +196,9 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                     {/* Main Image */}
                     <div className="flex-1 relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
                         {currentMedia?.type === "video" ? (
-                            <video
+                            <HoverPlayVideo
+                                key={currentMedia.url}
                                 src={currentMedia.url}
-                                controls
-                                className="w-full h-full object-cover"
                             />
                         ) : (
                             <img
