@@ -299,7 +299,7 @@ export default function ProductViewPage() {
 
                             {/* Title & Actions */}
                             <div className="flex justify-between items-center mb-6">
-                                <h1 className="text-2xl font-bold leading-tight max-w-[70%]">
+                                <h1 className="text-xl sm:text-2xl font-bold leading-tight max-w-full sm:max-w-[70%]">
                                     {raw.name}
                                 </h1>
                                 <div className="flex gap-4 text-gray-2">
@@ -488,9 +488,9 @@ export default function ProductViewPage() {
                                 </div>
                             )}
 
-                            <div className="p-6">
+                            <div className="p-4 sm:p-6">
                                 {/* Category */}
-                                <div className="grid grid-cols-2 py-4 border-b border-gray-100">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 py-4 border-b border-gray-100">
                                     <div>
                                         <p className="font-bold text-sm mb-1">التصنيف الرئيسي</p>
                                         <p className="text-gray-2 text-sm">{raw.section?.name || "-"}</p>
@@ -502,7 +502,7 @@ export default function ProductViewPage() {
                                 </div>
 
                                 {/* Price & Condition */}
-                                <div className="grid grid-cols-2 py-4 border-b border-gray-100">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 py-4 border-b border-gray-100">
                                     <div>
                                         <p className="font-bold text-sm mb-1">سعر المنتج</p>
                                         <p className="text-gray-2 text-sm font-medium">₪ {formatPrice(raw.price)}</p>

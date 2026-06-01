@@ -36,7 +36,7 @@ import { Stepper } from "@/src/components/ui/Stepper";
 /** حدود حقول عرض الكوليكشن (cross-sells) — متوافقة مع التحقق في الـ API */
 const OFFER_NAME_MAX_CHARS = 80;
 const OFFER_NAME_MAX_WORDS = 12;
-const OFFER_DESCRIPTION_MAX_CHARS = 300;
+const OFFER_DESCRIPTION_MAX_CHARS = 200;
 const OFFER_DESCRIPTION_MAX_WORDS = 45;
 /** طول السعر كنص (منع إدخال غير معقول) */
 const DISCOUNT_PRICE_INPUT_MAX_LEN = 14;
