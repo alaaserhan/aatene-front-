@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import UserMenu from "./UserMenu";
 import MobileNav from "./MobileNav";
@@ -12,7 +12,6 @@ import useFCMToken from "@/src/hooks/use-fcm-token";
 import { useSettingsStore } from "@/src/stores/settings-store";
 
 import Image from "next/image";
-import NavbarCategoriesMenu from "./NavbarCategoriesMenu";
 import { upgradeHttpToHttps, fixMediaUrl } from "@/src/lib/utils";
 
 const Navbar = () => {
@@ -20,11 +19,9 @@ const Navbar = () => {
   const isHydrated = useAuthStore((state) => state.isHydrated);
   const lang = useLanguage();
   const { settings } = useSettingsStore();
-  const [logoBroken, setLogoBroken] = useState(false);
-
-  useEffect(() => {
-    setLogoBroken(false);
-  }, [settings?.logo_url]);
+  const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
+  const logoUrl = settings?.logo_url ? upgradeHttpToHttps(fixMediaUrl(settings.logo_url)) : null;
+  const showRemoteLogo = !!logoUrl && failedLogoUrl !== logoUrl;
 
   return (
     <div className="relative z-[280] w-full shadow-xs bg-white min-h-[72px] flex items-center border-b border-gray-200">
@@ -35,15 +32,15 @@ const Navbar = () => {
       <div className="hidden min-[1100px]:block container my-2">
         <div className="flex items-center justify-between gap-6">
           <Link href={`/${lang}`} className="flex shrink-0 items-center gap-4 overflow-visible">
-            {settings?.logo_url && !logoBroken ? (
+            {showRemoteLogo ? (
               <Image 
-                src={upgradeHttpToHttps(fixMediaUrl(settings.logo_url))} 
+                src={logoUrl}
                 className="h-10 w-auto object-contain" 
                 alt={settings?.name || "logo"} 
                 width={150}
                 height={40}
                 priority
-                onError={() => setLogoBroken(true)}
+                onError={() => setFailedLogoUrl(logoUrl)}
               />
             ) : (
               <Image 
@@ -58,7 +55,6 @@ const Navbar = () => {
           </Link>
 
           <div className="flex min-w-0 flex-1 items-center gap-4 overflow-visible">
-            <NavbarCategoriesMenu variant="desktop" />
             <div className="min-w-0 flex-1 max-w-2xl">
               <SearchBar />
             </div>

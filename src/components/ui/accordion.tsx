@@ -1,4 +1,3 @@
-// src/components/ui/accordion.tsx
 "use client"
 
 import * as React from "react"
@@ -21,10 +20,9 @@ const AccordionItem = React.forwardRef<
 ))
 AccordionItem.displayName = "AccordionItem"
 
-// تعريف الـ Interface لإضافة الـ Prop الجديد
 interface AccordionTriggerProps
   extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {
-  iconStyle?: "chevron" | "plus-minus"; // خاصية للتحكم في شكل الأيقونة
+  iconStyle?: "chevron" | "plus-minus"
 }
 
 const AccordionTrigger = React.forwardRef<
@@ -35,27 +33,23 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        // أضفنا كلاس group للتحكم في الأبناء بناءً على حالة الأب
-        "flex flex-1 items-center justify-between py-4 text-sm font-medium transition-all hover:underline text-left group",
-        // تدوير السهم فقط في حالة chevron
+        "group flex flex-1 items-center justify-between gap-4 py-4 text-start text-sm font-medium transition-all hover:underline",
         iconStyle === "chevron" && "[&[data-state=open]>svg]:rotate-180",
         className
       )}
       {...props}
     >
-      {children}
-      
-      {/* الخيار الافتراضي: سهم */}
+      <div className="min-w-0 flex-1 text-start">{children}</div>
+
       {iconStyle === "chevron" && (
         <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
       )}
 
-      {/* الخيار الجديد: + و - داخل دائرة */}
       {iconStyle === "plus-minus" && (
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-blue-4 text-blue-4 cursor-pointer">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-blue-4 text-blue-4">
           <Plus className="h-5 w-5 shrink-0 transition-transform duration-200 group-data-[state=open]:hidden" />
           <Minus className="h-5 w-5 shrink-0 transition-transform duration-200 group-data-[state=closed]:hidden" />
-        </div>
+        </span>
       )}
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>

@@ -6,6 +6,7 @@ import { ChevronDown, ChevronUp, Flag, User, PlayCircle } from "lucide-react";
 import { StarRating } from "@/src/components/ui/StarRating";
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
+import { useLanguage } from "@/src/hooks/use-language";
 
 
 export interface SharedReviewUser {
@@ -47,7 +48,9 @@ export function ReviewItem({
     onToggleReplies,
     showReplies,
 }: ReviewItemProps) {
+    const lang = useLanguage();
     const isReply = !!review.parent_id;
+    const profileHref = `/${lang}/profile/${review.user.slug || "#"}`;
 
     return (
         <div>
@@ -55,7 +58,7 @@ export function ReviewItem({
                 <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                         <Link
-                            href={`/profile/${review.user.slug || "#"}`}
+                            href={profileHref}
                             className="relative flex items-center justify-center w-10 h-10 rounded-full overflow-hidden border border-gray-100 hover:opacity-80 transition-opacity"
                         >
                             {
@@ -75,7 +78,7 @@ export function ReviewItem({
                             }
                         </Link>
                         <Link
-                            href={`/profile/${review.user.slug || "#"}`}
+                            href={profileHref}
                             className="hover:opacity-80 transition-opacity"
                         >
                             <h4 className="text-sm font-medium ">{review.user.name}</h4>

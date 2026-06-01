@@ -3,138 +3,149 @@
 import { Facebook, Twitter, Instagram, Youtube, Ghost, Music2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { useSettingsStore } from "@/src/stores/settings-store";
+import { useLanguage } from "@/src/hooks/use-language";
+import { fixMediaUrl, upgradeHttpToHttps } from "@/src/lib/utils";
 
-const AppStoreButtons = () => (
-  <div className="flex flex-col gap-2">
-    <div className="relative group cursor-not-allowed">
-      <div className="relative h-12 w-full overflow-hidden rounded-lg opacity-70 group-hover:opacity-100 transition-opacity">
+function AppBadgeLink({
+  href,
+  children,
+  className,
+}: {
+  href: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  if (href.startsWith("http")) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
+  );
+}
+
+function AppStoreButtons({
+  googlePlayUrl,
+  appStoreUrl,
+  isMobile = false,
+}: {
+  googlePlayUrl: string;
+  appStoreUrl: string;
+  isMobile?: boolean;
+}) {
+  const itemClassName = isMobile
+    ? "relative group block h-12 w-[120px] overflow-hidden rounded-lg"
+    : "relative group block h-12 w-full overflow-hidden rounded-lg";
+
+  return (
+    <div className={isMobile ? "flex w-full justify-center gap-3 sm:justify-start" : "flex flex-col gap-2"}>
+      <AppBadgeLink href={googlePlayUrl} className={itemClassName}>
         <Image
           src="/Group.svg"
           alt="Google Play Store"
-          fill
-          className="object-contain object-right"
+          fill={!isMobile}
+          width={isMobile ? 120 : undefined}
+          height={isMobile ? 40 : undefined}
+          className="h-12 w-full object-contain object-right opacity-80 transition-opacity group-hover:opacity-100"
         />
-      </div>
+      </AppBadgeLink>
 
-    </div>
-    <div className="relative group cursor-not-allowed">
-      <div className="relative h-12 w-full overflow-hidden rounded-lg opacity-70 group-hover:opacity-100 transition-opacity">
+      <AppBadgeLink href={appStoreUrl} className={itemClassName}>
         <Image
           src="/apple.svg"
           alt="Apple App Store"
-          fill
-          className="object-contain object-right"
+          fill={!isMobile}
+          width={isMobile ? 120 : undefined}
+          height={isMobile ? 40 : undefined}
+          className="h-12 w-full object-contain object-right opacity-80 transition-opacity group-hover:opacity-100"
         />
-      </div>
-
+      </AppBadgeLink>
     </div>
-    <p className="text-[#8B96A5] text-xs text-right">التطبيق قيد التطوير</p>
-  </div>
-);
-
-const AppStoreButtonsMobile = () => (
-  <div className="flex flex-col items-center sm:items-start gap-2 w-full">
-    <div className="flex flex-row gap-3 justify-center sm:justify-start">
-      <div className="relative group cursor-not-allowed w-[120px] h-12 overflow-hidden rounded-lg">
-        <Image
-          width={120}
-          height={40}
-          src="/Group.svg"
-          alt="Google Play Store"
-          className="h-12 w-full opacity-70 group-hover:opacity-100 transition-opacity object-contain"
-        />
-
-      </div>
-      <div className="relative group cursor-not-allowed w-[120px] h-12 overflow-hidden rounded-lg">
-        <Image
-          src="/apple.svg"
-          alt="Apple App Store"
-          width={120}
-          height={40}
-          className="h-12 w-full opacity-70 group-hover:opacity-100 transition-opacity object-contain"
-        />
-
-      </div>
-    </div>
-    <p className="text-[#8B96A5] text-xs text-center sm:text-right w-full">التطبيق قيد التطوير</p>
-  </div>
-);
+  );
+}
 
 const Footer = () => {
-
+  const lang = useLanguage();
+  const { settings } = useSettingsStore();
+  const localePath = (path: string) => `/${lang}${path === "/" ? "" : path}`;
+  const googlePlayUrl = process.env.NEXT_PUBLIC_GOOGLE_PLAY_URL || localePath("/coming-soon");
+  const appStoreUrl = process.env.NEXT_PUBLIC_APP_STORE_URL || localePath("/coming-soon");
 
   const navigationSections = [
     {
       title: "روابط مهمة",
       links: [
-        { label: "الرئيسية", href: `/` },
-        { label: "منتجات", href: `/search?type=products` },
-        { label: "متاجر", href: `/search?type=stores` },
-        { label: "خدمات", href: `/search?type=services` },
-        { label: "المستخدمين", href: `/search?type=users` }, { label: "المدونات", href: `/blogs` }
-      ]
+        { label: "الرئيسية", href: localePath("/") },
+        { label: "منتجات", href: localePath("/search?type=products") },
+        { label: "متاجر", href: localePath("/search?type=stores") },
+        { label: "خدمات", href: localePath("/search?type=services") },
+        { label: "المستخدمين", href: localePath("/search?type=users") },
+        { label: "المدونات", href: localePath("/blogs") },
+      ],
     },
     {
       title: "عن المنصة",
       links: [
-        { label: "من نحن", href: `/about` },
-        { label: "قواعد السلامة", href: `/safety-rules` },
-        { label: "شروط الاستخدام", href: `/terms-of-use` },
-        { label: "سياسة الخصوصية", href: `/privacy-policy` },
-      ]
+        { label: "من نحن", href: localePath("/about") },
+        { label: "قواعد السلامة", href: localePath("/safety-rules") },
+        { label: "شروط الاستخدام", href: localePath("/terms-of-use") },
+        { label: "سياسة الخصوصية", href: localePath("/privacy-policy") },
+      ],
     },
     {
       title: "حسابي",
       links: [
-        { label: "تسجيل الدخول", href: `/login` },
-        { label: "إنشاء حساب", href: `/signup` },
-        { label: "إعدادات", href: `/settings` },
-        { label: "كن تاجراً", href: `/admin/stores/add` },
-      ]
+        { label: "تسجيل الدخول", href: localePath("/login") },
+        { label: "إنشاء حساب", href: localePath("/signup") },
+        { label: "إعدادات", href: localePath("/settings") },
+        { label: "كن تاجرا", href: localePath("/admin/stores/add") },
+      ],
     },
     {
       title: "الدعم والمساعدة",
       links: [
-        { label: "بوابة الشكاوى والاقتراحات", href: `/report` },
-        { label: "الأسئلة الشائعة", href: `/faq` },
-        { label: "اتصل بنا", href: `/contact-us` },
-      ]
+        { label: "بوابة الشكاوى والاقتراحات", href: localePath("/report") },
+        { label: "الأسئلة الشائعة", href: localePath("/faq") },
+        { label: "اتصل بنا", href: localePath("/contact-us") },
+      ],
     },
   ];
 
-  const { settings } = useSettingsStore();
-
   const socialIcons = [];
-  if (settings?.facebook && settings.facebook !== "") socialIcons.push({ Icon: Facebook, href: settings.facebook, label: "Facebook" });
-  if (settings?.x && settings.x !== "") socialIcons.push({ Icon: Twitter, href: settings.x, label: "X" });
-  if (settings?.instagram && settings.instagram !== "") socialIcons.push({ Icon: Instagram, href: settings.instagram, label: "Instagram" });
-  if (settings?.youtube && settings.youtube !== "") socialIcons.push({ Icon: Youtube, href: settings.youtube, label: "YouTube" });
-  if (settings?.snapchat && settings.snapchat !== "") socialIcons.push({ Icon: Ghost, href: settings.snapchat, label: "Snapchat" });
-  if (settings?.tiktok && settings.tiktok !== "") socialIcons.push({ Icon: Music2, href: settings.tiktok, label: "TikTok" });
+  if (settings?.facebook) socialIcons.push({ Icon: Facebook, href: settings.facebook, label: "Facebook" });
+  if (settings?.x) socialIcons.push({ Icon: Twitter, href: settings.x, label: "X" });
+  if (settings?.instagram) socialIcons.push({ Icon: Instagram, href: settings.instagram, label: "Instagram" });
+  if (settings?.youtube) socialIcons.push({ Icon: Youtube, href: settings.youtube, label: "YouTube" });
+  if (settings?.snapchat) socialIcons.push({ Icon: Ghost, href: settings.snapchat, label: "Snapchat" });
+  if (settings?.tiktok) socialIcons.push({ Icon: Music2, href: settings.tiktok, label: "TikTok" });
 
   return (
-    <footer dir="rtl" className="bg-white shadow-xs text-gray-700 border-t border-gray-200 ">
-      {/* Main Footer Content */}
-      <div className="bg-white container my-6 sm:my-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8">
-          {/* Company Info and Social Links */}
-          <div className="col-span-1 sm:col-span-1 lg:col-span-3">
-            <div className="flex flex-col h-full justify-between space-y-3">
-              {/* Company Info */}
+    <footer dir="rtl" className="border-t border-gray-200 bg-white text-gray-700 shadow-xs">
+      <div className="container my-6 bg-white sm:my-12">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+          <div className="col-span-1 lg:col-span-3">
+            <div className="flex h-full flex-col justify-between space-y-3">
               <div className="space-y-2">
                 <div className="flex justify-center sm:justify-start">
-                  <Link href={`/`}>
+                  <Link href={localePath("/")}>
                     {settings?.logo_url ? (
                       <img
-                        src={settings.logo_url}
-                        alt={settings?.name || "A'atene"}
+                        src={upgradeHttpToHttps(fixMediaUrl(settings.logo_url))}
+                        alt={settings?.name || "Aatene"}
                         className="h-10 w-auto object-contain"
                       />
                     ) : (
                       <Image
                         src="/black.svg"
-                        alt="A'atene"
+                        alt="Aatene"
                         width={120}
                         height={40}
                         className="h-10 w-auto object-contain"
@@ -142,12 +153,11 @@ const Footer = () => {
                     )}
                   </Link>
                 </div>
-                <p className="text-[#8B96A5] text-xs sm:text-sm leading-relaxed text-center sm:text-right lg:text-right max-w-xs mx-auto sm:mx-0 lg:ml-auto lg:mr-0 line-clamp-4">
+                <p className="mx-auto max-w-xs text-center text-xs leading-relaxed text-[#8B96A5] line-clamp-4 sm:mx-0 sm:text-right sm:text-sm lg:ml-auto lg:mr-0">
                   {settings?.about_website || "أفضل معلومات حول الشركة هنا"}
                 </p>
               </div>
 
-              {/* Social Media Icons */}
               <div className="flex justify-center sm:justify-start">
                 <div className="flex gap-2 sm:gap-3">
                   {socialIcons.map(({ Icon, href, label }, i) => (
@@ -157,9 +167,9 @@ const Footer = () => {
                       aria-label={label}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 sm:p-2.5 bg-[#8B96A5] hover:bg-gray-2 rounded-full text-white transition-all duration-200 hover:scale-110"
+                      className="rounded-full bg-[#8B96A5] p-2 text-white transition-all duration-200 hover:scale-110 hover:bg-gray-2 sm:p-2.5"
                     >
-                      <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <Icon className="h-3 w-3 sm:h-4 sm:w-4" />
                     </a>
                   ))}
                 </div>
@@ -167,18 +177,16 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Mobile App Downloads - Mobile Position */}
-          <div className="block lg:hidden col-span-1 sm:col-span-1">
-            <h4 className="font-bold text-base mb-4 text-center sm:text-right">احصل على التطبيق</h4>
-            <AppStoreButtonsMobile />
+          <div className="block lg:hidden">
+            <h4 className="mb-4 text-center text-base font-bold sm:text-right">احصل على التطبيق</h4>
+            <AppStoreButtons googlePlayUrl={googlePlayUrl} appStoreUrl={appStoreUrl} isMobile />
           </div>
 
-          {/* Navigation Links */}
-          <div className="col-span-1 sm:col-span-2 pt-4 lg:pt-0 lg:col-span-7">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 lg:gap-8 text-center lg:text-right">
+          <div className="col-span-1 pt-4 sm:col-span-2 lg:col-span-7 lg:pt-0">
+            <div className="grid grid-cols-2 gap-6 text-center sm:grid-cols-4 lg:gap-8 lg:text-right">
               {navigationSections.map((section, idx) => (
                 <div key={idx} className="space-y-3">
-                  <h4 className="font-bold text-sm sm:text-base  mb-2 sm:mb-3">
+                  <h4 className="mb-2 text-sm font-bold sm:mb-3 sm:text-base">
                     {section.title}
                   </h4>
                   <ul className="sm:space-y-1">
@@ -186,7 +194,7 @@ const Footer = () => {
                       <li key={i}>
                         <Link
                           href={link.href}
-                          className="text-[#8B96A5] text-sm hover:text-gray-700 transition-colors duration-200 block py-1"
+                          className="block py-1 text-sm text-[#8B96A5] transition-colors duration-200 hover:text-gray-700"
                         >
                           {link.label}
                         </Link>
@@ -198,21 +206,17 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Mobile App Downloads - Desktop Position */}
-          <div className="hidden lg:block lg:col-span-2">
-            <h4 className="font-bold text-base mb-3">احصل على التطبيق</h4>
-            <AppStoreButtons />
+          <div className="hidden lg:col-span-2 lg:block">
+            <h4 className="mb-3 text-base font-bold">احصل على التطبيق</h4>
+            <AppStoreButtons googlePlayUrl={googlePlayUrl} appStoreUrl={appStoreUrl} />
           </div>
         </div>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="bg-[#EFF2F4] border-t border-gray-200 ">
+      <div className="border-t border-gray-200 bg-[#EFF2F4]">
         <div className="container">
-          <div className="flex flex-wrap justify-end items-center gap-4 text-xs sm:text-sm py-4 w-full">
-
-
-            <div className="flex items-center gap-4 mr-auto">
+          <div className="flex w-full flex-wrap items-center justify-end gap-4 py-4 text-xs sm:text-sm">
+            <div className="mr-auto flex items-center gap-4">
               <span className="whitespace-nowrap opacity-60">© {new Date().getFullYear()} Aatene, Inc.</span>
             </div>
           </div>
