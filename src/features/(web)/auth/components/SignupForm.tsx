@@ -26,6 +26,7 @@ import { Loader2 } from "lucide-react";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { ApiError, User } from "../types";
+import { useLanguage } from "@/src/hooks/use-language";
 
 const signupSchema = z
   .object({
@@ -75,6 +76,7 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export function SignupForm() {
+  const lang = useLanguage();
   const [countryCode, setCountryCode] = useState("+972");
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -110,7 +112,7 @@ export function SignupForm() {
         .then((data) => {
           if (data?.user) {
             storeLogin(tokenParam, data.user as unknown as User);
-            router.push("/");
+            router.push(`/${lang}`);
           } else {
             setIsGoogleLoading(false);
           }
@@ -169,7 +171,7 @@ export function SignupForm() {
 
   return (
     <div
-      className="mx-auto flex w-full max-w-[1018px] flex-col overflow-hidden rounded-[10px] border border-[#e8e8e8] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.05)] lg:flex-row lg:items-stretch"
+      className="mx-auto flex w-full max-w-[1018px] flex-col overflow-hidden rounded-[10px] border border-[#e8e8e8] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.05)] lg:max-h-[calc(100vh-120px)] lg:min-h-[620px] lg:flex-row lg:items-stretch"
       dir="ltr"
     >
       <div className="relative order-2 hidden h-[280px] w-full shrink-0 overflow-hidden sm:h-[340px] lg:order-1 lg:block lg:h-auto lg:min-h-0 lg:w-[509px] lg:shrink-0">
@@ -183,7 +185,7 @@ export function SignupForm() {
       </div>
 
       <div
-        className="order-1 flex w-full flex-col gap-6 p-8 sm:p-9 lg:order-2 lg:w-[509px] lg:shrink-0 lg:gap-7 lg:overflow-y-auto lg:p-[50px]"
+        className="order-1 flex w-full flex-col gap-5 p-6 sm:p-8 lg:order-2 lg:w-[509px] lg:shrink-0 lg:overflow-y-auto lg:p-10 xl:p-[50px]"
         dir="rtl"
       >
         <div className="space-y-2 text-right">
@@ -360,7 +362,7 @@ export function SignupForm() {
                     <FormLabel className="cursor-pointer text-xs text-[#6b7280]">
                       لقد قرأت و وافقت على{" "}
                       <Link
-                        href="/privacy-policy"
+                        href={`/${lang}/privacy-policy`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[#3d5e83] underline-offset-2 hover:underline"

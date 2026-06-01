@@ -161,7 +161,7 @@ export default function HomeStories({ initialOwners }: HomeStoriesProps) {
 
                         <div
                             ref={scrollContainerRef}
-                            className="flex overflow-x-auto gap-3 sm:gap-4 py-2 scroll-smooth scrollbar-hide flex-1 -mr-8 sm:-mr-20"
+                            className="flex min-w-0 flex-1 overflow-x-auto gap-3 py-2 scroll-smooth scrollbar-hide sm:gap-4"
                             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                             onMouseDown={handleMouseDown}
                             onMouseLeave={handleMouseLeave}

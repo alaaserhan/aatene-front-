@@ -105,7 +105,7 @@ function OTPInput({ value, onChange, length = 4 }: OTPInputProps) {
     };
 
     return (
-        <div className="flex gap-3 justify-center" dir="ltr">
+        <div className="flex w-full justify-center gap-2 sm:gap-3" dir="ltr">
             {otp.map((digit, index) => (
                 <input
                     key={index}
@@ -117,7 +117,7 @@ function OTPInput({ value, onChange, length = 4 }: OTPInputProps) {
                     onChange={(e) => handleChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
                     onPaste={handlePaste}
-                    className="w-14 h-14 text-center text-xl font-semibold border border-[#E3E3E3] rounded-lg bg-white focus:border-[#3D5E83] focus:ring-1 focus:ring-[#3D5E83] focus:outline-none transition-colors text-[#1C1C1C]"
+                    className="h-12 w-12 text-center text-lg font-semibold border border-[#E3E3E3] rounded-lg bg-white focus:border-[#3D5E83] focus:ring-1 focus:ring-[#3D5E83] focus:outline-none transition-colors text-[#1C1C1C] sm:h-14 sm:w-14 sm:text-xl"
                 />
             ))}
         </div>
@@ -249,7 +249,7 @@ export function ForgotPasswordForm() {
     };
 
     const renderStep1 = () => (
-        <div className="w-full max-w-[480px] mx-auto bg-white rounded-md shadow-sm border border-[#F0F0F0] p-8 sm:p-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="w-full max-w-[480px] mx-auto bg-white rounded-md shadow-sm border border-[#F0F0F0] p-5 sm:p-10 animate-in fade-in slide-in-from-bottom-4 duration-300">
             {/* Title */}
             <div className="text-center mb-10 space-y-2">
                 <h1 className="text-2xl sm:text-[28px] font-bold text-[#1C1C1C]">
@@ -311,7 +311,7 @@ export function ForgotPasswordForm() {
                     </Button>
 
                     <div className="text-center pt-2">
-                        <span className="text-gary-2 text-sm">
+                        <span className="text-gray-2 text-sm">
                             هل تحتاج إلى حساب؟
                         </span>
                         <button
@@ -328,7 +328,7 @@ export function ForgotPasswordForm() {
     );
 
     const renderStep2 = () => (
-        <div className="w-full max-w-[480px] mx-auto bg-white rounded-md shadow-sm border border-[#F0F0F0] p-8 sm:p-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="w-full max-w-[480px] mx-auto bg-white rounded-md shadow-sm border border-[#F0F0F0] p-5 sm:p-10 animate-in fade-in slide-in-from-bottom-4 duration-300">
             {/* Title */}
             <div className="text-center mb-6 space-y-2">
                 <h1 className="text-2xl sm:text-[28px] font-bold text-[#1C1C1C]">
@@ -409,7 +409,7 @@ export function ForgotPasswordForm() {
     );
 
     const renderStep3 = () => (
-        <div className="w-full max-w-[480px] mx-auto bg-white rounded-md shadow-sm border border-[#F0F0F0] p-8 sm:p-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="w-full max-w-[480px] mx-auto bg-white rounded-md shadow-sm border border-[#F0F0F0] p-5 sm:p-10 animate-in fade-in slide-in-from-bottom-4 duration-300">
             {/* Title */}
             <div className="text-center mb-10">
                 <h1 className="text-2xl sm:text-[28px] font-bold text-[#1C1C1C]">
@@ -501,7 +501,7 @@ export function ForgotPasswordForm() {
 
     return (
         <>
-            <main className="flex-1 flex items-center justify-center py-8 px-4 min-h-[400px]">
+            <main className="flex-1 flex items-center justify-center px-4 py-6 min-h-[400px] sm:py-8">
                 {step === 1 && renderStep1()}
                 {step === 2 && renderStep2()}
                 {step === 3 && renderStep3()}

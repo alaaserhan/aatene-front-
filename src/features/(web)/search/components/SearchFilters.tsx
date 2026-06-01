@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Category, City, Tag, Attribute, PriceRange } from "@/src/features/(web)/searchAndFilter/api";
 import { cn } from "@/src/lib/utils";
-import { SlidersHorizontal, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, ChevronDown, ChevronRight } from "lucide-react";
 import { DualRangeSlider } from "@/src/components/ui/DualRangeSlider";
 import {
     flattenCategoryTree,
@@ -78,92 +78,6 @@ function CustomRatingCheckbox({ isActive, onChange }: CustomRatingCheckboxProps)
     );
 }
 
-function CategoryTreeNode({
-    category,
-    depth,
-    childrenMap,
-    expandedCategories,
-    toggleCategoryExpand,
-    filters,
-    handleCategorySelect,
-    searchType,
-}: {
-    category: Category;
-    depth: number;
-    childrenMap: Map<string, Category[]>;
-    expandedCategories: Set<number>;
-    toggleCategoryExpand: (id: number) => void;
-    filters: FilterState;
-    handleCategorySelect: (id: number | undefined) => void;
-    searchType: SearchType;
-}) {
-    const children = childrenMap.get(category.id.toString()) || [];
-    const hasChildren = children.length > 0;
-    const isExpanded = expandedCategories.has(category.id);
-    const count =
-        searchType === "services" ? category.services_count : category.products_count;
-    const isSelected = filters.category_id === category.id;
-    const labelClass =
-        depth === 0
-            ? isSelected
-                ? "text-[#3D5E83] font-bold"
-                : "text-gray-600 hover:text-[#3D5E83]"
-            : isSelected
-              ? "text-[#3D5E83] font-medium"
-              : "text-gray-500 hover:text-[#3D5E83]";
-
-    return (
-        <div>
-            <div className="flex items-center gap-2">
-                <div className="w-6 shrink-0 flex justify-center">
-                    {hasChildren ? (
-                        <button
-                            type="button"
-                            onClick={() => toggleCategoryExpand(category.id)}
-                            className="p-1 hover:bg-gray-100 rounded cursor-pointer"
-                        >
-                            <ChevronDown
-                                className={cn(
-                                    "w-4 h-4 text-gray-400 transition-transform",
-                                    isExpanded && "rotate-180"
-                                )}
-                            />
-                        </button>
-                    ) : null}
-                </div>
-                <button
-                    type="button"
-                    onClick={() => handleCategorySelect(category.id)}
-                    className={cn(
-                        "flex-1 text-right py-2 px-3 rounded-lg text-sm transition-colors cursor-pointer",
-                        labelClass
-                    )}
-                >
-                    {category.name}{" "}
-                    <span className="text-gray-400 font-normal">({count})</span>
-                </button>
-            </div>
-            {hasChildren && isExpanded && (
-                <div className="mr-6 mt-1 flex flex-col gap-1 border-r-2 border-gray-200 pr-3">
-                    {children.map((child) => (
-                        <CategoryTreeNode
-                            key={child.id}
-                            category={child}
-                            depth={depth + 1}
-                            childrenMap={childrenMap}
-                            expandedCategories={expandedCategories}
-                            toggleCategoryExpand={toggleCategoryExpand}
-                            filters={filters}
-                            handleCategorySelect={handleCategorySelect}
-                            searchType={searchType}
-                        />
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-}
-
 export default function SearchFilters({
     type,
     filters,
@@ -175,7 +89,10 @@ export default function SearchFilters({
     priceRange,
     className,
 }: SearchFiltersProps) {
-    const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
+    const [manualCategoryPath, setManualCategoryPath] = useState<{
+        categoryId?: number;
+        path: Category[];
+    } | null>(null);
     const [citySearch, setCitySearch] = useState("");
 
     const flatCategories = useMemo(
@@ -183,26 +100,33 @@ export default function SearchFilters({
         [categories]
     );
 
-    /** عند اختيار فئة فرعية نوسّع سلسلة الآباء حتى تبقى الفئة الظاهرة */
-    useEffect(() => {
+    const { parentCategories, childrenMap } = useMemo(
+        () => buildCategoryTree(flatCategories),
+        [flatCategories]
+    );
+
+    const derivedCategoryPath = useMemo(() => {
         const cid = filters.category_id;
-        if (cid == null || flatCategories.length === 0) return;
-        const selected = flatCategories.find((c) => c.id === cid);
-        if (!selected?.parent_id) return;
-        setExpandedCategories((prev) => {
-            const next = new Set(prev);
-            let pid: number | null = parseInt(String(selected.parent_id), 10);
-            while (pid != null && !Number.isNaN(pid)) {
-                next.add(pid);
-                const p = flatCategories.find((c) => c.id === pid);
-                pid =
-                    p?.parent_id != null && String(p.parent_id) !== ""
-                        ? parseInt(String(p.parent_id), 10)
-                        : null;
-            }
-            return next;
-        });
-    }, [filters.category_id, flatCategories]);
+        if (cid == null || flatCategories.length === 0) return [];
+
+        const byId = new Map(flatCategories.map((category) => [category.id, category]));
+        const selected = byId.get(cid);
+        if (!selected) return [];
+
+        const fullPath: Category[] = [];
+        let cursor: Category | undefined = selected;
+        while (cursor) {
+            fullPath.unshift(cursor);
+            const parentId: number =
+                cursor.parent_id != null && cursor.parent_id !== ""
+                    ? Number(cursor.parent_id)
+                    : NaN;
+            cursor = Number.isFinite(parentId) ? byId.get(parentId) : undefined;
+        }
+
+        const selectedHasChildren = (childrenMap.get(selected.id.toString()) || []).length > 0;
+        return selectedHasChildren ? fullPath : fullPath.slice(0, -1);
+    }, [childrenMap, filters.category_id, flatCategories]);
 
     const handleTagToggle = (tagId: number) => {
         const currentTags = filters.tags || [];
@@ -237,28 +161,43 @@ export default function SearchFilters({
         onFilterChange({ ...filters, variation_options: newOptions });
     };
 
-    const toggleCategoryExpand = (categoryId: number) => {
-        setExpandedCategories((prev) => {
-            const newSet = new Set(prev);
-            if (newSet.has(categoryId)) {
-                newSet.delete(categoryId);
-            } else {
-                newSet.add(categoryId);
-            }
-            return newSet;
-        });
-    };
-
     const cityOptions = cities
         .filter((c) => !citySearch.trim() || c.name.toLowerCase().includes(citySearch.trim().toLowerCase()))
         .map((c) => ({ value: c.id.toString(), label: c.name }));
 
-    const { parentCategories, childrenMap } = buildCategoryTree(flatCategories);
+    const categoryPath =
+        manualCategoryPath !== null && manualCategoryPath.categoryId === filters.category_id
+            ? manualCategoryPath.path
+            : derivedCategoryPath;
+    const activeCategory = categoryPath[categoryPath.length - 1];
+    const visibleCategories = activeCategory
+        ? childrenMap.get(activeCategory.id.toString()) || []
+        : parentCategories;
+    const canGoBackCategory = categoryPath.length > 0;
 
     const handleCategorySelect = (categoryId: number | undefined) => {
         onFilterChange({
             ...filters,
             category_id: categoryId,
+        });
+    };
+
+    const handleCategoryClear = () => {
+        setManualCategoryPath(null);
+        handleCategorySelect(undefined);
+    };
+
+    const handleCategoryDrilldown = (category: Category) => {
+        const children = childrenMap.get(category.id.toString()) || [];
+        const nextPath = children.length > 0 ? [...categoryPath, category] : categoryPath;
+        setManualCategoryPath({ categoryId: category.id, path: nextPath });
+        handleCategorySelect(category.id);
+    };
+
+    const handleCategoryBack = () => {
+        setManualCategoryPath({
+            categoryId: filters.category_id,
+            path: categoryPath.slice(0, -1),
         });
     };
 
@@ -285,7 +224,10 @@ export default function SearchFilters({
                     <h2 className="text-lg font-semibold">فلتر</h2>
                 </div>
                 <button
-                    onClick={() => onFilterChange({})}
+                    onClick={() => {
+                        setManualCategoryPath(null);
+                        onFilterChange({});
+                    }}
                     className="text-sm text-[#3D5E83] hover:underline cursor-pointer"
                 >
                     إعادة
@@ -296,20 +238,72 @@ export default function SearchFilters({
                 {/* Categories */}
                 {type !== "stores" && categories.length > 0 && (
                     <FilterSection title="الفئات" defaultOpen={true} forceOpen={!!filters.category_id}>
-                        <div className="flex flex-col gap-1">
-                            {parentCategories.map((parent) => (
-                                <CategoryTreeNode
-                                    key={parent.id}
-                                    category={parent}
-                                    depth={0}
-                                    childrenMap={childrenMap}
-                                    expandedCategories={expandedCategories}
-                                    toggleCategoryExpand={toggleCategoryExpand}
-                                    filters={filters}
-                                    handleCategorySelect={handleCategorySelect}
-                                    searchType={type}
-                                />
-                            ))}
+                        <div className="flex flex-col gap-2">
+                            {canGoBackCategory && (
+                                <button
+                                    type="button"
+                                    onClick={handleCategoryBack}
+                                    className="mb-1 inline-flex items-center gap-2 text-sm font-medium text-[#3D5E83] hover:underline"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                    رجوع
+                                </button>
+                            )}
+
+                            {activeCategory && (
+                                <button
+                                    type="button"
+                                    onClick={() => handleCategorySelect(activeCategory.id)}
+                                    className={cn(
+                                        "w-full rounded-lg border px-3 py-2 text-right text-sm transition-colors",
+                                        filters.category_id === activeCategory.id
+                                            ? "border-[#3D5E83] bg-[#EEF3FB] font-bold text-[#3D5E83]"
+                                            : "border-gray-200 text-gray-600 hover:border-[#3D5E83]"
+                                    )}
+                                >
+                                    {activeCategory.name}
+                                </button>
+                            )}
+
+                            <div className="flex flex-col gap-1">
+                                {visibleCategories.map((category) => {
+                                    const children = childrenMap.get(category.id.toString()) || [];
+                                    const hasChildren = children.length > 0;
+                                    const count =
+                                        type === "services" ? category.services_count : category.products_count;
+                                    const isSelected = filters.category_id === category.id;
+
+                                    return (
+                                        <button
+                                            key={category.id}
+                                            type="button"
+                                            onClick={() => handleCategoryDrilldown(category)}
+                                            className={cn(
+                                                "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
+                                                isSelected
+                                                    ? "bg-[#EEF3FB] font-bold text-[#3D5E83]"
+                                                    : "text-gray-600 hover:bg-gray-50 hover:text-[#3D5E83]"
+                                            )}
+                                        >
+                                            <span className="min-w-0 flex-1 truncate text-right">
+                                                {category.name}{" "}
+                                                <span className="font-normal text-gray-400">({count})</span>
+                                            </span>
+                                            {hasChildren && <ChevronRight className="h-4 w-4 shrink-0 rotate-180 text-gray-400" />}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {filters.category_id && (
+                                <button
+                                    type="button"
+                                    onClick={handleCategoryClear}
+                                    className="mt-2 text-right text-xs font-medium text-gray-400 hover:text-[#3D5E83]"
+                                >
+                                    إلغاء اختيار الفئة
+                                </button>
+                            )}
                         </div>
                     </FilterSection>
                 )}

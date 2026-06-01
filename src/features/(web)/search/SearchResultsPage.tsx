@@ -16,7 +16,7 @@ import {
     useStoresSearchPage,
     useUsersSearchPage,
 } from "./hooks";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { CompareFloatingBar } from "../compares/components/CompareFloatingBar";
 import { Category, City, Tag, Attribute, PriceRange } from "@/src/features/(web)/searchAndFilter/api";
@@ -238,42 +238,46 @@ function SearchContent() {
     }, [query, filters, page]);
 
     // Fetch results based on type
-    const { data: productsData, isLoading: isLoadingProducts } = useSearchProducts(searchParamsObj, type === "products");
-    const { data: servicesData, isLoading: isLoadingServices } = useSearchServices(servicesParamsObj, type === "services");
-    const { data: storesData, isLoading: isLoadingStores } = useSearchStores(storesParamsObj, type === "stores");
-    const { data: usersData, isLoading: isLoadingUsers } = useSearchUsers(searchParamsObj, type === "users");
+    const { data: productsData, isLoading: isLoadingProducts, isFetching: isFetchingProducts } = useSearchProducts(searchParamsObj, type === "products");
+    const { data: servicesData, isLoading: isLoadingServices, isFetching: isFetchingServices } = useSearchServices(servicesParamsObj, type === "services");
+    const { data: storesData, isLoading: isLoadingStores, isFetching: isFetchingStores } = useSearchStores(storesParamsObj, type === "stores");
+    const { data: usersData, isLoading: isLoadingUsers, isFetching: isFetchingUsers } = useSearchUsers(searchParamsObj, type === "users");
 
     // Current results based on type
-    const { items, total, isLoading } = useMemo(() => {
+    const { items, total, isLoading, isFetching } = useMemo(() => {
         switch (type) {
             case "products":
                 return {
                     items: productsData?.products || [],
                     total: productsData?.total || 0,
                     isLoading: isLoadingProducts,
+                    isFetching: isFetchingProducts,
                 };
             case "services":
                 return {
                     items: servicesData?.services || [],
                     total: servicesData?.total || 0,
                     isLoading: isLoadingServices,
+                    isFetching: isFetchingServices,
                 };
             case "stores":
                 return {
                     items: storesData?.stores || [],
                     total: storesData?.total || 0,
                     isLoading: isLoadingStores,
+                    isFetching: isFetchingStores,
                 };
             case "users":
                 return {
                     items: usersData?.users || [],
                     total: usersData?.total || 0,
                     isLoading: isLoadingUsers,
+                    isFetching: isFetchingUsers,
                 };
             default:
-                return { items: [], total: 0, isLoading: false };
+                return { items: [], total: 0, isLoading: false, isFetching: false };
         }
-    }, [type, productsData, servicesData, storesData, usersData, isLoadingProducts, isLoadingServices, isLoadingStores, isLoadingUsers]);
+    }, [type, productsData, servicesData, storesData, usersData, isLoadingProducts, isLoadingServices, isLoadingStores, isLoadingUsers, isFetchingProducts, isFetchingServices, isFetchingStores, isFetchingUsers]);
 
     // Handle page change
     const handlePageChange = (newPage: number) => {
@@ -282,18 +286,16 @@ function SearchContent() {
         router.push(`${searchPath}?${params.toString()}`, { scroll: false });
     };
 
-    const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(false);
+    const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(true);
 
     return (
         <div className="flex flex-col gap-4">
-            {/* Top Bar: filter actions */}
-            <div className="flex items-center gap-3">
-
-                {/* زر فتح/إغلاق الفلتر - Desktop */}
+            {/* Top Bar: filter toggle */}
+            <div className="flex items-center justify-between">
                 <button
-                    onClick={() => setIsDesktopFilterOpen(!isDesktopFilterOpen)}
+                    onClick={() => setIsDesktopFilterOpen(prev => !prev)}
                     className={cn(
-                        "hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors cursor-pointer shrink-0",
+                        "flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors cursor-pointer shrink-0",
                         isDesktopFilterOpen
                             ? "bg-[#3D5E83] text-white border-[#3D5E83]"
                             : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
@@ -301,7 +303,7 @@ function SearchContent() {
                 >
                     <SlidersHorizontal className="w-4 h-4" />
                     <span className="font-medium text-sm">فلتر</span>
-                    {isDesktopFilterOpen && <X className="w-3.5 h-3.5 mr-1" />}
+                    {isDesktopFilterOpen ? <X className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
 
                 {/* زر فتح الفلتر - Mobile */}
@@ -310,26 +312,31 @@ function SearchContent() {
                     className="lg:hidden flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer text-[#3D5E83] shrink-0"
                 >
                     <SlidersHorizontal className="w-4 h-4" />
-                    <span className="font-medium text-sm">فلتر</span>
+                    <span className="font-medium text-sm">تصفية متقدمة</span>
                 </button>
-
             </div>
 
             {/* Main Layout */}
             <div className="flex flex-row gap-6 items-start">
                 {/* Filters Sidebar - Desktop (يظهر فقط عند الضغط) */}
                 {isDesktopFilterOpen && (
-                    <aside className="hidden lg:block w-72 shrink-0 sticky top-24 self-start">
-                        <SearchFilters
-                            type={type}
-                            filters={filters}
-                            onFilterChange={handleFilterChange}
-                            categories={filterData.categories}
-                            cities={filterData.cities}
-                            tags={filterData.tags}
-                            attributes={filterData.attributes}
-                            priceRange={filterData.priceRange}
-                        />
+                    <aside className="hidden lg:block w-72 shrink-0 sticky top-24 self-start max-h-[calc(100vh-8rem)] overflow-y-auto">
+                        <div className="bg-white rounded-xl border border-gray-200 p-4">
+                            <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                                <h3 className="font-bold text-sm text-gray-800">تصفية النتائج</h3>
+                                <SlidersHorizontal className="w-4 h-4 text-gray-400" />
+                            </div>
+                            <SearchFilters
+                                type={type}
+                                filters={filters}
+                                onFilterChange={handleFilterChange}
+                                categories={filterData.categories}
+                                cities={filterData.cities}
+                                tags={filterData.tags}
+                                attributes={filterData.attributes}
+                                priceRange={filterData.priceRange}
+                            />
+                        </div>
                     </aside>
                 )}
 
@@ -343,6 +350,7 @@ function SearchContent() {
                         currentPage={page}
                         onPageChange={handlePageChange}
                         isLoading={isLoading}
+                        isFetching={isFetching}
                         perPage={PER_PAGE}
                     />
                 </main>
@@ -359,6 +367,7 @@ function SearchContent() {
                 categories={filterData.categories}
                 cities={filterData.cities}
                 tags={filterData.tags}
+                attributes={filterData.attributes}
                 priceRange={filterData.priceRange}
             />
         </div>

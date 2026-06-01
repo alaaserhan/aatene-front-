@@ -4,17 +4,21 @@ import React from "react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 
 export const BannerSkeleton = () => (
-    <div className="w-full aspect-360/200 md:aspect-1170/300 bg-gray-100 animate-pulse" />
+    <section className="bg-white pt-2 md:pt-4">
+        <MaxWidthWrapper>
+            <div className="h-[180px] w-full animate-pulse rounded-xl bg-gray-100 sm:h-[230px] lg:h-[300px] 2xl:h-[320px]" />
+        </MaxWidthWrapper>
+    </section>
 );
 
 export const StoriesSkeleton = () => (
-    <section className="py-8 bg-white" dir="rtl">
+    <section className="py-4 bg-white sm:py-8" dir="rtl">
         <MaxWidthWrapper className="relative w-full">
             <div className="flex gap-2 sm:gap-4 overflow-hidden">
-                <div className="rounded-2xl w-[130px] min-w-[130px] sm:w-[240px] sm:min-w-[240px] h-[170px] sm:h-[220px] bg-gray-200 animate-pulse shrink-0" />
-                <div className="flex gap-2 sm:gap-4 py-2 flex-1">
-                    {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="shrink-0 w-[95px] sm:w-[140px] h-[145px] sm:h-[200px] bg-gray-100 animate-pulse rounded-xl" />
+                <div className="h-[120px] w-[96px] min-w-[96px] shrink-0 animate-pulse rounded-2xl bg-gray-200 sm:h-[220px] sm:w-[240px] sm:min-w-[240px]" />
+                <div className="flex min-w-0 flex-1 gap-2 overflow-hidden py-2 sm:gap-4">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="h-[104px] w-[78px] shrink-0 animate-pulse rounded-xl bg-gray-100 sm:h-[200px] sm:w-[140px]" />
                     ))}
                 </div>
             </div>

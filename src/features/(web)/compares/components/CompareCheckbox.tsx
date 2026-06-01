@@ -16,9 +16,6 @@ export function CompareCheckbox({ id, type, className }: CompareCheckboxProps) {
 
     const numericId = Number(id);
 
-    if (!isCompareMode) return null;
-
-    // Hooks
     const { data: productData } = useGetProductCompareList();
     const { data: serviceData } = useGetServiceCompareList();
 
@@ -26,6 +23,8 @@ export function CompareCheckbox({ id, type, className }: CompareCheckboxProps) {
     const { mutate: addService } = useAddServiceToCompare();
     const { mutate: removeProduct } = useRemoveProductFromCompare();
     const { mutate: removeService } = useRemoveServiceFromCompare();
+
+    if (!isCompareMode) return null;
 
     // Check status
     const isInCompare = type === "product"

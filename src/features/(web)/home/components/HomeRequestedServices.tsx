@@ -6,12 +6,14 @@ import { RequestedService } from "../types";
 import { RequestedService as PropsRequestedService } from "../../requested-services/types";
 import { useRequestedServices } from "../hooks";
 import HomeViewAllLink from "./HomeViewAllLink";
+import { useLanguage } from "@/src/hooks/use-language";
 
 interface HomeRequestedServicesProps {
   requests?: RequestedService[];
 }
 
 export default function HomeRequestedServices({ requests: initialRequests }: HomeRequestedServicesProps) {
+  const lang = useLanguage();
   const { data: response } = useRequestedServices();
   const requests = initialRequests || response?.data || [];
 
@@ -24,7 +26,7 @@ export default function HomeRequestedServices({ requests: initialRequests }: Hom
           <h2 className="text-2xl md:text-3xl text-blue-4 font-medium relative inline-block">
             طلبات الخدمات الغير موجودة
           </h2>
-          <HomeViewAllLink href="/requested-services" />
+          <HomeViewAllLink href={`/${lang}/requested-services`} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

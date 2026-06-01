@@ -36,9 +36,13 @@ export default function TermsPage() {
         }
     };
 
-    const filteredContent = availableItems.filter(item =>
-        item.title?.[lang]?.includes(searchQuery) || item.content?.[lang]?.includes(searchQuery)
-    );
+    const contentItems = availableItems
+        .map((item, index) => ({ item, index }))
+        .filter(({ item }) =>
+            !searchQuery ||
+            item.title?.[lang]?.includes(searchQuery) ||
+            item.content?.[lang]?.includes(searchQuery)
+        );
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -151,11 +155,11 @@ export default function TermsPage() {
 
                         {/* Sidebar Navigation - Drawer on Mobile, Sticky on Desktop */}
                         <div className={cn(
-                            "fixed top-0 bottom-0 right-0 z-[70] w-[280px] bg-white p-6 shadow-2xl transition-transform duration-300 ease-in-out",
-                            "lg:relative lg:top-auto lg:bottom-auto lg:right-auto lg:z-auto lg:p-0 lg:shadow-none lg:translate-x-0 lg:flex lg:w-[260px] lg:lg:w-[280px]",
+                            "fixed top-0 bottom-0 right-0 z-[70] w-[88vw] max-w-[320px] bg-white p-6 shadow-2xl transition-transform duration-300 ease-in-out",
+                            "lg:relative lg:top-auto lg:bottom-auto lg:right-auto lg:z-auto lg:p-0 lg:shadow-none lg:translate-x-0 lg:flex lg:w-[260px] lg:max-w-[280px]",
                             isSidebarOpen ? "translate-x-0" : "translate-x-full"
                         )}>
-                            <div className="flex flex-col h-full">
+                            <div className="flex h-full min-h-0 flex-col">
                                 {/* Mobile Header for Drawer */}
                                 <div className="flex items-center justify-between mb-6 lg:hidden">
                                     <h2 className="text-lg font-bold text-blue-4">الأقسام</h2>
@@ -164,8 +168,8 @@ export default function TermsPage() {
                                     </button>
                                 </div>
 
-                                <div className="flex flex-col overflow-y-auto">
-                                    {availableItems.map((item, index) => (
+                                <div className="flex min-h-0 flex-col overflow-y-auto">
+                                    {contentItems.map(({ item, index }) => (
                                         <button
                                             key={index}
                                             onClick={() => scrollToSection(index)}
@@ -197,8 +201,8 @@ export default function TermsPage() {
                         {/* Main Content - Centered Column */}
                         <div className="flex-1 max-w-4xl w-full">
                             <div className="flex flex-col gap-4">
-                                {filteredContent.length > 0 ? (
-                                    filteredContent.map((item, index) => (
+                                {contentItems.length > 0 ? (
+                                    contentItems.map(({ item, index }) => (
                                         <div key={index} id={`section-${index}`} className="scroll-mt-28">
                                             <h2 className="text-[17px] text-blue-4 mb-2  font-medium">
                                                 {index + 1}. {item.title?.[lang]}

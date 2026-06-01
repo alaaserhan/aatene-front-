@@ -30,13 +30,8 @@ export default function HomeServicesCarousel({
   const scroll = (direction: "left" | "right") => {
     if (!scrollContainerRef.current) return;
     const scrollAmount = 300;
-    const newScrollLeft =
-      direction === "left"
-        ? scrollContainerRef.current.scrollLeft - scrollAmount
-        : scrollContainerRef.current.scrollLeft + scrollAmount;
-
-    scrollContainerRef.current.scrollTo({
-      left: newScrollLeft,
+    scrollContainerRef.current.scrollBy({
+      left: direction === "left" ? scrollAmount : -scrollAmount,
       behavior: "smooth",
     });
   };
@@ -46,10 +41,10 @@ export default function HomeServicesCarousel({
   return (
     <section className={cn("py-8 relative overflow-hidden", className)} dir="rtl">
       <MaxWidthWrapper className="relative z-20">
-        <div className="flex items-center justify-between mb-10">
+        <div className="mb-8 flex items-start justify-between gap-3 sm:mb-10 sm:items-center">
           <h2
             className={cn(
-              "text-2xl md:text-3xl text-blue-4 font-medium relative inline-block",
+              "min-w-0 flex-1 whitespace-normal break-words text-center text-xl leading-snug text-blue-4 font-medium sm:text-right sm:text-2xl md:text-3xl",
               titleClassName
             )}
           >
@@ -63,13 +58,14 @@ export default function HomeServicesCarousel({
 
           <div
             ref={scrollContainerRef}
-            className="flex flex-row flex-nowrap overflow-x-auto gap-4 md:gap-6 pb-4 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-pan-x overscroll-x-contain"
+            className="flex flex-row flex-nowrap overflow-x-auto gap-4 md:gap-6 pb-4 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-pan-x overscroll-x-contain w-fit max-w-full"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
           >
             {services.map((service) => (
               <div
                 key={service.id}
                 className="flex-none w-[72vw] max-w-[280px] sm:min-w-[260px] sm:w-auto snap-start"
+                dir="rtl"
               >
                 <ServiceCard service={service} />
               </div>

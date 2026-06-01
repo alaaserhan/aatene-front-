@@ -8,6 +8,7 @@ import { Banner } from "../types";
 import { cn } from "@/src/lib/utils";
 import { useFirstBanners } from "../hooks";
 import { BannerSkeleton } from "./HomeSkeletons";
+import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 
 interface HomeBannersProps {
     banners?: Banner[]; // Keep optional for backward compatibility or initial server render if needed
@@ -50,10 +51,10 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
     // Fallback if one is missing but other exists
     const desktopSrc = hasLaptopImage ? currentBanner.labtop_banner_url : (hasMobileImage ? currentBanner.mobile_banner_url : null);
     const mobileSrc = hasMobileImage ? currentBanner.mobile_banner_url : (hasLaptopImage ? currentBanner.labtop_banner_url : null);
-    console.log(desktopSrc, mobileSrc);
-
     return (
-            <div className="relative w-full aspect-360/200 md:aspect-1170/300 overflow-hidden direction-ltr" dir="ltr">
+        <section className="bg-white pt-2 md:pt-4">
+            <MaxWidthWrapper>
+                <div className="relative aspect-[360/150] sm:aspect-auto w-full overflow-hidden rounded-xl bg-gray-100 shadow-sm direction-ltr sm:h-[230px] lg:h-[300px] 2xl:h-[320px]">
                 <div
                     key={currentIndex}
                     className="absolute inset-0 w-full h-full transition-opacity duration-500"
@@ -77,7 +78,7 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
                                     loading={currentIndex === 0 ? "eager" : "lazy"}
                                     fetchPriority={currentIndex === 0 ? "high" : "low"}
                                     onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-desktop`]: true }))}
-                                    sizes="(max-width: 768px) 100vw, 1170px"
+                                    sizes="(max-width: 768px) 100vw, 1400px"
                                 />
                             ) : (
                                 <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
@@ -111,25 +112,25 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
                 {banners.length > 1 && (
                     <>
                         <button
-                            onClick={handlePrev}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 text-white p-2 md:p-3 rounded-full backdrop-blur-sm transition-all z-10"
-                            aria-label="Previous slide"
-                        >
-                            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-                        </button>
-                        <button
                             onClick={handleNext}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 text-white p-2 md:p-3 rounded-full backdrop-blur-sm transition-all z-10"
+                            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/75 p-2 text-blue-4 shadow-sm backdrop-blur-sm transition-all hover:bg-white md:left-4 md:p-3"
                             aria-label="Next slide"
                         >
                             <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+                        </button>
+                        <button
+                            onClick={handlePrev}
+                            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/75 p-2 text-blue-4 shadow-sm backdrop-blur-sm transition-all hover:bg-white md:right-4 md:p-3"
+                            aria-label="Previous slide"
+                        >
+                            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
                         </button>
                     </>
                 )}
 
                 {/* Dots Indicator */}
                 {banners.length > 1 && (
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                    <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-2 md:bottom-4">
                         {banners.map((_, index) => (
                             <button
                                 key={index}
@@ -137,14 +138,16 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
                                 className={cn(
                                     "w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300",
                                     currentIndex === index
-                                        ? "bg-white w-6 md:w-8"
-                                        : "bg-white/50 hover:bg-white/70"
+                                        ? "bg-white w-6 shadow-sm md:w-8"
+                                        : "bg-white/60 hover:bg-white/80"
                                 )}
                                 aria-label={`Go to slide ${index + 1}`}
                             />
                         ))}
                     </div>
                 )}
-            </div>
+                </div>
+            </MaxWidthWrapper>
+        </section>
     );
 }
