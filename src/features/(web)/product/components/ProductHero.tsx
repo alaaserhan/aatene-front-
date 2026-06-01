@@ -12,7 +12,6 @@ import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import Cookies from "js-cookie";
 
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { HoverPlayVideo } from "@/src/components/ui/HoverPlayVideo";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import Link from "next/link";
@@ -189,9 +188,12 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                     {/* Main Image */}
                     <div className="flex-1 relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
                         {currentMedia?.type === "video" ? (
-                            <HoverPlayVideo
+                            <video
                                 key={currentMedia.url}
                                 src={currentMedia.url}
+                                controls
+                                playsInline
+                                className="h-full w-full object-cover"
                             />
                         ) : (
                             <img
