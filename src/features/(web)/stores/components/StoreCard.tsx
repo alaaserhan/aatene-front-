@@ -1,9 +1,9 @@
 "use client";
 
-import { memo, useState, useEffect } from "react";
+import { memo, useState } from "react";
 import { Store } from "@/src/features/(web)/searchAndFilter/api";
-import { cn } from "@/src/lib/utils";
-import { ArrowRight, UserPlus, Store as StoreIcon, ArrowLeft } from "lucide-react";
+import { cn, sanitizeMediaUrl, resolveImageSrc } from "@/src/lib/utils";
+import { UserPlus, Store as StoreIcon, ArrowLeft, MapPin } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -11,6 +11,7 @@ import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(we
 import { useQueryClient } from "@tanstack/react-query";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
+import { useLanguage } from "@/src/hooks/use-language";
 
 interface StoreCardProps {
     store: Store;
@@ -28,25 +29,16 @@ const StoreCard = memo(({
     className
 }: StoreCardProps) => {
     const coverUrls = (store.cover_urls ?? []).filter(Boolean);
-    const primaryCover = coverUrls[0];
+    const primaryCover = coverUrls[0] ? sanitizeMediaUrl(coverUrls[0]) : "";
     const coverIsVideo = Boolean(primaryCover && isStoreBannerVideoUrl(primaryCover));
-    const [imgSrc, setImgSrc] = useState(store.logo_url || "/placeholder.png");
-    const [imageCoverSrc, setImageCoverSrc] = useState(primaryCover || "");
+    const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
+    const [failedCoverUrl, setFailedCoverUrl] = useState<string | null>(null);
+    const normalizedLogoUrl = sanitizeMediaUrl(store.logo_url);
+    const logoSrc = resolveImageSrc(normalizedLogoUrl, failedLogoUrl, "store");
+    const coverSrc = primaryCover && failedCoverUrl !== primaryCover ? primaryCover : logoSrc;
     const rating = parseFloat(store.review_rate || "0");
-    const [followed, setFollowed] = useState(isFollowing || store.am_i_following);
-
-    // Sync local state when parent re-renders with updated props
-    useEffect(() => {
-        setFollowed(isFollowing || store.am_i_following);
-    }, [isFollowing, store.am_i_following]);
-
-    useEffect(() => {
-        setImageCoverSrc(primaryCover || "");
-    }, [primaryCover]);
-
-    useEffect(() => {
-        setImgSrc(store.logo_url || "/placeholder.png");
-    }, [store.logo_url]);
+    const [followOverride, setFollowOverride] = useState<boolean | null>(null);
+    const followed = followOverride ?? Boolean(isFollowing || store.am_i_following);
 
     const queryClient = useQueryClient();
     const { mutate: follow, isPending: isFollowPending } = useFollowUserOrStore();
@@ -55,12 +47,18 @@ const StoreCard = memo(({
     const isPending = isFollowPending || isUnfollowPending;
 
     const router = useRouter();
+    const lang = useLanguage();
+    const storePath = `/${lang}/store/${store.slug}`;
+    const cityNames = [...(store.location_cities || []), ...(store.service_cities || [])]
+        .map((city) => city?.name)
+        .filter(Boolean);
+    const cityLabel = cityNames.length > 0 ? [...new Set(cityNames)].slice(0, 2).join("، ") : store.address || "المدينة غير محددة";
 
     const handleCardClick = () => {
         if (onVisitClick) {
             onVisitClick(store.slug);
         } else {
-            router.push(`/store/${store.slug}`);
+            router.push(storePath);
         }
     };
 
@@ -68,7 +66,7 @@ const StoreCard = memo(({
         <div
             onClick={handleCardClick}
             className={cn(
-                "bg-white h-full rounded-lg border border-gray-100 overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300 cursor-pointer",
+                "bg-white h-full w-full min-w-0 rounded-lg border border-gray-100 overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300 cursor-pointer",
                 className
             )}
         >
@@ -86,22 +84,22 @@ const StoreCard = memo(({
                     />
                 ) : primaryCover && !coverIsVideo ? (
                     <Image
-                        src={imageCoverSrc || primaryCover}
+                        src={coverSrc}
                         alt={store.name}
                         fill
                         className="object-cover"
                         onError={() => {
-                            setImageCoverSrc(store.logo_url || "/placeholder.png");
+                            setFailedCoverUrl(primaryCover);
                         }}
                     />
                 ) : store.logo_url ? (
                     <Image
-                        src={imgSrc}
+                        src={logoSrc}
                         alt={store.name}
                         fill
                         className="object-cover"
                         onError={() => {
-                            setImgSrc("/placeholder.png");
+                            setFailedLogoUrl(normalizedLogoUrl || null);
                         }}
                     />
                 ) : (
@@ -130,17 +128,17 @@ const StoreCard = memo(({
             </div>
 
             {/* Content Section */}
-            <div className="p-4 flex flex-col flex-1">
+            <div className="p-4 flex min-w-0 flex-col flex-1">
                 {/* Store Name & Crown */}
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex min-w-0 items-center gap-2 mb-3">
                     {/* <Image src="/icons/crown.svg" alt="crown" width={16} height={16} /> */}
-                    <h3 className=" font-semibold text-base">{store.name}</h3>
+                    <h3 className="min-w-0 truncate font-semibold text-base">{store.name}</h3>
                 </div>
 
-                {/* Description */}
-                <p className="text-gray-2 text-sm mb-4 line-clamp-2 flex-1">
-                    {store.description || "متجر إلكتروني متخصص في أحدث صيحات الموضة والأزياء العصرية للشباب والشابات"}
-                </p>
+                <div className="mb-3 flex min-w-0 items-center gap-1.5 text-sm text-gray-2">
+                    <MapPin className="h-4 w-4 shrink-0 text-blue-4" />
+                    <span className="min-w-0 truncate">{cityLabel}</span>
+                </div>
 
                 {/* Features Row */}
                 <div className="flex items-center gap-3 text-sm  mb-6 flex-wrap">
@@ -178,7 +176,7 @@ const StoreCard = memo(({
                                         { followed_type: "store", followed_id: store.id },
                                         {
                                             onSuccess: () => {
-                                                setFollowed(false);
+                                                setFollowOverride(false);
                                                 onFollowClick?.(store.id);
                                                 queryClient.invalidateQueries({ queryKey: ["stores", "search"] });
                                                 queryClient.invalidateQueries({ queryKey: ["storeProfile", store.slug] });
@@ -197,7 +195,7 @@ const StoreCard = memo(({
                                     if (onVisitClick) {
                                         onVisitClick(store.slug);
                                     } else {
-                                        router.push(`/store/${store.slug}`);
+                                        router.push(storePath);
                                     }
                                 }}
                                 className="w-12 py-3 rounded-lg bg-gray-50 text-blue-4 flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer"
@@ -215,7 +213,7 @@ const StoreCard = memo(({
                                     { followed_type: "store", followed_id: store.id },
                                     {
                                         onSuccess: () => {
-                                            setFollowed(true);
+                                            setFollowOverride(true);
                                             onFollowClick?.(store.id);
                                             queryClient.invalidateQueries({ queryKey: ["stores", "search"] });
                                             queryClient.invalidateQueries({ queryKey: ["storeProfile", store.slug] });

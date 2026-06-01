@@ -104,6 +104,9 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
         return { activeCompany: activeC, activeDetails: activeD };
     }, [allShippingCompanies, selectedCityId, shippingCompany, shippingDetails, selectedCityName]);
 
+    const deliveryCompanyName = typeof activeCompany?.name === "string" ? activeCompany.name.trim() : "";
+    const deliveryCompanyPhone = normalizeDisplayPhone(activeCompany?.phone);
+
     const handleApplyCity = () => {
         const city = citiesData?.cities?.find((c) => c.id === tempSelectedCityId);
         if (city) {
@@ -164,34 +167,34 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
             </div>
 
             {/* Delivery Company Card */}
-            {(activeCompany || store) && (
+            {deliveryCompanyName && (
                 <div className="flex items-center justify-between flex-wrap gap-4 border border-gray-200 rounded-md p-3 px-4">
                     <div className="flex items-center gap-3">
                         <div className="w-11 h-11 rounded-md bg-blue-4 flex items-center justify-center">
                             <Building2 className="w-5 h-5 text-white" />
                         </div>
                         <span className="font-bold text-gray-700 text-lg">
-                            {activeCompany?.name || "شركة مرسال للتوصيل"}
+                            {deliveryCompanyName}
                         </span>
                     </div>
 
-                    <a
-                        href={`tel:${activeCompany?.phone || store.phone}`}
-                        onClick={(e) => {
-                            if (!showPhone) {
-                                e.preventDefault();
-                                setShowPhone(true);
-                            }
-                        }}
-                        className="flex items-center gap-3 bg-[#EFF6FF] text-blue-4 px-6 py-2 rounded-full text-sm font-bold border border-blue-4 transition-colors hover:bg-blue-100 cursor-pointer"
-                    >
-                        <span dir="ltr">
-                            {showPhone
-                                ? (activeCompany?.phone || store.phone || "")
-                                : (activeCompany?.phone || store.phone || "").replace(/(\d{3})(\d{3})(\d{3})(\d+)/, "$1 *** *** ***")}
-                        </span>
-                        <Phone className="w-4 h-4 fill-current" />
-                    </a>
+                    {deliveryCompanyPhone && (
+                        <a
+                            href={`tel:${deliveryCompanyPhone}`}
+                            onClick={(e) => {
+                                if (!showPhone) {
+                                    e.preventDefault();
+                                    setShowPhone(true);
+                                }
+                            }}
+                            className="flex items-center gap-3 bg-[#EFF6FF] text-blue-4 px-6 py-2 rounded-full text-sm font-bold border border-blue-4 transition-colors hover:bg-blue-100 cursor-pointer"
+                        >
+                            <span dir="ltr">
+                                {showPhone ? deliveryCompanyPhone : maskDisplayPhone(deliveryCompanyPhone)}
+                            </span>
+                            <Phone className="w-4 h-4 fill-current" />
+                        </a>
+                    )}
                 </div>
             )}
 
@@ -256,4 +259,18 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
             </Dialog>
         </div>
     );
+}
+
+function normalizeDisplayPhone(phone: unknown): string {
+    if (phone == null) return "";
+    const value = String(phone).trim();
+    const digits = value.replace(/\D/g, "");
+    if (digits.length <= 4) return "";
+    return value;
+}
+
+function maskDisplayPhone(phone: string): string {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length <= 6) return phone;
+    return phone.replace(/^\+?(\d{3}).*/, "+$1 *** ***");
 }

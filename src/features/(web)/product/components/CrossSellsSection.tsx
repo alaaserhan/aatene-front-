@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Product } from "../api";
-import Link from "next/link";
 import { formatPrice } from "@/src/lib/format-price";
 
 interface CrossSellsSectionProps {
@@ -13,125 +14,134 @@ interface CrossSellsSectionProps {
     crossSellsDescription?: string;
 }
 
+const PAGE_SIZE = 3;
+
+function parsePrice(price?: string | null) {
+    const value = Number.parseFloat(price || "0");
+    return Number.isFinite(value) ? value : 0;
+}
+
 export default function CrossSellsSection({
     crossSells,
     crossSellsPrice,
     crossSellsName,
     crossSellsDescription
 }: CrossSellsSectionProps) {
-    const originalTotal = crossSells.reduce((sum, p) => sum + parseFloat(p.price || "0"), 0);
-
-    // دائماً 3 منتجات في كل صفحة على كل الشاشات
-    const PAGE_SIZE = 3;
+    const bundlePrice = parsePrice(crossSellsPrice);
+    const originalTotal = crossSells.reduce((sum, product) => sum + parsePrice(product.price), 0);
     const totalPages = Math.ceil(crossSells.length / PAGE_SIZE);
     const [page, setPage] = useState(0);
 
     const visibleProducts = crossSells.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-    if (crossSells.length === 0 || !crossSellsPrice || parseFloat(crossSellsPrice) <= 0) {
+    if (crossSells.length === 0 || bundlePrice <= 0) {
         return null;
     }
 
-    const savings = originalTotal - parseFloat(crossSellsPrice);
+    const savings = Math.max(0, originalTotal - bundlePrice);
 
     return (
-        <div className="my-10 md:my-20">
-            {/* العنوان والوصف */}
-            {(crossSellsName || crossSellsDescription) && (
-                <div className="text-center mb-5 md:mb-8">
-                    {crossSellsName && (
-                        <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-1">{crossSellsName}</h3>
-                    )}
+        <section className="my-12 md:my-16 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm" dir="rtl">
+            <div className="flex flex-col gap-4 border-b border-gray-100 px-4 py-5 sm:px-6 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0 space-y-2">
+                    <p className="text-xs font-semibold text-blue-4">عرض مجمع</p>
+                    <h3 className="text-xl font-bold text-gray-900 md:text-2xl">
+                        {crossSellsName || "اشترِ المنتجات معاً بسعر أفضل"}
+                    </h3>
                     {crossSellsDescription && (
-                        <p className="text-sm md:text-base text-gray-600">{crossSellsDescription}</p>
+                        <p className="max-w-3xl break-words text-sm leading-7 text-gray-500 md:text-base">
+                            {crossSellsDescription}
+                        </p>
                     )}
                 </div>
-            )}
 
-         
-            <div className="flex flex-col items-center gap-3 md:gap-6">
-
-                {/* الصف الرئيسي — كل شيء في سطر واحد بلا كسر */}
-                <div className="flex items-center justify-center gap-1 sm:gap-2 md:gap-3 w-full overflow-x-auto py-1 no-scrollbar">
-
-                    {/* سهم يمين */}
-                    {totalPages > 1 && (
+                {totalPages > 1 && (
+                    <div className="flex items-center gap-2 self-start">
                         <button
                             type="button"
-                            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                            onClick={() => setPage((current) => Math.min(totalPages - 1, current + 1))}
                             disabled={page === totalPages - 1}
-                            className="shrink-0 w-6 h-6 sm:w-8 sm:h-8 cursor-pointer rounded-full bg-blue-3 flex items-center justify-center hover:bg-blue-4 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 transition-colors hover:border-blue-3 hover:text-blue-4 disabled:cursor-not-allowed disabled:opacity-40"
                             aria-label="التالي"
                         >
-                            <ChevronRight className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
+                            <ChevronRight className="h-4 w-4" />
                         </button>
-                    )}
-
-                    {/* المنتجات */}
-                    <div className="flex items-center gap-1 sm:gap-2 md:gap-3 shrink-0">
-                        {visibleProducts.map((product, index) => (
-                            <div key={product.id} className="flex items-center gap-1 sm:gap-2 md:gap-3">
-                                <Link
-                                    href={`/product/${product.slug}`}
-                                    className="flex flex-col items-center gap-0.5 sm:gap-1 w-[70px] sm:w-[110px] md:w-[155px] shrink-0 group/item"
-                                >
-                                    <div className="w-full aspect-square rounded-md overflow-hidden bg-white border border-gray-200 shadow-sm">
-                                        <img
-                                            src={product.cover || "/placeholder.png"}
-                                            alt={product.name}
-                                            className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
-                                            onError={(e) => {
-                                                e.currentTarget.src = "/placeholder.png";
-                                                e.currentTarget.onerror = null;
-                                            }}
-                                        />
-                                    </div>
-                                    <p className="text-[9px] sm:text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight group-hover/item:text-blue-3 transition-colors w-full">
-                                        {product.name}
-                                    </p>
-                                </Link>
-                                {index < visibleProducts.length - 1 && (
-                                    <span className="text-xs sm:text-xl md:text-2xl font-bold text-gray-400 shrink-0">+</span>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* سهم يسار (قبل =) */}
-                    {totalPages > 1 && (
+                        <span className="min-w-10 text-center text-xs font-medium text-gray-500">
+                            {page + 1} / {totalPages}
+                        </span>
                         <button
                             type="button"
-                            onClick={() => setPage((p) => Math.max(0, p - 1))}
+                            onClick={() => setPage((current) => Math.max(0, current - 1))}
                             disabled={page === 0}
-                            className="shrink-0 w-6 h-6 sm:w-8 sm:h-8 cursor-pointer rounded-full bg-blue-3 flex items-center justify-center hover:bg-blue-4 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 transition-colors hover:border-blue-3 hover:text-blue-4 disabled:cursor-not-allowed disabled:opacity-40"
                             aria-label="السابق"
                         >
-                            <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
+                            <ChevronLeft className="h-4 w-4" />
                         </button>
-                    )}
+                    </div>
+                )}
+            </div>
 
-                    {/* = والسعر */}
-                    <div className="flex items-center gap-1 sm:gap-3 md:gap-4 shrink-0">
-                        <span className="text-base sm:text-2xl md:text-3xl font-bold text-gray-400 shrink-0">=</span>
-                        <div className="flex flex-col items-center gap-0.5 shrink-0">
-                            <span className="text-xs sm:text-xl md:text-2xl font-bold text-gray-800 whitespace-nowrap">
-                                {formatPrice(crossSellsPrice)}{" "}
-                                <span className="text-[9px] sm:text-base font-medium">₪</span>
-                            </span>
-                            <span className="text-[7px] sm:text-xs text-black whitespace-nowrap">بدلاً من</span>
-                            <span className="text-[8px] sm:text-sm text-black line-through whitespace-nowrap">
-                                {formatPrice(originalTotal)} ₪
-                            </span>
-                            {savings > 0 && (
-                                <span className="mt-0.5 text-[7px] sm:text-xs font-semibold text-red-1 whitespace-nowrap">
-                                    وفّر {formatPrice(savings)} ₪
+            <div className="grid gap-5 p-4 sm:p-6 lg:grid-cols-[1fr_260px] lg:items-stretch">
+                <div className="grid gap-3 sm:grid-cols-3">
+                    {visibleProducts.map((product, index) => (
+                        <div key={product.id} className="relative">
+                            <Link
+                                href={`/product/${product.slug}`}
+                                className="group flex h-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white transition-colors hover:border-blue-3"
+                            >
+                                <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
+                                    <Image
+                                        src={product.cover || "/placeholder.png"}
+                                        alt={product.name}
+                                        fill
+                                        sizes="(min-width: 1024px) 260px, (min-width: 640px) 33vw, 100vw"
+                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                    />
+                                </div>
+                                <div className="flex flex-1 flex-col gap-2 p-3">
+                                    <p className="line-clamp-2 min-h-10 break-words text-sm font-semibold leading-5 text-gray-800 transition-colors group-hover:text-blue-4">
+                                        {product.name}
+                                    </p>
+                                    <span className="mt-auto text-sm font-bold text-gray-900">
+                                        {formatPrice(product.price)} <span className="text-xs font-medium">₪</span>
+                                    </span>
+                                </div>
+                            </Link>
+
+                            {index < visibleProducts.length - 1 && (
+                                <span
+                                    className="absolute left-1/2 top-full z-10 flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-blue-4 text-lg font-semibold text-white shadow-sm sm:left-0 sm:top-1/2 sm:translate-x-1/2"
+                                    aria-hidden="true"
+                                >
+                                    +
                                 </span>
                             )}
                         </div>
-                    </div>
+                    ))}
                 </div>
 
+                <div className="flex flex-col justify-between rounded-lg bg-gray-50 p-4 text-center lg:text-start">
+                    <div className="space-y-2">
+                        <p className="text-sm font-medium text-gray-500">سعر العرض</p>
+                        <p className="text-3xl font-bold text-gray-900">
+                            {formatPrice(crossSellsPrice)} <span className="text-base font-semibold">₪</span>
+                        </p>
+                        {originalTotal > bundlePrice && (
+                            <p className="text-sm text-gray-500">
+                                بدلاً من{" "}
+                                <span className="font-semibold line-through">{formatPrice(originalTotal)} ₪</span>
+                            </p>
+                        )}
+                    </div>
+
+                    {savings > 0 && (
+                        <div className="mt-5 rounded-md bg-red-50 px-3 py-2 text-sm font-semibold text-red-1">
+                            وفر {formatPrice(savings)} ₪
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+        </section>
     );
 }

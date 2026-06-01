@@ -11,6 +11,7 @@ import { RequestedServiceComment } from "../types";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { useLanguage } from "@/src/hooks/use-language";
 
 function CommentCard({
     comment,
@@ -19,12 +20,19 @@ function CommentCard({
     comment: RequestedServiceComment;
     onOpenMedia: (media: string[], index: number) => void;
 }) {
+    const lang = useLanguage();
+    const profileHref = comment.user.slug
+        ? `/${lang}/profile/${comment.user.slug}`
+        : comment.user.id
+            ? `/${lang}/profile/${comment.user.id}`
+            : `/${lang}/profile`;
+
     return (
         <div className="bg-blue-5 rounded-lg p-5 flex flex-col gap-4 relative transition-all hover:bg-gray-50 hover:border-blue-100">
             <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3 text-right">
                     <Link
-                        href={comment.user.slug ? `/profile/${comment.user.slug}` : comment.user.id ? `/profile/${comment.user.id}` : `/profile`}
+                        href={profileHref}
                         className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-100 bg-gray-100 hover:opacity-80 transition-opacity flex items-center justify-center text-gray-400"
                     >
                         {(comment.user.avatar_url && comment.user.avatar_url.trim()) || (comment.user.avatar && comment.user.avatar.trim()) ? (
@@ -41,7 +49,7 @@ function CommentCard({
                     </Link>
                     <div className="flex flex-col ">
                         <Link
-                            href={comment.user.slug ? `/profile/${comment.user.slug}` : comment.user.id ? `/profile/${comment.user.id}` : `/profile`}
+                            href={profileHref}
                             className="text-blue-4 text-sm font-medium hover:underline transition-colors"
                         >
                             {comment.user.name}
@@ -163,6 +171,7 @@ function AddCommentForm({ slug }: { slug: string | number }) {
 
 export default function RequestedServiceDetailsPage() {
     const params = useParams();
+    const lang = useLanguage();
     const slug = params?.slug as string;
     const { data: serviceData, isLoading, isError } = useRequestedServiceBySlug(slug);
     const { data: commentsData } = useRequestedServiceComments(slug);
@@ -352,7 +361,7 @@ export default function RequestedServiceDetailsPage() {
                                 {latestActivity.slice(0, 5).map((item) => (
                                     <Link
                                         key={item.id}
-                                        href={`/requested-services/${item.slug}`}
+                                        href={`/${lang}/requested-services/${item.slug}`}
                                         className="group block transition-colors cursor-pointer text-right"
                                     >
                                         <h4 className=" text-sm leading-relaxed group-hover:text-[#3d5e83] transition-colors">

@@ -9,6 +9,7 @@ import { RequestedService } from "../types";
 
 import Link from "next/link";
 import { cn } from "@/src/lib/utils";
+import { useLanguage } from "@/src/hooks/use-language";
 
 const PER_PAGE = 10;
 
@@ -19,12 +20,13 @@ const statusMap: Record<string, { label: string; color: string }> = {
 };
 
 function MyRequestedServiceCard({ service }: { service: RequestedService }) {
+    const lang = useLanguage();
     const statusInfo = statusMap[service.status] || { label: service.status, color: "bg-gray-50 text-gray-500 border-gray-100" };
     const user = service.user;
 
     return (
         <Link
-            href={`/requested-services/${service.slug}`}
+            href={`/${lang}/requested-services/${service.slug}`}
             className="border border-gray-200 rounded-xl p-5 flex flex-col md:flex-row items-start justify-between gap-5 cursor-pointer"
         >
             <div className="flex-1 flex flex-col gap-3 w-full">
@@ -87,6 +89,7 @@ function ServiceCardSkeleton() {
 }
 
 export default function MyRequestedServicesPage() {
+    const lang = useLanguage();
     const [page, setPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
@@ -147,7 +150,7 @@ export default function MyRequestedServicesPage() {
                         </button>
                     </div>
                     <Link
-                        href="/requested-services/create"
+                        href={`/${lang}/requested-services/create`}
                         className="bg-blue-4 flex items-center font-medium justify-center gap-2.5 px-8 py-2 h-10 rounded-full text-white text-sm shrink-0"
                     >
                         <CirclePlus className="w-5 h-5" />

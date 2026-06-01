@@ -5,6 +5,7 @@ import { cn, isVideoFile } from "@/src/lib/utils";
 import { Star, MapPin, Crown, User as UserIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useLanguage } from "@/src/hooks/use-language";
 
 interface UserCardProps {
     user: User;
@@ -13,11 +14,12 @@ interface UserCardProps {
 
 
 export default function UserCard({ user, className }: UserCardProps) {
+    const lang = useLanguage();
     const rating = parseFloat(user.review_rate || "0").toFixed(1);
     const cityName = user.city?.name || "لا يوجد مدينة";
     const coverImage = user.cover_url;
 
-    const profileLink = `/profile/${user.slug || user.id}`;
+    const profileLink = `/${lang}/profile/${user.slug || user.id}`;
 
     return (
         <Link

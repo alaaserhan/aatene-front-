@@ -7,11 +7,13 @@ import { useGetFollowers, useGetFollowings, useRemoveFollower, useUnfollowUserOr
 import { FollowerItem, FollowingItem, FollowableEntity } from "../../api";
 import { cn } from "@/src/lib/utils";
 import { Avatar, AvatarImage, AvatarFallback } from "@/src/components/ui/avatar";
+import { useLanguage } from "@/src/hooks/use-language";
 
 export default function FollowingsTab() {
     const [activeTab, setActiveTab] = useState<"followings" | "followers">("followings");
     const [searchQuery, setSearchQuery] = useState("");
     const router = useRouter();
+    const lang = useLanguage();
 
     const { data: followingsData, isLoading: isLoadingFollowings } = useGetFollowings();
     const { data: followersData, isLoading: isLoadingFollowers } = useGetFollowers();
@@ -63,9 +65,9 @@ export default function FollowingsTab() {
         const slug = target.slug || target.id;
 
         if (type === "store") {
-            router.push(`/store/${slug}`);
+            router.push(`/${lang}/store/${slug}`);
         } else if (type === "user") {
-            router.push(`/profile/${slug}`);
+            router.push(`/${lang}/profile/${slug}`);
         }
     };
 
