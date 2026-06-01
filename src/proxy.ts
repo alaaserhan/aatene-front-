@@ -32,12 +32,23 @@ const MERCHANT_BLOCKED_SEGMENTS = new Set([
   'contacts',
 ]);
 
+const PUBLIC_AUTH_ROUTES = [
+  '/login',
+  '/signup',
+  '/forgot-password',
+];
+
 function getLocaleFromPath(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
   if (segments.length > 0 && LOCALES.has(segments[0])) {
     return segments[0];
   }
   return "ar";
+}
+
+function isRouteMatch(pathname: string, locale: string, route: string) {
+  const normalizedPath = pathname.replace(/\/+$/, "") || "/";
+  return normalizedPath === route || normalizedPath === `/${locale}${route}`;
 }
 
 function isComingSoonRoute(pathname: string) {
@@ -85,6 +96,10 @@ export default function proxy(request: NextRequest) {
   // 2. Auth guard for protected web routes
   const token = request.cookies.get('token')?.value;
   const webLocale = getLocaleFromPath(pathname);
+
+  if (token && PUBLIC_AUTH_ROUTES.some((route) => isRouteMatch(pathname, webLocale, route))) {
+    return NextResponse.redirect(new URL(`/${webLocale}`, request.url));
+  }
 
   const protectedWebRoutes = [
     '/requested-services/create',
