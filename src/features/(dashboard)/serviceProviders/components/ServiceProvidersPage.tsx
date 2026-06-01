@@ -222,7 +222,11 @@ function ProvidersSection() {
         router.push(`/admin/users?userId=${store.owner?.id}`);
     };
 
-    const handleShowClick = (store: Store) => {
+    const handlePreviewClick = (store: Store) => {
+        router.push(`/admin/stores/${store.id}`);
+    };
+
+    const handleManageServicesClick = (store: Store) => {
         router.push(`/admin/serviceProviders/${store.id}`);
     };
 
@@ -267,7 +271,8 @@ function ProvidersSection() {
                         onPageChange={setCurrentPage}
                         onEdit={handleEditClick}
                         onDelete={handleDeleteClick}
-                        onShow={handleShowClick}
+                        onPreview={handlePreviewClick}
+                        onManageServices={handleManageServicesClick}
                     />
                 </div>
             </div>

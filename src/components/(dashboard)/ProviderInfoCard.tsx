@@ -7,8 +7,8 @@ import { MapPin, Flag, Plus, Star, ShieldCheck, ShoppingCart, AlarmClock } from 
 import { cn } from "@/src/lib/utils";
 import { Store } from "@/src/features/(dashboard)/stores/api";
 import { useLanguage } from "@/src/hooks/use-language";
+import Link from "next/link";
 
-// src/components/(dashboard)/ProviderInfoCard.tsx
 export interface ProviderData {
     id?: number;
     name: string;
@@ -32,9 +32,6 @@ interface ProviderInfoCardProps {
     isOwner?: boolean;
     isAdmin?: boolean;
 }
-
-import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
-import Link from "next/link";
 
 export function ProviderInfoCard({ store, provider, className, onReport, onFollow, isFollowing, isOwner, isAdmin }: ProviderInfoCardProps) {
     const lang = useLanguage();
@@ -109,33 +106,6 @@ export function ProviderInfoCard({ store, provider, className, onReport, onFollo
                             </>
                         )}
                     </Button>
-                    )}
-
-                    {data.id && !isOwner && !isAdmin ? (
-                        <ReportAbuse type="store" id={data.id}>
-                            <Button
-                                variant="destructive"
-                                className="bg-[#D00416] hover:bg-[#d93838] cursor-pointer text-white font-medium h-8 px-8 gap-2 rounded-full flex-1 md:flex-none"
-                            >
-                                <Flag className="w-4 h-4" />
-                                <span>بلغ عن إساءة</span>
-                            </Button>
-                        </ReportAbuse>
-                    ) : (
-                        <Button
-                            variant="destructive"
-                            onClick={!isOwner && !isAdmin ? onReport : undefined}
-                            disabled={isOwner || isAdmin}
-                            className={cn(
-                                "font-medium h-8 px-8 gap-2 rounded-full flex-1 md:flex-none",
-                                (isOwner || isAdmin)
-                                    ? "bg-[#D00416] hover:bg-[#D00416] text-white cursor-not-allowed opacity-60"
-                                    : "bg-[#D00416] hover:bg-[#d93838] cursor-pointer text-white"
-                            )}
-                        >
-                            <Flag className="w-4 h-4" />
-                            <span>بلغ عن إساءة</span>
-                        </Button>
                     )}
                 </div>
 

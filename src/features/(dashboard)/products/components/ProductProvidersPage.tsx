@@ -183,7 +183,8 @@ function ProvidersSection() {
     const handleConfirmDelete = () => {
         if (storeToDelete) { deleteStore(storeToDelete); setDeleteModalOpen(false); setStoreToDelete(null); }
     };
-    const handleShowClick = (store: Store) => { router.push(`/admin/productProviders/${store.id}`); };
+    const handlePreviewClick = (store: Store) => { router.push(`/admin/stores/${store.id}`); };
+    const handleManageProductsClick = (store: Store) => { router.push(`/admin/productProviders/${store.id}`); };
     const handleEditClick = (store: Store) => { router.push(`/admin/users?userId=${store.owner?.id}`); };
 
     return (
@@ -221,7 +222,8 @@ function ProvidersSection() {
                         onPageChange={setCurrentPage}
                         onDelete={handleDeleteClick}
                         onEdit={handleEditClick}
-                        onShow={handleShowClick}
+                        onPreview={handlePreviewClick}
+                        onManageProducts={handleManageProductsClick}
                     />
                 </div>
             </div>
