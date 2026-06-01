@@ -93,7 +93,7 @@ function normalizeWorkingTimesForApi(
 
 function normalizeShippingPhone(phone: string | number): string {
   const digits = String(phone).replace(/\D/g, "");
-  return digits || "0";
+  return digits;
 }
 
 export function mapStoreShippingCompanies(

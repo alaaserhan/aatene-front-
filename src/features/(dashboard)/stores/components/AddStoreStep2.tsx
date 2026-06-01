@@ -8,8 +8,6 @@ import { FormInput } from "@/src/components/ui/FormInput";
 import { StoreIdentitySelector } from "./StoreIdentitySelector";
 import { StoreBannerSelector } from "./StoreBannerSelector";
 import { StepperProgress } from "./StepperProgress";
-import { StorePreviewSidebar } from "./StorePreviewSidebar";
-import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { useGetCities } from "../../cities/hooks";
 import { StoreType } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -41,7 +39,6 @@ export function AddStoreStep2({
   storeType,
   initialData,
   onNext,
-  onBack,
   currentUserId,
   barSteps,
 }: AddStoreStep2Props) {
@@ -236,7 +233,7 @@ export function AddStoreStep2({
         <StepperProgress currentStep={1} steps={steps} />
 
         <div className="grid grid-cols-12 gap-6 mt-8">
-          <div className="col-span-12 lg:col-span-8">
+          <div className="col-span-12">
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-xl font-semibold mb-8">البيانات الأساسية</h2>
 
@@ -442,17 +439,6 @@ export function AddStoreStep2({
             </div>
           </div>
 
-          <div className="col-span-12 lg:col-span-4">
-            <StorePreviewSidebar
-              data={{
-                logo: formData.logo_preview,
-                name: formData.name,
-                description: formData.description,
-                coverImages: formData.cover_previews,
-              }}
-            />
-            <GuideVideoCard location="create-store" />
-          </div>
         </div>
       </div>
 

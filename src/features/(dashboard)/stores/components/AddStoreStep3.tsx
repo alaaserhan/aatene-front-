@@ -2,12 +2,9 @@
 "use client";
 
 import { useState, ChangeEvent } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/src/components/ui/button";
 import { PhoneNumberInput } from "@/src/components/ui/PhoneNumberInput";
 import { StepperProgress } from "./StepperProgress";
-import { StorePreviewSidebar } from "./StorePreviewSidebar";
-import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { StoreType } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Step2FormData, Step3FormData } from "../types";
@@ -40,14 +37,11 @@ const isValidUrl = (url: string) => {
 };
 
 export function AddStoreStep3({
-  storeType,
-  previousData,
   initialData,
   onNext,
   onBack,
   barSteps,
 }: AddStoreStep3Props) {
-  const router = useRouter();
   const [phoneCountryCode, setPhoneCountryCode] = useState("+972");
 
   const [formData, setFormData] = useState<LocalStep3Data>({
@@ -129,10 +123,6 @@ export function AddStoreStep3({
     }
   };
 
-  const handleCancel = () => {
-    router.push("/admin/stores");
-  };
-
   const toggleHidePhone = () => {
     setFormData({
       ...formData,
@@ -148,7 +138,7 @@ export function AddStoreStep3({
         <StepperProgress currentStep={2} steps={steps} />
 
         <div className="grid grid-cols-12 gap-6 mt-8">
-          <div className="col-span-12 lg:col-span-8">
+          <div className="col-span-12">
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-xl font-bold mb-8">الاتصال والسوشيال</h2>
 
@@ -287,17 +277,6 @@ export function AddStoreStep3({
             </div>
           </div>
 
-          <div className="col-span-12 lg:col-span-4">
-            <StorePreviewSidebar
-              data={{
-                logo: previousData.logo_preview,
-                name: previousData.name,
-                description: previousData.description,
-                coverImages: previousData.cover_previews,
-              }}
-            />
-            <GuideVideoCard location="create-store" />
-          </div>
         </div>
       </div>
       <div className="flex gap-4 justify-between mt-6 bg-white shadow-2xl p-6">

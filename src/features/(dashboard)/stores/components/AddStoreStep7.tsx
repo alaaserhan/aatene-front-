@@ -2,8 +2,6 @@
 "use client";
 import { useState, KeyboardEvent, useEffect } from "react";
 import { StepperProgress } from "./StepperProgress";
-import { StorePreviewSidebar } from "./StorePreviewSidebar";
-import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { StoreFormActions } from "./StoreFormActions";
 import { StoreType } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -27,8 +25,6 @@ interface AddStoreStep7Props {
 }
 
 export function AddStoreStep7({
-  storeType,
-  previousData,
   initialData,
   onSave,
   onBack,
@@ -130,7 +126,7 @@ export function AddStoreStep7({
         <StepperProgress currentStep={6} steps={steps} />
 
         <div className="grid grid-cols-12 gap-6 mt-8">
-          <div className="col-span-12 lg:col-span-8">
+          <div className="col-span-12">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
               <div className="p-6 flex justify-between items-center">
                 <h2 className="text-xl font-bold flex items-center gap-2">الكلمات المفتاحية
@@ -193,17 +189,6 @@ export function AddStoreStep7({
             </div>
           </div>
 
-          <div className="col-span-12 lg:col-span-4">
-            <StorePreviewSidebar
-              data={{
-                logo: previousData.logo_preview,
-                name: previousData.name,
-                description: previousData.description,
-                coverImages: previousData.cover_previews,
-              }}
-            />
-            <GuideVideoCard location="create-store" />
-          </div>
         </div>
       </div>
 

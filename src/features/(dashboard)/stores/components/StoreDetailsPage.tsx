@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import { Loader2, Minus, Plus } from "lucide-react";
+import { CheckCircle2, Loader2, Minus, PauseCircle, Plus, X, XCircle } from "lucide-react";
 import {
   useGetSingleStore,
   useDeleteStore,
@@ -42,6 +42,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
   const [managersExpanded, setManagersExpanded] = useState(true);
   const [showAllDays, setShowAllDays] = useState(false);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [dismissedStoreStatus, setDismissedStoreStatus] = useState<string | null>(null);
   const user = useAuthStore((state) => state.user);
 
   const { mutate: deleteStoreMutation, isPending: isDeleting } = useDeleteStore();
@@ -55,7 +56,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
   const store = storeData?.record;
 
   const handleEdit = () => {
-    router.push(`/admin/stores/${storeId}/edit`);
+    router.push(`${storesBasePath}/${storeId}/edit`);
   };
 
   const handleDeleteClick = () => {
@@ -132,12 +133,45 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
     user?.user_type === "admin" || user?.user_type === "merchant";
   const isAdmin =
     user?.user_type === "admin" || Cookies.get("user_type") === "admin";
+  const isMerchant =
+    user?.user_type === "merchant" || Cookies.get("user_type") === "merchant";
   const currentStatus = store.status;
+  const statusAlertDismissed = dismissedStoreStatus === currentStatus;
   const showReviewActions =
     isAdmin &&
     (currentStatus === "pending" ||
       currentStatus === "rejected" ||
       currentStatus === "approved");
+  const merchantStatusAlert = currentStatus === "approved"
+    ? {
+        icon: <CheckCircle2 className="w-5 h-5 text-[#00A846] mt-0.5 shrink-0" />,
+        className: "border-[#66FF99]/60 bg-[#E6FFF1]",
+        titleClassName: "text-[#006B2E]",
+        bodyClassName: "text-[#008A3A]",
+        title: "تم قبول متجرك بنجاح",
+        body: "نحيطك علماً بأنه تم قبول عرض متجرك على الموقع، وهو الآن متاح للزوار ويمكن للعملاء تصفحه في أي وقت.",
+      }
+    : currentStatus === "rejected"
+      ? {
+          icon: <XCircle className="w-5 h-5 text-[#D00739] mt-0.5 shrink-0" />,
+          className: "border-[#FF9999]/60 bg-[#FFF0F0]",
+          titleClassName: "text-[#D00739]",
+          bodyClassName: "text-[#A00028]",
+          title: "تم رفض المتجر",
+          body: store.reject_reason
+            ? `سبب الرفض: ${store.reject_reason}`
+            : "نعتذر، لم يتم قبول عرض المتجر في الوقت الحالي. يرجى مراجعة البيانات وإجراء التعديلات اللازمة، ثم إعادة الإرسال.",
+        }
+      : currentStatus === "pending"
+        ? {
+            icon: <PauseCircle className="w-5 h-5 text-[#C48A00] mt-0.5 shrink-0" />,
+            className: "border-[#FFD87D]/60 bg-[#FFFBF0]",
+            titleClassName: "text-[#8A6000]",
+            bodyClassName: "text-[#6B4A00]",
+            title: "المتجر قيد المراجعة من قبل فريق أعطيني",
+            body: "سيتم نشر المتجر بعد الانتهاء من مراجعته واعتماده من قبل الإدارة.",
+          }
+        : null;
 
   return (
     <div
@@ -145,6 +179,28 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
       dir="rtl"
     >
       <div className="p-4 sm:p-6 space-y-6">
+        {isMerchant && merchantStatusAlert && !statusAlertDismissed && (
+          <div className={cn("flex items-start gap-3 px-5 py-4 rounded-xl border relative", merchantStatusAlert.className)}>
+            {merchantStatusAlert.icon}
+            <div className="flex-1">
+              <p className={cn("font-bold text-sm", merchantStatusAlert.titleClassName)}>
+                {merchantStatusAlert.title}
+              </p>
+              <p className={cn("text-sm mt-1 leading-relaxed", merchantStatusAlert.bodyClassName)}>
+                {merchantStatusAlert.body}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDismissedStoreStatus(currentStatus)}
+              className="text-gray-800 hover:opacity-70 transition-opacity shrink-0 mt-0.5"
+              aria-label="إغلاق التنبيه"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
         {showReviewActions && (
           <div className="w-full">
             <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-gray-100 bg-white rounded-lg">
@@ -186,49 +242,84 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
           isLoading={isUpdatingStatus}
         />
 
-        <div
-          className={cn(
-            "grid gap-3",
-            showShownControl
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-              : "grid-cols-1 sm:grid-cols-2"
-          )}
-        >
-          {showShownControl && (
-              <div className="w-full min-w-0">
-                <ReusableDropdown
-                  options={shownOptions}
-                  value={store.shown === false ? "0" : "1"}
-                  onChange={handleShownChange}
-                  placeholder="ظهور المتجر للعميل"
-                  className="w-full rounded-xs bg-gray-100"
-                />
+        <div className="grid grid-cols-12 gap-6">
+          <aside className="col-span-12 lg:col-span-4 order-1 lg:order-2">
+            <div className="sticky top-4 rounded-2xl border border-gray-100 bg-white p-4">
+              <div className="mb-4 flex items-center gap-3 border-b border-gray-100 pb-4">
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-gray-100 bg-gray-100">
+                  {store.logo_url ? (
+                    <img src={store.logo_url} alt={store.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs text-gray-2">Logo</div>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <h2 className="line-clamp-2 text-base font-bold text-gray-900">{store.name}</h2>
+                  <p className="mt-1 text-xs text-gray-2">{store.type === "services" ? "متجر خدمات" : "متجر منتجات"}</p>
+                </div>
               </div>
-            )}
 
-          <Button
-            onClick={handleEdit}
-            className="flex w-full min-w-0 items-center justify-center gap-2 px-4 py-3 sm:px-6 sm:py-5 text-sm sm:text-base bg-blue-5 text-blue-4 border-none cursor-pointer rounded-xs"
-          >
-            <img src="/icons/dashboard/edit.svg" alt="تعديل" className="w-5 h-5 shrink-0" />
-            تعديل بيانات المتجر
-          </Button>
+              {showShownControl && (
+                <div className="mb-3 w-full min-w-0">
+                  <ReusableDropdown
+                    options={shownOptions}
+                    value={store.shown === false ? "0" : "1"}
+                    onChange={handleShownChange}
+                    placeholder="ظهور المتجر للعميل"
+                    className="w-full rounded-lg bg-gray-50"
+                  />
+                </div>
+              )}
 
-          <Button
-            onClick={handleDeleteClick}
-            disabled={isDeleting}
-            className="flex w-full min-w-0 items-center justify-center gap-2 px-4 py-3 sm:px-6 sm:py-5 text-sm sm:text-base bg-red-2 text-red-1 border-none cursor-pointer rounded-xs"
-          >
-            {isDeleting ? (
-              <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
-            ) : (
-              <img src="/icons/dashboard/trash.svg" alt="حذف" className="w-5 h-5 shrink-0" />
-            )}
-            حذف المتجر
-          </Button>
-        </div>
+              <div className="grid gap-3">
+                <Button
+                  onClick={handleEdit}
+                  className="flex w-full min-w-0 items-center justify-center gap-2 px-4 py-3 text-sm bg-blue-5 text-blue-4 border-none cursor-pointer rounded-lg"
+                >
+                  <img src="/icons/dashboard/edit.svg" alt="تعديل" className="w-5 h-5 shrink-0" />
+                  تعديل بيانات المتجر
+                </Button>
 
-        <div className="relative w-full h-32 border border-gray-100 rounded-xl overflow-hidden justify-center items-center flex">
+                <Button
+                  onClick={handleDeleteClick}
+                  disabled={isDeleting}
+                  className="flex w-full min-w-0 items-center justify-center gap-2 px-4 py-3 text-sm bg-red-2 text-red-1 border-none cursor-pointer rounded-lg"
+                >
+                  {isDeleting ? (
+                    <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+                  ) : (
+                    <img src="/icons/dashboard/trash.svg" alt="حذف" className="w-5 h-5 shrink-0" />
+                  )}
+                  حذف المتجر
+                </Button>
+              </div>
+
+              <div className="mt-5 space-y-4 border-t border-gray-100 pt-4 text-right">
+                <div>
+                  <p className="text-sm font-bold">حالة المتجر</p>
+                  <p className="mt-1 text-sm text-gray-2">
+                    {currentStatus === "approved" ? "تمت الموافقة عليه" : currentStatus === "rejected" ? "مرفوض" : "قيد المراجعة"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-bold">البريد الإلكتروني</p>
+                  <p className="mt-1 break-all text-sm text-gray-2">{store.email || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-bold">رقم الهاتف</p>
+                  <p className="mt-1 text-sm text-gray-2">{store.phone || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-bold">العنوان</p>
+                  <p className="mt-1 text-sm text-gray-2">{store.address || "-"}</p>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <main className="col-span-12 lg:col-span-8 order-2 lg:order-1 flex flex-col gap-6">
+
+        <div className="relative w-full h-56 border border-gray-100 rounded-xl overflow-hidden justify-center items-center flex bg-gray-50">
           {store.cover_urls?.[0] ? (
             isVideoFile(store.cover_urls[0]) ? (
               <video
@@ -445,6 +536,8 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
             )}
           </div>
         )}
+          </main>
+        </div>
       </div>
 
       <ConfirmDeleteModal
@@ -472,7 +565,7 @@ function DetailRow({ icon, label, value }: DetailRowProps) {
       <div className="flex-shrink-0 rounded border border-gray-200 w-9 h-9 flex justify-center items-center mt-1">{icon}</div>
       <div className="flex-1 min-w-0">
         <p className="text-sm text-gray-2 mb-1">{label}</p>
-        <div className="text-sm font-medium  break-words">
+        <div className="text-sm font-medium  break-words [word-break:break-word]">
           {value}
         </div>
       </div>

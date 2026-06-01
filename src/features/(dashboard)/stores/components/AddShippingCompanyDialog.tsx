@@ -180,10 +180,14 @@ export function AddShippingCompanyDialog({
       price: Number(shippingPrices[cityId].price),
     }));
 
+    const normalizedPhone = storePhone.trim()
+      ? `${phoneCountryCode}${storePhone}`.replace(/\D/g, "")
+      : "";
+
     const company: ShippingCompanyPayload = {
       ...(editingCompany?.id != null ? { id: editingCompany.id } : {}),
       name: storeName,
-      phone: `${phoneCountryCode}${storePhone}`.replace(/\D/g, ""),
+      phone: normalizedPhone,
       prices,
     };
 

@@ -12,30 +12,28 @@ interface StoresTypeSidebarProps {
   onSelect: (value: StoreTypeFilter) => void;
 }
 
-export function StoresTypeSidebar({
-  totalCount,
-  productsCount,
-  servicesCount,
+interface StoreTypeRowProps {
+  filter: StoreTypeFilter;
+  label: string;
+  count: number;
+  selected: StoreTypeFilter;
+  onSelect: (value: StoreTypeFilter) => void;
+}
+
+function StoreTypeRow({
+  filter,
+  label,
+  count,
   selected,
   onSelect,
-}: StoresTypeSidebarProps) {
-  const Row = ({
-    filter,
-    label,
-    count,
-  }: {
-    filter: StoreTypeFilter;
-    label: string;
-    count: number;
-  }) => (
+}: StoreTypeRowProps) {
+  return (
     <button
       type="button"
       onClick={() => onSelect(filter)}
       className={cn(
         "w-full flex items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-start transition-colors rounded-xs",
-        selected === filter
-          ? "bg-blue-5 text-blue-4"
-          : "text-gray-700 hover:bg-gray-50"
+        selected === filter ? "bg-blue-5 text-blue-4" : "text-gray-700 hover:bg-gray-50"
       )}
     >
       <span>{label}</span>
@@ -49,7 +47,15 @@ export function StoresTypeSidebar({
       </span>
     </button>
   );
+}
 
+export function StoresTypeSidebar({
+  totalCount,
+  productsCount,
+  servicesCount,
+  selected,
+  onSelect,
+}: StoresTypeSidebarProps) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col max-h-[calc(100vh-193px)]">
       <button
@@ -65,8 +71,20 @@ export function StoresTypeSidebar({
         </h2>
       </button>
       <nav className="p-2 flex flex-col gap-1" aria-label="تصفية نوع المتجر">
-        <Row filter="products" label="متاجر منتجات" count={productsCount} />
-        <Row filter="services" label="متاجر خدمات" count={servicesCount} />
+        <StoreTypeRow
+          filter="products"
+          label="متاجر منتجات"
+          count={productsCount}
+          selected={selected}
+          onSelect={onSelect}
+        />
+        <StoreTypeRow
+          filter="services"
+          label="متاجر خدمات"
+          count={servicesCount}
+          selected={selected}
+          onSelect={onSelect}
+        />
       </nav>
     </div>
   );

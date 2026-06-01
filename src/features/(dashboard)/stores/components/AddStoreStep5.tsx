@@ -3,8 +3,6 @@
 
 import { useState } from "react";
 import { StepperProgress } from "./StepperProgress";
-import { StorePreviewSidebar } from "./StorePreviewSidebar";
-import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { StoreFormActions } from "./StoreFormActions";
 import { TimePicker } from "./TimePicker";
 import { StoreType, WorkingTimePayload, OpenStatus } from "../api";
@@ -32,8 +30,6 @@ const DAYS = [
 ];
 
 export function AddStoreStep5({
-  storeType,
-  previousData,
   initialData,
   onNext,
   onBack,
@@ -97,7 +93,7 @@ export function AddStoreStep5({
         <StepperProgress currentStep={4} steps={steps} />
 
         <div className="grid grid-cols-12 gap-6 mt-8">
-          <div className="col-span-12 lg:col-span-8">
+          <div className="col-span-12">
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-xl font-semibold mb-6">
                 أوقات العمل و العطلات
@@ -203,17 +199,6 @@ export function AddStoreStep5({
             </div>
           </div>
 
-          <div className="col-span-12 lg:col-span-4">
-            <StorePreviewSidebar
-              data={{
-                logo: previousData.logo_preview,
-                name: previousData.name,
-                description: previousData.description,
-                coverImages: previousData.cover_previews,
-              }}
-            />
-            <GuideVideoCard location="create-store" />
-          </div>
         </div>
       </div>
 

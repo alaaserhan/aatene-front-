@@ -5,8 +5,6 @@ import { useState } from "react";
 import { Button } from "@/src/components/ui/button";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { StepperProgress } from "./StepperProgress";
-import { StorePreviewSidebar } from "./StorePreviewSidebar";
-import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { StoreFormActions } from "./StoreFormActions";
 import { StoreType, StoreManagerPayload, StoreStatus, ManagerTitle } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
@@ -47,8 +45,6 @@ const STATUS_OPTIONS = [
 ];
 
 export function AddStoreStep4({
-  storeType,
-  previousData,
   initialData,
   onNext,
   onBack,
@@ -240,7 +236,7 @@ export function AddStoreStep4({
         <StepperProgress currentStep={3} steps={steps} />
 
         <div className="grid grid-cols-12 gap-6 mt-8">
-          <div className="col-span-12 lg:col-span-8">
+          <div className="col-span-12">
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h2 className="text-xl font-bold mb-6">موظفين المتجر</h2>
 
@@ -395,11 +391,6 @@ export function AddStoreStep4({
                           </tr>
                         ) : (
                           managers.map((manager, index) => {
-                            const jobLabel =
-                              JOB_TITLE_OPTIONS.find(
-                                (opt) => opt.value === manager.title
-                              )?.label || manager.title;
-
                             return (
                               <tr
                                 key={index}
@@ -460,17 +451,6 @@ export function AddStoreStep4({
             </div>
           </div>
 
-          <div className="col-span-12 lg:col-span-4">
-            <StorePreviewSidebar
-              data={{
-                logo: previousData.logo_preview,
-                name: previousData.name,
-                description: previousData.description,
-                coverImages: previousData.cover_previews,
-              }}
-            />
-            <GuideVideoCard location="create-store" />
-          </div>
         </div>
       </div>
 
