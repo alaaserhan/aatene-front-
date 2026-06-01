@@ -22,6 +22,8 @@ interface ImageGallerySelectorProps {
     emptyStateText?: string;
     emptyStateSubText?: string;
     mainImageLabel?: string;
+    /** تسمية العناصر غير الأولى (المعرض) */
+    galleryItemLabel?: string;
     showMainSelector?: boolean;
     showDragHint?: boolean;
     dragHintText?: string;
@@ -50,6 +52,7 @@ export function ImageGallerySelector({
     emptyStateText = "أضف أو اسحب صورة",
     emptyStateSubText = "png, jpg, svg",
     mainImageLabel = "الصورة الاساسية",
+    galleryItemLabel = "المعرض",
     showMainSelector = true,
     showDragHint = false,
     dragHintText = "يمكنك سحب و افلات الصورة لإعادة ترتيب الصور",
@@ -303,7 +306,7 @@ export function ImageGallerySelector({
                                             index === 0 ? "text-blue-3" : "text-gray-2"
                                         )}
                                     >
-                                        {mainImageLabel}
+                                        {index === 0 ? mainImageLabel : galleryItemLabel}
                                     </span>
                                 </label>
                             ) : (
