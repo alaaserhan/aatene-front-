@@ -14,7 +14,21 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const hasFirebaseConfig = Boolean(
+    firebaseConfig.apiKey &&
+    firebaseConfig.authDomain &&
+    firebaseConfig.projectId &&
+    firebaseConfig.messagingSenderId &&
+    firebaseConfig.appId
+);
+
+let app: any;
+try {
+    app = hasFirebaseConfig ? (!getApps().length ? initializeApp(firebaseConfig) : getApp()) : null;
+} catch (err) {
+    console.warn("[FCM] Firebase initializeApp failed:", err);
+    app = null;
+}
 
 let messaging: Messaging | null = null;
 let db: Firestore | null = null;
@@ -29,13 +43,30 @@ const initMessaging = async (): Promise<Messaging | null> => {
         return null;
     }
 
-    messaging = getMessaging(app);
+    if (!app) {
+        console.warn("[FCM] Firebase app not initialized, skipping messaging");
+        return null;
+    }
+
+    try {
+        messaging = getMessaging(app);
+    } catch (err) {
+        console.error("[FCM] Failed to initialize messaging:", err);
+        return null;
+    }
     console.log("[FCM] Messaging initialized");
     return messaging;
 };
 
 if (typeof window !== "undefined") {
-    db = getFirestore(app);
+    if (app) {
+        try {
+            db = getFirestore(app);
+        } catch (err) {
+            console.warn("[FCM] Failed to initialize Firestore:", err);
+            db = null;
+        }
+    }
     initMessaging();
 }
 
