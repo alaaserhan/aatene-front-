@@ -79,17 +79,10 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
         addMedia(product.cover);
         product.gallery?.forEach((url) => addMedia(url));
         addMedia(product.video);
-
-        if (selectedVariation?.image) {
-            const sanitizedVarImg = sanitizeMediaUrl(selectedVariation.image);
-            if (sanitizedVarImg && !seen.has(sanitizedVarImg)) {
-                seen.add(sanitizedVarImg);
-                items.unshift({ type: "image", url: sanitizedVarImg });
-            }
-        }
+        product.variations?.forEach((v) => addMedia(v.image));
 
         return items;
-    }, [product.cover, product.gallery, product.video, selectedVariation?.image]);
+    }, [product.cover, product.gallery, product.video, product.variations]);
 
     const currentStoreId = Cookies.get("current_store_id");
     const isProductOwner = !!currentStoreId && !!product.store_id && Number(currentStoreId) === product.store_id;
@@ -126,13 +119,13 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
         setIsInCompare(false);
     };
 
-    // Synchronize gallery index when variation image changes
+    // عند اختيار تباين كامل، انتقل لصورته في المعرض
     useEffect(() => {
-        if (selectedVariation?.image) {
-            const index = allMedia.findIndex(item => item.url === selectedVariation.image);
-            if (index !== -1) {
-                setSelectedIndex(index);
-            }
+        if (!selectedVariation?.image) return;
+        const sanitizedVarImg = sanitizeMediaUrl(selectedVariation.image);
+        const index = allMedia.findIndex((item) => item.url === sanitizedVarImg);
+        if (index !== -1) {
+            setSelectedIndex(index);
         }
     }, [selectedVariation?.image, allMedia]);
 
