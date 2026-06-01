@@ -2,6 +2,7 @@
 
 import { cn } from "@/src/lib/utils";
 import { formatPrice } from "@/src/lib/format-price";
+import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { ImageIcon, MapPin } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 
@@ -68,7 +69,7 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
 
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-gray-2">سعر الخدمة</span>
-                {data.ask_for_price ? (
+                {shouldShowAskForPrice(data.ask_for_price, data.price) ? (
                   <button
                     type="button"
                     className="h-9 px-5 rounded-sm bg-blue-4 text-white text-sm font-medium"

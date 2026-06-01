@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search, HelpCircle, X } from "lucide-react";
 import {
@@ -33,9 +33,16 @@ import StepSix from "./guide/StepSix";
 
 export function ServicesPage({ storeId }: { storeId: number }) {
     const router = useRouter();
+    const routeParams = useParams<{ locale?: string; type?: string }>();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const userType = useAuthStore((state) => state.user?.user_type);
+    const dashboardBase =
+        routeParams?.locale && routeParams?.type
+            ? `/${routeParams.locale}/${routeParams.type}`
+            : userType === "merchant"
+                ? "/merchant"
+                : "/admin";
 
     const [selectedSectionId, setSelectedSectionId] = useState<string>(searchParams.get("section_id") || "");
     const [searchQuery, setSearchQuery] = useState("");
@@ -179,7 +186,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
     };
 
     const breadcrumbItems = [
-        { label: " مقدمي الخدمات", href: userType === "merchant" ? undefined : "/admin/serviceProviders" },
+        { label: " مقدمي الخدمات", href: userType === "merchant" ? undefined : `${dashboardBase}/serviceProviders` },
         { label: `${store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "..."}` },
     ];
 
@@ -262,13 +269,13 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 </div>
                             </div>
                             <div className="flex flex-row gap-2">
-                                <Link href={`/admin/serviceProviders/services/add/${storeId}`}>
+                                <Link href={`${dashboardBase}/serviceProviders/services/add/${storeId}`}>
                                     <Button className="bg-blue-3 text-white px-6 gap-2">
                                         <Plus className="w-5 h-5" />
                                         انشئ خدمة جديدة
                                     </Button>
                                 </Link>
-                                <Link href={`/admin/reports/${storeId}`}>
+                                <Link href={`${dashboardBase}/reports/${storeId}`}>
                                     <Button className="bg-red-2 text-red-1 px-6 gap-2">الإبلاغات</Button>
                                 </Link>
                             </div>
@@ -289,7 +296,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                     <p className="text-sm text-gray-2 mt-1">عرض وإدارة جميع الخدمات</p>
                                 </div>
                                 <div className="flex flex-row gap-2">
-                                    <Link href={`/admin/serviceProviders/services/add/${storeId}`}>
+                                    <Link href={`${dashboardBase}/serviceProviders/services/add/${storeId}`}>
                                         <Button className="bg-blue-3 text-white px-6 gap-2">
                                             <Plus className="w-5 h-5" />
                                             انشئ خدمة جديدة
@@ -317,7 +324,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 </h1>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Link href={`/admin/serviceProviders/services/add/${storeId}`}>
+                                <Link href={`${dashboardBase}/serviceProviders/services/add/${storeId}`}>
                                     <Button className="bg-blue-3 text-white px-6 gap-2">
                                         <Plus className="w-5 h-5" />
                                         انشئ خدمة جديدة
@@ -524,9 +531,9 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                     totalPages={totalPages}
                                     onPageChange={setCurrentPage}
                                     onToggleShown={handleToggleShown}
-                                    onEdit={(service) => router.push(`/admin/serviceProviders/services/edit/${service.id}/${storeId}`)}
+                                    onEdit={(service) => router.push(`${dashboardBase}/serviceProviders/services/edit/${service.id}/${storeId}`)}
                                     onDelete={handleDeleteClick}
-                                    onReview={(service) => router.push(`/admin/serviceProviders/services/details/${service.id}/${storeId}`)}
+                                    onReview={(service) => router.push(`${dashboardBase}/serviceProviders/services/details/${service.id}/${storeId}`)}
                                     activeStatus={activeStatus}
                                 />
                             )}

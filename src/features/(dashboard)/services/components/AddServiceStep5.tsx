@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { cn } from "@/src/lib/utils";
 import Link from "next/link";
+import { useLanguage } from "@/src/hooks/use-language";
 
 interface AddServiceStep5Props {
     previousDataStep1: Step1ServiceData;
@@ -43,6 +44,7 @@ export function AddServiceStep5({
     onStepClick,
 }: AddServiceStep5Props) {
 
+    const lang = useLanguage();
     const storeId = Cookies.get("current_store_id");
     const { data: storeData } = useGetSingleStore(storeId!, { enabled: !!storeId });
     const store = storeData?.record;
@@ -131,7 +133,7 @@ export function AddServiceStep5({
                                         </div>
                                     </div>
                                     <label htmlFor="terms" className="text-sm text-gray-2 cursor-pointer select-none">
-                                        أفهم وأوافق على شروط خدمة اعطيني، بما في ذلك <Link href="/terms-of-service" className="text-[#3A5779] underline hover:text-blue-4">اتفاقية المستخدم</Link> و<Link href="/privacy-policy" className="text-[#3A5779] underline hover:text-blue-4">سياسة الخصوصية</Link>.
+                                        أفهم وأوافق على شروط خدمة اعطيني، بما في ذلك <Link href={`/${lang}/terms-of-use`} className="text-[#3A5779] underline hover:text-blue-4">اتفاقية المستخدم</Link> و<Link href={`/${lang}/privacy-policy`} className="text-[#3A5779] underline hover:text-blue-4">سياسة الخصوصية</Link>.
                                     </label>
                                 </div>
                             </div>
