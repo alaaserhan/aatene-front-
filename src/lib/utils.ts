@@ -35,3 +35,36 @@ export function upgradeHttpToHttps(url: string): string {
     if (url.startsWith("http://")) return `https://${url.slice(7)}`;
     return url;
 }
+
+/** مسارات الـ placeholder لكل نوع */
+const PLACEHOLDER_PATHS = {
+    product: "/images/placeholders/product-placeholder.svg",
+    store: "/images/placeholders/store-placeholder.svg",
+    avatar: "/images/placeholders/avatar-placeholder.svg",
+} as const;
+
+type PlaceholderType = keyof typeof PLACEHOLDER_PATHS;
+
+/**
+ * ترجع مسار الصورة الافتراضية حسب نوع العنصر
+ */
+export function getPlaceholder(type: PlaceholderType = "product"): string {
+    return PLACEHOLDER_PATHS[type] ?? PLACEHOLDER_PATHS.product;
+}
+
+/** ينفذ fixMediaUrl + upgradeHttpToHttps معًا */
+export function sanitizeMediaUrl(url: string | null | undefined): string {
+    if (!url) return "";
+    return upgradeHttpToHttps(fixMediaUrl(url));
+}
+
+/** يجهز مصدر الصورة مع fallback */
+export function resolveImageSrc(
+    src: string | null | undefined,
+    failedSrc: string | null,
+    type: PlaceholderType = "product",
+): string {
+    const sanitized = sanitizeMediaUrl(src || "");
+    if (sanitized && failedSrc !== sanitized) return sanitized;
+    return getPlaceholder(type);
+}
