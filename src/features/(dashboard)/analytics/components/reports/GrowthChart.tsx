@@ -17,7 +17,7 @@ interface GrowthChartProps {
 
 export function GrowthChart({ data, title, lines, className }: GrowthChartProps) {
   return (
-    <div className={cn("bg-white rounded-lg p-4 flex flex-col h-[450px]", className)}>
+    <div className={cn("bg-white rounded-lg p-4 flex flex-col min-h-[300px] lg:h-[450px]", className)}>
       <div className="flex items-center justify-between mb-6 shrink-0">
         <h3 className="text-lg font-medium flex items-center gap-2">
           {title}

@@ -107,7 +107,7 @@ export function PlatformAnalytics() {
     return (
         <div className="bg-white rounded-lg p-6 flex flex-col gap-8 h-full">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                     <Megaphone className="w-6 h-6" />
                     <h3 className="text-lg font-bold">إحصائيات المنصة</h3>
@@ -187,7 +187,7 @@ export function PlatformAnalytics() {
             <div className="w-full h-[1px] bg-gray-100 mt-4" />
 
             {/* Chart */}
-            <div className="h-[300px] w-full mt-auto" dir="ltr">
+            <div className="min-h-[200px] lg:h-[300px] w-full mt-auto" dir="ltr">
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart
                         data={chartData}

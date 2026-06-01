@@ -121,7 +121,7 @@ export function MerchantFollowersAnalytics() {
             </div>
 
             {/* Chart */}
-            <div className="flex-1 w-full mt-4" dir="ltr">
+            <div className="h-[250px] w-full mt-4" dir="ltr">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} barSize={32}>
                         <CartesianGrid
