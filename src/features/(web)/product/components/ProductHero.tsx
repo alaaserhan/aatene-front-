@@ -2,12 +2,13 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send } from "lucide-react";
+import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Eye, FolderOpen } from "lucide-react";
 import { Product, Store, Attribute, AttributeOption } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddProductToCompare, useRemoveProductFromCompare } from "@/src/features/(web)/compares/hooks";
-import { cn, isVideoFile } from "@/src/lib/utils";
+import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
 import { formatPrice } from "@/src/lib/format-price";
+import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import Cookies from "js-cookie";
 
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -34,7 +35,6 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
     const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
     const [selectedVariations, setSelectedVariations] = useState<Record<string, string>>({});
     const [isFavorite, setIsFavorite] = useState(product.is_favorite);
-    const [prevProductIsFavorite, setPrevProductIsFavorite] = useState(product.is_favorite);
     const [isReportOpen, setIsReportOpen] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
     const [isInCompare, setIsInCompare] = useState(product.in_compare);
@@ -43,10 +43,9 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
     const params = useParams();
     const lang = params?.locale || params?.lang || "ar";
 
-    if (product.is_favorite !== prevProductIsFavorite) {
-        setPrevProductIsFavorite(product.is_favorite);
+    useEffect(() => {
         setIsFavorite(product.is_favorite);
-    }
+    }, [product.is_favorite]);
 
     const selectedVariation = useMemo(() => {
         if (!product.variations || product.variations.length === 0) return null;
@@ -64,17 +63,18 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
 
     const allMedia = useMemo(() => {
         const items: { type: "image" | "video"; url: string }[] = [];
-        if (product.cover) items.push({ type: isVideoFile(product.cover) ? "video" : "image", url: product.cover });
+        if (product.cover) items.push({ type: isVideoFile(product.cover) ? "video" : "image", url: sanitizeMediaUrl(product.cover) });
         if (product.gallery) {
-            product.gallery.forEach((url) => items.push({ type: isVideoFile(url) ? "video" : "image", url: url }));
+            product.gallery.forEach((url) => items.push({ type: isVideoFile(url) ? "video" : "image", url: sanitizeMediaUrl(url) }));
         }
-        if (product.video) items.push({ type: "video", url: product.video });
+        if (product.video) items.push({ type: "video", url: sanitizeMediaUrl(product.video) });
 
         // Ensure variation image is in the list
         if (selectedVariation?.image) {
-            const exists = items.find(i => i.url === selectedVariation.image);
+            const sanitizedVarImg = sanitizeMediaUrl(selectedVariation.image);
+            const exists = items.find(i => i.url === sanitizedVarImg);
             if (!exists) {
-                items.unshift({ type: "image", url: selectedVariation.image });
+                items.unshift({ type: "image", url: sanitizedVarImg });
             }
         }
 
@@ -92,16 +92,11 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
     const rating = parseFloat(product.review_rate || "0");
     const hasDiscount = !selectedVariation && product.price_after_discount && product.price_after_discount !== product.price;
     const displayPrice = selectedVariation ? String(selectedVariation.price) : (product.price_after_discount || product.price);
-    const hasAskForPriceFromBackend =
-        product.ask_for_price !== undefined && product.ask_for_price !== null;
-    const shouldAskForPrice = hasAskForPriceFromBackend
-        ? Boolean(product.ask_for_price)
-        : (!selectedVariation &&
-            Number(product.price || 0) <= 0 &&
-            Number(product.price_after_discount || 0) <= 0);
+    const shouldAskForPrice = shouldShowAskForPrice(product.ask_for_price, displayPrice);
 
     const conditionLabel =
         PRODUCT_CONDITION_LABELS[product.condition] ?? product.condition;
+    const storePhone = normalizeDisplayPhone(store.phone);
 
     const handlePrev = () => {
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : allMedia.length - 1));
@@ -179,7 +174,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                             alt={`${product.name} - ${index + 1}`}
                                             className="w-full h-full object-cover"
                                             onError={(e) => {
-                                                e.currentTarget.src = "/placeholder.png";
+                                                e.currentTarget.src = "/images/placeholders/product-placeholder.svg";
                                                 e.currentTarget.onerror = null;
                                             }}
                                         />
@@ -198,11 +193,11 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                             />
                         ) : (
                             <img
-                                src={currentMedia?.url || "/placeholder.png"}
+                                src={currentMedia?.url || "/images/placeholders/product-placeholder.svg"}
                                 alt={product.name}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
-                                    e.currentTarget.src = "/placeholder.png";
+                                    e.currentTarget.src = "/images/placeholders/product-placeholder.svg";
                                     e.currentTarget.onerror = null;
                                 }}
                             />
@@ -368,13 +363,6 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                     {/* Divider */}
                     <hr className="border-gray-200" />
 
-                    {/* ا*/}
-                    {/* {product.short_description && (
-                        <p className="text-gray-600 text-[15px] leading-relaxed">
-                            وصف موجز: {product.short_description}
-                        </p>
-                    )} */}
-
                     {product.condition && conditionLabel && (
                         <div className="flex items-center gap-2">
                             <span className="text-gray-600 text-[15px]">الحالة :</span>
@@ -410,9 +398,9 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                     {/* CTA Buttons */}
                     <div className="flex flex-col gap-3">
                         {/* Phone Button */}
-                        {store.phone && (
+                        {storePhone && (
                             <a
-                                href={`tel:${store.phone}`}
+                                href={`tel:${storePhone}`}
                                 onClick={(e) => {
                                     if (!isPhoneRevealed) {
                                         e.preventDefault();
@@ -423,8 +411,8 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                             >
                                 <span dir="ltr">
                                     {isPhoneRevealed 
-                                        ? store.phone 
-                                        : store.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** ***")}
+                                        ? storePhone
+                                        : maskDisplayPhone(storePhone)}
                                 </span>
                                 <Phone className="w-5 h-5" />
                             </a>
@@ -473,4 +461,18 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
             />
         </div>
     );
+}
+
+function normalizeDisplayPhone(phone: unknown): string {
+    if (phone == null) return "";
+    const value = String(phone).trim();
+    const digits = value.replace(/\D/g, "");
+    if (digits.length <= 4) return "";
+    return value;
+}
+
+function maskDisplayPhone(phone: string): string {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length <= 6) return phone;
+    return phone.replace(/^\+?(\d{3}).*/, "+$1 *** ***");
 }

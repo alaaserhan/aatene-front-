@@ -44,8 +44,8 @@ export default function ReportInquiryPage() {
         }
     }, [isHydrated, isLoggedIn, router, lang]);
 
-    const { data: statsData, isLoading: statsLoading } = useGetReportStats();
-    const { data: reportsData, isLoading: reportsLoading } = useGetReports(filters);
+    const { data: statsData, isLoading: statsLoading, isError: statsError } = useGetReportStats();
+    const { data: reportsData, isLoading: reportsLoading, isError: reportsError } = useGetReports(filters);
     const { data: typesData } = useGetReportTypes();
 
     if (!isHydrated || !isLoggedIn) {
@@ -205,6 +205,14 @@ export default function ReportInquiryPage() {
                     {reportsLoading ? (
                         <div className="flex items-center justify-center py-12">
                             <Loader2 className="w-6 h-6 animate-spin text-blue-4" />
+                        </div>
+                    ) : reportsError ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-red-400">
+                            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-3">
+                                <span className="text-2xl text-red-500">!</span>
+                            </div>
+                            <p className="text-sm font-medium text-red-600">حدث خطأ أثناء تحميل الشكاوي</p>
+                            <p className="text-xs text-red-400 mt-1">يرجى المحاولة مرة أخرى لاحقاً</p>
                         </div>
                     ) : reports.length === 0 ? (
                         <div className="text-center py-12 text-gray-400">

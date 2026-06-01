@@ -7,12 +7,14 @@ import { Search, CirclePlus } from "lucide-react";
 import { RequestedService } from "./types";
 import Link from "next/link";
 import RequestedServiceCard, { RequestedServiceCardSkeleton } from "./components/RequestedServiceCard";
+import { useLanguage } from "@/src/hooks/use-language";
 
 const PER_PAGE = 10;
 
 // Local ServiceCard were removed and moved to RequestedServiceCard.tsx
 
 export default function RequestedServicesPage() {
+    const lang = useLanguage();
     const [page, setPage] = useState(1);
     const [searchValue, setSearchValue] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
@@ -81,7 +83,7 @@ export default function RequestedServicesPage() {
                         </button>
                     </div>
                     <Link
-                        href="/requested-services/create"
+                        href={`/${lang}/requested-services/create`}
                         className="bg-blue-4 flex items-center font-medium justify-center gap-2.5 px-8 py-2 h-10 rounded-full text-white text-sm cursor-pointer"
                     >
                         <CirclePlus className="w-5 h-5" />

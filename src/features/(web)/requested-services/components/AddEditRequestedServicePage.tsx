@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   useCreateRequestedService,
@@ -14,6 +14,7 @@ import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
 import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
+import { useLanguage } from "@/src/hooks/use-language";
 
 interface AddEditRequestedServicePageProps {
   slug?: string;
@@ -25,6 +26,7 @@ export default function AddEditRequestedServicePage({
   isEdit,
 }: AddEditRequestedServicePageProps) {
   const router = useRouter();
+  const lang = useLanguage();
   const isEditMode = !!isEdit;
 
   const { data: serviceData, isLoading: isLoadingData } =
@@ -48,11 +50,15 @@ export default function AddEditRequestedServicePage({
     undefined,
   );
 
-  if (
-    isEditMode &&
-    serviceData?.record &&
-    serviceData.record.id !== lastRecordId
-  ) {
+  useEffect(() => {
+    if (
+      !isEditMode ||
+      !serviceData?.record ||
+      serviceData.record.id === lastRecordId
+    ) {
+      return;
+    }
+
     setLastRecordId(serviceData.record.id);
     const { record } = serviceData;
     setFormData({
@@ -64,7 +70,7 @@ export default function AddEditRequestedServicePage({
     });
     setImageFiles(record.images || []);
     setImagePreviews(record.images_urls || []);
-  }
+  }, [isEditMode, lastRecordId, serviceData]);
 
   const handleImageChange = (files: string[], urls: string[]) => {
     setImageFiles(files);
@@ -95,7 +101,7 @@ export default function AddEditRequestedServicePage({
 
     const options = {
       onSuccess: () => {
-        router.push("/requested-services");
+        router.push(`/${lang}/requested-services`);
       },
     };
 

@@ -4,8 +4,9 @@ import { memo, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { cn, isVideoFile } from "@/src/lib/utils";
+import { cn, isVideoFile, sanitizeMediaUrl, resolveImageSrc } from "@/src/lib/utils";
 import { formatPrice } from "@/src/lib/format-price";
+import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
 import { useRouter, useParams } from "next/navigation";
@@ -59,7 +60,9 @@ const ProductCard = memo(({
     type = "product", // Default type
     storeId,
 }: ProductCardProps) => {
-    const [imgSrc, setImgSrc] = useState(cover || "/placeholder.png");
+    const normalizedCover = sanitizeMediaUrl(cover);
+    const [failedCoverUrl, setFailedCoverUrl] = useState<string | null>(null);
+    const mediaSrc = resolveImageSrc(normalizedCover, failedCoverUrl, "product");
     const numBase = Number(price ?? 0);
     const numAfter =
         priceAfterDiscount === undefined || priceAfterDiscount === null || priceAfterDiscount === ""
@@ -71,12 +74,7 @@ const ProductCard = memo(({
         Number.isFinite(effectiveAfter) &&
         Number.isFinite(numBase) &&
         numBase > effectiveAfter;
-    /** طلب السعر من الباك، أو لا يوجد سعر صالح (مثل منتجات variations في البحث حيث price=0) */
-    const shouldAskForPrice =
-        !!ask_for_price ||
-        (!ask_for_price &&
-            (!Number.isFinite(numBase) || numBase <= 0) &&
-            (!Number.isFinite(effectiveAfter) || effectiveAfter <= 0));
+    const shouldAskForPrice = shouldShowAskForPrice(ask_for_price, displayPrice);
     const rating = typeof reviewRate === 'number' ? reviewRate : parseFloat(reviewRate || "0");
     const count = typeof reviewCount === 'number' ? reviewCount : parseInt(String(reviewCount || "0"), 10);
     const router = useRouter();
@@ -119,7 +117,7 @@ const ProductCard = memo(({
     return (
         <div
             className={cn(
-                "flex w-full flex-col cursor-pointer group relative",
+                "flex w-full flex-col cursor-pointer group relative rounded-2xl bg-white border border-gray-100 hover:border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-visible transition-all hover:shadow-md",
                 className
             )}
             onClick={onClick}
@@ -129,11 +127,11 @@ const ProductCard = memo(({
             {/* Image Container */}
             <Link
                 href={slug ? `/product/${slug}` : "#"}
-                className="relative block w-full shrink-0 overflow-hidden rounded-xl bg-gray-100 aspect-[3/4]"
+                className="relative block w-full shrink-0 overflow-hidden bg-gray-100 aspect-[4/5] rounded-t-2xl"
             >
-                {isVideoFile(imgSrc) ? (
+                {isVideoFile(mediaSrc) ? (
                     <video
-                        src={imgSrc}
+                        src={mediaSrc}
                         muted
                         playsInline
                         preload="metadata"
@@ -141,13 +139,13 @@ const ProductCard = memo(({
                     />
                 ) : (
                     <Image
-                        src={imgSrc}
+                        src={mediaSrc}
                         alt={name}
                         fill
                         sizes="(max-width: 640px) 168px, (max-width: 768px) 200px, 220px"
                         className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
                         onError={() => {
-                            setImgSrc("/placeholder.png");
+                            setFailedCoverUrl(normalizedCover || null);
                         }}
                     />
                 )}
@@ -180,47 +178,46 @@ const ProductCard = memo(({
                 )}
             </Link>
 
-            {/* Content — ارتفاع ثابت لمحاذاة كل الكروت في السلايدر والشبكة */}
-            <div className="flex h-[8.25rem] shrink-0 flex-col pt-3 text-right" dir="rtl">
+            {/* Content */}
+            <div className="flex flex-col px-3 pt-2.5 pb-3 text-right gap-1.5" dir="rtl">
                 {/* Product Name */}
-                <Link href={slug ? `/product/${slug}` : "#"} className="block shrink-0">
-                    <h3 className="font-semibold text-base mb-1.5 line-clamp-2 min-h-[2.75rem] leading-snug group-hover:text-blue-3 transition-colors">
+                <Link href={slug ? `/product/${slug}` : "#"}>
+                    <h3 className="font-medium text-sm leading-snug line-clamp-2 group-hover:text-blue-3 transition-colors">
                         {name || "اسم المنتج"}
                     </h3>
                 </Link>
 
                 {/* Rating */}
-                <div className="mb-2 flex h-5 shrink-0 items-center gap-1.5">
-                    <div className="flex items-center gap-0.5">
-                        {[...Array(5)].map((_, i) => (
-                            <Star
-                                key={i}
-                                className={cn(
-                                    "w-3.5 h-3.5",
-                                    i < Math.round(rating)
-                                        ? "fill-[#FB923C] text-[#FB923C]"
-                                        : "fill-gray-200 text-gray-200"
-                                )}
-                            />
-                        ))}
-                        <span className="text-xs font-medium text-[#FB923C] pt-1 mx-1.5">
-                            {rating.toFixed(1)}
-                        </span>
-                        <span className="text-xs text-gray-400 pt-1">
+                {rating > 0 && (
+                    <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-0.5">
+                            {[...Array(5)].map((_, i) => (
+                                <Star
+                                    key={i}
+                                    className={cn(
+                                        "w-3 h-3",
+                                        i < Math.round(rating)
+                                            ? "fill-[#FB923C] text-[#FB923C]"
+                                            : "fill-gray-200 text-gray-200"
+                                    )}
+                                />
+                            ))}
+                        </div>
+                        <span className="text-[11px] text-gray-400">
                             ({count})
                         </span>
                     </div>
-                </div>
+                )}
 
-                {/* Price / اطلب السعر — نفس الارتفاع في كل البطاقات */}
-                <div className="mt-auto flex min-h-9 shrink-0 items-center justify-start">
+                {/* Price / اطلب السعر */}
+                <div className="mt-1">
                     {shouldAskForPrice ? (
                         <button
                             type="button"
                             disabled={askPriceLoading}
                             className={cn(
                                 productAskForPriceButtonClassName,
-                                "w-full max-w-full sm:w-auto",
+                                "w-full text-xs py-1.5",
                                 askPriceLoading && "opacity-75 cursor-wait pointer-events-none"
                             )}
                             onClick={handleAskForPriceClick}
@@ -228,13 +225,13 @@ const ProductCard = memo(({
                             {askPriceLoading ? "جاري الفتح…" : "اطلب السعر"}
                         </button>
                     ) : (
-                        <div className="flex items-baseline gap-2 justify-start">
-                            <span className="font-medium">
-                                {formatPrice(displayPrice)} <span className="text-xl font-medium">₪</span>
+                        <div className="flex items-baseline gap-1.5">
+                            <span className="text-base font-bold text-gray-900">
+                                {formatPrice(displayPrice)} <span className="text-sm">₪</span>
                             </span>
                             {hasDiscount && (
-                                <span className="font-medium text-gray-400 line-through">
-                                    {formatPrice(numBase)} <span className="text-xl font-medium">₪</span>
+                                <span className="text-xs text-gray-400 line-through">
+                                    {formatPrice(numBase)} ₪
                                 </span>
                             )}
                         </div>

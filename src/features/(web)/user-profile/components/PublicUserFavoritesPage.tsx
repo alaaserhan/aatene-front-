@@ -191,7 +191,7 @@ export default function PublicUserFavoritesPage() {
                 <div className="container">
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
                         {/* Avatar */}
-                        <Link href={`/profile/${profileId}`} className="shrink-0">
+                        <Link href={`/${lang}/profile/${profileId}`} className="shrink-0">
                             <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 relative flex items-center justify-center">
                                 <UserIcon className="w-8 h-8 text-gray-400 absolute" />
                                 {user.avatar_url && (
@@ -440,7 +440,7 @@ export default function PublicUserFavoritesPage() {
                                         <Pagination
                                             totalPages={totalPages}
                                             currentPage={page}
-                                            onPageChange={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                                            onPageChange={setPage}
                                         />
                                     </div>
                                 )}

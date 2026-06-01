@@ -2,7 +2,7 @@
 
 import { useState, type MouseEvent } from "react";
 import { Service, getService } from "../api";
-import { cn } from "@/src/lib/utils";
+import { cn, sanitizeMediaUrl } from "@/src/lib/utils";
 import { formatPrice } from "@/src/lib/format-price";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { Star, MapPin, User } from "lucide-react";
@@ -35,6 +35,8 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
     const { user } = useAuthStore();
     const qc = useQueryClient();
     const [askPriceLoading, setAskPriceLoading] = useState(false);
+    const [imgError, setImgError] = useState(false);
+    const [logoError, setLogoError] = useState(false);
 
     const price = parseFloat(service.price || "0");
     const shouldAskForPrice = shouldShowAskForPrice(service.ask_for_price, service.price);
@@ -45,7 +47,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
         if (onClick) {
             onClick();
         } else {
-            router.push(`/services/${service.slug}`);
+            router.push(`/${lang}/services/${service.slug}`);
         }
     };
 
@@ -67,7 +69,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
             }
         }
         if (!sid) {
-            router.push(`/services/${service.slug}`);
+            router.push(`/${lang}/services/${service.slug}`);
             return;
         }
         if (!user) {
@@ -77,19 +79,10 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
         router.push(`/${lang}/chat?type=store&id=${sid}&serviceId=${service.id}&askPrice=1`);
     };
 
-    const isValidUrl = (url: string | null | undefined) => {
-        if (!url) return false;
-        try {
-            new URL(url);
-            return true;
-        } catch {
-            return false;
-        }
-    };
-
-    const serviceImage = isValidUrl(service.image_url)
-        ? service.image_url!
-        : (isValidUrl(service.images_urls?.[0]) ? service.images_urls![0] : "");
+    const serviceImage = sanitizeMediaUrl(
+        service.image_url || service.images_urls?.[0] || ""
+    );
+    const serviceLogoSrc = sanitizeMediaUrl(service.store?.logo || "");
 
     return (
         <div
@@ -103,17 +96,18 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
             <CompareCheckbox id={service.id} type="service" />
 
             <div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100">
-                {serviceImage ? (
+                {serviceImage && !imgError ? (
                     <Image
                         src={serviceImage}
                         alt={service.title && !service.title.startsWith("http") ? service.title : "Service Image"}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                         sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 300px"
+                        onError={() => setImgError(true)}
                     />
                 ) : (
-                    <div className="w-full h-full bg-blue-1 flex items-center justify-center">
-                        <Image src="/placeholder.png" alt="Placeholder" width={100} height={100} className="opacity-20" />
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                        <Image src="/images/placeholders/product-placeholder.svg" alt="Placeholder" width={100} height={100} className="opacity-40" />
                     </div>
                 )}
 
@@ -141,7 +135,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                     {service.title}
                 </h3>
 
-                <div className="flex justify-start w-full mb-4 min-h-9 items-center">
+                <div className="flex justify-start w-full mb-4 h-9 items-center">
                     {shouldAskForPrice ? (
                         <button
                             type="button"
@@ -156,7 +150,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                             {askPriceLoading ? "جاري الفتح…" : "اطلب السعر"}
                         </button>
                     ) : (
-                        <p className="flex font-medium items-baseline gap-1">
+                        <p className="flex font-medium items-baseline gap-1 h-9">
                             <span>{formatPrice(price)}</span>
                             <span className="text-xl">₪</span>
                         </p>
@@ -167,12 +161,13 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
 
                 <div className="flex items-center gap-2">
                     <div className="relative w-10 h-10 shrink-0 rounded-full overflow-hidden shadow-sm ring-1 ring-gray-100 flex items-center justify-center bg-gray-50">
-                        {isValidUrl(service.store?.logo) ? (
+                        {serviceLogoSrc && !logoError ? (
                             <Image
-                                src={service.store!.logo!}
+                                src={serviceLogoSrc}
                                 alt={providerName}
                                 fill
                                 className="object-cover"
+                                onError={() => setLogoError(true)}
                             />
                         ) : (
                             <User className="w-6 h-6 text-gray-400" />

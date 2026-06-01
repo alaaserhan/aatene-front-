@@ -65,7 +65,9 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
     }, [user?.user_type, lang, router]);
 
     const record = blogData?.blog || blogData?.record;
-    if (user?.user_type !== "merchant" && isEditMode && record && record.id !== lastBlogId) {
+    useEffect(() => {
+        if (user?.user_type === "merchant" || !isEditMode || !record || record.id === lastBlogId) return;
+
         setLastBlogId(record.id);
         setFormData({
             title: record.title,
@@ -75,7 +77,7 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
         setThumbnailPreviews(record.thumbnail_url ? [record.thumbnail_url] : []);
         setThumbnailFiles(record.thumbnail ? [record.thumbnail] : []);
         setParagraphs(record.content || []);
-    }
+    }, [user?.user_type, isEditMode, record, lastBlogId]);
 
     const handleImageChange = (files: string[], urls: string[]) => {
         setThumbnailFiles(files);
@@ -197,18 +199,18 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
 
     const handleSuccessModalClose = () => {
         setShowSuccessModal(false);
-        router.push('/blogs');
+        router.push(`/${lang}/blogs`);
     };
 
     const handleDeleteBlog = () => {
         if (isEditMode && blogId) {
             if (confirm("هل أنت متأكد من حذف هذا المقال؟")) {
                 deleteMutation.mutate(blogId, {
-                    onSuccess: () => router.push('/blogs')
+                    onSuccess: () => router.push(`/${lang}/blogs`)
                 });
             }
         } else {
-            router.push('/blogs');
+            router.push(`/${lang}/blogs`);
         }
     }
 

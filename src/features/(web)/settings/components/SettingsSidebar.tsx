@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useLogout } from "../../auth/hooks";
+import { useLanguage } from "@/src/hooks/use-language";
 
 interface SettingsSidebarProps {
     activeTab: SettingsTab;
@@ -103,6 +104,7 @@ export default function SettingsSidebar({
     onTabChange,
 }: SettingsSidebarProps) {
     const user = useAuthStore((state) => state.user);
+    const lang = useLanguage();
 
     const tabs = allTabs.filter(tab => {
         if (tab.id === "merchant") {
@@ -175,7 +177,7 @@ export default function SettingsSidebar({
 
                 if (tab.href) {
                     return (
-                        <Link key={tab.id} href={tab.href} className={className}>
+                        <Link key={tab.id} href={`/${lang}${tab.href}`} className={className}>
                             {content}
                         </Link>
                     );

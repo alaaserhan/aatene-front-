@@ -33,6 +33,7 @@ import { ShareModal } from "@/src/components/ui/ShareModal";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
+import { useLanguage } from "@/src/hooks/use-language";
 
 interface StoreHeaderProps {
     store: StoreProfile;
@@ -65,6 +66,7 @@ function FollowerCard({
     onFollowToggle: (user: WhoFavoritedUser) => void;
     isPending: boolean;
 }) {
+    const lang = useLanguage();
     const visibleFavs = user.favorites.slice(0, 5);
     const remainingCount = Math.max(0, Number(user.favorites_count) - visibleFavs.length);
     const hasFavorites = user.favorites.length > 0;
@@ -75,7 +77,7 @@ function FollowerCard({
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8 py-5 border-b border-gray-100 last:border-none">
             <div className="flex items-center justify-between w-full lg:max-w-[300px] shrink-0">
                 <div className="flex items-center gap-3  ">
-                    <Link href={`/profile/${profileId}`} className="shrink-0">
+                    <Link href={`/${lang}/profile/${profileId}`} className="shrink-0">
                         <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 border border-gray-200 relative flex items-center justify-center">
                             <UserIcon className="w-5 h-5 text-gray-400 absolute" />
                             {user.avatar_url && (
@@ -90,7 +92,7 @@ function FollowerCard({
                         </div>
                     </Link>
                     <div className="min-w-0">
-                        <Link href={`/profile/${profileId}`}>
+                        <Link href={`/${lang}/profile/${profileId}`}>
                             <p className="text-sm font-medium truncate hover:underline">{user.name}</p>
                         </Link>
                         <p className="text-xs text-gray-400">عدد المتابعين: {user.followers_count}</p>
@@ -130,7 +132,7 @@ function FollowerCard({
                         {visibleFavs.map((fav) => (
                             <Link
                                 key={fav.id}
-                                href={`/product/${fav.favs.slug}`}
+                                href={`/${lang}/product/${fav.favs.slug}`}
                                 className="w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden bg-gray-200 shrink-0 relative"
                             >
                                 {fav.favs.cover ? (
@@ -144,7 +146,7 @@ function FollowerCard({
                         ))}
                         {remainingCount > 0 && (
                             <Link
-                                href={`/profile/${profileId}/favorites`}
+                                href={`/${lang}/profile/${profileId}/favorites`}
                                 className="w-16 h-16 md:w-20 md:h-20 rounded-lg bg-amber-400/80 shrink-0 flex items-center justify-center hover:bg-amber-500/80 transition-colors"
                                 title="عرض جميع المفضلة"
                             >
@@ -375,7 +377,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                     dir="rtl"
                 >
                     <div className="-mt-14 sm:-mt-16 lg:-mt-20 z-10">
-                        <div className="flex flex-col gap-4 w-full lg:flex-row lg:items-end lg:justify-between lg:gap-8">
+                        <div className="flex flex-col gap-4 w-full lg:flex-row lg:items-end lg:justify-between lg:gap-6">
                             {/* الشعار على الجانب (يمين) + التقييم والمتابعين تحته */}
                             <div className="flex flex-col items-center gap-2 me-auto ms-0 lg:me-0 shrink-0 w-[100px] sm:w-[108px] lg:w-[150px]">
                                 <div
@@ -445,7 +447,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                     onClick={() => setShowWhoFavorited((prev) => !prev)}
                                     className="flex flex-col items-center gap-1.5 lg:flex-row lg:gap-2 cursor-pointer hover:opacity-80 transition-opacity"
                                 >
-                                    <span className="flex -space-x-2 space-x-reverse shrink-0">
+                                    <span className="flex space-x-2 rtl:space-x-reverse shrink-0">
                                         {followers && followers.length > 0 ? (
                                             followers.slice(0, 3).map((fItem, idx) => {
                                                 const avatarUrl =
@@ -476,7 +478,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                             <span className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border-2 border-white bg-gray-100 block" />
                                         )}
                                     </span>
-                                    <span className="text-gray-600 text-[11px] sm:text-xs lg:text-sm font-medium text-center leading-tight">
+                                    <span className="text-gray-600 text-[11px] sm:text-xs lg:text-sm font-medium leading-tight">
                                         {followersCount > 0
                                             ? `${followersCount} متابع`
                                             : "لا يوجد متابعين"}

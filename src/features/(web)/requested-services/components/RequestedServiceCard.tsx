@@ -7,6 +7,7 @@ import { Flag } from "lucide-react";
 import { RequestedService } from "../types";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
+import { useLanguage } from "@/src/hooks/use-language";
 
 interface RequestedServiceCardProps {
     service: RequestedService;
@@ -14,6 +15,7 @@ interface RequestedServiceCardProps {
 }
 
 export default function RequestedServiceCard({ service, className }: RequestedServiceCardProps) {
+    const lang = useLanguage();
     const user = service.user;
 
     return (
@@ -21,7 +23,7 @@ export default function RequestedServiceCard({ service, className }: RequestedSe
             className={`group relative border border-gray-200 rounded-lg p-6 flex flex-col gap-4 hover:border-blue-2 transition-colors bg-white ${className || ""}`}
         >
             <Link
-                href={`/requested-services/${service.slug}`}
+                href={`/${lang}/requested-services/${service.slug}`}
                 className="absolute inset-0 z-[1] rounded-lg"
                 aria-label={`عرض تفاصيل: ${service.title}`}
             />

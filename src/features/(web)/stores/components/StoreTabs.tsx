@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { StoreProfile, StorePageData } from "../api";
-import { cn } from "@/src/lib/utils";
+import { cn, sanitizeMediaUrl } from "@/src/lib/utils";
 import { formatPrice } from "@/src/lib/format-price";
 import {
     Loader2,
@@ -301,7 +301,7 @@ function OffersGrid({
 function OfferCard({ product }: { product: ProductInPageData }) {
     const crossSellProducts = product.crossSells || [];
     const hasCrossSells = crossSellProducts.length > 0;
-    const imageUrl = product.cross_sells_image_url || product.cover || "/placeholder.png";
+    const imageUrl = sanitizeMediaUrl(product.cross_sells_image_url || product.cover) || "/images/placeholders/product-placeholder.svg";
     const name = product.cross_sells_name || product.name || "اسم العرض";
     const desc = product.cross_sells_description || product.short_description || product.name || "";
 
@@ -367,11 +367,12 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                                         <Link href={`/product/${item.slug}`} className="flex flex-col items-center gap-0.5 sm:gap-1.5 w-[70px] sm:w-[110px] md:w-[180px] shrink-0 group/item">
                                             <div className="w-full aspect-square rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm">
                                                 <Image
-                                                    src={item.cover || "/placeholder.png"}
+                                                    src={item.cover || "/images/placeholders/product-placeholder.svg"}
                                                     alt={item.name}
                                                     width={180}
                                                     height={180}
                                                     className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
+                                                    onError={(e) => { e.currentTarget.src = "/images/placeholders/product-placeholder.svg"; }}
                                                 />
                                             </div>
                                             <p className="text-[9px] sm:text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight group-hover/item:text-blue-3 transition-colors">
@@ -866,13 +867,14 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                         alt={ownerName}
                         fill
                         className="object-cover"
+                        onError={(e) => { e.currentTarget.style.display = "none"; e.currentTarget.parentElement?.classList.add("flex", "items-center", "justify-center"); }}
                     />
                 ) : (
                     <User size={50} className="text-gray-400" />
                 )}
             </div>
             <div className="flex flex-col items-center gap-1">
-                <Link href={`/profile/${store.owner?.slug}`}>
+                <Link href={`/${lang}/profile/${store.owner?.slug}`}>
                     <h3 className="text-[17px] text-center font-medium text-[#4d4d4d] capitalize">
                         {ownerName}
                     </h3>
