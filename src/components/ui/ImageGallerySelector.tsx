@@ -74,15 +74,9 @@ export function ImageGallerySelector({
     }));
 
     const isAllowedAsMain = (file: string, url: string) => {
-        // الفيديو لا يمكن تعيينه كصورة رئيسية أبداً
-        if (isVideoFile(file) || isVideoFile(url)) {
-            return "لا يمكن تعيين الفيديو كصورة رئيسية";
-        }
-
         if (mainImageAllowedMediaTypes && mainImageAllowedMediaTypes.length > 0) {
             const fileType = itemMediaTypesRef.current[file] || itemMediaTypesRef.current[url];
 
-            // gallery يحتوي صوراً عادية — السماح به دائماً ما لم يكن فيديو (تم التحقق أعلاه)
             if (fileType === "gallery") {
                 return null;
             }
@@ -216,9 +210,9 @@ export function ImageGallerySelector({
     const resolvedUploadSecondary =
         uploadSecondaryText ??
         (firstSlotImageOnly
-            ? "الموضع الأول: تبويب الصور فقط. بعده يمكنك إضافة فيديو من تبويب المعرض."
+            ? "الموضع الأول: صورة أو فيديو. باقي المواضع: صور أو فيديو من المعرض."
             : allowsGalleryVideos(allowedMediaTypes)
-              ? "الموضع الأول: تبويب الصور — الفيديو والصور الإضافية: تبويب المعرض"
+              ? "الموضع الأول وباقي المواضع: صور أو فيديو من تبويب الصور أو المعرض"
               : "PNG, JPG, WebP, SVG");
 
     return (
