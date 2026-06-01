@@ -15,7 +15,7 @@ export function AnalyticsHeader() {
 
   return (
     <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
-      <div className="flex items-center justify-between h-16 px-6">
+      <div className="flex items-center justify-between h-16 px-4 sm:px-6">
         <nav className="flex items-center h-full">
           <ul className="flex items-center gap-8 h-full">
             {links.map((link) => {

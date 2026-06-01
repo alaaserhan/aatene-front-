@@ -123,7 +123,7 @@ export function CustomerLocationAnalytics({ storeId }: { storeId?: number | stri
 
           {/* Left Side: Table */}
           <div className="w-full lg:w-[60%] flex-1 overflow-x-auto lg:pl-2">
-            <table className="w-full min-w-[300px]">
+            <table className="w-full">
               <thead>
                 <tr className="text-gray-400 text-xs border-b border-gray-50">
                   <th className="font-medium pb-3 pt-1">

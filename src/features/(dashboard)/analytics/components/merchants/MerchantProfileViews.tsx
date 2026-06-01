@@ -34,7 +34,7 @@ export function MerchantProfileViews() {
     }
 
     return (
-        <div className="bg-white rounded-lg p-6 h-[320px] flex flex-col">
+        <div className="bg-white rounded-lg p-4 sm:p-6 min-h-[320px] flex flex-col">
 
             {/* 1. Header: Title & Total Count */}
             <div className="flex flex-col mb-6">
@@ -51,10 +51,10 @@ export function MerchantProfileViews() {
             <div className="flex-1 flex flex-col">
 
                 {/* Top Half */}
-                <div className="flex flex-1 items-center pb-4 border-b border-gray-100">
+                <div className="flex flex-col sm:flex-row flex-1 sm:items-center pb-4 border-b border-gray-100">
 
                     {/* Top Right: Month Stats */}
-                    <div className="w-1/2 flex flex-col gap-1 pl-4">
+                    <div className="w-full sm:w-1/2 flex flex-col gap-1 sm:pl-4 mb-4 sm:mb-0">
                         <span className="text-sm text-gray-2 font-medium">مشاهدات الشهر</span>
                         <span className="text-2xl font-medium text-[#3A5779]">
                             {data?.current_month_views || 0} مشاهدة
@@ -65,7 +65,7 @@ export function MerchantProfileViews() {
                     </div>
 
                     {/* Top Left: Chart */}
-                    <div className="w-1/2 h-full flex flex-col justify-end pr-4 border-r border-transparent">
+                    <div className="w-full sm:w-1/2 h-full flex flex-col justify-end sm:pr-4 sm:border-r border-transparent">
                         <div className="h-[80px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={lineChartData}>
@@ -98,10 +98,10 @@ export function MerchantProfileViews() {
                 </div>
 
                 {/* Bottom Half */}
-                <div className="flex flex-1 items-center py-2">
+                <div className="flex flex-col sm:flex-row flex-1 sm:items-center py-2">
 
                     {/* Bottom Right: Today Stats */}
-                    <div className="w-1/2 flex flex-col gap-1 pl-4">
+                    <div className="w-full sm:w-1/2 flex flex-col gap-1 sm:pl-4 mb-4 sm:mb-0">
                         <span className="text-sm text-gray-2 font-medium">مشاهدات اليوم</span>
                         <span className="text-2xl font-medium ">
                             {data?.current_day_views || 0} مشاهدة
@@ -112,7 +112,7 @@ export function MerchantProfileViews() {
                     </div>
 
                     {/* Bottom Left: All/Year Stats */}
-                    <div className="w-1/2 flex flex-col gap-1 border-r border-transparent">
+                    <div className="w-full sm:w-1/2 flex flex-col gap-1 sm:border-r border-transparent">
                         <span className="text-sm text-gray-2 font-medium">جميع المشاهدات</span>
                         <span className="text-2xl font-medium ">
                             {formatNumber(data?.all_time_views || 0)} مشاهدة

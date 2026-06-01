@@ -290,20 +290,20 @@ export function ReportView({ type }: ReportViewProps) {
     }
 
     if (isLoading) {
-        return <div className="h-[500px] flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-[#3A5779]" /></div>;
+        return <div className="h-[300px] sm:h-[500px] flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-[#3A5779]" /></div>;
     }
 
     return (
         <div className="flex flex-col gap-0">
             {/* Header */}
-            <div className="flex items-center justify-between mb-4 ">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                     <div className="w-5 h-5 flex items-center justify-center">
                         {config.icon}
                     </div>
                     <h1 className="text-xl font-medium">{config.title}</h1>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                     <div >
                         <ReusableDropdown
                             options={[
@@ -348,7 +348,7 @@ export function ReportView({ type }: ReportViewProps) {
                             title={config.topListName}
                             subtitle={config.subtitle}
                             items={config.topListItems}
-                            className="h-[450px]"
+                            className="min-h-[300px] lg:h-[450px]"
                             icon={ChevronsUp}
                             iconClassName="text-green-500"
                         />
@@ -360,7 +360,7 @@ export function ReportView({ type }: ReportViewProps) {
                             data={config.chartData}
                             title="تحليل النمو"
                             lines={config.chartLines}
-                            className="h-[450px]"
+                            className="min-h-[300px] lg:h-[450px]"
                         />
                     </div>
 

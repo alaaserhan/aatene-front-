@@ -34,12 +34,12 @@ export function HightRatedStores() {
 
             {/* List with Custom Scrollbar */}
             <div className="flex-1 relative ">
-                <ScrollArea className="h-[300px] -ml-4 pl-4" dir="rtl">
+                <ScrollArea className="h-[250px] sm:h-[300px] -ml-4 pl-4" dir="rtl">
                     <div className="flex flex-col gap-4">
                         {stores.length > 0 ? (
                             stores.map((store, index) => (
                                 <Link
-                                    href={`/stores/${store.id}`}
+                                    href={`/admin/stores/${store.id}`}
                                     key={store.id}
                                     className="flex items-center justify-between group cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors -mx-2"
                                 >

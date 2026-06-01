@@ -32,7 +32,7 @@ export default function ReportsPage() {
             {/* Header (Reusing AnalyticsHeader) */}
             <AnalyticsHeader />
 
-            <main className="flex-1 p-6">
+            <main className="flex-1 p-4 sm:p-6">
                 <div className="grid grid-cols-12 gap-4 ">
                     
                     {/* Sidebar (Right in RTL) */}

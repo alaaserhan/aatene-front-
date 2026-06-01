@@ -19,9 +19,9 @@ export function RecentReports() {
     }
 
     return (
-        <div className="bg-white rounded-lg p-6 flex flex-col h-full">
+        <div className="bg-white rounded-lg p-4 sm:p-6 flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
                 <div className="flex items-center gap-2 ">
                     <Smile className="w-6 h-6 " />
                     <h3 className="text-lg font-medium">الشكاوي</h3>

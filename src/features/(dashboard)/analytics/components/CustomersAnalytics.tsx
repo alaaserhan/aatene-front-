@@ -80,7 +80,7 @@ export function CustomersAnalytics() {
     }
 
     return (
-        <div className="bg-white rounded-lg p-6 flex flex-col gap-4 h-[350px]">
+        <div className="bg-white rounded-lg p-6 flex flex-col gap-4 min-h-[250px] lg:h-[350px]">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-100 pb-2">
 
