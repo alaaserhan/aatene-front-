@@ -1,30 +1,43 @@
 "use client";
 
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Blog } from "../../blogs/types";
+import { sanitizeMediaUrl } from "@/src/lib/utils";
 
 interface HomeBlogCardProps {
     blog: Blog;
 }
 
 export default function HomeBlogCard({ blog }: HomeBlogCardProps) {
+    const [thumbnailError, setThumbnailError] = useState(false);
+    const [avatarError, setAvatarError] = useState(false);
     const formattedDate = new Intl.DateTimeFormat("ar-SA", {
         day: "2-digit",
         month: "long",
         year: "numeric",
     }).format(new Date(blog.created_at));
 
+    const thumbnailSrc = sanitizeMediaUrl(blog.thumbnail_url) && !thumbnailError
+        ? sanitizeMediaUrl(blog.thumbnail_url)
+        : "/images/placeholders/product-placeholder.svg";
+    const avatarSrc = sanitizeMediaUrl(blog.user?.avatar_url || blog.store?.logo_url) && !avatarError
+        ? sanitizeMediaUrl(blog.user?.avatar_url || blog.store?.logo_url)
+        : "/images/placeholders/avatar-placeholder.svg";
+
     return (
         <Link href={`/blogs/${blog.slug}`} className="block group">
             {/* Image Container */}
             <div className="relative aspect-video w-full rounded-2xl overflow-hidden mb-4 bg-gray-100">
                 <Image
-                    src={blog.thumbnail_url || "/placeholder.png"}
+                    src={thumbnailSrc}
                     alt={blog.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    onError={() => setThumbnailError(true)}
                 />
             </div>
 
@@ -34,10 +47,11 @@ export default function HomeBlogCard({ blog }: HomeBlogCardProps) {
                 <div className="flex items-center gap-2">
                     <div className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200">
                         <Image
-                            src={blog.user?.avatar_url || blog.store?.logo_url || "/placeholder-user.jpg"}
+                            src={avatarSrc}
                             alt={blog.user?.first_name || "User"}
                             fill
                             className="object-cover"
+                            onError={() => setAvatarError(true)}
                         />
                     </div>
                     <span className="font-medium">

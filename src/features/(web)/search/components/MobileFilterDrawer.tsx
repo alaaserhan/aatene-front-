@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import SearchFilters, { SearchType, FilterState } from "./SearchFilters";
-import { Category, City, Tag, PriceRange } from "@/src/features/(web)/searchAndFilter/api";
+import { Category, City, Tag, Attribute, PriceRange } from "@/src/features/(web)/searchAndFilter/api";
 
 interface MobileFilterDrawerProps {
     isOpen: boolean;
@@ -14,6 +14,7 @@ interface MobileFilterDrawerProps {
     categories?: Category[];
     cities?: City[];
     tags?: Tag[];
+    attributes?: Attribute[];
     priceRange?: PriceRange;
 }
 
@@ -27,6 +28,7 @@ export default function MobileFilterDrawer({
     categories = [],
     cities = [],
     tags = [],
+    attributes = [],
     priceRange,
 }: MobileFilterDrawerProps) {
     if (!isOpen) return null;
@@ -67,6 +69,7 @@ export default function MobileFilterDrawer({
                         categories={categories}
                         cities={cities}
                         tags={tags}
+                        attributes={attributes}
                         priceRange={priceRange}
                         className="border-0 p-0"
                     />

@@ -24,8 +24,8 @@ export default function HomeSingleBanner({ banner }: HomeSingleBannerProps) {
     const linkHref = banner.url || "#";
 
     return (
-        <section className="py-8 container">
-            <div className="">
+        <section className="py-6 md:py-8 container">
+            <div className="px-2 md:px-0">
                 <Link
                     href={linkHref}
                     target="_blank"

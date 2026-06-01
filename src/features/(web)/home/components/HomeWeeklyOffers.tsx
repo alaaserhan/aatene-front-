@@ -45,10 +45,11 @@ export default function HomeWeeklyOffers({ data: initialData }: HomeWeeklyOffers
                                 >
                                     <div className="relative w-full aspect-square mb-4 overflow-hidden rounded-lg">
                                         <Image
-                                            src={product.cover || "/placeholder.png"}
+                                            src={product.cover || "/images/placeholders/product-placeholder.svg"}
                                             alt={product.name}
                                             fill
                                             className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                            onError={(e) => { e.currentTarget.src = "/images/placeholders/product-placeholder.svg"; }}
                                         />
                                     </div>
 

@@ -59,7 +59,7 @@ export default function HomePage({ initialData }: HomePageProps) {
     const sixthBannerData = initialData?.sixthBanner;
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen overflow-x-hidden">
             <Suspense fallback={<BannerSkeleton />}>
                 <HomeBanners banners={banners} />
             </Suspense>

@@ -20,13 +20,8 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
   const scroll = (direction: "left" | "right") => {
     if (!scrollContainerRef.current) return;
     const scrollAmount = 350;
-    const newScrollLeft =
-      direction === "left"
-        ? scrollContainerRef.current.scrollLeft - scrollAmount
-        : scrollContainerRef.current.scrollLeft + scrollAmount;
-
-    scrollContainerRef.current.scrollTo({
-      left: newScrollLeft,
+    scrollContainerRef.current.scrollBy({
+      left: direction === "left" ? scrollAmount : -scrollAmount,
       behavior: "smooth",
     });
   };
@@ -34,7 +29,7 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
   if (!merchants || merchants.length === 0) return null;
 
   return (
-    <section className="py-8 relative overflow-hidden">
+    <section className="py-8 relative overflow-hidden" dir="rtl">
       <MaxWidthWrapper className="relative z-20">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl md:text-3xl text-blue-4 font-medium relative inline-block">
@@ -48,11 +43,11 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
 
           <div
             ref={scrollContainerRef}
-            className="flex flex-row flex-nowrap overflow-x-auto gap-6 pb-8 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-pan-x overscroll-x-contain"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            className="flex flex-row flex-nowrap overflow-x-auto gap-6 pb-8 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-pan-x overscroll-x-contain w-fit max-w-full"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
           >
             {merchants.map((merchant) => (
-              <div key={merchant.id} className="flex-none min-w-[280px] sm:min-w-[320px] snap-start">
+              <div key={merchant.id} className="flex-none w-[280px] sm:w-[320px] snap-start">
                 <StoreCard
                   // @ts-expect-error - Store types compatibility
                   store={merchant}
