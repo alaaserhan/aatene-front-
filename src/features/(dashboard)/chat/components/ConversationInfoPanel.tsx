@@ -73,7 +73,7 @@ export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCoo
 
             <div className={`
                 fixed md:absolute inset-y-0 left-0
-                w-[85vw] sm:w-80 lg:w-96
+                w-[80vw] sm:w-80 lg:w-96
                 bg-white border-r border-gray-200
                 z-50 md:z-20
                 flex flex-col h-full
@@ -155,7 +155,7 @@ export function ConversationInfoPanel({ conversation, isOpen, onClose, ignoreCoo
                             ) : (
                                 <div className="space-y-4">
                                     {imageFiles.length > 0 && (
-                                        <div className="grid grid-cols-3 gap-2">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                             {imageFiles.map((url, i) => (
                                                 <div
                                                     key={i}

@@ -96,7 +96,7 @@ export function SessionsChartCard({ data }: SessionsChartCardProps) {
                 <p className="text-xs text-gray-2 mt-1">توزيع أنواع الجلسات</p>
             </div>
 
-            <div className="flex-1 min-h-[180px] sm:min-h-[200px] relative flex items-center justify-center">
+            <div className="h-[200px] relative flex items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie

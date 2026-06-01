@@ -34,6 +34,12 @@ export function Mosa3edySidebar({ isCollapsed = false, className }: Mosa3edySide
     },
     {
       iconPath: "/icons/dashboard/document.svg",
+      label: "تعليمات مساعدي",
+      href: "/admin/mosa3edy/instructions",
+      isActive: pathname.includes("instructions")
+    },
+    {
+      iconPath: "/icons/dashboard/document.svg",
       label: "أسئلة لم يتم الرد عليها",
       href: "/admin/mosa3edy/unanswered-questions",
       isActive: pathname.includes("unanswered-questions")

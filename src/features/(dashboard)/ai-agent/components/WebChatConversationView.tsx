@@ -13,14 +13,11 @@ import {
     useWebMarkTyping,
     useGetWebConversations,
     useGetWebConversation,
-    useWebToggleBot,
 } from "../hooks";
 import { WebMessage } from "../api";
 import { isInfiniteWebMessagesData } from "../utils/web-messages-infinite-data";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
-import { Switch } from "@/src/components/ui/switch";
-import { Label } from "@/src/components/ui/label";
 import { cn } from "@/src/lib/utils";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { useEchoChannel } from "@/src/hooks/use-echo-channel";
@@ -76,7 +73,6 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
     const { mutate: resolveConversation, isPending: isResolving } = useWebResolveConversation();
     const { mutate: deleteConversation, isPending: isDeleting } = useWebDeleteConversation();
     const { mutate: markTyping } = useWebMarkTyping();
-    const { mutate: toggleBot, isPending: isTogglingBot } = useWebToggleBot();
 
     const apiMessages: WebMessage[] = useMemo(() => {
         return messagesInfinite?.pages.flatMap((page) => page.data) || [];
@@ -254,8 +250,6 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
         router.push(`/admin/mosa3edy/users/web/${webUserId}?${q.toString()}`);
     };
 
-    const botRepliesEnabled = conversationLoaded.user!.ai_support_bot_active !== false;
-
     return (
         <div className="flex flex-col h-full max-h-[calc(100vh-220px)] lg:max-h-none bg-white">
 
@@ -279,21 +273,11 @@ export function WebChatConversationView({ conversationId }: WebChatConversationV
                 </button>
 
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 justify-end">
-                <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-100 shrink-0">
-                    <Switch
-                        id={`bot-reply-${conversationId}`}
-                        checked={botRepliesEnabled}
-                        disabled={isTogglingBot}
-                        onCheckedChange={() => toggleBot(conversationId)}
-                        dir="ltr"
-                        className="data-[state=checked]:bg-[#1DC355]"
-                    />
-                    <Label
-                        htmlFor={`bot-reply-${conversationId}`}
-                        className="text-xs sm:text-sm font-medium text-gray-700 cursor-pointer select-none whitespace-nowrap"
-                    >
-                        رد البوت التلقائي
-                    </Label>
+                <div className="flex items-center gap-2 bg-emerald-50 px-3 py-2 rounded-lg border border-emerald-100 text-emerald-700 shrink-0">
+                    <Bot className="h-4 w-4" />
+                    <span className="text-xs sm:text-sm font-medium whitespace-nowrap">
+                        رد البوت التلقائي مفعل دائماً
+                    </span>
                 </div>
 
                 {!conversation?.resolved_at && (
