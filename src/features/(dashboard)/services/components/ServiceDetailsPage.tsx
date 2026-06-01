@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
     Phone,
     Send,
@@ -10,15 +10,17 @@ import {
     Pen,
     XCircle,
     PauseCircle,
+    Trash2,
 } from "lucide-react";
 import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
-import { useGetService, useUpdateServiceStatus, useUpdateServiceShown } from "../hooks";
+import { useDeleteService, useGetService, useUpdateServiceStatus, useUpdateServiceShown } from "../hooks";
 import { formatPrice } from "@/src/lib/format-price";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Button } from "@/src/components/ui/button";
 import { RejectServiceModal } from "./RejectServiceModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 
 import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
 import { ShareModal } from "@/src/components/ui/ShareModal";
@@ -34,14 +36,30 @@ interface ServiceDetailsPageProps {
     storeId: number;
 }
 
+const executeTypeLabels: Record<string, string> = {
+    min: "دقيقة",
+    hour: "ساعة",
+    day: "يوم",
+    week: "أسبوع",
+    month: "شهر",
+    year: "سنة",
+};
+
+function formatExecuteDuration(count?: string | number, type?: string) {
+    if (!count || !type) return "";
+    return `${count} ${executeTypeLabels[type] || type}`;
+}
+
 export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPageProps) {
     const router = useRouter();
+    const routeParams = useParams<{ locale?: string; type?: string }>();
     const queryClient = useQueryClient();
 
     // --- States ---
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [successModalTitle, setSuccessModalTitle] = useState("");
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [activeImage, setActiveImage] = useState<string>("");
     const [isAdmin, setIsAdmin] = useState(false); // ✅ حالة الأدمن
@@ -68,6 +86,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
     const { mutate: updateStatus, isPending: isUpdating } = useUpdateServiceStatus();
     const { mutate: updateShown, isPending: isUpdatingShown } = useUpdateServiceShown();
+    const { mutate: deleteService, isPending: isDeleting } = useDeleteService();
 
     const [alertDismissed, setAlertDismissed] = useState(false);
     const dismissAlert = () => setAlertDismissed(true);
@@ -112,6 +131,15 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
     const handleRejectClick = () => {
         setIsRejectModalOpen(true);
+    };
+
+    const handleDelete = () => {
+        deleteService({ id: serviceId, storeId }, {
+            onSuccess: () => {
+                setIsDeleteModalOpen(false);
+                router.push(`${dashboardBase}/serviceProviders/${storeId}`);
+            },
+        });
     };
 
     const confirmReject = (reasonText: string, details: string) => {
@@ -173,22 +201,58 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     const currentStatus = service.status;
     const isOwner = !isAdmin && currentStoreId !== null && currentStoreId === store?.id;
     const isShown = (service as unknown as { shown?: boolean })?.shown;
+    const dashboardBase =
+        routeParams?.locale && routeParams?.type
+            ? `/${routeParams.locale}/${routeParams.type}`
+            : isMerchant
+                ? "/merchant"
+                : "/admin";
 
     const breadcrumbItems = [
-        { label: "مقدمي الخدمات", href: isMerchant ? undefined : "/admin/serviceProviders" },
-        { label: store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "تفاصيل المتجر", href: `/admin/serviceProviders/${storeId}` },
-        { label: service.title, href: `/admin/serviceProviders/services/${storeId}/${service.id}` },
+        { label: "مقدمي الخدمات", href: isMerchant ? undefined : `${dashboardBase}/serviceProviders` },
+        { label: store ? `${store.owner?.first_name} ${store.owner?.last_name}` : "تفاصيل المتجر", href: `${dashboardBase}/serviceProviders/${storeId}` },
+        { label: service.title, href: `${dashboardBase}/serviceProviders/services/details/${service.id}/${storeId}` },
     ];
 
     return (
         <div className="flex flex-col pb-10">
             {/* Header Area */}
-            <div>
-                {
-                    !isMerchant && (
-                        <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
-                    )
-                }
+            <div className="space-y-4">
+                <div className="container mx-auto px-4 md:px-0">
+                    <Breadcrumb items={breadcrumbItems} className="bg-white px-6" />
+                </div>
+
+                {isOwner && (currentStatus === "pending" || currentStatus === "rejected") && (
+                    <div className="container mx-auto px-4 md:px-0">
+                        <div className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between" dir="rtl">
+                            <div>
+                                <p className="text-base font-bold text-gray-900">إدارة الخدمة قبل اعتمادها</p>
+                                <p className="mt-1 text-sm text-gray-2">
+                                    يمكنك تعديل بيانات الخدمة أو حذفها قبل ظهورها للعملاء.
+                                </p>
+                            </div>
+                            <div className="flex flex-col gap-2 sm:flex-row">
+                                <Button
+                                    type="button"
+                                    onClick={() => router.push(`${dashboardBase}/serviceProviders/services/edit/${serviceId}/${storeId}`)}
+                                    className="h-10 rounded bg-blue-5 px-5 font-bold text-blue-4 hover:bg-blue-5/80"
+                                >
+                                    <Pen className="h-4 w-4" />
+                                    تعديل الخدمة
+                                </Button>
+                                <Button
+                                    type="button"
+                                    onClick={() => setIsDeleteModalOpen(true)}
+                                    disabled={isDeleting}
+                                    className="h-10 rounded bg-red-2 px-5 font-bold text-red-1 hover:bg-red-2/80"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                    {isDeleting ? "جاري الحذف..." : "حذف الخدمة"}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* ✅ تم قبول الخدمه */}
                 {isOwner && !alertDismissed && currentStatus === "approved" && (
@@ -291,7 +355,9 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                     </div>
                 )}
 
-            </div>            <div className="container mx-auto px-4 md:px-0 mt-6">
+            </div>
+
+            <div className="container mx-auto px-4 md:px-0 mt-6">
                 <div className="grid grid-cols-12 gap-6">
 
                     {/* Main Content Area */}
@@ -303,7 +369,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     {service.title}
                                 </h1>
                                 <div className="flex gap-4 text-gray-2">
-                                    <button className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer" onClick={() => router.push(`/admin/serviceProviders/services/edit/${serviceId}/${storeId}`)}>
+                                    <button className="flex items-center gap-1 text-blue-4 transition-colors cursor-pointer" onClick={() => router.push(`${dashboardBase}/serviceProviders/services/edit/${serviceId}/${storeId}`)}>
                                         <Pen className="w-4 h-4" />
                                         <span className="text-sm font-medium">تعديل الخدمة</span>
                                     </button>
@@ -411,37 +477,31 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                             <div className="p-6 py-2">
 
-                                {/* Category Section */}
-                                <div className="grid grid-cols-2 py-4 border-b border-gray-100">
-                                    <div className="t">
-                                        <p className=" font-bold text-sm mb-1">التصنيف الرئيسي</p>
-                                        <p className="text-gray-2 text-sm">{service.section?.name || "-"}</p>
-                                    </div>
-                                    <div className="">
-                                        <p className=" font-bold text-sm mb-1">التصنيف الفرعي</p>
-                                        <p className="text-gray-2 text-sm">{service.category?.name || "-"}</p>
-                                    </div>
+                                {/* Service Metadata */}
+                                <div className="py-4 border-b border-gray-100 text-right">
+                                    <p className="font-bold text-sm mb-1">فئة الخدمة</p>
+                                    <p className="text-gray-2 text-sm">
+                                        {service.section?.name || "-"} {service.category?.name ? `‹ ${service.category.name}` : ""}
+                                    </p>
                                 </div>
 
-                                {/* Price & Delivery Section */}
-                                <div className="grid grid-cols-2 py-4 border-b border-gray-100">
-                                    <div className="t">
-                                        <p className=" font-bold text-sm mb-1">سعر الخدمة</p>
-                                        <p className="text-gray-2 text-sm font-medium">₪ {formatPrice(service.price)}</p>
-                                    </div>
-                                    <div className="">
-                                        <p className=" font-bold text-sm mb-1">التسليم خلال</p>
-                                        <p className="text-gray-2 text-sm">{service.execute_count} {service.execute_type}</p>
-                                    </div>
+                                <div className="py-4 border-b border-gray-100 text-right">
+                                    <p className="font-bold text-sm mb-1">قسم الخدمة</p>
+                                    <p className="text-gray-2 text-sm">{service.section?.name || "-"}</p>
+                                </div>
+
+                                <div className="py-4 border-b border-gray-100 text-right">
+                                    <p className="font-bold text-sm mb-1">سعر الخدمة</p>
+                                    <p className="text-gray-2 text-sm font-medium">₪ {formatPrice(service.price)}</p>
                                 </div>
 
                                 {/* Cities Section */}
-                                <div className="py-4 border-b border-gray-100">
-                                    <p className=" font-bold text-sm mb-3">المدن التي يمكنه العمل بها</p>
-                                    <div className="flex flex-wrap gap-2">
+                                <div className="py-4 border-b border-gray-100 text-right">
+                                    <p className="font-bold text-sm mb-3">المدن التي يمكنه العمل بها</p>
+                                    <div className="flex flex-wrap justify-end gap-2">
                                         {store?.serviceCities && store.serviceCities.length > 0 ? (
                                             store.serviceCities.map((city) => (
-                                                <span key={city.id} className="px-3 py-1 bg-[#F0F4F8] text-[#3A5779] text-xs rounded-full font-medium border border-[#E1E8F0]">
+                                                <span key={city.id} className="px-3 py-1 bg-[#F0F4F8] text-[#3A5779] text-xs rounded-full font-medium border border-[#D9E4F0]">
                                                     {city.name}
                                                 </span>
                                             ))
@@ -451,28 +511,29 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     </div>
                                 </div>
 
-                                {/* Specialties Section */}
-                                {service.specialties && service.specialties.length > 0 && (
-                                    <div className="py-4 border-b border-gray-100">
-                                        <p className="font-bold text-sm mb-2">التخصصات ومجالات العمل</p>
-                                        <div className="flex flex-wrap gap-1">
-                                            {service.specialties.map((spec: string | { id: number; title: string }, idx: number) => (
-                                                <span key={idx} className="text-[#395a7d] text-xs leading-relaxed bg-[#eef2f7] px-2 py-1 rounded-full border border-[#d0dcea]">
-                                                    {typeof spec === 'object' ? spec.title : spec}
+                                <div className="py-4 border-b border-gray-100 text-right">
+                                    <p className="font-bold text-sm mb-3">تخصصات أو مجالات العمل</p>
+                                    <div className="flex flex-wrap justify-end gap-2">
+                                        {service.specialties && service.specialties.length > 0 ? (
+                                            service.specialties.map((spec: string | { id: number; title: string }, idx: number) => (
+                                                <span key={idx} className="text-[#395a7d] text-xs leading-relaxed bg-[#eef2f7] px-3 py-1 rounded-full border border-[#d0dcea]">
+                                                    {typeof spec === "object" ? spec.title : spec}
                                                 </span>
-                                            ))}
-                                        </div>
+                                            ))
+                                        ) : (
+                                            <span className="text-xs text-gray-2">لا توجد تخصصات محددة</span>
+                                        )}
                                     </div>
-                                )}
+                                </div>
 
                                 {/* Keywords Section */}
-                                <div className="py-4">
-                                    <p className=" font-bold text-sm mb-2">الكلمات المفتاحية</p>
-                                    <div className="flex flex-wrap gap-1">
+                                <div className="py-4 border-b border-gray-100 text-right">
+                                    <p className="font-bold text-sm mb-3">الكلمات المفتاحية</p>
+                                    <div className="flex flex-wrap justify-end gap-2">
                                         {service.tags && service.tags.length > 0 ? (
                                             service.tags.map((tag: string | { id: number; title: string }, idx: number) => (
-                                                <span key={idx} className="text-gray-2 text-xs leading-relaxed bg-gray-50 px-2 py-1 rounded">
-                                                    {typeof tag === 'object' ? tag.title : tag}
+                                                <span key={idx} className="text-[#395a7d] text-xs leading-relaxed bg-[#eef2f7] px-3 py-1 rounded-full border border-[#d0dcea]">
+                                                    {typeof tag === "object" ? tag.title : tag}
                                                 </span>
                                             ))
                                         ) : (
@@ -480,6 +541,28 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                         )}
                                     </div>
                                 </div>
+
+                                {service.extras && service.extras.length > 0 && (
+                                    <div className="py-4 border-b border-gray-100 text-right">
+                                        <p className="font-bold text-sm mb-3">تطويرات اختيارية</p>
+                                        <div className="space-y-2">
+                                            {service.extras.map((extra, idx) => (
+                                                <div key={`${extra.title}-${idx}`} className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2">
+                                                    <div className="min-w-0 text-right">
+                                                        <p className="text-xs font-medium text-gray-900 line-clamp-1">{extra.title}</p>
+                                                        <p className="mt-1 text-[11px] text-gray-500">
+                                                            ₪ {formatPrice(extra.price)}
+                                                            {formatExecuteDuration(extra.execute_count, extra.execute_type) && (
+                                                                <span> | {formatExecuteDuration(extra.execute_count, extra.execute_type)}</span>
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                    <span className="h-4 w-4 rounded-sm border border-gray-300 shrink-0" aria-hidden="true" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Contact Buttons */}
                                 {currentStoreId !== store?.id && (
@@ -492,7 +575,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                                 </Button>
                                             )
                                         }
-                                        <Link href={`/admin/chat?type=store&id=${store?.id}`}>
+                                        <Link href={`${dashboardBase}/chat?type=store&id=${store?.id}`}>
                                             <Button variant="outline" className="w-full border-[#3A5779] text-[#3A5779] bg-transparent font-bold h-12 rounded-lg gap-2 text-sm">
                                                 <span>دردشة</span>
                                                 <Send className="w-5 h-5 rotate-45" />
@@ -519,10 +602,20 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 onClose={() => {
                     setIsSuccessModalOpen(false);
                     if (service.status === "rejected") {
-                        router.push(`/admin/serviceProviders/${storeId}`);
+                        router.push(`${dashboardBase}/serviceProviders/${storeId}`);
                     }
                 }}
                 title={successModalTitle}
+            />
+
+            <ConfirmDeleteModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleDelete}
+                title="هل أنت متأكد من حذف هذه الخدمة؟"
+                description="سيتم حذف الخدمة نهائياً. لا يمكن التراجع عن هذا الإجراء."
+                confirmText={isDeleting ? "جاري الحذف..." : "نعم، قم بالحذف"}
+                cancelText="إلغاء"
             />
 
             <ShareModal

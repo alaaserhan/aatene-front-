@@ -126,7 +126,7 @@ function AllServicesSection() {
             </div>
 
             <div className="col-span-12 bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
-                    <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
+                    <div className="flex items-center gap-8 px-4 sm:px-6 pt-4 border-b border-gray-100 overflow-x-auto">
                         {serviceStatusTabs.map((tab) => (
                             <button
                                 key={tab.key}
@@ -291,7 +291,7 @@ export function ServiceProvidersPage() {
     return (
         <div className="space-y-6">
             <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
-                <div className="flex items-center justify-between h-16 px-6">
+                <div className="flex items-center justify-between h-16 px-4 sm:px-6">
                     <div className="flex items-center gap-1">
                         <button
                             onClick={() => setActiveTab("services")}

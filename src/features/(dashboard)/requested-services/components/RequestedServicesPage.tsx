@@ -169,7 +169,7 @@ function RequestedServicesPageContent() {
     if (isLoading) {
       return (
         <tr>
-          <td colSpan={5} className="py-20 text-center">
+          <td colSpan={5} className="py-10 sm:py-20 text-center">
             <div className="flex justify-center items-center gap-2 text-gray-2">
               <Loader2 className="w-6 h-6 animate-spin text-[#3A5779]" />
               <span>جاري التحميل...</span>
@@ -182,7 +182,7 @@ function RequestedServicesPageContent() {
     if (!currentData || currentData.length === 0) {
       return (
         <tr>
-          <td colSpan={5} className="py-20 text-center text-gray-2">
+              <td colSpan={5} className="py-10 sm:py-20 text-center text-gray-2">
             لا توجد طلبات لعرضها
           </td>
         </tr>
@@ -329,7 +329,7 @@ function RequestedServicesPageContent() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6 min-h-screen bg-[#F8F9FC]">
+    <div className="flex flex-col gap-6 p-4 sm:p-6 min-h-screen bg-[#F8F9FC]">
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold ">طلبات الخدمات الغير موجودة</h1>
         <p className="text-gray-2 text-sm">
@@ -346,9 +346,9 @@ function RequestedServicesPageContent() {
               <button
                 key={stat.id}
                 onClick={() => handleTabChange(stat.id as RequestedServiceStatus | "reports")}
-                className={cn(
-                  "flex items-center gap-2 px-6 py-4 cursor-pointer ",
-                )}
+                  className={cn(
+                    "flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 cursor-pointer ",
+                  )}
               >
                 <span className={cn(
                   "px-3 pt-0.5 rounded text-sm font-bold transition-colors",
