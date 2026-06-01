@@ -9,7 +9,7 @@ const PREVIEW_COOKIE = "coming_soon_preview";
 const I18nMiddleware = createI18nMiddleware({
   locales: ["en", "ar", "he"],
   defaultLocale: "ar",
-  urlMappingStrategy: "rewriteDefault",
+  urlMappingStrategy: "rewrite",
   resolveLocaleFromRequest: () => "ar",
 });
 
@@ -89,6 +89,7 @@ export default function proxy(request: NextRequest) {
   const protectedWebRoutes = [
     '/requested-services/create',
     '/requested-services/edit',
+    '/settings',
   ];
 
   const isProtectedWebRoute = protectedWebRoutes.some((route) => {
