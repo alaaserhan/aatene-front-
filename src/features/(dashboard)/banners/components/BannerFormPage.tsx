@@ -528,14 +528,14 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
               required
             />
 
-            <div className="flex gap-4 justify-between pt-6">
+            <div className="flex flex-wrap gap-4 justify-between pt-6">
               <Button
                 type="submit"
                 disabled={
                   createBannerMutation.isPending ||
                   updateBannerMutation.isPending
                 }
-                className="px-8 py-3 cursor-pointer"
+                className="px-6 sm:px-8 py-3 cursor-pointer text-sm sm:text-base"
                 style={{ backgroundColor: "var(--blue-3)" }}
               >
                 {createBannerMutation.isPending ||
@@ -552,7 +552,7 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
                 type="button"
                 variant="outline"
                 onClick={handleCancel}
-                className="px-8 py-3 cursor-pointer"
+                className="px-6 sm:px-8 py-3 cursor-pointer text-sm sm:text-base"
               >
                 إلغاء وإغلاق
               </Button>

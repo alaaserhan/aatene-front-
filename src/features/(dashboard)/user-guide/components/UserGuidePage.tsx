@@ -16,6 +16,17 @@ import {
 } from "../hooks";
 import { VideoPayload } from "../types";
 
+function formatGuideDate(value?: string | null) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("ar-EG", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(date);
+}
+
 export function UserGuidePage() {
   const [showModal, setShowModal] = useState(false);
   const [editVideoId, setEditVideoId] = useState<number | null>(null);
@@ -174,7 +185,7 @@ export function UserGuidePage() {
                       <span>{video.views}</span>
                     </div>
                     <div className="w-[16%] flex items-center text-[#222B45] text-[13px] font-medium justify-start opacity-90">
-                      {video.created_at}
+                      {formatGuideDate(video.created_at)}
                     </div>
                     <div className="w-[14%] flex items-center gap-2 justify-end">
                       <button onClick={() => handleEditVideo(video)} className="cursor-pointer hover:opacity-80 transition-opacity">
@@ -223,7 +234,7 @@ export function UserGuidePage() {
                     {/* Date */}
                     <div className="flex items-center justify-between py-2 border-b border-gray-100">
                       <span className="text-xs text-gray-400 font-medium">تاريخ الإضافة</span>
-                      <span className="text-sm text-[#222B45] font-medium">{video.created_at}</span>
+                      <span className="text-sm text-[#222B45] font-medium">{formatGuideDate(video.created_at)}</span>
                     </div>
 
                     {/* Actions */}

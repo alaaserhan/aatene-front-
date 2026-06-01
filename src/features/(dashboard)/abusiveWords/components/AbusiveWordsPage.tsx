@@ -219,7 +219,7 @@ export function AbusiveWordsPage() {
     return (
         <div className="min-h-[calc(100vh-80px)]">
             <div className="container mx-auto py-6 px-4">
-                <div className="flex items-start justify-between my-6">
+                <div className="flex items-start justify-between my-6 flex-wrap gap-2">
                     <div>
                         <h1 className="text-2xl font-bold">إدارة الكلمات المسيئة</h1>
                         <p className="text-gray-2 text-sm mt-1">
@@ -247,7 +247,7 @@ export function AbusiveWordsPage() {
                         {activeTab === "abusive-users" ? (
                             <div className="bg-white rounded-lg border border-gray-200">
                                 <div className="p-4 border-b border-gray-100">
-                                    <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-4 flex-wrap">
                                         <div className="flex-1 relative">
                                             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-2" />
                                             <Input
@@ -371,7 +371,7 @@ export function AbusiveWordsPage() {
                                     <div className="bg-white rounded-lg p-6">
                                         <h3 className="text-lg font-bold text-blue-3 mb-2">إضافة كلمات مسيئة</h3>
                                         <p className="text-gray-2 text-sm mb-4">أضف الكلمات التي تريد مراقبتها في النظام</p>
-                                        <div className="flex flex-row items-end gap-2">
+                                        <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-2">
                                             <div className="flex-1">
                                                 <label className="text-sm text-gray-2 block mb-1">ادخل الكلمة المسيئة</label>
                                                 <Input
@@ -394,7 +394,7 @@ export function AbusiveWordsPage() {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-3 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         <div className="bg-white rounded-lg p-4 text-center flex flex-col items-center justify-center">
                                             <div className="w-14 h-14 mb-2 bg-blue-50 rounded-full flex items-center justify-center">
                                                 <Users className="w-7 h-7 text-blue-3" />
@@ -421,7 +421,7 @@ export function AbusiveWordsPage() {
 
                                 <div className="bg-white rounded-lg border border-gray-200">
                                     <div className="p-4 border-b border-gray-100">
-                                        <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-4 flex-wrap">
                                             <Button variant="outline" className="px-6 shrink-0">
                                                 بحث
                                             </Button>

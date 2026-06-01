@@ -127,12 +127,21 @@ export function NotificationsTable({ data, isLoading, onEdit }: NotificationsTab
                                         {date} - <span>{time}</span>
                                     </td>
 
-                                    <td className="px-6 py-4 font-medium">
-                                        {row.status === "sent" && "تم الإرسال"}
-                                        {row.status === "scheduled" && "مجدول"}
-                                        {row.status === "draft" && "مسودة"}
-                                        {row.status === "failed" && "فشل"}
-                                        {row.status === "sending" && "جاري الإرسال"}
+                                    <td className="px-6 py-4">
+                                        <span className={cn(
+                                            "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold",
+                                            row.status === "sent" && "bg-green-50 text-green-700",
+                                            row.status === "scheduled" && "bg-blue-50 text-blue-700",
+                                            row.status === "draft" && "bg-gray-50 text-gray-600",
+                                            row.status === "failed" && "bg-red-50 text-red-700",
+                                            row.status === "sending" && "bg-amber-50 text-amber-700",
+                                        )}>
+                                            {row.status === "sent" && "تم الإرسال"}
+                                            {row.status === "scheduled" && "مجدول"}
+                                            {row.status === "draft" && "مسودة"}
+                                            {row.status === "failed" && "فشل"}
+                                            {row.status === "sending" && "جاري الإرسال"}
+                                        </span>
                                     </td>
 
                                     <td className="px-6 py-4">
@@ -197,7 +206,14 @@ export function NotificationsTable({ data, isLoading, onEdit }: NotificationsTab
                         <div key={row.id} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm space-y-4">
                             <div className="flex items-start justify-between">
                                 <span className="font-medium  text-sm">{row.title}</span>
-                                <div className="text-xs font-medium min-w-[70px] text-center px-2 py-1 rounded-full bg-blue-5 text-blue-3">
+                                <div className={cn(
+                                    "text-xs font-medium text-center px-2.5 py-1 rounded-full",
+                                    row.status === "sent" && "bg-green-50 text-green-700",
+                                    row.status === "scheduled" && "bg-blue-50 text-blue-700",
+                                    row.status === "draft" && "bg-gray-50 text-gray-600",
+                                    row.status === "failed" && "bg-red-50 text-red-700",
+                                    row.status === "sending" && "bg-amber-50 text-amber-700",
+                                )}>
                                     {row.status === "sent" && "تم الإرسال"}
                                     {row.status === "scheduled" && "مجدول"}
                                     {row.status === "draft" && "مسودة"}

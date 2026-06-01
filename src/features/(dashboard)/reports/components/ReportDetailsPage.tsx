@@ -176,7 +176,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
   return (
     <div className="p-4">
       <Breadcrumb items={breadcrumbItems} className="mb-4" />
-      <main className="p-4 bg-white rounded-lg">
+      <main className="p-3 sm:p-4 bg-white rounded-lg">
 
         {/* --- Header Card --- */}
         <div className="bg-blue-6 rounded-md  p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -194,7 +194,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
+          <div className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0 flex-wrap">
             <Button
               variant="destructive"
               onClick={() => setDeleteModalOpen(true)}
@@ -215,7 +215,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
         </div>
 
         {/* --- Details Body --- */}
-        <div className=" p-8 space-y-6">
+        <div className=" p-4 sm:p-8 space-y-6">
 
           {/* Info Grid */}
           <div className="grid grid-cols-1 gap-6">

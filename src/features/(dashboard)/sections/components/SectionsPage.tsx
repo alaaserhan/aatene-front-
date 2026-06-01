@@ -37,13 +37,11 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
         return null;
     });
 
-    const [prevParamStoreId, setPrevParamStoreId] = useState(paramStoreId);
-    if (paramStoreId !== prevParamStoreId) {
-        setPrevParamStoreId(paramStoreId);
+    useEffect(() => {
         if (paramStoreId) {
             setActiveStoreId(paramStoreId);
         }
-    }
+    }, [paramStoreId]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -60,8 +58,6 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
     );
 
     const storesList = useMemo(() => storesData?.data || [], [storesData?.data]);
-    const selectedStore = storesList.find(s => s.id === Number(activeStoreId));
-
     const [storeSearch, setStoreSearch] = useState("");
 
     const storeOptions = useMemo(() => {
@@ -197,10 +193,6 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
         });
     };
 
-    const handleSearch = () => {
-        setCurrentPage(1);
-    };
-
     if (!isMounted) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -240,9 +232,9 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
                         </p>
                     </div>
 
-                    <div className="flex gap-1">
+                    <div className="flex flex-wrap gap-1">
                         {isAdmin && (
-                            <div className="w-64">
+                            <div className="w-full sm:w-64">
                                 <ReusableDropdown
                                     options={storeOptions}
                                     value={String(activeStoreId || "")}
@@ -326,8 +318,25 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
                                         </tr>
                                     ) : sections.length === 0 ? (
                                         <tr>
-                                            <td colSpan={4} className="text-center p-8 text-gray-2">
-                                                لا توجد أقسام لعرضها.
+                                            <td colSpan={4} className="p-8">
+                                                <div className="mx-auto flex max-w-md flex-col items-center gap-3 text-center">
+                                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-5 text-blue-4">
+                                                        <Store className="h-6 w-6" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-sm font-semibold text-blue-4">لا توجد أقسام بعد</h3>
+                                                        <p className="mt-1 text-xs leading-relaxed text-gray-2">
+                                                            أضف أول قسم لتنظيم منتجات المتجر وتسهيل عرضها للعملاء.
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAddSection}
+                                                        className="mt-1 rounded-sm bg-blue-3 px-4 py-2 text-sm font-medium text-white"
+                                                    >
+                                                        أضف قسم جديد
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ) : (

@@ -127,7 +127,7 @@ export function CitiesPage() {
   return (
     <div className="min-h-screen my-8 ">
       <div className="container mx-auto py-8 px-4">
-        <div className="flex flex-row items-start sm:items-center justify-between gap-4 mb-4">
+        <div className="flex flex-row flex-wrap items-start sm:items-center justify-between gap-4 mb-4">
           <div>
             <h1 className="text-xl md:text-2xl sm:text-2xl  font-bold text-brand-black-1">
               المدن المسموح بها للشحن
@@ -151,7 +151,7 @@ export function CitiesPage() {
 
         <div className="bg-white rounded overflow-hidden border border-gray-200">
           <div className="p-3 sm:p-5 ">
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <div className="relative flex-1">
                 <input
                   type="text"

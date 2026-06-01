@@ -82,7 +82,7 @@ export function CouponsPage() {
         <div className="min-h-screen my-8">
             <div className="container mx-auto py-8 px-4">
                 {/* Header */}
-                <div className="flex flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                <div className="flex flex-row flex-wrap items-start sm:items-center justify-between gap-4 mb-4">
                     <div>
                         <h1 className="text-xl md:text-2xl sm:text-2xl font-medium ">
                             الكوبونات
@@ -113,7 +113,7 @@ export function CouponsPage() {
                 {/* Content */}
                 <div className="bg-white rounded overflow-hidden border border-gray-200">
                     <div className="p-3 sm:p-5">
-                        <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                             <div className="relative flex-1">
                                 <input
                                     type="text"
@@ -218,7 +218,7 @@ export function CouponsPage() {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <div className="p-4 border-t border-gray-100">
+                        <div className="p-3 sm:p-4 border-t border-gray-100">
                             <Pagination
                                 totalPages={totalPages}
                                 currentPage={currentPage}

@@ -35,22 +35,21 @@ export function ReportsTable({ reports, isLoading, showStore = true, emptyMessag
             <table className="w-full">
                 <thead className="bg-[#F9FAFB]">
                     <tr>
-                        <th className="px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">رقم الشكوي</th>
-                        <th className="px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">العميل</th>
-                        <th className="px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">نوع البلاغ</th>
+                        <th className="px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">رقم الشكوي</th>
+                        <th className="px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">العميل</th>
+                        <th className="hidden sm:table-cell px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">نوع البلاغ</th>
                         {showStore && (
-                            <th className="px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">ضد من</th>
+                            <th className="hidden md:table-cell px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">ضد من</th>
                         )}
-                        {/* <th className="px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">القسم</th> */}
-                        <th className="px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">تم الانشاء</th>
-                        <th className="px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">تاريخ الانشاء</th>
-                        <th className="px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">حالة الشكوي</th>
+                        <th className="hidden sm:table-cell px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">تم الانشاء</th>
+                        <th className="hidden md:table-cell px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">تاريخ الانشاء</th>
+                        <th className="px-3 sm:px-6 py-4 text-xs font-semibold whitespace-nowrap text-center">حالة الشكوي</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                     {isLoading ? (
                         <tr>
-                            <td colSpan={showStore ? 8 : 7} className="px-6 py-12 text-center">
+                            <td colSpan={showStore ? 8 : 7} className="px-3 sm:px-6 py-12 text-center">
                                 <div className="flex justify-center">
                                     <Loader2 className="w-6 h-6 animate-spin text-gray-2" />
                                 </div>
@@ -59,7 +58,7 @@ export function ReportsTable({ reports, isLoading, showStore = true, emptyMessag
                     ) : reports.length > 0 ? (
                         reports.map((report) => (
                             <tr key={report.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-center">
+                                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
                                     <Link
                                         href={`/admin/reports/details/${report.id}`}
                                         className="text-sm font-medium underline decoration-gray-300 underline-offset-4 hover:text-sky-900 hover:decoration-blue-100"
@@ -68,7 +67,7 @@ export function ReportsTable({ reports, isLoading, showStore = true, emptyMessag
                                     </Link>
                                 </td>
 
-                                <td className="px-6 py-4 whitespace-nowrap text-center">
+                                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
                                     <Link
                                         href={`/admin/users?userId=${report.user?.id}`}
                                         className="text-sm font-bold underline decoration-gray-300 underline-offset-4 hover:text-sky-900 hover:decoration-blue-100"
@@ -77,16 +76,16 @@ export function ReportsTable({ reports, isLoading, showStore = true, emptyMessag
                                     </Link>
                                 </td>
 
-                                <td className="px-6 py-4 whitespace-nowrap text-center">
+                                <td className="hidden sm:table-cell px-3 sm:px-6 py-4 whitespace-nowrap text-center">
                                     <span className="text-sm font-bold">
                                         {report.report_type?.name}
                                     </span>
                                 </td>
 
                                 {showStore && (
-                                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                                    <td className="hidden md:table-cell px-3 sm:px-6 py-4 whitespace-nowrap text-center">
                                         <Link
-                                            href={`/stores/${report.store?.id}`}
+                                            href={report.store?.id ? `/admin/stores/${report.store.id}` : "/admin/stores"}
                                             className="text-sm font-medium underline decoration-gray-300 underline-offset-4 hover:text-sky-900"
                                         >
                                             {report.store?.name || "غير معروف"}
@@ -94,23 +93,19 @@ export function ReportsTable({ reports, isLoading, showStore = true, emptyMessag
                                     </td>
                                 )}
 
-                                {/* <td className="px-6 py-4 whitespace-nowrap text-center">
-                                    <span className="text-sm text-gray-2 font-medium">الشحن</span>
-                                </td> */}
-
-                                <td className="px-6 py-4 whitespace-nowrap text-center">
+                                <td className="hidden sm:table-cell px-3 sm:px-6 py-4 whitespace-nowrap text-center">
                                     <span className="text-sm text-gray-2 font-medium">
                                         {getRelativeTimeArabic(String(report.created_at))}
                                     </span>
                                 </td>
 
-                                <td className="px-6 py-4 whitespace-nowrap text-center">
+                                <td className="hidden md:table-cell px-3 sm:px-6 py-4 whitespace-nowrap text-center">
                                     <span className="text-sm font-medium" dir="ltr">
                                         {formatDateTime(report.created_at)}
                                     </span>
                                 </td>
 
-                                <td className="px-6 py-4 whitespace-nowrap text-center">
+                                <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
                                     <div className="flex justify-center">
                                         <span className={cn(
                                             "inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs font-bold min-w-[100px]",
@@ -124,7 +119,7 @@ export function ReportsTable({ reports, isLoading, showStore = true, emptyMessag
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={showStore ? 8 : 7} className="px-6 py-12 text-center text-gray-2 text-sm">
+                            <td colSpan={showStore ? 8 : 7} className="px-3 sm:px-6 py-12 text-center text-gray-2 text-sm">
                                 {emptyMessage}
                             </td>
                         </tr>

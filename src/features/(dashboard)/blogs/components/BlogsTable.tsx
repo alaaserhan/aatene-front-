@@ -37,59 +37,57 @@ export function BlogsTable({
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[600px]">
           <thead>
-            <tr className="bg-gray-50/50 border-b border-gray-100 text-right">
-              <th className="px-6 py-4 text-sm font-medium  w-[30%]">عنوان المقال</th>
-              <th className="px-6 py-4 text-center text-sm font-medium ">للمفضلة</th>
-              <th className="px-6 py-4 text-center text-sm font-medium ">التقييم</th>
-              <th className="px-6 py-4 text-center text-sm font-medium ">عدد التعليقات</th>
-              <th className="px-6 py-4 text-center text-sm font-medium ">تاريخ النشر</th>
-              <th className="px-6 py-4 text-center text-sm font-medium ">عمليات</th>
+            <tr className="bg-gray-50 border-b border-gray-100 text-right">
+              <th className="px-6 py-4 text-sm font-bold text-gray-500 w-[30%] whitespace-nowrap">عنوان المقال</th>
+              <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">المفضلة</th>
+              <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">التقييم</th>
+              <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">التعليقات</th>
+              <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">تاريخ النشر</th>
+              <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">عمليات</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-50">
             {data.map((blog) => (
-              <tr key={blog.id} className="group hover:bg-gray-50/30 transition-colors">
+              <tr key={blog.id} className="hover:bg-gray-50/50 transition-colors">
                 <td className="px-6 py-4">
-                  <span className="text-sm font-medium text-blue-4 hover:underline cursor-pointer">
+                  <span className="text-sm font-semibold text-blue-4 hover:text-blue-6 cursor-pointer transition-colors line-clamp-1">
                     {blog.title}
                   </span>
                 </td>
 
                 <td className="px-6 py-4 text-center">
-                  <span className="text-sm text-gray-2">{blog.favorites_count || 0}</span>
+                  <span className="text-sm font-medium text-gray-500">{blog.favorites_count || 0}</span>
                 </td>
 
                 <td className="px-6 py-4 text-center">
-                  <div className="flex items-center justify-center gap-1 bg-yellow-50 px-2 py-0.5 rounded-full w-fit mx-auto border border-yellow-100">
-                    <span className="text-xs pt-1 font-bold text-gray-700">{blog.review_rate}</span>
+                  <div className="inline-flex items-center gap-1 bg-yellow-50 px-2.5 py-1 rounded-full border border-yellow-100">
+                    <span className="text-xs font-bold text-gray-700">{blog.review_rate || "0.0"}</span>
                     <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                   </div>
                 </td>
 
                 <td className="px-6 py-4 text-center">
-                  <span className="text-sm text-gray-2">{blog.review_count || 0}</span>
+                  <span className="text-sm font-medium text-gray-500">{blog.review_count || 0}</span>
                 </td>
 
-
                 <td className="px-6 py-4 text-center">
-                  <span className="text-xs  font-medium">
-                    {blog.created_at
-                      ? formatDate(blog.created_at)
-                      : "-"}
+                  <span className="text-xs font-medium text-gray-400">
+                    {blog.created_at ? formatDate(blog.created_at) : "-"}
                   </span>
                 </td>
 
                 <td className="px-6 py-4">
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center justify-center gap-1.5">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => onEdit(blog)}
-                      className="bg-gray-50  hover:bg-blue-50 hover:text-blue-3 h-8 w-8 rounded-xs"
+                      className="bg-blue-50 hover:bg-blue-100 text-blue-500 h-8 w-8 rounded-lg transition-all"
+                      title="تعديل"
                     >
                       <img src="/icons/dashboard/edit3.svg" alt="Edit" className="w-4 h-4" />
                     </Button>
@@ -97,7 +95,8 @@ export function BlogsTable({
                       variant="ghost"
                       size="icon"
                       onClick={() => onDelete(blog.id)}
-                      className="bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-500 h-8 w-8 rounded-xs"
+                      className="bg-red-50 hover:bg-red-100 text-red-500 h-8 w-8 rounded-lg transition-all"
+                      title="حذف"
                     >
                       <img src="/icons/dashboard/trash.svg" alt="Delete" className="w-4 h-4" />
                     </Button>
@@ -105,7 +104,8 @@ export function BlogsTable({
                       variant="ghost"
                       size="icon"
                       onClick={() => onView(blog.slug)}
-                      className="bg-cyan-50 text-cyan-500 hover:bg-cyan-100 h-8 w-8 rounded-xs"
+                      className="bg-cyan-50 hover:bg-cyan-100 text-cyan-500 h-8 w-8 rounded-lg transition-all"
+                      title="عرض"
                     >
                       <Eye className="w-4 h-4" />
                     </Button>

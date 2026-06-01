@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronLeft } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { Category, CategorySelectOption } from "../api";
 import {
@@ -108,6 +108,23 @@ export function CategoryModal({
     }
   }, [isOpen, initialFormData, initialPreviewUrls]);
 
+  const breadcrumbPath = useMemo(() => {
+    if (mode !== "edit" || !category?.parent_id) return [];
+    const path: { id: number; name: string }[] = [];
+    let currentParentId = Number(category.parent_id);
+    const visited = new Set<number>();
+
+    while (currentParentId && !visited.has(currentParentId)) {
+      visited.add(currentParentId);
+      const parent = categoryOptions.find((c) => c.id === currentParentId);
+      if (!parent) break;
+      path.unshift({ id: parent.id, name: parent.name });
+      currentParentId = parent.parent_id ? Number(parent.parent_id) : 0;
+    }
+
+    return path;
+  }, [mode, category, categoryOptions]);
+
   const parentCategoryName = parentName || "";
   const activeType = formData.type || currentType;
   const isProduct = activeType === 'product';
@@ -164,6 +181,19 @@ export function CategoryModal({
         </DialogHeader>
 
         <div className="px-4 pb-4 space-y-6">
+          {breadcrumbPath.length > 0 && (
+            <nav className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 rounded-md px-3 py-2">
+              {breadcrumbPath.map((item, idx) => (
+                <span key={item.id} className="flex items-center gap-1">
+                  {idx > 0 && <ChevronLeft className="w-3 h-3 text-gray-300" />}
+                  <span>{item.name}</span>
+                </span>
+              ))}
+              <ChevronLeft className="w-3 h-3 text-gray-300" />
+              <span className="font-medium text-gray-700">{category?.name}</span>
+            </nav>
+          )}
+
           <div>
             <Label htmlFor="cat-name" className="mb-2 block">
               {activeType === "service" ? "اسم الخدمة" : "اسم الفئة"}

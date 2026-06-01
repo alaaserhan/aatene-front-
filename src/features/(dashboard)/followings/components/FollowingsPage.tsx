@@ -124,7 +124,7 @@ export function FollowingsPage() {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col pb-8">
             <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 h-[65px]">
-                <div className="flex items-center justify-between h-16 px-6 container mx-auto">
+                <div className="flex items-center justify-between h-16 px-4 sm:px-6 container mx-auto">
                     <nav className="flex items-center h-full">
                         <ul className="flex items-center gap-8 h-full">
                             <li className="h-full flex items-center">
