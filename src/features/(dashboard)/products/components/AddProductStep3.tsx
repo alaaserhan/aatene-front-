@@ -90,6 +90,22 @@ export function AddProductStep3({
         }));
     };
 
+    const buildSelectedOptionsFromVariations = (data: typeof initialData): Record<number, number[]> => {
+        const selected: Record<number, number[]> = {};
+        (data?.variations || []).forEach((variation) => {
+            Object.entries(variation.attributeValues || {}).forEach(([attrId, optionId]) => {
+                const attrKey = Number(attrId);
+                const optionValue = Number(optionId);
+                if (!Number.isFinite(attrKey) || !Number.isFinite(optionValue)) return;
+                const current = selected[attrKey] || [];
+                if (!current.includes(optionValue)) {
+                    selected[attrKey] = [...current, optionValue];
+                }
+            });
+        });
+        return selected;
+    };
+
     const [hasVariations, setHasVariations] = useState<boolean>(
         initialData?.hasVariations || false
     );
@@ -105,6 +121,11 @@ export function AddProductStep3({
         restoreVariations(initialData)
     );
 
+    // حفظ الخيارات المختارة بين فتحات المودال
+    const [savedSelectedOptions, setSavedSelectedOptions] = useState<Record<number, number[]>>(
+        () => buildSelectedOptionsFromVariations(initialData)
+    );
+
     useEffect(() => {
         if (initialData) {
             setHasVariations(initialData.hasVariations);
@@ -113,13 +134,12 @@ export function AddProductStep3({
                 const ids = initialData.attributes.map((attr) => Number(attr.id));
                 setSelectedAttributeIds(ids);
             }
+            setSavedSelectedOptions(buildSelectedOptionsFromVariations(initialData));
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialData]);
 
     const [isAttrModalOpen, setIsAttrModalOpen] = useState(false);
-    // حفظ الخيارات المختارة بين فتحات المودال
-    const [savedSelectedOptions, setSavedSelectedOptions] = useState<Record<number, number[]>>({});
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
     const [activeRowIdForImage, setActiveRowIdForImage] = useState<string | null>(null);
 
@@ -758,8 +778,7 @@ function AttributeSelectionModal({
             });
             setSelectedOptions(initOptions);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isOpen]);
+    }, [isOpen, selectedIds, savedSelectedOptions, attributes]);
 
     // تحديث localAttributes عند تغيير attributes الخارجية
     useEffect(() => {

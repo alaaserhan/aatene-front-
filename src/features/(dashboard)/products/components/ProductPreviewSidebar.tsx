@@ -1,10 +1,10 @@
-// src/features/(dashboard)/products/components/ProductPreviewSidebar.tsx
 "use client";
 
 import { cn } from "@/src/lib/utils";
 import { formatPrice } from "@/src/lib/format-price";
+import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
-import { Heart, Star, Share2, ChevronRight } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 
 interface ProductPreviewSidebarProps {
     data: {
@@ -17,112 +17,105 @@ interface ProductPreviewSidebarProps {
 }
 
 export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
-    // دمج صورة الغلاف مع المعرض
     const allImages = [data.coverImage, ...data.galleryImages].filter(Boolean);
-    const displayImages = allImages.length > 0 ? allImages : [""];
-
+    const hasPreviewContent = Boolean(data.coverImage || data.name || data.price || data.ask_for_price);
     const formattedPrice = formatPrice(data.price || 0);
 
-
-
     return (
-        <div className="">
+        <div className="mx-auto w-full overflow-hidden rounded-xl border border-gray-200 bg-white">
+            <h3 className="my-4 text-center text-lg font-medium text-blue-4">
+                معاينة المنتج
+            </h3>
 
-
-            {/* Mobile Frame Simulation */}
-            <div className="mx-auto w-full  bg-white rounded-xl overflow-hidden border border-gray-200 relative">
-                <h3 className="font-medium text-blue-4 my-4 text-center text-lg">
-                    معاينة المنتج
-                </h3>
-
-                {/* Content Area */}
-                <div className="bg-white min-h-[300px] flex flex-col items-center px-6 pb-8">
-
-                    {/* --- Product Card Design Start --- */}
-
-                    {/* 1. Image Container */}
-                    <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden shadow-sm mb-5 bg-gray-50">
-                        {/* Favorite Button (Top Left) */}
-                        <button className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
-                            <Heart className="w-5 h-5 " strokeWidth={1.5} />
-                        </button>
-
-                        {/* Main Image */}
-                        {data.coverImage ? (
-                            <VideoOrImage
-                                src={data.coverImage}
-                                alt="Product Cover"
-                                fill
-                                thumb={false}
-                                className=""
-                            />
-                        ) : (
-                            <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-300">
-                                <span className="text-xs font-medium">No Image</span>
-                            </div>
-                        )}
-
-                        {/* Pagination Dots (Bottom Center inside Image) */}
-                        {displayImages.length > 0 && (
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                                {/* Fake dots simulation to match design */}
-                                <div className="w-6 h-2 rounded-full bg-blue-3"></div>
-                                <div className="w-2 h-2 rounded-full bg-white/80 border border-blue-1"></div>
-                                <div className="w-2 h-2 rounded-full bg-white/80 border border-blue-1"></div>
-                                <div className="w-2 h-2 rounded-full bg-white/80 border border-blue-1"></div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* 2. Product Info (Centered) */}
-                    <div className=" w-full space-y-2 mb-8">
-                        {/* Title */}
-                        <h2 className="text-lg font-medium  leading-tight">
-                            {data.name || "اسم المنتج"}
-                        </h2>
-
-                        {/* Rating */}
-                        <div className="flex items-center gap-1.5">
-                            <div className="flex gap-0.5">
-                                {[1, 2, 3, 4, 5].map((i) => (
-                                    <Star key={i} className="w-3.5 h-3.5 fill-[#F6AD55] text-[#F6AD55]" />
-                                ))}
-                            </div>
-                            <span className="text-sm text-[#F6AD55]">5.0</span>
-                        </div>
-
-                        {/* Price */}
-                        {data.ask_for_price ? (
-                            <div className="mt-1">
-                                <button
-                                    type="button"
-                                    className="h-9 px-5 rounded-sm bg-blue-4 text-white text-sm font-medium"
-                                >
-                                    اطلب السعر
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="flex items-center  gap-3 mt-1">
-                                <span className=" font-bold ">
-                                    {formattedPrice} <span>₪</span>
-                                </span>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* --- Product Card Design End --- */}
-
-                    {/* Feature Description (As per image) */}
-                    <div className="mt-auto text-center space-y-2">
-                        <h4 className="text-lg font-bold ">
-                            ميزة معاينة المنتج
+            <div className="flex flex-col items-center px-4 pb-5">
+                {!hasPreviewContent ? (
+                    <div className="w-full rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center">
+                        <h4 className="text-sm font-semibold text-blue-4">
+                            المعاينة ستظهر هنا
                         </h4>
-                        <p className="text-xs text-gray-3 leading-relaxed px-2">
-                            توفر لك هذه الميزة معاينة مسبقة للمنتج لتتمكن من مشاهدته كما يظهر علي الموقع الخاص بنا
+                        <p className="mt-2 text-xs leading-relaxed text-gray-3">
+                            أضف صورة المنتج واسمه لرؤية شكل الكارت قبل النشر.
                         </p>
                     </div>
+                ) : (
+                    <>
+                        <div className="relative mb-5 aspect-[4/5] max-h-[330px] w-full overflow-hidden rounded-xl bg-gray-50 shadow-sm">
+                            <button
+                                type="button"
+                                className="absolute left-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/70 transition-colors hover:bg-white"
+                                aria-label="المفضلة"
+                            >
+                                <Heart className="h-5 w-5" strokeWidth={1.5} />
+                            </button>
 
-                </div>
+                            {data.coverImage ? (
+                                <VideoOrImage
+                                    src={data.coverImage}
+                                    alt="Product Cover"
+                                    fill
+                                    thumb={false}
+                                    className=""
+                                />
+                            ) : (
+                                <div className="flex h-full w-full flex-col items-center justify-center bg-gray-100 text-gray-3">
+                                    <span className="text-xs font-medium">لا توجد صورة بعد</span>
+                                </div>
+                            )}
+
+                            {allImages.length > 1 && (
+                                <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+                                    {allImages.slice(0, 4).map((_, index) => (
+                                        <div
+                                            key={index}
+                                            className={cn(
+                                                "h-2 rounded-full border border-blue-1",
+                                                index === 0 ? "w-6 bg-blue-3" : "w-2 bg-white/80"
+                                            )}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="mb-6 w-full space-y-2">
+                            <h2 className="line-clamp-2 text-lg font-medium leading-tight">
+                                {data.name || "اسم المنتج"}
+                            </h2>
+
+                            <div className="flex items-center gap-1.5">
+                                <div className="flex gap-0.5">
+                                    {[1, 2, 3, 4, 5].map((i) => (
+                                        <Star key={i} className="h-3.5 w-3.5 fill-[#F6AD55] text-[#F6AD55]" />
+                                    ))}
+                                </div>
+                                <span className="text-sm text-[#F6AD55]">5.0</span>
+                            </div>
+
+                            {shouldShowAskForPrice(data.ask_for_price, data.price) ? (
+                                <div className="mt-1">
+                                    <button
+                                        type="button"
+                                        className="h-9 rounded-sm bg-blue-4 px-5 text-sm font-medium text-white"
+                                    >
+                                        اطلب السعر
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="mt-1 flex items-center gap-3">
+                                    <span className="font-bold">
+                                        {formattedPrice} <span>₪</span>
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="text-center">
+                            <p className="text-xs leading-relaxed text-gray-3">
+                                تظهر المعاينة بعد إدخال بيانات المنتج الأساسية، بدون مساحة فارغة كبيرة قبل البدء.
+                            </p>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

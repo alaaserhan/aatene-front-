@@ -41,13 +41,13 @@ export function ProductFormActions({
     sticky = false,
 }: ProductFormActionsProps) {
     const inner = (
-        <div className={cn("flex gap-4 justify-between", sticky ? "" : "mt-6", "p-6")}>
+        <div className={cn("flex flex-wrap gap-4 justify-between", sticky ? "" : "mt-6", "p-4 sm:p-6")}>
             <div className="flex items-center gap-3">
                 <Button
                     type="button"
                     onClick={onNext}
                     disabled={isSubmitting}
-                    className="px-12 py-5 cursor-pointer rounded-sm disabled:opacity-50 disabled:cursor-not-allowed text-base font-medium"
+                    className="px-6 sm:px-12 py-5 cursor-pointer rounded-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base font-medium"
                     style={{ backgroundColor: "var(--blue-3)" }}
                 >
                     {isSubmitting ? (
@@ -77,29 +77,16 @@ export function ProductFormActions({
                         </span>
                     )}
                 </Button>
-
-                {/* {showSaveDraft && onSaveDraft && (
-                    <Button
-                        type="button"
-                        onClick={onSaveDraft}
-                        variant="outline"
-                        disabled={isSubmitting}
-                        className="px-6 py-5 border-blue-6 bg-transparent text-blue-4 hover:bg-transparent cursor-pointer rounded-sm flex items-center gap-2"
-                    >
-                        <img src="/icons/dashboard/Bookmark.svg" className="w-3" alt="Bookmark" />
-                        حفظ كمسودة
-                    </Button>
-                )} */}
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
                 {showBack && onBack && (
                     <Button
                         type="button"
                         onClick={onBack}
                         variant="outline"
                         disabled={isSubmitting}
-                        className="px-12 py-5 bg-gray-4 border-none cursor-pointer rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 sm:px-12 py-5 bg-gray-4 border-none cursor-pointer rounded-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                     >
                         {backLabel}
                     </Button>
@@ -111,7 +98,7 @@ export function ProductFormActions({
                         onClick={onCancel}
                         variant="outline"
                         disabled={isSubmitting}
-                        className="px-12 py-5 bg-gray-4 border-none cursor-pointer rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 sm:px-12 py-5 bg-gray-4 border-none cursor-pointer rounded-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                     >
                         {cancelLabel}
                     </Button>

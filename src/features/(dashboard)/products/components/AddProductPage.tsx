@@ -248,6 +248,11 @@ export function AddProductPage() {
       setLastGeneratedInput({ title, description });
 
 
+      const generatedKeywords = data.results?.keywords || [];
+      if (generatedKeywords.length > 0) {
+        setAiKeywords(generatedKeywords);
+      }
+
       setFormData((prev) => {
         const newStep1 = { ...prev.step1, ...currentStep1Data };
         if (data.title) newStep1.name = data.title;
@@ -259,9 +264,8 @@ export function AddProductPage() {
           newStep2.tags = [];
         }
 
-        if (data.results?.keywords) {
-          newStep2.tags = data.results.keywords;
-          setAiKeywords(data.results.keywords);
+        if (generatedKeywords.length > 0) {
+          newStep2.tags = generatedKeywords;
         }
 
         return {
@@ -304,8 +308,19 @@ export function AddProductPage() {
 
       case 2:
         if (!formData.step1) {
-          setCurrentStep(1);
-          return null;
+          return (
+            <AddProductStep1
+              initialData={formData.step1}
+              onNext={handleStep1Next}
+              onStep1Sync={handleStep1Sync}
+              onCancel={handleStep1Cancel}
+              onSaveDraft={() => handleSaveDraft(null)}
+              barSteps={steps}
+              storeId={storeId}
+              breadcrumbItems={breadcrumbItems}
+              onStepClick={handleStepClick}
+            />
+          );
         }
         return (
           <AddProductStep2
@@ -324,8 +339,19 @@ export function AddProductPage() {
 
       case 3:
         if (!formData.step1) {
-          setCurrentStep(1);
-          return null;
+          return (
+            <AddProductStep1
+              initialData={formData.step1}
+              onNext={handleStep1Next}
+              onStep1Sync={handleStep1Sync}
+              onCancel={handleStep1Cancel}
+              onSaveDraft={() => handleSaveDraft(null)}
+              barSteps={steps}
+              storeId={storeId}
+              breadcrumbItems={breadcrumbItems}
+              onStepClick={handleStepClick}
+            />
+          );
         }
         return (
           <AddProductStep3
@@ -342,8 +368,19 @@ export function AddProductPage() {
 
       case 4:
         if (!formData.step1) {
-          setCurrentStep(1);
-          return null;
+          return (
+            <AddProductStep1
+              initialData={formData.step1}
+              onNext={handleStep1Next}
+              onStep1Sync={handleStep1Sync}
+              onCancel={handleStep1Cancel}
+              onSaveDraft={() => handleSaveDraft(null)}
+              barSteps={steps}
+              storeId={storeId}
+              breadcrumbItems={breadcrumbItems}
+              onStepClick={handleStepClick}
+            />
+          );
         }
         return (
           <AddProductStep4

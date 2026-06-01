@@ -33,12 +33,65 @@ interface EditProductPageProps {
 }
 
 interface AttributeOption {
+  id?: number | string;
   attribute_id?: number | string;
+  attributeId?: number | string;
   option_id?: number | string;
+  optionId?: number | string;
   attribute?: {
     id: number;
     title: string;
   };
+  option?: {
+    id?: number | string;
+    title?: string;
+    attribute_id?: number | string;
+    attributeId?: number | string;
+    attribute?: {
+      id: number;
+      title: string;
+    };
+  };
+  attribute_option?: {
+    id?: number | string;
+    title?: string;
+    attribute_id?: number | string;
+    attributeId?: number | string;
+    attribute?: {
+      id: number;
+      title: string;
+    };
+  };
+  attributeOption?: {
+    id?: number | string;
+    title?: string;
+    attribute_id?: number | string;
+    attributeId?: number | string;
+    attribute?: {
+      id: number;
+      title: string;
+    };
+  };
+}
+
+interface VariationWithAttributeOptions extends Variation {
+  attribute_options?: AttributeOption[];
+  attribute_options_values?: AttributeOption[];
+  options?: AttributeOption[];
+  attributes?: AttributeOption[];
+}
+
+function firstPresent(...values: Array<number | string | undefined | null>) {
+  return values.find((value) => value !== undefined && value !== null && value !== "");
+}
+
+function getVariationAttributeOptions(variation: VariationWithAttributeOptions): AttributeOption[] {
+  if (Array.isArray(variation.attributeOptions)) return variation.attributeOptions;
+  if (Array.isArray(variation.attribute_options)) return variation.attribute_options;
+  if (Array.isArray(variation.attribute_options_values)) return variation.attribute_options_values;
+  if (Array.isArray(variation.options)) return variation.options;
+  if (Array.isArray(variation.attributes)) return variation.attributes;
+  return [];
 }
 
 export function EditProductPage({ productId }: EditProductPageProps) {
@@ -70,23 +123,44 @@ export function EditProductPage({ productId }: EditProductPageProps) {
         const attributesMap = new Map<string, { id: string; name: string; options: string[] }>();
 
         const variationRows: VariationRow[] = (product.variations || []).map((v: Variation) => {
+          const variation = v as VariationWithAttributeOptions;
+          const attributeOptions = getVariationAttributeOptions(variation);
           const attributeValues: Record<string, string> = {};
 
-          if (v.attributeOptions && Array.isArray(v.attributeOptions)) {
-            v.attributeOptions.forEach((opt: AttributeOption) => {
-              if (opt.attribute_id && opt.option_id) {
-                attributeValues[String(opt.attribute_id)] = String(opt.option_id);
+          if (attributeOptions.length > 0) {
+            attributeOptions.forEach((opt: AttributeOption) => {
+              const optionObject = opt.option || opt.attribute_option || opt.attributeOption;
+              const optionAttribute = optionObject?.attribute;
+              const attrValue = firstPresent(
+                opt.attribute_id,
+                opt.attributeId,
+                opt.attribute?.id,
+                optionObject?.attribute_id,
+                optionObject?.attributeId,
+                optionAttribute?.id
+              );
+              const optionValue = firstPresent(
+                opt.option_id,
+                opt.optionId,
+                optionObject?.id,
+                opt.id
+              );
+
+              if (attrValue && optionValue) {
+                attributeValues[String(attrValue)] = String(optionValue);
               }
 
-              if (opt.attribute) {
-                const attrId = String(opt.attribute.id);
-                if (!attributesMap.has(attrId)) {
-                  attributesMap.set(attrId, {
-                    id: attrId,
-                    name: opt.attribute.title,
-                    options: []
-                  });
-                }
+              const attrId = opt.attribute
+                ? String(opt.attribute.id)
+                : optionAttribute
+                  ? String(optionAttribute.id)
+                  : String(attrValue || "");
+              if (attrId && !attributesMap.has(attrId)) {
+                attributesMap.set(attrId, {
+                  id: attrId,
+                  name: opt.attribute?.title || optionAttribute?.title || `attr_${attrId}`,
+                  options: []
+                });
               }
             });
           }

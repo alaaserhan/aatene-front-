@@ -283,15 +283,15 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                   <p className="text-sm text-gray-2 font-medium">{totalProductsCount} منتج</p>
                 </div>
               </div>
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row gap-2 flex-wrap">
                 <Link href={`/admin/products/add?store_id=${propStoreId}`}>
-                  <Button className="bg-blue-3 text-white px-6 gap-2">
-                    <Plus className="w-5 h-5" />
+                  <Button className="bg-blue-3 text-white px-4 sm:px-6 gap-2 text-sm sm:text-base">
+                    <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                     أضف منتجاً جديداً
                   </Button>
                 </Link>
                 <Link href={`/admin/reports/${propStoreId}?type=product`}>
-                  <Button className="bg-red-2 text-red-1 px-6 gap-2">الإبلاغات</Button>
+                  <Button className="bg-red-2 text-red-1 px-4 sm:px-6 gap-2 text-sm sm:text-base">الإبلاغات</Button>
                 </Link>
               </div>
             </div>
@@ -531,7 +531,7 @@ export function ProductsPage({ storeId: propStoreId }: ProductsPageProps = {}) {
                   className={`col-span-12 ${sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col`}
                 >
                   {/* Status tabs */}
-                  <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
+                  <div className="flex items-center gap-4 sm:gap-8 px-4 sm:px-6 pt-4 border-b border-gray-100 overflow-x-auto">
                     {statusTabs.map((tab) => (
                       <button
                         key={tab.key}
