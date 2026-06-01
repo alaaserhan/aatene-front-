@@ -180,7 +180,7 @@ export function ChatPage({ context = "web" }: ChatPageProps) {
                 href: typeof window !== "undefined" ? window.location.href : null,
             });
         });
-    }, [searchParams, chatListPath, router]);
+    }, [searchParams, chatListPath, pathname, router]);
 
     useEffect(() => {
         const chatId = searchParams.get("chat");

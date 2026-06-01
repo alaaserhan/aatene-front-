@@ -101,7 +101,7 @@ export function UnansweredQuestionsPage() {
         per_page: ITEMS_PER_PAGE,
     }), [platformFilter, statusFilter, searchQuery, page]);
 
-    const { data: response, isLoading } = useGetAdminMissedQuestions(queryParams);
+    const { data: response, isLoading, isError } = useGetAdminMissedQuestions(queryParams);
     const { mutate: reviewQuestion, isPending: isReviewing } = useReviewAdminMissedQuestion();
     const { mutate: deleteQuestion } = useDeleteAdminMissedQuestion();
 
@@ -260,10 +260,10 @@ export function UnansweredQuestionsPage() {
                         </div>
 
                         {/* مصدر السؤال — dropdown بنفس تصميم التصفية */}
-                        <div className="relative" ref={sourceRef}>
+                        <div className="relative w-full sm:w-auto" ref={sourceRef}>
                             <button
                                 onClick={() => setIsSourceOpen((prev) => !prev)}
-                                className={`flex items-center gap-2 px-4 h-11 border rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer min-w-[150px] ${
+                                className={`flex items-center gap-2 px-3 sm:px-4 h-11 border rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer w-full sm:w-auto sm:min-w-[150px] ${
                                     platformFilter
                                         ? "border-blue-3 bg-blue-50 text-blue-3"
                                         : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
@@ -306,10 +306,10 @@ export function UnansweredQuestionsPage() {
                         </div>
 
                         {/* زر التصفية — dropdown للحالة */}
-                        <div className="relative" ref={filterRef}>
+                        <div className="relative w-full sm:w-auto" ref={filterRef}>
                             <button
                                 onClick={() => setIsFilterOpen((prev) => !prev)}
-                                className={`flex items-center gap-2 px-4 h-11 border rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer ${
+                                className={`flex items-center gap-2 px-3 sm:px-4 h-11 border rounded-lg text-sm font-medium transition-colors whitespace-nowrap cursor-pointer w-full sm:w-auto ${
                                     statusFilter !== "all"
                                         ? "border-blue-3 bg-blue-50 text-blue-3"
                                         : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
@@ -323,7 +323,7 @@ export function UnansweredQuestionsPage() {
                             </button>
 
                             {isFilterOpen && (
-                                <div className="absolute top-12 right-0 z-50 bg-white border border-gray-200 rounded-xl shadow-lg min-w-[160px] overflow-hidden" dir="rtl">
+                                <div className="absolute top-12 right-0 z-50 bg-white border border-gray-200 rounded-xl shadow-lg min-w-[160px] w-full sm:w-auto overflow-hidden" dir="rtl">
                                     {STATUS_FILTER_OPTIONS.map((opt) => (
                                         <button
                                             key={opt.value}
@@ -347,6 +347,14 @@ export function UnansweredQuestionsPage() {
                             <div className="flex items-center justify-center py-40">
                                 <Loader2 className="w-10 h-10 animate-spin text-blue-3" />
                             </div>
+                        ) : isError ? (
+                            <div className="flex flex-col items-center justify-center py-24 text-red-400">
+                                <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                                    <span className="text-3xl">!</span>
+                                </div>
+                                <p className="text-sm font-medium text-red-600">حدث خطأ أثناء تحميل البيانات</p>
+                                <p className="text-xs text-red-400 mt-1">يرجى المحاولة مرة أخرى لاحقاً</p>
+                            </div>
                         ) : filteredQuestions.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-24 text-gray-400">
                                 <img src="/icons/dashboard/document.svg" alt="empty" className="w-16 h-16 opacity-20 mb-4" />
@@ -358,11 +366,11 @@ export function UnansweredQuestionsPage() {
                                     <table className="w-full text-sm" dir="rtl">
                                         <thead>
                                             <tr className="bg-[#FAFAFA] border-b border-gray-200">
-                                                <th className="text-right px-5 py-4 font-semibold text-gray-600 whitespace-nowrap">السؤال</th>
-                                                <th className="text-right px-5 py-4 font-semibold text-gray-600 whitespace-nowrap">مصدر السؤال</th>
-                                                <th className="text-right px-5 py-4 font-semibold text-gray-600 whitespace-nowrap min-w-[180px]">الإجابة</th>
-                                                <th className="text-right px-5 py-4 font-semibold text-gray-600 whitespace-nowrap">الحالة</th>
-                                                <th className="text-center px-5 py-4 font-semibold text-gray-600 whitespace-nowrap w-[130px]">إجراء</th>
+                                                <th className="text-right px-3 sm:px-5 py-4 font-semibold text-gray-600 whitespace-nowrap">السؤال</th>
+                                                <th className="text-right px-3 sm:px-5 py-4 font-semibold text-gray-600 whitespace-nowrap">مصدر السؤال</th>
+                                                <th className="text-right px-3 sm:px-5 py-4 font-semibold text-gray-600 whitespace-nowrap min-w-[140px] sm:min-w-[180px]">الإجابة</th>
+                                                <th className="text-right px-3 sm:px-5 py-4 font-semibold text-gray-600 whitespace-nowrap">الحالة</th>
+                                                <th className="text-center px-3 sm:px-5 py-4 font-semibold text-gray-600 whitespace-nowrap w-[120px] sm:w-[130px]">إجراء</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -373,14 +381,14 @@ export function UnansweredQuestionsPage() {
 
                                                 return (
                                                     <tr key={question.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                                                        <td className="px-5 py-4 font-medium text-gray-800 max-w-[250px]">
+                                                        <td className="px-3 sm:px-5 py-4 font-medium text-gray-800 max-w-[200px] sm:max-w-[250px]">
                                                             <span className="line-clamp-2">{question.question}</span>
                                                         </td>
 
-                                                        <td className="px-5 py-4 text-gray-600 whitespace-nowrap">
+                                                        <td className="px-3 sm:px-5 py-4 text-gray-600 whitespace-nowrap">
                                                             {platformLabel(question.platform)}
                                                         </td>
-                                                        <td className="px-5 py-4 text-gray-500 max-w-[180px]">
+                                                        <td className="px-3 sm:px-5 py-4 text-gray-500 max-w-[140px] sm:max-w-[180px]">
                                                             {answerText ? (
                                                                 <span className="text-xs leading-relaxed">
                                                                     {answerText.length > 35 ? answerText.slice(0, 35) + ".." : answerText}
@@ -390,7 +398,7 @@ export function UnansweredQuestionsPage() {
                                                             )}
                                                         </td>
 
-                                                        <td className="px-5 py-4">
+                                                        <td className="px-3 sm:px-5 py-4">
                                                             {isTrained ? (
                                                                 <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-[#ecfdf5] text-[#059669]">
                                                                     تم التدريب
@@ -402,37 +410,37 @@ export function UnansweredQuestionsPage() {
                                                             )}
                                                         </td>
 
-                                                        <td className="px-5 py-4 w-[140px]">
-                                                            <div className="flex items-center justify-center gap-3">
+                                                        <td className="px-3 sm:px-5 py-4 w-[120px] sm:w-[140px]">
+                                                            <div className="flex items-center justify-center gap-1.5 sm:gap-3">
                                                                 {/* solve / solved أولاً */}
                                                                 <button
                                                                     onClick={() => handleOpenAnswerModal(question)}
-                                                                    className="cursor-pointer active:scale-95 transition-all flex-shrink-0 w-10 h-10 flex items-center justify-center"
+                                                                    className="cursor-pointer active:scale-95 transition-all flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center"
                                                                     title={isPending ? "إضافة رد" : "تعديل الرد"}
                                                                 >
                                                                     <img
                                                                         src={isPending ? "/ai/solve.svg" : "/ai/solved.svg"}
                                                                         alt={isPending ? "إضافة رد" : "تعديل الرد"}
-                                                                        style={{ width: 40, height: 40 }}
+                                                                        className="w-9 h-9 sm:w-10 sm:h-10"
                                                                     />
                                                                 </button>
 
                                                                 {/* عرض */}
                                                                 <button
                                                                     onClick={() => setViewQuestion(question)}
-                                                                    className="cursor-pointer active:scale-95 transition-all flex-shrink-0 w-10 h-10 flex items-center justify-center"
+                                                                    className="cursor-pointer active:scale-95 transition-all flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center"
                                                                     title="عرض"
                                                                 >
-                                                                    <img src="/ai/show.svg" alt="عرض" style={{ width: 40, height: 40 }} />
+                                                                    <img src="/ai/show.svg" alt="عرض" className="w-9 h-9 sm:w-10 sm:h-10" />
                                                                 </button>
 
                                                                 {/* حذف */}
                                                                 <button
                                                                     onClick={() => setQuestionToDelete(question)}
-                                                                    className="cursor-pointer active:scale-95 transition-all flex-shrink-0 w-10 h-10 flex items-center justify-center"
+                                                                    className="cursor-pointer active:scale-95 transition-all flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center"
                                                                     title="حذف"
                                                                 >
-                                                                    <img src="/ai/delete.svg" alt="حذف" style={{ width: 40, height: 40 }} />
+                                                                    <img src="/ai/delete.svg" alt="حذف" className="w-9 h-9 sm:w-10 sm:h-10" />
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -448,7 +456,7 @@ export function UnansweredQuestionsPage() {
                                         <Pagination
                                             totalPages={totalPages}
                                             currentPage={page}
-                                            onPageChange={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                                            onPageChange={setPage}
                                         />
                                     </div>
                                 )}

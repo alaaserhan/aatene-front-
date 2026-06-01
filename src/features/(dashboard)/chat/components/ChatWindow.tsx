@@ -567,7 +567,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                         </div>
                                     )}
                                     <div className={cn(
-                                        "max-w-[75%] rounded-xl p-3 px-4 text-sm",
+                                        "max-w-[85%] sm:max-w-[75%] rounded-xl p-3 px-4 text-sm",
                                         isMe ? "bg-blue-5 " : "bg-white  border border-gray-100 shadow-sm"
                                     )}>
                                         {msg.body && <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>}
@@ -653,7 +653,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                         {pendingMessages.map((msg) => (
                             <div key={msg.id} className="flex flex-col w-full items-start">
                                 <div className={cn(
-                                    "max-w-[75%] rounded-xl p-3 px-4 text-sm bg-blue-5  relative",
+                                    "max-w-[85%] sm:max-w-[75%] rounded-xl p-3 px-4 text-sm bg-blue-5  relative",
                                     msg.status === "failed" && "bg-red-50 border border-red-200"
                                 )}>
                                     <p className="leading-relaxed whitespace-pre-wrap">{msg.body}</p>

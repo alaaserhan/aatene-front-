@@ -321,11 +321,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         viewingConvId != null ? viewingConversation : conversation ?? null;
 
     /** يطابق MessageService (isBotActive): إذا عطّل المستخدم البوت لا ننتظر رداً آلياً */
-    const botRepliesEnabled = useMemo(() => {
-        const u = displayedConv?.user;
-        if (u == null) return true;
-        return u.ai_support_bot_active !== false;
-    }, [displayedConv?.user]);
+    const botRepliesEnabled = true;
 
     /** انتظار رد آلياً فقط إذا لم يُفعَّل طلب دعم بشري — لتجنّب نقاط «المساعد الذكي» مع الباكند */
     const awaitingAssistantReply =
@@ -337,8 +333,7 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         isAwaitingRating || (!!displayedConv && isResolved && !displayedConv.is_reviewed);
     const isRatingSnoozed =
         needsRatingFromServer &&
-        ratingSnoozeUntil != null &&
-        Date.now() < ratingSnoozeUntil;
+        ratingSnoozeUntil != null;
     const alreadyReviewed = displayedConv?.is_reviewed === true;
     /** تقييم فوري عند انتهاء المحادثة؛ يُؤجَّل 5 دقائق إن ضغط المستخدم «تخطّي لاحقاً». لا يُعاد بعد إتمام التقييم (`is_reviewed`). */
     const shouldPromptRating =
@@ -580,14 +575,6 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
             setAwaitingAfterUserMsgId(null);
         }
     }, [allMessages, awaitingBotReply, awaitingAfterUserMsgId]);
-    useEffect(() => {
-        if (!botRepliesEnabled) {
-            setAwaitingBotReply(false);
-            setAwaitingAfterUserMsgId(null);
-        }
-        
-    }, [botRepliesEnabled]);
-
     useEffect(() => {
         if (displayedConv?.needs_human === true) {
             setAwaitingBotReply(false);
