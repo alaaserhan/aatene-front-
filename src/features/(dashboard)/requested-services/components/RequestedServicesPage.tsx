@@ -139,7 +139,7 @@ function RequestedServicesPageContent() {
         <tr>
           <th className="px-6 py-4 text-xs font-medium text-center">رقم الخدمة</th>
           <th className="px-6 py-4 text-xs font-medium  w-1/4">صاحب الإعلان</th>
-          <th className="px-6 py-4 text-xs font-medium  w-1/3">وصف الخدمة</th>
+          <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium w-1/3">وصف الخدمة</th>
           <th className="px-6 py-4 text-xs font-medium ">سبب الرفض</th>
         </tr>
       );
@@ -158,7 +158,7 @@ function RequestedServicesPageContent() {
       <tr>
         <th className="px-6 py-4 text-xs font-medium text-center">رقم الخدمة</th>
         <th className="px-6 py-4 text-xs font-medium  w-1/4">صاحب الإعلان</th>
-        <th className="px-6 py-4 text-xs font-medium text-center">تاريخ النشر</th>
+        <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">تاريخ النشر</th>
         <th className="px-6 py-4 text-xs font-medium text-center">حالة الطلب</th>
         <th className="px-6 py-4 text-xs font-medium text-center">عمليات</th>
       </tr>
@@ -276,10 +276,10 @@ function RequestedServicesPageContent() {
           <tr key={item.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50">
             {idCell}
             {ownerCell}
-            <td className="px-6 py-4 text-center  text-sm">
+            <td className="hidden sm:table-cell px-6 py-4 text-center text-sm">
               <p className="line-clamp-2">{item.content}</p>
             </td>
-            <td className="px-6 py-4  text-sm  text-center  font-medium">
+            <td className="px-6 py-4 text-sm text-center font-medium">
               {item.reject_reason || "لا يوجد سبب محدد"}
             </td>
           </tr>
@@ -290,7 +290,7 @@ function RequestedServicesPageContent() {
         <tr key={item.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50">
           {idCell}
           {ownerCell}
-          <td className="px-6 py-4 text-center text-sm font-medium dir-ltr">
+          <td className="hidden sm:table-cell px-6 py-4 text-center text-sm font-medium dir-ltr">
             {item.created_at ? formatDate(item.created_at, "dd-MM-yyyy") : "-"}
           </td>
           <td className="px-6 py-4 text-center">

@@ -267,8 +267,8 @@ export function AbusiveWordsPage() {
                                             <tr>
                                                 <th className="p-4 text-start font-medium">رقم الحساب</th>
                                                 <th className="p-4 text-start font-medium">اسم الحساب</th>
-                                                <th className="p-4 text-start font-medium">تاريخ النشر</th>
-                                                <th className="p-4 text-center font-medium">عدد الكلمات المسيئة</th>
+                                                <th className="hidden sm:table-cell p-4 text-start font-medium">تاريخ النشر</th>
+                                                <th className="hidden sm:table-cell p-4 text-center font-medium">عدد الكلمات المسيئة</th>
                                                 <th className="p-4 text-start font-medium">عمليات</th>
                                             </tr>
                                         </thead>
@@ -304,10 +304,10 @@ export function AbusiveWordsPage() {
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td className="p-4 text-gray-2">
+                                                        <td className="hidden sm:table-cell p-4 text-gray-2">
                                                             {formatDate(comment.created_at, "dd-MM-yyyy")}
                                                         </td>
-                                                        <td className="p-4 text-center">
+                                                        <td className="hidden sm:table-cell p-4 text-center">
                                                             <span className="inline-flex items-center gap-1 px-3 py-2 bg-red-2 rounded-sm text-xs font-medium">
                                                                 {comment.abusive_words_count} كلمات
                                                             </span>

@@ -39,14 +39,14 @@ export function BlogsTable({
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[600px]">
+        <table className="w-full">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100 text-right">
               <th className="px-6 py-4 text-sm font-bold text-gray-500 w-[30%] whitespace-nowrap">عنوان المقال</th>
-              <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">المفضلة</th>
-              <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">التقييم</th>
-              <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">التعليقات</th>
-              <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">تاريخ النشر</th>
+              <th className="hidden sm:table-cell px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">المفضلة</th>
+              <th className="hidden sm:table-cell px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">التقييم</th>
+              <th className="hidden md:table-cell px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">التعليقات</th>
+              <th className="hidden md:table-cell px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">تاريخ النشر</th>
               <th className="px-6 py-4 text-center text-sm font-bold text-gray-500 whitespace-nowrap">عمليات</th>
             </tr>
           </thead>
@@ -59,22 +59,22 @@ export function BlogsTable({
                   </span>
                 </td>
 
-                <td className="px-6 py-4 text-center">
+                <td className="hidden sm:table-cell px-6 py-4 text-center">
                   <span className="text-sm font-medium text-gray-500">{blog.favorites_count || 0}</span>
                 </td>
 
-                <td className="px-6 py-4 text-center">
+                <td className="hidden sm:table-cell px-6 py-4 text-center">
                   <div className="inline-flex items-center gap-1 bg-yellow-50 px-2.5 py-1 rounded-full border border-yellow-100">
                     <span className="text-xs font-bold text-gray-700">{blog.review_rate || "0.0"}</span>
                     <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                   </div>
                 </td>
 
-                <td className="px-6 py-4 text-center">
+                <td className="hidden md:table-cell px-6 py-4 text-center">
                   <span className="text-sm font-medium text-gray-500">{blog.review_count || 0}</span>
                 </td>
 
-                <td className="px-6 py-4 text-center">
+                <td className="hidden md:table-cell px-6 py-4 text-center">
                   <span className="text-xs font-medium text-gray-400">
                     {blog.created_at ? formatDate(blog.created_at) : "-"}
                   </span>
