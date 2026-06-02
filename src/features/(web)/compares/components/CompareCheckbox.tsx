@@ -55,7 +55,7 @@ export function CompareCheckbox({ id, type, className }: CompareCheckboxProps) {
     return (
         <div
             className={cn(
-                "flex items-center gap-2  cursor-pointer  transition-colors z-20 py-2",
+                "flex w-full items-center gap-2 cursor-pointer transition-colors z-20 px-3 py-2",
                 className
             )}
             onClick={handleToggle}
