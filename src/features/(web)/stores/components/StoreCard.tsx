@@ -3,15 +3,15 @@
 import { memo, useState } from "react";
 import { Store } from "@/src/features/(web)/searchAndFilter/api";
 import { cn, sanitizeMediaUrl, resolveImageSrc } from "@/src/lib/utils";
-import { UserPlus, Store as StoreIcon, ArrowLeft, MapPin } from "lucide-react";
+import { UserPlus, Store as StoreIcon, ArrowLeft, MapPin, Star } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
-import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 import { useLanguage } from "@/src/hooks/use-language";
+import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 
 interface StoreCardProps {
     store: Store;
@@ -28,14 +28,16 @@ const StoreCard = memo(({
     onVisitClick,
     className
 }: StoreCardProps) => {
-    const coverUrls = (store.cover_urls ?? []).filter(Boolean);
-    const primaryCover = coverUrls[0] ? sanitizeMediaUrl(coverUrls[0]) : "";
-    const coverIsVideo = Boolean(primaryCover && isStoreBannerVideoUrl(primaryCover));
     const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
     const [failedCoverUrl, setFailedCoverUrl] = useState<string | null>(null);
     const normalizedLogoUrl = sanitizeMediaUrl(store.logo_url);
+    const coverUrls = (store.cover_urls ?? []).filter(Boolean);
+    const primaryCover = coverUrls[0] ? sanitizeMediaUrl(coverUrls[0]) : sanitizeMediaUrl(store.cover_url);
+    const coverIsVideo = Boolean(primaryCover && isStoreBannerVideoUrl(primaryCover));
     const logoSrc = resolveImageSrc(normalizedLogoUrl, failedLogoUrl, "store");
-    const coverSrc = primaryCover && failedCoverUrl !== primaryCover ? primaryCover : logoSrc;
+    const coverFallbackSrc =
+        primaryCover && !coverIsVideo && failedCoverUrl !== primaryCover ? primaryCover : null;
+    const avatarSrc = store.logo_url ? logoSrc : coverFallbackSrc || logoSrc;
     const rating = parseFloat(store.review_rate || "0");
     const [followOverride, setFollowOverride] = useState<boolean | null>(null);
     const followed = followOverride ?? Boolean(isFollowing || store.am_i_following);
@@ -54,6 +56,12 @@ const StoreCard = memo(({
         .filter(Boolean);
     const cityLabel = cityNames.length > 0 ? [...new Set(cityNames)].slice(0, 2).join("، ") : store.address || "المدينة غير محددة";
 
+    const invalidateStoreQueries = () => {
+        queryClient.invalidateQueries({ queryKey: ["stores", "search"] });
+        queryClient.invalidateQueries({ queryKey: ["storeProfile", store.slug] });
+        queryClient.invalidateQueries({ queryKey: ["storePageData", store.slug] });
+    };
+
     const handleCardClick = () => {
         if (onVisitClick) {
             onVisitClick(store.slug);
@@ -66,169 +74,121 @@ const StoreCard = memo(({
         <div
             onClick={handleCardClick}
             className={cn(
-                "bg-white h-full w-full min-w-0 rounded-lg border border-gray-100 overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300 cursor-pointer",
+                "group relative flex h-full min-h-[400px] w-full min-w-0 cursor-pointer flex-col items-center rounded-2xl border border-gray-100 bg-white px-5 pb-5 pt-8 text-center transition-all duration-300 hover:shadow-md",
                 className
             )}
         >
-            {/* Cover: banner (cover_urls) or logo */}
-            <div className="relative h-48 w-full bg-gray-200">
-                {coverIsVideo && primaryCover ? (
-                    <video
-                        src={primaryCover}
-                        className="absolute inset-0 h-full w-full object-cover"
-                        muted
-                        playsInline
-                        loop
-                        autoPlay
-                        preload="metadata"
-                    />
-                ) : primaryCover && !coverIsVideo ? (
+            <div
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }}
+                className="absolute left-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[#ffffffc9] shadow-md transition-transform hover:scale-110"
+            >
+                <FavoriteButton
+                    id={store.id}
+                    type="store"
+                    isFavorite={store.is_favorite}
+                    onSuccess={invalidateStoreQueries}
+                    className="h-full w-full rounded-full"
+                    iconClassName="h-5 w-5"
+                />
+            </div>
+
+            <div className="relative mb-4 h-36 w-36 shrink-0 overflow-hidden rounded-full bg-gray-100 sm:h-40 sm:w-40">
+                {store.logo_url || coverFallbackSrc ? (
                     <Image
-                        src={coverSrc}
+                        src={avatarSrc}
                         alt={store.name}
                         fill
                         className="object-cover"
                         onError={() => {
-                            setFailedCoverUrl(primaryCover);
-                        }}
-                    />
-                ) : store.logo_url ? (
-                    <Image
-                        src={logoSrc}
-                        alt={store.name}
-                        fill
-                        className="object-cover"
-                        onError={() => {
-                            setFailedLogoUrl(normalizedLogoUrl || null);
+                            if (store.logo_url) {
+                                setFailedLogoUrl(normalizedLogoUrl || null);
+                            } else if (primaryCover) {
+                                setFailedCoverUrl(primaryCover);
+                            }
                         }}
                     />
                 ) : (
-                    <div className="flex items-center justify-center w-full h-full">
-                        <StoreIcon className="w-16 h-16 text-gray-400" />
+                    <div className="flex h-full w-full items-center justify-center">
+                        <StoreIcon className="h-10 w-10 text-gray-400" />
                     </div>
                 )}
-
-                {/* Favorite Button - Top Left */}
-                <div
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    className="absolute top-3 left-3 z-10 w-10 h-10 rounded-full bg-[#ffffffc9] flex items-center justify-center shadow-md hover:scale-110 transition-transform"
-                >
-                    <FavoriteButton
-                        id={store.id}
-                        type="store"
-                        isFavorite={store.is_favorite}
-                        onSuccess={() => {
-                            queryClient.invalidateQueries({ queryKey: ["stores", "search"] });
-                            queryClient.invalidateQueries({ queryKey: ["storeProfile", store.slug] });
-                        }}
-                        className="w-full h-full rounded-full"
-                        iconClassName="w-5 h-5"
-                    />
-                </div>
             </div>
 
-            {/* Content Section */}
-            <div className="p-4 flex min-w-0 flex-col flex-1">
-                {/* Store Name & Crown */}
-                <div className="flex min-w-0 items-center gap-2 mb-3">
-                    {/* <Image src="/icons/crown.svg" alt="crown" width={16} height={16} /> */}
-                    <h3 className="min-w-0 truncate font-semibold text-base">{store.name}</h3>
-                </div>
+            <h3 className="mb-3 line-clamp-2 w-full px-1 text-lg font-bold text-gray-900">
+                {store.name}
+            </h3>
 
-                <div className="mb-3 flex min-w-0 items-center gap-1.5 text-sm text-gray-2">
-                    <MapPin className="h-4 w-4 shrink-0 text-blue-4" />
-                    <span className="min-w-0 truncate">{cityLabel}</span>
-                </div>
+            <div className="mb-2 flex w-full items-center justify-center gap-1.5 text-sm text-gray-500" dir="rtl">
+                <MapPin className="h-4 w-4 shrink-0 text-blue-4" />
+                <span className="line-clamp-1">{cityLabel}</span>
+            </div>
 
-                {/* Features Row */}
-                <div className="flex items-center gap-3 text-sm  mb-6 flex-wrap">
-                    {/* Rating */}
-                    <div className="flex items-center gap-1">
-                        <Image src="/icons/star.svg" alt="star" width={15} height={15} />
-                        <span className="font-medium text-gray-2 pt-1">{rating.toFixed(1)}</span>
-                        <span className="text-xs text-gray-400 pt-1">({store.review_count || 0})</span>
-                    </div>
+            <div className="mb-6 flex items-center justify-center gap-1 text-sm text-gray-400" dir="rtl">
+                <Star className="h-4 w-4 shrink-0 fill-amber-400 text-amber-400" />
+                <span className="font-medium">{rating.toFixed(1)}</span>
+            </div>
 
-                    {/* Fast Delivery */}
-                    {/* {store.type === "products" && (
-                        <div className="flex items-center gap-1">
-                            <Image src="/icons/car2.svg" alt="car" width={18} height={18} />
-                            <span className="font-medium">توصيل سريع</span>
-                        </div>
-                    )} */}
-
-                    {/* Guarantee */}
-                    {/* <div className="flex items-center gap-1">
-                        <ShieldCheck className="w-4 h-4 text-blue-4" />
-                        <span className="font-medium">ضمان</span>
-                    </div> */}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="mt-auto flex flex-col gap-2">
-                    {followed ? (
-                        <div className="flex gap-2">
-                            <button
-                                disabled={isPending}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    unfollow(
-                                        { followed_type: "store", followed_id: store.id },
-                                        {
-                                            onSuccess: () => {
-                                                setFollowOverride(false);
-                                                onFollowClick?.(store.id);
-                                                queryClient.invalidateQueries({ queryKey: ["stores", "search"] });
-                                                queryClient.invalidateQueries({ queryKey: ["storeProfile", store.slug] });
-                                                queryClient.invalidateQueries({ queryKey: ["storePageData", store.slug] });
-                                            },
-                                        }
-                                    );
-                                }}
-                                className="flex-1 py-3 px-4 rounded-lg text-sm bg-gray-100 text-gray-700 font-medium flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors cursor-pointer disabled:opacity-50"
-                            >
-                                <span>{isPending ? "جاري الإلغاء..." : "إلغاء المتابعة"}</span>
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (onVisitClick) {
-                                        onVisitClick(store.slug);
-                                    } else {
-                                        router.push(storePath);
-                                    }
-                                }}
-                                className="w-12 py-3 rounded-lg bg-gray-50 text-blue-4 flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer"
-                                title="زيارة المتجر"
-                            >
-                                <ArrowLeft className="w-4 h-4" />
-                            </button>
-                        </div>
-                    ) : (
+            <div className="mt-auto flex w-full flex-col gap-2">
+                {followed ? (
+                    <div className="flex gap-2">
                         <button
+                            type="button"
                             disabled={isPending}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                follow(
+                                unfollow(
                                     { followed_type: "store", followed_id: store.id },
                                     {
                                         onSuccess: () => {
-                                            setFollowOverride(true);
+                                            setFollowOverride(false);
                                             onFollowClick?.(store.id);
-                                            queryClient.invalidateQueries({ queryKey: ["stores", "search"] });
-                                            queryClient.invalidateQueries({ queryKey: ["storeProfile", store.slug] });
-                                            queryClient.invalidateQueries({ queryKey: ["storePageData", store.slug] });
+                                            invalidateStoreQueries();
                                         },
                                     }
                                 );
                             }}
-                            className="w-full py-3 px-4 rounded-lg text-sm bg-blue-4 text-white font-medium flex items-center justify-center gap-2 hover:bg-blue-3 transition-colors cursor-pointer disabled:opacity-50"
+                            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50"
                         >
-                            <UserPlus className="w-5 h-5" />
-                            <span>{isPending ? "جاري المتابعة..." : "متابعة المتجر"}</span>
+                            <span>{isPending ? "جاري الإلغاء..." : "إلغاء المتابعة"}</span>
                         </button>
-                    )}
-                </div>
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleCardClick();
+                            }}
+                            className="flex w-12 cursor-pointer items-center justify-center rounded-lg bg-gray-50 py-3 text-blue-4 transition-colors hover:bg-gray-100"
+                            title="زيارة المتجر"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            follow(
+                                { followed_type: "store", followed_id: store.id },
+                                {
+                                    onSuccess: () => {
+                                        setFollowOverride(true);
+                                        onFollowClick?.(store.id);
+                                        invalidateStoreQueries();
+                                    },
+                                }
+                            );
+                        }}
+                        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-4 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-3 disabled:opacity-50"
+                    >
+                        <UserPlus className="h-5 w-5" />
+                        <span>{isPending ? "جاري المتابعة..." : "متابعة المتجر"}</span>
+                    </button>
+                )}
             </div>
         </div>
     );
