@@ -307,7 +307,6 @@ export default function SearchFilters({
                         </div>
                     </FilterSection>
                 )}
-
                 {/* City */}
                 <FilterSection title="المدن" defaultOpen={false}>
                     <ReusableDropdown
@@ -324,7 +323,10 @@ export default function SearchFilters({
                 </FilterSection>
 
                 {/* Attributes */}
-                {attributes && attributes.length > 0 && attributes.map((attr) => {
+                {attributes && attributes.length > 0 && (
+                    attributes
+                    .filter(attr => !["عدد الطوابق", "عدد الغرف", "صفة المعلن", "عدد الحمامات", "مفروش؟"].includes(attr.title))
+                    .map((attr) => {
                     const selectedOptionId = attr.options.find(opt => filters.variation_options?.includes(opt.id))?.id;
                     const options = [
                         { value: "", label: `اختر ${attr.title}` },
@@ -340,7 +342,8 @@ export default function SearchFilters({
                             />
                         </FilterSection>
                     );
-                })}
+                    })
+                )}
 
                 {/* Price Range */}
                 {(type === "products" || type === "services") && (
