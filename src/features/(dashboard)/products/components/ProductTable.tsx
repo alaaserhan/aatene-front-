@@ -65,22 +65,22 @@ export function ProductTable({
                     <thead className="bg-[#EEF2F6] border-b border-gray-200">
                         <tr>
                             <th className="px-6 py-4 text-sm font-medium text-center">كود المنتج</th>
-                            <th className="px-6 py-4 text-sm font-medium text-center">صورة المنتج</th>
+                            <th className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-center">صورة المنتج</th>
                             <th className="px-6 py-4 text-sm font-medium text-center">عنوان المنتج</th>
 
                             {activeStatus === "rejected" ? (
                                 <>
                                     <th className="px-6 py-4 text-sm font-medium text-center">سبب الرفض</th>
-                                    <th className="px-6 py-4 text-sm font-medium text-center">تاريخ الرفض</th>
+                                    <th className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-center">تاريخ الرفض</th>
                                 </>
                             ) : (
                                 <>
                                     <th className="px-6 py-4 text-sm font-medium text-center">
                                         {activeStatus === "pending" ? "تم التسليم" : "تاريخ الانتهاء"}
                                     </th>
-                                    <th className="px-6 py-4 text-sm font-medium text-center">مشاهدات</th>
-                                    <th className="px-6 py-4 text-sm font-medium text-center">عدد التواصلات</th>
-                                    <th className="px-6 py-4 text-sm font-medium text-center">مرئي</th>
+                                    <th className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-center">مشاهدات</th>
+                                    <th className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-center">عدد التواصلات</th>
+                                    <th className="hidden md:table-cell px-6 py-4 text-sm font-medium text-center">مرئي</th>
                                 </>
                             )}
 
@@ -97,7 +97,7 @@ export function ProductTable({
                                 </td>
 
                                 {/* Image */}
-                                <td className="px-6 py-4">
+                                <td className="hidden sm:table-cell px-6 py-4">
                                     <div className="flex justify-center">
                                         <div className="relative w-16 h-12 rounded bg-gray-100 overflow-hidden shrink-0">
                                             {product.cover_url ? (
@@ -137,7 +137,7 @@ export function ProductTable({
                                                 {product.reject_reason || "لا يوجد سبب"}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
                                             <span className="text-sm text-gray-2 font-medium">
                                                 {product.rejected_at ? formatDate(product.rejected_at) : "-"}
                                             </span>
@@ -155,17 +155,17 @@ export function ProductTable({
                                         </td>
 
                                         {/* Views */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
                                             <span className="text-sm">{product.view_count || 0}</span>
                                         </td>
 
                                         {/* Contacts */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
                                             <span className="text-sm">{product.messages_count || 0}</span>
                                         </td>
 
                                         {/* Shown toggle */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="hidden md:table-cell px-6 py-4 text-center">
                                             <div className="flex justify-center">
                                                 <ToggleSwitch
                                                     enabled={product.shown}

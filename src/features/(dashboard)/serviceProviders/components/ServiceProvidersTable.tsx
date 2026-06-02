@@ -1,7 +1,13 @@
 // src/features/(dashboard)/stores/components/ServiceProvidersTable.tsx
 "use client";
 
-import { BriefcaseBusiness, Eye, Loader2 } from "lucide-react";
+import { BriefcaseBusiness, Eye, Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
 import { Store } from "../../stores/api";
@@ -56,19 +62,19 @@ export function ServiceProvidersTable({
                             <th className="px-6 py-4 text-sm font-medium text-gray-1 text-start">
                                 اسم مقدم الخدمة
                             </th>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-start">
+                            <th className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-gray-1 text-start">
                                 البريد الإلكتروني
                             </th>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
+                            <th className="hidden md:table-cell px-6 py-4 text-sm font-medium text-gray-1 text-center">
                                 عدد الخدمات
                             </th>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
+                            <th className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-gray-1 text-center">
                                 خدمات تحت المراجعة
                             </th>
                             <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
                                 حالة التاجر
                             </th>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
+                            <th className="hidden md:table-cell px-6 py-4 text-sm font-medium text-gray-1 text-center">
                                 آخر نشاط
                             </th>
                             <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
@@ -98,14 +104,14 @@ export function ServiceProvidersTable({
                                         </div>
                                     </td>
 
-                                    <td className="px-6 py-4 text-sm text-blue-3  font-medium">
+                                    <td className="hidden sm:table-cell px-6 py-4 text-sm text-blue-3  font-medium">
                                         {store.owner?.email || store.email || "-"}
                                     </td>
 
-                                    <td className="px-6 py-4 text-sm text-blue-4 font-medium text-center">
+                                    <td className="hidden md:table-cell px-6 py-4 text-sm text-blue-4 font-medium text-center">
                                         {servicesCount} خدمات
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-blue-4 font-medium text-center">
+                                    <td className="hidden sm:table-cell px-6 py-4 text-sm text-blue-4 font-medium text-center">
                                         {store.pending_services_count} خدمات
                                     </td>
 
@@ -117,42 +123,70 @@ export function ServiceProvidersTable({
                                         </div>
                                     </td>
 
-                                    <td className="px-6 py-4 text-sm text-blue-3 text-center font-medium">
+                                    <td className="hidden md:table-cell px-6 py-4 text-sm text-blue-3 text-center font-medium">
                                         {lastActive}
                                     </td>
 
                                     <td className="px-6 py-4">
                                         <div className="flex items-center justify-center gap-2">
-                                            <button
-                                                onClick={() => onEdit(store)}
-                                                className="w-8 h-8  cursor-pointer flex items-center justify-center rounded-xs bg-blue-5 text-[#3A5779] hover:bg-[#e0eaff] transition-colors"
-                                                title="تعديل"
-                                            >
-                                                <img src="/icons/dashboard/edit3.svg" className="w-4 h-4" alt="edit" />
-                                            </button>
+                                            <div className="hidden sm:flex items-center gap-2">
+                                                <button
+                                                    onClick={() => onEdit(store)}
+                                                    className="w-8 h-8  cursor-pointer flex items-center justify-center rounded-xs bg-blue-5 text-[#3A5779] hover:bg-[#e0eaff] transition-colors"
+                                                    title="تعديل"
+                                                >
+                                                    <img src="/icons/dashboard/edit3.svg" className="w-4 h-4" alt="edit" />
+                                                </button>
 
-                                            <button
-                                                onClick={() => onDelete(store)}
-                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#FFE5E7] text-[#FF4D4F] hover:bg-[#ffe0e2] transition-colors"
-                                                title="حذف"
-                                            >
-                                                <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="delete" />
-                                            </button>
-                                            <button
-                                                onClick={() => onManageServices(store)}
-                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#EEF2F6] text-[#3A5779] hover:bg-[#dbe5ef] transition-colors"
-                                                title="إدارة خدمات المتجر"
-                                            >
-                                                <BriefcaseBusiness className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => onPreview(store)}
-                                                className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E5FBFF] text-[#1298B2] hover:bg-[#d0f5fc] transition-colors"
-                                                title="معاينة المتجر"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                            </button>
-
+                                                <button
+                                                    onClick={() => onDelete(store)}
+                                                    className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#FFE5E7] text-[#FF4D4F] hover:bg-[#ffe0e2] transition-colors"
+                                                    title="حذف"
+                                                >
+                                                    <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="delete" />
+                                                </button>
+                                                <button
+                                                    onClick={() => onManageServices(store)}
+                                                    className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#EEF2F6] text-[#3A5779] hover:bg-[#dbe5ef] transition-colors"
+                                                    title="إدارة خدمات المتجر"
+                                                >
+                                                    <BriefcaseBusiness className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => onPreview(store)}
+                                                    className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-[#E5FBFF] text-[#1298B2] hover:bg-[#d0f5fc] transition-colors"
+                                                    title="معاينة المتجر"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            <div className="sm:hidden">
+                                                <DropdownMenu dir="rtl">
+                                                    <DropdownMenuTrigger asChild>
+                                                        <button type="button" className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-gray-100 text-gray-2 hover:bg-gray-200 transition-colors">
+                                                            <MoreHorizontal className="w-5 h-5" />
+                                                        </button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end" className="w-44 border-gray-100 shadow-lg bg-white">
+                                                        <DropdownMenuItem className="cursor-pointer gap-2 text-blue-3 focus:text-blue-4 focus:bg-blue-50" onClick={() => onEdit(store)}>
+                                                            <img src="/icons/dashboard/edit3.svg" className="w-4 h-4" alt="edit" />
+                                                            <span>تعديل</span>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem className="cursor-pointer gap-2 text-red-600 focus:text-red-700 focus:bg-red-50" onClick={() => onDelete(store)}>
+                                                            <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="delete" />
+                                                            <span>حذف</span>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem className="cursor-pointer gap-2 text-blue-3 focus:text-blue-4 focus:bg-blue-50" onClick={() => onManageServices(store)}>
+                                                            <BriefcaseBusiness className="w-4 h-4" />
+                                                            <span>إدارة الخدمات</span>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem className="cursor-pointer gap-2 text-blue-3 focus:text-blue-4 focus:bg-blue-50" onClick={() => onPreview(store)}>
+                                                            <Eye className="w-4 h-4" />
+                                                            <span>معاينة</span>
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>

@@ -136,14 +136,14 @@ export function CouponsPage() {
                     </div>
 
                     <div className="overflow-x-auto">
-                        <table className="w-full table-fixed min-w-[800px]">
+                        <table className="w-full">
                             <thead>
                                 <tr className="bg-gray-50">
                                     <th className="px-4 py-4 text-start text-sm font-medium ">الكود</th>
-                                    <th className="px-4 py-4 text-start text-sm font-medium ">النوع</th>
-                                    <th className="px-4 py-4 text-start text-sm font-medium ">القيمة</th>
-                                    <th className="px-4 py-4 text-start text-sm font-medium ">تاريخ البداية</th>
-                                    <th className="px-4 py-4 text-start text-sm font-medium ">تاريخ الانتهاء</th>
+                                    <th className="hidden sm:table-cell px-4 py-4 text-start text-sm font-medium ">النوع</th>
+                                    <th className="hidden sm:table-cell px-4 py-4 text-start text-sm font-medium ">القيمة</th>
+                                    <th className="hidden md:table-cell px-4 py-4 text-start text-sm font-medium ">تاريخ البداية</th>
+                                    <th className="hidden md:table-cell px-4 py-4 text-start text-sm font-medium ">تاريخ الانتهاء</th>
                                     <th className="px-4 py-4 text-start text-sm font-medium ">الحالة</th>
                                     <th className="px-4 py-4 text-start text-sm font-medium ">الإجراءات</th>
                                 </tr>
@@ -174,16 +174,16 @@ export function CouponsPage() {
                                     coupons.map((coupon) => (
                                         <tr key={coupon.id} className="border-b border-gray-200 hover:bg-gray-50 last:border-b-0 transition-colors">
                                             <td className="px-4 py-4 font-medium ">{coupon.code}</td>
-                                            <td className="px-4 py-4 text-gray-2">
+                                            <td className="hidden sm:table-cell px-4 py-4 text-gray-2">
                                                 {coupon.type === "value" ? "قيمة ثابتة" : "نسبة مئوية"}
                                             </td>
-                                            <td className="px-4 py-4 text-gray-2">
+                                            <td className="hidden sm:table-cell px-4 py-4 text-gray-2">
                                                 {coupon.value} {coupon.type === "percentage" ? "%" : ""}
                                             </td>
-                                            <td className="px-4 py-4 text-gray-2 text-sm dir-rtl">
+                                            <td className="hidden md:table-cell px-4 py-4 text-gray-2 text-sm dir-rtl">
                                                 {formatDateArabic(coupon.start_date)}
                                             </td>
-                                            <td className="px-4 py-4 text-gray-2 text-sm dir-rtl">
+                                            <td className="hidden md:table-cell px-4 py-4 text-gray-2 text-sm dir-rtl">
                                                 {formatDateArabic(coupon.end_date)}
                                             </td>
 

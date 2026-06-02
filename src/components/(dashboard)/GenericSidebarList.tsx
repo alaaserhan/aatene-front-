@@ -118,15 +118,15 @@ export function GenericSidebarList<T extends { id: number | string }>({
 
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y">
         {isLoading ? (
-          <div className="flex items-center justify-center h-full min-h-[300px]">
+          <div className="flex items-center justify-center h-full min-h-[150px] lg:min-h-[300px]">
             <Loader2 className="w-6 h-6 animate-spin text-gray-2" />
           </div>
         ) : isError ? (
-          <div className="flex items-center justify-center h-full min-h-[300px]">
+          <div className="flex items-center justify-center h-full min-h-[150px] lg:min-h-[300px]">
             <p className="text-sm text-red-500">حدث خطأ في جلب البيانات</p>
           </div>
         ) : data.length === 0 ? (
-          <div className="flex items-center justify-center h-full min-h-[300px]">
+          <div className="flex items-center justify-center h-full min-h-[150px] lg:min-h-[300px]">
             <p className="text-sm text-gray-2">{emptyText}</p>
           </div>
         ) : (
