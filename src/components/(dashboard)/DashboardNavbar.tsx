@@ -131,6 +131,9 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const isActive = (path: string) => {
     const basePath = path.split("?")[0];
     const fullPath = `${navPrefix}${basePath}`;
+    const isStoreShippingPath = /^\/(?:admin|dashboard)\/stores\/[^/]+\/shipping(?:\/|$)/.test(pathname || "");
+
+    if (basePath === "/stores" && isStoreShippingPath) return false;
     if (fullPath === navPrefix && pathname === fullPath) return true;
     if (fullPath !== navPrefix && pathname?.startsWith(fullPath)) return true;
     return false;

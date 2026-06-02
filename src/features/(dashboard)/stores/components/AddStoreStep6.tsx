@@ -23,7 +23,7 @@ interface AddStoreStep6Props {
   onBack: () => void;
   barSteps: { number: number; label: string; completed: boolean }[];
   variant?: "wizard" | "standalone";
-  onSave?: (data: Step6FormData) => void;
+  onSave?: (data: Step6FormData) => void | Promise<void>;
   isSaving?: boolean;
   breadcrumbItems?: { label: string; href?: string }[];
 }
@@ -67,6 +67,26 @@ export function AddStoreStep6({
     { label: "إضافة متجر" },
   ];
 
+  const persistStandaloneShipping = (
+    nextDeliveryType: DeliveryType,
+    nextCompanies: ShippingCompanyPayload[]
+  ) => {
+    if (!isStandalone || !onSave) return;
+
+    void onSave({
+      delivery_type: nextDeliveryType,
+      shippingCompanies: nextDeliveryType === "shipping" ? nextCompanies : [],
+    });
+  };
+
+  const handleDeliveryTypeChange = (nextDeliveryType: DeliveryType) => {
+    setDeliveryType(nextDeliveryType);
+
+    if (nextDeliveryType !== "shipping" || shippingCompanies.length > 0) {
+      persistStandaloneShipping(nextDeliveryType, shippingCompanies);
+    }
+  };
+
   const handleAddCompany = () => {
     setEditingCompanyIndex(null);
     setIsDialogOpen(true);
@@ -91,31 +111,42 @@ export function AddStoreStep6({
 
   // 3. تنفيذ الحذف بناءً على الحالة
   const handleConfirmDelete = () => {
+    const nextCompanies =
+      companyToDeleteIndex !== null
+        ? shippingCompanies.filter((_, i) => i !== companyToDeleteIndex)
+        : [];
+
     if (companyToDeleteIndex !== null) {
       // حذف شركة واحدة
-      setShippingCompanies(shippingCompanies.filter((_, i) => i !== companyToDeleteIndex));
-      toast.success("تم حذف شركة الشحن بنجاح");
+      setShippingCompanies(nextCompanies);
+      if (!isStandalone) toast.success("تم حذف شركة الشحن بنجاح");
     } else {
       // حذف الكل
-      setShippingCompanies([]);
-      toast.success("تم حذف جميع شركات الشحن");
+      setShippingCompanies(nextCompanies);
+      if (!isStandalone) toast.success("تم حذف جميع شركات الشحن");
     }
+    persistStandaloneShipping(deliveryType, nextCompanies);
     setDeleteModalOpen(false);
     setCompanyToDeleteIndex(null);
   };
 
   const handleSaveCompany = (company: ShippingCompanyPayload) => {
+    const nextCompanies =
+      editingCompanyIndex !== null
+        ? shippingCompanies.map((c, i) =>
+            i === editingCompanyIndex ? company : c
+          )
+        : [...shippingCompanies, company];
+
     if (editingCompanyIndex !== null) {
-      setShippingCompanies(
-        shippingCompanies.map((c, i) =>
-          i === editingCompanyIndex ? company : c
-        )
-      );
-      toast.success("تم تحديث شركة الشحن بنجاح");
+      setShippingCompanies(nextCompanies);
+      if (!isStandalone) toast.success("تم تحديث شركة الشحن بنجاح");
     } else {
-      setShippingCompanies([...shippingCompanies, company]);
-      toast.success("تمت إضافة شركة الشحن بنجاح");
+      setShippingCompanies(nextCompanies);
+      if (!isStandalone) toast.success("تمت إضافة شركة الشحن بنجاح");
     }
+
+    persistStandaloneShipping("shipping", nextCompanies);
   };
 
   const handleSetDefault = (index: number) => {
@@ -124,8 +155,10 @@ export function AddStoreStep6({
     const companyToMove = shippingCompanies[index];
     const otherCompanies = shippingCompanies.filter((_, i) => i !== index);
 
-    setShippingCompanies([companyToMove, ...otherCompanies]);
-    toast.success("تم تعيين الشركة كخيار أساسي");
+    const nextCompanies = [companyToMove, ...otherCompanies];
+    setShippingCompanies(nextCompanies);
+    persistStandaloneShipping(deliveryType, nextCompanies);
+    if (!isStandalone) toast.success("تم تعيين الشركة كخيار أساسي");
   };
 
   const validate = () => {
@@ -166,13 +199,13 @@ export function AddStoreStep6({
   };
 
   return (
-    <div className={cn(isStandalone && "pb-28")}>
+    <div>
       <div className="container mx-auto py-3 sm:py-4 px-3 sm:px-4">
         <Breadcrumb items={breadcrumbItems} className="mb-3 sm:mb-4" />
         {!isStandalone && <StepperProgress currentStep={5} steps={steps} />}
 
         <div className="grid grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-8">
-          <div className="col-span-12 lg:col-span-8">
+          <div className={cn("col-span-12", !isStandalone && "lg:col-span-8")}>
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="p-4 sm:p-6 border-b border-gray-100">
                 <h2 className="text-lg sm:text-xl font-bold">
@@ -198,14 +231,14 @@ export function AddStoreStep6({
                       value="hand_delivery"
                       label='من يد لـ يد "دون شركات توصيل"'
                       selected={deliveryType === "hand_delivery"}
-                      onClick={() => setDeliveryType("hand_delivery")}
+                      onClick={() => handleDeliveryTypeChange("hand_delivery")}
                     />
 
                     <DeliveryOption
                       value="shipping"
                       label="من خلال شركة توصيل"
                       selected={deliveryType === "shipping"}
-                      onClick={() => setDeliveryType("shipping")}
+                      onClick={() => handleDeliveryTypeChange("shipping")}
                     />
                   </div>
                 </div>
@@ -309,32 +342,30 @@ export function AddStoreStep6({
               </div>
             </div>
           </div>
-          <div
-            className={cn(
-              "col-span-12 lg:col-span-4 space-y-4",
-              isStandalone && "hidden lg:block"
-            )}
-          >
-            <StorePreviewSidebar
-              data={{
-                logo: previousData.logo_preview,
-                name: previousData.name,
-                description: previousData.description,
-                coverImages: previousData.cover_previews,
-              }}
-            />
-            {!isStandalone && <GuideVideoCard location="create-store" />}
-          </div>
+          {!isStandalone && (
+            <div className="col-span-12 lg:col-span-4 space-y-4">
+              <StorePreviewSidebar
+                data={{
+                  logo: previousData.logo_preview,
+                  name: previousData.name,
+                  description: previousData.description,
+                  coverImages: previousData.cover_previews,
+                }}
+              />
+              <GuideVideoCard location="create-store" />
+            </div>
+          )}
         </div>
       </div>
 
-      <StoreFormActions
-        onNext={handleNext}
-        onBack={onBack}
-        isSubmitting={isSaving}
-        nextLabel={isStandalone ? "حفظ" : "حفظ والتالي"}
-        sticky={isStandalone}
-      />
+      {!isStandalone && (
+        <StoreFormActions
+          onNext={handleNext}
+          onBack={onBack}
+          isSubmitting={isSaving}
+          nextLabel="حفظ والتالي"
+        />
+      )}
 
       <AddShippingCompanyDialog
         isOpen={isDialogOpen}

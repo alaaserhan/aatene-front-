@@ -5,11 +5,9 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { Loader2 } from "lucide-react";
 import { AddStoreStep6 } from "./AddStoreStep6";
-import { useGetSingleStore, useUpdateStore } from "../hooks";
+import { useGetSingleStore, useUpdateStoreShippingCompanies } from "../hooks";
 import { Step2FormData, Step6FormData } from "../types";
 import {
-  buildStoreShippingUpdatePayload,
-  getStoreUpdateValidationHint,
   mapStoreShippingCompanies,
 } from "../buildStoreShippingUpdatePayload";
 import { useAuthStore } from "@/src/stores/auth-store";
@@ -25,7 +23,7 @@ export function StoreShippingSettingsPage({ storeId }: StoreShippingSettingsPage
   const user = useAuthStore((state) => state.user);
   const isMerchant = user?.user_type === "merchant";
   const { data: storeData, isLoading } = useGetSingleStore(storeId);
-  const updateStoreMutation = useUpdateStore();
+  const updateShippingMutation = useUpdateStoreShippingCompanies();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const store = storeData?.record;
@@ -69,19 +67,21 @@ export function StoreShippingSettingsPage({ storeId }: StoreShippingSettingsPage
   const handleSave = async (data: Step6FormData) => {
     if (!store) return;
 
-    const clientHint = getStoreUpdateValidationHint(store);
-    if (clientHint) {
-      toast.error(clientHint);
-      return;
-    }
+    const toastId = toast.loading("جاري حفظ إعدادات الشحن...");
 
     try {
-      await updateStoreMutation.mutateAsync({
+      await updateShippingMutation.mutateAsync({
         id: storeId,
-        payload: buildStoreShippingUpdatePayload(store, data),
+        payload: {
+          delivery_type: data.delivery_type,
+          shippingCompanies:
+            data.delivery_type === "shipping" ? data.shippingCompanies : [],
+        },
       });
+      toast.dismiss(toastId);
       setShowSuccessModal(true);
     } catch (error) {
+      toast.dismiss(toastId);
       if (error && typeof error === "object" && "response" in error) {
         const axiosErr = error as {
           response?: { data?: { message?: string; errors?: Record<string, string[]> } };
@@ -145,7 +145,7 @@ export function StoreShippingSettingsPage({ storeId }: StoreShippingSettingsPage
         onNext={() => {}}
         onSave={handleSave}
         onBack={() => router.push("/admin/home")}
-        isSaving={updateStoreMutation.isPending}
+        isSaving={updateShippingMutation.isPending}
         barSteps={[]}
         breadcrumbItems={[
           { label: "الرئيسية", href: "/admin/home" },

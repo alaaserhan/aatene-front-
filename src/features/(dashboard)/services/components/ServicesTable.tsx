@@ -58,30 +58,30 @@ export function ServicesTable({
     return (
         <div className="flex flex-col h-full ">
             <div className="overflow-x-auto">
-                <table className="w-full ">
+                <table className="w-full min-w-[900px]">
                     <thead className="bg-[#EEF2F6] border-b border-gray-200">
                         <tr>
-                            <th className="px-6 py-4 text-xs font-medium text-center">كود الخدمة</th>
-                            <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">صورة الخدمة</th>
-                            <th className="px-6 py-4 text-xs font-medium text-right w-1/4">عنوان الخدمة</th>
+                            <th className="px-6 py-4 text-xs font-medium text-center whitespace-nowrap">كود الخدمة</th>
+                            <th className="px-6 py-4 text-xs font-medium text-center whitespace-nowrap">صورة الخدمة</th>
+                            <th className="px-6 py-4 text-xs font-medium text-right whitespace-nowrap">عنوان الخدمة</th>
 
                             {activeStatus === "rejected" && (
                                 <>
-                                    <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">سبب رفض الخدمة</th>
-                                    <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">تاريخ الرد</th>
+                                    <th className="px-6 py-4 text-xs font-medium text-center whitespace-nowrap">سبب رفض الخدمة</th>
+                                    <th className="px-6 py-4 text-xs font-medium text-center whitespace-nowrap">تاريخ الرد</th>
                                 </>
                             )}
 
                             {activeStatus !== "rejected" && (
                                 <>
-                                    <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">مشاهدات</th>
-                                    <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">عدد التواصل</th>
-                                    <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">للمفضلة</th>
-                                    <th className="hidden md:table-cell px-6 py-4 text-xs font-medium text-center">مرئي</th>
+                                    <th className="px-6 py-4 text-xs font-medium text-center whitespace-nowrap">مشاهدات</th>
+                                    <th className="px-6 py-4 text-xs font-medium text-center whitespace-nowrap">عدد التواصل</th>
+                                    <th className="px-6 py-4 text-xs font-medium text-center whitespace-nowrap">للمفضلة</th>
+                                    <th className="px-6 py-4 text-xs font-medium text-center whitespace-nowrap">مرئي</th>
                                 </>
                             )}
 
-                            <th className="px-6 py-4 text-xs font-medium text-center">عمليات</th>
+                            <th className="px-6 py-4 text-xs font-medium text-center whitespace-nowrap">عمليات</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
@@ -89,14 +89,14 @@ export function ServicesTable({
                             <tr key={service.id} className="hover:bg-gray-50/50 transition-colors">
 
                                 {/* Code */}
-                                <td className="px-6 py-4 text-sm font-medium text-center ">
+                                <td className="px-6 py-4 text-sm font-medium text-center whitespace-nowrap">
                                     {service.id}#
                                 </td>
 
                                 {/* Image */}
-                                <td className="hidden sm:table-cell px-6 py-4">
+                                <td className="px-6 py-4">
                                     <div className="flex justify-center">
-                                        <div className="w-16 h-12 rounded bg-gray-100 overflow-hidden relative">
+                                        <div className="w-16 h-12 rounded bg-gray-100 overflow-hidden relative shrink-0">
                                             {service.images_url ? (
                                                 <img
                                                     src={Array.isArray(service.images_url) ? service.images_url[0] : service.images_url}
@@ -122,12 +122,12 @@ export function ServicesTable({
                                 {/* Rejected Columns */}
                                 {activeStatus === "rejected" && (
                                     <>
-                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <span className="text-sm text-red-500 font-medium">
                                                 {service.reason || "لا يوجد سبب"}
                                             </span>
                                         </td>
-                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <span className="text-sm text-gray-2 font-medium">
                                                 {service.response_date || "-"}
                                             </span>
@@ -139,22 +139,22 @@ export function ServicesTable({
                                 {activeStatus !== "rejected" && (
                                     <>
                                         {/* Views */}
-                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <span className="text-sm ">{service.view_count || 0}</span>
                                         </td>
 
                                         {/* Contacts (Messages) */}
-                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <span className="text-sm ">{service.messages_count || 0}</span>
                                         </td>
 
                                         {/* Favorites */}
-                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <span className="text-sm ">{service.favorites_count || 0}</span>
                                         </td>
 
                                         {/* Visible Toggle */}
-                                        <td className="hidden md:table-cell px-6 py-4 text-center">
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <div className="flex justify-center">
                                                 <ToggleSwitch
                                                     enabled={service.shown || false}
@@ -167,7 +167,7 @@ export function ServicesTable({
 
                                 {/* Actions */}
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center justify-center gap-2">
+                                    <div className="flex items-center justify-center gap-2 whitespace-nowrap">
                                         {/* View */}
                                         <button
                                             onClick={() => onReview(service)}
