@@ -83,8 +83,18 @@ export function StoreShippingSettingsPage({ storeId }: StoreShippingSettingsPage
       setShowSuccessModal(true);
     } catch (error) {
       if (error && typeof error === "object" && "response" in error) {
-        const axiosErr = error as { response?: { data?: unknown } };
-        console.error("Shipping save validation:", axiosErr.response?.data);
+        const axiosErr = error as {
+          response?: { data?: { message?: string; errors?: Record<string, string[]> } };
+        };
+        const data = axiosErr.response?.data;
+        console.error("Shipping save validation:", data);
+        const msg =
+          data?.message ||
+          (data?.errors && Object.values(data.errors).flat()[0]) ||
+          "تعذّر حفظ إعدادات الشحن";
+        toast.error(msg);
+      } else {
+        toast.error("تعذّر حفظ إعدادات الشحن");
       }
       console.error("Error saving shipping settings:", error);
     }

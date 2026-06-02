@@ -4,8 +4,6 @@ import {
   ShippingCompanyPayload,
   WorkingTimePayload,
   WorkingTime,
-  normalizeStoreCoverForApi,
-  normalizeStoreLogoForApi,
 } from "./api";
 import { Step6FormData } from "./types";
 
@@ -71,9 +69,7 @@ function defaultWorkingTimes(): WorkingTimePayload[] {
   }));
 }
 
-function normalizeWorkingTimesForApi(
-  store: Store
-): WorkingTimePayload[] {
+function normalizeWorkingTimesForApi(store: Store): WorkingTimePayload[] {
   const raw = store.workingtimes ?? [];
   let times: WorkingTimePayload[] = raw.map((wt: WorkingTime) => ({
     ...(wt.id != null ? { id: wt.id } : {}),
@@ -84,7 +80,8 @@ function normalizeWorkingTimesForApi(
     closed_always: toApiBoolean(wt.closed_always),
   }));
 
-  if (store.open_status === "open_with_working_times" && times.length === 0) {
+  const openStatus = store.open_status || "open_without_working_times";
+  if (openStatus === "open_with_working_times" && times.length === 0) {
     times = defaultWorkingTimes();
   }
 
@@ -94,6 +91,19 @@ function normalizeWorkingTimesForApi(
 function normalizeShippingPhone(phone: string | number): string {
   const digits = String(phone).replace(/\D/g, "");
   return digits;
+}
+
+/** لا نرسل logo/cover إذا كانت روابط URL — الباك يتوقع file_name من media_center */
+function mediaFileNameForApi(value: string | null | undefined): string | undefined {
+  const v = value?.trim();
+  if (!v || v.startsWith("http://") || v.startsWith("https://")) return undefined;
+  return v;
+}
+
+function coverFileNamesForApi(cover: string[] | null | undefined): string[] {
+  return (cover || [])
+    .map((c) => mediaFileNameForApi(c))
+    .filter((c): c is string => Boolean(c));
 }
 
 export function mapStoreShippingCompanies(
@@ -131,12 +141,13 @@ export function buildStoreShippingUpdatePayload(
   shipping: Step6FormData
 ): StoreUpdatePayload {
   const email = (store.email || "").trim();
+  const openStatus = store.open_status || "open_without_working_times";
+  const logo = mediaFileNameForApi(store.logo);
+  const cover = coverFileNamesForApi(store.cover);
 
-  return {
+  const payload: StoreUpdatePayload = {
     type: store.type,
     name: store.name,
-    logo: normalizeStoreLogoForApi(store.logo),
-    cover: normalizeStoreCoverForApi(store.cover),
     description: store.description || "",
     email,
     address: store.address || "",
@@ -152,7 +163,7 @@ export function buildStoreShippingUpdatePayload(
     linkedin: store.linkedin || null,
     pinterest: store.pinterest || null,
     managers: [],
-    open_status: store.open_status,
+    open_status: openStatus,
     workingtimes: normalizeWorkingTimesForApi(store),
     tags: normalizeTags(store.tags),
     locationCities: toCityIds(store.locationCities),
@@ -163,6 +174,11 @@ export function buildStoreShippingUpdatePayload(
         ? normalizeShippingCompaniesForApi(shipping.shippingCompanies)
         : [],
   };
+
+  if (logo) payload.logo = logo;
+  if (cover.length > 0) payload.cover = cover;
+
+  return payload;
 }
 
 export function getStoreUpdateValidationHint(store: Store): string | null {
