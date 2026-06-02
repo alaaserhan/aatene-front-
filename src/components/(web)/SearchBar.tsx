@@ -4,7 +4,7 @@ import React, { useState, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useLanguage } from "@/src/hooks/use-language";
 import { cn } from "@/src/lib/utils";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 export type SearchType = "products" | "services" | "stores" | "users";
 
@@ -84,6 +84,26 @@ function SearchBarInner({
     onSearch?.();
   };
 
+  const handleClear = () => {
+    setSearchQuery("");
+    const isAlreadyOnSearchPage =
+      pathname === "/search" ||
+      pathname === `/${locale}/search` ||
+      pathname.endsWith("/search");
+
+    if (isAlreadyOnSearchPage) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("q");
+      params.delete("page");
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    } else {
+      const params = new URLSearchParams();
+      params.set("type", selectedType);
+      router.push(`/${locale}/search?${params.toString()}`);
+    }
+    onSearch?.();
+  };
+
   /**
    * handleTypeChange — switches the active search category tab.
    *
@@ -146,15 +166,25 @@ function SearchBarInner({
     return (
       <div className="flex flex-col w-full" dir="rtl">
         {/* Search Input */}
-        <div className="relative">
+        <div className="relative flex items-center">
           <input
             type="text"
-            className="w-full border border-blue-4 h-10 rounded-md py-2 pr-12 focus:outline-none text-right pl-20"
+            className="w-full border border-blue-4 h-10 rounded-md py-2 pr-12 pl-24 focus:outline-none text-right"
             placeholder="بحث"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyPress}
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="absolute left-20 top-1/2 -translate-y-1/2 p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
+              aria-label="مسح البحث"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
           <button
             className="absolute left-0 top-0 h-10 bg-blue-4 cursor-pointer text-white px-4 rounded-l-md hover:bg-[#206bc4] transition-colors"
             aria-label="بحث"
@@ -196,10 +226,10 @@ function SearchBarInner({
         {/* Mobile Layout: Stacked like standard search */}
         <div className="sm:hidden flex flex-col gap-4 w-full">
           {/* Input */}
-          <div className="relative w-full">
+          <div className="relative w-full flex items-center">
             <input
               type="text"
-              className="w-full border border-blue-1 h-10 rounded-md py-2 pr-10 focus:outline-none text-right pl-20"
+              className="w-full border border-blue-1 h-10 rounded-md py-2 pr-10 pl-24 focus:outline-none text-right"
               placeholder="بحث"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -208,6 +238,16 @@ function SearchBarInner({
             <div className="absolute right-0 top-0 h-10 w-10 flex items-center justify-center pointer-events-none text-blue-4">
               <Search className="w-5 h-5" />
             </div>
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="absolute left-20 top-1/2 -translate-y-1/2 p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
+                aria-label="مسح البحث"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
             <button
               className="absolute left-0 top-0 h-10 bg-[#3D5E83] cursor-pointer text-white px-4 rounded-l-md hover:bg-[#2D496A] transition-colors"
               aria-label="بحث"
@@ -243,16 +283,26 @@ function SearchBarInner({
         )}>
 
           {/* Search Input Section */}
-          <div className="flex-1 flex items-center px-4 gap-2">
+          <div className="flex-1 flex items-center px-4 gap-2 relative">
             <Search className="text-blue-4 w-5 h-5 ml-2 shrink-0" />
             <input
               type="text"
-              className="flex-1 h-full text-right focus:outline-none placeholder-gray-400 text-gray-700 bg-transparent"
+              className="flex-1 h-full text-right focus:outline-none placeholder-gray-400 text-gray-700 bg-transparent pl-8"
               placeholder="بحث"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleKeyPress}
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="absolute left-2 p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
+                aria-label="مسح البحث"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           {/* Separator */}
@@ -293,14 +343,26 @@ function SearchBarInner({
   // --- Render Variant: Navbar (Default) ---
   return (
     <div className="flex items-center w-full border border-gray-200 rounded-md overflow-hidden bg-white" dir="rtl">
-      <input
-        type="text"
-        className="flex-1 h-10 px-4 text-sm text-right focus:outline-none placeholder-gray-400"
-        placeholder="البحث"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        onKeyDown={handleKeyPress}
-      />
+      <div className="flex-1 relative flex items-center">
+        <input
+          type="text"
+          className="flex-1 h-10 pr-4 pl-10 text-sm text-right focus:outline-none placeholder-gray-400 bg-transparent"
+          placeholder="البحث"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={handleKeyPress}
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="absolute left-3 p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors cursor-pointer"
+            aria-label="مسح البحث"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
       <div className="h-6 w-px bg-gray-200" />
 
       <div className="flex items-center gap-1 px-2">
