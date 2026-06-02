@@ -420,12 +420,6 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
             />
 
             <DetailRow
-              icon={<img src="/icons/dashboard/currency.svg" alt="currency" className="w-5 h-5" />}
-              label="العملة"
-              value={store.currency?.name || "-"}
-            />
-
-            <DetailRow
               icon={<img src="/icons/dashboard/person.svg" alt="owner" className="w-5 h-5" />}
               label="المالك"
               value={

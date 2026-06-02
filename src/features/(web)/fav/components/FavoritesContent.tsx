@@ -16,7 +16,7 @@ import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import { Store } from "@/src/features/(web)/searchAndFilter/api";
 import { Service } from "@/src/features/(web)/services/api";
-import { Search, Plus, Trash2 } from "lucide-react";
+import { Pencil, Search, Plus, Trash2 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { cn } from "@/src/lib/utils";
 import { CreateCollectionModal } from "./CreateCollectionModal";
@@ -223,9 +223,15 @@ export default function FavoritesContent({
             {selectedListId && (
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-3 text-right">
-                        <div onClick={handleEditList} className="cursor-pointer bg-gray-50 hover:bg-gray-100 p-2 rounded-md transition-colors">
-                            <img src="icons/dashboard/edit.svg" alt="" className="w-5 h-5" />
-                        </div>
+                        <button
+                            type="button"
+                            onClick={handleEditList}
+                            className="cursor-pointer bg-gray-50 hover:bg-gray-100 p-2 rounded-md transition-colors"
+                            aria-label="تعديل القسم"
+                            title="تعديل القسم"
+                        >
+                            <Pencil className="w-5 h-5 text-gray-700" />
+                        </button>
                         <div>
                             <h3 className="font-semibold text-[#1F2A37]">
                                 قسم {lists.find(l => l.id === selectedListId)?.name || "المفضلة"}
