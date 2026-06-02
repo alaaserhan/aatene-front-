@@ -85,6 +85,14 @@ function firstPresent(...values: Array<number | string | undefined | null>) {
   return values.find((value) => value !== undefined && value !== null && value !== "");
 }
 
+function firstStringField(source: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = source[key];
+    if (typeof value === "string" && value.trim()) return value;
+  }
+  return "";
+}
+
 function getVariationAttributeOptions(variation: VariationWithAttributeOptions): AttributeOption[] {
   if (Array.isArray(variation.attributeOptions)) return variation.attributeOptions;
   if (Array.isArray(variation.attribute_options)) return variation.attribute_options;
@@ -191,6 +199,16 @@ export function EditProductPage({ productId }: EditProductPageProps) {
         const rawGallery = (product as unknown as Record<string, string[]>)[galleryKey];
         const validGallery = (rawGallery || []).filter((img: string) => img && typeof img === 'string' && img.trim() !== "" && img !== product.cover);
         const validGalleryUrls = (product.gallery_url || []).filter((url: string) => url && typeof url === 'string' && url.trim() !== "" && url !== product.cover_url);
+        const productRecord = product as unknown as Record<string, unknown>;
+        const crossSellsName = firstStringField(productRecord, [
+          "cross_sells_name",
+          "cross_sells_title",
+          "cross_sells_offer_name",
+        ]);
+        const crossSellsDescription = firstStringField(productRecord, [
+          "cross_sells_description",
+          "cross_sells_offer_description",
+        ]);
 
         const initialFormData: CompleteProductFormData = {
           step1: {
@@ -222,8 +240,8 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             crossSellsData: crossSellsData,
             cross_sells_price: Number(product.cross_sells_price) || 0,
             cross_sells_due_date: product.cross_sells_due_date || "",
-            cross_sells_name: product.cross_sells_name || "",
-            cross_sells_description: product.cross_sells_description || "",
+            cross_sells_name: crossSellsName,
+            cross_sells_description: crossSellsDescription,
             hasDiscount: Number(product.cross_sells_price) > 0,
           },
         };
@@ -403,6 +421,9 @@ export function EditProductPage({ productId }: EditProductPageProps) {
       cross_sells_due_date: data.cross_sells_due_date || undefined,
       cross_sells_name: data.cross_sells_name || undefined,
       cross_sells_description: data.cross_sells_description || undefined,
+      cross_sells_title: data.cross_sells_name || undefined,
+      cross_sells_offer_name: data.cross_sells_name || undefined,
+      cross_sells_offer_description: data.cross_sells_description || undefined,
     };
 
     if (updatedFormData.step3!.hasVariations && updatedFormData.step3!.variations.length > 0) {
