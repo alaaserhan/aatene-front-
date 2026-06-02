@@ -12,7 +12,6 @@ import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import Cookies from "js-cookie";
 
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { HoverPlayVideo } from "@/src/components/ui/HoverPlayVideo";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import Link from "next/link";
@@ -79,17 +78,10 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
         addMedia(product.cover);
         product.gallery?.forEach((url) => addMedia(url));
         addMedia(product.video);
-
-        if (selectedVariation?.image) {
-            const sanitizedVarImg = sanitizeMediaUrl(selectedVariation.image);
-            if (sanitizedVarImg && !seen.has(sanitizedVarImg)) {
-                seen.add(sanitizedVarImg);
-                items.unshift({ type: "image", url: sanitizedVarImg });
-            }
-        }
+        product.variations?.forEach((v) => addMedia(v.image));
 
         return items;
-    }, [product.cover, product.gallery, product.video, selectedVariation?.image]);
+    }, [product.cover, product.gallery, product.video, product.variations]);
 
     const currentStoreId = Cookies.get("current_store_id");
     const isProductOwner = !!currentStoreId && !!product.store_id && Number(currentStoreId) === product.store_id;
@@ -126,13 +118,13 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
         setIsInCompare(false);
     };
 
-    // Synchronize gallery index when variation image changes
+    // عند اختيار تباين كامل، انتقل لصورته في المعرض
     useEffect(() => {
-        if (selectedVariation?.image) {
-            const index = allMedia.findIndex(item => item.url === selectedVariation.image);
-            if (index !== -1) {
-                setSelectedIndex(index);
-            }
+        if (!selectedVariation?.image) return;
+        const sanitizedVarImg = sanitizeMediaUrl(selectedVariation.image);
+        const index = allMedia.findIndex((item) => item.url === sanitizedVarImg);
+        if (index !== -1) {
+            setSelectedIndex(index);
         }
     }, [selectedVariation?.image, allMedia]);
 
@@ -148,10 +140,20 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
             {/* Main Content: Info Left, Gallery Right */}
             <div className="flex flex-col min-[573px]:flex-col-reverse lg:flex-row gap-10">
                 {/* Right Side: Image Gallery */}
-                <div className="flex flex-col-reverse lg:flex-row gap-3 lg:w-[55%]">
-                    {/* Thumbnails Strip */}
+                <div className="flex flex-col-reverse lg:flex-row gap-3 lg:w-[55%] lg:items-start">
+                    {/* Thumbnails Strip — موبايل: تمرير أفقي | ديسكتوب: تمرير عمودي عند كثرة الصور */}
                     {allMedia.length > 1 && (
-                        <div className="flex gap-2.5 overflow-auto shrink-0 flex-row w-full h-[100px] lg:flex-col lg:w-[100px] lg:h-auto lg:max-h-[600px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <div
+                            className={cn(
+                                "flex shrink-0 gap-2.5",
+                                "flex-row h-[100px] w-full overflow-x-auto overflow-y-hidden",
+                                "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
+                                "lg:flex-col lg:h-auto lg:max-h-[min(600px,70vh)] lg:min-h-0 lg:w-[100px]",
+                                "lg:overflow-x-hidden lg:overflow-y-auto",
+                                "lg:scrollbar-thin lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-1.5",
+                                "lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-gray-300"
+                            )}
+                        >
                             {allMedia.map((item, index) => (
                                 <button
                                     key={index}
@@ -196,9 +198,12 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                     {/* Main Image */}
                     <div className="flex-1 relative rounded-lg overflow-hidden bg-gray-100 aspect-square">
                         {currentMedia?.type === "video" ? (
-                            <HoverPlayVideo
+                            <video
                                 key={currentMedia.url}
                                 src={currentMedia.url}
+                                controls
+                                playsInline
+                                className="h-full w-full object-cover"
                             />
                         ) : (
                             <img

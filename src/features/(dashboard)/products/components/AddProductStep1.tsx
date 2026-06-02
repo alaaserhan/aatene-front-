@@ -162,10 +162,10 @@ export function AddProductStep1({
       }
     }
 
-    if (errors.short_description && formData.short_description.trim()) {
-      delete newErrors.short_description;
-      hasChanges = true;
-    }
+    // if (errors.short_description && formData.short_description.trim()) {
+    //   delete newErrors.short_description;
+    //   hasChanges = true;
+    // }
     if (errors.description && formData.description.trim()) {
       delete newErrors.description;
       hasChanges = true;
@@ -489,7 +489,8 @@ export function AddProductStep1({
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                {/* الوصف الموجز — مخفي مؤقتاً (لا يظهر في الواجهة العامة). أزل التعليق لإعادته */}
+                {/* <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium flex items-center gap-1">
                       الوصف الموجز
@@ -535,7 +536,7 @@ export function AddProductStep1({
                       {errors.short_description}
                     </p>
                   )}
-                </div>
+                </div> */}
 
                 <div className="space-y-2">
 
