@@ -127,9 +127,9 @@ const StoreCard = memo(({
                     <span className="line-clamp-1">{cityLabel}</span>
                 </div>
 
-                <div className="flex items-center justify-center gap-1 text-sm text-gray-400" dir="rtl">
-                    <Star className="h-4 w-4 shrink-0 fill-amber-400 text-amber-400" />
-                    <span className="font-medium">{rating.toFixed(1)}</span>
+                <div className="inline-flex items-center justify-center gap-1.5 text-sm leading-4 text-gray-400" dir="rtl">
+                    <Star className="size-4 shrink-0 fill-amber-400 text-amber-400" aria-hidden />
+                    <span className="font-medium tabular-nums leading-4">{rating.toFixed(1)}</span>
                 </div>
             </div>
 
