@@ -62,22 +62,22 @@ export function ServicesTable({
                     <thead className="bg-[#EEF2F6] border-b border-gray-200">
                         <tr>
                             <th className="px-6 py-4 text-xs font-medium text-center">كود الخدمة</th>
-                            <th className="px-6 py-4 text-xs font-medium text-center">صورة الخدمة</th>
+                            <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">صورة الخدمة</th>
                             <th className="px-6 py-4 text-xs font-medium text-right w-1/4">عنوان الخدمة</th>
 
                             {activeStatus === "rejected" && (
                                 <>
-                                    <th className="px-6 py-4 text-xs font-medium text-center">سبب رفض الخدمة</th>
-                                    <th className="px-6 py-4 text-xs font-medium text-center">تاريخ الرد</th>
+                                    <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">سبب رفض الخدمة</th>
+                                    <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">تاريخ الرد</th>
                                 </>
                             )}
 
                             {activeStatus !== "rejected" && (
                                 <>
-                                    <th className="px-6 py-4 text-xs font-medium text-center">مشاهدات</th>
-                                    <th className="px-6 py-4 text-xs font-medium text-center">عدد التواصل</th>
-                                    <th className="px-6 py-4 text-xs font-medium text-center">للمفضلة</th>
-                                    <th className="px-6 py-4 text-xs font-medium text-center">مرئي</th>
+                                    <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">مشاهدات</th>
+                                    <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">عدد التواصل</th>
+                                    <th className="hidden sm:table-cell px-6 py-4 text-xs font-medium text-center">للمفضلة</th>
+                                    <th className="hidden md:table-cell px-6 py-4 text-xs font-medium text-center">مرئي</th>
                                 </>
                             )}
 
@@ -94,7 +94,7 @@ export function ServicesTable({
                                 </td>
 
                                 {/* Image */}
-                                <td className="px-6 py-4">
+                                <td className="hidden sm:table-cell px-6 py-4">
                                     <div className="flex justify-center">
                                         <div className="w-16 h-12 rounded bg-gray-100 overflow-hidden relative">
                                             {service.images_url ? (
@@ -122,12 +122,12 @@ export function ServicesTable({
                                 {/* Rejected Columns */}
                                 {activeStatus === "rejected" && (
                                     <>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
                                             <span className="text-sm text-red-500 font-medium">
                                                 {service.reason || "لا يوجد سبب"}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
                                             <span className="text-sm text-gray-2 font-medium">
                                                 {service.response_date || "-"}
                                             </span>
@@ -139,22 +139,22 @@ export function ServicesTable({
                                 {activeStatus !== "rejected" && (
                                     <>
                                         {/* Views */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
                                             <span className="text-sm ">{service.view_count || 0}</span>
                                         </td>
 
                                         {/* Contacts (Messages) */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
                                             <span className="text-sm ">{service.messages_count || 0}</span>
                                         </td>
 
                                         {/* Favorites */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
                                             <span className="text-sm ">{service.favorites_count || 0}</span>
                                         </td>
 
                                         {/* Visible Toggle */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="hidden md:table-cell px-6 py-4 text-center">
                                             <div className="flex justify-center">
                                                 <ToggleSwitch
                                                     enabled={service.shown || false}

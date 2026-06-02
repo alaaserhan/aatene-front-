@@ -189,25 +189,25 @@ export function BannersPage() {
                     </div>
 
                     <div className="overflow-x-auto">
-                        <table className="w-full min-w-[900px]">
+                        <table className="w-full">
                             <thead>
                                 <tr className="bg-gray-50 border-b border-gray-200">
                                     <th className="px-4 py-4 text-start text-sm font-medium text-gray-500">
                                         رقم الإعلان
                                     </th>
-                                    <th className="px-4 py-4 text-center text-sm font-medium text-gray-500 w-44">
+                                    <th className="hidden sm:table-cell px-4 py-4 text-center text-sm font-medium text-gray-500 w-44">
                                         صورة الإعلان
                                     </th>
                                     <th className="px-4 py-4 text-start text-sm font-medium text-gray-500">
                                         مكان العرض
                                     </th>
-                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-500 max-w-[200px]">
+                                    <th className="hidden md:table-cell px-4 py-4 text-start text-sm font-medium text-gray-500 max-w-[200px]">
                                         الرابط
                                     </th>
-                                    <th className="px-4 py-4 text-start text-sm font-medium text-gray-500 whitespace-nowrap">
+                                    <th className="hidden lg:table-cell px-4 py-4 text-start text-sm font-medium text-gray-500 whitespace-nowrap">
                                         تاريخ البدء والانتهاء
                                     </th>
-                                    <th className="px-4 py-4 text-center text-sm font-medium text-gray-500">
+                                    <th className="hidden sm:table-cell px-4 py-4 text-center text-sm font-medium text-gray-500">
                                         ترتيب
                                     </th>
                                     <th className="px-4 py-4 text-center text-sm font-medium text-gray-500">
@@ -254,7 +254,7 @@ export function BannersPage() {
                                                 </span>
                                             </td>
 
-                                            <td className="px-4 py-4">
+                                            <td className="hidden sm:table-cell px-4 py-4">
                                                 <div className="flex justify-center">
                                                     <img
                                                         src={banner.labtop_banner_url}
@@ -270,7 +270,7 @@ export function BannersPage() {
                                                 </span>
                                             </td>
 
-                                            <td className="px-4 py-4">
+                                            <td className="hidden md:table-cell px-4 py-4">
                                                 <a
                                                     href={banner.url}
                                                     target="_blank"
@@ -282,13 +282,13 @@ export function BannersPage() {
                                                 </a>
                                             </td>
 
-                                            <td className="px-4 py-4">
+                                            <td className="hidden lg:table-cell px-4 py-4">
                                                 <div className="text-sm text-gray-600 whitespace-nowrap">
                                                     {formatDate(banner.start_date)} - {formatDate(banner.end_date)}
                                                 </div>
                                             </td>
 
-                                            <td className="px-4 py-4">
+                                            <td className="hidden sm:table-cell px-4 py-4">
                                                 <span className="text-sm text-gray-600 text-center block">
                                                     {banner.priority}
                                                 </span>
