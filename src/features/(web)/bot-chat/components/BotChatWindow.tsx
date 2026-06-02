@@ -273,6 +273,7 @@ function HistoryTab({ onSelectConversation }: { onSelectConversation: (conv: Con
 // ─── Main component ────────────────────────────────────────────────────────────
 export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const user = useAuthStore((state) => state.user);
+    const [mobileViewportHeight, setMobileViewportHeight] = useState<number | null>(null);
 
     /** null = لم يُقرأ التخزين بعد؛ false = أول زيارة؛ true = سبق رؤية شاشة الترحيب */
     const [welcomeSeen, setWelcomeSeen] = useState<boolean | null>(null);
@@ -311,6 +312,26 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     const prevConvStateRef = useRef<string | undefined>(undefined);
     /** عند true نُبقي العرض أسفل المحادثة (آخر الرسائل). يصبح false إذا ابتعد المستخدم للأعلى لقراءة قديم */
     const stickToBottomRef = useRef(true);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const updateViewportHeight = () => {
+            const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+            setMobileViewportHeight(Math.floor(viewportHeight));
+        };
+
+        updateViewportHeight();
+        window.visualViewport?.addEventListener("resize", updateViewportHeight);
+        window.visualViewport?.addEventListener("scroll", updateViewportHeight);
+        window.addEventListener("resize", updateViewportHeight);
+
+        return () => {
+            window.visualViewport?.removeEventListener("resize", updateViewportHeight);
+            window.visualViewport?.removeEventListener("scroll", updateViewportHeight);
+            window.removeEventListener("resize", updateViewportHeight);
+        };
+    }, []);
 
     const queryClient = useQueryClient();
 
@@ -532,7 +553,8 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
     }, [ratingFlowNeedsScrollToBottom, scrollMessagesToBottom]);
 
     useEffect(() => {
-        if (inputRef.current) inputRef.current.focus();
+        const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+        if (isDesktop && inputRef.current) inputRef.current.focus();
         queryClient.invalidateQueries({ queryKey: ["botChat", "currentConversation"] });
     }, [queryClient]);
 
@@ -1288,11 +1310,13 @@ export default function BotChatWindow({ onClose }: BotChatWindowProps) {
         <div
             className={cn(
                 "relative z-[9999] bg-white w-[420px] max-w-[calc(100vw-32px)] rounded-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 fade-in duration-300",
-                "fixed max-md:top-16 max-md:left-1/2 max-md:-translate-x-1/2",
+                "fixed max-md:top-3 max-md:left-1/2 max-md:-translate-x-1/2 max-md:w-[calc(100vw-24px)] max-md:max-w-[calc(100vw-24px)]",
                 "md:fixed md:bottom-24 md:right-6"
             )}
             style={{
-                height: "min(560px, calc(100svh - 120px))",
+                height: mobileViewportHeight
+                    ? `min(560px, ${Math.max(320, mobileViewportHeight - 24)}px)`
+                    : "min(560px, calc(100dvh - 24px))",
                 boxShadow: "0 12px 48px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.1)",
             }}
         >
