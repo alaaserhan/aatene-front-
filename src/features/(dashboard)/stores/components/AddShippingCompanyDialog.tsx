@@ -28,6 +28,25 @@ interface PriceData {
   price: number | "";
 }
 
+const COUNTRY_CODES = ["972", "970", "20", "966"];
+
+function stripCountryCode(phone: string | number | null | undefined) {
+  let digits = String(phone ?? "").replace(/\D/g, "");
+  let changed = true;
+
+  while (changed) {
+    changed = false;
+    for (const code of COUNTRY_CODES) {
+      if (digits.startsWith(code)) {
+        digits = digits.slice(code.length);
+        changed = true;
+      }
+    }
+  }
+
+  return digits;
+}
+
 export function AddShippingCompanyDialog({
   isOpen,
   onClose,
@@ -59,13 +78,7 @@ export function AddShippingCompanyDialog({
       setErrors({});
       if (editingCompany) {
         setStoreName(editingCompany.name || "");
-        setStorePhone(
-          String(editingCompany.phone)
-            .replace("+970", "")
-            .replace("+20", "")
-            .replace("+966", "")
-            .replace("+972", "")
-        );
+        setStorePhone(stripCountryCode(editingCompany.phone));
 
         const cityIds = editingCompany.prices.map((p) => Number(p.city_id));
         setSelectedCityIds(cityIds);
@@ -181,7 +194,7 @@ export function AddShippingCompanyDialog({
     }));
 
     const normalizedPhone = storePhone.trim()
-      ? `${phoneCountryCode}${storePhone}`.replace(/\D/g, "")
+      ? `${phoneCountryCode}${stripCountryCode(storePhone)}`.replace(/\D/g, "")
       : "";
 
     const company: ShippingCompanyPayload = {

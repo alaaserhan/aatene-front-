@@ -42,7 +42,6 @@ interface StoresAdminTableProps {
   listStatus: StoreStatus;
   onToggleShown: (store: Store) => void;
   onViewDetails: (store: Store) => void;
-  /** تغيير الظهور (shown) عبر API الأدمن فقط */
   canToggleStoreShown?: boolean;
 }
 
@@ -79,28 +78,28 @@ export function StoresAdminTable({
   return (
     <div className="flex flex-col h-full bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[900px]">
           <thead className="bg-[#EEF2F6] border-b border-gray-200">
             <tr>
-              <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center">#</th>
-              <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center">الشعار</th>
-              <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-start">اسم المتجر</th>
-              <th className="hidden sm:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center">النوع</th>
-              <th className="hidden md:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-start">الإيميل</th>
+              <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center whitespace-nowrap">#</th>
+              <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center whitespace-nowrap">الشعار</th>
+              <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-start whitespace-nowrap">اسم المتجر</th>
+              <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center whitespace-nowrap">النوع</th>
+              <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-start whitespace-nowrap">الإيميل</th>
               {showRejectedCols ? (
                 <>
-                  <th className="hidden sm:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center">سبب الرفض</th>
-                  <th className="hidden sm:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center">تاريخ الرفض</th>
+                  <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center whitespace-nowrap">سبب الرفض</th>
+                  <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center whitespace-nowrap">تاريخ الرفض</th>
                 </>
               ) : (
                 <>
-                  <th className="hidden lg:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center">مشاهدات</th>
-                  <th className="hidden lg:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center">متابعين</th>
-                  <th className="hidden lg:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center">مفضلة</th>
-                  <th className="hidden md:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center">الظهور</th>
+                  <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center whitespace-nowrap">مشاهدات</th>
+                  <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center whitespace-nowrap">متابعين</th>
+                  <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center whitespace-nowrap">مفضلة</th>
+                  <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center whitespace-nowrap">الظهور</th>
                 </>
               )}
-              <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center">عمليات</th>
+              <th className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center whitespace-nowrap">عمليات</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -108,10 +107,10 @@ export function StoresAdminTable({
               const favoritesCell = displayFavorites(store);
               return (
               <tr key={store.id} className="hover:bg-gray-50/50 transition-colors">
-                <td className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center">#{store.id}</td>
+                <td className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-center whitespace-nowrap">#{store.id}</td>
                 <td className="px-3 sm:px-4 py-4">
                   <div className="flex justify-center">
-                    <div className="relative w-12 h-12 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
+                    <div className="relative w-12 h-12 rounded-full bg-gray-100 overflow-hidden border border-gray-200 shrink-0">
                       {store.logo_url ? (
                         <Image
                           src={store.logo_url}
@@ -129,30 +128,30 @@ export function StoresAdminTable({
                     </div>
                   </div>
                 </td>
-                <td className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium text-start max-w-[120px] sm:max-w-[200px] truncate">{store.name}</td>
-                <td className="hidden sm:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm text-center">
+                <td className="px-3 sm:px-4 py-4 text-xs sm:text-sm font-medium max-w-[120px] sm:max-w-[200px] truncate">{store.name}</td>
+                <td className="px-3 sm:px-4 py-4 text-xs sm:text-sm text-center whitespace-nowrap">
                   {store.type === "products" ? "منتجات" : "خدمات"}
                 </td>
-                <td className="hidden md:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm text-start text-gray-700 max-w-[120px] sm:max-w-[180px] truncate">
+                <td className="px-3 sm:px-4 py-4 text-xs sm:text-sm text-gray-700 max-w-[120px] sm:max-w-[180px] truncate">
                   {store.email || store.owner?.email || "—"}
                 </td>
                 {showRejectedCols ? (
                   <>
-                    <td className="hidden sm:table-cell px-3 sm:px-4 py-4 text-center text-xs sm:text-sm text-red-600 max-w-[120px] sm:max-w-[200px] truncate">
+                    <td className="px-3 sm:px-4 py-4 text-center text-xs sm:text-sm text-red-600 max-w-[120px] sm:max-w-[200px] truncate">
                       {store.reject_reason?.trim() || "—"}
                     </td>
-                    <td className="hidden sm:table-cell px-3 sm:px-4 py-4 text-center text-xs sm:text-sm text-gray-2">
+                    <td className="px-3 sm:px-4 py-4 text-center text-xs sm:text-sm text-gray-2 whitespace-nowrap">
                       {store.rejected_at ? formatDate(store.rejected_at) : "—"}
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="hidden lg:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm text-center">{displayViews(store)}</td>
-                    <td className="hidden lg:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm text-center">{displayFollowers(store)}</td>
-                    <td className="hidden lg:table-cell px-3 sm:px-4 py-4 text-xs sm:text-sm text-center">
+                    <td className="px-3 sm:px-4 py-4 text-xs sm:text-sm text-center whitespace-nowrap">{displayViews(store)}</td>
+                    <td className="px-3 sm:px-4 py-4 text-xs sm:text-sm text-center whitespace-nowrap">{displayFollowers(store)}</td>
+                    <td className="px-3 sm:px-4 py-4 text-xs sm:text-sm text-center whitespace-nowrap">
                       {favoritesCell != null ? favoritesCell : "—"}
                     </td>
-                    <td className="hidden md:table-cell px-3 sm:px-4 py-4">
+                    <td className="px-3 sm:px-4 py-4">
                       <div className="flex justify-center">
                         <ToggleSwitch
                           enabled={store.shown !== false}

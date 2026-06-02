@@ -56,28 +56,28 @@ export function ServiceProvidersTable({
     return (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col h-full">
             <div className="overflow-x-auto">
-                <table className="w-full text-right">
+                <table className="w-full text-right min-w-[900px]">
                     <thead className="bg-[#F9FAFB] border-b border-gray-200">
                         <tr>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-start">
+                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-start whitespace-nowrap">
                                 اسم مقدم الخدمة
                             </th>
-                            <th className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-gray-1 text-start">
+                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-start whitespace-nowrap">
                                 البريد الإلكتروني
                             </th>
-                            <th className="hidden md:table-cell px-6 py-4 text-sm font-medium text-gray-1 text-center">
+                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center whitespace-nowrap">
                                 عدد الخدمات
                             </th>
-                            <th className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-gray-1 text-center">
+                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center whitespace-nowrap">
                                 خدمات تحت المراجعة
                             </th>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
+                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center whitespace-nowrap">
                                 حالة التاجر
                             </th>
-                            <th className="hidden md:table-cell px-6 py-4 text-sm font-medium text-gray-1 text-center">
+                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center whitespace-nowrap">
                                 آخر نشاط
                             </th>
-                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center">
+                            <th className="px-6 py-4 text-sm font-medium text-gray-1 text-center whitespace-nowrap">
                                 عمليات
                             </th>
                         </tr>
@@ -91,12 +91,12 @@ export function ServiceProvidersTable({
                                 <tr key={store.id} className="hover:bg-gray-50/50 transition-colors">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <Avatar className="h-10 w-10 border border-gray-100">
+                                            <Avatar className="h-10 w-10 border border-gray-100 shrink-0">
                                                 <AvatarImage src={store.owner?.avatar_url || ""} alt={store.owner?.first_name} />
                                                 <AvatarFallback>{store.owner?.first_name?.[0]}</AvatarFallback>
                                             </Avatar>
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-medium ">
+                                                <span className="text-sm font-medium whitespace-nowrap">
                                                     {store.owner?.first_name} {store.owner?.last_name}
                                                 </span>
                                                 <span className="text-xs text-gray-2">{store.name}</span>
@@ -104,18 +104,18 @@ export function ServiceProvidersTable({
                                         </div>
                                     </td>
 
-                                    <td className="hidden sm:table-cell px-6 py-4 text-sm text-blue-3  font-medium">
+                                    <td className="px-6 py-4 text-sm text-blue-3 font-medium whitespace-nowrap">
                                         {store.owner?.email || store.email || "-"}
                                     </td>
 
-                                    <td className="hidden md:table-cell px-6 py-4 text-sm text-blue-4 font-medium text-center">
+                                    <td className="px-6 py-4 text-sm text-blue-4 font-medium text-center whitespace-nowrap">
                                         {servicesCount} خدمات
                                     </td>
-                                    <td className="hidden sm:table-cell px-6 py-4 text-sm text-blue-4 font-medium text-center">
+                                    <td className="px-6 py-4 text-sm text-blue-4 font-medium text-center whitespace-nowrap">
                                         {store.pending_services_count} خدمات
                                     </td>
 
-                                    <td className="px-6 py-4 text-center">
+                                    <td className="px-6 py-4 text-center whitespace-nowrap">
                                         <div className="flex justify-center items-center gap-2">
                                             <span className={`text-xs font-medium ${store.status === 'approved' ? 'text-green-600' : 'text-red-600'}`}>
                                                 {store.status === 'approved' ? 'نشط' : 'موقوف'}
@@ -123,7 +123,7 @@ export function ServiceProvidersTable({
                                         </div>
                                     </td>
 
-                                    <td className="hidden md:table-cell px-6 py-4 text-sm text-blue-3 text-center font-medium">
+                                    <td className="px-6 py-4 text-sm text-blue-3 text-center font-medium whitespace-nowrap">
                                         {lastActive}
                                     </td>
 
@@ -132,7 +132,7 @@ export function ServiceProvidersTable({
                                             <div className="hidden sm:flex items-center gap-2">
                                                 <button
                                                     onClick={() => onEdit(store)}
-                                                    className="w-8 h-8  cursor-pointer flex items-center justify-center rounded-xs bg-blue-5 text-[#3A5779] hover:bg-[#e0eaff] transition-colors"
+                                                    className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-blue-5 text-[#3A5779] hover:bg-[#e0eaff] transition-colors"
                                                     title="تعديل"
                                                 >
                                                     <img src="/icons/dashboard/edit3.svg" className="w-4 h-4" alt="edit" />

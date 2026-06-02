@@ -61,30 +61,30 @@ export function ProductTable({
     return (
         <div className="flex flex-col h-full">
             <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full min-w-[900px]">
                     <thead className="bg-[#EEF2F6] border-b border-gray-200">
                         <tr>
-                            <th className="px-6 py-4 text-sm font-medium text-center">كود المنتج</th>
-                            <th className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-center">صورة المنتج</th>
-                            <th className="px-6 py-4 text-sm font-medium text-center">عنوان المنتج</th>
+                            <th className="px-6 py-4 text-sm font-medium text-center whitespace-nowrap">كود المنتج</th>
+                            <th className="px-6 py-4 text-sm font-medium text-center whitespace-nowrap">صورة المنتج</th>
+                            <th className="px-6 py-4 text-sm font-medium text-center whitespace-nowrap">عنوان المنتج</th>
 
                             {activeStatus === "rejected" ? (
                                 <>
-                                    <th className="px-6 py-4 text-sm font-medium text-center">سبب الرفض</th>
-                                    <th className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-center">تاريخ الرفض</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-center whitespace-nowrap">سبب الرفض</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-center whitespace-nowrap">تاريخ الرفض</th>
                                 </>
                             ) : (
                                 <>
-                                    <th className="px-6 py-4 text-sm font-medium text-center">
+                                    <th className="px-6 py-4 text-sm font-medium text-center whitespace-nowrap">
                                         {activeStatus === "pending" ? "تم التسليم" : "تاريخ الانتهاء"}
                                     </th>
-                                    <th className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-center">مشاهدات</th>
-                                    <th className="hidden sm:table-cell px-6 py-4 text-sm font-medium text-center">عدد التواصلات</th>
-                                    <th className="hidden md:table-cell px-6 py-4 text-sm font-medium text-center">مرئي</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-center whitespace-nowrap">مشاهدات</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-center whitespace-nowrap">عدد التواصلات</th>
+                                    <th className="px-6 py-4 text-sm font-medium text-center whitespace-nowrap">مرئي</th>
                                 </>
                             )}
 
-                            <th className="px-6 py-4 text-sm font-medium text-center">عمليات</th>
+                            <th className="px-6 py-4 text-sm font-medium text-center whitespace-nowrap">عمليات</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
@@ -92,12 +92,12 @@ export function ProductTable({
                             <tr key={product.id} className="hover:bg-gray-50/50 transition-colors">
 
                                 {/* Code */}
-                                <td className="px-6 py-4 text-sm font-medium text-center">
+                                <td className="px-6 py-4 text-sm font-medium text-center whitespace-nowrap">
                                     #{product.sku || product.id}
                                 </td>
 
                                 {/* Image */}
-                                <td className="hidden sm:table-cell px-6 py-4">
+                                <td className="px-6 py-4">
                                     <div className="flex justify-center">
                                         <div className="relative w-16 h-12 rounded bg-gray-100 overflow-hidden shrink-0">
                                             {product.cover_url ? (
@@ -113,7 +113,6 @@ export function ProductTable({
                                                     <span className="text-[10px]">No Img</span>
                                                 </div>
                                             )}
-                                            {/* عداد الصور الإضافية */}
                                             {product.gallery_url && product.gallery_url.length > 0 && (
                                                 <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[9px] text-center font-medium py-0.5">
                                                     +{product.gallery_url.length}
@@ -132,12 +131,12 @@ export function ProductTable({
 
                                 {activeStatus === "rejected" ? (
                                     <>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <span className="text-sm text-red-500 font-medium">
                                                 {product.reject_reason || "لا يوجد سبب"}
                                             </span>
                                         </td>
-                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <span className="text-sm text-gray-2 font-medium">
                                                 {product.rejected_at ? formatDate(product.rejected_at) : "-"}
                                             </span>
@@ -145,8 +144,7 @@ export function ProductTable({
                                     </>
                                 ) : (
                                     <>
-                                        {/* Submission / Expiry date */}
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <span className="text-sm">
                                                 {activeStatus === "pending"
                                                     ? (formatDate(product.created_at) || "-")
@@ -154,18 +152,15 @@ export function ProductTable({
                                             </span>
                                         </td>
 
-                                        {/* Views */}
-                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <span className="text-sm">{product.view_count || 0}</span>
                                         </td>
 
-                                        {/* Contacts */}
-                                        <td className="hidden sm:table-cell px-6 py-4 text-center">
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <span className="text-sm">{product.messages_count || 0}</span>
                                         </td>
 
-                                        {/* Shown toggle */}
-                                        <td className="hidden md:table-cell px-6 py-4 text-center">
+                                        <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <div className="flex justify-center">
                                                 <ToggleSwitch
                                                     enabled={product.shown}
@@ -178,8 +173,7 @@ export function ProductTable({
 
                                 {/* Actions */}
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center justify-center gap-2">
-                                        {/* View */}
+                                    <div className="flex items-center justify-center gap-2 whitespace-nowrap">
                                         <button
                                             type="button"
                                             onClick={(e) => { e.stopPropagation(); onView(product); }}
@@ -189,7 +183,6 @@ export function ProductTable({
                                             <Eye className="w-4 h-4" />
                                         </button>
 
-                                        {/* More */}
                                         <DropdownMenu dir="rtl">
                                             <DropdownMenuTrigger asChild>
                                                 <button type="button" className="w-8 h-8 cursor-pointer flex items-center justify-center rounded-xs bg-gray-100 text-gray-2 hover:bg-gray-200 transition-colors">

@@ -112,6 +112,11 @@ export interface ShippingCompanyPayload {
   prices: ShippingPricePayload[];
 }
 
+export interface StoreShippingCompaniesPayload {
+  delivery_type: DeliveryType;
+  shippingCompanies: ShippingCompanyPayload[];
+}
+
 export interface Cities {
   id?: number;
   name: string;
@@ -364,6 +369,17 @@ export const updateStore = async (
 ): Promise<SingleStoreResponse> => {
   const endpoint = getDynamicEndpoint(`/stores/${id}`);
   const { data } = await api.post<SingleStoreResponse>(endpoint, payload);
+  return data;
+};
+
+export const updateStoreShippingCompanies = async (
+  id: string | number,
+  payload: StoreShippingCompaniesPayload
+): Promise<SingleStoreResponse> => {
+  const { data } = await api.post<SingleStoreResponse>(
+    `/merchants/stores/${id}/shippingCompanies`,
+    payload
+  );
   return data;
 };
 
