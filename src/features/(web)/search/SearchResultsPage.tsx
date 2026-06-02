@@ -67,7 +67,12 @@ function SearchContent() {
     const lang = useLanguage();
     const searchPath = `/${lang}/search`;
     const query = searchParams.get("q") || "";
-    const page = parseInt(searchParams.get("page") || "1");
+    const urlPage = parseInt(searchParams.get("page") || "1");
+    const [page, setPage] = useState(Number.isNaN(urlPage) || urlPage < 1 ? 1 : urlPage);
+
+    useEffect(() => {
+        setPage(Number.isNaN(urlPage) || urlPage < 1 ? 1 : urlPage);
+    }, [urlPage]);
 
     // Initialize filters from URL
     const initialFilters: FilterState = useMemo(() => {
@@ -98,10 +103,6 @@ function SearchContent() {
 
     // Fetch filter options based on type
     const { data: productsPageData } = useProductsSearchPage(type === "products", filters.category_id);
-    const { data: usersCategoriesPageData } = useProductsSearchPage(
-        type === "users",
-        filters.category_id
-    );
     const { data: servicesPageData } = useServicesSearchPage(type === "services", filters.category_id);
     const { data: storesPageData } = useStoresSearchPage(type === "stores", filters.category_id);
     const { data: usersPageData } = useUsersSearchPage(type === "users", filters.category_id);
@@ -145,7 +146,6 @@ function SearchContent() {
     }, [
         type,
         productsPageData,
-        usersCategoriesPageData,
         servicesPageData,
         storesPageData,
         usersPageData,
@@ -185,6 +185,7 @@ function SearchContent() {
 
         // Reset page to 1 on filter change
         params.set("page", "1");
+        setPage(1);
 
         router.push(`${searchPath}?${params.toString()}`, { scroll: false });
     };
@@ -281,12 +282,18 @@ function SearchContent() {
 
     // Handle page change
     const handlePageChange = (newPage: number) => {
+        if (newPage === page) return;
+
         const params = new URLSearchParams(searchParams.toString());
         params.set("page", newPage.toString());
-        router.push(`${searchPath}?${params.toString()}`, { scroll: false });
+        setPage(newPage);
+
+        if (typeof window !== "undefined") {
+            window.history.pushState(null, "", `${searchPath}?${params.toString()}`);
+        }
     };
 
-    const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(true);
+    const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(false);
 
     return (
         <div className="flex flex-col gap-4">
