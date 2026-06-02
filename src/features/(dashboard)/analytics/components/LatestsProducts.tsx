@@ -68,9 +68,9 @@ export function LatestsProducts() {
                     <thead>
                         <tr className="bg-[#F9FAFB] border-b border-gray-100">
                             <th className="py-3 px-4 text-right text-xs font-medium ">رقم المنتج</th>
-                            <th className="py-3 px-4 text-center text-xs font-medium ">حالة الطلب</th>
-                            <th className="py-3 px-4 text-center text-xs font-medium ">التاجر</th>
-                            <th className="py-3 px-4 text-center text-xs font-medium ">تم الانشاء</th>
+                            <th className="hidden sm:table-cell py-3 px-4 text-center text-xs font-medium ">حالة الطلب</th>
+                            <th className="hidden sm:table-cell py-3 px-4 text-center text-xs font-medium ">التاجر</th>
+                            <th className="hidden md:table-cell py-3 px-4 text-center text-xs font-medium ">تم الانشاء</th>
                             <th className="py-3 px-4 text-center text-xs font-medium ">تاريخ الانشاء</th>
                         </tr>
                     </thead>
@@ -89,19 +89,19 @@ export function LatestsProducts() {
                                     </td>
 
                                     {/* Status */}
-                                    <td className="py-4 px-4 flex justify-center">
+                                    <td className="hidden sm:table-cell py-4 px-4 text-center">
                                         {getStatusBadge(product.status)}
                                     </td>
 
                                     {/* Merchant (Mocked as data is missing) */}
-                                    <td className="py-4 px-4 text-center">
+                                    <td className="hidden sm:table-cell py-4 px-4 text-center">
                                         <span className="text-sm font-semibold text-gray-700">
                                             {product.store.name || `تاجر ${index + 1}`}
                                         </span>
                                     </td>
 
                                     {/* Time Ago */}
-                                    <td className="py-4 px-4 text-center">
+                                    <td className="hidden md:table-cell py-4 px-4 text-center">
                                         <span className="text-sm font-medium text-gray-2">
                                             {getRelativeTimeArabic(product.created_at)}
                                         </span>

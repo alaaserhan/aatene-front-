@@ -64,7 +64,7 @@ function ContactRow({ contact, onStatusChange, onDelete, isUpdating, isDeleting 
                         )}
                     </div>
                 </td>
-                <td className="px-4 py-4 text-center">
+                <td className="hidden sm:table-cell px-4 py-4 text-center">
                     <span className="text-sm font-medium text-gray-700 bg-gray-50 px-3 py-1 rounded-full">
                         {contact.subject || "—"}
                     </span>
@@ -83,7 +83,7 @@ function ContactRow({ contact, onStatusChange, onDelete, isUpdating, isDeleting 
                         </button>
                     )}
                 </td>
-                <td className="px-4 py-4 text-center">
+                <td className="hidden md:table-cell px-4 py-4 text-center">
                     <div className="flex flex-col items-center gap-0.5">
                         <span className="text-xs font-medium text-gray-500">{getRelativeTimeArabic(contact.created_at)}</span>
                         <span className="text-xs text-gray-400" dir="ltr">{formatDateTime(contact.created_at)}</span>
@@ -187,9 +187,9 @@ export function ContactsPage() {
                             <tr>
                                 <th className="px-4 py-4 text-xs font-semibold whitespace-nowrap text-center">#</th>
                                 <th className="px-4 py-4 text-xs font-semibold whitespace-nowrap text-center">المُرسِل</th>
-                                <th className="px-4 py-4 text-xs font-semibold whitespace-nowrap text-center">الموضوع</th>
+                                <th className="hidden sm:table-cell px-4 py-4 text-xs font-semibold whitespace-nowrap text-center">الموضوع</th>
                                 <th className="px-4 py-4 text-xs font-semibold whitespace-nowrap text-center">الرسالة</th>
-                                <th className="px-4 py-4 text-xs font-semibold whitespace-nowrap text-center">التاريخ</th>
+                                <th className="hidden md:table-cell px-4 py-4 text-xs font-semibold whitespace-nowrap text-center">التاريخ</th>
                                 <th className="px-4 py-4 text-xs font-semibold whitespace-nowrap text-center">الحالة</th>
                                 <th className="px-4 py-4 text-xs font-semibold whitespace-nowrap text-center">إجراء</th>
                             </tr>
