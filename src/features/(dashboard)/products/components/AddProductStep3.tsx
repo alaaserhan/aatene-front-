@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Search, X, Plus, Image as ImageIcon, UploadCloud, HelpCircle } from "lucide-react";
+import { Search, X, Plus, Image as ImageIcon, UploadCloud, HelpCircle, Play } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { Button } from "@/src/components/ui/button";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { cn } from "@/src/lib/utils";
+import { isVideoFile } from "@/src/lib/utils";
 import { Step1FormData, Step3FormData } from "../types";
 import * as api from "../../categoriesAndAttributes/api";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -443,12 +444,12 @@ export function AddProductStep3({
                                                 </Button>
                                             </div>
 
-                                            <div className="overflow-x-auto pb-4 custom-scrollbar">
-                                                <div className="min-w-[800px]">
+                                            <div className="overflow-auto max-h-[60vh] pb-3 custom-scrollbar">
+                                                <div className="w-max min-w-full">
                                                     <div
                                                         className="bg-blue-5 rounded-sm p-4 grid gap-4 items-center text-sm font-bold text-blue-4 mb-2"
                                                         style={{
-                                                            gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px`,
+                                                            gridTemplateColumns: `repeat(${selectedAttributeIds.length}, minmax(140px, 1fr)) minmax(140px, 160px) minmax(200px, 240px) 140px`,
                                                         }}
                                                     >
                                                         {selectedAttributesFull.map((attr) => (
@@ -467,7 +468,7 @@ export function AddProductStep3({
                                                                 key={row.id}
                                                                 className="bg-white border-b border-gray-100 p-4 grid gap-4 items-center last:border-0"
                                                                 style={{
-                                                                    gridTemplateColumns: `repeat(${selectedAttributeIds.length}, 1fr) 1fr 1.5fr 120px`,
+                                                                    gridTemplateColumns: `repeat(${selectedAttributeIds.length}, minmax(140px, 1fr)) minmax(140px, 160px) minmax(200px, 240px) 140px`,
                                                                 }}
                                                             >
                                                                 {selectedAttributesFull.map((attr) => {
@@ -476,7 +477,7 @@ export function AddProductStep3({
                                                                         label: opt.title,
                                                                     }));
                                                                     return (
-                                                                        <div key={`${row.id}-${attr.id}`} className="flex justify-center">
+                                                                        <div key={`${row.id}-${attr.id}`} className="flex justify-center w-full">
                                                                             <ReusableDropdown
                                                                                 options={options}
                                                                                 value={row.attributeValues[attr.id] || ""}
@@ -489,8 +490,8 @@ export function AddProductStep3({
                                                                                 }
                                                                                 dropdownPosition="top"
                                                                                 placeholder={attr.title}
-                                                                                className="min-w-[80px] w-auto h-9"
-                                                                                triggerClassName="h-9 text-sm rounded-full border border-[#D5E1EA] bg-[#F4F7FA] text-[#3A5779] font-medium px-3 w-auto min-w-[80px]"
+                                                                                className="w-full min-w-[120px] h-9"
+                                                                                triggerClassName="h-9 text-sm rounded-full border border-[#D5E1EA] bg-[#F4F7FA] text-[#3A5779] font-medium px-3 w-full"
                                                                                 onAddNew={() => handleEditAttribute(attr.id)}
                                                                                 addNewLabel={" إضافة خيارات"}
                                                                             />
@@ -527,11 +528,28 @@ export function AddProductStep3({
                                                                                 }}
                                                                                 className="block"
                                                                             >
-                                                                                <img
-                                                                                    src={row.images[0]}
-                                                                                    alt=""
-                                                                                    className="w-12 h-14 object-cover rounded-md shadow-sm"
-                                                                                />
+                                                                                {isVideoFile(row.images[0]) || isVideoFile(row.imageFileName) ? (
+                                                                                    <div className="relative w-12 h-14 rounded-md shadow-sm overflow-hidden bg-gray-100">
+                                                                                        <video
+                                                                                            src={row.images[0]}
+                                                                                            className="w-full h-full object-cover"
+                                                                                            muted
+                                                                                            playsInline
+                                                                                            preload="metadata"
+                                                                                        />
+                                                                                        <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
+                                                                                            <div className="w-6 h-6 rounded-full bg-white/80 shadow-sm backdrop-blur-sm flex items-center justify-center">
+                                                                                                <Play className="w-3 h-3 text-gray-800" />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <img
+                                                                                        src={row.images[0]}
+                                                                                        alt=""
+                                                                                        className="w-12 h-14 object-cover rounded-md shadow-sm"
+                                                                                    />
+                                                                                )}
                                                                                 {row.images.length > 1 && (
                                                                                     <span className="absolute -bottom-1 -end-1 w-5 h-5 bg-[#3A5779] text-white rounded-full text-[10px] flex items-center justify-center font-bold">
                                                                                         +{row.images.length - 1}
@@ -557,7 +575,7 @@ export function AddProductStep3({
                                                                             }}
                                                                             className="flex items-center gap-2 text-[#3A5779] text-sm bg-[#EBF2F9] border border-[#D5E1EA] rounded-md px-3 h-10 hover:bg-[#dbe9f5] transition-colors whitespace-nowrap"
                                                                         >
-                                                                            <span>قم برفع الصورة</span>
+                                                                            <span>قم برفع صورة أو فيديو</span>
                                                                             <UploadCloud className="w-4 h-4 shrink-0" />
                                                                         </button>
                                                                     )}
