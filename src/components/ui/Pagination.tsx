@@ -24,9 +24,83 @@ export function Pagination({
   className,
   ...props
 }: PaginationProps) {
-    
+  const navRef = React.useRef<HTMLElement | null>(null);
+  const savedTopRef = React.useRef<number | null>(null);
+  const scrollParentRef = React.useRef<HTMLElement | Window | null>(null);
+  const restoreFrameRef = React.useRef<number | null>(null);
+  const keepRestoringUntilRef = React.useRef(0);
+
   const isFirstPage = currentPage === 1;
   const isLastPage = currentPage === totalPages;
+
+  const getScrollParent = React.useCallback((element: HTMLElement): HTMLElement | Window => {
+    let parent = element.parentElement;
+
+    while (parent) {
+      const style = window.getComputedStyle(parent);
+      const canScrollY = /(auto|scroll|overlay)/.test(style.overflowY);
+
+      if (canScrollY && parent.scrollHeight > parent.clientHeight) {
+        return parent;
+      }
+
+      parent = parent.parentElement;
+    }
+
+    return window;
+  }, []);
+
+  const scrollByParent = React.useCallback((parent: HTMLElement | Window, delta: number) => {
+    if (parent === window) {
+      window.scrollBy({ top: delta, left: 0 });
+      return;
+    }
+
+    (parent as HTMLElement).scrollTop += delta;
+  }, []);
+
+  const restorePaginationPosition = React.useCallback(() => {
+    if (savedTopRef.current === null || !navRef.current || !scrollParentRef.current) return;
+
+    const currentTop = navRef.current.getBoundingClientRect().top;
+    const delta = currentTop - savedTopRef.current;
+
+    if (Math.abs(delta) > 1) {
+      scrollByParent(scrollParentRef.current, delta);
+    }
+  }, [scrollByParent]);
+
+  React.useLayoutEffect(() => {
+    if (savedTopRef.current === null) return;
+
+    if (restoreFrameRef.current !== null) {
+      cancelAnimationFrame(restoreFrameRef.current);
+    }
+
+    keepRestoringUntilRef.current = performance.now() + 600;
+
+    const keepPaginationPinned = () => {
+      restorePaginationPosition();
+
+      if (performance.now() < keepRestoringUntilRef.current) {
+        restoreFrameRef.current = requestAnimationFrame(keepPaginationPinned);
+        return;
+      }
+
+      savedTopRef.current = null;
+      scrollParentRef.current = null;
+      restoreFrameRef.current = null;
+    };
+
+    keepPaginationPinned();
+
+    return () => {
+      if (restoreFrameRef.current !== null) {
+        cancelAnimationFrame(restoreFrameRef.current);
+        restoreFrameRef.current = null;
+      }
+    };
+  }, [currentPage, restorePaginationPosition]);
 
   const pageNumbers = React.useMemo(() => {
     const pages: (number | string)[] = [];
@@ -49,17 +123,17 @@ export function Pagination({
     return pages;
   }, [totalPages, currentPage]);
 
-  const handlePrevious = () => {
-    if (!isFirstPage) {
-      onPageChange(currentPage - 1);
-    }
+  const handlePageChange = (page: number) => {
+    if (page === currentPage || !navRef.current) return;
+
+    savedTopRef.current = navRef.current.getBoundingClientRect().top;
+    scrollParentRef.current = getScrollParent(navRef.current);
+    onPageChange(page);
   };
 
-  const handleNext = () => {
-    if (!isLastPage) {
-      onPageChange(currentPage + 1);
-    }
-  };
+  const handlePrevious = () => handlePageChange(currentPage - 1);
+
+  const handleNext = () => handlePageChange(currentPage + 1);
 
   if (totalPages <= 1) {
     return null;
@@ -67,12 +141,14 @@ export function Pagination({
 
   return (
     <nav
+      ref={navRef}
       role="navigation"
       aria-label="pagination"
       className={cn("flex items-center justify-center gap-2", className)}
       {...props}
     >
       <Button
+        type="button"
         variant="outline"
         size="icon"
         onClick={handlePrevious}
@@ -86,9 +162,10 @@ export function Pagination({
         typeof page === "number" ? (
           <Button
             key={index}
+            type="button"
             variant={currentPage === page ? "link" : "outline"}
             size="icon"
-            onClick={() => onPageChange(page)}
+            onClick={() => handlePageChange(page)}
             className={` cursor-pointer pt-1`}
           >
             {page}
@@ -104,6 +181,7 @@ export function Pagination({
       )}
 
       <Button
+        type="button"
         variant="outline"
         size="icon"
         onClick={handleNext}
