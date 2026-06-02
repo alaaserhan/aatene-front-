@@ -140,10 +140,20 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
             {/* Main Content: Info Left, Gallery Right */}
             <div className="flex flex-col min-[573px]:flex-col-reverse lg:flex-row gap-10">
                 {/* Right Side: Image Gallery */}
-                <div className="flex flex-col-reverse lg:flex-row gap-3 lg:w-[55%]">
-                    {/* Thumbnails Strip */}
+                <div className="flex flex-col-reverse lg:flex-row gap-3 lg:w-[55%] lg:items-start">
+                    {/* Thumbnails Strip — موبايل: تمرير أفقي | ديسكتوب: تمرير عمودي عند كثرة الصور */}
                     {allMedia.length > 1 && (
-                        <div className="flex gap-2.5 overflow-auto shrink-0 flex-row w-full h-[100px] lg:flex-col lg:w-[100px] lg:h-auto lg:max-h-[600px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <div
+                            className={cn(
+                                "flex shrink-0 gap-2.5",
+                                "flex-row h-[100px] w-full overflow-x-auto overflow-y-hidden",
+                                "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
+                                "lg:flex-col lg:h-auto lg:max-h-[min(600px,70vh)] lg:min-h-0 lg:w-[100px]",
+                                "lg:overflow-x-hidden lg:overflow-y-auto",
+                                "lg:scrollbar-thin lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-1.5",
+                                "lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-gray-300"
+                            )}
+                        >
                             {allMedia.map((item, index) => (
                                 <button
                                     key={index}
