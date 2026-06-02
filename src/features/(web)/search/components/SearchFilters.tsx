@@ -237,7 +237,7 @@ export default function SearchFilters({
             <div className="divide-y divide-gray-100">
                 {/* Categories */}
                 {type !== "stores" && categories.length > 0 && (
-                    <FilterSection title="الفئات" defaultOpen={true} forceOpen={!!filters.category_id}>
+                    <FilterSection title="الفئات" defaultOpen={false} forceOpen={!!filters.category_id}>
                         <div className="flex flex-col gap-2">
                             {canGoBackCategory && (
                                 <button
@@ -325,7 +325,7 @@ export default function SearchFilters({
                 {/* Attributes */}
                 {attributes && attributes.length > 0 && (
                     attributes
-                    .filter(attr => !["عدد الطوابق", "عدد الغرف", "صفة المعلن", "عدد الحمامات", "مفروش؟"].includes(attr.title))
+                    .filter(attr => !["عدد الطوابق", "عدد الغرف", "صفة المعلن", "عدد الحمامات", "مفروش؟", "العمر"].includes(attr.title))
                     .map((attr) => {
                     const selectedOptionId = attr.options.find(opt => filters.variation_options?.includes(opt.id))?.id;
                     const options = [
