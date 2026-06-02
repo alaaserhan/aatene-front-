@@ -197,6 +197,9 @@ export function AddProductPage() {
   cross_sells_due_date: data.cross_sells_due_date || undefined,
   cross_sells_name: data.cross_sells_name || undefined,
   cross_sells_description: data.cross_sells_description || undefined,
+  cross_sells_title: data.cross_sells_name || undefined,
+  cross_sells_offer_name: data.cross_sells_name || undefined,
+  cross_sells_offer_description: data.cross_sells_description || undefined,
     };
 
     if (updatedFormData.step3!.hasVariations && updatedFormData.step3!.variations.length > 0) {

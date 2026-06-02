@@ -81,6 +81,9 @@ export interface Product {
   cross_sells_due_date?: string | null;
   cross_sells_name?: string | null;
   cross_sells_description?: string | null;
+  cross_sells_title?: string | null;
+  cross_sells_offer_name?: string | null;
+  cross_sells_offer_description?: string | null;
   cross_sells_image?: string | null;
   cross_sells_image_url?: string | null;
   crossSells?: CrossSellProduct[];
@@ -125,6 +128,9 @@ export interface ProductCreatePayload {
   cross_sells_due_date?: string;
   cross_sells_name?: string;
   cross_sells_description?: string;
+  cross_sells_title?: string;
+  cross_sells_offer_name?: string;
+  cross_sells_offer_description?: string;
   cross_sells_image?: string;
   crossSells?: number[];
   tags?: string[];

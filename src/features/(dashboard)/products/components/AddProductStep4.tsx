@@ -35,17 +35,9 @@ import { Stepper } from "@/src/components/ui/Stepper";
 
 /** حدود حقول عرض الكوليكشن (cross-sells) — متوافقة مع التحقق في الـ API */
 const OFFER_NAME_MAX_CHARS = 80;
-const OFFER_NAME_MAX_WORDS = 12;
 const OFFER_DESCRIPTION_MAX_CHARS = 200;
-const OFFER_DESCRIPTION_MAX_WORDS = 45;
 /** طول السعر كنص (منع إدخال غير معقول) */
 const DISCOUNT_PRICE_INPUT_MAX_LEN = 14;
-
-function countWordsWhitespace(text: string): number {
-    const t = text.trim();
-    if (!t) return 0;
-    return t.split(/\s+/).filter(Boolean).length;
-}
 
 interface AddProductStep4Props {
     previousData: Step1FormData;
@@ -447,15 +439,11 @@ function DiscountModal({
             newErrors.name = "يرجى إدخال اسم العرض";
         } else if (nameTrim.length > OFFER_NAME_MAX_CHARS) {
             newErrors.name = `يجب ألا يتجاوز اسم العرض ${OFFER_NAME_MAX_CHARS} حرفًا`;
-        } else if (countWordsWhitespace(nameTrim) > OFFER_NAME_MAX_WORDS) {
-            newErrors.name = `يجب ألا يتجاوز اسم العرض ${OFFER_NAME_MAX_WORDS} كلمة`;
         }
         if (!descTrim) {
             newErrors.description = "يرجى إدخال وصف العرض";
         } else if (descTrim.length > OFFER_DESCRIPTION_MAX_CHARS) {
             newErrors.description = `يجب ألا يتجاوز وصف العرض ${OFFER_DESCRIPTION_MAX_CHARS} حرفًا`;
-        } else if (countWordsWhitespace(descTrim) > OFFER_DESCRIPTION_MAX_WORDS) {
-            newErrors.description = `يجب ألا يتجاوز وصف العرض ${OFFER_DESCRIPTION_MAX_WORDS} كلمة`;
         }
 
         if (Object.keys(newErrors).length > 0) {
@@ -586,7 +574,7 @@ function DiscountModal({
                                 }}
                                 placeholder="ادخل اسم العرض (حروف فقط)"
                                 error={errors.name}
-                                hint={`حد أقصى ${OFFER_NAME_MAX_WORDS} كلمات و${OFFER_NAME_MAX_CHARS} حرفًا`}
+                                hint={`حد أقصى ${OFFER_NAME_MAX_CHARS} حرفًا`}
                                 className="min-h-[100px] px-4 py-3 font-medium bg-white shadow-none focus:ring-0 resize-y"
                             />
                         </div>
@@ -614,7 +602,7 @@ function DiscountModal({
                                 }}
                                 placeholder="ادخل وصف العرض (حروف فقط)"
                                 error={errors.description}
-                                hint={`حد أقصى ${OFFER_DESCRIPTION_MAX_WORDS} كلمة و${OFFER_DESCRIPTION_MAX_CHARS} حرفًا`}
+                                hint={`حد أقصى ${OFFER_DESCRIPTION_MAX_CHARS} حرفًا`}
                                 className="min-h-[100px] px-4 py-3 font-medium bg-white shadow-none focus:ring-0 resize-y"
                             />
                         </div>
