@@ -129,7 +129,7 @@ const StoreCard = memo(({
 
                 <div className="inline-flex items-center justify-center gap-1.5 text-sm leading-4 text-gray-400" dir="rtl">
                     <Star className="size-4 shrink-0 fill-amber-400 text-amber-400" aria-hidden />
-                    <span className="font-medium tabular-nums leading-4">{rating.toFixed(1)}</span>
+                    <span className="translate-y-px font-medium tabular-nums leading-4">{rating.toFixed(1)}</span>
                 </div>
             </div>
 
