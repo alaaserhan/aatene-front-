@@ -55,6 +55,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
         step1: {
           title: service.title,
           category_id: service.category_id,
+          category_name: (service.category as any)?.full_name || (service as any).category_name || service.category?.name || "",
           section_id: service.section_id,
           specialties: service.specialties || [],
         },
