@@ -195,7 +195,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
         const initialFormData: CompleteProductFormData = {
           step1: {
             category_id: Number(product.category_id) || Number(product.category?.id) || 0,
-            category_name: product.category_name || product.category?.name || "",
+            category_name: product.category?.full_name || product.category_name || product.category?.name || "",
             cover: product.cover || "",
             cover_preview: product.cover_url || "",
             gallery: validGallery,

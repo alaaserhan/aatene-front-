@@ -12,6 +12,7 @@ export type MerchantProductStatus = "approved" | "pending" | "rejected";
 export interface Category {
   id: number;
   name: string;
+  full_name?: string;
   images_urls?: string;
 }
 
