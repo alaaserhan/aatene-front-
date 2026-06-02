@@ -299,10 +299,11 @@ function SearchContent() {
         <div className="flex flex-col gap-4">
             {/* Top Bar: filter toggle */}
             <div className="flex items-center justify-between">
+                {/* Desktop Filter Button */}
                 <button
                     onClick={() => setIsDesktopFilterOpen(prev => !prev)}
                     className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors cursor-pointer shrink-0",
+                        "hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors cursor-pointer shrink-0",
                         isDesktopFilterOpen
                             ? "bg-[#3D5E83] text-white border-[#3D5E83]"
                             : "bg-white text-[#3D5E83] border-gray-200 hover:bg-gray-50"
@@ -313,13 +314,13 @@ function SearchContent() {
                     {isDesktopFilterOpen ? <X className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
 
-                {/* زر فتح الفلتر - Mobile */}
+                {/* Mobile Filter Button */}
                 <button
                     onClick={() => setIsFilterOpen(true)}
-                    className="lg:hidden flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer text-[#3D5E83] shrink-0"
+                    className="flex lg:hidden items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors cursor-pointer text-[#3D5E83] shrink-0"
                 >
                     <SlidersHorizontal className="w-4 h-4" />
-                    <span className="font-medium text-sm">تصفية متقدمة</span>
+                    <span className="font-medium text-sm">فلتر</span>
                 </button>
             </div>
 

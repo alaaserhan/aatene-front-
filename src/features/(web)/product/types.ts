@@ -118,6 +118,9 @@ export interface ProductInPageData {
   cross_sells_price?: string | null;
   cross_sells_name?: string | null;
   cross_sells_description?: string | null;
+  cross_sells_title?: string | null;
+  cross_sells_offer_name?: string | null;
+  cross_sells_offer_description?: string | null;
   cross_sells_image_url?: string | null;
   cross_sells_original_price?: string | null;
   crossSells?: Product[];
@@ -208,6 +211,9 @@ export interface Product {
   cross_sells_price: string;
   cross_sells_name?: string | null;
   cross_sells_description?: string | null;
+  cross_sells_title?: string | null;
+  cross_sells_offer_name?: string | null;
+  cross_sells_offer_description?: string | null;
   view_count: number;
   is_favorite: boolean;
   in_compare: boolean;

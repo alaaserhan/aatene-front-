@@ -11,6 +11,14 @@ import ProductTabs from "./components/ProductTabs";
 import ProductsChooseForYou from "./components/ProductsChooseForYou";
 import StoresYouMayLike from "./components/StoresYouMayLike";
 
+function firstStringField(source: Record<string, unknown>, keys: string[]) {
+    for (const key of keys) {
+        const value = source[key];
+        if (typeof value === "string" && value.trim()) return value;
+    }
+    return undefined;
+}
+
 export default function ProductDetailsPage() {
     const params = useParams();
     const slug = params?.slug as string;
@@ -30,6 +38,16 @@ export default function ProductDetailsPage() {
     }
 
     const { product, store, attributes } = data;
+    const productRecord = product as unknown as Record<string, unknown>;
+    const crossSellsName = firstStringField(productRecord, [
+        "cross_sells_name",
+        "cross_sells_title",
+        "cross_sells_offer_name",
+    ]);
+    const crossSellsDescription = firstStringField(productRecord, [
+        "cross_sells_description",
+        "cross_sells_offer_description",
+    ]);
 
     return (
         <div className="max-w-[1280px] mx-auto w-full px-4 md:px-8 lg:px-16 py-8" dir="rtl">
@@ -58,8 +76,8 @@ export default function ProductDetailsPage() {
                 <CrossSellsSection
                     crossSells={product.crossSells}
                     crossSellsPrice={product.cross_sells_price}
-                    crossSellsName={product.cross_sells_name || undefined}
-                    crossSellsDescription={product.cross_sells_description || undefined}
+                    crossSellsName={crossSellsName}
+                    crossSellsDescription={crossSellsDescription}
                 />
             )}
 
