@@ -74,7 +74,7 @@ const StoreCard = memo(({
         <div
             onClick={handleCardClick}
             className={cn(
-                "group relative flex h-full min-h-[400px] w-full min-w-0 cursor-pointer flex-col items-center rounded-2xl border border-gray-100 bg-white px-5 pb-5 pt-8 text-center transition-all duration-300 hover:shadow-md",
+                "group relative flex h-full min-h-[400px] w-full min-w-0 cursor-pointer flex-col items-center rounded-2xl border border-gray-100 bg-white px-4 pb-4 pt-6 text-center transition-all duration-300 hover:shadow-md md:px-5 md:pb-5 md:pt-8",
                 className
             )}
         >
@@ -95,43 +95,45 @@ const StoreCard = memo(({
                 />
             </div>
 
-            <div className="relative mb-4 h-36 w-36 shrink-0 overflow-hidden rounded-full bg-gray-100 sm:h-40 sm:w-40">
-                {store.logo_url || coverFallbackSrc ? (
-                    <Image
-                        src={avatarSrc}
-                        alt={store.name}
-                        fill
-                        className="object-cover"
-                        onError={() => {
-                            if (store.logo_url) {
-                                setFailedLogoUrl(normalizedLogoUrl || null);
-                            } else if (primaryCover) {
-                                setFailedCoverUrl(primaryCover);
-                            }
-                        }}
-                    />
-                ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                        <StoreIcon className="h-10 w-10 text-gray-400" />
-                    </div>
-                )}
+            <div className="flex w-full min-h-0 flex-1 flex-col items-center justify-center">
+                <div className="relative mb-3 aspect-square w-[74%] max-w-[11rem] shrink-0 overflow-hidden rounded-full bg-gray-100 md:mb-4 md:max-w-[10rem] lg:max-w-[11rem]">
+                    {store.logo_url || coverFallbackSrc ? (
+                        <Image
+                            src={avatarSrc}
+                            alt={store.name}
+                            fill
+                            className="object-cover"
+                            onError={() => {
+                                if (store.logo_url) {
+                                    setFailedLogoUrl(normalizedLogoUrl || null);
+                                } else if (primaryCover) {
+                                    setFailedCoverUrl(primaryCover);
+                                }
+                            }}
+                        />
+                    ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                            <StoreIcon className="h-10 w-10 text-gray-400 md:h-12 md:w-12" />
+                        </div>
+                    )}
+                </div>
+
+                <h3 className="mb-2 line-clamp-2 w-full px-1 text-base font-bold text-gray-900 md:mb-3 md:text-lg">
+                    {store.name}
+                </h3>
+
+                <div className="mb-1.5 flex w-full items-center justify-center gap-1.5 text-sm text-gray-500 md:mb-2" dir="rtl">
+                    <MapPin className="h-4 w-4 shrink-0 text-blue-4" />
+                    <span className="line-clamp-1">{cityLabel}</span>
+                </div>
+
+                <div className="flex items-center justify-center gap-1 text-sm text-gray-400" dir="rtl">
+                    <Star className="h-4 w-4 shrink-0 fill-amber-400 text-amber-400" />
+                    <span className="font-medium">{rating.toFixed(1)}</span>
+                </div>
             </div>
 
-            <h3 className="mb-3 line-clamp-2 w-full px-1 text-lg font-bold text-gray-900">
-                {store.name}
-            </h3>
-
-            <div className="mb-2 flex w-full items-center justify-center gap-1.5 text-sm text-gray-500" dir="rtl">
-                <MapPin className="h-4 w-4 shrink-0 text-blue-4" />
-                <span className="line-clamp-1">{cityLabel}</span>
-            </div>
-
-            <div className="mb-6 flex items-center justify-center gap-1 text-sm text-gray-400" dir="rtl">
-                <Star className="h-4 w-4 shrink-0 fill-amber-400 text-amber-400" />
-                <span className="font-medium">{rating.toFixed(1)}</span>
-            </div>
-
-            <div className="mt-auto flex w-full flex-col gap-2">
+            <div className="w-full shrink-0 pt-3">
                 {followed ? (
                     <div className="flex gap-2">
                         <button
