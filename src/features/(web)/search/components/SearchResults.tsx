@@ -40,22 +40,32 @@ export default function SearchResults({
 
     const containerRef = useRef<HTMLDivElement>(null);
     const [lastHeight, setLastHeight] = useState(400);
+    const savedPaginationTopRef = useRef<number | null>(null);
 
     useLayoutEffect(() => {
-        if (containerRef.current && !isLoading && items && items.length > 0) {
+        if (containerRef.current && !isLoading && !isFetching && items && items.length > 0) {
             setLastHeight(containerRef.current.offsetHeight);
         }
-    }, [isLoading, items]);
+    }, [isLoading, isFetching, items]);
+
+    useLayoutEffect(() => {
+        if (!isLoading && !isFetching && savedPaginationTopRef.current !== null && paginationRef.current) {
+            const currentTop = paginationRef.current.getBoundingClientRect().top;
+            const delta = currentTop - savedPaginationTopRef.current;
+            
+            if (Math.abs(delta) > 1) {
+                window.scrollBy({ top: delta, left: 0 });
+            }
+            
+            savedPaginationTopRef.current = null;
+        }
+    }, [isLoading, isFetching, items]);
 
     const handlePageChange = (page: number) => {
-        onPageChange(page);
-        
-        if (containerRef.current) {
-            const y = containerRef.current.getBoundingClientRect().top + window.scrollY - 100;
-            window.scrollTo({ top: y, behavior: "smooth" });
-        } else {
-            window.scrollTo({ top: 0, behavior: "smooth" });
+        if (paginationRef.current) {
+            savedPaginationTopRef.current = paginationRef.current.getBoundingClientRect().top;
         }
+        onPageChange(page);
     };
 
     if (isLoading && displayTotal === 0) {
