@@ -41,111 +41,30 @@ export default function SearchResults({
     const containerRef = useRef<HTMLDivElement>(null);
     const [lastHeight, setLastHeight] = useState(400);
     const savedPaginationTopRef = useRef<number | null>(null);
-    const scrollParentRef = useRef<HTMLElement | Window | null>(null);
-    const restoreFrameRef = useRef<number | null>(null);
-    const keepRestoringUntilRef = useRef(0);
-
-    const getScrollParent = useCallback((element: HTMLElement): HTMLElement | Window => {
-        let parent = element.parentElement;
-
-        while (parent) {
-            const style = window.getComputedStyle(parent);
-            const canScrollY = /(auto|scroll|overlay)/.test(style.overflowY);
-
-            if (canScrollY && parent.scrollHeight > parent.clientHeight) {
-                return parent;
-            }
-
-            parent = parent.parentElement;
-        }
-
-        return window;
-    }, []);
-
-    const scrollByParent = useCallback((parent: HTMLElement | Window, delta: number) => {
-        if (parent === window) {
-            window.scrollBy({ top: delta, left: 0 });
-            return;
-        }
-
-        (parent as HTMLElement).scrollTop += delta;
-    }, []);
-
-    const restorePaginationPosition = useCallback(() => {
-        if (savedPaginationTopRef.current === null || !paginationRef.current) return;
-
-        const scrollParent = scrollParentRef.current || window;
-        const currentTop = paginationRef.current.getBoundingClientRect().top;
-        const delta = currentTop - savedPaginationTopRef.current;
-
-        if (Math.abs(delta) > 1) {
-            scrollByParent(scrollParent, delta);
-        }
-    }, [scrollByParent]);
 
     useLayoutEffect(() => {
-        if (containerRef.current && !isLoading && items && items.length > 0) {
+        if (containerRef.current && !isLoading && !isFetching && items && items.length > 0) {
             setLastHeight(containerRef.current.offsetHeight);
         }
-    }, [isLoading, items]);
+    }, [isLoading, isFetching, items]);
 
     useLayoutEffect(() => {
-        if (savedPaginationTopRef.current === null) return;
-
-        if (restoreFrameRef.current !== null) {
-            cancelAnimationFrame(restoreFrameRef.current);
-        }
-
-        const keepPaginationPinned = () => {
-            restorePaginationPosition();
-
-            if (performance.now() < keepRestoringUntilRef.current || isLoading || isFetching) {
-                restoreFrameRef.current = requestAnimationFrame(keepPaginationPinned);
-                return;
+        if (!isLoading && !isFetching && savedPaginationTopRef.current !== null && paginationRef.current) {
+            const currentTop = paginationRef.current.getBoundingClientRect().top;
+            const delta = currentTop - savedPaginationTopRef.current;
+            
+            if (Math.abs(delta) > 1) {
+                window.scrollBy({ top: delta, left: 0 });
             }
-
+            
             savedPaginationTopRef.current = null;
-            scrollParentRef.current = null;
-            restoreFrameRef.current = null;
-        };
-
-        keepPaginationPinned();
-
-        return () => {
-            if (restoreFrameRef.current !== null) {
-                cancelAnimationFrame(restoreFrameRef.current);
-                restoreFrameRef.current = null;
-            }
-        };
-    }, [currentPage, isLoading, isFetching, items, restorePaginationPosition]);
-
-    useLayoutEffect(() => {
-        if (!containerRef.current) return;
-
-        const observer = new ResizeObserver(() => {
-            if (savedPaginationTopRef.current === null) return;
-
-            keepRestoringUntilRef.current = Math.max(
-                keepRestoringUntilRef.current,
-                performance.now() + 500,
-            );
-            restorePaginationPosition();
-        });
-
-        observer.observe(containerRef.current);
-
-        return () => observer.disconnect();
-    }, [restorePaginationPosition]);
+        }
+    }, [isLoading, isFetching, items]);
 
     const handlePageChange = (page: number) => {
         if (paginationRef.current) {
             savedPaginationTopRef.current = paginationRef.current.getBoundingClientRect().top;
-            scrollParentRef.current = getScrollParent(paginationRef.current);
-        } else {
-            savedPaginationTopRef.current = null;
-            scrollParentRef.current = null;
         }
-        keepRestoringUntilRef.current = performance.now() + 4500;
         onPageChange(page);
     };
 
