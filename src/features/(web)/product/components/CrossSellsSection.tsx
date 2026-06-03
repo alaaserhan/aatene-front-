@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Product } from "../api";
 import Link from "next/link";
 import { formatPrice } from "@/src/lib/format-price";
+import { isVideoFile, resolveImageSrc, sanitizeMediaUrl } from "@/src/lib/utils";
 
 interface CrossSellsSectionProps {
     crossSells: Product[];
@@ -78,17 +79,7 @@ export default function CrossSellsSection({
                                     href={`/product/${product.slug}`}
                                     className="flex flex-col items-center gap-0.5 sm:gap-1 w-[70px] sm:w-[110px] md:w-[155px] shrink-0 group/item"
                                 >
-                                    <div className="w-full aspect-square rounded-md overflow-hidden bg-white border border-gray-200 shadow-sm">
-                                        <img
-                                            src={product.cover || "/placeholder.png"}
-                                            alt={product.name}
-                                            className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
-                                            onError={(e) => {
-                                                e.currentTarget.src = "/placeholder.png";
-                                                e.currentTarget.onerror = null;
-                                            }}
-                                        />
-                                    </div>
+                                    <CrossSellProductMedia product={product} />
                                     <p className="text-[9px] sm:text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight group-hover/item:text-blue-3 transition-colors w-full">
                                         {product.name}
                                     </p>
@@ -135,6 +126,42 @@ export default function CrossSellsSection({
                 </div>
 
             </div>
+        </div>
+    );
+}
+
+function CrossSellProductMedia({ product }: { product: Product }) {
+    const normalizedCover = sanitizeMediaUrl(product.cover);
+    const [failedCoverUrl, setFailedCoverUrl] = useState<string | null>(null);
+    const mediaSrc = resolveImageSrc(normalizedCover, failedCoverUrl, "product");
+    const showVideo = isVideoFile(normalizedCover) && failedCoverUrl !== normalizedCover;
+
+    return (
+        <div className="relative w-full aspect-square rounded-md overflow-hidden bg-white border border-gray-200 shadow-sm">
+            {showVideo ? (
+                <>
+                    <video
+                        src={mediaSrc}
+                        className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
+                        muted
+                        playsInline
+                        preload="metadata"
+                        onError={() => setFailedCoverUrl(normalizedCover || null)}
+                    />
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/90 shadow-sm sm:h-8 sm:w-8">
+                            <Play className="h-3.5 w-3.5 fill-gray-700 text-gray-700 sm:h-4 sm:w-4" />
+                        </div>
+                    </div>
+                </>
+            ) : (
+                <img
+                    src={mediaSrc}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
+                    onError={() => setFailedCoverUrl(normalizedCover || null)}
+                />
+            )}
         </div>
     );
 }

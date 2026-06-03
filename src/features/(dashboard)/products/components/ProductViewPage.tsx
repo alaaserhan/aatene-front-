@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Loader2, Pen, Phone, Send, CheckCircle2, XCircle, PauseCircle, Trash2 } from "lucide-react";
+import { Loader2, Pen, Phone, Send, CheckCircle2, XCircle, PauseCircle, Trash2, Play } from "lucide-react";
 import Cookies from "js-cookie";
 import { useDeleteProduct, useGetSingleProduct, useUpdateProductStatus, useUpdateProductShown } from "../hooks";
 import { formatPrice } from "@/src/lib/format-price";
@@ -19,7 +19,7 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { Button } from "@/src/components/ui/button";
 import { Switch } from "@/src/components/ui/switch";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
@@ -426,11 +426,7 @@ export default function ProductViewPage() {
                                         {raw.crossSells.map((cs) => (
                                             <div key={cs.id} className="flex items-center gap-6 bg-[#FAFAFA] rounded-xl p-4">
                                                 <div className="w-16 h-16 rounded-lg bg-white overflow-hidden shrink-0 shadow-sm border border-gray-100">
-                                                    {cs.cover_url ? (
-                                                        <img src={cs.cover_url} alt={cs.name} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <div className="w-full h-full bg-gray-100" />
-                                                    )}
+                                                    <DashboardProductMedia src={cs.cover_url} alt={cs.name} />
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="font-bold text-sm text-gray-900">{cs.name}</p>
@@ -454,7 +450,7 @@ export default function ProductViewPage() {
                                         {/* Main product */}
                                         <div className="flex flex-col items-center gap-3">
                                             <div className="w-24 h-24 sm:w-32 sm:h-32 border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                                                 <img src={displayImage} alt="Main" className="w-full h-full object-cover" />
+                                                 <DashboardProductMedia src={displayImage} alt={raw.name} />
                                             </div>
                                             <span className="text-sm text-gray-700 font-medium max-w-[120px] text-center truncate">{raw.name}</span>
                                         </div>
@@ -465,9 +461,9 @@ export default function ProductViewPage() {
                                         <div className="flex flex-col items-center gap-3">
                                             <div className="w-24 h-24 sm:w-32 sm:h-32 border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
                                                  {raw.cross_sells_image_url ? (
-                                                     <img src={raw.cross_sells_image_url} alt="Cross" className="w-full h-full object-cover" />
+                                                     <DashboardProductMedia src={raw.cross_sells_image_url} alt={raw.cross_sells_name || "Cross"} />
                                                  ) : (raw.crossSells && raw.crossSells.length > 0 && raw.crossSells[0].cover_url) ? (
-                                                     <img src={raw.crossSells[0].cover_url} alt="Cross" className="w-full h-full object-cover" />
+                                                     <DashboardProductMedia src={raw.crossSells[0].cover_url} alt={raw.crossSells[0].name} />
                                                  ) : (
                                                      <div className="w-full h-full bg-gray-50 flex items-center justify-center text-xs text-gray-400">منتج</div>
                                                  )}
@@ -481,7 +477,7 @@ export default function ProductViewPage() {
                                                 <span className="font-black text-2xl text-gray-800 mb-6">+</span>
                                                 <div className="flex flex-col items-center gap-3">
                                                     <div className="w-24 h-24 sm:w-32 sm:h-32 border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                                                         <img src={raw.crossSells[1].cover_url || "/placeholder.png"} alt="Cross 2" className="w-full h-full object-cover" />
+                                                         <DashboardProductMedia src={raw.crossSells[1].cover_url} alt={raw.crossSells[1].name} />
                                                     </div>
                                                     <span className="text-sm text-gray-700 font-medium max-w-[120px] text-center truncate">{raw.crossSells[1].name}</span>
                                                 </div>
@@ -662,6 +658,30 @@ export default function ProductViewPage() {
 }
 
 // ── Reviews Section ──────────────────────────────────────────────────
+function DashboardProductMedia({ src, alt }: { src?: string | null; alt: string }) {
+    const mediaSrc = sanitizeMediaUrl(src) || "/placeholder.png";
+    const isVideo = isVideoFile(mediaSrc);
+
+    return (
+        <div className="relative h-full w-full">
+            <VideoOrImage
+                src={mediaSrc}
+                alt={alt}
+                fill
+                thumb
+                className="object-cover"
+            />
+            {isVideo && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm">
+                        <Play className="h-3.5 w-3.5 fill-gray-700 text-gray-700" />
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
 function ProductReviewsSection({ slug, summary }: { slug: string; summary: { count: number; rate: number } }) {
     const formRef = useRef<ReviewFormRef>(null);
     const [parentId, setParentId] = useState<number | null>(null);
