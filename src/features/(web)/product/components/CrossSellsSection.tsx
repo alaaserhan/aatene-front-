@@ -37,14 +37,14 @@ export default function CrossSellsSection({
     return (
         <div className="my-10 md:my-20">
             {/* العنوان والأسهم */}
-            <div className="flex flex-col gap-4 border-b border-gray-100 pb-5 mb-6 lg:flex-row lg:items-end lg:justify-between px-2">
-                <div className="min-w-0 space-y-2 text-start">
+            <div className="flex flex-col items-center gap-4 border-b border-gray-100 pb-5 mb-6 px-2 text-center">
+                <div className="min-w-0 space-y-2 text-center">
                     <p className="text-xs font-semibold text-blue-4">عرض مجمع</p>
                     <h3 className="text-xl font-bold text-gray-900 md:text-2xl">
                         {crossSellsName || "اشترِ المنتجات معاً بسعر أفضل"}
                     </h3>
                     {crossSellsDescription && (
-                        <p className="max-w-3xl break-words text-sm leading-7 text-gray-500 md:text-base">
+                        <p className="mx-auto max-w-3xl break-words text-sm leading-7 text-gray-500 md:text-base">
                             {crossSellsDescription}
                         </p>
                     )}
