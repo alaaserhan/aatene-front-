@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/src/components/ui/button";
 import { StepperProgress } from "./StepperProgress";
 import { StorePreviewSidebar } from "./StorePreviewSidebar";
@@ -55,6 +55,7 @@ export function AddStoreStep6({
   // States for Deletion Modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [companyToDeleteIndex, setCompanyToDeleteIndex] = useState<number | null>(null);
+  const [deliveryTypeWarningOpen, setDeliveryTypeWarningOpen] = useState(false);
 
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
@@ -66,6 +67,11 @@ export function AddStoreStep6({
     { label: "المتاجر", href: "/admin/stores" },
     { label: "إضافة متجر" },
   ];
+
+  useEffect(() => {
+    setDeliveryType(initialData?.delivery_type || "hand_delivery");
+    setShippingCompanies(initialData?.shippingCompanies || []);
+  }, [initialData?.delivery_type, initialData?.shippingCompanies]);
 
   const persistStandaloneShipping = (
     nextDeliveryType: DeliveryType,
@@ -79,12 +85,35 @@ export function AddStoreStep6({
     });
   };
 
-  const handleDeliveryTypeChange = (nextDeliveryType: DeliveryType) => {
+  const applyDeliveryTypeChange = (
+    nextDeliveryType: DeliveryType,
+    nextCompanies = shippingCompanies
+  ) => {
     setDeliveryType(nextDeliveryType);
+    setShippingCompanies(nextCompanies);
 
     if (nextDeliveryType !== "shipping" || shippingCompanies.length > 0) {
-      persistStandaloneShipping(nextDeliveryType, shippingCompanies);
+      persistStandaloneShipping(nextDeliveryType, nextCompanies);
     }
+  };
+
+  const handleDeliveryTypeChange = (nextDeliveryType: DeliveryType) => {
+    if (nextDeliveryType === deliveryType) return;
+
+    if (nextDeliveryType === "hand_delivery" && shippingCompanies.length > 0) {
+      setDeliveryTypeWarningOpen(true);
+      return;
+    }
+
+    applyDeliveryTypeChange(
+      nextDeliveryType,
+      nextDeliveryType === "shipping" ? shippingCompanies : []
+    );
+  };
+
+  const handleConfirmHandDelivery = () => {
+    applyDeliveryTypeChange("hand_delivery", []);
+    setDeliveryTypeWarningOpen(false);
   };
 
   const handleAddCompany = () => {
@@ -137,6 +166,8 @@ export function AddStoreStep6({
             i === editingCompanyIndex ? company : c
           )
         : [...shippingCompanies, company];
+
+    setDeliveryType("shipping");
 
     if (editingCompanyIndex !== null) {
       setShippingCompanies(nextCompanies);
@@ -286,7 +317,7 @@ export function AddStoreStep6({
                             >
                               <div className="flex flex-col min-w-0 flex-1">
                                 <h4 className="text-sm sm:text-base font-semibold mb-1 break-words">
-                                  {company.name}
+                                  {company.name || "شركة شحن"}
                                 </h4>
                                 <p className="text-xs sm:text-sm text-gray-2 break-words">
                                   {getCompanyCities(company)}
@@ -395,6 +426,16 @@ export function AddStoreStep6({
             : "هل أنت متأكد من رغبتك في حذف جميع شركات الشحن المضافة؟ لا يمكن التراجع عن هذا الإجراء."
         }
         confirmText={companyToDeleteIndex !== null ? "نعم، احذف" : "نعم، احذف الكل"}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={deliveryTypeWarningOpen}
+        onClose={() => setDeliveryTypeWarningOpen(false)}
+        onConfirm={handleConfirmHandDelivery}
+        title="تغيير طريقة الشحن إلى من يد ليد؟"
+        description="سيتم حذف شركات الشحن الحالية من إعدادات المتجر وتحديث طريقة الشحن للعملاء إلى من يد ليد."
+        confirmText="نعم، حدّث واحذف الشركات"
+        cancelText="إلغاء"
       />
     </div>
   );

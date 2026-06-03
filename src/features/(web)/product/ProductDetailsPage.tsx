@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams, notFound } from "next/navigation";
 import { useGetProductBySlug, useGetProductPageDataBySlug } from "./hooks";
 import { Loader2 } from "lucide-react";
@@ -22,8 +23,23 @@ function firstStringField(source: Record<string, unknown>, keys: string[]) {
 export default function ProductDetailsPage() {
     const params = useParams();
     const slug = params?.slug as string;
+    const [selectedDeliveryCityId, setSelectedDeliveryCityId] = useState<number | null>(null);
     const { data, isLoading, isError } = useGetProductBySlug(slug);
-    const { data: pageData } = useGetProductPageDataBySlug(slug);
+    const { data: pageData } = useGetProductPageDataBySlug(slug, selectedDeliveryCityId);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const savedCity = localStorage.getItem("selected_delivery_city");
+        if (!savedCity) return;
+
+        try {
+            const parsed = JSON.parse(savedCity) as { id?: number };
+            if (parsed.id) setSelectedDeliveryCityId(parsed.id);
+        } catch {
+            return;
+        }
+    }, []);
 
     if (isLoading) {
         return (
@@ -66,6 +82,8 @@ export default function ProductDetailsPage() {
                 shippingCompany={pageData?.shippingCompany}
                 shippingDetails={pageData?.shippingDetails}
                 allShippingCompanies={pageData?.allShippingCompanies}
+                deliveryType={pageData?.delivery_type ?? store.delivery_type}
+                onCityChange={(city) => setSelectedDeliveryCityId(city.id)}
             />
 
             {/* Component 3: Store Info Bar */}

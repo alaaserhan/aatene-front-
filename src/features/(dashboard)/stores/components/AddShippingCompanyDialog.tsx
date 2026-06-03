@@ -12,6 +12,7 @@ import { cn } from "@/src/lib/utils";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/src/components/ui/dialog";
@@ -77,7 +78,7 @@ export function AddShippingCompanyDialog({
     if (isOpen) {
       setErrors({});
       if (editingCompany) {
-        setStoreName(editingCompany.name || "");
+        setStoreName(editingCompany.name ?? "");
         setStorePhone(stripCountryCode(editingCompany.phone));
 
         const cityIds = editingCompany.prices.map((p) => Number(p.city_id));
@@ -199,7 +200,7 @@ export function AddShippingCompanyDialog({
 
     const company: ShippingCompanyPayload = {
       ...(editingCompany?.id != null ? { id: editingCompany.id } : {}),
-      name: storeName,
+      name: storeName.trim() || null,
       phone: normalizedPhone,
       prices,
     };
@@ -255,6 +256,9 @@ export function AddShippingCompanyDialog({
             <DialogTitle className="text-base sm:text-xl font-bold leading-snug">
               {editingCompany ? "تعديل شركة الشحن" : "إضافة بيانات شركة الشحن"}
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              اختر المدن التي تدعمها شركة الشحن، ثم حدد مدة وسعر التوصيل لكل مدينة. اسم الشركة ورقم الهاتف اختياريان.
+            </DialogDescription>
           </div>
         </DialogHeader>
 

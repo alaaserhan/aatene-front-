@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Pencil, Phone, Building2, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/dialog";
-import { Product, Store, ShippingCompany, ShippingDetails, ShippingPrice } from "../types";
+import { DeliveryType, Product, Store, ShippingCompany, ShippingDetails, ShippingPrice } from "../types";
 import { useGetCities } from "@/src/features/(web)/settings/hooks";
 import { formatPrice } from "@/src/lib/format-price";
 
@@ -13,9 +13,17 @@ interface ShippingPoliciesProps {
     shippingCompany?: ShippingCompany | null;
     shippingDetails?: ShippingDetails | null;
     allShippingCompanies?: ShippingCompany[] | null;
+    deliveryType?: DeliveryType | null;
+    onCityChange?: (city: { id: number; name: string }) => void;
 }
 
-export default function ShippingPolicies({ product, store, shippingCompany, shippingDetails, allShippingCompanies }: ShippingPoliciesProps) {
+export default function ShippingPolicies({
+    shippingCompany,
+    shippingDetails,
+    allShippingCompanies,
+    deliveryType,
+    onCityChange,
+}: ShippingPoliciesProps) {
     const { data: citiesData } = useGetCities();
     const [isCityModalOpen, setIsCityModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -24,7 +32,20 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
     const [tempSelectedCityId, setTempSelectedCityId] = useState<number | null>(null);
     const [showPhone, setShowPhone] = useState(false);
 
+    const hasShippingData = Boolean(
+        shippingCompany ||
+        shippingDetails ||
+        (allShippingCompanies && allShippingCompanies.length > 0)
+    );
+    const isShippingDelivery = deliveryType ? deliveryType === "shipping" : hasShippingData;
+
     useEffect(() => {
+        if (!isShippingDelivery) setIsCityModalOpen(false);
+    }, [isShippingDelivery]);
+
+    useEffect(() => {
+        if (!isShippingDelivery) return;
+
         if (typeof window !== "undefined") {
             const savedCity = localStorage.getItem("selected_delivery_city");
             if (savedCity) {
@@ -33,27 +54,25 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                     setSelectedCityId(parsed.id);
                     setSelectedCityName(parsed.name);
                     return;
-                } catch { }
+                } catch {
+                    return;
+                }
             }
         }
         if (shippingDetails?.city?.id) {
             setSelectedCityId(Number(shippingDetails.city.id));
             setSelectedCityName(shippingDetails.city.name);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [isShippingDelivery, shippingDetails?.city?.id, shippingDetails?.city?.name]);
 
-    const [prevCityId, setPrevCityId] = useState<string | number | undefined>(shippingDetails?.city?.id);
-    if (shippingDetails?.city?.id !== prevCityId) {
-        setPrevCityId(shippingDetails?.city?.id);
-        setSelectedCityId(Number(shippingDetails?.city?.id));
-        setSelectedCityName(shippingDetails?.city?.name || "");
-    }
+    useEffect(() => {
+        setShowPhone(false);
+    }, [shippingCompany?.id, selectedCityId]);
 
     const filteredCities = useMemo(() => {
         let cities = citiesData?.cities || [];
 
-        if (allShippingCompanies && allShippingCompanies.length > 0) {
+        if (isShippingDelivery && allShippingCompanies && allShippingCompanies.length > 0) {
             const validCityIds = new Set<string>();
             allShippingCompanies.forEach((company) => {
                 company.prices.forEach((price) => {
@@ -70,9 +89,13 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
             if (!searchQuery.trim()) return true;
             return city.name.toLowerCase().includes(searchQuery.trim().toLowerCase());
         });
-    }, [citiesData?.cities, searchQuery, allShippingCompanies]);
+    }, [citiesData?.cities, searchQuery, allShippingCompanies, isShippingDelivery]);
 
     const { activeCompany, activeDetails } = useMemo(() => {
+        if (!isShippingDelivery) {
+            return { activeCompany: null, activeDetails: null };
+        }
+
         let activeC = shippingCompany;
         let activeD = shippingDetails;
 
@@ -102,7 +125,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
         }
 
         return { activeCompany: activeC, activeDetails: activeD };
-    }, [allShippingCompanies, selectedCityId, shippingCompany, shippingDetails, selectedCityName]);
+    }, [allShippingCompanies, selectedCityId, shippingCompany, shippingDetails, selectedCityName, isShippingDelivery]);
 
     const deliveryCompanyName = typeof activeCompany?.name === "string" ? activeCompany.name.trim() : "";
     const deliveryCompanyPhone = normalizeDisplayPhone(activeCompany?.phone);
@@ -112,6 +135,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
         if (city) {
             setSelectedCityId(city.id);
             setSelectedCityName(city.name);
+            onCityChange?.({ id: city.id, name: city.name });
             if (typeof window !== "undefined") {
                 localStorage.setItem("selected_delivery_city", JSON.stringify({ id: city.id, name: city.name }));
             }
@@ -134,17 +158,21 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                         <img src="/icons/dashboard/calender.svg" alt="مدة التوصيل" width={24} height={24} />
                     </div>
                     <span className="font-medium ">
-                        يتم التوصيل خلال {activeDetails?.days || "1-4"} أيام
+                        {isShippingDelivery
+                            ? `يتم التوصيل خلال ${activeDetails?.days || "1-4"} أيام`
+                            : "يتم الاتفاق على التسليم مع المتجر"}
                     </span>
                 </div>
 
-                {/* Free Shipping */}
+                {/* Shipping Cost */}
                 <div className="flex items-center gap-3">
                     <div className="w-11 h-11 rounded-md bg-gray-50 flex items-center justify-center">
                         <img src="/icons/car.svg" alt="توصيل" width={24} height={24} />
                     </div>
                     <span className="font-medium ">
-                        {(!activeCompany || String(activeDetails?.price) === "0") ? "توصيل مجاني" : `توصيل: ${formatPrice(activeDetails?.price)} ₪ `}
+                        {!isShippingDelivery
+                            ? "تسليم من يد ليد"
+                            : (!activeCompany || String(activeDetails?.price) === "0") ? "توصيل مجاني" : `توصيل: ${formatPrice(activeDetails?.price)} ₪ `}
                     </span>
                 </div>
 
@@ -154,14 +182,20 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                         <img src="/icons/box.svg" alt="مدينة التوصيل" width={30} height={30} />
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="font-medium ">التوصيل إلى: <span className="underline decoration-blue-3 underline-offset-4 cursor-pointer" onClick={() => { setTempSelectedCityId(selectedCityId); setIsCityModalOpen(true); }}>{selectedCityName}</span></span>
-                        <button
-                            className="text-blue-3 hover:opacity-80 transition-opacity"
-                            onClick={() => { setTempSelectedCityId(selectedCityId); setIsCityModalOpen(true); }}
-                            aria-label="تعديل مدينة التوصيل"
-                        >
-                            <Pencil className="w-3 h-3" />
-                        </button>
+                        {isShippingDelivery ? (
+                            <>
+                                <span className="font-medium ">التوصيل إلى: <span className="underline decoration-blue-3 underline-offset-4 cursor-pointer" onClick={() => { setTempSelectedCityId(selectedCityId); setIsCityModalOpen(true); }}>{selectedCityName}</span></span>
+                                <button
+                                    className="text-blue-3 hover:opacity-80 transition-opacity"
+                                    onClick={() => { setTempSelectedCityId(selectedCityId); setIsCityModalOpen(true); }}
+                                    aria-label="تعديل مدينة التوصيل"
+                                >
+                                    <Pencil className="w-3 h-3" />
+                                </button>
+                            </>
+                        ) : (
+                            <span className="font-medium ">بدون شركات توصيل</span>
+                        )}
                     </div>
                 </div>
             </div>
@@ -198,7 +232,7 @@ export default function ShippingPolicies({ product, store, shippingCompany, ship
                 </div>
             )}
 
-            <Dialog open={isCityModalOpen} onOpenChange={(open) => {
+            <Dialog open={isShippingDelivery && isCityModalOpen} onOpenChange={(open) => {
                 if (open) setTempSelectedCityId(selectedCityId);
                 setIsCityModalOpen(open);
             }}>

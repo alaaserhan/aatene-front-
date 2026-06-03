@@ -9,6 +9,7 @@ import { useGetSingleStore, useUpdateStoreShippingCompanies } from "../hooks";
 import { Step2FormData, Step6FormData } from "../types";
 import {
   mapStoreShippingCompanies,
+  normalizeShippingCompaniesForApi,
 } from "../buildStoreShippingUpdatePayload";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
@@ -75,7 +76,9 @@ export function StoreShippingSettingsPage({ storeId }: StoreShippingSettingsPage
         payload: {
           delivery_type: data.delivery_type,
           shippingCompanies:
-            data.delivery_type === "shipping" ? data.shippingCompanies : [],
+            data.delivery_type === "shipping"
+              ? normalizeShippingCompaniesForApi(data.shippingCompanies)
+              : [],
         },
       });
       toast.dismiss(toastId);

@@ -91,10 +91,12 @@ export interface ShippingDetails {
 
 export interface ShippingCompany {
   id: number;
-  name: string;
+  name: string | null;
   phone: string;
   prices: ShippingPrice[];
 }
+
+export type DeliveryType = "hand_delivery" | "shipping" | "free";
 
 export interface ProductInPageData {
   id: number;
@@ -152,6 +154,7 @@ export interface StoreInPageData {
 export interface ProductPageDataResponse {
   status: boolean;
   message: string;
+  delivery_type?: DeliveryType;
   allShippingCompanies?: ShippingCompany[];
   shippingCompany?: ShippingCompany | null;
   shippingDetails?: ShippingDetails | null;
@@ -181,6 +184,7 @@ export interface Store {
   cover: string | null;
   review_rate: string;
   review_count: string;
+  delivery_type?: DeliveryType;
   open_status: string;
   am_i_following: boolean;
   is_favorite: boolean;
@@ -206,6 +210,7 @@ export interface Product {
   shown: boolean;
   review_rate: string;
   review_count: string;
+  delivery_type?: DeliveryType;
   ask_for_price?: boolean;
   price: string;
   cross_sells_price: string;

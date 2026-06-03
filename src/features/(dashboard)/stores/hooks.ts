@@ -185,6 +185,12 @@ export function useUpdateStoreShippingCompanies() {
       payload: StoreShippingCompaniesPayload;
     }) => api.updateStoreShippingCompanies(id, payload),
 
+    onSuccess: (data, vars) => {
+      if (data?.record) {
+        qc.setQueryData(StoresQK.single(vars.id), data);
+      }
+    },
+
     onSettled: (_data, _err, vars) => {
       qc.invalidateQueries({ queryKey: StoresQK.listAny });
       qc.invalidateQueries({ queryKey: StoresQK.single(vars.id) });
