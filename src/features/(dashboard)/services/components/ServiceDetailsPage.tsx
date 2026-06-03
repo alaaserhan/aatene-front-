@@ -426,11 +426,11 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                     {/* Sidebar Area */}
                     <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-1 lg:order-2 lg:sticky lg:top-6">
-                        <div className="bg-white rounded-2xl border border-gray-100 h-fit overflow-hidden shadow-sm">
+                        <div className="bg-white rounded-lg border border-[#DDE5EC] h-fit overflow-hidden shadow-sm">
 
                             {/* Activate Toggle Row — يظهر فقط للتاجر وفقط إذا كان الخدمه مقبولاً */}
                             {isOwner && currentStatus === "approved" && (
-                                <div className="flex items-center justify-between px-5 py-3 rounded-lg mx-4 mt-4 bg-[#F2F6F9]">
+                                <div className="flex items-center justify-between px-4 py-3 rounded-md mx-4 mt-4 bg-[#DCE8F2]">
                                     <span className="font-bold text-sm text-[#1e3a52]">تفعيل الخدمة</span>
                                     <button
                                         onClick={() => {
@@ -452,7 +452,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                             width: 44,
                                             height: 24,
                                             borderRadius: 9999,
-                                            backgroundColor: isShown !== false ? "#34D399" : "#6B7280",
+                                            backgroundColor: isShown !== false ? "#34D399" : "#94A3B8",
                                             position: "relative",
                                             border: "none",
                                             cursor: "pointer",
@@ -478,28 +478,33 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
                             )}
 
-                            <div className="p-6 py-2">
+                            <div className="p-4 pt-2" dir="rtl">
 
                                 {/* Service Metadata */}
-                                <div className="py-4 border-b border-gray-100 text-start">
-                                    <p className="font-bold text-sm mb-1">فئة الخدمة</p>
-                                    <p className="text-gray-2 text-sm">
-                                        {service.section?.name || "-"} {service.category?.name ? `‹ ${service.category.name}` : ""}
+                                <div className="py-3 border-b border-[#E6ECF2] text-right">
+                                    <p className="font-bold text-sm mb-1 text-[#1e3a52]">فئة الخدمة</p>
+                                    <p className="text-gray-500 text-xs font-medium leading-5">
+                                        {service.category?.name || "-"}
                                     </p>
                                 </div>
 
-                                <div className="py-4 border-b border-gray-100 text-start">
-                                    <p className="font-bold text-sm mb-1">سعر الخدمة</p>
-                                    <p className="text-gray-2 text-sm font-medium">₪ {formatPrice(service.price)}</p>
+                                <div className="py-3 border-b border-[#E6ECF2] text-right">
+                                    <p className="font-bold text-sm mb-1 text-[#1e3a52]">قسم الخدمة</p>
+                                    <p className="text-gray-500 text-xs font-medium leading-5">{service.section?.name || "-"}</p>
+                                </div>
+
+                                <div className="py-3 border-b border-[#E6ECF2] text-right">
+                                    <p className="font-bold text-sm mb-1 text-[#1e3a52]">سعر الخدمة</p>
+                                    <p className="text-gray-500 text-xs font-medium">₪ {formatPrice(service.price)}</p>
                                 </div>
 
                                 {/* Cities Section */}
-                                <div className="py-4 border-b border-gray-100 text-right">
-                                    <p className="font-bold text-sm mb-3">المدن التي يمكنه العمل بها</p>
-                                    <div className="flex flex-wrap justify-start gap-2">
+                                <div className="py-3 border-b border-[#E6ECF2] text-right">
+                                    <p className="font-bold text-sm mb-2 text-[#1e3a52]">المدن التي يمكنه العمل بها</p>
+                                    <div className="flex flex-wrap justify-start gap-1.5">
                                         {store?.serviceCities && store.serviceCities.length > 0 ? (
                                             store.serviceCities.map((city) => (
-                                                <span key={city.id} className="px-3 py-1 bg-[#3A5779]/10 text-[#3A5779] text-xs rounded-full font-medium border border-[#3A5779]/40">
+                                                <span key={city.id} className="px-3 py-1 bg-[#EEF4FA] text-[#3A5779] text-[10px] rounded-full font-medium border border-[#C8D6E4]">
                                                     {city.name}
                                                 </span>
                                             ))
@@ -509,12 +514,12 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     </div>
                                 </div>
 
-                                <div className="py-4 border-b border-gray-100 text-right">
-                                    <p className="font-bold text-sm mb-3">تخصصات أو مجالات العمل</p>
-                                    <div className="flex flex-wrap justify-start gap-2">
+                                <div className="py-3 border-b border-[#E6ECF2] text-right">
+                                    <p className="font-bold text-sm mb-2 text-[#1e3a52]">تخصصات أو مجالات العمل</p>
+                                    <div className="flex flex-wrap justify-start gap-1.5">
                                         {service.specialties && service.specialties.length > 0 ? (
                                             service.specialties.map((spec: string | { id: number; title: string }, idx: number) => (
-                                                <span key={idx} className="text-[#3A5779] text-xs leading-relaxed bg-[#3A5779]/10 px-3 py-1 rounded-full border border-[#3A5779]/40">
+                                                <span key={idx} className="text-[#3A5779] text-[10px] leading-relaxed bg-[#EEF4FA] px-3 py-1 rounded-full border border-[#C8D6E4]">
                                                     {typeof spec === "object" ? spec.title : spec}
                                                 </span>
                                             ))
@@ -525,12 +530,12 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
 
                                 {/* Keywords Section */}
-                                <div className="py-4 border-b border-gray-100 text-right">
-                                    <p className="font-bold text-sm mb-3">الكلمات المفتاحية</p>
-                                    <div className="flex flex-wrap justify-start gap-2">
+                                <div className="py-3 border-b border-[#E6ECF2] text-right">
+                                    <p className="font-bold text-sm mb-2 text-[#1e3a52]">الكلمات المفتاحية</p>
+                                    <div className="flex flex-wrap justify-start gap-1.5">
                                         {service.tags && service.tags.length > 0 ? (
                                             service.tags.map((tag: string | { id: number; title: string }, idx: number) => (
-                                                <span key={idx} className="text-[#3A5779] text-xs leading-relaxed bg-[#3A5779]/10 px-3 py-1 rounded-full border border-[#3A5779]/40">
+                                                <span key={idx} className="text-[#3A5779] text-[10px] leading-relaxed bg-[#EEF4FA] px-3 py-1 rounded-full border border-[#C8D6E4]">
                                                     {typeof tag === "object" ? tag.title : tag}
                                                 </span>
                                             ))
@@ -541,11 +546,11 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
 
                                 {service.extras && service.extras.length > 0 && (
-                                    <div className="py-4 border-b border-gray-100 text-right">
-                                        <p className="font-bold text-sm mb-3">تطويرات اختيارية</p>
+                                    <div className="py-3 border-b border-[#E6ECF2] text-right">
+                                        <p className="font-bold text-sm mb-2 text-[#1e3a52]">تطويرات اختيارية</p>
                                         <div className="space-y-2">
                                             {service.extras.map((extra, idx) => (
-                                                <div key={`${extra.title}-${idx}`} className="flex items-start justify-start gap-3 rounded-lg border border-gray-200 px-3 py-2 bg-[#fdfdfd]">
+                                                <div key={`${extra.title}-${idx}`} className="flex items-start justify-start gap-3 rounded-md border border-[#DDE5EC] px-3 py-2 bg-white">
                                                     <span className="h-4 w-4 mt-0.5 rounded-sm border border-gray-300 shrink-0" aria-hidden="true" />
                                                     <div className="min-w-0 text-right flex-1">
                                                         <p className="text-xs font-medium text-gray-900 line-clamp-1">{extra.title}</p>
@@ -566,22 +571,20 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 )}
 
                                 {/* Contact Buttons */}
-                                {!isOwner && (
-                                    <div className="flex flex-col gap-3 mt-4">
-                                        {store?.phone && (
-                                            <Button className="w-full bg-[#3A5779] hover:bg-[#2c425e] text-white font-bold h-12 rounded-lg flex items-center justify-center gap-2 text-sm">
-                                                <Phone className="w-4 h-4 text-white" />
-                                                <span dir="ltr">{store?.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** *** ***") || "+972 *** *** ***"}</span>
-                                            </Button>
-                                        )}
-                                        <Link href={`${dashboardBase}/chat?type=store&id=${store?.id}`}>
-                                            <Button variant="outline" className="w-full border-[#3A5779] text-[#3A5779] hover:bg-[#3A5779]/5 bg-transparent font-bold h-12 rounded-lg flex items-center justify-center gap-2 text-sm">
-                                                <span>دردشة</span>
-                                                <Send className="w-4 h-4" />
-                                            </Button>
-                                        </Link>
-                                    </div>
-                                )}
+                                <div className="flex flex-col gap-2.5 mt-4">
+                                    {store?.phone && (
+                                        <Button className="w-full bg-[#1e3a52] hover:bg-[#152a3b] text-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm">
+                                            <Phone className="w-4 h-4 text-white" />
+                                            <span dir="ltr">{store?.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** *** ***") || "+972 *** *** ***"}</span>
+                                        </Button>
+                                    )}
+                                    <Link href={`${dashboardBase}/chat?type=store&id=${store?.id}`}>
+                                        <Button variant="outline" className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm">
+                                            <span>دردشة</span>
+                                            <Send className="w-4 h-4" />
+                                        </Button>
+                                    </Link>
+                                </div>
 
                             </div>
                         </div>
