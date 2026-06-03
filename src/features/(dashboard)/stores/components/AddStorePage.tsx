@@ -25,6 +25,7 @@ import {
   Step6FormData,
   Step7FormData,
 } from "../types";
+import { normalizeShippingCompaniesForApi } from "../buildStoreShippingUpdatePayload";
 import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { getStoreDescriptionValidationError } from "../store-ai-validation";
@@ -216,7 +217,10 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
 
     if (updatedFormData.type === "products") {
       payload.delivery_type = updatedFormData.step6!.delivery_type;
-      payload.shippingCompanies = updatedFormData.step6!.shippingCompanies;
+      payload.shippingCompanies =
+        updatedFormData.step6!.delivery_type === "shipping"
+          ? normalizeShippingCompaniesForApi(updatedFormData.step6!.shippingCompanies)
+          : [];
       payload.serviceCities = [];
     } else {
       payload.serviceCities = updatedFormData.step2!.serviceCities || [];

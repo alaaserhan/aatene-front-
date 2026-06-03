@@ -100,14 +100,14 @@ export type ShippingPricePayload = Omit<ShippingPrice, "id">;
 
 export interface ShippingCompany {
   id?: number;
-  name: string;
+  name: string | null;
   phone: string | number;
   prices: ShippingPrice[];
 }
 
 export interface ShippingCompanyPayload {
   id?: number;
-  name: string;
+  name: string | null;
   phone: string | number;
   prices: ShippingPricePayload[];
 }
@@ -376,8 +376,9 @@ export const updateStoreShippingCompanies = async (
   id: string | number,
   payload: StoreShippingCompaniesPayload
 ): Promise<SingleStoreResponse> => {
+  const endpoint = getDynamicEndpoint(`/stores/${id}/shippingCompanies`);
   const { data } = await api.post<SingleStoreResponse>(
-    `/merchants/stores/${id}/shippingCompanies`,
+    endpoint,
     payload
   );
   return data;

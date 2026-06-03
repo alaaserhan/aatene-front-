@@ -17,6 +17,8 @@ const DEFAULT_DAYS = [
   "friday",
 ] as const;
 
+const DEFAULT_SHIPPING_COMPANY_NAME = "شركة شحن";
+
 function normalizeTags(tags: Store["tags"]): string[] {
   if (!tags?.length) return [];
   const first = tags[0] as unknown;
@@ -111,7 +113,7 @@ export function mapStoreShippingCompanies(
 ): ShippingCompanyPayload[] {
   return (companies || []).map((sc) => ({
     ...(sc.id != null ? { id: sc.id } : {}),
-    name: sc.name,
+    name: sc.name?.trim() || DEFAULT_SHIPPING_COMPANY_NAME,
     phone: normalizeShippingPhone(sc.phone),
     prices: sc.prices.map((p) => ({
       city_id: p.city_id,
@@ -126,7 +128,7 @@ export function normalizeShippingCompaniesForApi(
 ): ShippingCompanyPayload[] {
   return companies.map((sc) => ({
     ...(sc.id != null ? { id: sc.id } : {}),
-    name: sc.name?.trim() || sc.name,
+    name: sc.name?.trim() || DEFAULT_SHIPPING_COMPANY_NAME,
     phone: normalizeShippingPhone(sc.phone),
     prices: sc.prices.map((p) => ({
       city_id: p.city_id,
