@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import { useDeleteProduct, useGetSingleProduct, useUpdateProductStatus, useUpdateProductShown } from "../hooks";
 import { formatPrice } from "@/src/lib/format-price";
 import { useGetSingleStore } from "@/src/features/(dashboard)/stores/hooks";
+import { useGetCities } from "@/src/features/(dashboard)/cities/hooks";
 import { useGetProductReviews, useGetProductReviewReplies, useAddProductReview } from "@/src/features/(web)/product/hooks";
 import { ReviewStatisticsDisplay } from "@/src/features/(web)/product/components/ReviewStatisticsDisplay";
 import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
@@ -70,6 +71,7 @@ export default function ProductViewPage() {
     const storeId = dashboardData?.data?.store_id;
     const { data: storeData } = useGetSingleStore(storeId, { enabled: !!storeId });
     const store = storeData?.record;
+    const { data: citiesData } = useGetCities(new URLSearchParams());
 
     const queryClient = useQueryClient();
     const { mutate: updateStatus, isPending: isUpdating } = useUpdateProductStatus();
@@ -192,6 +194,23 @@ export default function ProductViewPage() {
     ].filter(Boolean) as string[];
 
     const displayImage = activeImage || imagesList[0] || "/placeholder.png";
+    const cities = citiesData?.data || [];
+    const shippingDeliveryRows = (store?.shippingCompanies || []).flatMap((company) =>
+        (company.prices || []).map((price) => {
+            const priceRecord = price as typeof price & { city?: { id?: number; name?: string } };
+            const cityId = Number(price.city_id);
+            const cityName =
+                priceRecord.city?.name ||
+                cities.find((city) => Number(city.id) === cityId)?.name ||
+                (cityId ? `#${cityId}` : "-");
+
+            return {
+                key: `${company.id || company.name || "company"}-${price.id || cityId}-${price.price}`,
+                cityName,
+                price: price.price,
+            };
+        })
+    );
 
     const conditionLabel: Record<string, string> = {
         new: "جديد",
@@ -505,12 +524,12 @@ export default function ProductViewPage() {
 
                     {/* Sidebar Area */}
                     <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-1 lg:order-2 lg:sticky lg:top-6">
-                        <div className="bg-white rounded-2xl border border-gray-100 h-fit overflow-hidden shadow-sm">
-                            <div className="p-6 py-2">
+                        <div className="bg-white rounded-lg border border-[#DDE5EC] h-fit overflow-hidden shadow-sm">
+                            <div className="p-4">
                                 {/* Toggle Shown (Merchant Only & Approved) */}
                                 {isOwner && currentStatus === "approved" && (
-                                    <div className="flex justify-between items-center bg-[#E8EDF2] p-4 rounded-xl mt-4 shadow-sm border border-[#D0D9E2]">
-                                        <span className="font-bold text-[#1e3a52]">تفعيل المنتج</span>
+                                    <div className="mb-3 flex justify-between items-center bg-[#F4F7FA] p-3 rounded-md border border-[#DDE5EC]">
+                                        <span className="font-bold text-sm text-[#1e3a52]">تفعيل المنتج</span>
                                         <Switch
                                             checked={raw.shown}
                                             onCheckedChange={handleToggleShown}
@@ -521,44 +540,46 @@ export default function ProductViewPage() {
                                 )}
 
                                 {/* Product Metadata */}
-                                <div className="py-4 border-b border-gray-100 text-right">
-                                    <p className="font-bold text-sm mb-1 text-gray-400">فئة المنتج</p>
-                                    <p className="text-gray-700 text-sm font-medium">
+                                <div className="py-3 border-b border-[#E6ECF2] text-right">
+                                    <p className="font-bold text-sm mb-1 text-[#1e3a52]">فئة المنتج</p>
+                                    <p className="text-gray-500 text-xs font-medium leading-5">
                                         {raw.category?.name || raw.category_name || "-"}
                                         {raw.section?.name ? ` > ${raw.section.name}` : ""}
                                     </p>
                                 </div>
-                                <div className="py-4 border-b border-gray-100 text-right">
-                                    <p className="font-bold text-sm mb-1 text-gray-400">قسم المنتج</p>
-                                    <p className="text-gray-700 text-sm font-medium">{raw.section?.name || "-"}</p>
+                                <div className="py-3 border-b border-[#E6ECF2] text-right">
+                                    <p className="font-bold text-sm mb-1 text-[#1e3a52]">قسم المنتج</p>
+                                    <p className="text-gray-500 text-xs font-medium leading-5">{raw.section?.name || "-"}</p>
                                 </div>
-                                <div className="py-4 border-b border-gray-100 text-right">
-                                    <p className="font-bold text-sm mb-1 text-gray-400">سعر المنتج</p>
-                                    <p className="text-gray-900 text-sm font-bold">₪ {formatPrice(raw.price)}</p>
-                                </div>
-                                <div className="py-4 border-b border-gray-100 text-right">
-                                    <p className="font-bold text-sm mb-1 text-gray-400">حالة المنتج</p>
-                                    <p className="text-gray-900 text-sm font-bold">{conditionLabel[raw.condition || "new"] || "جديد"}</p>
+                                <div className="grid grid-cols-2 border-b border-[#E6ECF2] py-3 text-right">
+                                    <div>
+                                        <p className="font-bold text-sm mb-1 text-[#1e3a52]">سعر المنتج</p>
+                                        <p className="text-gray-500 text-xs font-medium">₪ {formatPrice(raw.price)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-sm mb-1 text-[#1e3a52]">حالة المنتج</p>
+                                        <p className="text-gray-500 text-xs font-medium">{conditionLabel[raw.condition || "new"] || "جديد"}</p>
+                                    </div>
                                 </div>
 
                                 {/* Shipping */}
-                                <div className="py-4 border-b border-gray-100 text-right">
-                                    <p className="font-bold text-sm mb-3">تفاصيل شركة الشحن</p>
-                                    <div className="flex gap-2 text-xs border border-gray-100 p-3 rounded-lg justify-between items-center bg-white shadow-sm">
-                                        <span className="text-gray-500">شركة الشحن: <span className="font-bold text-black text-sm">{store?.shippingCompanies?.[0]?.name || "محلية"}</span></span>
-                                        {store?.shippingCompanies?.[0]?.phone && <span className="text-gray-500">رقم الهاتف: <span className="font-bold text-black" dir="ltr">{store.shippingCompanies[0].phone}</span></span>}
+                                <div className="py-3 border-b border-[#E6ECF2] text-right">
+                                    <p className="font-bold text-sm mb-2 text-[#1e3a52]">تفاصيل شركة الشحن</p>
+                                    <div className="grid grid-cols-2 gap-2 text-[11px] border border-[#DDE5EC] px-3 py-2 rounded-md items-center bg-white">
+                                        <span className="text-gray-500">شركة الشحن: <span className="font-bold text-gray-800">{store?.shippingCompanies?.[0]?.name || "محلية"}</span></span>
+                                        {store?.shippingCompanies?.[0]?.phone && <span className="text-gray-500">رقم الهاتف: <span className="font-bold text-gray-800" dir="ltr">{store.shippingCompanies[0].phone}</span></span>}
                                     </div>
                                 </div>
 
                                 {/* Cities */}
-                                <div className="py-4 border-b border-gray-100 text-right">
-                                    <p className="font-bold text-sm mb-3">المدن التي يمكنه التوصيل إليها</p>
+                                <div className="py-3 border-b border-[#E6ECF2] text-right">
+                                    <p className="font-bold text-sm mb-2 text-[#1e3a52]">المدن التي يمكنه التوصيل إليها</p>
                                     <div className="grid grid-cols-2 gap-2">
-                                        {store?.serviceCities && store.serviceCities.length > 0 ? (
-                                            store.serviceCities.map((city) => (
-                                                <div key={city.id} className="border border-gray-100 p-2 rounded-lg text-xs flex justify-between items-center bg-white shadow-sm">
-                                                    <span className="text-gray-600">المدينة: <span className="font-bold text-black">{city.name}</span></span>
-                                                    <span className="text-gray-600">السعر: <span className="font-bold text-black">₪ 20</span></span>
+                                        {shippingDeliveryRows.length > 0 ? (
+                                            shippingDeliveryRows.map((row) => (
+                                                <div key={row.key} className="border border-[#DDE5EC] px-2 py-1.5 rounded-md text-[11px] flex justify-between items-center bg-white gap-2">
+                                                    <span className="text-gray-500 whitespace-nowrap">المدينة: <span className="font-bold text-gray-800">{row.cityName}</span></span>
+                                                    <span className="text-gray-500 whitespace-nowrap">السعر: <span className="font-bold text-gray-800">₪ {formatPrice(row.price)}</span></span>
                                                 </div>
                                             ))
                                         ) : (
@@ -568,12 +589,12 @@ export default function ProductViewPage() {
                                 </div>
 
                                 {/* Keywords */}
-                                <div className="py-4 border-b border-gray-100 text-right">
-                                    <p className="font-bold text-sm mb-3">الكلمات المفتاحية</p>
-                                    <div className="flex flex-wrap gap-2">
+                                <div className="py-3 border-b border-[#E6ECF2] text-right">
+                                    <p className="font-bold text-sm mb-2 text-[#1e3a52]">الكلمات المفتاحية</p>
+                                    <div className="flex flex-wrap gap-1.5">
                                         {raw.tags && raw.tags.length > 0 ? (
                                             raw.tags.map((tag: string | { id: number; title: string }, idx: number) => (
-                                                <span key={idx} className="text-[#3A5779] text-xs bg-[#3A5779]/10 px-4 py-1.5 rounded-full border border-[#3A5779]/20 font-medium">
+                                                <span key={idx} className="text-[#3A5779] text-[10px] bg-[#EEF4FA] px-3 py-1 rounded-full border border-[#C8D6E4] font-medium">
                                                     {typeof tag === "object" ? tag.title : tag}
                                                 </span>
                                             ))
@@ -585,9 +606,9 @@ export default function ProductViewPage() {
 
                                 {/* Variations (Disabled dropdowns) */}
                                 {raw.type === "variation" && raw.variations && raw.variations.length > 0 && (
-                                    <div className="py-4 border-b border-gray-100 text-right space-y-3">
+                                    <div className="py-3 border-b border-[#E6ECF2] text-right space-y-2">
                                         <div className="relative">
-                                            <select className="w-full p-3 border border-gray-200 rounded-lg text-sm text-gray-500 bg-white cursor-not-allowed appearance-none" disabled>
+                                            <select className="w-full h-9 px-3 border border-[#DDE5EC] rounded-md text-xs text-gray-500 bg-white cursor-not-allowed appearance-none" disabled>
                                                 <option>اختر المقاس</option>
                                             </select>
                                             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -595,7 +616,7 @@ export default function ProductViewPage() {
                                             </div>
                                         </div>
                                         <div className="relative">
-                                            <select className="w-full p-3 border border-gray-200 rounded-lg text-sm text-gray-500 bg-white cursor-not-allowed appearance-none" disabled>
+                                            <select className="w-full h-9 px-3 border border-[#DDE5EC] rounded-md text-xs text-gray-500 bg-white cursor-not-allowed appearance-none" disabled>
                                                 <option>اختر اللون</option>
                                             </select>
                                             <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -606,18 +627,16 @@ export default function ProductViewPage() {
                                 )}
 
                                 {/* Contact Buttons */}
-                                {!isOwner && (
-                                    <div className="flex flex-col gap-3 mt-6">
-                                        <Button className="w-full bg-[#1e3a52] hover:bg-[#152a3b] text-white font-bold h-12 rounded-lg flex items-center justify-center gap-2 text-sm shadow-md">
-                                            <Phone className="w-4 h-4 text-white" />
-                                            <span dir="ltr">{store?.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** *** ***") || "+972 *** *** ***"}</span>
-                                        </Button>
-                                        <Button variant="outline" className="w-full border-gray-200 text-gray-700 hover:bg-gray-50 bg-white font-bold h-12 rounded-lg flex items-center justify-center gap-2 text-sm shadow-sm">
-                                            <span>دردشة</span>
-                                            <Send className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                )}
+                                <div className="flex flex-col gap-2.5 mt-4">
+                                    <Button className="w-full bg-[#1e3a52] hover:bg-[#152a3b] text-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm">
+                                        <Phone className="w-4 h-4 text-white" />
+                                        <span dir="ltr">{store?.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** *** ***") || "+972 *** *** ***"}</span>
+                                    </Button>
+                                    <Button variant="outline" className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm">
+                                        <span>دردشة</span>
+                                        <Send className="w-4 h-4" />
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>
