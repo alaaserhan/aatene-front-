@@ -127,7 +127,7 @@ export default function ShippingPolicies({
         return { activeCompany: activeC, activeDetails: activeD };
     }, [allShippingCompanies, selectedCityId, shippingCompany, shippingDetails, selectedCityName, isShippingDelivery]);
 
-    const deliveryCompanyName = typeof activeCompany?.name === "string" ? activeCompany.name.trim() : "";
+    const deliveryCompanyName = getDisplayCompanyName(activeCompany?.name);
     const deliveryCompanyPhone = normalizeDisplayPhone(activeCompany?.phone);
 
     const handleApplyCity = () => {
@@ -300,6 +300,14 @@ function normalizeDisplayPhone(phone: unknown): string {
     const value = String(phone).trim();
     const digits = value.replace(/\D/g, "");
     if (digits.length <= 4) return "";
+    return value;
+}
+
+function getDisplayCompanyName(name: unknown): string {
+    if (typeof name !== "string") return "";
+    const value = name.trim();
+    const normalized = value.replace(/\s+/g, " ");
+    if (!normalized || normalized === "شركة شحن") return "";
     return value;
 }
 
