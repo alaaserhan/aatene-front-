@@ -77,7 +77,7 @@ export function StoresAdminTable({
 
   return (
     <div className="flex flex-col h-full bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto no-scrollbar">
         <table className="w-full min-w-[900px]">
           <thead className="bg-[#EEF2F6] border-b border-gray-200">
             <tr>

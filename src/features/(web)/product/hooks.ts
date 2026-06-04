@@ -36,6 +36,7 @@ export const useGetProductPageDataBySlug = (slug: string, cityId?: number | null
     queryKey: ["productPageData", slug, cityId ?? "default"],
     queryFn: () => getProductPageDataBySlug(slug, cityId),
     enabled: !!slug,
+    placeholderData: (previousData) => previousData,
   });
 };
 
