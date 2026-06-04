@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
@@ -10,102 +10,151 @@ interface HoverPlayVideoProps {
     videoClassName?: string;
 }
 
+function usePrefersTouchPlayback() {
+    const [touchPlayback, setTouchPlayback] = useState(true);
+
+    useEffect(() => {
+        const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+        const update = () => {
+            // آيفون/موبايل: coarse أو بدون hover → تشغيل بالظهور وليس بالهوفر
+            const coarse = window.matchMedia("(pointer: coarse)").matches;
+            const noHover = window.matchMedia("(hover: none)").matches;
+            setTouchPlayback(coarse || noHover || !finePointer.matches);
+        };
+        update();
+        finePointer.addEventListener("change", update);
+        window.matchMedia("(pointer: coarse)").addEventListener("change", update);
+        window.matchMedia("(hover: none)").addEventListener("change", update);
+        return () => {
+            finePointer.removeEventListener("change", update);
+            window.matchMedia("(pointer: coarse)").removeEventListener("change", update);
+            window.matchMedia("(hover: none)").removeEventListener("change", update);
+        };
+    }, []);
+
+    return touchPlayback;
+}
+
 export function HoverPlayVideo({ src, className, videoClassName }: HoverPlayVideoProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
+    const touchPlayback = usePrefersTouchPlayback();
     const [isPlaying, setIsPlaying] = useState(false);
-    const [canHoverPlay, setCanHoverPlay] = useState(false);
+    const [hasFrame, setHasFrame] = useState(false);
 
-    useEffect(() => {
-        const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
-        const update = () => setCanHoverPlay(mq.matches);
-        update();
-        mq.addEventListener("change", update);
-        return () => mq.removeEventListener("change", update);
+    const prepareVideo = useCallback((video: HTMLVideoElement) => {
+        video.muted = true;
+        video.defaultMuted = true;
+        video.playsInline = true;
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
     }, []);
 
-    // موبايل / آيفون: تشغيل صامت عند ظهور الكارت (لا يوجد hover)
     useEffect(() => {
-        if (canHoverPlay) return;
+        setIsPlaying(false);
+        setHasFrame(false);
+    }, [src]);
+
+    const tryPlay = useCallback(async (video: HTMLVideoElement) => {
+        prepareVideo(video);
+        try {
+            await video.play();
+            setIsPlaying(true);
+        } catch {
+            setIsPlaying(false);
+        }
+    }, [prepareVideo]);
+
+    // موبايل / آيفون
+    useEffect(() => {
+        if (!touchPlayback) return;
 
         const root = containerRef.current;
         const video = videoRef.current;
         if (!root || !video) return;
 
-        const tryPlay = () => {
-            video
-                .play()
-                .then(() => setIsPlaying(true))
-                .catch(() => setIsPlaying(false));
+        prepareVideo(video);
+
+        const onFrame = () => setHasFrame(true);
+
+        const onVisible = (entry: IntersectionObserverEntry) => {
+            if (!entry.isIntersecting || entry.intersectionRatio < 0.2) {
+                video.pause();
+                setIsPlaying(false);
+                return;
+            }
+            void tryPlay(video);
         };
 
-        const pauseAndReset = () => {
-            video.pause();
-            try {
-                video.currentTime = 0;
-            } catch {
-                /* ignore */
-            }
-            setIsPlaying(false);
-        };
+        video.addEventListener("loadeddata", onFrame);
+        video.addEventListener("canplay", onFrame);
 
         const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    if (video.readyState >= 2) tryPlay();
-                    else video.addEventListener("loadeddata", tryPlay, { once: true });
-                } else {
-                    pauseAndReset();
-                }
-            },
-            { threshold: 0.4, rootMargin: "40px" }
+            ([entry]) => onVisible(entry),
+            { threshold: [0, 0.2, 0.45, 0.7], rootMargin: "24px" }
         );
 
         observer.observe(root);
+        video.load();
+
         return () => {
             observer.disconnect();
-            pauseAndReset();
+            video.removeEventListener("loadeddata", onFrame);
+            video.removeEventListener("canplay", onFrame);
+            video.pause();
         };
-    }, [src, canHoverPlay]);
+    }, [src, touchPlayback, prepareVideo, tryPlay]);
 
+    // ديسكتوب: هوفر
     const playOnHover = () => {
         const video = videoRef.current;
-        if (!video || !canHoverPlay) return;
-        video
-            .play()
-            .then(() => setIsPlaying(true))
-            .catch(() => setIsPlaying(false));
+        if (!video || touchPlayback) return;
+        void tryPlay(video);
     };
 
     const pauseOnHoverLeave = () => {
         const video = videoRef.current;
-        if (!video || !canHoverPlay) return;
+        if (!video || touchPlayback) return;
         video.pause();
         video.currentTime = 0;
         setIsPlaying(false);
+        setHasFrame(false);
     };
+
+    const showDesktopOverlay = !touchPlayback && !isPlaying;
 
     return (
         <div
             ref={containerRef}
             className={cn("relative h-full w-full bg-gray-100", className)}
-            onMouseEnter={canHoverPlay ? playOnHover : undefined}
-            onMouseLeave={canHoverPlay ? pauseOnHoverLeave : undefined}
+            onMouseEnter={touchPlayback ? undefined : playOnHover}
+            onMouseLeave={touchPlayback ? undefined : pauseOnHoverLeave}
         >
             <video
-                ref={videoRef}
+                ref={(el) => {
+                    videoRef.current = el;
+                    if (el) prepareVideo(el);
+                }}
                 src={src}
                 className={cn("h-full w-full object-cover", videoClassName)}
                 muted
                 playsInline
                 loop
-                preload={canHoverPlay ? "metadata" : "auto"}
+                preload="auto"
+                onLoadedData={() => setHasFrame(true)}
+                onPlaying={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
             />
-            {!isPlaying && (
+            {showDesktopOverlay && (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
                     <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-sm">
                         <Play className="h-7 w-7 fill-gray-700 text-gray-700" />
                     </div>
+                </div>
+            )}
+            {touchPlayback && !isPlaying && !hasFrame && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-gray-200/60">
+                    <div className="h-8 w-8 animate-pulse rounded-full bg-gray-300/80" />
                 </div>
             )}
         </div>
