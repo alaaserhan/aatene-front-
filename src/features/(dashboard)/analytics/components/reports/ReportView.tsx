@@ -38,7 +38,7 @@ interface ReportViewProps {
 }
 
 export function ReportView({ type }: ReportViewProps) {
-    const [period, setPeriod] = useState("last_year");
+    const [period, setPeriod] = useState("current_year");
     const [isExporting, setIsExporting] = useState(false);
     const reportRef = useRef<HTMLDivElement>(null);
 
