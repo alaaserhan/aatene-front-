@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Product } from "../api";
 import Link from "next/link";
 import { formatPrice } from "@/src/lib/format-price";
 import { isVideoFile, resolveImageSrc, sanitizeMediaUrl } from "@/src/lib/utils";
+import { HoverPlayVideo } from "@/src/components/ui/HoverPlayVideo";
 
 interface CrossSellsSectionProps {
     crossSells: Product[];
@@ -139,21 +140,11 @@ function CrossSellProductMedia({ product }: { product: Product }) {
     return (
         <div className="relative w-full aspect-square rounded-md overflow-hidden bg-white border border-gray-200 shadow-sm">
             {showVideo ? (
-                <>
-                    <video
-                        src={mediaSrc}
-                        className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
-                        muted
-                        playsInline
-                        preload="metadata"
-                        onError={() => setFailedCoverUrl(normalizedCover || null)}
-                    />
-                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/10">
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/90 shadow-sm sm:h-8 sm:w-8">
-                            <Play className="h-3.5 w-3.5 fill-gray-700 text-gray-700 sm:h-4 sm:w-4" />
-                        </div>
-                    </div>
-                </>
+                <HoverPlayVideo
+                    src={mediaSrc}
+                    className="absolute inset-0"
+                    videoClassName="group-hover/item:scale-105 transition-transform duration-300"
+                />
             ) : (
                 <img
                     src={mediaSrc}

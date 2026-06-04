@@ -12,6 +12,19 @@ export const isVideoFile = (urlOrName: string) => {
 };
 
 /**
+ * يطلب من Safari/iOS تحميل إطار أول للمعاينة في الكروت (بدون تشغيل كامل).
+ * لا يُستخدم للتشغيل الفعلي — فقط لعرض thumbnail.
+ */
+export function getVideoPreviewSrc(url: string): string {
+    if (!url) return url;
+    const hashIndex = url.indexOf("#");
+    const base = hashIndex >= 0 ? url.slice(0, hashIndex) : url;
+    const hash = hashIndex >= 0 ? url.slice(hashIndex + 1) : "";
+    if (hash.startsWith("t=")) return url;
+    return `${base}#t=0.001`;
+}
+
+/**
  * يُصلح URL الصور القادمة من الباكند عندما يكون APP_URL=http://localhost
  * يستبدل http://localhost بـ API base URL الحقيقي
  */
