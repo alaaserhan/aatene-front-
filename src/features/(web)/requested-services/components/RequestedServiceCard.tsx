@@ -61,6 +61,7 @@ export default function RequestedServiceCard({
               </ReportAbuse>
             </div>
           </div>
+
           <p className="text-gray-2 text-sm leading-[1.7] line-clamp-2 text-right">
             {stripHtmlTags(service.content)}
           </p>

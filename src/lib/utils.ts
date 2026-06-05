@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-
+import DOMPurify from "isomorphic-dompurify";
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
@@ -69,17 +69,22 @@ export function resolveImageSrc(
     return getPlaceholder(type);
 }
 
+
+
 /**
- * يزيل وسوم HTML من النص ويفك تشفير الرموز الأساسية
+ * يزيل وسوم HTML من النص بطريقة آمنة ويفك تشفير الرموز الأساسية
  */
 export function stripHtmlTags(html: string | null | undefined): string {
     if (!html) return "";
 
-    // إزالة الوسوم
-    const stripped = html.replace(/<[^>]*>?/gm, "");
+    // تطهير النص أولاً للحماية من الهجمات
+    const cleanHtml = DOMPurify.sanitize(html, {
+        ALLOWED_TAGS: [], // إزالة جميع الوسوم
+        KEEP_CONTENT: true,
+    });
 
-    // فك تشفير بعض الرموز الشائعة (اختياري لكن مفيد للنصوص الاحترافية)
-    return stripped
+    // فك تشفير الرموز الشائعة (DOMPurify يتعامل مع معظمها ولكن للاحتياط)
+    return cleanHtml
         .replace(/&nbsp;/g, " ")
         .replace(/&amp;/g, "&")
         .replace(/&lt;/g, "<")
@@ -88,3 +93,12 @@ export function stripHtmlTags(html: string | null | undefined): string {
         .replace(/&#39;/g, "'")
         .trim();
 }
+
+/**
+ * يطهر النص من وسوم HTML الخبيثة للاستخدام مع dangerouslySetInnerHTML
+ */
+export function sanitizeHtml(html: string | null | undefined): string {
+    if (!html) return "";
+    return DOMPurify.sanitize(html);
+}
+
