@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+    return twMerge(clsx(inputs))
 }
 
 /** مسار ملف أو URL كامل — يستبعد query string لاكتشاف الامتداد (مثل file.mp4?token=) */
@@ -67,4 +67,24 @@ export function resolveImageSrc(
     const sanitized = sanitizeMediaUrl(src || "");
     if (sanitized && failedSrc !== sanitized) return sanitized;
     return getPlaceholder(type);
+}
+
+/**
+ * يزيل وسوم HTML من النص ويفك تشفير الرموز الأساسية
+ */
+export function stripHtmlTags(html: string | null | undefined): string {
+    if (!html) return "";
+
+    // إزالة الوسوم
+    const stripped = html.replace(/<[^>]*>?/gm, "");
+
+    // فك تشفير بعض الرموز الشائعة (اختياري لكن مفيد للنصوص الاحترافية)
+    return stripped
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .trim();
 }
