@@ -193,6 +193,12 @@ export default function proxy(request: NextRequest) {
 
   // return I18nMiddleware(request);
   const i18nResponse = I18nMiddleware(request);
+  const hasLocalePrefix = segments.length > 0 && LOCALES.has(segments[0]);
+  const isPublicAnonymousRoute = !token && !hasLocalePrefix && !isProtectedWebRoute && adminIndex === -1;
+
+  if (isPublicAnonymousRoute) {
+    i18nResponse.headers.delete("set-cookie");
+  }
 
   // منع الـ redirect loop على iOS
   if (

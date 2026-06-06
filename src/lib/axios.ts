@@ -32,8 +32,13 @@ api.interceptors.request.use(
 
     let token: string | undefined;
     let lang: string | undefined;
+    const skipServerAuth = config.headers?.["x-skip-server-auth"] === "true";
 
-    if (typeof window === "undefined") {
+    if (config.headers?.["x-skip-server-auth"]) {
+      delete config.headers["x-skip-server-auth"];
+    }
+
+    if (typeof window === "undefined" && !skipServerAuth) {
       try {
         const { cookies } = await import("next/headers");
         const cookieStore = await cookies();
@@ -55,7 +60,7 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    lang = lang || "en";
+    lang = lang || "ar";
     if (lang && config.headers) {
       config.headers["X-Culture"] = lang;
     }
