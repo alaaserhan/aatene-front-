@@ -12,9 +12,10 @@ import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 
 interface HomeBannersProps {
     banners?: Banner[]; // Keep optional for backward compatibility or initial server render if needed
+    isMobile?: boolean;
 }
 
-export default function HomeBanners({ banners: initialBanners }: HomeBannersProps) {
+export default function HomeBanners({ banners: initialBanners, isMobile = false }: HomeBannersProps) {
     const { data: response, isLoading } = useFirstBanners({
         enabled: !initialBanners,
     });
@@ -51,6 +52,8 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
     // Fallback if one is missing but other exists
     const desktopSrc = hasLaptopImage ? currentBanner.labtop_banner_url : (hasMobileImage ? currentBanner.mobile_banner_url : null);
     const mobileSrc = hasMobileImage ? currentBanner.mobile_banner_url : (hasLaptopImage ? currentBanner.labtop_banner_url : null);
+    const prioritizeDesktopImage = currentIndex === 0 && !isMobile;
+    const prioritizeMobileImage = currentIndex === 0 && isMobile;
     return (
         <section className="bg-white pt-2 md:pt-4">
             <MaxWidthWrapper>
@@ -82,9 +85,9 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
                                         alt={currentBanner.title && !currentBanner.title.startsWith("http") ? currentBanner.title : "Aatene Banner"}
                                         fill
                                         className="object-cover w-full h-full"
-                                        priority={currentIndex === 0}
-                                        loading={currentIndex === 0 ? "eager" : "lazy"}
-                                        fetchPriority={currentIndex === 0 ? "high" : "low"}
+                                        preload={false}
+                                        loading={prioritizeDesktopImage ? "eager" : "lazy"}
+                                        fetchPriority={prioritizeDesktopImage ? "high" : "low"}
                                         onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-desktop`]: true }))}
                                         sizes="(max-width: 768px) 100vw, 1400px"
                                     />
@@ -110,9 +113,9 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
                                         alt={currentBanner.title && !currentBanner.title.startsWith("http") ? currentBanner.title : "Aatene Banner"}
                                         fill
                                         className="object-cover w-full h-full"
-                                        priority={currentIndex === 0}
-                                        loading={currentIndex === 0 ? "eager" : "lazy"}
-                                        fetchPriority={currentIndex === 0 ? "high" : "low"}
+                                        preload={false}
+                                        loading={prioritizeMobileImage ? "eager" : "lazy"}
+                                        fetchPriority={prioritizeMobileImage ? "high" : "low"}
                                         onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-mobile`]: true }))}
                                         sizes="100vw"
                                     />
