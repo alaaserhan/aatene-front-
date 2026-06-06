@@ -191,6 +191,12 @@ export const createReportType = async (payload: CreateReportTypePayload): Promis
   return data;
 };
 
+export const deleteReportType = async (id: string | number): Promise<GenericResponse> => {
+  const endpoint = getDynamicEndpoint(`/report-types/${id}`);
+  const { data } = await api.delete<GenericResponse>(endpoint);
+  return data;
+};
+
 export const updateReportStatus = async (id: string | number, payload: UpdateStatusPayload): Promise<GenericResponse> => {
   const endpoint = getDynamicEndpoint(`/reports/${id}/update-status`);
   const { data } = await api.post<GenericResponse>(endpoint, payload);

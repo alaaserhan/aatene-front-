@@ -14,6 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { toast } from "sonner";
 import { productAskForPriceButtonClassName } from "@/src/features/(web)/product/components/productAskForPriceButton";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 
 interface ServiceCardProps {
     service: Service;
@@ -97,13 +98,12 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
 
             <div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100">
                 {serviceImage && !imgError ? (
-                    <Image
+                    <VideoOrImage
                         src={serviceImage}
                         alt={service.title && !service.title.startsWith("http") ? service.title : "Service Image"}
                         fill
+                        thumb
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
-                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 300px"
-                        onError={() => setImgError(true)}
                     />
                 ) : (
                     <div className="w-full h-full bg-gray-100 flex items-center justify-center">

@@ -43,7 +43,7 @@
     "firebase": "^12.8.0",
     "framer-motion": "^12.23.24",
     "html-to-image": "^1.11.13",
-    "isomorphic-dompurify": "^3.15.0",
+    "isomorphic-dompurify": "^3.16.0",
     "js-cookie": "^3.0.5",
     "jspdf": "^4.0.0",
     "laravel-echo": "^2.3.3",

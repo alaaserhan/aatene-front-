@@ -4,7 +4,7 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import { Plus, X } from "lucide-react";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 import { toast } from "sonner";
 import { MediaCenterModal } from "./MediaCenterModal";
 import { MediaItem, getMediaPreviewUrl } from "../api";
@@ -123,13 +123,21 @@ export function MediaSelectButton({
           "relative flex justify-center items-center border rounded-lg overflow-hidden",
           error ? "border-red-500" : "border-gray-200"
         )}
-          style={frameStyle}
+          style={{ width: "100%", maxWidth: width, height: Math.min(height, 350) }}
         >
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="max-h-[calc(100%-1rem)] max-w-[calc(100%-1rem)] object-cover"
-          />
+          {isVideoFile(previewUrl || "") ? (
+            <video
+              src={previewUrl}
+              className="max-h-[calc(100%-1rem)] max-w-[calc(100%-1rem)] object-cover pointer-events-none"
+              autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
+            />
+          ) : (
+            <img
+              src={previewUrl}
+              alt="Preview"
+              className="max-h-[calc(100%-1rem)] max-w-[calc(100%-1rem)] object-cover"
+            />
+          )}
           <button
             onClick={handleRemove}
             type="button"

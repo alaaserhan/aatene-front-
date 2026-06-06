@@ -118,6 +118,8 @@ export function AddStoreStep2({
 
   // ------------------------------
 
+  const [serviceCitySearchQuery, setServiceCitySearchQuery] = useState("");
+
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
 
@@ -354,13 +356,6 @@ export function AddStoreStep2({
                       className="text-[12px] border-none shadow-none px-0 py-2.5 focus-visible:ring-0 text-start"
                       placeholder="ادخل العنوان"
                     />
-                    {/* <Button
-                      type="button"
-                      variant="link"
-                      className="p-0 px-3 py-0 mx-0.5 text-xs whitespace-nowrap"
-                    >
-                      تحديد من الخريطة
-                    </Button> */}
                   </div>
                 </div>
 
@@ -372,13 +367,16 @@ export function AddStoreStep2({
                     <ReusableDropdown
                       options={cityOptions.filter(
                         (opt) =>
-                          !formData.serviceCities?.includes(parseInt(opt.value))
+                          !formData.serviceCities?.includes(parseInt(opt.value)) &&
+                          opt.label.toLowerCase().includes(serviceCitySearchQuery.toLowerCase())
                       )}
                       value=""
                       onChange={handleAddServiceCity}
                       placeholder="أضف مدينة جديدة"
                       error={errors.serviceCities}
                       className="h-11"
+                      onSearch={(q) => setServiceCitySearchQuery(q)}
+                      searchPlaceholder="ابحث باسم المدينة..."
                       triggerIcon={
                         <img
                           src="/icons/dashboard/mark.svg"

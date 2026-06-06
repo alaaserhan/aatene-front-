@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import { Search, HelpCircle, Loader2, Eye, Pencil, Circle, Plus } from "lucide-react";
 import { Banner } from "../api";
 import { formatDate } from "@/src/lib/date-helper";
+import { isVideoFile } from "@/src/lib/utils";
 import {
   useGetBanners,
   useDeleteBanner,
@@ -256,11 +257,22 @@ export function BannersPage() {
 
                       <td className="hidden sm:table-cell px-3 sm:px-4 py-4 text-center">
                         <div className="flex justify-center">
-                          <img
-                            src={banner.labtop_banner_url}
-                            alt={banner.title}
-                            className="max-h-16 sm:max-h-24 max-w-28 sm:max-w-44 object-cover rounded"
-                          />
+                          {isVideoFile(banner.labtop_banner_url || "") ? (
+                            <video
+                              src={banner.labtop_banner_url}
+                              className="max-h-16 sm:max-h-24 max-w-28 sm:max-w-44 object-cover rounded pointer-events-none"
+                              autoPlay
+                              muted
+                              loop
+                              playsInline
+                            />
+                          ) : (
+                            <img
+                              src={banner.labtop_banner_url}
+                              alt={banner.title}
+                              className="max-h-16 sm:max-h-24 max-w-28 sm:max-w-44 object-cover rounded"
+                            />
+                          )}
                         </div>
                       </td>
 

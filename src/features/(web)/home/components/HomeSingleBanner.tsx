@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Banner } from "../types";
+import { cn, isVideoFile } from "@/src/lib/utils";
 
 interface HomeSingleBannerProps {
     banner: Banner | null;
@@ -35,15 +36,24 @@ export default function HomeSingleBanner({ banner }: HomeSingleBannerProps) {
                     {/* Art Direction: Both images rendered, CSS handles visibility (No JS flash) */}
                     <div className="hidden md:block w-full h-full relative">
                         {desktopSrc ? (
-                            <Image
-                                src={desktopSrc}
-                                alt={banner.title && !banner.title.startsWith("http") ? banner.title : "Aatene Banner"}
-                                fill
-                                className="object-cover w-full transition-transform duration-500 group-hover:scale-105"
-                                onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
-                                sizes="(max-width: 1200px) 100vw, 1170px"
-                                fetchPriority="high"
-                            />
+                            isVideoFile(desktopSrc) ? (
+                                <video
+                                    src={desktopSrc}
+                                    className="object-cover w-full h-full absolute inset-0 pointer-events-none transition-transform duration-500 group-hover:scale-105"
+                                    autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
+                                    onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
+                                />
+                            ) : (
+                                <Image
+                                    src={desktopSrc}
+                                    alt={banner.title && !banner.title.startsWith("http") ? banner.title : "Aatene Banner"}
+                                    fill
+                                    className="object-cover w-full transition-transform duration-500 group-hover:scale-105"
+                                    onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
+                                    sizes="(max-width: 1200px) 100vw, 1170px"
+                                    fetchPriority="high"
+                                />
+                            )
                         ) : (
                             <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
                                 No Image Available
@@ -52,15 +62,24 @@ export default function HomeSingleBanner({ banner }: HomeSingleBannerProps) {
                     </div>
                     <div className="block md:hidden w-full h-full relative">
                         {mobileSrc ? (
-                            <Image
-                                src={mobileSrc}
-                                alt={banner.title && !banner.title.startsWith("http") ? banner.title : "Aatene Banner"}
-                                fill
-                                className="object-cover w-full transition-transform duration-500 group-hover:scale-105"
-                                onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
-                                sizes="100vw"
-                                fetchPriority="high"
-                            />
+                            isVideoFile(mobileSrc) ? (
+                                <video
+                                    src={mobileSrc}
+                                    className="object-cover w-full h-full absolute inset-0 pointer-events-none transition-transform duration-500 group-hover:scale-105"
+                                    autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
+                                    onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
+                                />
+                            ) : (
+                                <Image
+                                    src={mobileSrc}
+                                    alt={banner.title && !banner.title.startsWith("http") ? banner.title : "Aatene Banner"}
+                                    fill
+                                    className="object-cover w-full transition-transform duration-500 group-hover:scale-105"
+                                    onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
+                                    sizes="100vw"
+                                    fetchPriority="high"
+                                />
+                            )
                         ) : (
                             <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
                                 No Image Available

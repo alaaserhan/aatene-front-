@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { Banner } from "../types";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 import { useFirstBanners } from "../hooks";
 import { BannerSkeleton } from "./HomeSkeletons";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
@@ -69,17 +69,26 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
                         {/* Art Direction: Both images rendered, CSS handles visibility (No JS flash) */}
                         <div className="hidden md:block w-full h-full relative">
                             {desktopSrc ? (
-                                <Image
-                                    src={desktopSrc}
-                                    alt={currentBanner.title && !currentBanner.title.startsWith("http") ? currentBanner.title : "Aatene Banner"}
-                                    fill
-                                    className="object-cover w-full h-full"
-                                    priority={currentIndex === 0}
-                                    loading={currentIndex === 0 ? "eager" : "lazy"}
-                                    fetchPriority={currentIndex === 0 ? "high" : "low"}
-                                    onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-desktop`]: true }))}
-                                    sizes="(max-width: 768px) 100vw, 1400px"
-                                />
+                                isVideoFile(desktopSrc) ? (
+                                    <video
+                                        src={desktopSrc}
+                                        className="object-cover w-full h-full absolute inset-0 pointer-events-none"
+                                        autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
+                                        onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-desktop`]: true }))}
+                                    />
+                                ) : (
+                                    <Image
+                                        src={desktopSrc}
+                                        alt={currentBanner.title && !currentBanner.title.startsWith("http") ? currentBanner.title : "Aatene Banner"}
+                                        fill
+                                        className="object-cover w-full h-full"
+                                        priority={currentIndex === 0}
+                                        loading={currentIndex === 0 ? "eager" : "lazy"}
+                                        fetchPriority={currentIndex === 0 ? "high" : "low"}
+                                        onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-desktop`]: true }))}
+                                        sizes="(max-width: 768px) 100vw, 1400px"
+                                    />
+                                )
                             ) : (
                                 <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
                                     No Image Available
@@ -88,17 +97,26 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
                         </div>
                         <div className="block md:hidden w-full h-full relative">
                             {mobileSrc ? (
-                                <Image
-                                    src={mobileSrc}
-                                    alt={currentBanner.title && !currentBanner.title.startsWith("http") ? currentBanner.title : "Aatene Banner"}
-                                    fill
-                                    className="object-cover w-full h-full"
-                                    priority={currentIndex === 0}
-                                    loading={currentIndex === 0 ? "eager" : "lazy"}
-                                    fetchPriority={currentIndex === 0 ? "high" : "low"}
-                                    onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-mobile`]: true }))}
-                                    sizes="100vw"
-                                />
+                                isVideoFile(mobileSrc) ? (
+                                    <video
+                                        src={mobileSrc}
+                                        className="object-cover w-full h-full absolute inset-0 pointer-events-none"
+                                        autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
+                                        onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-mobile`]: true }))}
+                                    />
+                                ) : (
+                                    <Image
+                                        src={mobileSrc}
+                                        alt={currentBanner.title && !currentBanner.title.startsWith("http") ? currentBanner.title : "Aatene Banner"}
+                                        fill
+                                        className="object-cover w-full h-full"
+                                        priority={currentIndex === 0}
+                                        loading={currentIndex === 0 ? "eager" : "lazy"}
+                                        fetchPriority={currentIndex === 0 ? "high" : "low"}
+                                        onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-mobile`]: true }))}
+                                        sizes="100vw"
+                                    />
+                                )
                             ) : (
                                 <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
                                     No Image Available

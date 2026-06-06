@@ -12,6 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import { Pagination } from "@/src/components/ui/Pagination";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 
 interface ServicesTableProps {
     services: Service[];
@@ -98,11 +99,15 @@ export function ServicesTable({
                                     <div className="flex justify-center">
                                         <div className="w-16 h-12 rounded bg-gray-100 overflow-hidden relative shrink-0">
                                             {service.images_url ? (
-                                                <img
-                                                    src={Array.isArray(service.images_url) ? service.images_url[0] : service.images_url}
-                                                    alt={service.title}
-                                                    className="w-full h-full object-cover"
-                                                />
+                                                <div className="relative w-full h-full pointer-events-none">
+                                                    <VideoOrImage
+                                                        src={Array.isArray(service.images_url) ? service.images_url[0] : service.images_url}
+                                                        alt={service.title}
+                                                        fill
+                                                        thumb
+                                                        className="object-cover"
+                                                    />
+                                                </div>
                                             ) : (
                                                 <div className="flex items-center justify-center h-full text-gray-300">
                                                     <span className="text-[10px]">No Img</span>
