@@ -52,25 +52,10 @@ export function getPlaceholder(type: PlaceholderType = "product"): string {
     return PLACEHOLDER_PATHS[type] ?? PLACEHOLDER_PATHS.product;
 }
 
-/**
- * يعيد كتابة روابط *.r2.dev لتمر عبر `/‌_r2/...` (بروكسي Next.js)
- * ليتم إضافة Cache-Control والاستفادة من تخزين المتصفح.
- */
-export function getR2CachedUrl(url: string): string {
-    if (!url) return url;
-    try {
-        const urlObj = new URL(url);
-        if (urlObj.hostname.endsWith(".r2.dev")) {
-            return `/_r2${urlObj.pathname}${urlObj.search}`;
-        }
-    } catch { /* تجاهل URLs غير صالحة */ }
-    return url;
-}
-
-/** ينفذ fixMediaUrl + upgradeHttpToHttps + getR2CachedUrl معًا */
+/** ينفذ fixMediaUrl + upgradeHttpToHttps معًا */
 export function sanitizeMediaUrl(url: string | null | undefined): string {
     if (!url) return "";
-    return getR2CachedUrl(upgradeHttpToHttps(fixMediaUrl(url)));
+    return upgradeHttpToHttps(fixMediaUrl(url));
 }
 
 /** يجهز مصدر الصورة مع fallback */
