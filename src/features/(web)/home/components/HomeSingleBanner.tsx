@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Banner } from "../types";
 import { cn, isVideoFile } from "@/src/lib/utils";
+import LazyBannerVideo from "./LazyBannerVideo";
 
 interface HomeSingleBannerProps {
     banner: Banner | null;
@@ -37,10 +38,9 @@ export default function HomeSingleBanner({ banner }: HomeSingleBannerProps) {
                     <div className="hidden md:block w-full h-full relative">
                         {desktopSrc ? (
                             isVideoFile(desktopSrc) ? (
-                                <video
+                                <LazyBannerVideo
                                     src={desktopSrc}
                                     className="object-cover w-full h-full absolute inset-0 pointer-events-none transition-transform duration-500 group-hover:scale-105"
-                                    autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
                                     onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
                                 />
                             ) : (
@@ -63,10 +63,9 @@ export default function HomeSingleBanner({ banner }: HomeSingleBannerProps) {
                     <div className="block md:hidden w-full h-full relative">
                         {mobileSrc ? (
                             isVideoFile(mobileSrc) ? (
-                                <video
+                                <LazyBannerVideo
                                     src={mobileSrc}
                                     className="object-cover w-full h-full absolute inset-0 pointer-events-none transition-transform duration-500 group-hover:scale-105"
-                                    autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
                                     onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
                                 />
                             ) : (
