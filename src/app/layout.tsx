@@ -8,6 +8,7 @@ import { TikTokPixel } from "@/src/components/providers/TikTokPixel";
 import { Toaster } from "sonner";
 import { Suspense } from "react";
 import React from "react";
+import Script from "next/script";
 import localFont from "next/font/local";
 import "@/src/app/globals.css";
 import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/src/lib/seo.config";
@@ -124,6 +125,10 @@ export default function RootLayout({
         </QueryProvider>
         
         <Toaster richColors dir="rtl" position="top-right" />
+        <Script
+          id="register-sw"
+          strategy="lazyOnload"
+        >{`if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js')}`}</Script>
       </body>
     </html>
   );
