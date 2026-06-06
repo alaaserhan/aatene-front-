@@ -140,6 +140,8 @@ const Footer = () => {
                       <img
                         src={upgradeHttpToHttps(fixMediaUrl(settings.logo_url))}
                         alt={settings?.name || "Aatene"}
+                        width={126}
+                        height={34}
                         className="h-10 w-auto object-contain"
                       />
                     ) : (
