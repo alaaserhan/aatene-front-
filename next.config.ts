@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 import { join } from "node:path";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    optimizeCss: true,
+  },
   async redirects() {
     return [
       {
