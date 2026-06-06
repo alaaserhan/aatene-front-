@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 import { join } from "node:path";
 
-const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || "https://pub-cf38031c25af4e26bfbe468543d9bae2.r2.dev";
-
 const nextConfig: NextConfig = {
   async redirects() {
     return [
@@ -40,18 +38,6 @@ const nextConfig: NextConfig = {
       { source: "/chat", destination: "/ar/chat" },
       /** روابط الفوتر والصفحة الرئيسية بدون locale — يطابق سلوك الشات */
       { source: "/search", destination: "/ar/search" },
-      /** يعيد توجيه صور R2 عبر API route لإضافة Cache-Control للاستفادة من تخزين المتصفح */
-      { source: "/_r2/:path*", destination: "/api/r2/:path*" },
-    ];
-  },
-  async headers() {
-    return [
-      {
-        source: "/_r2/:path*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
-      },
     ];
   },
   images: {
