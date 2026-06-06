@@ -134,6 +134,9 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     const isStoreShippingPath = /^\/(?:admin|dashboard)\/stores\/[^/]+\/shipping(?:\/|$)/.test(pathname || "");
 
     if (basePath === "/stores" && isStoreShippingPath) return false;
+    
+    if (basePath === "/users" && pathname?.startsWith(`${navPrefix}/permissions`)) return true;
+
     if (fullPath === navPrefix && pathname === fullPath) return true;
     if (fullPath !== navPrefix && pathname?.startsWith(fullPath)) return true;
     return false;

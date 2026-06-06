@@ -9,7 +9,7 @@ import { Button } from "@/src/components/ui/button";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 
 interface BannerDetailsPageProps {
     bannerId: string | number;
@@ -241,12 +241,20 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
                                         صورة العرض على الكمبيوتر
                                     </label>
                                 </div>
-                                <div className="border h-48 flex justify-center items-center border-gray-200 rounded-lg overflow-hidden">
-                                    <img
-                                        src={banner.labtop_banner_url}
-                                        alt="Desktop Banner"
-                                        className=" h-40 max-w-10/12 object-cover"
-                                    />
+                                <div className="border min-h-[250px] p-4 flex justify-center items-center border-gray-200 rounded-lg overflow-hidden bg-gray-50/50">
+                                    {isVideoFile(banner.labtop_banner_url || "") ? (
+                                        <video
+                                            src={banner.labtop_banner_url}
+                                            className="max-h-[300px] w-full object-contain pointer-events-none"
+                                            autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
+                                        />
+                                    ) : (
+                                        <img
+                                            src={banner.labtop_banner_url}
+                                            alt="Desktop Banner"
+                                            className="max-h-[300px] w-full object-contain"
+                                        />
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -260,12 +268,20 @@ export function BannerDetailsPage({ bannerId }: BannerDetailsPageProps) {
                                         صورة العرض على الموبايل
                                     </label>
                                 </div>
-                                <div className="border h-48 flex justify-center items-center border-gray-200 rounded-lg overflow-hidden ">
-                                    <img
-                                        src={banner.mobile_banner_url}
-                                        alt="Mobile Banner"
-                                        className="max-w-10/12 h-40 object-cover"
-                                    />
+                                <div className="border min-h-[250px] p-4 flex justify-center items-center border-gray-200 rounded-lg overflow-hidden bg-gray-50/50">
+                                    {isVideoFile(banner.mobile_banner_url || "") ? (
+                                        <video
+                                            src={banner.mobile_banner_url}
+                                            className="max-h-[300px] max-w-full object-contain pointer-events-none"
+                                            autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
+                                        />
+                                    ) : (
+                                        <img
+                                            src={banner.mobile_banner_url}
+                                            alt="Mobile Banner"
+                                            className="max-h-[300px] max-w-full object-contain"
+                                        />
+                                    )}
                                 </div>
                             </div>
                         )}

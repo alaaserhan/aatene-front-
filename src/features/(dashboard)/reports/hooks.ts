@@ -36,6 +36,20 @@ export function useCreateReportType() {
   });
 }
 
+export function useDeleteReportType() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: api.deleteReportType,
+    onSuccess: (data) => {
+      toast.success(data.message || "تم حذف سبب الرفض بنجاح");
+      queryClient.invalidateQueries({ queryKey: ["report-types"] });
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      toast.error(error.response?.data?.message || "فشل حذف سبب الرفض");
+    },
+  });
+}
+
 export function useGetSingleReport(id: string | number) {
   return useQuery({
     queryKey: ["report", id],

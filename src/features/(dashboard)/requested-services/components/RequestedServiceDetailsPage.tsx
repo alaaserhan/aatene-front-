@@ -182,16 +182,28 @@ export function RequestedServiceDetailsPage({ id }: RequestedServiceDetailsPageP
               <div className="pt-6 border-t border-gray-100">
                 <h4 className="text-[#3A5779] font-bold text-lg mb-4 text-right">المرفقات</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {service.images_urls.map((img, idx) => (
-                    <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group">
-                      <img
-                        src={img}
-                        alt={`attachment-${idx}`}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
-                        onClick={() => window.open(img, '_blank')}
-                      />
-                    </div>
-                  ))}
+                  {service.images_urls.map((img, idx) => {
+                    const isVideo = !!img.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i);
+                    return (
+                      <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group flex items-center justify-center">
+                        {isVideo ? (
+                          <video
+                            src={img}
+                            controls
+                            className="w-full h-full object-cover"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        ) : (
+                          <img
+                            src={img}
+                            alt={`attachment-${idx}`}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+                            onClick={() => window.open(img, '_blank')}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

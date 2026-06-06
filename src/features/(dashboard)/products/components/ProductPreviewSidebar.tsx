@@ -53,7 +53,7 @@ export function ProductPreviewSidebar({ data }: ProductPreviewSidebarProps) {
                                     src={data.coverImage}
                                     alt="Product Cover"
                                     fill
-                                    thumb={false}
+                                    thumb
                                     className=""
                                 />
                             ) : (

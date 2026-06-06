@@ -5,7 +5,8 @@ import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/src/components/ui/dialog";
 import { Button } from "@/src/components/ui/button";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { useGetReportTypes, useCreateReportType } from "@/src/features/(dashboard)/reports/hooks";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { useGetReportTypes, useCreateReportType, useDeleteReportType } from "@/src/features/(dashboard)/reports/hooks";
 import { Loader2 } from "lucide-react";
 
 interface RejectRequestedServiceModalProps {
@@ -20,7 +21,9 @@ export function RejectRequestedServiceModal({ isOpen, onClose, onConfirm, isLoad
     const [touched, setTouched] = useState(false);
     const [isAddingReason, setIsAddingReason] = useState(false);
     const [newReason, setNewReason] = useState("");
+    const [reasonToDelete, setReasonToDelete] = useState<string | null>(null);
     const { mutate: createReason, isPending: isCreatingReason } = useCreateReportType();
+    const { mutate: deleteReason } = useDeleteReportType();
 
     // جلب أسباب الرفض (نفترض استخدام نفس قائمة أنواع البلاغات أو أسباب الرفض العامة)
     const { data: typesData, isLoading: isLoadingTypes } = useGetReportTypes();
@@ -88,6 +91,7 @@ export function RejectRequestedServiceModal({ isOpen, onClose, onConfirm, isLoad
                                 className="h-12"
                                 onAddNew={() => setIsAddingReason(true)}
                                 addNewLabel="إضافة سبب رفض جديد"
+                                onRemoveItem={(id) => setReasonToDelete(id)}
                             />
                         ) : (
                             <div className="flex gap-2 items-start">
@@ -133,6 +137,20 @@ export function RejectRequestedServiceModal({ isOpen, onClose, onConfirm, isLoad
                     </Button>
                 </div>
             </DialogContent>
+
+            <ConfirmDeleteModal
+                isOpen={!!reasonToDelete}
+                onClose={() => setReasonToDelete(null)}
+                onConfirm={() => {
+                    if (reasonToDelete) {
+                        deleteReason(reasonToDelete);
+                        if (reasonId === reasonToDelete) setReasonId("");
+                        setReasonToDelete(null);
+                    }
+                }}
+                title="حذف سبب الرفض"
+                description="هل أنت متأكد من رغبتك في حذف هذا السبب نهائياً؟ لا يمكن التراجع عن هذا الإجراء."
+            />
         </Dialog>
     );
 }

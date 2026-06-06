@@ -145,7 +145,8 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
               formData.step1
                 ? {
                   ...formData.step1,
-                  price: formData.step2?.price
+                  price: formData.step2?.price,
+                  images_previews: formData.step3?.images_previews ?? formData.step1?.images_previews ?? []
                 }
                 : undefined
             }
@@ -162,7 +163,10 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
         if (!formData.step1) { setCurrentStep(1); return null; }
         return (
           <AddServiceStep2
-            previousData={formData.step1}
+            previousData={{
+              ...formData.step1,
+              images_previews: formData.step3?.images_previews ?? formData.step1?.images_previews ?? []
+            }}
             initialData={formData.step2}
             onNext={handleStep2Next}
             onBack={handleStep2Back}

@@ -22,6 +22,7 @@ import { Button } from "@/src/components/ui/button";
 import { RejectServiceModal } from "./RejectServiceModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 
 import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
 import { ShareModal } from "@/src/components/ui/ShareModal";
@@ -340,11 +341,13 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                             </div>
 
                             {/* Main Image Display */}
-                            <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 border border-gray-100 bg-gray-50">
-                                <img
+                            <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 border border-gray-100 bg-gray-50 relative group">
+                                <VideoOrImage
                                     src={displayImage}
                                     alt={service.title}
-                                    className="w-full h-full object-cover transition-opacity duration-300"
+                                    fill
+                                    thumb={false}
+                                    className="object-contain transition-opacity duration-300"
                                 />
                             </div>
 
@@ -362,17 +365,19 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                                     : "border-gray-200 opacity-70 hover:opacity-100 hover:border-blue-300"
                                             )}
                                         >
-                                            <img
-                                                src={img}
-                                                alt={`thumb-${idx}`}
-                                                className="w-full h-full object-cover"
-                                            />
+                                            <div className="relative w-full h-full pointer-events-none">
+                                                <VideoOrImage
+                                                    src={img}
+                                                    alt={`thumb-${idx}`}
+                                                    fill
+                                                    thumb
+                                                    className="object-cover"
+                                                />
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
-
-                            {/* Provider Info Card */}
                             {store && (
                                 <div className="mb-6">
                                     <ProviderInfoCard store={store} isAdmin={true} isOwner={isOwner} isFollowing={store.owner?.am_i_following} onFollow={handleFollowClick} />

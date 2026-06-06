@@ -58,6 +58,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
           category_name: (service.category as any)?.full_name || (service as any).category_name || service.category?.name || "",
           section_id: service.section_id,
           specialties: service.specialties || [],
+          images_previews: imagesPreviews,
         },
         step2: {
           price: Number(service.price) || 0,
@@ -196,10 +197,14 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
       case 1:
         return <AddServiceStep1 initialData={{
           ...formData.step1!,
-          price: formData.step2?.price ?? formData.step1?.price ?? 0
+          price: formData.step2?.price ?? formData.step1?.price ?? 0,
+          images_previews: formData.step3?.images_previews ?? formData.step1?.images_previews ?? []
         }} onNext={handleStep1Next} onCancel={handleStep1Cancel} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} showSaveDraft={false} storeId={storeId} />;
       case 2:
-        return <AddServiceStep2 previousData={formData.step1!} initialData={formData.step2!} onNext={handleStep2Next} onBack={handleStep2Back} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} />;
+        return <AddServiceStep2 previousData={{
+          ...formData.step1!,
+          images_previews: formData.step3?.images_previews ?? formData.step1?.images_previews ?? []
+        }} initialData={formData.step2!} onNext={handleStep2Next} onBack={handleStep2Back} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} />;
       case 3:
         return <AddServiceStep3 previousDataStep1={formData.step1!} previousDataStep2={formData.step2!} initialData={formData.step3!} onNext={handleStep3Next} onBack={handleStep3Back} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} />;
       case 4:

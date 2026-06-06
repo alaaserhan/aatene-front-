@@ -5,6 +5,7 @@ import { formatPrice } from "@/src/lib/format-price";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { ImageIcon, MapPin } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 
 interface ServicePreviewSidebarProps {
   data: {
@@ -47,11 +48,15 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
             {/* 1. Image Placeholder/Display */}
             <div className="relative w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
               {data.coverImage ? (
-                <img
-                  src={data.coverImage}
-                  alt="Service Cover"
-                  className="w-full h-full object-cover"
-                />
+                <div className="relative w-full h-full">
+                  <VideoOrImage
+                    src={data.coverImage}
+                    alt="Service Cover"
+                    fill
+                    thumb
+                    className="object-cover"
+                  />
+                </div>
               ) : (
                 <div className="flex flex-col items-center justify-center text-gray-2">
                   <div className="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center mb-2">

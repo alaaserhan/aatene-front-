@@ -182,7 +182,7 @@ function RequestedServicesPageContent() {
     if (!currentData || currentData.length === 0) {
       return (
         <tr>
-              <td colSpan={5} className="py-10 sm:py-20 text-center text-gray-2">
+          <td colSpan={5} className="py-10 sm:py-20 text-center text-gray-2">
             لا توجد طلبات لعرضها
           </td>
         </tr>
@@ -346,9 +346,9 @@ function RequestedServicesPageContent() {
               <button
                 key={stat.id}
                 onClick={() => handleTabChange(stat.id as RequestedServiceStatus | "reports")}
-                  className={cn(
-                    "flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 cursor-pointer ",
-                  )}
+                className={cn(
+                  "flex items-center gap-2 px-3 sm:px-6 py-3 sm:py-4 cursor-pointer ",
+                )}
               >
                 <span className={cn(
                   "px-3 pt-0.5 rounded text-sm font-bold transition-colors",

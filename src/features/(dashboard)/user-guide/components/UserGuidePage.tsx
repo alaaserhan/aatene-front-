@@ -16,6 +16,12 @@ import {
 } from "../hooks";
 import { VideoPayload } from "../types";
 
+const LOCATION_LABELS: Record<string, string> = {
+  "create-store": "إنشاء المتجر",
+  "add-product": "إضافة منتج",
+  "add-service": "إضافة خدمة",
+};
+
 function formatGuideDate(value?: string | null) {
   if (!value) return "-";
   const date = new Date(value);
@@ -173,7 +179,7 @@ export function UserGuidePage() {
                   <div className={cn("hidden md:flex items-center text-sm transition-colors h-[72px] px-4")}>
                     <span className="w-[10%] text-gray-400 font-medium text-right pr-2">#{video.id}</span>
                     <span className="w-[18%] text-[#222B45] font-semibold text-right">{video.title}</span>
-                    <span className="w-[12%] text-[#5B7C93] text-right font-medium">{video.location}</span>
+                    <span className="w-[12%] text-[#5B7C93] text-right font-medium">{LOCATION_LABELS[video.location ?? ""] || video.location}</span>
                     <div className="w-[16%] flex items-center gap-3 justify-start">
                       <ToggleSwitch enabled={video.is_enabled} onChange={() => handleToggleStatus(video.id, video.is_enabled)} />
                       <span className={cn("text-sm font-medium", video.is_enabled ? "text-[#2D496A]" : "text-gray-400")}>
@@ -208,7 +214,7 @@ export function UserGuidePage() {
                     {/* Location */}
                     <div className="flex items-center justify-between py-2 border-y border-gray-100">
                       <span className="text-xs text-gray-400 font-medium">مكان العرض</span>
-                      <span className="text-sm text-[#5B7C93] font-medium">{video.location}</span>
+                      <span className="text-sm text-[#5B7C93] font-medium">{LOCATION_LABELS[video.location ?? ""] || video.location}</span>
                     </div>
 
                     {/* Status */}

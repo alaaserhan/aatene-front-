@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from "react";
-import { ChevronDown, Loader2, Search, Plus } from "lucide-react";
+import { ChevronDown, Loader2, Search, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/src/components/ui/popover";
 
@@ -38,6 +38,8 @@ interface ReusableDropdownProps {
   onAddNew?: () => void;
   addNewLabel?: string;
   triggerClassName?: string;
+  // New Prop for removing an option
+  onRemoveItem?: (value: string) => void;
 }
 
 export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>(({
@@ -58,6 +60,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
   onAddNew,
   addNewLabel = "إضافة جديد",
   triggerClassName,
+  onRemoveItem,
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [triggerWidth, setTriggerWidth] = useState<number | undefined>(undefined);
@@ -188,7 +191,7 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
                           }
                         }}
                         className={cn(
-                          "w-full flex items-center gap-3 px-3 py-2 text-start rounded-md hover:bg-gray-50 transition-colors cursor-pointer",
+                          "w-full flex items-center gap-3 px-3 py-2 text-start rounded-md hover:bg-gray-50 transition-colors cursor-pointer group",
                           isSelected && "bg-blue-50"
                         )}
                       >
@@ -218,6 +221,19 @@ export const ReusableDropdown = forwardRef<DropdownRef, ReusableDropdownProps>((
                         >
                           {option.label}
                         </span>
+                        {onRemoveItem && (
+                          <div
+                            role="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onRemoveItem(option.value);
+                            }}
+                            className="mr-auto p-1.5 rounded-md text-red-400 hover:text-red-600 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
+                            title="حذف"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </div>
+                        )}
                       </button>
                     );
                   })}

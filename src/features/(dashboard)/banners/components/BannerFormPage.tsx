@@ -107,6 +107,10 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
 
   const { data: citiesData } = useGetCities(new URLSearchParams());
   const cities = citiesData?.data || [];
+  const [citySearchQuery, setCitySearchQuery] = useState("");
+  const filteredCities = cities.filter((city) =>
+    city.name.toLowerCase().includes(citySearchQuery.toLowerCase())
+  );
 
   const { data: bannerData, isLoading: isLoadingBanner } = useGetSingleBanner(
     mode === "edit" && bannerId ? bannerId : ""
@@ -343,8 +347,11 @@ export function BannerFormPage({ mode, bannerId }: BannerFormPageProps) {
                 onChange={(value) =>
                   setFormData({ ...formData, city_id: value })
                 }
+                onSearch={setCitySearchQuery}
+                searchPlaceholder="ابحث عن مدينة..."
                 options={[
-                  ...cities.map((city) => ({
+                  { value: "", label: "الكل (بدون تحديد مدينة)" },
+                  ...filteredCities.map((city) => ({
                     value: city.id.toString(),
                     label: city.name,
                   })),

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import { Banner } from "../types";
-import { cn } from "@/src/lib/utils";
+import { cn, isVideoFile } from "@/src/lib/utils";
 
 interface HomeMultiBannersProps {
     banners: Banner[];
@@ -117,24 +117,42 @@ function BannerItem({ banner }: { banner: Banner }) {
         >
             {/* Art Direction: Both images rendered, CSS handles visibility (No JS flash) */}
             <div className="hidden md:block w-full h-full relative">
-                <Image
-                    src={desktopSrc}
-                    alt={banner.title || "Banner"}
-                    fill
-                    className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-                    onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
-                    sizes="(max-width: 768px) 50vw, 370px"
-                />
+                {isVideoFile(desktopSrc) ? (
+                    <video
+                        src={desktopSrc}
+                        className="object-cover w-full h-full absolute inset-0 pointer-events-none transition-transform duration-500 group-hover:scale-105"
+                        autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
+                        onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
+                    />
+                ) : (
+                    <Image
+                        src={desktopSrc}
+                        alt={banner.title || "Banner"}
+                        fill
+                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                        onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
+                        sizes="(max-width: 768px) 50vw, 370px"
+                    />
+                )}
             </div>
             <div className="block md:hidden w-full h-full relative">
-                <Image
-                    src={mobileSrc}
-                    alt={banner.title || "Banner"}
-                    fill
-                    className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-                    onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
-                    sizes="85vw"
-                />
+                {isVideoFile(mobileSrc) ? (
+                    <video
+                        src={mobileSrc}
+                        className="object-cover w-full h-full absolute inset-0 pointer-events-none transition-transform duration-500 group-hover:scale-105"
+                        autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
+                        onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
+                    />
+                ) : (
+                    <Image
+                        src={mobileSrc}
+                        alt={banner.title || "Banner"}
+                        fill
+                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                        onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
+                        sizes="85vw"
+                    />
+                )}
             </div>
         </Link>
     );

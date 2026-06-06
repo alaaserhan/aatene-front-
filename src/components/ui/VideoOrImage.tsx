@@ -25,6 +25,8 @@ export function VideoOrImage({ src, alt, className, thumb = false, fill = false 
                 preload="metadata"
                 controls={!thumb}
                 muted={thumb}
+                autoPlay={thumb}
+                loop={thumb}
             />
         );
     }
