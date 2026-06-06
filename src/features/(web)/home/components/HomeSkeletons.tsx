@@ -6,7 +6,7 @@ import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 export const BannerSkeleton = () => (
     <section className="bg-white pt-2 md:pt-4">
         <MaxWidthWrapper>
-            <div className="aspect-[360/150] w-full animate-pulse rounded-xl bg-gray-100 sm:aspect-auto sm:h-[230px] lg:h-[300px] 2xl:h-[320px]" />
+            <div className="h-[180px] w-full animate-pulse rounded-xl bg-gray-100 sm:h-[230px] lg:h-[300px] 2xl:h-[320px]" />
         </MaxWidthWrapper>
     </section>
 );
@@ -79,7 +79,7 @@ export const ServicesGridSkeleton = () => (
 
 export const SingleBannerSkeleton = () => (
     <MaxWidthWrapper className="my-8">
-        <div className="w-full aspect-360/150 md:aspect-1170/250 bg-gray-100 animate-pulse rounded-2xl" />
+        <div className="w-full aspect-21/9 md:aspect-1170/250 bg-gray-100 animate-pulse rounded-2xl" />
     </MaxWidthWrapper>
 );
 
@@ -87,7 +87,7 @@ export const MultiBannersSkeleton = () => (
     <MaxWidthWrapper className="my-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
              {[1, 2, 3].map((i) => (
-                <div key={i} className="aspect-360/200 md:aspect-370/200 bg-gray-100 animate-pulse rounded-2xl" />
+                <div key={i} className="aspect-video md:aspect-570/250 bg-gray-100 animate-pulse rounded-2xl" />
              ))}
         </div>
     </MaxWidthWrapper>

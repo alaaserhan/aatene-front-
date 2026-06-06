@@ -8,10 +8,9 @@ import { cn, isVideoFile } from "@/src/lib/utils";
 
 interface HomeSingleBannerProps {
     banner: Banner | null;
-    priority?: boolean;
 }
 
-export default function HomeSingleBanner({ banner, priority = false }: HomeSingleBannerProps) {
+export default function HomeSingleBanner({ banner }: HomeSingleBannerProps) {
     const [imageError, setImageError] = useState({ desktop: false, mobile: false });
 
     if (!banner) return null;
@@ -52,9 +51,7 @@ export default function HomeSingleBanner({ banner, priority = false }: HomeSingl
                                     className="object-cover w-full transition-transform duration-500 group-hover:scale-105"
                                     onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
                                     sizes="(max-width: 1200px) 100vw, 1170px"
-                                    priority={priority}
-                                    loading={priority ? "eager" : "lazy"}
-                                    fetchPriority={priority ? "high" : "auto"}
+                                    fetchPriority="high"
                                 />
                             )
                         ) : (
@@ -80,9 +77,7 @@ export default function HomeSingleBanner({ banner, priority = false }: HomeSingl
                                     className="object-cover w-full transition-transform duration-500 group-hover:scale-105"
                                     onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
                                     sizes="100vw"
-                                    priority={priority}
-                                    loading={priority ? "eager" : "lazy"}
-                                    fetchPriority={priority ? "high" : "auto"}
+                                    fetchPriority="high"
                                 />
                             )
                         ) : (
