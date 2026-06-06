@@ -61,7 +61,7 @@ export default function HomeProductsCarousel({
 
           <div
             ref={scrollContainerRef}
-            className="flex flex-row flex-nowrap items-stretch overflow-x-auto gap-4 md:gap-6 pb-8 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-pan-x overscroll-x-contain w-fit max-w-full"
+            className="flex flex-row flex-nowrap items-stretch overflow-x-auto gap-4 md:gap-6 pb-8 scroll-smooth scrollbar-hide snap-x snap-mandatory touch-auto overscroll-x-contain w-fit max-w-full"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
           >
             {products.map((product) => (
