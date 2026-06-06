@@ -194,6 +194,9 @@ export default function proxy(request: NextRequest) {
   // return I18nMiddleware(request);
   const i18nResponse = I18nMiddleware(request);
 
+  // Cache-Control: private, no-cache يسمح بـ bfcache (عكس no-store الذي يمنعه)
+  i18nResponse.headers.set("Cache-Control", "private, no-cache");
+
   // منع الـ redirect loop على iOS
   if (
     i18nResponse.status === 301 ||
