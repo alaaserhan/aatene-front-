@@ -24,6 +24,16 @@ export async function generateStaticParams() {
   return [{ locale: "ar" }, { locale: "en" }, { locale: "he" }];
 }
 
+function isImageUrl(url: string | null | undefined) {
+  return !!url && !/\.(mp4|webm|ogg|mov|m4v|mkv|av1|avi|wmv|3gp|3gpp|3gpp2|mp2t)(\?.*)?$/i.test(url);
+}
+
+function getPreloadImage(primary: string | null | undefined, fallback: string | null | undefined) {
+  if (isImageUrl(primary)) return primary;
+  if (isImageUrl(fallback)) return fallback;
+  return null;
+}
+
 export default async function page({
   params,
 }: {
@@ -58,19 +68,43 @@ export default async function page({
     getSixthBanner().catch(() => null),
   ]);
 
+  const firstBanner = bannersData?.data?.[0];
+  const firstMobileBanner = getPreloadImage(firstBanner?.mobile_banner_url, firstBanner?.labtop_banner_url);
+  const firstDesktopBanner = getPreloadImage(firstBanner?.labtop_banner_url, firstBanner?.mobile_banner_url);
+
   return (
-    <HomePage 
-      isMobile={isMobile}
-      initialData={{
-        banners: bannersData?.data,
-        stories: storiesData?.data,
-        specialServices: servicesData?.data,
-        secondBanners: secondBanners?.data,
-        thirdBanner: thirdBanner?.data,
-        fourthBanner: fourthBanner?.data,
-        fifthBanner: fifthBanner?.data,
-        sixthBanner: sixthBanner?.data,
-      }}
-    />
+    <>
+      {firstMobileBanner ? (
+        <link
+          rel="preload"
+          as="image"
+          href={firstMobileBanner}
+          media="(max-width: 767px)"
+          fetchPriority="high"
+        />
+      ) : null}
+      {firstDesktopBanner ? (
+        <link
+          rel="preload"
+          as="image"
+          href={firstDesktopBanner}
+          media="(min-width: 768px)"
+          fetchPriority="high"
+        />
+      ) : null}
+      <HomePage
+        isMobile={isMobile}
+        initialData={{
+          banners: bannersData?.data,
+          stories: storiesData?.data,
+          specialServices: servicesData?.data,
+          secondBanners: secondBanners?.data,
+          thirdBanner: thirdBanner?.data,
+          fourthBanner: fourthBanner?.data,
+          fifthBanner: fifthBanner?.data,
+          sixthBanner: sixthBanner?.data,
+        }}
+      />
+    </>
   );
 }
