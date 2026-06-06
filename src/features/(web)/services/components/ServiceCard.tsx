@@ -83,7 +83,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
     const serviceImage = sanitizeMediaUrl(
         service.image_url || service.images_urls?.[0] || ""
     );
-    const serviceLogoSrc = sanitizeMediaUrl(service.store?.logo || "");
+    const serviceLogoSrc = sanitizeMediaUrl(service.store?.logo_url || "");
 
     return (
         <div

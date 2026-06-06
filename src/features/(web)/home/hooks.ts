@@ -6,49 +6,54 @@ const staleTime = 5 * 60 * 1000; // 5 minutes
 export const useFirstBanners = (options?: { enabled?: boolean }) => {
     return useApiQuery({
         queryKey: ["homeFirstBanners"],
-        queryFn: api.getFirstBanners,
+        queryFn: () => api.getFirstBanners(),
         staleTime,
         ...options,
     });
 };
 
-export const useSecondBanners = () => {
+export const useSecondBanners = (options?: { enabled?: boolean }) => {
     return useApiQuery({
         queryKey: ["homeSecondBanners"],
         queryFn: api.getSecondBanners,
         staleTime,
+        ...options,
     });
 };
 
-export const useThirdBanner = () => {
+export const useThirdBanner = (options?: { enabled?: boolean }) => {
     return useApiQuery({
         queryKey: ["homeThirdBanner"],
         queryFn: api.getThirdBanner,
         staleTime,
+        ...options,
     });
 };
 
-export const useFourthBanner = () => {
+export const useFourthBanner = (options?: { enabled?: boolean }) => {
     return useApiQuery({
         queryKey: ["homeFourthBanner"],
         queryFn: api.getFourthBanner,
         staleTime,
+        ...options,
     });
 };
 
-export const useFifthBanner = () => {
+export const useFifthBanner = (options?: { enabled?: boolean }) => {
     return useApiQuery({
         queryKey: ["homeFifthBanner"],
         queryFn: api.getFifthBanner,
         staleTime,
+        ...options,
     });
 };
 
-export const useSixthBanner = () => {
+export const useSixthBanner = (options?: { enabled?: boolean }) => {
     return useApiQuery({
         queryKey: ["homeSixthBanner"],
         queryFn: api.getSixthBanner,
         staleTime,
+        ...options,
     });
 };
 
@@ -111,7 +116,7 @@ export const useWeekOffers = () => {
 export const useSpecialServices = () => {
     return useApiQuery({
         queryKey: ["homeSpecialServices"],
-        queryFn: api.getSpecialServices,
+        queryFn: () => api.getSpecialServices(),
         staleTime,
     });
 };
@@ -133,11 +138,12 @@ export const useRequestedServices = () => {
     });
 };
 
-export const useStoryOwners = () => {
+export const useStoryOwners = (options?: { enabled?: boolean }) => {
     return useApiQuery({
         queryKey: ["homeStoryOwners"],
-        queryFn: api.getStoryOwners,
+        queryFn: () => api.getStoryOwners(),
         staleTime,
+        ...options,
     });
 };
 
