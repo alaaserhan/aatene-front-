@@ -2,13 +2,6 @@ import api from "@/src/lib/axios";
 import { normalizeAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import * as Types from "./types";
 
-type PublicRequestOptions = {
-    skipServerAuth?: boolean;
-};
-
-const publicRequestHeaders = (options?: PublicRequestOptions) =>
-    options?.skipServerAuth ? { "x-skip-server-auth": "true" } : undefined;
-
 function mapHomeServices(services: Types.Service[]): Types.Service[] {
     return services.map((service) => ({
         ...service,
@@ -16,10 +9,8 @@ function mapHomeServices(services: Types.Service[]): Types.Service[] {
     }));
 }
 
-export const getFirstBanners = async (options?: PublicRequestOptions): Promise<Types.FirstBannersResponse> => {
-    const { data } = await api.get<Types.FirstBannersResponse>("/pages/v2/home/banners/first", {
-        headers: publicRequestHeaders(options),
-    });
+export const getFirstBanners = async (): Promise<Types.FirstBannersResponse> => {
+    const { data } = await api.get<Types.FirstBannersResponse>("/pages/v2/home/banners/first");
     return data;
 };
 
@@ -83,10 +74,8 @@ export const getWeekOffers = async (): Promise<Types.WeekOffersResponse> => {
     return data;
 };
 
-export const getSpecialServices = async (options?: PublicRequestOptions): Promise<Types.SpecialServicesResponse> => {
-    const { data } = await api.get<Types.SpecialServicesResponse>("/pages/v2/home/services/special", {
-        headers: publicRequestHeaders(options),
-    });
+export const getSpecialServices = async (): Promise<Types.SpecialServicesResponse> => {
+    const { data } = await api.get<Types.SpecialServicesResponse>("/pages/v2/home/services/special");
     if (Array.isArray(data?.data)) {
         data.data = mapHomeServices(data.data);
     }
@@ -106,10 +95,8 @@ export const getRequestedServices = async (): Promise<Types.RequestedServicesRes
     return data;
 };
 
-export const getStoryOwners = async (options?: PublicRequestOptions): Promise<Types.StoryOwnersResponse> => {
-    const { data } = await api.get<Types.StoryOwnersResponse>("/pages/v2/home/stories/owners", {
-        headers: publicRequestHeaders(options),
-    });
+export const getStoryOwners = async (): Promise<Types.StoryOwnersResponse> => {
+    const { data } = await api.get<Types.StoryOwnersResponse>("/pages/v2/home/stories/owners");
     return data;
 };
 

@@ -35,9 +35,7 @@ export default function HomeStories({ initialOwners }: HomeStoriesProps) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const { data: ownersRes, isLoading } = useStoryOwners({
-        enabled: !initialOwners,
-    });
+    const { data: ownersRes, isLoading } = useStoryOwners();
     const owners: StoryOwner[] = initialOwners || ownersRes?.data || EMPTY_OWNERS;
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);

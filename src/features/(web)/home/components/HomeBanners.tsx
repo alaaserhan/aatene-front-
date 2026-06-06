@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { getImageProps } from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { Banner } from "../types";
@@ -66,37 +66,63 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
                         rel="noopener noreferrer"
                         className="block w-full h-full"
                     >
-                        {desktopSrc || mobileSrc ? (
-                            isVideoFile(desktopSrc || mobileSrc || "") || isVideoFile(mobileSrc || desktopSrc || "") ? (
-                                <>
+                        {/* Art Direction: Both images rendered, CSS handles visibility (No JS flash) */}
+                        <div className="hidden md:block w-full h-full relative">
+                            {desktopSrc ? (
+                                isVideoFile(desktopSrc) ? (
                                     <video
-                                        src={desktopSrc || mobileSrc || undefined}
-                                        className="hidden md:block object-cover w-full h-full absolute inset-0 pointer-events-none"
-                                        autoPlay muted loop playsInline preload={currentIndex === 0 ? "metadata" : "none"} onContextMenu={(e) => e.preventDefault()}
+                                        src={desktopSrc}
+                                        className="object-cover w-full h-full absolute inset-0 pointer-events-none"
+                                        autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
                                         onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-desktop`]: true }))}
                                     />
+                                ) : (
+                                    <Image
+                                        src={desktopSrc}
+                                        alt={currentBanner.title && !currentBanner.title.startsWith("http") ? currentBanner.title : "Aatene Banner"}
+                                        fill
+                                        className="object-cover w-full h-full"
+                                        priority={currentIndex === 0}
+                                        loading={currentIndex === 0 ? "eager" : "lazy"}
+                                        fetchPriority={currentIndex === 0 ? "high" : "low"}
+                                        onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-desktop`]: true }))}
+                                        sizes="(max-width: 768px) 100vw, 1400px"
+                                    />
+                                )
+                            ) : (
+                                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                                    No Image Available
+                                </div>
+                            )}
+                        </div>
+                        <div className="block md:hidden w-full h-full relative">
+                            {mobileSrc ? (
+                                isVideoFile(mobileSrc) ? (
                                     <video
-                                        src={mobileSrc || desktopSrc || undefined}
-                                        className="block md:hidden object-cover w-full h-full absolute inset-0 pointer-events-none"
-                                        autoPlay muted loop playsInline preload={currentIndex === 0 ? "metadata" : "none"} onContextMenu={(e) => e.preventDefault()}
+                                        src={mobileSrc}
+                                        className="object-cover w-full h-full absolute inset-0 pointer-events-none"
+                                        autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
                                         onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-mobile`]: true }))}
                                     />
-                                </>
+                                ) : (
+                                    <Image
+                                        src={mobileSrc}
+                                        alt={currentBanner.title && !currentBanner.title.startsWith("http") ? currentBanner.title : "Aatene Banner"}
+                                        fill
+                                        className="object-cover w-full h-full"
+                                        priority={currentIndex === 0}
+                                        loading={currentIndex === 0 ? "eager" : "lazy"}
+                                        fetchPriority={currentIndex === 0 ? "high" : "low"}
+                                        onError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-mobile`]: true }))}
+                                        sizes="100vw"
+                                    />
+                                )
                             ) : (
-                                <ResponsiveBannerImage
-                                    desktopSrc={desktopSrc || mobileSrc || ""}
-                                    mobileSrc={mobileSrc || desktopSrc || ""}
-                                    alt={currentBanner.title && !currentBanner.title.startsWith("http") ? currentBanner.title : "Aatene Banner"}
-                                    highPriority={currentIndex === 0}
-                                    onDesktopError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-desktop`]: true }))}
-                                    onMobileError={() => setImageError(prev => ({ ...prev, [`${currentIndex}-mobile`]: true }))}
-                                />
-                            )
-                        ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                                No Image Available
-                            </div>
-                        )}
+                                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                                    No Image Available
+                                </div>
+                            )}
+                        </div>
                     </Link>
                 </div>
 
@@ -141,84 +167,5 @@ export default function HomeBanners({ banners: initialBanners }: HomeBannersProp
                 </div>
             </MaxWidthWrapper>
         </section>
-    );
-}
-
-function ResponsiveBannerImage({
-    desktopSrc,
-    mobileSrc,
-    alt,
-    highPriority,
-    onDesktopError,
-    onMobileError,
-}: {
-    desktopSrc: string;
-    mobileSrc: string;
-    alt: string;
-    highPriority: boolean;
-    onDesktopError: () => void;
-    onMobileError: () => void;
-}) {
-    const common = {
-        alt,
-        className: "object-cover w-full h-full absolute inset-0",
-        loading: highPriority ? "eager" as const : "lazy" as const,
-        fetchPriority: highPriority ? "high" as const : "auto" as const,
-    };
-    const { props: desktop } = getImageProps({
-        ...common,
-        src: desktopSrc,
-        width: 1400,
-        height: 320,
-        sizes: "(min-width: 768px) 1400px, 100vw",
-    });
-    const { props: mobile } = getImageProps({
-        ...common,
-        src: mobileSrc,
-        width: 720,
-        height: 300,
-        sizes: "100vw",
-    });
-
-    return (
-        <>
-            {highPriority ? (
-                <>
-                    <link
-                        rel="preload"
-                        as="image"
-                        imageSrcSet={desktop.srcSet}
-                        imageSizes={desktop.sizes}
-                        media="(min-width: 768px)"
-                        fetchPriority="high"
-                    />
-                    <link
-                        rel="preload"
-                        as="image"
-                        imageSrcSet={mobile.srcSet}
-                        imageSizes={mobile.sizes}
-                        media="(max-width: 767px)"
-                        fetchPriority="high"
-                    />
-                </>
-            ) : null}
-            <picture className="absolute inset-0 block h-full w-full">
-                <source media="(min-width: 768px)" srcSet={desktop.srcSet} sizes={desktop.sizes} />
-                <source media="(max-width: 767px)" srcSet={mobile.srcSet} sizes={mobile.sizes} />
-                <img
-                    {...mobile}
-                    srcSet={undefined}
-                    sizes={undefined}
-                    onError={(event) => {
-                        if (window.matchMedia("(min-width: 768px)").matches) {
-                            onDesktopError();
-                        } else {
-                            onMobileError();
-                        }
-                        event.currentTarget.onerror = null;
-                    }}
-                />
-            </picture>
-        </>
     );
 }

@@ -7,24 +7,17 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import { Banner } from "../types";
 import { cn, isVideoFile } from "@/src/lib/utils";
-import { useSecondBanners } from "../hooks";
-import { MultiBannersSkeleton } from "./HomeSkeletons";
 
 interface HomeMultiBannersProps {
-    banners?: Banner[];
+    banners: Banner[];
 }
 
-export default function HomeMultiBanners({ banners: initialBanners }: HomeMultiBannersProps) {
+export default function HomeMultiBanners({ banners }: HomeMultiBannersProps) {
     const scrollRef = React.useRef<HTMLDivElement>(null);
-    const { data: response, isLoading } = useSecondBanners({
-        enabled: !initialBanners,
-    });
-    const banners = initialBanners || response?.data || [];
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [scrollLeft, setScrollLeft] = useState(0);
 
-    if (isLoading && !initialBanners) return <MultiBannersSkeleton />;
     if (!banners || banners.length === 0) return null;
 
     const handleMouseDown = (e: React.MouseEvent) => {
