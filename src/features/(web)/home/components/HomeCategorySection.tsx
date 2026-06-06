@@ -52,7 +52,7 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
 
                 <div
                     ref={scrollContainerRef}
-                    className="flex flex-row flex-nowrap items-stretch overflow-x-auto gap-4 scroll-smooth scrollbar-hide pb-4 touch-pan-x overscroll-x-contain"
+                    className="flex flex-row flex-nowrap items-stretch overflow-x-auto gap-4 scroll-smooth scrollbar-hide pb-4 touch-auto overscroll-x-contain"
                     style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
                 >
                     {category.products.map((product) => (
