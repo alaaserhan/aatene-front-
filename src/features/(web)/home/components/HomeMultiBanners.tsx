@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
 import { Banner } from "../types";
 import { cn, isVideoFile } from "@/src/lib/utils";
+import LazyBannerVideo from "./LazyBannerVideo";
 
 interface HomeMultiBannersProps {
     banners: Banner[];
@@ -118,10 +119,9 @@ function BannerItem({ banner }: { banner: Banner }) {
             {/* Art Direction: Both images rendered, CSS handles visibility (No JS flash) */}
             <div className="hidden md:block w-full h-full relative">
                 {isVideoFile(desktopSrc) ? (
-                    <video
+                    <LazyBannerVideo
                         src={desktopSrc}
                         className="object-cover w-full h-full absolute inset-0 pointer-events-none transition-transform duration-500 group-hover:scale-105"
-                        autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
                         onError={() => setImageError(prev => ({ ...prev, desktop: true }))}
                     />
                 ) : (
@@ -137,10 +137,9 @@ function BannerItem({ banner }: { banner: Banner }) {
             </div>
             <div className="block md:hidden w-full h-full relative">
                 {isVideoFile(mobileSrc) ? (
-                    <video
+                    <LazyBannerVideo
                         src={mobileSrc}
                         className="object-cover w-full h-full absolute inset-0 pointer-events-none transition-transform duration-500 group-hover:scale-105"
-                        autoPlay muted loop playsInline onContextMenu={(e) => e.preventDefault()}
                         onError={() => setImageError(prev => ({ ...prev, mobile: true }))}
                     />
                 ) : (

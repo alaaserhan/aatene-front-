@@ -19,7 +19,8 @@ function usePrefersTouchPlayback() {
             // آيفون/موبايل: coarse أو بدون hover → تشغيل بالظهور وليس بالهوفر
             const coarse = window.matchMedia("(pointer: coarse)").matches;
             const noHover = window.matchMedia("(hover: none)").matches;
-            setTouchPlayback(coarse || noHover || !finePointer.matches);
+            const hasTouch = navigator.maxTouchPoints > 0;
+            setTouchPlayback(hasTouch || coarse || noHover || !finePointer.matches);
         };
         update();
         finePointer.addEventListener("change", update);
@@ -58,6 +59,10 @@ export function HoverPlayVideo({ src, className, videoClassName }: HoverPlayVide
     const tryPlay = useCallback(async (video: HTMLVideoElement) => {
         prepareVideo(video);
         try {
+            if (video.readyState === 0) {
+                video.preload = "auto";
+                video.load();
+            }
             await video.play();
             setIsPlaying(true);
         } catch {
@@ -95,7 +100,6 @@ export function HoverPlayVideo({ src, className, videoClassName }: HoverPlayVide
         );
 
         observer.observe(root);
-        video.load();
 
         return () => {
             observer.disconnect();
@@ -140,7 +144,7 @@ export function HoverPlayVideo({ src, className, videoClassName }: HoverPlayVide
                 muted
                 playsInline
                 loop
-                preload="auto"
+                preload="metadata"
                 onLoadedData={() => setHasFrame(true)}
                 onPlaying={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
