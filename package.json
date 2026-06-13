@@ -73,6 +73,8 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
     "@puppeteer/browsers": "^3.0.4",
     "@tailwindcss/postcss": "^4",
     "@types/js-cookie": "^3.0.6",
