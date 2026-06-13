@@ -28,7 +28,6 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    unoptimized: true, // ضروري تحذفي السطر ده لو حابة تستخدمي ميزة تحسين الصور اللي بتقدمها Next.js، بس لو مش هتستخدميها يبقى ممكن تسيبيها زي ما هي
     remotePatterns: [
       {
         protocol: 'http',

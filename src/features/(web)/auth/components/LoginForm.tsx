@@ -9,6 +9,7 @@ import { User } from "../types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/src/components/ui/button";
 import { Form, FormField } from "@/src/components/ui/form";
@@ -18,9 +19,6 @@ import { getFCMToken } from "@/src/lib/firebase";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { LOGIN_AUTH_REQUIRED_REASON } from "@/src/lib/auth-links";
-
-/** لوحة يسار البطاقة — نفس ملف Figma */
-const LOGIN_PANEL_IMAGE = "/Frame%201261155079.svg";
 
 const loginSchema = z.object({
   login: z.string().min(1, "البريد الإلكتروني أو الهاتف مطلوب"),
@@ -109,7 +107,7 @@ export function LoginForm() {
           setIsGoogleLoading(false);
         });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleGoogleLogin = () => {
@@ -136,11 +134,11 @@ export function LoginForm() {
     >
       {/* يسار: صورة Figma */}
       <div className="relative order-2 hidden h-[240px] w-full shrink-0 overflow-hidden sm:h-[300px] lg:order-1 lg:block lg:h-[580px] lg:w-[509px]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={LOGIN_PANEL_IMAGE}
+        <Image
+          src="/images/login-hero.webp"
           alt=""
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center select-none"
+          fill
+          className="pointer-events-none object-cover object-center select-none"
           draggable={false}
         />
       </div>
@@ -182,10 +180,16 @@ export function LoginForm() {
           )}
         </Button>
 
-        <div className="h-px w-full shrink-0 bg-[#e8e8e8]" role="presentation" />
+        <div
+          className="h-px w-full shrink-0 bg-[#e8e8e8]"
+          role="presentation"
+        />
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-7 lg:gap-[33px]">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-7 lg:gap-[33px]"
+          >
             <div className="flex flex-col gap-5">
               <FormField
                 control={form.control}

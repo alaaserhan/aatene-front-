@@ -55,7 +55,11 @@ export function getPlaceholder(type: PlaceholderType = "product"): string {
 /** ينفذ fixMediaUrl + upgradeHttpToHttps معًا */
 export function sanitizeMediaUrl(url: string | null | undefined): string {
     if (!url) return "";
-    return upgradeHttpToHttps(fixMediaUrl(url));
+    let normalized = url;
+    if (!normalized.startsWith("/") && !normalized.startsWith("http://") && !normalized.startsWith("https://")) {
+        normalized = `/${normalized}`;
+    }
+    return upgradeHttpToHttps(fixMediaUrl(normalized));
 }
 
 /** يجهز مصدر الصورة مع fallback */
