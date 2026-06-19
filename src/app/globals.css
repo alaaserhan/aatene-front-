@@ -450,6 +450,10 @@ html body[data-scroll-locked] {
     scrollbar-color: var(--blue-4) transparent;
   }
 
+  button {
+    cursor: pointer;
+  }
+
 }
 
 .font-baseline-fix {
