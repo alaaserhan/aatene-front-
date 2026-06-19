@@ -18,6 +18,7 @@ import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { ShareModal } from "@/src/components/ui/ShareModal";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { Button } from "@/src/components/ui/button";
 import { Switch } from "@/src/components/ui/switch";
 import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
@@ -430,7 +431,7 @@ export default function ProductViewPage() {
                                         <p className="mb-4 font-medium whitespace-pre-line">{raw.short_description}</p>
                                     )}
                                     {raw.description ? (
-                                        <div dangerouslySetInnerHTML={{ __html: raw.description }} />
+                                        <SafeHTML html={raw.description} />
                                     ) : !raw.short_description && (
                                         <p>لا يوجد وصف متاح لهذا المنتج.</p>
                                     )}

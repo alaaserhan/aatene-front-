@@ -19,6 +19,7 @@ import {
 import { AddToFavoritesModal } from "../fav/components/AddToFavoritesModal";
 import { useRemoveFromFavorites } from "../fav/hooks";
 import { ProductCompareItem, ServiceCompareItem } from "./api";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 
 type CompareType = "products" | "services";
 
@@ -296,8 +297,9 @@ function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: Product
 
             <div
                 className="flex-1 text-right text-xs text-black leading-relaxed line-clamp-6"
-                dangerouslySetInnerHTML={{ __html: item.description || item.short_description || "لا يوجد وصف" }}
-            />
+            >
+                <SafeHTML html={item.description || item.short_description} fallback="لا يوجد وصف" />
+            </div>
 
 
 
@@ -391,8 +393,9 @@ function ServiceCompareRow({ item, onRemove, onToggleFavorite }: { item: Service
 
             <div
                 className="flex-1 text-right text-xs text-black leading-relaxed line-clamp-6"
-                dangerouslySetInnerHTML={{ __html: item.description || "لا يوجد وصف" }}
-            />
+            >
+                <SafeHTML html={item.description} fallback="لا يوجد وصف" />
+            </div>
 
             {/* Price */}
             <div className="flex-1 flex flex-col items-center justify-center gap-1">

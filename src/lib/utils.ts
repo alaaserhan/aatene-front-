@@ -98,9 +98,6 @@ export function stripHtmlTags(html: string | null | undefined): string {
         .trim();
 }
 
-/**
- * يطهر النص من وسوم HTML الخبيثة للاستخدام مع dangerouslySetInnerHTML
- */
 export function sanitizeHtml(html: string | null | undefined): string {
     if (!html) return "";
     return DOMPurify.sanitize(html);

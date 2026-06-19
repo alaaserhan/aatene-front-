@@ -23,6 +23,7 @@ import {
     Instagram,
 } from "lucide-react";
 import { ReportAbuse } from "../../reports/components/ReportAbuse";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/fav/hooks";
 import { useQueryClient } from "@tanstack/react-query";
@@ -502,9 +503,9 @@ export default function BlogDetailsPage() {
                                 <h2 className="text-lg font-medium  leading-normal">
                                     {section.title}
                                 </h2>
-                                <div
+                                <SafeHTML
+                                    html={section.paragraph}
                                     className="text-sm  leading-normal whitespace-pre-wrap"
-                                    dangerouslySetInnerHTML={{ __html: section.paragraph }}
                                 />
                             </div>
                         ))}

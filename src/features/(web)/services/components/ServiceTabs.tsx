@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { Service, ServiceBoardQuestion } from "../api";
 import { Loader2, Plus, Minus, Search, Flag, ChevronLeft, ChevronDown, User } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/dialog";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { useAuthStore } from "@/src/stores/auth-store";
 import {
@@ -61,7 +62,7 @@ export default function ServiceTabs({ service }: ServiceTabsProps) {
                 {activeTab === "description" && (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300 space-y-6">
                         <div className="prose prose-lg max-w-none leading-relaxed ">
-                            <div dangerouslySetInnerHTML={{ __html: service.description }} />
+                            <SafeHTML html={service.description} />
                         </div>
                     </div>
                 )}

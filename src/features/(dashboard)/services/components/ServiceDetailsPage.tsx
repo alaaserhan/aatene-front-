@@ -18,6 +18,7 @@ import { useDeleteService, useGetService, useUpdateServiceStatus, useUpdateServi
 import { formatPrice } from "@/src/lib/format-price";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { Button } from "@/src/components/ui/button";
 import { RejectServiceModal } from "./RejectServiceModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
@@ -392,7 +393,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
                                 <div className="prose prose-sm max-w-none leading-relaxed text-gray-700 px-2">
                                     {service.description ? (
-                                        <div dangerouslySetInnerHTML={{ __html: service.description }} />
+                                        <SafeHTML html={service.description} />
                                     ) : (
                                         <p>لا يوجد وصف متاح لهذه الخدمة.</p>
                                     )}

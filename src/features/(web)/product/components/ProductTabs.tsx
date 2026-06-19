@@ -9,6 +9,7 @@ import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
 import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ReviewStatisticsDisplay } from "./ReviewStatisticsDisplay";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 
 interface ProductTabsProps {
     product: Product;
@@ -50,9 +51,9 @@ export default function ProductTabs({ product, store }: ProductTabsProps) {
             <div className="p-3 md:p-4 min-h-[300px]">
                 {activeTab === "description" ? (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300 space-y-6">
-                        <div
+                        <SafeHTML
+                            html={product.description}
                             className="prose prose-lg max-w-none text-gray-700 leading-relaxed font-sans"
-                            dangerouslySetInnerHTML={{ __html: product.description }}
                         />
                     </div>
                 ) : (

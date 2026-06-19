@@ -12,6 +12,7 @@ import { ReportAbuse } from "../../reports/components/ReportAbuse";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 
 function CommentCard({
     comment,
@@ -274,9 +275,9 @@ export default function RequestedServiceDetailsPage() {
                         </div>
 
                         {/* Text Content */}
-                        <div
+                        <SafeHTML
+                            html={service.content}
                             className=" text-sm  font-medium leading-[1.8] whitespace-pre-wrap"
-                            dangerouslySetInnerHTML={{ __html: service.content }}
                         />
                     </div>
 

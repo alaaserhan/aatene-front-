@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { StoreProfile, StorePageData } from "../api";
 import { cn, sanitizeMediaUrl } from "@/src/lib/utils";
+import { SafeHTML } from "@/src/components/ui/SafeHTML";
 import { formatPrice } from "@/src/lib/format-price";
 import {
     Loader2,
@@ -624,8 +625,9 @@ function OverviewTab({ store }: { store: StoreProfile }) {
                     </div>
                     <div
                         className="store-overview-description prose prose-lg !max-w-none flex-1 min-w-0 w-full text-gray-700 leading-relaxed font-sans text-right [&_p]:mb-4 [&_p:last-child]:mb-0 [&_div]:mb-4 [&_p]:max-w-none [&_div]:max-w-none [&_*]:max-w-none [&_a]:text-blue-4"
-                        dangerouslySetInnerHTML={{ __html: store.description || "<p>لا يوجد وصف</p>" }}
-                    />
+                    >
+                        <SafeHTML html={store.description} fallback="<p>لا يوجد وصف</p>" />
+                    </div>
                 </div>
             </div>
 
