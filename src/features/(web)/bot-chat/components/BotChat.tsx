@@ -2,15 +2,13 @@
 
 import { useEffect } from "react";
 import { Bot } from "lucide-react";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useAuth } from "@/src/auth";
 import { useUIStore } from "@/src/stores/ui-store";
 import { usePathname } from "next/navigation";
 import BotChatWindow from "./BotChatWindow";
 
 export default function BotChat() {
-    const user = useAuthStore((state) => state.user);
-    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-    const isHydrated = useAuthStore((state) => state.isHydrated);
+    const { isLoggedIn, user } = useAuth();
     const pathname = usePathname();
 
     const isOpen = useUIStore((state) => state.isChatOpen);
@@ -21,7 +19,7 @@ export default function BotChat() {
         setChatOpen(false);
     }, [pathname, setChatOpen]);
 
-    if (!isHydrated || !isLoggedIn || !user) return null;
+    if (!isLoggedIn || !user) return null;
 
     return (
         <>

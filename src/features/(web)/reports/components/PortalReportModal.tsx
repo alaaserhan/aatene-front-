@@ -8,7 +8,7 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
+import { loginUrlWithAuthRequired } from "@/src/auth";
 import { resolvePortalDefaultReportType } from "../portal-report";
 
 interface PortalReportModalProps {

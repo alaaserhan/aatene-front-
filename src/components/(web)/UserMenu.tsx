@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useAuth } from "@/src/auth";
 import { LogOut, User, Store, Crown, Shield, ChevronRight, ChevronLeft, ChevronDown, Settings, Headset, MessageSquarePlus } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/src/hooks/use-language";
-import { useLogout } from "@/src/features/(web)/auth/hooks";
+import { useLogout } from "@/src/auth";
 import { useConvertToMerchant } from "@/src/features/(web)/settings/hooks";
 import { Button } from "../ui/button";
 import Cookies from "js-cookie";
@@ -18,9 +18,7 @@ interface UserMenuProps {
 }
 
 const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
-  const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
-  const isHydrated = useAuthStore((state) => state.isHydrated);
-  const user = useAuthStore((state) => state.user);
+  const { isLoggedIn, user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const lang = useLanguage();
@@ -33,7 +31,6 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
       onSuccess: () => {
         Cookies.set("user_type", "merchant", {
           expires: 365,
-          sameSite: "lax",
         });
 
         setIsOpen(false);
@@ -70,7 +67,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
     }
   }, [isMobile]);
 
-  if (!isHydrated || !isAuthenticated || !user) {
+  if (!isLoggedIn) {
     return (
       <Link
         href={`/${lang}/login`}
@@ -95,6 +92,10 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
       </Link>
     );
   }
+
+  // Logged in, but the /auth/account fetch hasn't filled in the user object yet.
+  // Render nothing briefly — better than flashing the logged-out CTA.
+  if (!user) return null;
 
   const getUserTypeIcon = (userType: string) => {
     switch (userType) {

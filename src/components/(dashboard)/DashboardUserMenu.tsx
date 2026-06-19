@@ -6,7 +6,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Cookies from "js-cookie";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { useLogout } from "@/src/features/(web)/auth/hooks";
+import { setStoreContext } from "@/src/store-context";
+import { useLogout } from "@/src/auth";
 import { useGetStores } from "@/src/features/(dashboard)/stores/hooks";
 import { useLanguage } from "@/src/hooks/use-language";
 import { isSegmentAllowedForRole, MerchantRole } from "@/src/config/role-permissions";
@@ -100,15 +101,12 @@ export function DashboardUserMenu() {
 
         const timer = setTimeout(() => {
             setCurrentStoreId(targetId);
-            Cookies.set("current_store_id", targetId, { expires: 365 });
-            Cookies.set("store_type", target.type, { expires: 365 });
-            if (target.role_in_store) {
-                Cookies.set("store_role", target.role_in_store, { expires: 365 });
-                setStoreRole(target.role_in_store);
-            } else {
-                Cookies.remove("store_role");
-                setStoreRole(null);
-            }
+            setStoreContext({
+                storeId: targetId,
+                storeType: target.type,
+                storeRole: target.role_in_store ?? null,
+            });
+            setStoreRole(target.role_in_store ?? null);
         }, 0);
         return () => clearTimeout(timer);
     }, [stores, currentStoreId]);
@@ -124,16 +122,13 @@ export function DashboardUserMenu() {
     // دالة اختيار المتجر
     const handleStoreSelect = (storeId: number) => {
         const selectedStore = stores.find((s) => s.id === storeId);
-        Cookies.set("current_store_id", String(storeId), { expires: 365 });
         if (selectedStore) {
-            Cookies.set("store_type", selectedStore.type, { expires: 365 });
-            if (selectedStore.role_in_store) {
-                Cookies.set("store_role", selectedStore.role_in_store, { expires: 365 });
-                setStoreRole(selectedStore.role_in_store);
-            } else {
-                Cookies.remove("store_role");
-                setStoreRole(null);
-            }
+            setStoreContext({
+                storeId: String(storeId),
+                storeType: selectedStore.type,
+                storeRole: selectedStore.role_in_store ?? null,
+            });
+            setStoreRole(selectedStore.role_in_store ?? null);
         }
         setCurrentStoreId(String(storeId));
 

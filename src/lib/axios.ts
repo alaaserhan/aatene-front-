@@ -6,128 +6,105 @@ import axios, {
 } from "axios";
 import Cookies from "js-cookie";
 import { ErrorResponse } from "../types";
-import { useAuthStore } from "@/src/stores/auth-store";
 import { toast } from "sonner";
-import { loginUrlWithAuthRequired } from "./auth-links";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
+import { AUTH_COOKIE, LANG_COOKIE } from "@/src/auth/cookies";
 
-export let isLoggingOut = false;
-export function setLoggingOut(value: boolean) {
-  isLoggingOut = value;
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    /** Suppress the global error toast for this request. Prefer over the legacy `x-silent` header. */
+    silent?: boolean;
+  }
 }
 
-// --- (1) إنشاء الـ Axios Instance ---
 const api: AxiosInstance = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    "https://backend.aatene.com/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://backend.aatene.com/api",
+  headers: { "Content-Type": "application/json" },
 });
-// --------------------------------------------------------
 
-// --- (2) Request Interceptor (بيشتغل قبل ما الطلب يتبعت) ---
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-
     let token: string | undefined;
     let lang: string | undefined;
 
     if (typeof window === "undefined") {
       try {
         const { cookies } = await import("next/headers");
-        const cookieStore = await cookies();
-        token = cookieStore.get("token")?.value;
-        lang = cookieStore.get("lang")?.value;
+        const jar = await cookies();
+        token = jar.get(AUTH_COOKIE)?.value;
+        lang = jar.get(LANG_COOKIE)?.value;
       } catch (error) {
         console.warn("Could not read server cookies in axios.ts:", error);
       }
     } else {
-      token = Cookies.get("token");
-      lang = Cookies.get("lang");
+      token = Cookies.get(AUTH_COOKIE);
+      lang = Cookies.get(LANG_COOKIE);
     }
-
-    // We no longer abort requests if there's no token. 
-    // Public endpoints should be accessible, and private ones will be handled by the response interceptor (401).
-
 
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
-    lang = lang || "en";
-    if (lang && config.headers) {
-      config.headers["X-Culture"] = lang;
+    if (config.headers) {
+      config.headers["X-Culture"] = lang ?? "en";
     }
 
     return config;
   },
   (error: AxiosError) => Promise.reject(error)
 );
-// --------------------------------------------------------
 
-// --- (4) Response Interceptor (بيشتغل بعد ما الرد يرجع) ---
+function isSilent(config?: InternalAxiosRequestConfig): boolean {
+  if (!config) return false;
+  if (config.silent === true) return true;
+  // Back-compat: x-silent header is still honored.
+  return config.headers?.["x-silent"] === "true";
+}
+
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
-    if (axios.isCancel(error) || error.message === "Canceled" || isLoggingOut) {
+    if (axios.isCancel(error) || error.message === "Canceled") {
       return Promise.reject(error);
     }
 
-    if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
-        const token = Cookies.get("token");
-        /**
-         * Only redirect to login if the user HAD a valid token (i.e. a logged-in
-         * session has expired or been invalidated by the server).
-         *
-         * A guest user (no token) hitting a protected endpoint will naturally
-         * receive 401 — that is expected and should NOT force a redirect to the
-         * login page.  We simply propagate the error so TanStack Query can show
-         * an empty / error state while the user stays on the current page.
-         */
-        if (token && !window.location.pathname.includes("/login")) {
-          useAuthStore.getState().logout();
-          try {
-            localStorage.removeItem("auth-storage");
-          } catch {
-            /* ignore */
+    // Lazy import breaks the cycle: actions.ts → auth/api.ts → axios.ts.
+    const { isSigningOut, forceSignOut } = await import("@/src/auth/actions");
+    if (isSigningOut()) return Promise.reject(error);
+
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      const token = Cookies.get(AUTH_COOKIE);
+      // Guests hitting a protected endpoint legitimately get 401 — don't redirect them.
+      // Only sign-out when we HAD a session and the server invalidated it.
+      if (token && !window.location.pathname.includes("/login")) {
+        const lang = Cookies.get(LANG_COOKIE) || "ar";
+        forceSignOut(loginUrlWithAuthRequired(lang));
+      }
+      return Promise.reject(error);
+    }
+
+    const silent = isSilent(error.config as InternalAxiosRequestConfig | undefined);
+    if (!silent && typeof window !== "undefined") {
+      if (error.response) {
+        const responseData = error.response.data as ErrorResponse | undefined;
+        let message = responseData?.message || "هناك خطأ ما";
+
+        if (typeof responseData?.errors === "string") {
+          message = responseData.errors;
+        } else if (
+          responseData?.errors &&
+          typeof responseData.errors === "object" &&
+          Object.keys(responseData.errors).length > 0
+        ) {
+          const firstKey = Object.keys(responseData.errors)[0];
+          const firstVal = responseData.errors[firstKey];
+          if (Array.isArray(firstVal) && firstVal.length > 0) {
+            message = firstVal[0];
+          } else if (typeof firstVal === "string") {
+            message = firstVal;
           }
-          const lang = Cookies.get("lang") || "ar";
-          window.location.href = loginUrlWithAuthRequired(lang);
         }
-        // No token → already a guest → reject silently, no redirect
-      }
-    }
-
-    if (error.response && error.response.status !== 401) {
-      // x-silent: الطلبات التي ترسل هذا الهيدر لا نعرض toast عند خطأها (مثل user-guide-videos)
-      if (error.config?.headers?.["x-silent"] === "true") {
-        return Promise.reject(error);
-      }
-
-      const responseData = error.response.data as ErrorResponse;
-      let message = responseData?.message || "هناك خطأ ما";
-
-      // ⭐ أولاً: حاول أخذ أول خطأ من errors object
-      if (typeof responseData?.errors === "string") {
-        message = responseData.errors;
-      } else if (responseData?.errors && typeof responseData.errors === "object" && Object.keys(responseData.errors).length > 0) {
-        const firstErrorKey = Object.keys(responseData.errors)[0];
-        const firstErrorValue = responseData.errors[firstErrorKey];
-        if (Array.isArray(firstErrorValue) && firstErrorValue.length > 0) {
-          message = firstErrorValue[0];
-        } else if (typeof firstErrorValue === "string") {
-          message = firstErrorValue;
-        }
-      }
-
-      if (typeof window !== "undefined") {
         toast.error(message);
-      }
-    }
-    else if (!error.response) {
-      if (typeof window !== "undefined") {
+      } else {
         toast.error("خطأ في الاتصال، يرجى التحقق من اتصالك بالإنترنت.");
       }
     }
@@ -135,6 +112,5 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-// --------------------------------------------------------
 
 export default api;

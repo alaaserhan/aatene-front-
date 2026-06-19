@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import React from "react";
-import { SignupForm } from "@/src/features/(web)/auth/components/SignupForm";
+import { SignupForm } from "@/src/auth/components/SignupForm";
 import { generatePageMetadata } from "@/src/lib/seo.config";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";

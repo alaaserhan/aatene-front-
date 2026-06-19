@@ -4,11 +4,11 @@
 
 | Command | Action |
 |---|---|
-| `npm run dev` | Dev server (http://localhost:3000) |
-| `npm run build` | Production build |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm run lint` | ESLint |
-| `npm run production` | `next build && next start` |
+| `pnpm run dev` | Dev server (http://localhost:3000) |
+| `pnpm run build` | Production build |
+| `pnpm run typecheck` | `tsc --noEmit` |
+| `pnpm run lint` | ESLint |
+| `pnpm run production` | `next build && next start` |
 
 Order for safety: `lint` → `typecheck` → `build`. No test framework exists in this repo.
 

@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
-import { useAuthStore } from "@/src/stores/auth-store";
-import { getAccount } from "../../settings/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { getAccount } from "../api";
+import { signIn } from "../actions";
+import { setAuthCookies } from "../cookies";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -25,7 +26,7 @@ import { useRegister } from "../hooks";
 import { Loader2 } from "lucide-react";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
-import { ApiError, User } from "../types";
+import { ApiError } from "../types";
 import { useLanguage } from "@/src/hooks/use-language";
 
 const signupSchema = z
@@ -91,31 +92,33 @@ export function SignupForm() {
     },
   });
 
-  const { mutate: signupMutation, isPending } = useRegister();
+  // `isSuccess` keeps the loading state through the gap between the API
+  // resolving and the navigation actually unmounting this form.
+  const { mutate: signupMutation, isPending, isSuccess } = useRegister();
+  const isSubmitting = isPending || isSuccess;
   const router = useRouter();
-  const { login: storeLogin } = useAuthStore();
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const queryClient = useQueryClient();
+  // Initialize from the URL: if we landed here via the Google OAuth callback,
+  // start in the loading state so we don't flash the form.
+  const [isGoogleLoading, setIsGoogleLoading] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return new URLSearchParams(window.location.search).has("token");
+  });
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const tokenParam = searchParams.get("token");
 
     if (tokenParam) {
-      setIsGoogleLoading(true);
-      Cookies.set("token", tokenParam, {
-        expires: 365,
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-      });
+      setAuthCookies({ token: tokenParam });
       getAccount()
         .then((data) => {
-          if (data?.user) {
-            storeLogin(tokenParam, data.user as unknown as User);
-            router.push(`/${lang}`);
-          } else {
+          if (!data?.user) {
             setIsGoogleLoading(false);
+            return;
           }
+          signIn({ token: tokenParam, user: data.user, queryClient });
+          router.push(`/${lang}`);
         })
         .catch(() => {
           setIsGoogleLoading(false);
@@ -206,7 +209,7 @@ export function SignupForm() {
         <Button
           type="button"
           onClick={handleGoogleLogin}
-          disabled={isGoogleLoading || isPending}
+          disabled={isGoogleLoading || isSubmitting}
           variant="outline"
           className="h-12 w-full shrink-0 items-center gap-3 rounded-full border-0 bg-[#ececec] text-base font-normal text-[#3c4043] shadow-none hover:bg-[#e2e2e2] hover:text-[#202124]"
         >
@@ -379,9 +382,9 @@ export function SignupForm() {
             <Button
               type="submit"
               className="h-12 w-full rounded-full bg-[#3d5e83] text-base font-semibold text-white hover:bg-[#2c4461]"
-              disabled={isPending}
+              disabled={isSubmitting}
             >
-              {isPending ? (
+              {isSubmitting ? (
                 <>
                   جاري الإنشاء...
                   <Loader2 className="ms-2 h-4 w-4 animate-spin" />

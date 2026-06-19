@@ -3,7 +3,8 @@
 
 import { useEffect, useState, ReactNode } from "react";
 import Cookies from "js-cookie";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useAuth } from "@/src/auth";
+import { setStoreContext } from "@/src/store-context";
 import { getStores } from "@/src/features/(dashboard)/stores/api";
 import { Loader2, Store } from "lucide-react";
 import { usePathname, useRouter, useParams } from "next/navigation";
@@ -18,8 +19,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 
 export function StoreGuard({ children }: { children: ReactNode }) {
-    const user = useAuthStore((s) => s.user);
-    const isHydrated = useAuthStore((s) => s.isHydrated);
+    const { user } = useAuth();
     const [isReady, setIsReady] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const router = useRouter();
@@ -40,7 +40,8 @@ export function StoreGuard({ children }: { children: ReactNode }) {
               : "admin";
 
     useEffect(() => {
-        if (!isHydrated) return;
+        // Wait for the user profile to land before deciding what to do.
+        if (!user) return;
 
         const initializeStore = async () => {
             const isMerchant = user?.user_type === "merchant";
@@ -80,14 +81,11 @@ export function StoreGuard({ children }: { children: ReactNode }) {
                 const approvedStores = (response.data ?? []).filter((s) => s.status === "approved");
                 if (approvedStores.length > 0) {
                     const store = approvedStores[0];
-                    Cookies.set("current_store_id", store.id.toString(), {
-                        expires: 365,
+                    setStoreContext({
+                        storeId: store.id.toString(),
+                        storeType: store.type,
+                        storeRole: store.role_in_store ?? null,
                     });
-                    Cookies.set("store_type", store.type, { expires: 365 });
-                    if (store.role_in_store) {
-                        Cookies.set("store_role", store.role_in_store, { expires: 365 });
-                    }
-                    window.dispatchEvent(new Event("store-info-updated"));
                     setIsReady(true);
                 } else {
 
@@ -106,7 +104,7 @@ export function StoreGuard({ children }: { children: ReactNode }) {
         };
 
         initializeStore();
-    }, [user, isHydrated, pathname, router, locale, dashboardType]);
+    }, [user, pathname, router, locale, dashboardType]);
 
     if (!isReady) {
         return (

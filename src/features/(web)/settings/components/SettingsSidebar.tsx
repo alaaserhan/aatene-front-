@@ -18,8 +18,8 @@ import {
     ChevronLeft,
 } from "lucide-react";
 import Link from "next/link";
-import { useLogout } from "../../auth/hooks";
 import { useLanguage } from "@/src/hooks/use-language";
+import { useLogout } from "@/src/auth";
 
 interface SettingsSidebarProps {
     activeTab: SettingsTab;

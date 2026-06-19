@@ -1,30 +1,53 @@
 // src/features/auth/types.ts
 
-// The structure of the User object returned by login/register
+/**
+ * The canonical User shape. The backend returns different subsets from
+ * different endpoints:
+ *   - /auth/login + /auth/register: include `slug`, `is_active`, `referral_code`,
+ *     `last_login_at`, `created_at`, and (for admins) `permissions`
+ *   - /auth/account: includes `city` / `district`, may omit the audit fields
+ *
+ * Anything not guaranteed on every response is optional here. Consumers must
+ * use `?.` or guard before reading; that's the price of one User type that
+ * survives every endpoint.
+ */
 export interface User {
+  // Always present
   id: number;
-  slug: string;
+  user_type: string;
+  email: string;
+  phone: string;
+  first_name: string;
+  last_name: string;
   fullname: string;
   avatar: string | null;
-  avatar_url: string | null;
+
+  // Image URLs — backend is inconsistent; normalizeUser keeps `*_url` URL-shaped
+  avatar_url?: string | null;
   /** رابط صورة الغلاف (تعاد من ProfileResource كـ `cover` — نحتفظ بالاثنين للتوافق) */
   cover?: string | null;
   cover_url?: string | null;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  is_active: string | boolean; // API seems inconsistent (string "1" vs boolean true)
-  gender: string | null;
-  referral_code: string | null;
-  last_login_at: string; // ISO date string
-  followers_count: number | string;
-  followings_count: number | string;
-  bio: string | null;
-  date_of_birth: string | null; // Assuming ISO date string or similar
-  user_type: string;
+
+  // Profile fields — present on most endpoints
+  gender?: string | null;
+  bio?: string | null;
+  date_of_birth?: string | null;
+  followers_count?: number | string;
+  followings_count?: number | string;
+
+  // /auth/account adds these
+  city?: { id: number; name: string } | null;
+  district?: { id: number; name: string } | null;
+
+  // /auth/login + /auth/register surface these; /auth/account may not
+  slug?: string;
+  is_active?: string | boolean;
+  referral_code?: string | null;
+  last_login_at?: string;
+  created_at?: string;
+
+  // Admin tokens only
   permissions?: string[];
-  created_at: string;
 }
 
 
@@ -34,6 +57,12 @@ export interface AuthResponse {
   message: string;
   user: User;
   token: string;
+}
+
+export interface AccountResponse {
+  status: boolean;
+  message: string;
+  user: User;
 }
 
 // Response for successful Logout

@@ -6,7 +6,7 @@ import { ChevronLeft, Menu, X, Search } from "lucide-react";
 import Link from "next/link";
 import { SearchBar } from "./SearchBar";
 import UserMenu from "./UserMenu";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useAuth } from "@/src/auth";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useMyNotificationStats } from "@/src/features/(web)/notifications/hooks";
 import { Badge } from "@/src/components/ui/badge";
@@ -47,8 +47,7 @@ export default function MobileNav() {
   const [failedMobileLogoUrl, setFailedMobileLogoUrl] = useState<string | null>(null);
 
   const lang = useLanguage();
-  const user = useAuthStore((state) => state.user);
-  const isHydrated = useAuthStore((state) => state.isHydrated);
+  const { isLoggedIn, user } = useAuth();
 
   const { data: statsData } = useMyNotificationStats(!!user);
   const unreadCount = statsData?.unseen || 0;
@@ -159,7 +158,7 @@ export default function MobileNav() {
                         <h3 className="font-medium text-gray-2 uppercase tracking-wider mb-3">التصفح</h3>
                       </div>
 
-                      {isHydrated && !!user && (
+                      {isLoggedIn && (
                         <>
                           <Link
                             href={`/${lang}/chat`}

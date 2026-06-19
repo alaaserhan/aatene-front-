@@ -1,4 +1,6 @@
 import { Metadata } from "next";
+import { AuthBootProvider } from "@/src/auth/context";
+import { getServerAuth } from "@/src/auth/server";
 import { AuthHydrator } from "@/src/components/providers/AuthHydrator";
 import { SettingsHydrator } from "@/src/components/providers/SettingsHydrator";
 import { QueryProvider } from "@/src/components/providers/QueryProvider";
@@ -12,6 +14,8 @@ import Script from "next/script";
 import localFont from "next/font/local";
 import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/src/lib/seo.config";
 import "./globals.css";
+// Side-effect import: registers store-context's onSignOut listener at boot.
+import "@/src/store-context";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -90,11 +94,14 @@ const pingAr = localFont({
   adjustFontFallback: "Arial",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Read the token cookie on the server so first-paint HTML reflects auth state.
+  const { isLoggedIn } = await getServerAuth();
+
   return (
     <html
       lang="ar"
@@ -115,15 +122,17 @@ export default function RootLayout({
           <GoogleAnalytics />
           <TikTokPixel />
         </Suspense>
-        
+
         <QueryProvider>
-          <Suspense fallback={null}>
-            <AuthHydrator />
-            <SettingsHydrator />
-          </Suspense>
-          {children}
+          <AuthBootProvider initialIsLoggedIn={isLoggedIn}>
+            <Suspense fallback={null}>
+              <AuthHydrator />
+              <SettingsHydrator />
+            </Suspense>
+            {children}
+          </AuthBootProvider>
         </QueryProvider>
-        
+
         <Toaster richColors dir="rtl" position="top-right" />
         <Script
           id="register-sw"

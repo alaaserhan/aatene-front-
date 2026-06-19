@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
-import { useAuthStore } from "@/src/stores/auth-store";
-import { getAccount } from "../../settings/api";
-import { User } from "../types";
+import { useQueryClient } from "@tanstack/react-query";
+import { getAccount } from "../api";
+import { signIn } from "../actions";
+import { setAuthCookies } from "../cookies";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,7 +18,7 @@ import { useLogin } from "../hooks";
 import { getFCMToken } from "@/src/lib/firebase";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { LOGIN_AUTH_REQUIRED_REASON } from "@/src/lib/auth-links";
+import { LOGIN_AUTH_REQUIRED_REASON } from "../links";
 
 const loginSchema = z.object({
   login: z.string().min(1, "البريد الإلكتروني أو الهاتف مطلوب"),
@@ -66,10 +66,19 @@ export function LoginForm() {
     },
   });
 
-  const { mutate: loginMutation, isPending } = useLogin();
+  // `isSuccess` keeps the loading state through the gap between the API
+  // resolving and the navigation actually unmounting this form — without it
+  // the button briefly stops spinning before the router takes us away.
+  const { mutate: loginMutation, isPending, isSuccess } = useLogin();
+  const isSubmitting = isPending || isSuccess;
   const router = useRouter();
-  const { login: storeLogin } = useAuthStore();
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const queryClient = useQueryClient();
+  // Initialize from the URL: if we landed here via the Google OAuth callback,
+  // start in the loading state so we don't flash the form.
+  const [isGoogleLoading, setIsGoogleLoading] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return new URLSearchParams(window.location.search).has("token");
+  });
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -87,21 +96,17 @@ export function LoginForm() {
     }
 
     if (tokenParam) {
-      setIsGoogleLoading(true);
-      Cookies.set("token", tokenParam, {
-        expires: 365,
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-      });
+      // Seed the token cookie so axios attaches the bearer for /auth/account.
+      // signIn() will rewrite it with the full attribute set once we have the user.
+      setAuthCookies({ token: tokenParam });
       getAccount()
         .then((data) => {
-          if (data?.user) {
-            storeLogin(tokenParam, data.user as unknown as User);
-            router.push("/");
-          } else {
+          if (!data?.user) {
             setIsGoogleLoading(false);
+            return;
           }
+          signIn({ token: tokenParam, user: data.user, queryClient });
+          router.push("/");
         })
         .catch(() => {
           setIsGoogleLoading(false);
@@ -166,7 +171,7 @@ export function LoginForm() {
         <Button
           type="button"
           onClick={handleGoogleLogin}
-          disabled={isGoogleLoading || isPending}
+          disabled={isGoogleLoading || isSubmitting}
           variant="outline"
           className="h-12 w-full items-center gap-3 rounded-full border-0 bg-[#ececec] text-base font-normal text-[#3c4043] shadow-none hover:bg-[#e2e2e2] hover:text-[#202124]"
         >
@@ -227,9 +232,9 @@ export function LoginForm() {
               <Button
                 type="submit"
                 className="h-12 w-full rounded-full bg-[#3d5e83] text-base font-semibold text-white hover:bg-[#2c4461]"
-                disabled={isPending}
+                disabled={isSubmitting}
               >
-                {isPending ? (
+                {isSubmitting ? (
                   <>
                     جاري تسجيل الدخول...
                     <Loader2 className="ms-2 h-4 w-4 animate-spin" />

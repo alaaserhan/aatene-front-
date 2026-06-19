@@ -9,7 +9,7 @@ import ReportDetailsModal from "./ReportDetailsModal";
 import ReportResponsesModal from "./ReportResponsesModal";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { useRouter, useParams } from "next/navigation";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useAuth } from "@/src/auth";
 
 const statusMap: Record<string, { label: string; bg: string; border: string; text: string }> = {
     pending: { label: "جديدة", bg: "#e0eeff", border: "#c0d4f0", text: "#287cda" },
@@ -35,20 +35,19 @@ export default function ReportInquiryPage() {
     const router = useRouter();
     const params = useParams();
     const lang = params?.locale || "ar";
-    const { isLoggedIn, isHydrated } = useAuthStore();
+    const { isLoggedIn } = useAuth();
 
     useEffect(() => {
-        if (!isHydrated) return;
         if (!isLoggedIn) {
             router.replace(`/${lang}/login`);
         }
-    }, [isHydrated, isLoggedIn, router, lang]);
+    }, [isLoggedIn, router, lang]);
 
     const { data: statsData, isLoading: statsLoading, isError: statsError } = useGetReportStats();
     const { data: reportsData, isLoading: reportsLoading, isError: reportsError } = useGetReports(filters);
     const { data: typesData } = useGetReportTypes();
 
-    if (!isHydrated || !isLoggedIn) {
+    if (!isLoggedIn) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
                 <Loader2 className="w-6 h-6 animate-spin text-blue-4" />

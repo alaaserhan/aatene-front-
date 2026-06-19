@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import UserMenu from "./UserMenu";
 import MobileNav from "./MobileNav";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useAuth } from "@/src/auth";
 import { useLanguage } from "@/src/hooks/use-language";
 import { SearchBar } from "./SearchBar";
 import { NotificationDropdown } from "@/src/components/shared/NotificationDropdown";
@@ -15,8 +15,7 @@ import Image from "next/image";
 import { upgradeHttpToHttps, fixMediaUrl } from "@/src/lib/utils";
 
 const Navbar = () => {
-  const isAuthenticated = useAuthStore((state) => state.isLoggedIn);
-  const isHydrated = useAuthStore((state) => state.isHydrated);
+  const { isLoggedIn } = useAuth();
   const lang = useLanguage();
   const { settings } = useSettingsStore();
   const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
@@ -61,7 +60,7 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-4 lg:gap-6">
-            {isHydrated && isAuthenticated && <NavIcons />}
+            {isLoggedIn && <NavIcons />}
             <UserMenu />
           </div>
         </div>

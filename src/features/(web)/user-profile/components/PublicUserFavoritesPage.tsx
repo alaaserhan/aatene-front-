@@ -13,7 +13,7 @@ import { searchProducts, searchServices, searchStores } from "../../searchAndFil
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "../../settings/hooks";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
-import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
+import { loginUrlWithAuthRequired } from "@/src/auth";
 import { cn } from "@/src/lib/utils";
 import { formatPrice } from "@/src/lib/format-price";
 import ProductCard from "../../product/components/ProductCard";

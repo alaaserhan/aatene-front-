@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import React from "react";
-import { LoginForm } from "@/src/features/(web)/auth/components/LoginForm";
+import { LoginForm } from "@/src/auth/components/LoginForm";
 import { setStaticParamsLocale } from "next-international/server";
 import { generatePageMetadata } from "@/src/lib/seo.config";
 import { cookies } from "next/headers";

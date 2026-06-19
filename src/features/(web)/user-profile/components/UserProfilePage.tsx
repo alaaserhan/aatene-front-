@@ -20,7 +20,7 @@ import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { useLanguage } from "@/src/hooks/use-language";
-import { loginUrlWithAuthRequired } from "@/src/lib/auth-links";
+import { loginUrlWithAuthRequired } from "@/src/auth";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 import Link from "next/link";
 
