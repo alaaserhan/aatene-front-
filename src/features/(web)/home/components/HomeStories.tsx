@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { Suspense, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import MaxWidthWrapper from "@/src/components/(web)/MaxWidthWrapper";
@@ -30,20 +30,10 @@ interface HomeStoriesProps {
     initialOwners?: StoryOwner[];
 }
 
-export default function HomeStories({ initialOwners }: HomeStoriesProps) {
+function StoryModalController({ owners }: { owners: StoryOwner[] }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-
-    const { data: ownersRes, isLoading } = useStoryOwners();
-    const owners: StoryOwner[] = initialOwners || ownersRes?.data || EMPTY_OWNERS;
-
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-    const [isDragging, setIsDragging] = useState(false);
-    const [startX, setStartX] = useState(0);
-    const [scrollLeft, setScrollLeft] = useState(0);
-    const [hasDragged, setHasDragged] = useState(false);
 
     const storyIdParam = searchParams.get('storyId');
     let selectedOwnerIndex: number | null = null;
@@ -60,20 +50,45 @@ export default function HomeStories({ initialOwners }: HomeStoriesProps) {
         }
     }
 
-    const handleSelectOwner = (index: number) => {
-        const owner = owners[index];
-        if (!owner.stories || owner.stories.length === 0) return;
-        
-        const firstStoryId = owner.stories[0].id;
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('storyId', firstStoryId.toString());
-        router.push(`${pathname}?${params.toString()}`, { scroll: false });
-    };
-
     const handleCloseModal = () => {
         const params = new URLSearchParams(searchParams.toString());
         params.delete('storyId');
         router.push(`${pathname}${params.size > 0 ? '?' + params.toString() : ''}`, { scroll: false });
+    };
+
+    if (selectedOwnerIndex === null || !owners[selectedOwnerIndex]) return null;
+
+    return (
+        <ShowStoryModal
+            isOpen={selectedOwnerIndex !== null}
+            onClose={handleCloseModal}
+            stories={owners[selectedOwnerIndex].stories}
+            initialIndex={initialStoryIndex}
+            showActions={false}
+        />
+    );
+}
+
+export default function HomeStories({ initialOwners }: HomeStoriesProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+
+    const { data: ownersRes, isLoading } = useStoryOwners();
+    const owners: StoryOwner[] = initialOwners || ownersRes?.data || EMPTY_OWNERS;
+
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+    const [hasDragged, setHasDragged] = useState(false);
+
+    const handleSelectOwner = (index: number) => {
+        const owner = owners[index];
+        if (!owner.stories || owner.stories.length === 0) return;
+
+        const firstStoryId = owner.stories[0].id;
+        router.push(`${pathname}?storyId=${firstStoryId}`, { scroll: false });
     };
 
     const handleMouseDown = (e: React.MouseEvent) => {
@@ -118,7 +133,7 @@ export default function HomeStories({ initialOwners }: HomeStoriesProps) {
         }
     };
 
-    if (isLoading) return <StoriesSkeleton />;
+    if (isLoading && !initialOwners) return <StoriesSkeleton />;
     if (!owners || owners.length === 0) return null;
 
     return (
@@ -230,16 +245,9 @@ export default function HomeStories({ initialOwners }: HomeStoriesProps) {
                 </MaxWidthWrapper>
             </section>
 
-            {selectedOwnerIndex !== null && owners[selectedOwnerIndex] && (
-                <ShowStoryModal
-                    isOpen={selectedOwnerIndex !== null}
-                    onClose={handleCloseModal}
-                    stories={owners[selectedOwnerIndex].stories}
-                    initialIndex={initialStoryIndex}
-                    showActions={false}
-                />
-            )}
+            <Suspense fallback={null}>
+                <StoryModalController owners={owners} />
+            </Suspense>
         </>
     );
 }
-
