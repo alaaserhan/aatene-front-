@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { locales, defaultLocale } from "@/src/i18n/config";
 
 const SITE_NAME = "أعطيني | Aatene";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.aatene.com";
@@ -307,6 +308,19 @@ export function generateDynamicMetadata({
             description,
             images: [ogImage],
         },
+    };
+}
+
+export function generateAlternates(locale: string, pathname: string) {
+    const languages: Record<string, string> = {};
+    for (const loc of locales) {
+        languages[loc] = `${SITE_URL}/${loc}${pathname}`;
+    }
+    languages["x-default"] = `${SITE_URL}/${defaultLocale}${pathname}`;
+
+    return {
+        canonical: `${SITE_URL}/${locale}${pathname}`,
+        languages,
     };
 }
 

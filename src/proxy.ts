@@ -46,6 +46,15 @@ function getLocaleFromPath(pathname: string) {
   return "ar";
 }
 
+function stripLocalePrefix(pathname: string): string {
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length === 0) return "";
+  if (LOCALES.has(parts[0])) {
+    return parts.length > 1 ? "/" + parts.slice(1).join("/") : "";
+  }
+  return "/" + parts.join("/");
+}
+
 function isRouteMatch(pathname: string, locale: string, route: string) {
   const normalizedPath = pathname.replace(/\/+$/, "") || "/";
   return normalizedPath === route || normalizedPath === `/${locale}${route}`;
@@ -196,6 +205,8 @@ export default function proxy(request: NextRequest) {
 
   // Cache-Control: private, no-cache يسمح بـ bfcache (عكس no-store الذي يمنعه)
   i18nResponse.headers.set("Cache-Control", "private, no-cache");
+
+  i18nResponse.headers.set("x-pathname", stripLocalePrefix(pathname));
 
   // منع الـ redirect loop على iOS
   if (
