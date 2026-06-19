@@ -1,6 +1,6 @@
 import api from "@/src/lib/axios";
 import { getDynamicEndpoint } from "@/src/lib/api-helper";
-import { User } from "../../(web)/auth/types";
+import { User } from "@/src/auth/types";
 import { MerchantRole } from "@/src/config/role-permissions";
 
 export type StoreStatus = "approved" | "pending" | "rejected";
