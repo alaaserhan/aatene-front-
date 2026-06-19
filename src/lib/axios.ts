@@ -45,7 +45,7 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     if (config.headers) {
-      config.headers["X-Culture"] = lang ?? "en";
+      config.headers["X-Culture"] = lang ?? "ar";
     }
 
     return config;
