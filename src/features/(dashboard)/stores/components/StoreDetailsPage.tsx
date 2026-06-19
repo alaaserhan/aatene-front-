@@ -17,6 +17,7 @@ import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAl
 import { cn, isVideoFile } from "@/src/lib/utils";
 import { WorkingTime, StoreManager } from "../api";
 import { RejectStoreModal } from "./RejectStoreModal";
+import { ConfirmationDialog } from "@/src/components/ui/ConfirmationDialog";
 import { formatDateArabic } from "@/src/lib/date-helper";
 import { useAuthStore } from "@/src/stores/auth-store";
 
@@ -43,6 +44,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
   const [managersExpanded, setManagersExpanded] = useState(true);
   const [showAllDays, setShowAllDays] = useState(false);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [approveModalOpen, setApproveModalOpen] = useState(false);
   const [dismissedStoreStatus, setDismissedStoreStatus] = useState<string | null>(null);
   const user = useAuthStore((state) => state.user);
 
@@ -89,7 +91,11 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
     });
   };
 
-  const handleApproveStore = () => {
+  const handleApproveClick = () => {
+    setApproveModalOpen(true);
+  };
+
+  const handleConfirmApprove = () => {
     updateStatusMutation({ id: storeId, payload: { status: "approved" } });
   };
 
@@ -177,19 +183,10 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
                 </span>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                {currentStatus === "approved" && (
-                  <Button
-                    type="button"
-                    disabled
-                    className="w-full sm:w-auto bg-[#34D399] text-white px-6 sm:px-8 h-10 font-bold rounded opacity-100"
-                  >
-                    المتجر مقبول
-                  </Button>
-                )}
                 {currentStatus !== "approved" && (
                   <Button
                     type="button"
-                    onClick={handleApproveStore}
+                    onClick={handleApproveClick}
                     disabled={isUpdatingStatus}
                     className="w-full sm:w-auto bg-[#34D399] hover:bg-[#2cb683] text-white px-6 sm:px-8 h-10 font-bold rounded"
                   >
@@ -220,6 +217,13 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
           onClose={() => setRejectModalOpen(false)}
           onConfirm={confirmReject}
           isLoading={isUpdatingStatus}
+        />
+
+        <ConfirmationDialog
+          isOpen={approveModalOpen}
+          onClose={() => setApproveModalOpen(false)}
+          onConfirm={handleConfirmApprove}
+          title={`هل أنت متأكد من قبول متجر "${store.name}"؟`}
         />
 
         <div className="grid grid-cols-12 gap-6">
