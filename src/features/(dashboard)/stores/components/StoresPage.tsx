@@ -217,7 +217,7 @@ export function StoresPage() {
             <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
               <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <Input
-                placeholder="ابحث باسم المتجر أو الوصف أو الإيميل..."
+                placeholder="ابحث باسم المتجر أو الإيميل..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);

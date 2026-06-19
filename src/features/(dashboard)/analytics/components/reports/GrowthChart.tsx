@@ -24,7 +24,7 @@ export function GrowthChart({ data, title, lines, className }: GrowthChartProps)
         </h3>
       </div>
 
-      <div className="flex-1 w-full min-h-0">
+      <div className="h-57.5 lg:flex-1 w-full min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 10, right: 5, left: -35, bottom: 0 }}>
             <defs>

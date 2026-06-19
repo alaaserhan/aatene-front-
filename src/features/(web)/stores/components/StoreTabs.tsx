@@ -302,7 +302,8 @@ function OffersGrid({
 function OfferCard({ product }: { product: ProductInPageData }) {
     const crossSellProducts = product.crossSells || [];
     const hasCrossSells = crossSellProducts.length > 0;
-    const imageUrl = sanitizeMediaUrl(product.cross_sells_image_url || product.cover) || "/images/placeholders/product-placeholder.svg";
+    const imageUrl = sanitizeMediaUrl(product.cross_sells_image_url || product.cover) || "/images/placeholders/product-placeholder.webp";
+    const [mainImageError, setMainImageError] = useState(false);
     const name = product.cross_sells_name || product.name || "اسم العرض";
     const desc = product.cross_sells_description || product.short_description || product.name || "";
 
@@ -318,6 +319,7 @@ function OfferCard({ product }: { product: ProductInPageData }) {
     const PAGE_SIZE = 3;
     const totalPages = Math.ceil(crossSellProducts.length / PAGE_SIZE);
     const [page, setPage] = useState(0);
+    const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
     const visibleProducts = crossSellProducts.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
     const originalTotal = hasCrossSells
@@ -347,7 +349,8 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                     <div className="flex flex-col items-center gap-2">
 
                         {/* صف واحد: سهم يمين + منتجات + سهم يسار + = + السعر */}
-                        <div className="flex items-center gap-1 sm:gap-1.5 md:gap-3 w-full justify-center overflow-x-auto py-1 no-scrollbar">
+                        <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-1.5 md:gap-3 w-full justify-center py-1">
+                            <div className="flex items-center gap-1.5 sm:gap-1.5 md:gap-3 justify-center overflow-x-auto no-scrollbar">
 
                             {totalPages > 1 && (
                                 <button
@@ -365,23 +368,23 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                             <div className="flex items-center gap-1 sm:gap-1.5 md:gap-4 shrink-0">
                                 {visibleProducts.map((item, index) => (
                                     <div key={item.id} className="flex items-center gap-1 sm:gap-1.5 md:gap-4">
-                                        <Link href={`/product/${item.slug}`} className="flex flex-col items-center gap-0.5 sm:gap-1.5 w-[70px] sm:w-[110px] md:w-[180px] shrink-0 group/item">
-                                            <div className="w-full aspect-square rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm">
+                                        <Link href={`/product/${item.slug}`} className="flex flex-col items-center gap-0.5 sm:gap-1.5 w-[110px] sm:w-[110px] md:w-[180px] shrink-0 group/item">
+                                            <div className="mb-1 w-full aspect-square rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm">
                                                 <Image
-                                                    src={item.cover || "/images/placeholders/product-placeholder.svg"}
+                                                    src={!item.cover || failedImages.has(item.id) ? "/images/placeholders/product-placeholder.webp" : item.cover}
                                                     alt={item.name}
                                                     width={180}
                                                     height={180}
                                                     className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
-                                                    onError={(e) => { e.currentTarget.src = "/images/placeholders/product-placeholder.svg"; }}
+                                                    onError={() => setFailedImages(prev => new Set(prev).add(item.id))}
                                                 />
                                             </div>
-                                            <p className="text-[9px] sm:text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight group-hover/item:text-blue-3 transition-colors">
+                                            <p className="text-xs sm:text-[11px] md:text-sm text-gray-700 text-center line-clamp-2 font-medium leading-tight group-hover/item:text-blue-3 transition-colors">
                                                 {item.name}
                                             </p>
                                         </Link>
                                         {index < visibleProducts.length - 1 && (
-                                            <span className="text-xs sm:text-xl md:text-2xl font-bold text-gray-400 shrink-0">+</span>
+                                            <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-400 shrink-0">+</span>
                                         )}
                                     </div>
                                 ))}
@@ -399,21 +402,22 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                                     <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
                                 </button>
                             )}
+                            </div>
 
                             {/* = والسعر */}
                             <div className="flex items-center gap-1 sm:gap-2 md:gap-4 shrink-0">
-                                <span className="text-base sm:text-2xl md:text-3xl font-bold text-gray-400 shrink-0">=</span>
+                                <span className="text-2xl sm:text-2xl md:text-3xl font-bold text-gray-400 shrink-0">=</span>
                                 <div className="flex flex-col items-center gap-0.5 shrink-0">
-                                    <span className="text-xs sm:text-xl md:text-2xl font-bold text-gray-800 whitespace-nowrap">
+                                    <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 whitespace-nowrap">
                                         {formatPrice(mainPrice)}{" "}
-                                        <span className="text-[9px] sm:text-base font-medium">₪</span>
+                                        <span className="text-sm sm:text-base font-medium">₪</span>
                                     </span>
-                                    <span className="text-[7px] sm:text-xs text-black whitespace-nowrap">بدلاً من</span>
-                                    <span className="text-[8px] sm:text-sm text-black line-through whitespace-nowrap">
+                                    <span className="text-xs sm:text-xs text-black whitespace-nowrap">بدلاً من</span>
+                                    <span className="text-sm sm:text-sm text-black line-through whitespace-nowrap">
                                         {formatPrice(originalTotal ?? parseFloat(oldPrice || mainPrice))} ₪
                                     </span>
                                     {savings !== null && savings > 0 && (
-                                        <span className="mt-0.5 text-[7px] sm:text-xs font-semibold text-red-1 whitespace-nowrap">
+                                        <span className="mt-0.5 text-xs sm:text-xs font-semibold text-red-1 whitespace-nowrap">
                                             وفّر {formatPrice(savings)} ₪
                                         </span>
                                     )}
@@ -429,10 +433,11 @@ function OfferCard({ product }: { product: ProductInPageData }) {
                         <div className="flex flex-col-reverse sm:flex-row items-center gap-4">
                             <div className="relative w-full sm:w-[160px] aspect-square rounded-xl overflow-hidden bg-gray-100 shrink-0">
                                 <Image
-                                    src={imageUrl}
+                                    src={mainImageError ? "/images/placeholders/product-placeholder.webp" : imageUrl}
                                     alt={name}
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                    onError={() => setMainImageError(true)}
                                 />
                             </div>
                             <div className="flex flex-col gap-2 text-center sm:text-right flex-1" dir="rtl">
@@ -603,7 +608,7 @@ function OverviewTab({ store }: { store: StoreProfile }) {
 
                 {/* الوصف + إحصائيات: أولاً على الجوال | يمين الديسكتوب */}
                 <div className="flex-1 min-w-0 w-full order-1 flex flex-col lg:flex-row items-start gap-6 lg:gap-8">
-                    <div className="flex flex-row lg:flex-col flex-wrap justify-center lg:justify-start gap-6 lg:gap-8 shrink-0">
+                    <div className="flex flex-row lg:flex-col flex-wrap justify-between w-full lg:w-auto lg:justify-start gap-6 lg:gap-8 shrink-0">
                         <StoreStatItem
                             icon={<img src="/icons/clock.svg" alt="" className="w-6 h-6" />}
                             label="مواعيد العمل"
@@ -614,7 +619,7 @@ function OverviewTab({ store }: { store: StoreProfile }) {
                         />
                         <StoreStatItem
                             icon={<img src="/icons/heart2.svg" alt="" className="w-6 h-6" />}
-                            label="فضلو المتجر"
+                            label="فضلوا المتجر"
                             value={String(store.favorites_count || 0)}
                         />
                         <StoreStatItem

@@ -139,7 +139,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                     <Input
                         type="text"
                         className="w-full bg-white rounded-lg border border-gray-200 pr-12 h-12 shadow-none focus-visible:ring-0"
-                        placeholder="ابحث باسم المنتج او الوصف"
+                        placeholder="ابحث باسم المنتج"
                         value={search}
                         onChange={(e) => {
                             setSearch(e.target.value);
