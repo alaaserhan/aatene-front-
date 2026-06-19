@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 import { useSettingsStore } from "@/src/stores/settings-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { fixMediaUrl, upgradeHttpToHttps } from "@/src/lib/utils";
+import { useIsAuthenticated } from "@/src/auth";
 
 function AppBadgeLink({
   href,
@@ -75,6 +76,7 @@ function AppStoreButtons({
 const Footer = () => {
   const lang = useLanguage();
   const { settings } = useSettingsStore();
+  const isAuthenticated = useIsAuthenticated();
   const localePath = (path: string) => `/${lang}${path === "/" ? "" : path}`;
   const googlePlayUrl = process.env.NEXT_PUBLIC_GOOGLE_PLAY_URL || localePath("/coming-soon");
   const appStoreUrl = process.env.NEXT_PUBLIC_APP_STORE_URL || localePath("/coming-soon");
@@ -103,8 +105,10 @@ const Footer = () => {
     {
       title: "حسابي",
       links: [
-        { label: "تسجيل الدخول", href: localePath("/login") },
-        { label: "إنشاء حساب", href: localePath("/signup") },
+        ...(!isAuthenticated ? [
+          { label: "تسجيل الدخول", href: localePath("/login") },
+          { label: "إنشاء حساب", href: localePath("/signup") },
+        ] : []),
         { label: "إعدادات", href: localePath("/settings") },
         { label: "كن تاجرا", href: localePath("/admin/stores/add") },
       ],
