@@ -95,6 +95,7 @@ export default async function RootLayout({
 
   return (
     <html
+      // TODO: lang should be dynamic
       lang="ar"
       dir="rtl"
       className={pingAr.variable}

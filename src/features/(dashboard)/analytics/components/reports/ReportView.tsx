@@ -6,8 +6,6 @@ import {
     Download, Calendar, Flag, ChevronsUp, Loader2
 } from "lucide-react";
 import { toast } from "sonner";
-import jsPDF from "jspdf";
-import { toPng } from "html-to-image";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Button } from "@/src/components/ui/button";
 import {
@@ -45,6 +43,11 @@ export function ReportView({ type }: ReportViewProps) {
     const handleExport = async () => {
         if (!reportRef.current) return;
         setIsExporting(true);
+
+        const [{ default: jsPDF }, { toPng }] = await Promise.all([
+            import("jspdf"),
+            import("html-to-image"),
+        ]);
 
         const generatePdf = (dataUrl: string) => {
             const pdf = new jsPDF("p", "mm", "a4");

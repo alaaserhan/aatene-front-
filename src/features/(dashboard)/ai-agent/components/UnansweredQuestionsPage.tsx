@@ -7,8 +7,6 @@ import { Input } from "@/src/components/ui/input";
 import { useGetAdminMissedQuestions, useReviewAdminMissedQuestion, useDeleteAdminMissedQuestion } from "../hooks";
 import { AdminMissedQuestion } from "../api";
 import { Pagination } from "@/src/components/ui/Pagination";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
 import { formatDateTime } from "@/src/lib/date-helper";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/src/components/ui/dialog";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
@@ -166,6 +164,10 @@ export function UnansweredQuestionsPage() {
     const exportToPDF = async () => {
         setIsExporting(true);
         try {
+            const [{ jsPDF }, { default: html2canvas }] = await Promise.all([
+                import("jspdf"),
+                import("html2canvas"),
+            ]);
             const pdf = new jsPDF("p", "mm", "a4");
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const rowsPerPage = 25;
