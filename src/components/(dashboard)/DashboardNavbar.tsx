@@ -611,7 +611,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
                             <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
                               <Store size={16} className="text-blue-4" />
                             </div>
-                            <span className="font-medium">المنصه</span>
+                            <span className="font-medium">المنصة</span>
                           </div>
                           <ChevronLeft size={16} className="text-gray-400 " />
                         </Link>

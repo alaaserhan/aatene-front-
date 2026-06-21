@@ -92,7 +92,7 @@ const allTabs: TabItem[] = [
     },
     {
         id: "topic",
-        label: "أضف موضوع",
+        label: "أضف خدمة",
         description: "إن كنت تبحث عن خدمة أو منتج غير موجود",
         icon: <MessageSquarePlus className="w-5 h-5" />,
         href: "/requested-services/create",
