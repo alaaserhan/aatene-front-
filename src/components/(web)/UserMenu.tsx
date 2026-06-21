@@ -36,7 +36,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
         setIsOpen(false);
         onClose?.();
 
-        router.push(`/${lang}/admin/home`);
+        router.push(`/admin/home`);
       }
     });
   };
@@ -210,7 +210,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
         <div className="space-y-2">
           {user.user_type === "admin" && (
             <Link
-              href={`/${lang}/admin/home`}
+              href={`/admin/home`}
               className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
               onClick={handleLinkClick}
             >
@@ -226,7 +226,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
           {user.user_type === "merchant" && (
             <Link
-              href={`/${lang}/admin/home`}
+              href={`/admin/home`}
               className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
               onClick={handleLinkClick}
             >
@@ -361,7 +361,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
             {user.user_type === "admin" && (
               <Link
-                href={`/${lang}/admin/home`}
+                href={`/admin/home`}
                 className="flex items-center gap-3 w-full text-sm text-gray-700 "
                 onClick={handleLinkClick}
               >
@@ -374,7 +374,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
             {user.user_type === "merchant" && (
               <Link
-                href={`/${lang}/admin/home`}
+                href={`/admin/home`}
                 className="flex items-center gap-3 w-full px-2 text-sm text-gray-700 "
                 onClick={handleLinkClick}
               >
