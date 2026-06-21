@@ -60,10 +60,4 @@ export function clearAuthCookies(): void {
   Cookies.remove(AUTH_COOKIE, REMOVE_ATTRS);
   Cookies.remove(USER_TYPE_COOKIE, REMOVE_ATTRS);
   Cookies.remove(ADMIN_PERMISSIONS_COOKIE, REMOVE_ATTRS);
-  // Legacy persisted store (we no longer persist auth state).
-  try {
-    localStorage.removeItem("auth-storage");
-  } catch {
-    /* SSR or storage disabled */
-  }
 }

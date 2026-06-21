@@ -41,7 +41,6 @@ export function useSession() {
     user: query.data ?? null,
     isAuthenticated: !!query.data,
     isPending: query.isPending,
-    /** True once the first fetch has settled (replaces legacy `isHydrated`). */
     isReady: !query.isPending,
     refetch: query.refetch,
   };
