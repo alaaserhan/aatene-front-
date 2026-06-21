@@ -461,7 +461,7 @@ export default function BlogDetailsPage() {
                         </div>
                         <div className="flex items-center gap-3">
                             <span className="text-[15px] hidden sm:block pt-2 md:text-[18px] text-[rgba(0,0,0,0.8)] tracking-[-0.36px] font-medium leading-[30px]">
-                                شارك المقاله
+                                شارك المقال
                             </span>
                             <div className="flex items-center gap-2">
                                 <button onClick={() => handleShare("tiktok")} className="w-[27px] h-[27px] cursor-pointer flex items-center justify-center border border-[#3c5d80] rounded text-[#3c5d80] hover:bg-[#3c5d80] hover:text-white transition-colors">
