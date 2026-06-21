@@ -7,6 +7,7 @@ import { cn } from "@/src/lib/utils";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { useGetMerchantAnalyticsMostViewed } from "../../hooks";
 import Cookies from "js-cookie";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 
 interface ViewedItem {
     id: number;
@@ -105,10 +106,11 @@ export function MerchantMostViewed() {
                                     <div className="flex items-center gap-3 flex-1">
                                         <div className="w-12 h-12 rounded-lg border border-gray-100 p-1 bg-white overflow-hidden flex items-center justify-center shrink-0">
                                             {item.cover_url ? (
-                                                <img
+                                                <VideoOrImage
                                                     src={item.cover_url}
-                                                    alt={item.name}
-                                                    className="w-full h-full object-cover rounded-md"
+                                                    alt={item.name ?? ""}
+                                                    thumb
+                                                    fill
                                                 />
                                             ) : (
                                                 <div className="w-full h-full bg-gray-50 rounded-md flex items-center justify-center text-[10px] text-gray-2">

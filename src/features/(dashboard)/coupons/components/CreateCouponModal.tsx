@@ -499,7 +499,7 @@ export function CreateCouponModal({
         return (
             <div className="space-y-6">
                 <InfiniteMultiSelect
-                    label="الاقسام "
+                    label="الأقسام "
                     placeholder="اختر..."
                     searchPlaceholder="ابحث عن قسم..."
                     selectedItems={formData.sections}
