@@ -19,6 +19,7 @@ import { getFCMToken } from "@/src/lib/firebase";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { LOGIN_AUTH_REQUIRED_REASON } from "../links";
+import { BASE_URL } from "@/src/lib/config";
 
 const loginSchema = z.object({
   login: z.string().min(1, "البريد الإلكتروني أو الهاتف مطلوب"),
@@ -118,7 +119,7 @@ export function LoginForm() {
   const handleGoogleLogin = () => {
     setIsGoogleLoading(true);
     const returnUrl = window.location.origin + window.location.pathname;
-    window.location.href = `https://backend.aatene.com/auth/google?return_url=${returnUrl}`;
+    window.location.href = `${BASE_URL}/auth/google?return_url=${returnUrl}`;
   };
 
   const onSubmit = async (data: LoginFormData) => {

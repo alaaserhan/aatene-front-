@@ -9,6 +9,7 @@ import { ErrorResponse } from "../types";
 import { toast } from "sonner";
 import { loginUrlWithAuthRequired } from "@/src/auth/links";
 import { AUTH_COOKIE, LANG_COOKIE } from "@/src/auth/cookies";
+import { API_BASE_URL } from "@/src/lib/config";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -18,7 +19,7 @@ declare module "axios" {
 }
 
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 

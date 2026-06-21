@@ -28,6 +28,7 @@ import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { ApiError } from "../types";
 import { useLanguage } from "@/src/hooks/use-language";
+import { BASE_URL } from "@/src/lib/config";
 
 const signupSchema = z
   .object({
@@ -130,7 +131,7 @@ export function SignupForm() {
   const handleGoogleLogin = () => {
     setIsGoogleLoading(true);
     const returnUrl = window.location.origin + window.location.pathname;
-    window.location.href = `https://backend.aatene.com/auth/google?return_url=${returnUrl}`;
+    window.location.href = `${BASE_URL}/auth/google?return_url=${returnUrl}`;
   };
 
   const onSubmit = (data: SignupFormData) => {

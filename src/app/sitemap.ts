@@ -1,12 +1,11 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/src/lib/seo.config";
 import { locales, defaultLocale } from "@/src/i18n/config";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+import { API_BASE_URL } from "@/src/lib/config";
 
 async function apiFetch<T>(path: string): Promise<T | null> {
   try {
-    const res = await fetch(`${API_BASE}${path}`, {
+    const res = await fetch(`${API_BASE_URL}${path}`, {
       headers: { "X-Culture": defaultLocale },
       next: { revalidate: 3600 },
     });

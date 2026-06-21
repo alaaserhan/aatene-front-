@@ -16,6 +16,7 @@ import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/src/lib/seo.config";
 import "./globals.css";
 // Side-effect import: registers store-context's onSignOut listener at boot.
 import "@/src/store-context";
+import { BASE_URL } from "../lib/config";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -100,8 +101,8 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="preconnect" href="https://backend.aatene.com" />
-        <link rel="dns-prefetch" href="https://backend.aatene.com" />
+        <link rel="preconnect" href={BASE_URL} />
+        <link rel="dns-prefetch" href={BASE_URL} />
 
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://connect.facebook.net" />

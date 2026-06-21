@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import DOMPurify from "isomorphic-dompurify";
+import { API_BASE_URL } from "@/src/lib/config";
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
@@ -17,9 +18,8 @@ export const isVideoFile = (urlOrName: string) => {
  */
 export const fixMediaUrl = (url: string): string => {
     if (!url) return url;
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "";
     try {
-        const origin = new URL(apiBase).origin;
+        const origin = new URL(API_BASE_URL).origin;
         return url.replace(/^http:\/\/localhost(:\d+)?/, origin);
     } catch {
         return url;

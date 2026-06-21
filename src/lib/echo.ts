@@ -1,6 +1,7 @@
 import Echo from "laravel-echo";
 import Pusher from "pusher-js";
 import Cookies from "js-cookie";
+import { BASE_URL } from "./config";
 
 if (typeof window !== "undefined") {
   (window as { Pusher?: typeof Pusher }).Pusher = Pusher;
@@ -12,8 +13,7 @@ let echoInstance: Echo<"pusher"> | null = null;
 export function getEcho(): Echo<"pusher"> {
   if (echoInstance) return echoInstance;
 
-  const baseUrl = "https://backend.aatene.com";
-  const authEndpoint = baseUrl + "/broadcasting/auth";
+  const authEndpoint = BASE_URL + "/broadcasting/auth";
 
   echoInstance = new Echo({
     broadcaster: "pusher",
