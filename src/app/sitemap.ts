@@ -2,8 +2,7 @@ import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/src/lib/seo.config";
 import { locales, defaultLocale } from "@/src/i18n/config";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://backend.aatene.com/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 async function apiFetch<T>(path: string): Promise<T | null> {
   try {

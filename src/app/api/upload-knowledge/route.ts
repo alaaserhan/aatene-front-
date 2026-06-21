@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export async function POST(request: NextRequest) {
   try {
     const token = request.cookies.get("token")?.value;
@@ -11,7 +13,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
 
     const backendRes = await fetch(
-      "https://backend.aatene.com/api/ai-support/admin/knowledge-bank",
+      API_BASE + "/ai-support/admin/knowledge-bank",
       {
         method: "POST",
         headers: {

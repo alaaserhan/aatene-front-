@@ -17,7 +17,7 @@ export function getEcho(): Echo<"pusher"> {
 
   echoInstance = new Echo({
     broadcaster: "pusher",
-    key: process.env.NEXT_PUBLIC_PUSHER_KEY ?? "ca9b1f898ff3d07906f9",
+    key: process.env.NEXT_PUBLIC_PUSHER_KEY,
     cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? "eu",
     forceTLS: true,
     authEndpoint,
