@@ -49,7 +49,7 @@ export const useLogin = () => {
       }),
     onSuccess: (data) => {
       signIn({ token: data.token, user: data.user, queryClient });
-      router.push(`/${lang}/`);
+      router.replace(`/${lang}/`);
     },
     // Errors are surfaced by the axios interceptor; per-form handlers can
     // override via the mutation's options.
@@ -78,7 +78,7 @@ export const useRegister = () => {
         localStorage.setItem("notifications_enabled", "false");
       }
 
-      router.push(`/${lang}/`);
+      router.replace(`/${lang}/`);
     },
   });
 };

@@ -107,7 +107,7 @@ export function LoginForm() {
             return;
           }
           signIn({ token: tokenParam, user: data.user, queryClient });
-          router.push("/");
+          router.replace("/");
         })
         .catch(() => {
           setIsGoogleLoading(false);
