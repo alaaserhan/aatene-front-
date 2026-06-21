@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { ChevronLeft, Menu, X, Search } from "lucide-react";
 import Link from "next/link";
@@ -56,6 +56,15 @@ export default function MobileNav() {
     ? upgradeHttpToHttps(fixMediaUrl(settings.logo_url))
     : null;
   const showRemoteMobileLogo = Boolean(mobileLogoUrl && failedMobileLogoUrl !== mobileLogoUrl);
+
+  useEffect(() => {
+    if (mobileMenuOpen || mobileSearchOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileMenuOpen, mobileSearchOpen]);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
