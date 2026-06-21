@@ -18,6 +18,7 @@ import {
     ProductCompareItem,
     ServiceCompareItem,
 } from "../api";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 
 export function CompareFloatingBar() {
     const router = useRouter();
@@ -123,7 +124,7 @@ export function CompareFloatingBar() {
                                 >
                                     <div className="flex items-center gap-4 flex-1 ">
                                         <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0 relative">
-                                            <Image
+                                            <VideoOrImage
                                                 src={itemImage}
                                                 alt={itemName}
                                                 fill

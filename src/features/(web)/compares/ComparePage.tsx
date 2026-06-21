@@ -20,6 +20,7 @@ import { AddToFavoritesModal } from "../fav/components/AddToFavoritesModal";
 import { useRemoveFromFavorites } from "../fav/hooks";
 import { ProductCompareItem, ServiceCompareItem } from "./api";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 
 type CompareType = "products" | "services";
 
@@ -280,14 +281,12 @@ function ProductCompareRow({ item, onRemove, onToggleFavorite }: { item: Product
             {/* Product Image + Name */}
             <div className="flex flex-col items-center gap-2 shrink-0">
                 <div className="relative w-36 h-36 rounded-3xl overflow-hidden bg-gray-100">
-                    <Image
+                    <VideoOrImage
                         src={item.cover || "/placeholder.png"}
                         alt={item.name}
                         fill
                         className="object-cover"
-                        onError={(e) => {
-                            e.currentTarget.src = "/placeholder.png";
-                        }}
+                       
                     />
                 </div>
                 <p className="font-medium text-xs text-gray-700 text-right w-36 line-clamp-3 leading-relaxed">
@@ -376,14 +375,11 @@ function ServiceCompareRow({ item, onRemove, onToggleFavorite }: { item: Service
             {/* Service Image + Name */}
             <div className="flex flex-col items-center gap-2 shrink-0">
                 <div className="relative w-36 h-36 rounded-3xl overflow-hidden bg-gray-100">
-                    <Image
+                    <VideoOrImage
                         src={item.image_url || item.images_urls?.[0] || "/placeholder.png"}
                         alt={item.title}
                         fill
                         className="object-cover"
-                        onError={(e) => {
-                            e.currentTarget.src = "/placeholder.png";
-                        }}
                     />
                 </div>
                 <p className="font-medium text-xs text-gray-700 text-right w-36 line-clamp-3 leading-relaxed">
