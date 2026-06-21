@@ -239,46 +239,42 @@ function SearchContent() {
     }, [query, filters, page]);
 
     // Fetch results based on type
-    const { data: productsData, isLoading: isLoadingProducts, isFetching: isFetchingProducts } = useSearchProducts(searchParamsObj, type === "products");
-    const { data: servicesData, isLoading: isLoadingServices, isFetching: isFetchingServices } = useSearchServices(servicesParamsObj, type === "services");
-    const { data: storesData, isLoading: isLoadingStores, isFetching: isFetchingStores } = useSearchStores(storesParamsObj, type === "stores");
-    const { data: usersData, isLoading: isLoadingUsers, isFetching: isFetchingUsers } = useSearchUsers(searchParamsObj, type === "users");
+    const { data: productsData, isLoading: isLoadingProducts } = useSearchProducts(searchParamsObj, type === "products");
+    const { data: servicesData, isLoading: isLoadingServices } = useSearchServices(servicesParamsObj, type === "services");
+    const { data: storesData, isLoading: isLoadingStores } = useSearchStores(storesParamsObj, type === "stores");
+    const { data: usersData, isLoading: isLoadingUsers } = useSearchUsers(searchParamsObj, type === "users");
 
     // Current results based on type
-    const { items, total, isLoading, isFetching } = useMemo(() => {
+    const { items, total, isLoading } = useMemo(() => {
         switch (type) {
             case "products":
                 return {
                     items: productsData?.products || [],
                     total: productsData?.total || 0,
                     isLoading: isLoadingProducts,
-                    isFetching: isFetchingProducts,
                 };
             case "services":
                 return {
                     items: servicesData?.services || [],
                     total: servicesData?.total || 0,
                     isLoading: isLoadingServices,
-                    isFetching: isFetchingServices,
                 };
             case "stores":
                 return {
                     items: storesData?.stores || [],
                     total: storesData?.total || 0,
                     isLoading: isLoadingStores,
-                    isFetching: isFetchingStores,
                 };
             case "users":
                 return {
                     items: usersData?.users || [],
                     total: usersData?.total || 0,
                     isLoading: isLoadingUsers,
-                    isFetching: isFetchingUsers,
                 };
             default:
-                return { items: [], total: 0, isLoading: false, isFetching: false };
+                return { items: [], total: 0, isLoading: false };
         }
-    }, [type, productsData, servicesData, storesData, usersData, isLoadingProducts, isLoadingServices, isLoadingStores, isLoadingUsers, isFetchingProducts, isFetchingServices, isFetchingStores, isFetchingUsers]);
+    }, [type, productsData, servicesData, storesData, usersData, isLoadingProducts, isLoadingServices, isLoadingStores, isLoadingUsers]);
 
     // Handle page change
     const handlePageChange = (newPage: number) => {
@@ -287,10 +283,7 @@ function SearchContent() {
         const params = new URLSearchParams(searchParams.toString());
         params.set("page", newPage.toString());
         setPage(newPage);
-
-        if (typeof window !== "undefined") {
-            window.history.pushState(null, "", `${searchPath}?${params.toString()}`);
-        }
+        router.push(`${searchPath}?${params.toString()}`);
     };
 
     const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(false);
@@ -358,7 +351,6 @@ function SearchContent() {
                         currentPage={page}
                         onPageChange={handlePageChange}
                         isLoading={isLoading}
-                        isFetching={isFetching}
                         perPage={PER_PAGE}
                     />
                 </main>

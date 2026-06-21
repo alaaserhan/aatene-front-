@@ -1,7 +1,6 @@
 "use client";
 
 import { Pagination } from "@/src/components/ui/Pagination";
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
@@ -18,7 +17,7 @@ interface SearchResultsProps {
     currentPage: number;
     onPageChange: (page: number) => void;
     isLoading?: boolean;
-    isFetching?: boolean;
+
     perPage?: number;
 }
 
@@ -29,44 +28,12 @@ export default function SearchResults({
     currentPage,
     onPageChange,
     isLoading = false,
-    isFetching = false,
     perPage = 5,
 }: SearchResultsProps) {
-    const paginationRef = useRef<HTMLDivElement>(null);
     const displayTotal = total;
     const totalPages = Math.ceil(displayTotal / perPage);
     const startItem = (currentPage - 1) * perPage + 1;
     const endItem = Math.min(currentPage * perPage, displayTotal);
-
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [lastHeight, setLastHeight] = useState(400);
-    const savedPaginationTopRef = useRef<number | null>(null);
-
-    useLayoutEffect(() => {
-        if (containerRef.current && !isLoading && !isFetching && items && items.length > 0) {
-            setLastHeight(containerRef.current.offsetHeight);
-        }
-    }, [isLoading, isFetching, items]);
-
-    useLayoutEffect(() => {
-        if (!isLoading && !isFetching && savedPaginationTopRef.current !== null && paginationRef.current) {
-            const currentTop = paginationRef.current.getBoundingClientRect().top;
-            const delta = currentTop - savedPaginationTopRef.current;
-            
-            if (Math.abs(delta) > 1) {
-                window.scrollBy({ top: delta, left: 0 });
-            }
-            
-            savedPaginationTopRef.current = null;
-        }
-    }, [isLoading, isFetching, items]);
-
-    const handlePageChange = (page: number) => {
-        if (paginationRef.current) {
-            savedPaginationTopRef.current = paginationRef.current.getBoundingClientRect().top;
-        }
-        onPageChange(page);
-    };
 
     if (isLoading && displayTotal === 0) {
         return (
@@ -77,14 +44,7 @@ export default function SearchResults({
     }
 
     return (
-        <div 
-            ref={containerRef} 
-            className="flex flex-col gap-5"
-            style={{
-                minHeight: isLoading || isFetching ? `${lastHeight}px` : undefined,
-                overflowAnchor: "none",
-            }}
-        >
+        <div className="flex flex-col gap-5">
             {/* Results Count */}
             {displayTotal > 0 && (
                 <p className="text-gray-500 text-sm">
@@ -150,11 +110,11 @@ export default function SearchResults({
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div ref={paginationRef} className="mt-8 flex justify-center">
+                <div className="mt-8 flex justify-center">
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}
-                        onPageChange={handlePageChange}
+                        onPageChange={onPageChange}
                     />
                 </div>
             )}
