@@ -356,7 +356,8 @@ input[type="number"] {
 @supports (-webkit-touch-callout: none) {
   input,
   textarea,
-  select {
+  select,
+  [contenteditable] {
     font-size: 16px;
   }
 }
