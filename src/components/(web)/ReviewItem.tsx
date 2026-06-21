@@ -7,6 +7,7 @@ import { StarRating } from "@/src/components/ui/StarRating";
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { useLanguage } from "@/src/hooks/use-language";
+import { useUser } from "@/src/auth/session";
 
 
 export interface SharedReviewUser {
@@ -49,6 +50,8 @@ export function ReviewItem({
     showReplies,
 }: ReviewItemProps) {
     const lang = useLanguage();
+    const currentUser = useUser();
+    const isOwnReview = !!currentUser?.slug && currentUser.slug === review.user.slug;
     const isReply = !!review.parent_id;
     const profileHref = `/${lang}/profile/${review.user.slug || "#"}`;
 
@@ -136,12 +139,14 @@ export function ReviewItem({
                             </button>
                         )}
                     </div>
-                    <ReportAbuse type={reportType} id={review.id}>
-                        <button className="flex cursor-pointer items-center gap-1 text-[#d32f2f] text-[12px] font-medium transition-colors hover:text-red-700">
-                            <Flag size={14} />
-                            <span>بلغ عن إساءة</span>
-                        </button>
-                    </ReportAbuse>
+                    {!isOwnReview && (
+                        <ReportAbuse type={reportType} id={review.id}>
+                            <button className="flex cursor-pointer items-center gap-1 text-[#d32f2f] text-[12px] font-medium transition-colors hover:text-red-700">
+                                <Flag size={14} />
+                                <span>بلغ عن إساءة</span>
+                            </button>
+                        </ReportAbuse>
+                    )}
                 </div>
             </div>
 
