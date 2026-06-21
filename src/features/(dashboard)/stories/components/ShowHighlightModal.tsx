@@ -18,6 +18,7 @@ import {
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { CreateHighlightModal } from "./CreateHighlightModal";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
+import { ConfirmationDialog } from "@/src/components/ui/ConfirmationDialog";
 
 const IMAGE_DURATION = 10000;
 
@@ -44,6 +45,7 @@ export function ShowHighlightModal({
     const [progress, setProgress] = useState(0);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
     const [storyDuration, setStoryDuration] = useState(IMAGE_DURATION);
     const [dimensions, setDimensions] = useState({ width: 400, inactiveWidth: 320 });
 
@@ -318,7 +320,7 @@ export function ShowHighlightModal({
 
                                                                         <div className="h-px bg-gray-100 my-1 mx-2" />
 
-                                                                        <button onClick={handleDelete} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-red-50 text-red-600 rounded-lg transition-colors w-full text-right" dir="rtl">
+                                                                        <button onClick={() => { setIsMenuOpen(false); setIsConfirmDeleteOpen(true); }} className="flex items-center cursor-pointer gap-3 p-3 hover:bg-red-50 text-red-600 rounded-lg transition-colors w-full text-right" dir="rtl">
                                                                             <img src="/icons/dashboard/trash.svg" className="w-4 h-4" alt="" />
                                                                             <span className="font-bold text-sm">حذف المجموعة</span>
                                                                         </button>
@@ -345,6 +347,16 @@ export function ShowHighlightModal({
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <ConfirmationDialog
+                isOpen={isConfirmDeleteOpen}
+                onClose={() => setIsConfirmDeleteOpen(false)}
+                onConfirm={handleDelete}
+                title="هل أنت متأكد من حذف المجموعة؟"
+                description="لا يمكن التراجع عن هذا الإجراء بعد الحذف."
+                overlayClassName="z-[10001]"
+                contentClassName="sm:max-w-md z-[10002]"
+            />
 
             {highlight && (
                 <CreateHighlightModal

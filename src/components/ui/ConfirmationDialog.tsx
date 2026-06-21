@@ -16,6 +16,8 @@ interface ConfirmationDialogProps {
   onConfirm: () => void;
   title: string;
   description?: string;
+  overlayClassName?: string;
+  contentClassName?: string;
 }
 
 export function ConfirmationDialog({
@@ -24,10 +26,12 @@ export function ConfirmationDialog({
   onConfirm,
   title,
   description,
+  overlayClassName,
+  contentClassName,
 }: ConfirmationDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md" dir="rtl">
+      <DialogContent className={contentClassName ?? "sm:max-w-md"} overlayClassName={overlayClassName} dir="rtl">
         <DialogHeader className="pt-4">
           <DialogTitle className="text-lg font-bold text-center">
             {title}
