@@ -384,7 +384,7 @@ export function AddStorePage({ storeType }: AddStorePageProps) {
           router.push("/admin/stores");
         }}
         title="تم إضافة المتجر بنجاح"
-        message="تم إنشاء المتجر بنجاح ويمكنك الآن بدء إضافة منتجاتك."
+        message="تم إنشاء المتجر بنجاح، وهو الآن قيد المراجعة. يمكنك البدء بإضافة منتجاتك من الآن"
         buttonText="العودة للقائمة"
       />
     </>
