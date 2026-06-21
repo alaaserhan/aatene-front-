@@ -23,7 +23,7 @@ const Navbar = () => {
   const showRemoteLogo = !!logoUrl && failedLogoUrl !== logoUrl;
 
   return (
-    <div className="relative z-[280] w-full shadow-xs bg-white min-h-[72px] flex items-center border-b border-gray-200">
+    <div className="sticky top-0 z-280 w-full shadow-sm bg-white/95 backdrop-blur-sm min-h-18 flex items-center border-b border-gray-200">
       {/* Mobile Navigation */}
       <MobileNav />
 
