@@ -269,9 +269,6 @@ export default function RequestedServiceDetailsPage() {
                                         ? `${service.user?.first_name || ""} ${service.user?.last_name || ""}`
                                         : "مستخدم"}
                                 </p>
-                                    <span className="text-gray-2 text-xs font-medium">
-                                        بائع مميز
-                                    </span>
                             </div>
                         </div>
 
