@@ -1,15 +1,21 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useConvertToMerchant } from "../../hooks";
 import { cn } from "@/src/lib/utils";
 
 export default function MerchantTab() {
+    const router = useRouter();
     const user = useAuthStore((state) => state.user);
     const { mutate: convertToMerchant, isPending: isUpdating } = useConvertToMerchant();
 
     const handleConvert = () => {
-        convertToMerchant();
+        convertToMerchant(undefined, {
+            onSuccess: () => {
+                router.replace("/admin/stores/add");
+            },
+        });
     };
 
     if (user?.user_type !== "client") {
