@@ -52,7 +52,7 @@ type SignupFormData = z.infer<typeof signupSchema>;
 const SIGNUP_PANEL_IMAGE = "/Frame%201261155080.svg";
 
 const fieldClassName =
-  "rounded-full border-gray-200 py-3.5 text-sm focus:border-[#3d5e83] focus:ring-1 focus:ring-[#3d5e83]/20";
+  "rounded-full border-gray-200 py-2.5 text-sm placeholder:text-gray-400 focus:border-[#3d5e83] focus:ring-1 focus:ring-[#3d5e83]/20";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -175,10 +175,11 @@ export function SignupForm() {
 
   return (
     <div
-      className="mx-auto flex w-full max-w-[1018px] flex-col overflow-hidden rounded-[10px] border border-[#e8e8e8] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.05)] lg:max-h-[calc(100vh-120px)] lg:min-h-[620px] lg:flex-row lg:items-stretch"
+      className="mx-auto flex w-full max-w-[1018px] flex-col overflow-hidden rounded-2xl border border-[#ebebeb] bg-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.04),0_16px_48px_-4px_rgba(0,0,0,0.09)] lg:flex-row lg:items-stretch"
       dir="ltr"
     >
-      <div className="relative order-2 hidden h-[280px] w-full shrink-0 overflow-hidden sm:h-[340px] lg:order-1 lg:block lg:h-auto lg:min-h-0 lg:w-[509px] lg:shrink-0">
+      {/* Image panel */}
+      <div className="relative order-2 hidden h-65 w-full shrink-0 overflow-hidden sm:h-80 lg:order-1 lg:block lg:h-auto lg:w-115 lg:shrink-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={SIGNUP_PANEL_IMAGE}
@@ -188,47 +189,56 @@ export function SignupForm() {
         />
       </div>
 
+      {/* Form panel — no overflow-y-auto so it never scrolls internally */}
       <div
-        className="order-1 flex w-full flex-col gap-5 p-6 sm:p-8 lg:order-2 lg:w-[509px] lg:shrink-0 lg:overflow-y-auto lg:p-10 xl:p-[50px]"
+        className="order-1 flex w-full flex-col justify-center gap-4 p-6 sm:p-8 lg:order-2 lg:min-w-0 lg:flex-1 lg:gap-4.5 lg:p-10 xl:px-12 xl:py-10"
         dir="rtl"
       >
-        <div className="space-y-2 text-right">
-          <h1 className="text-[28px] font-bold leading-tight text-[#1c1c1c] lg:text-[32px]">
+        {/* Header */}
+        <div className="space-y-1 text-right">
+          <h1 className="text-2xl font-bold leading-tight text-[#1c1c1c] lg:text-[27px]">
             إنشاء حساب جديد
           </h1>
           <p className="text-sm text-[#6b7280]">
             لديك حساب بالفعل؟{" "}
             <Link
               href="/login"
-              className="font-medium text-[#3d5e83] underline-offset-2 hover:underline"
+              className="font-semibold text-[#3d5e83] underline-offset-2 hover:underline"
             >
               تسجيل الدخول
             </Link>
           </p>
         </div>
 
+        {/* Google sign-in */}
         <Button
           type="button"
           onClick={handleGoogleLogin}
           disabled={isGoogleLoading || isSubmitting}
           variant="outline"
-          className="h-12 w-full shrink-0 items-center gap-3 rounded-full border-0 bg-[#ececec] text-base font-normal text-[#3c4043] shadow-none hover:bg-[#e2e2e2] hover:text-[#202124]"
+          className="h-11 w-full shrink-0 items-center gap-3 rounded-full border border-gray-200 bg-white text-sm font-medium text-[#3c4043] shadow-none transition-colors hover:bg-gray-50 hover:text-[#202124]"
         >
           {isGoogleLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <span className="inline-flex items-center gap-2.5 text-base leading-none">
-              <span>Google</span>
-              <GoogleIcon className="h-[1.35em] w-[1.35em] shrink-0 scale-110 -translate-y-px" />
+            <span className="inline-flex items-center gap-2 text-sm leading-none">
+              <span>المتابعة مع Google</span>
+              <GoogleIcon className="h-[1.15em] w-[1.15em] shrink-0" />
             </span>
           )}
         </Button>
 
-        <div className="h-px w-full shrink-0 bg-[#e8e8e8]" role="presentation" />
+        {/* "أو" divider */}
+        <div className="relative flex shrink-0 items-center gap-3" role="presentation">
+          <div className="flex-1 border-t border-[#ebebeb]" />
+          <span className="text-xs font-medium text-gray-400">أو</span>
+          <div className="flex-1 border-t border-[#ebebeb]" />
+        </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3">
+            {/* Name row */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="first_name"
@@ -260,6 +270,8 @@ export function SignupForm() {
                 )}
               />
             </div>
+
+            {/* Email */}
             <FormField
               control={form.control}
               name="email"
@@ -276,6 +288,8 @@ export function SignupForm() {
                 />
               )}
             />
+
+            {/* Phone */}
             <FormField
               control={form.control}
               name="phone"
@@ -288,59 +302,61 @@ export function SignupForm() {
                   onCountryCodeChange={setCountryCode}
                   error={fieldState.error?.message}
                   roundedFull
-                  height="h-12"
-                  {...field}
-                />
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field, fieldState }) => (
-                <FormInput
-                  label="كلمة المرور"
-                  type="password"
-                  placeholder="أدخل كلمة مرور قوية"
-                  required
-                  error={fieldState.error?.message}
-                  className={fieldClassName}
-                  containerClassName="space-y-2"
-                  {...field}
-                />
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field, fieldState }) => (
-                <FormInput
-                  label="تأكيد كلمة المرور"
-                  type="password"
-                  placeholder="أعد إدخال كلمة المرور"
-                  required
-                  error={fieldState.error?.message}
-                  className={fieldClassName}
-                  containerClassName="space-y-2"
+                  height="h-10"
                   {...field}
                 />
               )}
             />
 
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field, fieldState }) => (
+                  <FormInput
+                    label="كلمة المرور"
+                    type="password"
+                    placeholder="٦ أحرف على الأقل"
+                    required
+                    error={fieldState.error?.message}
+                    className={fieldClassName}
+                    containerClassName="space-y-2"
+                    {...field}
+                  />
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field, fieldState }) => (
+                  <FormInput
+                    label="تأكيد كلمة المرور"
+                    type="password"
+                    placeholder="أعد إدخال كلمة المرور"
+                    required
+                    error={fieldState.error?.message}
+                    className={fieldClassName}
+                    containerClassName="space-y-2"
+                    {...field}
+                  />
+                )}
+              />
+
+            {/* Terms */}
             <FormField
               control={form.control}
               name="terms"
               render={({ field }) => (
-                <FormItem className="group flex flex-row items-start space-x-3 space-y-0 rtl:space-x-reverse">
+                <FormItem className="group flex flex-row items-center space-x-0 space-y-0 rtl:space-x-reverse">
                   <FormControl>
                     <button
                       type="button"
                       onClick={() => field.onChange(!field.value)}
                       className={cn(
-                        "ms-2 flex h-4 w-4 shrink-0 items-center justify-center rounded-xs border transition-colors",
+                        "me-2 flex h-4 w-4 shrink-0 items-center justify-center rounded-xs border transition-colors",
                         "cursor-pointer",
                         field.value
                           ? "border-[#3d5e83] bg-[#3d5e83]"
-                          : "border-gray-300 bg-white group-hover:border-gray-400"
+                          : "border-gray-300 bg-white group-hover:border-[#3d5e83]/50"
                       )}
                       aria-checked={field.value}
                       role="checkbox"
@@ -362,9 +378,9 @@ export function SignupForm() {
                       )}
                     </button>
                   </FormControl>
-                  <div className="mx-2 space-y-1 leading-none">
+                  <div className="space-y-0.5 leading-none">
                     <FormLabel className="cursor-pointer text-xs text-[#6b7280]">
-                      لقد قرأت و وافقت على{" "}
+                      لقد قرأت ووافقت على{" "}
                       <Link
                         href={`/${lang}/privacy-policy`}
                         target="_blank"
@@ -380,9 +396,17 @@ export function SignupForm() {
               )}
             />
 
+            {/* Root-level API error */}
+            {form.formState.errors.root && (
+              <p className="text-right text-xs text-red-500">
+                {form.formState.errors.root.message}
+              </p>
+            )}
+
+            {/* Submit */}
             <Button
               type="submit"
-              className="h-12 w-full rounded-full bg-[#3d5e83] text-base font-semibold text-white hover:bg-[#2c4461]"
+              className="h-11 w-full rounded-full bg-[#3d5e83] text-sm font-semibold text-white transition-colors hover:bg-[#2c4461]"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
