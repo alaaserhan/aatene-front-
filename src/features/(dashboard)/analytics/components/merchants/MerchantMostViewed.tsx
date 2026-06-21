@@ -104,13 +104,13 @@ export function MerchantMostViewed() {
 
                                     {/* Middle: Image & Info */}
                                     <div className="flex items-center gap-3 flex-1">
-                                        <div className="w-12 h-12 rounded-lg border border-gray-100 p-1 bg-white overflow-hidden flex items-center justify-center shrink-0">
+                                        <div className="w-28 h-12 rounded-lg border border-gray-100 p-1 bg-white overflow-hidden flex items-center justify-center shrink-0">
                                             {item.cover_url ? (
                                                 <VideoOrImage
                                                     src={item.cover_url}
                                                     alt={item.name ?? ""}
                                                     thumb
-                                                    fill
+                                                    className="w-full object-cover rounded-md"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full bg-gray-50 rounded-md flex items-center justify-center text-[10px] text-gray-2">
