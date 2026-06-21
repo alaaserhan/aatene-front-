@@ -18,6 +18,7 @@ export default function HomeCategoriesWithProducts({ categories: initialCategori
 
     return (
         <section className="py-12 bg-gray-50/50">
+            
             <MaxWidthWrapper>
                 <div className="flex flex-col gap-8">
                     {categories.map((category) => (

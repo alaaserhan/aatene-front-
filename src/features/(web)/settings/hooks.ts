@@ -3,6 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth-store";
+import Cookies from "js-cookie";
+import { USER_TYPE_COOKIE, AUTH_COOKIE_ATTRS } from "@/src/auth/cookies";
 import {
     getCities,
     GetCitiesParams,
@@ -406,6 +408,7 @@ export const useConvertToMerchant = () => {
         onSuccess: (data) => {
             toast.success(data.message || "Account converted to merchant successfully");
             useAuthStore.getState().updateUser({ user_type: "merchant" });
+            Cookies.set(USER_TYPE_COOKIE, "merchant", AUTH_COOKIE_ATTRS);
         },
         onSettled: () => {
             qc.invalidateQueries({ queryKey: QK.account.profile });

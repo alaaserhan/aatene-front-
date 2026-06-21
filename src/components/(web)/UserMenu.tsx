@@ -7,10 +7,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useLogout } from "@/src/auth";
-import { useConvertToMerchant } from "@/src/features/(web)/settings/hooks";
-import { Button } from "../ui/button";
-import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
 
 interface UserMenuProps {
   isMobile?: boolean;
@@ -22,24 +18,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const lang = useLanguage();
-  const router = useRouter();
   const { mutate: logoutMutation } = useLogout();
-  const { mutate: convertToMerchant, isPending: isLoading } = useConvertToMerchant();
-
-  const handleTheClientClick = () => {
-    convertToMerchant(undefined, {
-      onSuccess: () => {
-        Cookies.set("user_type", "merchant", {
-          expires: 365,
-        });
-
-        setIsOpen(false);
-        onClose?.();
-
-        router.push(`/admin/home`);
-      }
-    });
-  };
 
   const handleLinkClick = () => {
     setIsOpen(false);
@@ -192,17 +171,14 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
 
           {/* Action Button */}
           {user.user_type === "client" && (
-            <Button
-              disabled={isLoading}
-              onClick={handleTheClientClick}
-              className="w-full justify-start h-11 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg shadow-sm transition-all duration-200 mt-3"
+            <Link
+              href={`/${lang}/settings?tab=merchant`}
+              onClick={handleLinkClick}
+              className="w-full flex items-center justify-start h-11 bg-blue-3 text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors duration-200 mt-3 px-4 gap-2"
             >
               <Store size={16} />
               <span className="mr-2">الدخول كتاجر</span>
-              {isLoading && (
-                <div className="ml-2 w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              )}
-            </Button>
+            </Link>
           )}
         </div>
 
@@ -346,17 +322,14 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
           {/* Actions Section */}
           <div className="p-4 space-y-2">
             {user.user_type === "client" && (
-              <Button
-                disabled={isLoading}
-                onClick={handleTheClientClick}
-                className="w-full justify-start h-auto py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg shadow-sm transition-all duration-200"
+              <Link
+                href={`/${lang}/settings?tab=merchant`}
+                onClick={handleLinkClick}
+                className="w-full flex items-center gap-2 justify-start h-auto py-3 px-4 bg-primary hover:bg-primary/90 rounded-lg shadow-sm transition-colors duration-200 text-white"
               >
                 <Store size={16} />
                 <span className="mr-3">الدخول كتاجر</span>
-                {isLoading && (
-                  <div className="ml-auto w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                )}
-              </Button>
+              </Link>
             )}
 
             {user.user_type === "admin" && (

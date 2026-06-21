@@ -112,7 +112,7 @@ const Footer = () => {
           { label: "إنشاء حساب", href: localePath("/signup") },
         ] : []),
         { label: "إعدادات", href: localePath("/settings") },
-        { label: "كن تاجرا", href: localePath("/admin/stores/add") },
+        { label: "كن تاجرا", href: localePath("/settings?tab=merchant") },
       ],
     },
     {
@@ -202,6 +202,8 @@ const Footer = () => {
                       <li key={i}>
                         <Link
                           href={link.href}
+                          scroll={true}
+                          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                           className="block py-1 text-sm text-[#8B96A5] transition-colors duration-200 hover:text-gray-700"
                         >
                           {link.label}

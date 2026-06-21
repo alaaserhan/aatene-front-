@@ -164,7 +164,7 @@ export function LoginForm() {
               href="/signup"
               className="font-medium text-[#3d5e83] underline-offset-2 hover:underline"
             >
-              إنشاء واحد جديد
+              إنشاء حساب جديد
             </Link>
           </p>
         </div>

@@ -13,7 +13,7 @@ export default function MerchantTab() {
     const handleConvert = () => {
         convertToMerchant(undefined, {
             onSuccess: () => {
-                router.replace("/admin/stores/add");
+                router.replace("/ar/admin/stores/add");
             },
         });
     };
@@ -37,11 +37,12 @@ export default function MerchantTab() {
             <div className="border-b border-gray-100 mb-6 w-full" />
 
             <div className=" mt-4">
+                {/* TODO: use Button component */}
                 <button
                     onClick={handleConvert}
                     disabled={isUpdating}
                     className={cn(
-                        "bg-[#4F6D8C] text-white px-20 py-4 rounded-full font-medium w-full transition-all shadow-md active:scale-95 cursor-pointer hover:bg-[#3d5670] ",
+                        "bg-primary hover:bg-primary/90 text-white px-20 py-4 rounded-lg font-medium w-full transition-colors shadow-md",
                         isUpdating && "opacity-60 cursor-not-allowed"
                     )}
                 >
