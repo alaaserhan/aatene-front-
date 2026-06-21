@@ -13,6 +13,7 @@ import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
+import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
 
 function CommentCard({
     comment,
@@ -293,7 +294,7 @@ export default function RequestedServiceDetailsPage() {
                                             className="w-full sm:w-48 aspect-video rounded-xl overflow-hidden border border-white shadow-sm cursor-pointer relative group"
                                             onClick={() => openMedia(service.images_urls || [], i)}
                                         >
-                                            <Image
+                                            <VideoOrImage
                                                 src={imgUrl}
                                                 alt={`Attachment ${i + 1}`}
                                                 fill
