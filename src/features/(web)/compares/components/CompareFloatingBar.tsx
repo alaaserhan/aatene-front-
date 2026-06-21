@@ -129,6 +129,7 @@ export function CompareFloatingBar() {
                                                 alt={itemName}
                                                 fill
                                                 className="object-cover"
+                                                thumb
                                             />
                                         </div>
                                         <p className="text-sm font-medium leading-snug">
