@@ -90,6 +90,7 @@ export interface ContentAnalyticsResponse extends BaseResponse {
     totalStores: number;
     notActiveStores: number;
     totalProducts: number;
+    totalServices: number;
     notActiveProducts: number;
     totalOrders: number;
     totalCompletedOrders: number;

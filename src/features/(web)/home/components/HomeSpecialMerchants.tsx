@@ -33,7 +33,7 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
       <MaxWidthWrapper className="relative z-20">
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl md:text-3xl text-blue-4 font-medium relative inline-block">
-            متاجر مميزة
+            المتاجر الأكثر تقييمًا
           </h2>
           <HomeViewAllLink href="/search?type=stores" />
         </div>

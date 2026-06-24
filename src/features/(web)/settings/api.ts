@@ -531,6 +531,8 @@ export const unfollowUserOrStore = async (payload: UnfollowPayload): Promise<Unf
 
 export interface RemoveFollowerPayload {
     follower_id: number | string;
+    // TODO: ask for the union type
+    follower_type: string;
 }
 
 export const removeFollower = async (payload: RemoveFollowerPayload): Promise<RemoveFollowerResponse> => {

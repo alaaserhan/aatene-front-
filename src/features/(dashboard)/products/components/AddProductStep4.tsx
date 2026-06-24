@@ -574,7 +574,6 @@ function DiscountModal({
                                 }}
                                 placeholder="ادخل اسم العرض (حروف فقط)"
                                 error={errors.name}
-                                hint={`حد أقصى ${OFFER_NAME_MAX_CHARS} حرفًا`}
                                 className="min-h-[100px] px-4 py-3 font-medium bg-white shadow-none focus:ring-0 resize-y"
                             />
                         </div>
@@ -602,7 +601,6 @@ function DiscountModal({
                                 }}
                                 placeholder="ادخل وصف العرض (حروف فقط)"
                                 error={errors.description}
-                                hint={`حد أقصى ${OFFER_DESCRIPTION_MAX_CHARS} حرفًا`}
                                 className="min-h-[100px] px-4 py-3 font-medium bg-white shadow-none focus:ring-0 resize-y"
                             />
                         </div>

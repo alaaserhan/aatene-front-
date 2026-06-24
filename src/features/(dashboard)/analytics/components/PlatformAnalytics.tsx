@@ -129,7 +129,7 @@ export function PlatformAnalytics() {
                 {/* Total Merchants (Blue) */}
                 <StatCard
                     title="إجمالي الخدمات"
-                    count={data?.totalOrders || 0}
+                    count={data?.totalServices || 0}
                     icon={ShoppingBag}
                     bgClass="bg-[#EAF5FF]"
                     iconClass="text-[#007AFF]"

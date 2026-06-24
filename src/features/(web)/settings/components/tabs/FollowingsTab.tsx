@@ -46,7 +46,8 @@ export default function FollowingsTab() {
             const followerItem = item as FollowerItem;
             const target = followerItem.follower || followerItem.user || (followerItem as unknown as { id: number | string });
             removeFollower({
-                follower_id: target.id
+                follower_id: target.id,
+                follower_type: followerItem.follower_type
             });
         }
     };

@@ -19,7 +19,7 @@ export default function HomeSpecialServices({ services: initialServices }: HomeS
 
   return (
     <HomeServicesCarousel
-      title="خدمات مميزة تم اختيارها لأجلك"
+      title="الخدمات الأكثر تقييمًا"
       services={services}
       showViewAll={false}
       className="py-12 bg-white"

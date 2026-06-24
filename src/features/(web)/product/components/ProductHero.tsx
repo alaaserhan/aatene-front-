@@ -150,7 +150,7 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                                 "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
                                 "lg:flex-col lg:h-auto lg:max-h-[min(600px,70vh)] lg:min-h-0 lg:w-[100px]",
                                 "lg:overflow-x-hidden lg:overflow-y-auto",
-                                "lg:scrollbar-thin lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-1.5",
+                                // "lg:scrollbar-thin lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-1.5",
                                 "lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-gray-300"
                             )}
                         >

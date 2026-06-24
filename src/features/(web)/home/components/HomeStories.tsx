@@ -141,7 +141,7 @@ export default function HomeStories({ initialOwners }: HomeStoriesProps) {
             <section className="py-8 bg-white min-h-[234px] sm:min-h-[284px]" dir="rtl">
                 <MaxWidthWrapper className="relative w-full">
                     <div className="flex gap-2 sm:gap-4">
-                        <div
+                        {/* <div
                             className="relative rounded-2xl overflow-hidden w-[130px] min-w-[130px] sm:w-[240px] sm:min-w-[240px] p-4 sm:p-6 shrink-0 h-[170px] sm:h-[220px] flex flex-col justify-between shadow-lg"
                             style={{ background: 'linear-gradient(0deg, #144221 0%, #34A853 100%)' }}
                         >
@@ -172,7 +172,7 @@ export default function HomeStories({ initialOwners }: HomeStoriesProps) {
 
                             <div className="absolute bottom-4 left-4 w-12 h-12 opacity-80 pointer-events-none">
                             </div>
-                        </div>
+                        </div> */}
 
                         <div
                             ref={scrollContainerRef}

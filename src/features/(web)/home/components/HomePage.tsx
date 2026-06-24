@@ -32,9 +32,9 @@ const HomeRequestedServices = dynamic(() => import("./HomeRequestedServices"));
 const HomeCustomizedProducts = dynamic(
   () => import("./HomeCustomizedProducts"),
 );
-const HomeProductsYouMayLike = dynamic(
-  () => import("./HomeProductsYouMayLike"),
-);
+// const HomeProductsYouMayLike = dynamic(
+//   () => import("./HomeProductsYouMayLike"),
+// );
 const HomeWeeklyOffers = dynamic(() => import("./HomeWeeklyOffers"));
 
 interface HomePageProps {
@@ -90,6 +90,11 @@ export default function HomePage({
       <HomeCategoriesWithProducts categories={categoriesWithProductsData} />
 
       {/* ── Below the fold: lazy loaded with smooth fade-in ── */}
+
+      <LazySection fallback={<ProductsCarouselSkeleton />}>
+        <HomeTodayOffers />
+      </LazySection>
+
       <LazySection fallback={<ProductsCarouselSkeleton />}>
         <HomeNewProducts />
       </LazySection>
@@ -100,10 +105,6 @@ export default function HomePage({
 
       <LazySection fallback={<ServicesCarouselSkeleton />}>
         <HomeMostPopularServices />
-      </LazySection>
-
-      <LazySection fallback={<ProductsCarouselSkeleton />}>
-        <HomeTodayOffers />
       </LazySection>
 
       <LazySection fallback={<ServicesGridSkeleton />}>
@@ -118,9 +119,9 @@ export default function HomePage({
 
       {fifthBannerData && <HomeSingleBanner banner={fifthBannerData} />}
 
-      <LazySection fallback={<ProductsCarouselSkeleton />}>
+      {/* <LazySection fallback={<ProductsCarouselSkeleton />}>
         <HomeProductsYouMayLike />
-      </LazySection>
+      </LazySection> */}
 
       {sixthBannerData && <HomeSingleBanner banner={sixthBannerData} />}
 
