@@ -1,5 +1,6 @@
 import { useApiQuery } from "@/src/hooks/use-api-query";
 import * as api from "./api";
+import { SpecialMerchantsResponse } from "./types";
 
 const staleTime = 5 * 60 * 1000; // 5 minutes
 
@@ -141,11 +142,12 @@ export const useStoryOwners = () => {
     });
 };
 
-export const useSpecialMerchants = () => {
+export const useSpecialMerchants = (initialData?: SpecialMerchantsResponse) => {
     return useApiQuery({
         queryKey: ["homeSpecialMerchants"],
         queryFn: api.getSpecialMerchants,
         staleTime,
+        initialData,
     });
 };
 
