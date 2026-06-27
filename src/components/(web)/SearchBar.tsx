@@ -62,6 +62,11 @@ function SearchBarInner({
   }
   // ---------------------------------------------------------------------------------------------
 
+  const isSearchPage =
+    pathname === "/search" ||
+    pathname === `/${locale}/search` ||
+    pathname.endsWith("/search");
+
   const handleSearch = () => {
     const params = new URLSearchParams();
     const query = searchQuery.trim();
@@ -373,7 +378,7 @@ function SearchBarInner({
             onClick={() => handleTypeChange(type.value)}
             className={cn(
               "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap",
-              selectedType === type.value
+              isSearchPage && selectedType === type.value
                 ? "text-blue-3 font-medium"
                 : "text-gray-400 hover:text-gray-700"
             )}

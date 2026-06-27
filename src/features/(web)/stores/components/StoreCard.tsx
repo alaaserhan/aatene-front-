@@ -84,17 +84,16 @@ const StoreCard = memo(({
                     e.preventDefault();
                     e.stopPropagation();
                 }}
-                className="absolute left-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[#ffffffc9] shadow-md transition-transform hover:scale-110"
+                className="absolute top-3 inset-e-3 z-10 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform"
             >
                 <FavoriteButton
                     id={store.id}
                     type="store"
                     isFavorite={store.is_favorite}
                     onSuccess={invalidateStoreQueries}
-                    className="h-full w-full rounded-full"
-                    iconClassName="h-5 w-5"
                 />
-            </div>
+            </div>    
+            
 
             <div className="flex w-full min-h-0 flex-1 flex-col items-center justify-center">
                 <div className="relative mb-3 aspect-square w-[74%] max-w-[11rem] shrink-0 overflow-hidden rounded-full bg-gray-100 md:mb-4 md:max-w-[10rem] lg:max-w-[11rem]">
