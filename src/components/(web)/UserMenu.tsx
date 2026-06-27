@@ -2,11 +2,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/src/auth";
-import { LogOut, User, Store, Crown, Shield, ChevronRight, ChevronLeft, ChevronDown, Settings, Headset, MessageSquarePlus } from "lucide-react";
+import { LogOut, User, Store, Crown, Shield, ChevronRight, ChevronLeft, ChevronDown, Settings, Headset, MessageSquarePlus, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import Cookies from "js-cookie";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useLogout } from "@/src/auth";
+import { STORE_SLUG_COOKIE } from "@/src/store-context";
 
 interface UserMenuProps {
   isMobile?: boolean;
@@ -19,6 +21,8 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const lang = useLanguage();
   const { mutate: logoutMutation } = useLogout();
+
+  const storeSlug = typeof window !== "undefined" ? Cookies.get(STORE_SLUG_COOKIE) || Cookies.get("current_store_id") : undefined;
 
   const handleLinkClick = () => {
     setIsOpen(false);
@@ -200,6 +204,22 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             </Link>
           )}
 
+          {user.user_type === "merchant" && storeSlug && (
+            <Link
+              href={`/${lang}/store/${storeSlug}`}
+              className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
+              onClick={handleLinkClick}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                  <ExternalLink size={16} className="text-blue-4" />
+                </div>
+                <span className="font-medium">الذهاب للمتجر</span>
+              </div>
+              <ChevronLeft size={16} className="text-gray-2" />
+            </Link>
+          )}
+
           {user.user_type === "merchant" && (
             <Link
               href={`/admin/home`}
@@ -335,7 +355,7 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             {user.user_type === "admin" && (
               <Link
                 href={`/admin/home`}
-                className="flex items-center gap-3 w-full text-sm text-gray-700 "
+                className="flex items-center gap-3 w-full py-2 px-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
                 onClick={handleLinkClick}
               >
                 <div className="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
@@ -345,19 +365,29 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
               </Link>
             )}
 
+            {user.user_type === "merchant" && storeSlug && (
+              <Link
+                href={`/${lang}/store/${storeSlug}`}
+                className="flex items-center gap-3 w-full py-2 px-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
+                onClick={handleLinkClick}
+              >
+                <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                  <ExternalLink size={16} className="text-blue-4" />
+                </div>
+                <span className="font-medium">الذهاب للمتجر</span>
+              </Link>
+            )}
+
             {user.user_type === "merchant" && (
               <Link
                 href={`/admin/home`}
-                className="flex items-center gap-3 w-full px-2 text-sm text-gray-700 "
+                className="flex items-center gap-3 w-full py-2 px-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
                 onClick={handleLinkClick}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                    <Store size={16} className="text-blue-4" />
-                  </div>
-                  <span className="font-medium">لوحة التحكم</span>
+                <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                  <Store size={16} className="text-blue-4" />
                 </div>
-                <ChevronLeft size={16} className="text-gray-2 group-hover:text-blue-600" />
+                <span className="font-medium">لوحة التحكم</span>
               </Link>
             )}
           </div>

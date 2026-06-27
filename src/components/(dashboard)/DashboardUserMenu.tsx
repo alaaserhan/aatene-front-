@@ -104,6 +104,7 @@ export function DashboardUserMenu() {
             setStoreContext({
                 storeId: targetId,
                 storeType: target.type,
+                storeSlug: target.slug ?? null,
                 storeRole: target.role_in_store ?? null,
             });
             setStoreRole(target.role_in_store ?? null);
@@ -126,6 +127,7 @@ export function DashboardUserMenu() {
             setStoreContext({
                 storeId: String(storeId),
                 storeType: selectedStore.type,
+                storeSlug: selectedStore.slug ?? null,
                 storeRole: selectedStore.role_in_store ?? null,
             });
             setStoreRole(selectedStore.role_in_store ?? null);
@@ -231,7 +233,10 @@ export function DashboardUserMenu() {
                             {/* {isSegmentAllowedForRole(storeRole || undefined, "financial-record") && (
                                 <MenuItem href={`/${lang}/admin/financial-record`} icon={FileText} label="السجل المالي" onClick={() => setIsOpen(false)} />
                             )} */}
-                            <MenuItem href={`/${lang}`} icon={Store} label="العودة للمنصة" onClick={() => setIsOpen(false)} />
+                            {activeStore?.slug && (
+                                <MenuItem href={`/${lang}/store/${activeStore.slug}`} icon={Store} label="الذهاب للمتجر" onClick={() => setIsOpen(false)} />
+                            )}
+                            <MenuItem href={`/${lang}`} icon={Home} label="العودة للمنصة" onClick={() => setIsOpen(false)} />
 
                             <button
                                 onClick={() => logout()}

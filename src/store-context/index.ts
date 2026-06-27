@@ -11,6 +11,7 @@ onSignOut(clearStoreContext);
 export {
   CURRENT_STORE_ID_COOKIE,
   STORE_TYPE_COOKIE,
+  STORE_SLUG_COOKIE,
   STORE_ROLE_COOKIE,
   STORE_CONTEXT_UPDATED_EVENT,
   setStoreContext,

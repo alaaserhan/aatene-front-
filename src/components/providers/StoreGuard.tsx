@@ -84,6 +84,7 @@ export function StoreGuard({ children }: { children: ReactNode }) {
                     setStoreContext({
                         storeId: store.id.toString(),
                         storeType: store.type,
+                        storeSlug: store.slug ?? null,
                         storeRole: store.role_in_store ?? null,
                     });
                     setIsReady(true);

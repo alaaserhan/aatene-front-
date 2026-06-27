@@ -129,9 +129,9 @@ export default function ReportInquiryPage() {
                     <h1 className="text-xl md:text-2xl font-medium">
                         إستعلام عن الشكاوي
                     </h1>
-                    <p className="text-gray-2 text-sm ">
+                    {/* <p className="text-gray-2 text-sm ">
                         سيتم متابعة شكوتك عن طريق البريد الإلكتروني الخاص بك.
-                    </p>
+                    </p> */}
                 </div>
 
                 {/* Stats Cards */}
