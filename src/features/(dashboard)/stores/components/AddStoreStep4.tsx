@@ -366,7 +366,7 @@ export function AddStoreStep4({
                       className="px-6 py-2 cursor-pointer rounded-sm text-white h-10 min-w-[120px]"
                       style={{ backgroundColor: "#3A5779" }}
                     >
-                      {isCheckingEmail ? "جاري التحقق..." : (editingIndex >= 0 ? "حفظ التعديلات" : "ارسال دعوة")}
+                      {isCheckingEmail ? "جاري التحقق..." : (editingIndex >= 0 ? "حفظ التعديلات" : "إرسال دعوة")}
                     </Button>
 
                   </div>

@@ -217,7 +217,7 @@ export default function CreateReportPage({ type, id }: CreateReportPageProps) {
                                     جاري الإرسال...
                                 </>
                             ) : (
-                                "ارسال"
+                                "إرسال"
                             )}
                         </button>
                     </div>

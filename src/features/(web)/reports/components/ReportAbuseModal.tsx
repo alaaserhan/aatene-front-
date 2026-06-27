@@ -246,7 +246,7 @@ export function ReportAbuseModal({ isOpen, onClose, type, id }: ReportAbuseModal
                                         جاري الإرسال...
                                     </>
                                 ) : (
-                                    "ارسال"
+                                    "إرسال"
                                 )}
                             </button>
                             <button

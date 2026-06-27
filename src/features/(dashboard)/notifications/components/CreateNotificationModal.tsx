@@ -463,7 +463,7 @@ export function CreateNotificationModal({
 
             <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700">
-                    طريقة الارسال <span className="text-red-500">*</span>
+                    طريقة الإرسال <span className="text-red-500">*</span>
                 </label>
                 <div className="flex items-center gap-6">
                     <label className="flex items-center gap-2 cursor-pointer">
@@ -473,7 +473,7 @@ export function CreateNotificationModal({
                             onChange={() => updateFormData({ sendMethod: "immediate" })}
                             className="w-4 h-4 text-blue-3"
                         />
-                        <span className="text-sm text-gray-700">ارسال فوري</span>
+                        <span className="text-sm text-gray-700">إرسال فوري</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -514,7 +514,7 @@ export function CreateNotificationModal({
             {/* Included Step Checkboxes */}
             <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700">
-                    سيتم الارسال الي <span className="text-red-500">*</span>
+                    سيتم الإرسال الي <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                     {[
@@ -680,7 +680,7 @@ export function CreateNotificationModal({
         <div className="space-y-6">
             <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700">
-                    لم يتم الارسال الي
+                    لم يتم الإرسال الي
                 </label>
                 <div className="space-y-3">
                     <div className="flex items-center gap-2">

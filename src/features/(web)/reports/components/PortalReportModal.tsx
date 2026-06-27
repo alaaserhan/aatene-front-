@@ -292,7 +292,7 @@ export function PortalReportModal({
                                     جاري الإرسال...
                                 </>
                             ) : (
-                                "ارسال"
+                                "إرسال"
                             )}
                         </button>
                     </div>

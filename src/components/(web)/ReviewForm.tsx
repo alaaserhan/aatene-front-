@@ -220,7 +220,7 @@ export const ReviewForm = forwardRef<ReviewFormRef, ReviewFormProps>(
                             disabled={isSubmitting}
                             className="bg-blue-3 text-white rounded-full px-6 py-2 flex items-center justify-center gap-1 font-medium text-sm cursor-pointer capitalize disabled:opacity-50 shrink-0 w-full sm:w-auto self-end sm:self-auto"
                         >
-                            {parentId ? "إرسال الرد" : "ارسال"}    <ChevronLeft size={20} />
+                            {parentId ? "إرسال الرد" : "إرسال"}    <ChevronLeft size={20} />
                         </button>
                     </div>
                 </div>
