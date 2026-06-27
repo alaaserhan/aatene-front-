@@ -60,6 +60,10 @@ export default function ProductViewPage() {
         refetchOnWindowFocus: true,
     });
 
+    useEffect(() => {
+        window.scrollTo({ top: 0 });
+    }, []);
+
     // عند تغيّر الـ status (مثلاً أُعيد قبوله بعد رفضه) → أعِد إظهار الـ alert
     useEffect(() => {
         const status = dashboardData?.data?.status;

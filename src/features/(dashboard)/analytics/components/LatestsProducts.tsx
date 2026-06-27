@@ -5,9 +5,12 @@ import { Loader2, Clock, ChevronLeft, CheckCircle2, XCircle, AlertCircle } from 
 import { cn } from "@/src/lib/utils";
 import { useGetAnalyticsLatests } from "../hooks";
 import { getRelativeTimeArabic, formatDateArabic } from "@/src/lib/date-helper";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function LatestsProducts() {
     const { data, isLoading } = useGetAnalyticsLatests();
+    const pathname = usePathname();
     const products = data?.latestsProducts || [];
 
     // Helper to map status to UI style
@@ -54,7 +57,7 @@ export function LatestsProducts() {
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2 ">
                     <Clock className="w-5 h-5 " />
-                    <h3 className="text-lg font-medium">احدث المنتجات</h3>
+                    <h3 className="text-lg font-medium">أحدث المنتجات</h3>
                     <span className="text-lg font-medium ">( {products.length} )</span>
                 </div>
                 {/* <div className="flex items-center gap-2">
@@ -81,9 +84,13 @@ export function LatestsProducts() {
                                     {/* Product ID & Name */}
                                     <td className="py-4 px-4 text-right">
                                         <div className="flex flex-col">
-                                            <span className="text-sm font-medium  underline decoration-gray-300 underline-offset-4 cursor-pointer">
+                                            <Link
+                                                href={`/admin/products/${product.id}/view?from=${encodeURIComponent(pathname)}`}
+                                                className="text-sm font-medium underline decoration-gray-300 underline-offset-4 hover:decoration-gray-500"
+                                                scroll={false}
+                                            >
                                                 #{product.id}
-                                            </span>
+                                            </Link>
                                             {/* Optional: Show name below ID if needed, though image shows only ID */}
                                         </div>
                                     </td>
