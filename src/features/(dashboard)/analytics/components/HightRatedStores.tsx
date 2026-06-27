@@ -26,7 +26,7 @@ export function HightRatedStores() {
                 <div className="flex flex-col  gap-1">
                     <div className="flex items-center gap-2 ">
                         <TrendingUp className="w-5 h-5 text-green-500" />
-                        <h3 className="text-lg font-medium">المتاجر الاكثر تقييما</h3>
+                        <h3 className="text-lg font-medium">المتاجر الأكثر تقييما</h3>
                     </div>
                     <p className="text-xs text-gray-2 font-medium">قائمة المتاجر التي حصلت علي اعلي تقييم</p>
                 </div>

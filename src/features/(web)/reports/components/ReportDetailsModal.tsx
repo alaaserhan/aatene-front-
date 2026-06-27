@@ -44,7 +44,7 @@ export default function ReportDetailsModal({ isOpen, onClose, uuid }: ReportDeta
                         <div className="flex flex-col">
                             {/* Report Number */}
                             <div className="flex items-center justify-between py-4 border-b border-gray-200">
-                                <span className="font-medium  text-sm md:text-base">رقم الشكوي</span>
+                                <span className="font-medium  text-sm md:text-base">رقم الشكوى</span>
                                 <span className="font-medium text-blue-4 text-sm">{report.uuid}</span>
                             </div>
 

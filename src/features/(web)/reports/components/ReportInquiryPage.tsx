@@ -247,7 +247,7 @@ export default function ReportInquiryPage() {
                                         {/* Row 2: Meta Info */}
                                         <div className="flex flex-wrap items-center gap-6 text-base">
                                             <div className="flex items-center gap-2">
-                                                <span className=" text-[#626262]">رقم الشكوي :</span>
+                                                <span className=" text-[#626262]">رقم الشكوى :</span>
                                                 <span className=" font-medium text-blue-3 text-sm ">{report.uuid}</span>
                                             </div>
                                             <div className="flex items-center gap-2">

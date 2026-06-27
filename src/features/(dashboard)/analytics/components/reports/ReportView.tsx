@@ -173,7 +173,7 @@ export function ReportView({ type }: ReportViewProps) {
                     { key: "not_active_count", color: COLORS[2], name: "منتجات تم رفضها" },
                 ],
                 chartData: (data as ProductsAnalyticsResponse)?.productsGrowthChart || [],
-                topListName: "المنتجات الاكثر تصفحاً",
+                topListName: "المنتجات الأكثر تصفحاً",
                 topListItems: [] // mostViewedProducts is missing in the API interface
             };
             break;
