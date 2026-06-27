@@ -174,14 +174,18 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                         )}
                     </div>
 
-                    <div className="flex flex-col min-w-0 flex-1">
+                    <div className={"flex flex-col min-w-0 flex-1"}>
                         <p className="text-sm font-medium truncate">{providerName}</p>
                         <div className="flex items-center justify-between mt-1">
                             <div className="flex items-center gap-1 text-[10px] text-gray-500">
                                 <MapPin className="w-3 h-3 text-[#3D5E83]" />
                                 <span className="truncate max-w-[60px]">{cityName}</span>
                             </div>
-                            <div className="flex items-center gap-1 text-xs">
+                            <div
+                                className={cn("flex items-center gap-1 text-xs", {
+                                hidden: !service.review_count,
+                                })}
+                            >
                                 <Star className="w-3 h-3 fill-[#FFC220] text-[#FFC220]" />
                                 <span className="font-medium text-[#FB923C] pt-1">
                                     {parseFloat(service.review_rate || "0").toFixed(1)}
