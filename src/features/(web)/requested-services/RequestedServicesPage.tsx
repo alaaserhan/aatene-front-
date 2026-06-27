@@ -59,10 +59,10 @@ export default function RequestedServicesPage() {
                     <h1 className=" text-2xl md:text-3xl font-medium leading-normal">
                         طلبات الخدمات الغير موجودة
                     </h1>
-                    <p className="text-gray-2 text-sm">
+                    {/* <p className="text-gray-2 text-sm">
                         هل تمتلك مهارات رائعة؟ ابحث عن ما يحتاجه عملاؤنا، وابدأ بتقديم
                         خدماتك بكل احتراف — النجاح يبدأ من هنا!
-                    </p>
+                    </p> */}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">

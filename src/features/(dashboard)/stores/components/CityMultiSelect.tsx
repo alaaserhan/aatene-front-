@@ -16,6 +16,7 @@ interface CityMultiSelectProps {
   selectedCityIds: number[]; // مصفوفة أرقام
   onChange: (ids: number[]) => void;
   error?: string;
+  placeholder?: string
 }
 
 export function CityMultiSelect({
@@ -23,6 +24,7 @@ export function CityMultiSelect({
   selectedCityIds,
   onChange,
   error,
+  placeholder = "اختر المدينة"
 }: CityMultiSelectProps) {
   const [citySearch, setCitySearch] = useState("");
 
@@ -56,7 +58,7 @@ export function CityMultiSelect({
           options={dropdownOptions}
           value=""
           onChange={handleSelect}
-          placeholder="اختر المدينة"
+          placeholder={placeholder}
           error={error}
           onSearch={(q) => setCitySearch(q)}
           searchPlaceholder="ابحث عن مدينة..."

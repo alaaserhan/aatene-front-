@@ -335,6 +335,7 @@ export function AddStoreStep2({
                     if (errors.locationCities) setErrors({ ...errors, locationCities: "" });
                   }}
                   error={errors.locationCities}
+                  placeholder={ storeType === "services" ? "اختر المدينة التي يقع فيها مكتبك" : "اختر المدينة التي يقع فيها متجرك"}
                 />
 
                 <div className="space-y-2">

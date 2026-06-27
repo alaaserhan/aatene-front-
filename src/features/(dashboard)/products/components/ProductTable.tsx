@@ -123,7 +123,7 @@ export function ProductTable({
                                 </td>
 
                                 {/* Title */}
-                                <td className="px-6 py-4 text-right">
+                                <td className="px-6 py-4 text-center">
                                     <span className="text-sm font-medium line-clamp-2 leading-snug">
                                         {product.name}
                                     </span>
