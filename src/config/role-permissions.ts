@@ -32,7 +32,7 @@ export function isSegmentAllowedForRole(
     return allowed.has(segment);
 }
 
-const ADMIN_ALWAYS_ALLOWED = new Set(["home", "403", "chat", "user-guide", "contacts"]);
+const ADMIN_ALWAYS_ALLOWED = new Set(["home", "403", "chat"]);
 
 const ADMIN_PERMISSION_TO_SEGMENTS: Record<string, string[]> = {
     "users": ["users"],
@@ -40,7 +40,7 @@ const ADMIN_PERMISSION_TO_SEGMENTS: Record<string, string[]> = {
     "cities": ["cities"],
     "categories": ["categories"],
     "banners": ["banners"],
-    "mosaedy": ["mosa3edy"],
+    "mosaedy": ["mosa3edy", "contacts"],
     "requested-serviceses": ["requested-services"],
     "blogs": ["blogs"],
     "favs": ["favorites"],
@@ -49,9 +49,8 @@ const ADMIN_PERMISSION_TO_SEGMENTS: Record<string, string[]> = {
     "notifications": ["notifications"],
     "trash": ["trash"],
     "reports": ["all-reports", "reports"],
-    "settings": ["settings"],
+    "settings": ["settings", "user-guide"],
     "permissions": ["permissions"],
-    "user-guide": ["user-guide"],
 };
 
 export function isSegmentAllowedForAdmin(

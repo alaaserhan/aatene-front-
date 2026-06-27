@@ -140,7 +140,7 @@ export function UsersPage() {
                   href="/admin/permissions"
                   className="text-xs sm:text-sm font-semibold text-gray-2 hover:text-[#3A5779] h-full flex items-center transition-colors whitespace-nowrap"
                 >
-                  الادوار والصلاحيات
+                  الأدوار والصلاحيات
                 </Link>
               </li>
             </ul>

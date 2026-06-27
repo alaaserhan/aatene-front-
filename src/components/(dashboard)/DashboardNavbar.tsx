@@ -224,12 +224,12 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "إدارة المحتوى", icon: FileText, href: "/content-management", show: hasAdminPerm("/content-management"), desc: "تحكم بالمحتوى الأساسي للموقع" },
     { label: "الكلمات المسيئة", icon: TriangleAlert, href: "/abusive-words", show: hasAdminPerm("/abusive-words"), desc: "إدارة الكلمات والعبارات المسيئة" },
     { label: "البلاغات", icon: ShieldOff, href: "/all-reports?type=store", show: hasAdminPerm("/all-reports"), desc: "متابعة الشكاوى والبلاغات" },
-    { label: "رسائل التواصل", icon: Mail, href: "/contacts", show: isAdmin, desc: "رسائل المستخدمين من صفحة من نحن" },
+    { label: "رسائل التواصل", icon: Mail, href: "/contacts", show: hasAdminPerm("/contacts"), desc: "رسائل المستخدمين من صفحة من نحن" },
     { label: "الإشعارات", icon: Bell, href: "/notifications", show: hasAdminPerm("/notifications"), desc: "إدارة ومتابعة سجل الاشعارات" },
     { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant && (storeType === "products") && isAllowedByRole("/coupons"), desc: "إدارة ومتابعة الخصومات" },
 
     { label: "المحذوفات", icon: Trash2, href: "/trash", show: hasAdminPerm("/trash"), desc: "إدارة ومتابعة المحذوفات" },
-    { label: "دليل الاستخدام", icon: Video, href: "/user-guide", show: isAdmin, desc: "إضافة فيديوهات لمساعدة المستخدمين" },
+    { label: "دليل الاستخدام", icon: Video, href: "/user-guide", show: hasAdminPerm("/user-guide"), desc: "إضافة فيديوهات لمساعدة المستخدمين" },
   ];
 
   const visibleNavItems = allNavItems.filter((item) => item.show);

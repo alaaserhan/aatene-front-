@@ -81,7 +81,6 @@ export default function PasswordTab() {
                                 type={showPassword ? "text" : "password"}
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                placeholder="******"
                                 className={cn(
                                     "w-full px-6 py-3.5 border rounded-full focus:outline-none focus:border-gray-400 text-right bg-[#FFFFFF] transition-colors",
                                     errors.password ? "border-red-500" : "border-gray-200"
@@ -108,7 +107,6 @@ export default function PasswordTab() {
                                 type={showConfirmPassword ? "text" : "password"}
                                 value={formData.password_confirmation}
                                 onChange={(e) => setFormData({ ...formData, password_confirmation: e.target.value })}
-                                placeholder="******"
                                 className={cn(
                                     "w-full px-6 py-3.5 border rounded-full focus:outline-none focus:border-gray-400 text-right bg-[#FFFFFF] transition-colors",
                                     errors.password_confirmation ? "border-red-500" : "border-gray-200"
