@@ -281,7 +281,7 @@ export function AddProductStep1({
                 <h2 className="text-xl font-semibold">المعلومات الأساسية</h2>
               </div>
 
-              {formData.category_name && (
+              {/* {formData.category_name && (
                 <div className="bg-[#F8F8F8] rounded-md p-6 mb-8 flex items-center justify-between">
                   <div className="flex flex-col gap-1">
                     <h3 className="text-sm font-medium ">
@@ -299,7 +299,7 @@ export function AddProductStep1({
                     تغيير
                   </button>
                 </div>
-              )}
+              )} */}
 
               <div className="space-y-8">
                 <div id="product-step1-cover">

@@ -429,7 +429,7 @@ export function AddEditMyBlogPage({ blogId, isEdit }: AddEditMyBlogPageProps) {
                                     required
                                     helpTooltip=""
                                     helpText=""
-                                    placeholder="... نص المحتوى"
+                                    placeholder="نص المحتوى..."
                                     className="min-h-[300px]"
                                     error={errors.paraContent}
                                 />

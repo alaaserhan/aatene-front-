@@ -270,6 +270,7 @@ export function AddServiceStep4({
                                         }}
                                         label="وصف الخدمة"
                                         placeholder="...نص المحتوى"
+                                        helpText="ما هو وصف الخدمة"
                                         error={errors.description}
                                         className="min-h-[250px]"
                                         required

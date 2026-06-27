@@ -3,8 +3,8 @@
 import { memo, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star } from "lucide-react";
 import { cn, isVideoFile, sanitizeMediaUrl, resolveImageSrc } from "@/src/lib/utils";
+import { RatingStars } from "@/src/components/ui/RatingStars";
 import { formatPrice } from "@/src/lib/format-price";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
@@ -181,32 +181,13 @@ const ProductCard = memo(({
             <div className="flex flex-col px-3 pt-2.5 pb-3 text-right gap-1.5" dir="rtl">
                 {/* Product Name */}
                 <Link href={slug ? `/product/${slug}` : "#"}>
-                    <h3 className="font-medium text-sm leading-snug line-clamp-2 group-hover:text-blue-3 transition-colors">
+                    <h3 className="font-medium text-sm leading-snug line-clamp-2 group-hover:text-blue-3 transition-colors min-h-10">
                         {name || "اسم المنتج"}
                     </h3>
                 </Link>
 
                 {/* Rating */}
-                {rating > 0 && (
-                    <div className="flex items-center gap-1">
-                        <div className="flex items-center gap-0.5">
-                            {[...Array(5)].map((_, i) => (
-                                <Star
-                                    key={i}
-                                    className={cn(
-                                        "w-3 h-3",
-                                        i < Math.round(rating)
-                                            ? "fill-[#FB923C] text-[#FB923C]"
-                                            : "fill-gray-200 text-gray-200"
-                                    )}
-                                />
-                            ))}
-                        </div>
-                        <span className="text-[11px] text-gray-400">
-                            ({count})
-                        </span>
-                    </div>
-                )}
+                <RatingStars rating={rating} count={count} size="sm" />
 
                 {/* Price / اطلب السعر */}
                 <div className="mt-1">
