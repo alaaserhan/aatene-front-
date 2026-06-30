@@ -310,8 +310,8 @@ export function AddProductStep4({
                                             >
                                                 <Percent className="w-4 h-4" />
                                                 {formData.hasDiscount
-                                                    ? "تعديل الخصم علي المنتجات المختارة"
-                                                    : "تخفيض علي المنتجات المختارة"
+                                                    ? "تعديل الخصم على المنتجات المختارة"
+                                                    : "تخفيض على المنتجات المختارة"
                                                 }
                                             </button>
                                         </div>

@@ -6,6 +6,7 @@ import { Category, City, Tag, Attribute, PriceRange } from "@/src/features/(web)
 import { cn } from "@/src/lib/utils";
 import { SlidersHorizontal, ChevronDown, ChevronRight } from "lucide-react";
 import { DualRangeSlider } from "@/src/components/ui/DualRangeSlider";
+import DiscountFilter from "@/src/components/(web)/DiscountFilter";
 import {
     flattenCategoryTree,
     buildCategoryTree,
@@ -21,6 +22,7 @@ export interface FilterState {
     max_price?: number;
     review_rate?: number;
     variation_options?: number[];
+    has_discount?: number;
 }
 
 interface SearchFiltersProps {
@@ -361,6 +363,15 @@ export default function SearchFilters({
                             />
                         </div>
                     </FilterSection>
+                )}
+
+                {type === "products" && (
+                    <div className="px-5 py-4">
+                        <DiscountFilter
+                            value={filters.has_discount}
+                            onChange={(value) => onFilterChange({ ...filters, has_discount: value })}
+                        />
+                    </div>
                 )}
 
                 {/* Review Rate - يظهر لجميع الأنواع */}

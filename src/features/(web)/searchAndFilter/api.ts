@@ -113,6 +113,7 @@ export interface ProductSearchParams {
     max_price?: number;
     condition?: string;
     review_rate?: number;
+    has_discount?: number;
     city_id?: number[];
     store_id?: number;
     order_by?: string;

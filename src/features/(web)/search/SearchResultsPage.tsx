@@ -31,6 +31,7 @@ interface FilterState {
     max_price?: number;
     review_rate?: number;
     variation_options?: number[];
+    has_discount?: number;
 }
 
 const PER_PAGE = 16;
@@ -88,6 +89,7 @@ function SearchContent() {
             min_price: searchParams.get("min_price") ? parseInt(searchParams.get("min_price")!) : undefined,
             max_price: searchParams.get("max_price") ? parseInt(searchParams.get("max_price")!) : undefined,
             review_rate: searchParams.get("review_rate") ? parseInt(searchParams.get("review_rate")!) : undefined,
+            has_discount: searchParams.get("has_discount") ? parseInt(searchParams.get("has_discount")!) : undefined,
         };
     }, [searchParams]);
 
@@ -183,6 +185,9 @@ function SearchContent() {
         if (newFilters.review_rate !== undefined) params.set("review_rate", newFilters.review_rate.toString());
         else params.delete("review_rate");
 
+        if (newFilters.has_discount !== undefined) params.set("has_discount", newFilters.has_discount.toString());
+        else params.delete("has_discount");
+
         // Reset page to 1 on filter change
         params.set("page", "1");
         setPage(1);
@@ -206,6 +211,7 @@ function SearchContent() {
             max_price: filters.max_price,
             review_rate: filters.review_rate,
             variation_options: filters.variation_options,
+            has_discount: filters.has_discount ?? 0,
             page,
             per_page: PER_PAGE,
         };
