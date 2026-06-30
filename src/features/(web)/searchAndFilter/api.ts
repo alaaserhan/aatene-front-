@@ -334,6 +334,7 @@ export interface Store {
     location_cities: City[];
     service_cities: City[];
     description: string;
+    city: City | null;
 }
 
 export interface StoresSearchResponse extends GenericPaginationResponse {

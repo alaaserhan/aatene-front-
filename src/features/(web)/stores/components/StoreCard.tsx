@@ -124,7 +124,7 @@ const StoreCard = memo(({
 
                 <div className="mb-1.5 flex w-full items-center justify-center gap-1.5 text-sm text-gray-500 md:mb-2" dir="rtl">
                     <MapPin className="h-4 w-4 shrink-0 text-blue-4" />
-                    <span className="line-clamp-1">{cityLabel}</span>
+                    <span className="line-clamp-1">{store.city?.name || "--"}</span>
                 </div>
 
                 <div className="inline-flex items-center justify-center gap-1.5 text-sm leading-4 text-gray-400" dir="rtl">
