@@ -37,7 +37,7 @@ export default function StoreStoriesSection({
 
     const filteredHighlights = highlights.filter(h => h.stories && h.stories.length > 0);
 
-    if (!isOwnStore && !isAdmin && filteredHighlights.length === 0) return null;
+    if (!isOwnStore && filteredHighlights.length === 0) return null;
 
     const getLastStory = (highlight: StoreHighlight) => {
         if (!highlight.stories || highlight.stories.length === 0) return undefined;
@@ -72,7 +72,7 @@ export default function StoreStoriesSection({
 
     return (
         <div className="mb-8 bg-white p-3 rounded-lg border border-gray-100 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]">
-            <h2 className="font-bold text-gray-900 mb-2 px-1 border-b border-gray-100 pb-2" dir="rtl">أبرز الأحداث</h2>
+            <h2 className="font-bold text-gray-900 mb-2 px-1 border-b border-gray-100 pb-2" dir="rtl">أبرز القصص والعروض</h2>
             <div className="flex gap-4 overflow-x-auto py-2 px-1 scrollbar-hide" dir="rtl">
                 {isOwnStore && onAddHighlight && (
                     <button
