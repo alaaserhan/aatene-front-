@@ -56,7 +56,7 @@ function withNormalizedUser(res: AuthResponse): AuthResponse {
 
 export const getAccount = async (): Promise<AccountResponse> => {
   const { data } = await api.get<AccountResponse>("/auth/account");
-  return data;
+  return { ...data, user: normalizeUser(data.user) };
 };
 
 export const loginUser = async (credentials: LoginCredentials): Promise<AuthResponse> => {
