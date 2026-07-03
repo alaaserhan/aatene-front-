@@ -67,6 +67,17 @@ function SearchBarInner({
     pathname === `/${locale}/search` ||
     pathname.endsWith("/search");
 
+  // On a detail page (store / product / service) the matching tab is treated as active
+  const detailPageType: SearchType | null = pathname.includes("/store/")
+    ? "stores"
+    : pathname.includes("/product/")
+      ? "products"
+      : pathname.includes("/services/")
+        ? "services"
+        : pathname.includes("/profile/")
+          ? "users"
+          : null;
+
   const handleSearch = () => {
     const params = new URLSearchParams();
     const query = searchQuery.trim();
@@ -378,7 +389,8 @@ function SearchBarInner({
             onClick={() => handleTypeChange(type.value)}
             className={cn(
               "px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap",
-              isSearchPage && selectedType === type.value
+              (isSearchPage && selectedType === type.value) ||
+                detailPageType === type.value
                 ? "text-blue-3 font-medium"
                 : "text-gray-400 hover:text-gray-700"
             )}
