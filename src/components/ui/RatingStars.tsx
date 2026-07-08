@@ -67,7 +67,7 @@ export function RatingStars({
                 ))}
             </span>
             {showCount && (
-                <span aria-hidden="true" className={cn(text, "text-gray-400")}>
+                <span aria-hidden="true" className={cn(text, "text-gray-400 pt-[2px] block")}>
                     ({count})
                 </span>
             )}

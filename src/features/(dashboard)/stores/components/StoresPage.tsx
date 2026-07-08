@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search } from "lucide-react";
 import { useGetStores, useUpdateStoreShown } from "../hooks";
@@ -27,11 +27,16 @@ const storeStatusTabs: {
 export function StoresPage() {
   const router = useRouter();
   const { locale, type } = useParams<{ locale: string; type: string }>();
+  const searchParams = useSearchParams();
   const user = useAuthStore((s) => s.user);
   const isAdmin = user?.user_type === "admin";
   const isMerchant = user?.user_type === "merchant";
 
-  const [statusTab, setStatusTab] = useState<StoreStatus>("approved");
+  const statusParam = searchParams.get("status") as StoreStatus | null;
+  const initialStatusTab: StoreStatus =
+    statusParam && storeStatusTabs.some((tab) => tab.key === statusParam) ? statusParam : "approved";
+
+  const [statusTab, setStatusTab] = useState<StoreStatus>(initialStatusTab);
   const [typeFilter, setTypeFilter] = useState<StoreTypeFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);

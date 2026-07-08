@@ -95,17 +95,29 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
     setApproveModalOpen(true);
   };
 
+  const reviewRedirectUrl = `${storesBasePath}?status=pending`;
+
   const handleConfirmApprove = () => {
-    updateStatusMutation({ id: storeId, payload: { status: "approved" } });
+    const wasInReview = store?.status === "pending";
+    updateStatusMutation(
+      { id: storeId, payload: { status: "approved" } },
+      {
+        onSuccess: () => {
+          if (wasInReview) router.push(reviewRedirectUrl);
+        },
+      }
+    );
   };
 
   const confirmReject = (reasonText: string, details: string) => {
+    const wasInReview = store?.status === "pending";
     const fullReason = details ? `${reasonText} - ${details}` : reasonText;
     updateStatusMutation(
       { id: storeId, payload: { status: "rejected", reject_reason: fullReason } },
       {
         onSuccess: () => {
           setRejectModalOpen(false);
+          if (wasInReview) router.push(reviewRedirectUrl);
         },
       }
     );

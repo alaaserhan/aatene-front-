@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { useState, useMemo } from "react";
-import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Check, Clock4, ChevronDown } from "lucide-react";
+import { Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Check, Clock4, ChevronDown } from "lucide-react";
 import { Service } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddServiceToCompare, useRemoveServiceFromCompare } from "@/src/features/(web)/compares/hooks";
@@ -14,6 +14,7 @@ import { productAskForPriceButtonClassName } from "@/src/features/(web)/product/
 import { useQueryClient } from "@tanstack/react-query";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { ShareModal } from "@/src/components/ui/ShareModal";
+import { RatingStars } from "@/src/components/ui/RatingStars";
 import { useAuthStore } from "@/src/stores/auth-store";
 
 interface ServiceHeroProps {
@@ -245,22 +246,11 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                                 </span>
                             )}
                             <div className="w-px h-4 bg-gray-300 mx-2" />
-                            <div className="flex items-center gap-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        className={cn(
-                                            "w-4 h-4",
-                                            i < Math.round(rating)
-                                                ? "fill-[#FB923C] text-[#FB923C]"
-                                                : "fill-gray-200 text-gray-200"
-                                        )}
-                                    />
-                                ))}
-                            </div>
-                            <span className="text-sm text-gray-2">
-                                ( {reviewCount} مراجعة )
-                            </span>
+                            <RatingStars
+                                rating={rating}
+                                count={reviewCount}
+                                size="md"
+                            />
                         </div>
                     </div>
 

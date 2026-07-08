@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Star, Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Eye, FolderOpen } from "lucide-react";
+import { Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Eye, FolderOpen } from "lucide-react";
 import { Product, Store, Attribute, AttributeOption } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddProductToCompare, useRemoveProductFromCompare } from "@/src/features/(web)/compares/hooks";
@@ -14,6 +14,7 @@ import Cookies from "js-cookie";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { ShareModal } from "@/src/components/ui/ShareModal";
+import { RatingStars } from "@/src/components/ui/RatingStars";
 import Link from "next/link";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { productAskForPriceButtonClassName } from "./productAskForPriceButton";
@@ -287,24 +288,11 @@ export default function ProductHero({ product, store, attributes }: ProductHeroP
                         )}
 
                         {/* Rating */}
-                        <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        className={cn(
-                                            "w-4 h-4",
-                                            i < Math.round(rating)
-                                                ? "fill-[#FB923C] text-[#FB923C]"
-                                                : "fill-gray-200 text-gray-200"
-                                        )}
-                                    />
-                                ))}
-                            </div>
-                            <span className="text-sm text-gray-600">
-                                ( {product.review_count || 0} مراجعة )
-                            </span>
-                        </div>
+                        <RatingStars
+                            rating={rating}
+                            count={+product.review_count || 0}
+                            size="md"
+                        />
                     </div>
 
                     {/* Title Row */}

@@ -63,6 +63,8 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [successModalTitle, setSuccessModalTitle] = useState("");
+    // بعد قبول/رفض خدمة كانت "قيد المراجعة" → نُوجّه الأدمن لتبويب قيد المراجعة
+    const [redirectToReviewList, setRedirectToReviewList] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [activeImage, setActiveImage] = useState<string>("");
@@ -118,6 +120,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     // --- Handlers ---
 
     const handleApprove = () => {
+        const wasInReview = serviceData?.data?.status === "pending";
         updateStatus({
             id: serviceId,
             payload: { status: "approved" },
@@ -128,6 +131,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 queryClient.invalidateQueries({ queryKey: ["services"] });
                 queryClient.invalidateQueries({ queryKey: ["services", serviceId] }); // تحديث الخدمة الحالية
                 setSuccessModalTitle("تم قبول الخدمة بنجاح");
+                if (wasInReview) setRedirectToReviewList(true);
                 setIsSuccessModalOpen(true);
             }
         });
@@ -147,6 +151,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
     };
 
     const confirmReject = (reasonText: string, details: string) => {
+        const wasInReview = serviceData?.data?.status === "pending";
         const fullReason = details ? `${reasonText} - ${details}` : reasonText;
         updateStatus({
             id: serviceId,
@@ -159,6 +164,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
             onSuccess: () => {
                 setIsRejectModalOpen(false);
                 setSuccessModalTitle("تم رفض الخدمة بنجاح");
+                if (wasInReview) setRedirectToReviewList(true);
                 setIsSuccessModalOpen(true);
                 queryClient.invalidateQueries({ queryKey: ["services"] });
                 queryClient.invalidateQueries({ queryKey: ["services", serviceId] });
@@ -608,7 +614,10 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                 isOpen={isSuccessModalOpen}
                 onClose={() => {
                     setIsSuccessModalOpen(false);
-                    if (service.status === "rejected") {
+                    if (redirectToReviewList) {
+                        setRedirectToReviewList(false);
+                        router.push(`${dashboardBase}/serviceProviders?status=pending`);
+                    } else if (service.status === "rejected") {
                         router.push(`${dashboardBase}/serviceProviders/${storeId}`);
                     }
                 }}

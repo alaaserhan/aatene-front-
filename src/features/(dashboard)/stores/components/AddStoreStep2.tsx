@@ -54,7 +54,7 @@ export function AddStoreStep2({
     cover: initialData?.cover || [],
     cover_previews: initialData?.cover_previews || [],
     description: initialData?.description || "",
-    email: initialData?.email || "",
+    email: initialData?.email || user?.email || "",
     locationCities: initialData?.locationCities
       ? (initialData.locationCities as unknown as (number | { id: number })[]).map((item) =>
         typeof item === "object" ? item.id : item

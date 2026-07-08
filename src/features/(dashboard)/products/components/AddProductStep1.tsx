@@ -312,7 +312,8 @@ export function AddProductStep1({
                   maxFiles={10}
                   error={errors.cover}
                   showMainSelector={true}
-                  mainImageLabel="الغلاف"
+                  mainImageLabel="الأساسية"
+                  galleryItemLabel="الثانوية"
                   showDragHint={true}
                   dragHintText="يمكنك سحب وإفلات الصور أو الفيديو لإعادة الترتيب"
                   emptyStateText="أضف صورة أو فيديو"

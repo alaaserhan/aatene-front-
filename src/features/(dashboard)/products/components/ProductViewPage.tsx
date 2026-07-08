@@ -39,6 +39,8 @@ export default function ProductViewPage() {
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [successModalTitle, setSuccessModalTitle] = useState("");
+    // بعد قبول/رفض منتج كان "قيد المراجعة" → نُوجّه الأدمن لتبويب قيد المراجعة
+    const [redirectAfterSuccess, setRedirectAfterSuccess] = useState<string | null>(null);
     const [activeImage, setActiveImage] = useState<string | null>(null);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -127,20 +129,29 @@ export default function ProductViewPage() {
         );
     };
 
+    // إن كان المنتج قيد المراجعة وقت اتخاذ الإجراء → نُوجّه لتبويب "قيد المراجعة" بعد الإغلاق
+    const reviewRedirectUrl = "/admin/productProviders?status=pending";
+
     const handleApprove = () => {
+        const wasInReview = dashboardData?.data?.status === "pending";
         updateStatus(
             { id: Number(id), payload: { status: "approved" } },
             {
                 onSuccess: () => {
                     setSuccessModalTitle("تمت الموافقة على المنتج بنجاح");
                     setIsSuccessModalOpen(true);
-                    refetch();
+                    if (isAdmin && wasInReview) {
+                        setRedirectAfterSuccess(reviewRedirectUrl);
+                    } else {
+                        refetch();
+                    }
                 },
             }
         );
     };
 
     const confirmReject = (reasonText: string, details: string) => {
+        const wasInReview = dashboardData?.data?.status === "pending";
         const fullReason = details ? `${reasonText} - ${details}` : reasonText;
         updateStatus(
             { id: Number(id), payload: { status: "rejected", reject_reason: fullReason } },
@@ -149,10 +160,23 @@ export default function ProductViewPage() {
                     setIsRejectModalOpen(false);
                     setSuccessModalTitle("تم رفض المنتج بنجاح");
                     setIsSuccessModalOpen(true);
-                    refetch();
+                    if (isAdmin && wasInReview) {
+                        setRedirectAfterSuccess(reviewRedirectUrl);
+                    } else {
+                        refetch();
+                    }
                 },
             }
         );
+    };
+
+    const handleSuccessModalClose = () => {
+        setIsSuccessModalOpen(false);
+        if (redirectAfterSuccess) {
+            const target = redirectAfterSuccess;
+            setRedirectAfterSuccess(null);
+            router.push(target);
+        }
     };
 
     const handleDelete = () => {
@@ -516,7 +540,7 @@ export default function ProductViewPage() {
                                                 <span className="font-black text-2xl whitespace-nowrap">₪ {raw.cross_sells_price || 0}</span>
                                             </div>
                                             <p className="text-sm text-gray-500 line-through mt-2 text-center md:text-right">بدلاً من ₪ {Number(raw.price) + (Number(raw.cross_sells_price) || 0) + 50}</p>
-                                            <p className="text-xs text-red-500 font-bold mt-1 text-center md:text-right">وفر 10 ₪!</p>
+                                            <p className="text-xs text-red-500 font-bold mt-1 text-center md:text-right">وفر ₪ {(Number(raw.price) + (Number(raw.cross_sells_price) || 0) + 50) - (Number(raw.cross_sells_price) || 0)}!</p>
                                         </div>
                                     </div>
                                 </div>
@@ -658,10 +682,10 @@ export default function ProductViewPage() {
             />
             <SuccessModal
                 isOpen={isSuccessModalOpen}
-                onClose={() => setIsSuccessModalOpen(false)}
+                onClose={handleSuccessModalClose}
                 title={successModalTitle}
                 buttonText="تم"
-                onButtonClick={() => setIsSuccessModalOpen(false)}
+                onButtonClick={handleSuccessModalClose}
             />
             <ShareModal
                 isOpen={isShareModalOpen}
