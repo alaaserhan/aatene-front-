@@ -37,6 +37,12 @@ export function AddProductPage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const [currentStep, setCurrentStep] = useState(1);
+
+  // Scroll to top on any step transition (next / back / stepper)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentStep]);
+
   const [formData, setFormData] = useState<CompleteProductFormData>({
     step2: (sectionIdFromUrl || storeIdFromUrl) ? {
       store_id: Number(storeId) || 0,
@@ -125,7 +131,6 @@ export function AddProductPage() {
     const newData = { ...formData, step1: data };
     setFormData(newData);
     setCurrentStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
     // Trigger AI generation automatically
     handleGenerateAI(data);
   };
@@ -137,23 +142,19 @@ export function AddProductPage() {
   const handleStep2Next = (data: Step2FormData) => {
     setFormData((prev) => ({ ...prev, step2: data }));
     setCurrentStep(3);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleStep2Back = () => {
     setCurrentStep(1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleStep3Next = (data: Step3FormData) => {
     setFormData((prev) => ({ ...prev, step3: data }));
     setCurrentStep(4);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleStep3Back = () => {
     setCurrentStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleStep4Save = async (data: Step4FormData) => {

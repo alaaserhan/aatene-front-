@@ -112,6 +112,12 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   const user = useAuthStore((state) => state.user);
 
   const [currentStep, setCurrentStep] = useState(1);
+
+  // Scroll to top on any step transition (next / back / stepper)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentStep]);
+
   const [formData, setFormData] = useState<CompleteProductFormData | null>(null);
   const [mappingError, setMappingError] = useState(false);
   const [prevProductData, setPrevProductData] = useState<unknown>(null);
