@@ -61,6 +61,7 @@ const StoreCard = memo(({
         queryClient.invalidateQueries({ queryKey: ["storeProfile", store.slug] });
         queryClient.invalidateQueries({ queryKey: ["storePageData", store.slug] });
         queryClient.invalidateQueries({ queryKey: ["homeSpecialMerchants"] });
+        queryClient.invalidateQueries({ queryKey: ["favorite-lists", "list"] });
     };
 
     const handleCardClick = () => {
