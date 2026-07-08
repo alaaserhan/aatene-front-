@@ -557,6 +557,7 @@ export function CreateCouponModal({
                     onClose={() => setIsProductModalOpen(false)}
                     onSave={handleProductsSave}
                     initialSelectedIds={formData.products.map(p => p.id)}
+                    sectionIds={formData.sections.map(s => s.id)}
                 />
             </div>
         );

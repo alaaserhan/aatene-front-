@@ -133,14 +133,14 @@ export default function HomeBanners({ banners: initialBanners, isMobile = false 
                 {banners.length > 1 && (
                     <>
                         <button
-                            onClick={handleNext}
+                            onClick={handlePrev}
                             className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/75 p-2 text-blue-4 shadow-sm backdrop-blur-sm transition-all hover:bg-white md:right-4 md:p-3"
                             aria-label="Next slide"
                         >
                             <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
                         </button>
                         <button
-                            onClick={handlePrev}
+                            onClick={handleNext}
                             className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/75 p-2 text-blue-4 shadow-sm backdrop-blur-sm transition-all hover:bg-white md:left-4 md:p-3"
                             aria-label="Previous slide"
                         >

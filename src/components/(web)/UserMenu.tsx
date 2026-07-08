@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/src/auth";
 import { LogOut, User, Store, Crown, Shield, ChevronRight, ChevronLeft, ChevronDown, Settings, Headset, MessageSquarePlus, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Cookies from "js-cookie";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -20,7 +21,16 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const lang = useLanguage();
+  const pathname = usePathname();
   const { mutate: logoutMutation } = useLogout();
+
+  const isActive = (href: string) => pathname === href;
+  const menuLinkClass = (active: boolean) =>
+    `flex items-center gap-3 text-sm transition-colors ${active ? "text-primary" : "text-gray-2"}`;
+  const menuIconClass = (active: boolean) =>
+    `w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+      active ? "bg-primary/10 text-primary" : "bg-gray-100"
+    }`;
 
   const storeSlug = typeof window !== "undefined" ? Cookies.get(STORE_SLUG_COOKIE) || Cookies.get("current_store_id") : undefined;
 
@@ -148,25 +158,25 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             {user.user_type !== "admin" && (
               <Link
                 href={`/${lang}/report`}
-                className="flex items-center gap-3 text-sm text-gray-2"
+                className={menuLinkClass(isActive(`/${lang}/report`))}
                 onClick={handleLinkClick}
               >
-                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <div className={menuIconClass(isActive(`/${lang}/report`))}>
                   <Headset size={16} />
                 </div>
                 <span className="font-medium">بوابة الشكاوى والاقتراحات</span>
               </Link>
             )}
 
-             <Link href={`/${lang}/my/requested-services`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+             <Link href={`/${lang}/my/requested-services`} className={menuLinkClass(isActive(`/${lang}/my/requested-services`))} onClick={handleLinkClick}>
+              <div className={menuIconClass(isActive(`/${lang}/my/requested-services`))}>
                 <MessageSquarePlus size={16} />
               </div>
               <span className="font-medium">طلباتي</span>
             </Link>
 
-            <Link href={`/${lang}/settings`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+            <Link href={`/${lang}/settings`} className={menuLinkClass(isActive(`/${lang}/settings`))} onClick={handleLinkClick}>
+              <div className={menuIconClass(isActive(`/${lang}/settings`))}>
                 <Settings size={16} />
               </div>
               <span className="font-medium">الاعدادات</span>
@@ -314,25 +324,25 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
             {user.user_type !== "admin" && (
               <Link
                 href={`/${lang}/report`}
-                className="flex items-center gap-3 text-sm text-gray-2"
+                className={menuLinkClass(isActive(`/${lang}/report`))}
                 onClick={handleLinkClick}
               >
-                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                <div className={menuIconClass(isActive(`/${lang}/report`))}>
                   <Headset size={16} />
                 </div>
                 <span className="font-medium">بوابة الشكاوى والاقتراحات</span>
               </Link>
             )}
 
-            <Link href={`/${lang}/my/requested-services`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+            <Link href={`/${lang}/my/requested-services`} className={menuLinkClass(isActive(`/${lang}/my/requested-services`))} onClick={handleLinkClick}>
+              <div className={menuIconClass(isActive(`/${lang}/my/requested-services`))}>
                 <MessageSquarePlus size={16} />
               </div>
               <span className="font-medium">طلباتي</span>
             </Link>
 
-            <Link href={`/${lang}/settings`} className="flex items-center gap-3 text-sm text-gray-2" onClick={handleLinkClick}>
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+            <Link href={`/${lang}/settings`} className={menuLinkClass(isActive(`/${lang}/settings`))} onClick={handleLinkClick}>
+              <div className={menuIconClass(isActive(`/${lang}/settings`))}>
                 <Settings size={16} />
               </div>
               <span className="font-medium">الاعدادات</span>

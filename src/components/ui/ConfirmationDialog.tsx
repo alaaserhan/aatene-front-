@@ -46,7 +46,7 @@ export function ConfirmationDialog({
         <DialogFooter className="flex-col sm:flex-row-reverse gap-2 sm:justify-start pt-4">
           <Button
             type="button"
-            className="flex-1 cursor-pointer bg-blue-4 hover:bg-blue-600 text-white"
+            className="flex-1 cursor-pointer bg-blue-4 hover:bg-blue-3 text-white"
             onClick={() => {
               onConfirm();
               onClose();
