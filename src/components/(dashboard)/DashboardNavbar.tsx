@@ -37,6 +37,7 @@ import {
   Trash2,
   Mail,
   Truck,
+  ExternalLink,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -145,6 +146,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const [activeStoreId, setActiveStoreId] = useState<string | number | null>(null);
   const [storeType, setStoreType] = useState<string | null>(null);
   const [storeRole, setStoreRole] = useState<MerchantRole | null>(null);
+  const [storeSlug, setStoreSlug] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
 
@@ -154,6 +156,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     setActiveStoreId(Cookies.get("current_store_id") || null);
     setStoreType(Cookies.get("store_type") || null);
     setStoreRole((Cookies.get("store_role") as MerchantRole) || null);
+    setStoreSlug(Cookies.get("store_slug") || Cookies.get("current_store_id") || null);
 
     const handleStoreUpdate = () => {
       const newStoreId = Cookies.get("current_store_id") || null;
@@ -162,6 +165,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
       setActiveStoreId(newStoreId);
       setStoreType(newStoreType);
       setStoreRole(newStoreRole);
+      setStoreSlug(Cookies.get("store_slug") || newStoreId);
     };
 
 
@@ -601,6 +605,22 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
 
                       {/* Action Links */}
                       <div className="space-y-2">
+
+                        {isMerchant && storeSlug && (
+                          <Link
+                            href={`/${lang}/store/${storeSlug}`}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="flex items-center justify-between w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200 group border border-gray-200"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-blue-5 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                                <ExternalLink size={16} className="text-blue-4" />
+                              </div>
+                              <span className="font-medium">الذهاب للمتجر</span>
+                            </div>
+                            <ChevronLeft size={16} className="text-gray-400" />
+                          </Link>
+                        )}
 
                         <Link
                           href={`/`}
