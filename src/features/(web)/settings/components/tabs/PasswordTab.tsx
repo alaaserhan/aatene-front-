@@ -91,7 +91,7 @@ export default function PasswordTab() {
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                             >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                             </button>
                             {errors.password && <p className="text-red-500 text-xs px-4">{errors.password}</p>}
                         </div>
@@ -117,7 +117,7 @@ export default function PasswordTab() {
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                             >
-                                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                             </button>
                             {errors.password_confirmation && <p className="text-red-500 text-xs px-4">{errors.password_confirmation}</p>}
                         </div>

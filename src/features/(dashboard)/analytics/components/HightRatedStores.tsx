@@ -39,7 +39,7 @@ export function HightRatedStores() {
                         {stores.length > 0 ? (
                             stores.map((store, index) => (
                                 <Link
-                                    href={`/admin/stores/${store.id}`}
+                                    href={`/store/${store.slug}`}
                                     key={store.id}
                                     className="flex items-center justify-between group cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors -mx-2"
                                 >
