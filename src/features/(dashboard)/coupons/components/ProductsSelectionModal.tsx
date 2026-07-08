@@ -45,7 +45,8 @@ export function ProductsSelectionModal({
     });
 
     const { data, isLoading } = useGetProducts(params, { enabled: isOpen });
-    const products = data?.data || [];
+
+    const products = data?.data.filter(product => product.price) ?? [];
 
     const isValidImageSrc = (src: string | null | undefined) => {
         if (!src || src.trim() === "") return false;
