@@ -119,6 +119,7 @@ export default function HomePage({
 
       {fifthBannerData && <HomeSingleBanner banner={fifthBannerData} />}
 
+      <div className="my-4" />
       {/* <LazySection fallback={<ProductsCarouselSkeleton />}>
         <HomeProductsYouMayLike />
       </LazySection> */}

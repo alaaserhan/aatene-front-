@@ -21,7 +21,7 @@ export default function HomeSpecialServices({ services: initialServices }: HomeS
     <HomeServicesCarousel
       title="الخدمات الأكثر تقييمًا"
       services={services}
-      showViewAll={false}
+      showViewAll={true}
       className="py-12 bg-white"
     />
   );
