@@ -416,6 +416,7 @@ export function SectionsPage({ storeId: paramStoreId }: SectionsPageProps) {
                 onClose={() => setDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
                 title="هل أنت متأكد من حذف القسم؟"
+                description = "لا يمكن استرجاع القسم بعد حذفه   "
             />
         </div>
     );

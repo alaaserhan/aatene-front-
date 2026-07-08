@@ -1,18 +1,22 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { sessionQueryKey } from "@/src/auth";
 import { useConvertToMerchant } from "../../hooks";
 import { cn } from "@/src/lib/utils";
 
 export default function MerchantTab() {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const user = useAuthStore((state) => state.user);
     const { mutate: convertToMerchant, isPending: isUpdating } = useConvertToMerchant();
 
     const handleConvert = () => {
         convertToMerchant(undefined, {
             onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: sessionQueryKey });
                 router.replace("/ar/admin/stores/add");
             },
         });

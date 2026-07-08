@@ -7,7 +7,7 @@ import { type ReactNode } from "react";
 import { useSettingsStore } from "@/src/stores/settings-store";
 import { useLanguage } from "@/src/hooks/use-language";
 import { fixMediaUrl, upgradeHttpToHttps } from "@/src/lib/utils";
-import { useIsAuthenticated } from "@/src/auth";
+import { useIsAuthenticated, useUser } from "@/src/auth";
 import { useMounted } from "@/src/hooks/use-mounted";
 
 function AppBadgeLink({
@@ -78,6 +78,9 @@ const Footer = () => {
   const lang = useLanguage();
   const { settings } = useSettingsStore();
   const isAuthenticated = useIsAuthenticated();
+  const user = useUser();
+  const isMerchant = user?.user_type === "merchant";
+  const isAdmin = user?.user_type === "admin";
   const mounted = useMounted();
   const localePath = (path: string) => `/${lang}${path === "/" ? "" : path}`;
   const googlePlayUrl = process.env.NEXT_PUBLIC_GOOGLE_PLAY_URL || localePath("/coming-soon");
@@ -112,7 +115,9 @@ const Footer = () => {
           { label: "إنشاء حساب", href: localePath("/signup") },
         ] : []),
         { label: "إعدادات", href: localePath("/settings") },
-        { label: "كن تاجرا", href: localePath("/settings?tab=merchant") },
+        ...(!mounted || (!isMerchant && !isAdmin) ? [
+          { label: "كن تاجرا", href: localePath("/settings?tab=merchant") },
+        ] : []),
       ],
     },
     {
