@@ -194,23 +194,12 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
   const handleStep3Next = (data: Step3FormData) => {
     if (!formData) return;
     setFormData({ ...formData, step3: data });
-    setCurrentStep(5); // تم تخطي Step4 (الموظفين) - يمكن إعادته بتغيير هذا الرقم إلى 4
+    setCurrentStep(4);
   };
 
   const handleStep3Back = () => {
     setCurrentStep(2);
   };
-
-  /* ============================================================
-   * STEP 4: موظفين المتجر - معطّل مؤقتاً (لا تحذف هذا الكومنت)
-   * لإعادة تفعيله:
-   *   1. أزل الكومنت عن handleStep4Next و handleStep4Back
-   *   2. غيّر handleStep3Next: setCurrentStep(4)
-   *   3. غيّر handleStep5Back: setCurrentStep(4)
-   *   4. أزل الكومنت عن case 4 في renderStep()
-   *   5. أزل الكومنت عن { number: 3, label: "موظفين المتجر" } في steps
-   *   6. أزل الكومنت عن managers في payload و isMissingSteps
-   * ============================================================
 
   const handleStep4Next = (data: Step4FormData) => {
     if (!formData) return;
@@ -221,8 +210,6 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
   const handleStep4Back = () => {
     setCurrentStep(3);
   };
-
-  */
 
   const handleStep5Next = (data: Step5FormData) => {
     if (!formData) return;
@@ -235,7 +222,7 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
   };
 
   const handleStep5Back = () => {
-    setCurrentStep(3); // يرجع لـ Step3 مباشرة (تخطي Step4 المعطّل)
+    setCurrentStep(4);
   };
 
   const handleStep6Next = (data: Step6FormData) => {
@@ -256,7 +243,7 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
     const isMissingSteps =
       !updatedFormData.step2 ||
       !updatedFormData.step3 ||
-      /* !updatedFormData.step4 || // Step4 (موظفين) معطّل مؤقتاً */
+      !updatedFormData.step4 ||
       !updatedFormData.step5 ||
       (updatedFormData.type === "products" && !updatedFormData.step6);
 
@@ -289,7 +276,7 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
       linkedin: updatedFormData.step3!.linkedin || null,
       pinterest: updatedFormData.step3!.pinterest || null,
 
-      managers: [], /* updatedFormData.step4?.managers — Step4 (موظفين) معطّل مؤقتاً */
+      managers: updatedFormData.step4?.managers ?? [],
 
       open_status: updatedFormData.step5!.open_status,
       workingtimes: updatedFormData.step5!.workingtimes,
@@ -353,13 +340,13 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
   const steps = [
     { number: 1, label: "البيانات الأساسية", completed: false },
     { number: 2, label: "الاتصال والسوشيال ميديا", completed: false },
-    /* { number: 3, label: "موظفين المتجر", completed: false }, // Step4 معطّل مؤقتاً */
-    { number: 3, label: "أوقات العمل و العطلات", completed: false },
+    { number: 3, label: "موظفين المتجر", completed: false },
+    { number: 4, label: "أوقات العمل و العطلات", completed: false },
     ...(formData.type === "products"
-      ? [{ number: 4, label: "طريقة الشحن", completed: false }]
+      ? [{ number: 5, label: "طريقة الشحن", completed: false }]
       : []),
     {
-      number: formData.type === "products" ? 5 : 4,
+      number: formData.type === "products" ? 6 : 5,
       label: "الكلمات المفتاحية",
       completed: false,
     },
@@ -394,9 +381,6 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
           />
         );
 
-      /* ============================================================
-       * STEP 4 (الموظفين) - معطّل مؤقتاً - لا تحذف هذا الكومنت
-       * ============================================================
       case 4:
         if (!formData.step2) {
           setCurrentStep(2);
@@ -412,7 +396,6 @@ export function EditStorePage({ storeId }: EditStorePageProps) {
             barSteps={steps}
           />
         );
-      */
 
       case 5:
         if (!formData.step2) {
