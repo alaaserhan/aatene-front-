@@ -1,9 +1,4 @@
-// ⚠️ COINS_DISABLED: معطّل مؤقتاً - يعتمد على نظام العملات الذهبية (coins)
-// لإعادة تفعيله: أعد تفعيل coins/hooks.ts واحذف كتلة التعليق
-
-/* COINS_DISABLED_START
-
-import { LucideIcon, Wallet, ArrowUpRight, CheckCircle2, ArrowDownRight, ArrowDownLeft, HandCoins } from "lucide-react";
+import { LucideIcon, ArrowUpRight, ArrowDownLeft, HandCoins } from "lucide-react";
 import { useGetCoinsGeneral } from "../../coins/hooks";
 import { Skeleton } from "@/src/components/ui/skeleton";
 
@@ -51,12 +46,4 @@ export function FinancialStatsCards({ storeId }: { storeId?: number | string }) 
             <StatCard title="الرصيد المتبقي" value={stats.current_balance || 0} icon={HandCoins} variant="blue" isLoading={isLoading} />
         </div>
     );
-}
-
-COINS_DISABLED_END */
-
-// مكوّن فارغ مؤقت
-export function FinancialStatsCards({ storeId }: { storeId?: number | string }) {
-    void storeId;
-    return null;
 }

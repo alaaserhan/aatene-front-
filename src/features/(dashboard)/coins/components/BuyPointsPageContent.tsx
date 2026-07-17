@@ -1,10 +1,3 @@
-// ============================================================
-// ⚠️  مكوّن صفحة شراء العملات الذهبية (Coins) - معطّل مؤقتاً
-// لإعادة تفعيله: احذف /* COINS_DISABLED_START و COINS_DISABLED_END */
-// ============================================================
-
-/* COINS_DISABLED_START
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,8 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useGetCoinsPackages, usePurchaseCoinsPackage, useGetStoreBalance } from "../hooks";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
@@ -35,9 +26,10 @@ export function BuyPointsPageContent() {
 
     const packages = packagesData?.packages || [];
 
-    const activePackage = packages.find(p => p.id === selectedId) ||
-        (packages.length > 0 ? packages.find(p => p.coins_count === "100") : null) ||
-        packages[0] || null;
+    const activePackage = packages.find((pkg) => pkg.id === selectedId)
+        || (packages.length > 0 ? packages.find((pkg) => pkg.coins_count === "100") : null)
+        || packages[0]
+        || null;
 
     useEffect(() => {
         const status = searchParams.get("status");
@@ -55,7 +47,7 @@ export function BuyPointsPageContent() {
             return;
         }
 
-        const callbackUrl = window.location.href.split('?')[0];
+        const callbackUrl = window.location.href.split("?")[0];
 
         purchasePackage(
             { package_id: activePackage.id, callback_url: callbackUrl },
@@ -73,7 +65,7 @@ export function BuyPointsPageContent() {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 onError: (err: any) => {
                     toast.error(err?.response?.data?.message || err?.message || "حدث خطأ، حاول مرة أخرى");
-                }
+                },
             }
         );
     };
@@ -92,18 +84,16 @@ export function BuyPointsPageContent() {
 
     return (
         <div className="container mx-auto p-4 md:p-8 space-y-6" dir="rtl">
-
             <div className="my-2">
                 <Breadcrumb
                     items={[
                         { label: "الرئيسية", href: "/admin/home" },
-                        { label: "شراء عملات ذهبية" }
+                        { label: "شراء عملات ذهبية" },
                     ]}
                 />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-
                 <div className="lg:col-span-8 space-y-8 bg-white h-fit rounded-lg p-4">
                     <div className="space-y-4">
                         <h2 className="text-xl font-medium">اختر الباقة المناسبة لك</h2>
@@ -210,11 +200,4 @@ export function BuyPointsPageContent() {
             />
         </div>
     );
-}
-
-COINS_DISABLED_END */
-
-// مكوّن فارغ مؤقت
-export function BuyPointsPageContent() {
-    return null;
 }

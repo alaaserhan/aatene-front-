@@ -1,12 +1,6 @@
-// src/components/(merchant)/analytics/MerchantPointsCard.tsx
-// ⚠️ COINS_DISABLED: هذا المكوّن معطّل مؤقتاً لأن نظام العملات الذهبية (coins) معطّل
-// لإعادة تفعيله: أعد تفعيل coins/hooks.ts واحذف كتلة التعليق أدناه
-
-/* COINS_DISABLED_START
-
 "use client";
 
-import { Info, Coins, Loader2 } from "lucide-react";
+import { Coins, Loader2 } from "lucide-react";
 import { useGetStoreBalance } from "../../../coins/hooks";
 import Link from "next/link";
 
@@ -39,11 +33,4 @@ export function MerchantPointsCard() {
             </div>
         </div>
     );
-}
-
-COINS_DISABLED_END */
-
-// مكوّن فارغ مؤقت
-export function MerchantPointsCard() {
-    return null;
 }

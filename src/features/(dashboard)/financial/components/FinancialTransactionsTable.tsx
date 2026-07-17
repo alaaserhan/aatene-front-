@@ -1,7 +1,5 @@
 import { Loader2, ArrowDownLeft, Plus, CirclePlus, CircleMinus } from "lucide-react";
-// import { CoinTransaction } from "../../coins/api"; // COINS_DISABLED
-// نوع محلي مؤقت بديل عن CoinTransaction من coins/api
-type CoinTransaction = { id: number; type: string; description: string; coins_amount: string; created_at: string; };
+import { CoinTransaction } from "../../coins/api";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { cn } from "@/src/lib/utils";
 

@@ -1,10 +1,3 @@
-// ============================================================
-// ⚠️  نظام شراء العملات الذهبية (Coins) - معطّل مؤقتاً
-// لإعادة تفعيله: احذف /* COINS_DISABLED_START و COINS_DISABLED_END */
-// ============================================================
-
-/* COINS_DISABLED_START
-
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -45,11 +38,11 @@ export function usePurchaseCoinsPackage() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (body: api.PurchasePackageRequest) => api.purchaseCoinsPackage(body),
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["coins", "balance"] });
             queryClient.invalidateQueries({ queryKey: ["coins", "transactions"] });
         },
-        onError: (error) => {
+        onError: () => {
             toast.error("حدث خطأ أثناء عملية الشراء");
         },
     });
@@ -72,18 +65,6 @@ export function useGetCoinsGeneral(storeId?: number | string) {
         enabled: !!currentStoreId,
     });
 }
-
-COINS_DISABLED_END */
-
-// ============================================================
-// ✅ hooks لنظام العملات الشخصية للتاجر (My Coins)
-// ============================================================
-
-"use client";
-
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import * as api from "./api";
-import { toast } from "sonner";
 
 export function useGetMyBalance() {
     return useQuery({

@@ -9,7 +9,7 @@ import { FinancialStatsCards } from "./FinancialStatsCards";
 import { FinancialFilters } from "./FinancialFilters";
 import { FinancialTransactionsTable } from "./FinancialTransactionsTable";
 import { FinancialChart } from "./FinancialChart";
-// import { useGetCoinsTransactions } from "../../coins/hooks"; // COINS_DISABLED
+import { useGetCoinsTransactions } from "../../coins/hooks";
 
 export function FinancialRecordPage({ storeId }: { storeId?: number }) {
     const [currentPage, setCurrentPage] = useState(1);
@@ -18,19 +18,20 @@ export function FinancialRecordPage({ storeId }: { storeId?: number }) {
     const [transactionType, setTransactionType] = useState("purchase");
     const [searchQuery, setSearchQuery] = useState("");
 
-    // COINS_DISABLED: transactionsParams and useGetCoinsTransactions disabled
-    void useMemo(() => {
+    const transactionsParams = useMemo(() => {
         const params = new URLSearchParams();
         params.set("page", String(currentPage));
+        if (createdAtFrom) params.set("created_at_from", createdAtFrom);
+        if (createdAtTo) params.set("created_at_to", createdAtTo);
+        if (transactionType) params.set("type", transactionType);
+        if (searchQuery) params.set("search", searchQuery);
         return params;
-    }, [currentPage, storeId, createdAtFrom, createdAtTo, transactionType, searchQuery]);
+    }, [currentPage, createdAtFrom, createdAtTo, transactionType, searchQuery]);
 
-    // const { data: transactionsData, isLoading: isLoadingTransactions, isFetching } = useGetCoinsTransactions(transactionsParams, storeId);
-    const transactions: never[] = [];
-    const isLoadingTransactions = false;
-    const isFetching = false;
-    const totalRecords = 0;
-    const totalPages = 0;
+    const { data: transactionsData, isLoading: isLoadingTransactions, isFetching } = useGetCoinsTransactions(transactionsParams, storeId);
+    const transactions = transactionsData?.transactions || [];
+    const totalRecords = transactionsData?.recordsTotal || 0;
+    const totalPages = Math.ceil(totalRecords / 10) || 0;
 
     const breadcrumbItems = [
         { label: "الرئيسية", href: "/admin/home" },
@@ -45,13 +46,12 @@ export function FinancialRecordPage({ storeId }: { storeId?: number }) {
                     <h1 className="text-2xl font-bold">فواتير والسجل المالي</h1>
                 </div>
 
-                {/* زر شراء عملات - مخفي مؤقتاً لأن نظام coins معطّل */}
-                {/* <Link href={`/admin/coins/buy`}>
+                <Link href={`/admin/coins/buy`}>
                     <Button className="bg-blue-3 gap-2">
                         <Plus className="w-4 h-4" />
                         <span>شراء عملات</span>
                     </Button>
-                </Link> */}
+                </Link>
             </div>
 
             {/* Stats Cards */}
