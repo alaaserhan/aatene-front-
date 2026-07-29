@@ -182,8 +182,8 @@ export function MediaCenterModal({
       <DialogContent
         className={cn(
           "flex flex-col p-0 gap-0 overflow-hidden border-0 [&>button]:hidden z-[11000]",
-          "fixed inset-0 left-0 top-0 h-[100dvh] w-full max-w-none translate-x-0 translate-y-0 rounded-none",
-          "sm:inset-auto sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-h-[92dvh] sm:w-[95vw] sm:max-w-[95vw] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg",
+          "fixed inset-0 left-0 top-0 h-dvh w-full max-w-none translate-x-0 translate-y-0 rounded-none",
+          "sm:inset-auto sm:left-[50%] sm:top-[50%] sm:h-[92dvh] sm:w-[95vw] sm:max-w-[95vw] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg",
           "lg:max-w-[65vw]"
         )}
       >
@@ -195,7 +195,7 @@ export function MediaCenterModal({
           </DialogDescription>
         </VisuallyHidden>
 
-        <div className="flex flex-col h-full min-h-0 max-h-[100dvh] sm:max-h-[92dvh]">
+        <div className="flex flex-col h-full min-h-0">
         <div className="flex flex-col shrink-0 gap-2 sm:gap-4 border-b border-gray-200 bg-white">
           <div className="border-b border-gray-200 p-3 sm:p-4">
             <div className="flex items-center justify-between">
