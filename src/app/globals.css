@@ -326,6 +326,14 @@ html body[data-scroll-locked] {
     cursor: pointer;
   }
 
+  .heading-2 {
+    @apply text-base text-gray-6 font-normal;
+  }
+
+  .heading-card {
+    @apply bg-white rounded-lg border border-gray-200 px-4 py-4 lg:py-7 lg:px-9;
+  }
+
 }
 
 .font-baseline-fix {

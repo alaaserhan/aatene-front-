@@ -4,7 +4,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useParams, useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Plus, Search, HelpCircle, X } from "lucide-react";
+import { Plus, Search, HelpCircle, X, CircleQuestionMark } from "lucide-react";
 import {
     useGetServices,
     useDeleteService,
@@ -290,25 +290,27 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                     /* الوضع العادي: Avatar card كما هو */
                     <>
                         <header className="p-4 pb-0">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-4">
+                            <div className="heading-card flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
-                                    <h1 className="text-xl md:text-2xl font-bold text-brand-black-1">إدارة الخدمات</h1>
-                                    <p className="text-sm text-gray-2 mt-1">عرض وإدارة جميع الخدمات</p>
+                                    <h1 className="text-xl md:text-2xl font-bold text-black">إدارة الخدمات</h1>
+                                    <p className="heading-2">عرض وإدارة جميع الخدمات</p>
                                 </div>
-                                <div className="flex flex-row gap-2">
+                                <div className="flex flex-row gap-4 lg:gap-6">
+                                    {/* TODO: this should be a link not a nested button */}
                                     <Link href={`${dashboardBase}/serviceProviders/services/add/${storeId}`}>
-                                        <Button className="bg-blue-3 text-white px-6 gap-2">
-                                            <Plus className="w-5 h-5" />
-                                           أضف خدمة
+                                        <Button size="lg" className="bg-blue-3 text-white gap-2">
+                                            <Plus className="size-6" />
+                                            <span className="pt-1">أضف خدمة</span>
                                         </Button>
                                     </Link>
-                                    <button
+                                    <Button
+                                        size="lg"
                                         onClick={() => { setShowGuide(true); setGuideStep(1); }}
-                                        className="flex items-center gap-2 bg-[#C8D7E8] text-[#2D496A] border border-[#5B87B9] text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#b8cbdc] transition-colors"
+                                        className="gap-2 bg-[#C8D7E8] text-[#2D496A] border border-[#5B87B9]hover:bg-[#b8cbdc]"
                                     >
-                                        <HelpCircle className="w-4 h-4" />
+                                        <CircleQuestionMark className="size-5 stroke-1" />
                                         مساعدة
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         </header>
@@ -476,14 +478,9 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                     }}
                                     className="h-full border border-gray-200 rounded-lg bg-white"
                                     action={
-                                        <Button
-                                            type="button"
-                                            onClick={() => setIsSectionModalOpen(true)}
-                                            className="w-full gap-2 text-blue-3 border-blue-3 rounded-xs border"
-                                            style={{ backgroundColor: "var(--blue-5)" }}
-                                        >
-                                            اضافة أقسام جديدة
-                                            <Plus className="w-4 h-4" />
+                                        <Button type="button" onClick={() => setIsSectionModalOpen(true)} className="w-full gap-2 text-blue-3 border-blue-3 rounded-xs border bg-blue-5">
+                                            <Plus className="size-6" />
+                                            <span className="pt-1">إضافة قسم جديد</span>
                                         </Button>
                                     }
                                 />
@@ -491,7 +488,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                         )}
 
                         <div className={`col-span-12 ${!isLoadingSections && sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col`}>
-                            <div className="flex items-center gap-8 px-6 pt-4 border-b border-gray-100">
+                            <div className="flex items-center gap-2 px-6 pt-4 border-b border-gray-100">
                                 {statusTabs.map((tab) => (
                                     <button
                                         key={tab.key}
@@ -499,15 +496,14 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                             setActiveStatus(tab.key);
                                             setCurrentPage(1);
                                         }}
-                                        className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 ${activeStatus === tab.key
+                                        className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 px-6 ${activeStatus === tab.key
                                             ? tab.activeClass
                                             : "border-transparent text-gray-2 hover:text-gray-2"
                                             }`}
                                     >
                                         <span className="font-bold text-sm">{tab.label}</span>
                                         <span
-                                            className={`flex items-center justify-center min-w-[24px] h-6 px-1.5 pt-1 rounded text-xs font-bold text-white ${activeStatus === tab.key ? tab.badgeClass : "bg-gray-2"
-                                                }`}
+                                            className={`flex items-center justify-center min-w-6 h-6 px-1.5 pt-1 rounded text-xs font-bold text-white ${tab.badgeClass}`}
                                         >
                                             {getCountForStatus(tab.key)}
                                         </span>
