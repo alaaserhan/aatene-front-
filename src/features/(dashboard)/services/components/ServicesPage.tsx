@@ -289,7 +289,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                 !showGuide ? (
                     /* الوضع العادي: Avatar card كما هو */
                     <>
-                        <header className="p-4 pb-0">
+                        <header className="mt-6 pb-0">
                             <div className="heading-card flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
                                     <h1 className="text-xl md:text-2xl font-bold text-black">إدارة الخدمات</h1>
@@ -317,7 +317,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                     </>
                 ) : (
                     /* وضع الدليل: عنوان الدليل فقط */
-                    <header className="w-full bg-transparent p-6 pb-0">
+                    <header className="w-full bg-transparent mt-6 pb-0">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-2 md:gap-3">
                                 <img src="/guide-images/Frame.png" alt="" className="w-5 h-5 md:w-6 md:h-6" />
@@ -450,8 +450,8 @@ export function ServicesPage({ storeId }: { storeId: number }) {
 
             {/* ── Main (مخفي عند عرض الدليل للتاجر) ── */}
             {(userType !== "merchant" || !showGuide) && (
-                <main className="flex-1 p-4">
-                    <div className="mb-4">
+                <main className="flex-1">
+                    <div className="my-6">
                         <div className="relative bg-white rounded-lg border border-gray-200 max-w-full">
                             <Search className="w-5 h-5 text-gray-2 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                             <Input
@@ -468,7 +468,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
 
                     <div className="grid grid-cols-12 gap-6 items-start ">
                         {!isLoadingSections && sections.length > 0 && (
-                            <div className="col-span-12 lg:col-span-3 h-full flex flex-col">
+                            <div className="col-span-12 lg:col-span-3 flex flex-col">
                                 <SidebarFilterPanel
                                     options={sectionOptions}
                                     activeValue={selectedSectionId}
@@ -476,7 +476,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                         setSelectedSectionId(val);
                                         setCurrentPage(1);
                                     }}
-                                    className="h-full border border-gray-200 rounded-lg bg-white"
+                                    className="border border-gray-200 rounded-lg bg-white"
                                     action={
                                         <Button type="button" onClick={() => setIsSectionModalOpen(true)} className="w-full gap-2 text-blue-3 border-blue-3 rounded-xs border bg-blue-5">
                                             <Plus className="size-6" />
