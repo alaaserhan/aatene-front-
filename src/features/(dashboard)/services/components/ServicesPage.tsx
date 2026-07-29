@@ -272,7 +272,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 <Link href={`${dashboardBase}/serviceProviders/services/add/${storeId}`}>
                                     <Button className="bg-blue-3 text-white px-6 gap-2">
                                         <Plus className="w-5 h-5" />
-                                        انشئ خدمة جديدة
+                                       أضف خدمة
                                     </Button>
                                 </Link>
                                 <Link href={`${dashboardBase}/reports/${storeId}`}>
@@ -299,7 +299,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                     <Link href={`${dashboardBase}/serviceProviders/services/add/${storeId}`}>
                                         <Button className="bg-blue-3 text-white px-6 gap-2">
                                             <Plus className="w-5 h-5" />
-                                            انشئ خدمة جديدة
+                                           أضف خدمة
                                         </Button>
                                     </Link>
                                     <button
@@ -327,7 +327,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                                 <Link href={`${dashboardBase}/serviceProviders/services/add/${storeId}`}>
                                     <Button className="bg-blue-3 text-white px-6 gap-2">
                                         <Plus className="w-5 h-5" />
-                                        انشئ خدمة جديدة
+                                       أضف خدمة
                                     </Button>
                                 </Link>
                                 <button

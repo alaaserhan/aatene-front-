@@ -108,6 +108,9 @@
   --color-red-1: var(--red-1);
   --color-red-2: var(--red-2);
   --color-gold-1: var(--gold-1);
+  --color-gray-5: #555555;
+  --color-gray-6: #8E8E8E;
+  --color-gray-7: #1C1C1C;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -26,24 +26,24 @@ export function ServiceEmptyState({ type, storeId, onAddSection }: ServiceEmptyS
                 </div>
             </div>
 
-            <h3 className="text-xl font-medium mb-2">
-                {isNoSections ? "لا يوجد أقسام للخدمات" : "لا يوجد خدمات في هذا القسم"}
+            <h3 className="text-xl mb-2 text-gray-5 font-bold">
+                {isNoSections ? "لا توجد أقسام للخدمات" : "لا توجد خدمات في هذا القسم"}
             </h3>
 
-            <p className="text-sm text-gray-3 mb-8 max-w-sm mx-auto leading-relaxed">
+            <p className="text-sm text-gray-6 mb-8 max-w-sm mx-auto leading-relaxed">
                 {isNoSections
                     ? "يجب إضافة أقسام أولاً لتتمكن من تصنيف وإضافة الخدمات بداخلها."
                     : "يمكنك البدء بإضافة خدمات جديدة لهذا المتجر الآن."}
             </p>
 
             {isNoSections ? (
-                <Button onClick={onAddSection} className="bg-blue-3 text-white py-5 cursor-pointer rounded-xs">
+                <Button onClick={onAddSection} className="bg-blue-3 text-white py-5 cursor-pointer">
                     <Plus className="w-5 h-5" />
                     إضافة قسم جديد
                 </Button>
             ) : (
                 <Link href={`/admin/serviceProviders/services/add/${storeId}`}>
-                    <Button className="bg-blue-3 text-white py-5 cursor-pointer rounded-xs">
+                    <Button className="bg-blue-3 text-white py-5 cursor-pointer">
                         <Plus className="w-5 h-5" />
                         إضافة خدمة جديدة
                     </Button>
