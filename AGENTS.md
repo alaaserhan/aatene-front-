@@ -43,6 +43,7 @@ Order for safety: `lint` → `typecheck` → `build`. No test framework exists i
 ## Conventions
 
 - **Arabic-first**: Default locale is `ar`. All UI text is in Arabic. JSON translation files: `ar.json`, `en.json`, `he.json`.
+- **Code comments in English only**: Write every code comment (`//`, `/* */`, JSDoc, JSX `{/* */}`) in English. Only user-facing strings (labels, placeholders, toasts, copy) are Arabic — never comments.
 - **CSS**: Tailwind v4 with `@tailwindcss/postcss`. Dark mode via `class` strategy (`darkMode: "class"`).
 - **Font**: Custom local font via CSS variable `--font-ping-ar`.
 - **No test files** — no Jest, Vitest, Playwright, or Cypress config detected.

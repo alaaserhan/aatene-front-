@@ -1,28 +1,14 @@
 // src/features/(dashboard)/services/components/EditServicePage.tsx
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-
-import { AddServiceStep1 } from "./AddServiceStep1";
-import { AddServiceStep2 } from "./AddServiceStep2";
-import { AddServiceStep3 } from "./AddServiceStep3";
-import { AddServiceStep4 } from "./AddServiceStep4";
-/** خطوة المراجعة (5) معطّلة — لإعادتها راجع تعليقات AddServicePage */
-// import { AddServiceStep5 } from "./AddServiceStep5";
-import { useUpdateService, useGetService } from "../hooks";
-import { ServicePayload } from "../api";
+import { useGetService, useUpdateService } from "../hooks";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
-
-import {
-  CompleteServiceFormData,
-  Step1ServiceData,
-  Step2ServiceData,
-  Step3ServiceData,
-  Step4ServiceData
-} from "../types";
+import { ServiceForm } from "./form/ServiceForm";
+import { ServiceFormValues, formValuesToPayload, serviceToFormValues } from "./form/types";
 
 interface EditServicePageProps {
   serviceId: number | string;
@@ -31,198 +17,71 @@ interface EditServicePageProps {
 
 export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
   const router = useRouter();
-  const updateServiceMutation = useUpdateService();
+  const { locale, type } = useParams<{ locale?: string; type?: string }>();
+  const dashboardBase = locale && type ? `/${locale}/${type}` : "/admin";
+
   const { data: serviceResponse, isLoading, isError } = useGetService(serviceId, storeId);
+  const updateService = useUpdateService();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<CompleteServiceFormData | null>(null);
-
   const service = serviceResponse?.data;
+  const initialValues = useMemo(
+    () => (service ? serviceToFormValues(service) : undefined),
+    [service]
+  );
 
-  if (service && !formData) {
-    try {
-      let imagesPreviews: string[] = [];
-      if (Array.isArray(service.images_urls)) {
-        imagesPreviews = service.images_urls;
-      } else if (typeof service.images_urls === "string") {
-        imagesPreviews = [service.images_urls];
-      } else {
-        imagesPreviews = service.images || [];
-      }
+  const storeServicesUrl = `${dashboardBase}/serviceProviders/${storeId}`;
 
-      const initialFormData: CompleteServiceFormData = {
-        step1: {
-          title: service.title,
-          category_id: service.category_id,
-          category_name: (service.category as any)?.full_name || (service as any).category_name || service.category?.name || "",
-          section_id: service.section_id,
-          specialties: service.specialties || [],
-          images_previews: imagesPreviews,
-        },
-        step2: {
-          price: Number(service.price) || 0,
-          ask_for_price: Boolean(
-            service.ask_for_price === true ||
-            service.ask_for_price === 1 ||
-            service.ask_for_price === "1"
-          ),
-          execute_count: Number(service.execute_count) || 1,
-          execute_type: service.execute_type,
-          extras: service.extras || [],
-        },
-        step3: {
-          images: service.images || [],
-          images_previews: imagesPreviews,
-        },
-        step4: {
-          description: service.description,
-          questions: service.questions || [],
-          tags: (service.tags || []).map((t: { title?: string } | string) => typeof t === "string" ? t : t?.title).filter(Boolean) as string[],
-        },
-      };
+  const breadcrumbItems = useMemo(
+    () => [
+      { label: "الخدمات", href: storeServicesUrl },
+      { label: "تعديل الخدمة" },
+    ],
+    [storeServicesUrl]
+  );
 
-      setFormData(initialFormData);
-    } catch (error) {
-      console.error("Mapping Error", error);
-      // toast.error("حدث خطأ أثناء معالجة بيانات الخدمة");
-    }
-  }
-
-  const breadcrumbItems = useMemo(() => [
-    { label: "الخدمات", href: "/admin/serviceProviders" },
-    { label: "تعديل الخدمة" },
-  ], []);
-
-
-
-  const handleStep1Next = (data: Step1ServiceData) => {
-    if (!formData) return;
-    setFormData({ ...formData, step1: data });
-    setCurrentStep(2);
-  };
-  const handleStep1Cancel = () => router.push("/admin/serviceProviders");
-
-  const handleStep2Next = (data: Step2ServiceData) => {
-    if (!formData) return;
-    setFormData({ ...formData, step2: data });
-    setCurrentStep(3);
-  };
-  const handleStep2Back = () => setCurrentStep(1);
-
-  const handleStep3Next = (data: Step3ServiceData) => {
-    if (!formData) return;
-    setFormData({ ...formData, step3: data });
-    setCurrentStep(4);
-  };
-  const handleStep3Back = () => setCurrentStep(2);
-
-  const handleStep4Next = (data: Step4ServiceData) => {
-    if (!formData) return;
-    const next = { ...formData, step4: data };
-    setFormData(next);
-    submitServiceUpdate(next);
-  };
-  const handleStep4Back = () => setCurrentStep(3);
-
-  const submitServiceUpdate = (fd: CompleteServiceFormData) => {
-    if (updateServiceMutation.isPending) return;
-
-    const { step1, step2, step3, step4 } = fd;
-
-    if (!step1 || !step2 || !step3 || !step4) {
-      toast.error("يرجى إكمال جميع الخطوات السابقة");
-      return;
-    }
-
-    const payload: ServicePayload = {
-      title: step1.title,
-      category_id: step1.category_id,
-      section_id: step1.section_id,
-      store_id: Number(storeId),
-      tags: step4.tags,
-      specialties: step1.specialties,
-
-      price: step2.price,
-      ask_for_price: step2.ask_for_price,
-      execute_count: step2.execute_count,
-      execute_type: step2.execute_type,
-      extras: step2.extras,
-
-      images: step3.images,
-      description: step4.description,
-      questions: step4.questions,
-
-      status: serviceResponse?.data.status || "pending",
-    };
-
-    updateServiceMutation.mutate(
+  const handleSubmit = (values: ServiceFormValues) => {
+    if (updateService.isPending) return;
+    updateService.mutate(
       {
         id: serviceId,
-        payload,
-        storeId
+        payload: formValuesToPayload(values, storeId, service?.status || "pending"),
+        storeId,
       },
       {
-        onSuccess: () => {
-          setShowSuccessModal(true);
-        },
+        onSuccess: () => setShowSuccessModal(true),
+        onError: () => toast.error("تعذّر تعديل الخدمة، حاول مرة أخرى"),
       }
     );
   };
 
-  /*
-  const handleStep5Submit = () => {
-    if (!formData) return;
-    submitServiceUpdate(formData);
-  };
-  const handleStep5Back = () => setCurrentStep(4);
-  */
+  if (isLoading) {
+    return (
+      <div className="flex justify-center p-10">
+        <Loader2 className="w-6 h-6 animate-spin text-blue-4" />
+      </div>
+    );
+  }
 
-  if (isLoading && !formData) return <Loader2 className="animate-spin" />;
-
-  if ((isError || !serviceResponse?.data) && !formData) return <div>Error...</div>;
-
-  if (!formData) return null;
-
-  const steps = [
-    { number: 1, label: "المعلومات الاساسية", completed: currentStep > 1 },
-    { number: 2, label: "سعر الخدمة", completed: currentStep > 2 },
-    { number: 3, label: "صور الخدمة", completed: currentStep > 3 },
-    { number: 4, label: "وصف الخدمة", completed: false },
-    // { number: 5, label: "مراجعة", completed: false },
-  ];
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return <AddServiceStep1 initialData={{
-          ...formData.step1!,
-          price: formData.step2?.price ?? formData.step1?.price ?? 0,
-          images_previews: formData.step3?.images_previews ?? formData.step1?.images_previews ?? []
-        }} onNext={handleStep1Next} onCancel={handleStep1Cancel} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} showSaveDraft={false} storeId={storeId} />;
-      case 2:
-        return <AddServiceStep2 previousData={{
-          ...formData.step1!,
-          images_previews: formData.step3?.images_previews ?? formData.step1?.images_previews ?? []
-        }} initialData={formData.step2!} onNext={handleStep2Next} onBack={handleStep2Back} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} />;
-      case 3:
-        return <AddServiceStep3 previousDataStep1={formData.step1!} previousDataStep2={formData.step2!} initialData={formData.step3!} onNext={handleStep3Next} onBack={handleStep3Back} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} />;
-      case 4:
-        return <AddServiceStep4 previousDataStep1={formData.step1!} previousDataStep2={formData.step2!} previousDataStep3={formData.step3!} initialData={formData.step4!} onSave={handleStep4Next} onBack={handleStep4Back} isSubmitting={updateServiceMutation.isPending} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} isEditMode />;
-      /*
-      case 5:
-        return <AddServiceStep5 previousDataStep1={formData.step1!} previousDataStep2={formData.step2!} previousDataStep3={formData.step3!} onSave={handleStep5Submit} onBack={handleStep5Back} isSubmitting={updateServiceMutation.isPending} barSteps={steps} breadcrumbItems={breadcrumbItems} onStepClick={setCurrentStep} />;
-      */
-      default: return null;
-    }
-  };
+  if (isError || !initialValues) {
+    return <div className="p-8 text-center text-gray-2">تعذّر تحميل بيانات الخدمة</div>;
+  }
 
   return (
     <>
-      {renderStep()}
+      <ServiceForm
+        key={String(serviceId)}
+        storeId={storeId}
+        initialValues={initialValues}
+        breadcrumbItems={breadcrumbItems}
+        submitLabel="حفظ التعديلات"
+        isSubmitting={updateService.isPending}
+        onSubmit={handleSubmit}
+        onCancel={() => router.push(storeServicesUrl)}
+      />
       <SuccessModal
         isOpen={showSuccessModal}
-        onClose={() => router.push(`/admin/serviceProviders/${storeId}`)}
+        onClose={() => router.push(storeServicesUrl)}
         title="تم تعديل الخدمة بنجاح"
         message="تم تعديل الخدمة بنجاح، وهي الآن قيد المراجعة من قبل الفريق المختص. سنوافيكم بالرد قريباً."
         buttonText="قائمة الخدمات"
