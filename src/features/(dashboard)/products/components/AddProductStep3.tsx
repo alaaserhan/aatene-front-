@@ -630,7 +630,7 @@ export function AddProductStep3({
                                                 />
                                             </div>
                                             <h3 className="text-lg font-bold mb-2">
-                                                لم يتم اضافة اي سمات بعد!
+                                                لم يتم إضافة اي سمات بعد!
                                             </h3>
                                         </div>
                                     )}

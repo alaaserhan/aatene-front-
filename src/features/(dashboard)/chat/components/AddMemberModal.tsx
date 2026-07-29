@@ -69,7 +69,7 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
             {
                 onSuccess: (data) => {
                     if (data.status) {
-                        toast.success("تم اضافة العضو بنجاح");
+                        toast.success("تم إضافة العضو بنجاح");
                         setSelectedParticipant(null);
                         onClose();
                     } else {
@@ -94,7 +94,7 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
             <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col p-0 overflow-hidden " dir="rtl">
                 <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-5/50">
                     <DialogTitle className="text-lg font-semibold ">
-                        اضافة عضو جديد
+                        إضافة عضو جديد
                     </DialogTitle>
                 </div>
 
@@ -181,7 +181,7 @@ export function AddMemberModal({ isOpen, onClose, conversationId, ignoreCookie }
                         disabled={isAdding || !selectedParticipant}
                         className="px-6 py-2 rounded-md bg-blue-3 text-white font-medium hover:bg-blue-4 transition-colors h-auto"
                     >
-                        {isAdding ? "جاري الاضافة..." : "اضافة"}
+                        {isAdding ? "جاري الإضافة..." : "إضافة"}
                     </Button>
                 </div>
             </DialogContent>

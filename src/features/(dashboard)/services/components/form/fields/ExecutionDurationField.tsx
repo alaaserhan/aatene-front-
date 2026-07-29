@@ -32,7 +32,7 @@ export function ExecutionDurationField({
             min={1}
             value={count}
             onChange={(e) => onCountChange(e.target.value)}
-            className="h-12 w-full min-w-0 rounded-lg border border-gray-200 px-4 text-center text-sm transition-all focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="h-12 w-full min-w-0 rounded-lg border border-gray-200 px-4 text-sm transition-all focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100"
             placeholder="0"
           />
         </div>

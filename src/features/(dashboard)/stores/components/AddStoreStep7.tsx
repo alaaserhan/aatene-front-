@@ -167,7 +167,7 @@ export function AddStoreStep7({
                     disabled={!inputValue.trim()}
                     className="px-6 py-2.5 bg-blue-4 text-white rounded-sm text-sm font-medium hover:bg-[#2c425e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    اضافة
+                    إضافة
                   </button>
                 </div>
 

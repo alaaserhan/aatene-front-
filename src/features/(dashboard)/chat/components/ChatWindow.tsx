@@ -408,7 +408,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
                                 <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
                                     <UserPlus className="w-4 h-4 text-gray-600" />
                                 </div>
-                                <span className="font-medium text-gray-700">اضافة عضو جديد</span>
+                                <span className="font-medium text-gray-700">إضافة عضو جديد</span>
                             </DropdownMenuItem>
 
                             {(conversation.can_chat !== false || isMeBlocked) && conversation.type !== "group" && (

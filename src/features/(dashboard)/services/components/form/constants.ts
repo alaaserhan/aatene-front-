@@ -16,3 +16,4 @@ export const MAX_SPECIALTIES = 10;
 export const MAX_KEYWORDS = 10;
 export const MAX_QUESTIONS = 5;
 export const MAX_IMAGES = 10;
+export const TITLE_MAX_LENGTH = 140;

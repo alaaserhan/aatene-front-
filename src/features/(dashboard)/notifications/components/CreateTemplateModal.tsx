@@ -117,7 +117,7 @@ export function CreateTemplateModal({
             <DialogContent className="max-w-6xl p-0 overflow-hidden flex flex-col max-h-[92vh] text-right" dir="rtl">
                 <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-5">
                     <DialogTitle className="text-lg font-medium">
-                        {initialData ? "تعديل قالب ايميل" : "اضافة قالب ايميل"}
+                        {initialData ? "تعديل قالب ايميل" : "إضافة قالب ايميل"}
                     </DialogTitle>
                 </div>
 

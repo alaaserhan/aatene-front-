@@ -463,7 +463,7 @@ function DiscountModal({
                 <div className="p-4 pb-2 shrink-0">
                     <DialogHeader>
                         <DialogTitle className="text-base font-medium  border-b border-gray-100 pb-4 ">
-                            اضافة خصم علي الكوليكشن
+                            إضافة خصم علي الكوليكشن
                         </DialogTitle>
                     </DialogHeader>
                 </div>

@@ -110,7 +110,7 @@ export default function StoreStoriesSection({
                                 </div>
                                 <div className="flex flex-col text-right">
                                     <span className="font-medium text-blue-4 text-sm">نص</span>
-                                    <span className="text-xs text-gray-2 mt-0.5">قم باضافة نص الي القصة</span>
+                                    <span className="text-xs text-gray-2 mt-0.5">قم بإضافة نص الي القصة</span>
                                 </div>
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -122,7 +122,7 @@ export default function StoreStoriesSection({
                                 </div>
                                 <div className="flex flex-col text-right">
                                     <span className="font-medium text-blue-4 text-sm">صورة او فيديو</span>
-                                    <span className="text-xs text-gray-2 mt-0.5">قم باضافة صورة او فيديو الي القصة</span>
+                                    <span className="text-xs text-gray-2 mt-0.5">قم بإضافة صورة او فيديو الي القصة</span>
                                 </div>
                             </DropdownMenuItem>
                         </DropdownMenuContent>

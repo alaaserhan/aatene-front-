@@ -93,7 +93,7 @@ export function ReportsPage({ storeId }: ReportsPageProps) {
                     <Link href="/admin/users/add">
                         <Button className="bg-blue-3 text-white px-6 gap-2 ">
                             <Plus className="w-5 h-5" />
-                            اضافة مقدم خدمة جديد
+                            إضافة مقدم خدمة جديد
                         </Button>
                     </Link>
                 )}

@@ -201,7 +201,7 @@ export function BuyPointsPageContent() {
                 isOpen={isSuccessModalOpen}
                 onClose={() => setIsSuccessModalOpen(false)}
                 title="تمت العملية بنجاح"
-                message={`تمت اضافة ${coinsCount} عملة ذهبية إلى حسابك`}
+                message={`تمت إضافة ${coinsCount} عملة ذهبية إلى حسابك`}
                 buttonText="الذهاب الى الفواتير"
                 onButtonClick={() => {
                     setIsSuccessModalOpen(false);

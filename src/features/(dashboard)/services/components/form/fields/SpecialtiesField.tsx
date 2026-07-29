@@ -47,7 +47,7 @@ export function SpecialtiesField({ value, onChange }: SpecialtiesFieldProps) {
         tags={value}
         onAdd={handleAdd}
         onRemove={(specialty) => onChange(value.filter((s) => s !== specialty))}
-        placeholder="اضف التخصص ثم اضغط علي اضافة"
+        placeholder="اضف التخصص ثم اضغط علي إضافة"
       />
     </div>
   );

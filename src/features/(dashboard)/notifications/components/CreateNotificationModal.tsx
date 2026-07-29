@@ -220,8 +220,8 @@ function InfiniteMultiSelect({
 // --- Main Modal Component ---
 
 const DEFAULT_NOTIFICATION_CONTENT = `مرحبًا عميلنا العزيز {client} 🌟،
-لديك خصم بقيمة {percent}% بانتظارك! 🛍️  
-ويوجد {Cart_number} منتج في سلتك لم تكمل الطلب عليه بعد.   سارع بإتمام الطلب قبل انتهاء العرض!  
+لديك خصم بقيمة {percent}% بانتظارك! 🛍️
+ويوجد {Cart_number} منتج في سلتك لم تكمل الطلب عليه بعد.   سارع بإتمام الطلب قبل انتهاء العرض!
 📦 اطلب الآن عبر: {link}`;
 
 export function CreateNotificationModal({
@@ -814,7 +814,7 @@ export function CreateNotificationModal({
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="max-w-xl p-0 overflow-hidden flex flex-col max-h-[90vh] text-right" dir="rtl">
                 <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-blue-5">
-                    <DialogTitle className="text-lg font-semibold text-gray-900">{initialData ? "تعديل اشعار" : "اضافة اشعار"}</DialogTitle>
+                    <DialogTitle className="text-lg font-semibold text-gray-900">{initialData ? "تعديل اشعار" : "إضافة اشعار"}</DialogTitle>
                 </div>
 
                 <div className="p-6 py-0 overflow-y-auto flex-1">

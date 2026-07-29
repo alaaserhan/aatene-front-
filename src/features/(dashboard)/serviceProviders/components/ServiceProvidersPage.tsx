@@ -329,7 +329,7 @@ export function ServiceProvidersPage() {
                         <Link href="/admin/users/add">
                             <button className="flex items-center gap-2 bg-blue-3 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-4 transition-colors">
                                 <Plus className="w-4 h-4" />
-                                اضافة مقدم خدمة جديد
+                                إضافة مقدم خدمة جديد
                             </button>
                         </Link>
                     )}

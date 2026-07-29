@@ -272,7 +272,7 @@ export function AddStoreStep4({
                       : "bg-white text-gray-2 hover:bg-gray-50"
                   )}
                 >
-                  {editingIndex >= 0 ? "تعديل بيانات الموظف" : "اضافة الموظفين"}
+                  {editingIndex >= 0 ? "تعديل بيانات الموظف" : "إضافة الموظفين"}
                 </button>
               </div>
 

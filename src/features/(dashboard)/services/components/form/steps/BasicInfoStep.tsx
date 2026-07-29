@@ -8,12 +8,13 @@ import { Label } from "@/src/components/ui/label";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { ImageGallerySelector } from "@/src/components/ui/ImageGallerySelector";
 import { RichTextEditor } from "@/src/components/ui/RichTextEditor";
+import { CharCounter } from "@/src/components/ui/CharCounter";
 import { cn } from "@/src/lib/utils";
 import { CategoryPickerModal } from "@/src/features/(dashboard)/products/components/CategoryPickerModal";
 import { SectionModal, SectionFormData } from "@/src/features/(dashboard)/sections/components/SectionModal";
 import { useGetSections, useCreateSection } from "@/src/features/(dashboard)/sections/hooks";
 import { PriceVisibilityField } from "../fields/PriceVisibilityField";
-import { MAX_IMAGES } from "../constants";
+import { MAX_IMAGES, TITLE_MAX_LENGTH } from "../constants";
 import { ServiceFormErrors, ServiceFormValues } from "../types";
 
 interface BasicInfoStepProps {
@@ -62,7 +63,7 @@ export function BasicInfoStep({ values, errors, setField, storeId }: BasicInfoSt
   };
 
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+    <div className="bg-white rounded-xl p-6 pb-10 border border-gray-200 shadow-sm">
       <h2 className="text-xl font-semibold mb-8">المعلومات الأساسية</h2>
 
       <div className="space-y-6">
@@ -76,11 +77,14 @@ export function BasicInfoStep({ values, errors, setField, storeId }: BasicInfoSt
             placeholder="اكتب اسم الخدمة"
             required
             error={errors.title}
-            maxLength={140}
+            maxLength={TITLE_MAX_LENGTH}
           />
-          <p className="text-xs text-gray-6">
-            قم بتضمين الكلمات الرئيسية التي يستخدمها المشترون للبحث عن هذا العنصر.
-          </p>
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-xs text-gray-6">
+              قم بتضمين الكلمات الرئيسية التي يستخدمها المشترون للبحث عن هذا العنصر.
+            </p>
+            <CharCounter value={values.title} maxLength={TITLE_MAX_LENGTH} />
+          </div>
         </div>
 
         {/* 2. Service image */}
@@ -115,16 +119,16 @@ export function BasicInfoStep({ values, errors, setField, storeId }: BasicInfoSt
             type="button"
             onClick={() => setIsCategoryModalOpen(true)}
             className={cn(
-              "w-full h-12 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none",
+              "w-full h-10 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none",
               errors.category_id
-                ? "border-red-400 bg-red-50"
+                ? "border-red-500"
                 : "border-gray-200 hover:border-gray-300 bg-white"
             )}
           >
             <span className={cn("truncate text-right", values.category_name ? "text-gray-900" : "text-gray-400")}>
               {values.category_name || "اختر الفئة"}
             </span>
-            <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0 ms-2" />
+            <ChevronDown className="w-4 h-4 text-gray-400 shrink-0 ms-2" />
           </button>
           {errors.category_id && <p className="text-xs text-red-500 mt-1">{errors.category_id}</p>}
         </div>

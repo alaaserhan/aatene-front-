@@ -364,7 +364,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
             <div className="relative border border-gray-200 rounded-xl bg-white overflow-hidden focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all">
               <textarea
                 className="w-full h-32 p-4 resize-none outline-none text-sm placeholder:text-gray-400"
-                placeholder="اضافة رد ....."
+                placeholder="إضافة رد ....."
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
               ></textarea>
@@ -406,7 +406,7 @@ export function ReportDetailsPage({ reportId }: ReportDetailsPageProps) {
                   disabled={isSendingReply || !replyText.trim()}
                   className="bg-[#3A5779] hover:bg-[#2c4460] text-white px-6 h-9"
                 >
-                  {isSendingReply ? <Loader2 className="w-4 h-4 animate-spin" /> : "اضافة"}
+                  {isSendingReply ? <Loader2 className="w-4 h-4 animate-spin" /> : "إضافة"}
                 </Button>
               </div>
             </div>

@@ -243,7 +243,7 @@ export function AddProductStep2({
         return;
       }
     } else {
-    
+
       if (aiKeywords.length === 0 && formData.tags.length <= 3) {
         toast.error("يجب الإبقاء على 3 كلمات مفتاحية على الأقل");
         return;
@@ -388,7 +388,7 @@ export function AddProductStep2({
                       disabled={!tagInput.trim()}
                       className="px-6 py-2.5 bg-blue-4 text-white rounded-sm text-sm font-medium hover:bg-[#2c425e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      اضافة
+                      إضافة
                     </button>
                   </div>
 

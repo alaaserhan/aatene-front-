@@ -91,7 +91,7 @@ export function KeywordsField({ value, onChange, title, description }: KeywordsF
         tags={value}
         onAdd={handleAdd}
         onRemove={(keyword) => onChange(value.filter((k) => k !== keyword))}
-        placeholder="اضف الكلمة المفتاحية ثم اضغط علي اضافة"
+        placeholder="اضف الكلمة المفتاحية ثم اضغط علي إضافة"
       />
 
       <Button

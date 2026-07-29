@@ -538,7 +538,7 @@ export function UnansweredQuestionsPage() {
                             <p className="font-semibold text-[17px] leading-relaxed text-[#1F2937]">{questionToAnswer?.question}</p>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-sm font-semibold text-[#374151]">قاعدة المعرفة التي سيتم اضافة السؤال لها</label>
+                            <label className="text-sm font-semibold text-[#374151]">قاعدة المعرفة التي سيتم إضافة السؤال لها</label>
                             <div className="relative" ref={answerPlatformRef}>
                                 <button
                                     type="button"

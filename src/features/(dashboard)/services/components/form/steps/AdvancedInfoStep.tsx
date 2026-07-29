@@ -14,11 +14,11 @@ interface AdvancedInfoStepProps {
   setField: <K extends keyof ServiceFormValues>(key: K, value: ServiceFormValues[K]) => void;
 }
 
-const Divider = () => <div className="h-px w-full bg-gray-100 my-8" />;
+const Divider = () => <div className="h-px my-8" />;
 
 export function AdvancedInfoStep({ values, setField }: AdvancedInfoStepProps) {
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+    <div className="bg-white rounded-xl p-6 pb-10 border border-gray-200 shadow-sm">
       <div className="mb-8">
         <div className="flex items-center gap-2">
           <h2 className="text-xl font-semibold">المعلومات المتقدمة</h2>

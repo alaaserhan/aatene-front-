@@ -62,7 +62,7 @@ export function KnowledgeBasePage() {
             <div className="flex items-center justify-between px-6 py-5">
               <div className="text-right flex-1">
                 <h1 className="text-xl lg:text-2xl font-bold mb-1">
-                  {platform === "mobile" ? "اضافة قاعدة المعرفة للتطبيق" : "اضافة قاعدة المعرفة للمنصة"}
+                  {platform === "mobile" ? "إضافة قاعدة المعرفة للتطبيق" : "إضافة قاعدة المعرفة للمنصة"}
                 </h1>
                 <p className="text-gray-500 text-xs lg:text-sm">
                   زود قاعدة المعرفة بالملفات التي يحتوي على البيانات

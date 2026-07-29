@@ -19,8 +19,8 @@ export function TagInput({
   tags,
   onAdd,
   onRemove,
-  placeholder = "اضف عنصراً ثم اضغط اضافة",
-  addLabel = "اضافة",
+  placeholder = "اضف عنصراً ثم اضغط إضافة",
+  addLabel = "إضافة",
   disabled = false,
 }: TagInputProps) {
   const [input, setInput] = useState("");
