@@ -67,7 +67,7 @@ export function ServiceFormTabs({ activeStep, onStepChange }: ServiceFormTabsPro
                   {tab.title}
                 </p>
                 {tab.optional && (
-                  <span className="shrink-0 rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                  <span className="shrink-0 rounded-full border border-gray-200 bg-blue-6 text-blue-3 px-2 py-0.5 text-[10px] font-medium mb-0.5 pb-0.25">
                     اختياري
                   </span>
                 )}

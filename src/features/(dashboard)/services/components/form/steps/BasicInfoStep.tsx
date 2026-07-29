@@ -78,7 +78,7 @@ export function BasicInfoStep({ values, errors, setField, storeId }: BasicInfoSt
             error={errors.title}
             maxLength={140}
           />
-          <p className="text-xs text-gray-2">
+          <p className="text-xs text-gray-6">
             قم بتضمين الكلمات الرئيسية التي يستخدمها المشترون للبحث عن هذا العنصر.
           </p>
         </div>
@@ -100,7 +100,7 @@ export function BasicInfoStep({ values, errors, setField, storeId }: BasicInfoSt
             mainImageLabel="الصورة الاساسية"
             showDragHint
             mainImageAllowedMediaTypes={["image"]}
-            allowedMediaTypes={["image", "gallery"]}
+            allowedMediaTypes={["image", "gallery", "video"]}
             uploadPrimaryText="أضف أو اسحب صورة أو فيديو"
             uploadSecondaryText="الموضع الأول: تبويب الصور — الفيديو: تبويب المعرض"
           />
