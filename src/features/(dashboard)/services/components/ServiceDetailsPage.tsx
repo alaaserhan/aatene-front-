@@ -240,7 +240,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
         <div className="flex min-h-screen flex-col bg-[#F7F8FA] pb-10">
             {/* Header Area */}
             <div className="space-y-4">
-                <Breadcrumb items={breadcrumbItems} withContainer />
+                <Breadcrumb items={breadcrumbItems} withContainer className="mb-0"/>
 
                 {isOwner && (currentStatus === "pending" || currentStatus === "rejected") && (
                     <div className="">
@@ -289,7 +289,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     dismissAlert();
                                 }
                             }}
-                            className={cn(currentStatus === "pending" || currentStatus === "rejected" ? "mt-4" : "")}
+                            className={"mt-6"}
                         />
                     </div>
                 )}
@@ -331,7 +331,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                     {/* Main Content Area */}
                     <div className="col-span-12 lg:col-span-8 flex flex-col gap-6 order-2 lg:order-1">
-                        <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+                        <div className="bg-white rounded-2xl p-4 lg:p-7 border border-[#CCCED7] shadow-sm">
                             {/* Title & Actions */}
                             <div className="flex justify-between items-center mb-8">
                                 <h1 className="text-2xl font-bold  leading-tight max-w-[70%]">
@@ -404,8 +404,8 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
 
                                 <div className="mt-10 mb-4 px-2">
-                                    <h3 className="text-lg font-bold mb-1 text-blue-7">الأسئلة الشائعة (اختياري)</h3>
-                                    <p className="text-gray-400 text-sm">شاهد إجابات الأسئلة الشائعة</p>
+                                    <h3 className="text-lg font-bold mb-1 text-blue-7">الأسئلة الشائعة</h3>
+                                    <p className={cn("text-gray-400 text-sm", { hidden: service.questions?.length === 0 })}>شاهد إجابات الأسئلة الشائعة</p>
                                 </div>
 
                                 <div className="divide-y divide-gray-100 px-2">
@@ -436,11 +436,11 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
 
                     {/* Sidebar Area */}
                     <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 order-1 lg:order-2 lg:sticky lg:top-22">
-                        <div className="bg-white rounded-lg border border-[#DDE5EC] h-fit overflow-hidden shadow-sm">
+                        <div className="bg-white p-4 lg:p-7 rounded-lg border border-[#CCCED7] h-fit overflow-hidden shadow-sm">
 
                             {/* Activate Toggle Row — يظهر فقط للتاجر وفقط إذا كان الخدمه مقبولاً */}
                             {isOwner && currentStatus === "approved" && (
-                                <div className="flex items-center justify-between px-4 py-3 rounded-md mx-4 mt-4 bg-[#DCE8F2]">
+                                <div className="flex items-center justify-between px-4 py-3 rounded-md bg-[#DCE8F2]">
                                     <span className="font-bold text-xl text-blue-7">تفعيل الخدمة</span>
                                     <Switch
                                         checked={isShown}
@@ -461,7 +461,7 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 </div>
                             )}
 
-                            <div className="p-4 pt-2" dir="rtl">
+                            <div className="mt-2" dir="rtl">
 
                                 {/* Service Metadata */}
                                 <div className="py-3 border-b border-[#CCCED7] text-right">
@@ -487,9 +487,6 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                     <div className="flex flex-wrap justify-start gap-1.5">
                                         {store?.serviceCities && store.serviceCities.length > 0 ? (
                                             store.serviceCities.map((city) => (
-                                                // <span key={city.id} className="px-3 py-1 bg-[#EEF4FA] text-[#3A5779] text-[10px] rounded-full font-medium border border-[#C8D6E4]">
-                                                //     {city.name}
-                                                // </span>
                                                 <Badge key={city.id} variant="secondary-outline">
                                                     {city.name}
                                                 </Badge>
@@ -557,17 +554,18 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                 )}
 
                                 {/* Contact Buttons */}
-                                <div className="flex flex-col gap-2.5 mt-4">
+                                <div className="flex flex-col gap-4 mt-4">
                                     {store?.phone && (
-                                        <Button className="w-full bg-blue-7 hover:bg-[#152a3b] text-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm">
-                                            <Phone className="w-4 h-4 text-white" />
-                                            <span dir="ltr">{store?.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** *** ***") || "+972 *** *** ***"}</span>
+                                        <Button className="w-full bg-blue-3 hover:bg-[#152a3b] text-white font-bold h-13 rounded-md flex items-center justify-center gap-2 text-base shadow-sm">
+                                            <span className="pt-1" dir="ltr">{store?.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** *** ***") || "+972 *** *** ***"}</span>
+                                            <Phone className="size-5 text-white" />
                                         </Button>
                                     )}
                                     <Link href={`${dashboardBase}/chat?type=store&id=${store?.id}`}>
-                                        <Button variant="outline" className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm">
+                                        {/* TODO: no need for the nested button */}
+                                        <Button variant="outline" className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-13 rounded-md flex items-center justify-center gap-2 text-base shadow-sm">
                                             <span>دردشة</span>
-                                            <Send className="w-4 h-4" />
+                                            <Send className="size-5" />
                                         </Button>
                                     </Link>
                                 </div>
