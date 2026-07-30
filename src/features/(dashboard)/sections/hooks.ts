@@ -64,7 +64,7 @@ export const useCreateSection = () => {
       storeId?: string | number;
     }) => api.createSection(variables.payload, variables.storeId),
     onSuccess: (data, variables) => {
-      toast.success(data.message || "تم إنشاء القسم بنجاح");
+      toast.success("تم إضافة القسم بنجاح");
       qc.invalidateQueries({ queryKey: ["sections", "list", String(variables.storeId)] });
     },
     onError: () => {
