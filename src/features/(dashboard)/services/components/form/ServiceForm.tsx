@@ -74,7 +74,7 @@ export function ServiceForm({
   return (
     <div className="flex flex-col min-h-[calc(100vh-80px)]">
       <div className="container mx-auto flex-1 px-4 py-4">
-        <Breadcrumb items={breadcrumbItems} className="mb-4" />
+        <Breadcrumb items={breadcrumbItems} withContainer />
 
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-8 space-y-6">

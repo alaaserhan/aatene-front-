@@ -31,6 +31,7 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
   );
 
   const storeServicesUrl = `${dashboardBase}/serviceProviders/${storeId}`;
+  const serviceDetailsUrl = `${dashboardBase}/serviceProviders/services/details/${serviceId}/${storeId}`;
 
   const breadcrumbItems = useMemo(
     () => [
@@ -77,14 +78,14 @@ export function EditServicePage({ serviceId, storeId }: EditServicePageProps) {
         submitLabel="حفظ التعديلات"
         isSubmitting={updateService.isPending}
         onSubmit={handleSubmit}
-        onCancel={() => router.push(storeServicesUrl)}
+        onCancel={() => router.push(serviceDetailsUrl)}
       />
       <SuccessModal
         isOpen={showSuccessModal}
-        onClose={() => router.push(storeServicesUrl)}
+        onClose={() => router.push(serviceDetailsUrl)}
         title="تم تعديل الخدمة بنجاح"
         message="تم تعديل الخدمة بنجاح، وهي الآن قيد المراجعة من قبل الفريق المختص. سنوافيكم بالرد قريباً."
-        buttonText="قائمة الخدمات"
+        buttonText="الذهاب إلى الخدمة"
       />
     </>
   );
