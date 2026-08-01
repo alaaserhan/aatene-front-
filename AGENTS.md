@@ -1,5 +1,7 @@
 # Aatene (أعطيني) — Next.js frontend
 
+Never write comments in Arabic. All code comments must be in English. Only user-facing strings (labels, placeholders, toasts, copy) are Arabic — never comments.
+
 ## Commands
 
 | Command | Action |

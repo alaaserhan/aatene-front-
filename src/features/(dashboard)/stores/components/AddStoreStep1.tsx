@@ -4,14 +4,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import { cn } from "@/src/lib/utils";
+import { RadioCard, RadioCardGroup } from "@/src/components/ui/RadioCard";
 import { StoreType } from "../api";
+import Image from "next/image";
 
 
 export function AddStoreStep1() {
     const router = useRouter();
-    const [selectedType, setSelectedType] = useState<StoreType>("products");
+    const [selectedType, setSelectedType] = useState<StoreType>("services");
 
     const handleNext = () => {
         router.push(`/admin/stores/add/${selectedType}`);
@@ -46,101 +48,45 @@ export function AddStoreStep1() {
                     </div>
 
                     {/* Store Type Selection Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        {/* Products Card */}
-                        <div
-                            onClick={() => setSelectedType("products")}
-                            className={cn(
-                                "relative p-8 rounded-2xl border-2 cursor-pointer",
-                                "flex flex-col items-center justify-center min-h-[260px]",
-                                "transition-all duration-200 hover:shadow-lg hover:scale-[1.02]",
-                                selectedType !== "products"
-                                    ? "bg-white border-gray-200 hover:border-blue-3/30"
-                                    : "bg-blue-5 border-blue-3 shadow-md shadow-blue-3/10"
-                            )}
-                        >
-                            {/* Radio Button */}
-                            <div className="absolute top-4 right-4">
-                                <div
-                                    className={cn(
-                                        "w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all",
-                                        selectedType === "products"
-                                            ? "border-blue-4 bg-blue-4 shadow-sm"
-                                            : "border-gray-300 bg-transparent"
-                                    )}
-                                >
-                                    {selectedType === "products" && (
-                                        <div className="w-3 h-3 rounded-full bg-white" />
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Icon */}
-                            <div className={cn(
-                                "mb-3 p-4 rounded-2xl transition-all",
-                                selectedType === "products" ? "bg-blue-3/10" : "bg-gray-50"
-                            )}>
-                                <img src="/icons/dashboard/shop.svg" alt="" className="w-12 h-12" />
-                            </div>
-
-                            {/* Label */}
-                            <h3
-                                className={cn(
-                                    "text-xl font-bold transition-colors",
-                                    selectedType === "products" ? "text-blue-3" : "text-blue-4"
-                                )}
-                            >
-                                بيع منتجات
-                            </h3>
-                        </div>
-
-                        {/* Services Card */}
-                        <div
-                            onClick={() => setSelectedType("services")}
-                            className={cn(
-                                "relative p-8 rounded-2xl border-2 cursor-pointer",
-                                "flex flex-col items-center justify-center min-h-[260px]",
-                                "transition-all duration-200 hover:shadow-lg hover:scale-[1.02]",
-                                selectedType !== "services"
-                                    ? "bg-white border-gray-200 hover:border-blue-3/30"
-                                    : "bg-blue-5 border-blue-3 shadow-md shadow-blue-3/10"
-                            )}
-                        >
-                            {/* Radio Button */}
-                            <div className="absolute top-4 right-4">
-                                <div
-                                    className={cn(
-                                        "w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all",
-                                        selectedType === "services"
-                                            ? "border-blue-4 bg-blue-4 shadow-sm"
-                                            : "border-gray-300 bg-transparent"
-                                    )}
-                                >
-                                    {selectedType === "services" && (
-                                        <div className="w-3 h-3 rounded-full bg-white" />
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Icon */}
-                            <div className={cn(
-                                "mb-3 p-4 rounded-2xl transition-all",
-                                selectedType === "services" ? "bg-blue-3/10" : "bg-gray-50"
-                            )}>
-                                <img src="/icons/dashboard/service.svg" alt="" className="w-12 h-12" />
-                            </div>
-
-                            {/* Label */}
-                            <h3
-                                className={cn(
-                                    "text-xl font-bold transition-colors",
-                                    selectedType === "services" ? "text-blue-3" : "text-blue-4"
-                                )}
-                            >
-                                تقديم خدمات
-                            </h3>
-                        </div>
-                    </div>
+                    <RadioCardGroup
+                        label="نوع المتجر"
+                        name="storeType"
+                        value={selectedType}
+                        onChange={setSelectedType}
+                        className="mb-8"
+                    >
+                        <RadioCard
+                          value="services"
+                          label="تقديم خدمات"
+                          icon={
+                            <Image src="/icons/dashboard/service.svg"
+                                alt="Services Icon"
+                                className="size-12"
+                                width={12}
+                                height={12}
+                              />
+                          }
+                        />
+                        <RadioCard
+                          value="products"
+                          label="بيع منتجات"
+                          disabled
+                          badge={
+                            <Badge className="py-1.5 px-4 rounded-full text-md">
+                              <span className="pe-0.5">قر</span>
+                              <span>يـبًـا</span>
+                            </Badge>
+                          }
+                          icon={
+                            <Image src="/icons/dashboard/shop.svg"
+                                alt="Services Icon"
+                                className="size-12"
+                                width={12}
+                                height={12}
+                              />
+                          }
+                        />
+                    </RadioCardGroup>
 
                     {/* Action Buttons */}
 

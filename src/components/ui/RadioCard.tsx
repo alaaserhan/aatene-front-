@@ -96,7 +96,7 @@ export function RadioCard({
     <label
       className={cn(
         "relative p-8 rounded-2xl border-2",
-        "flex flex-col items-center justify-center min-h-[260px]",
+        "flex flex-col items-center justify-center min-h-65",
         "transition-all duration-200",
         "focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-4 focus-within:ring-offset-2",
         isDisabled
