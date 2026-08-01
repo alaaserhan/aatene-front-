@@ -31,7 +31,7 @@ export function ServicePreviewSidebar({ data, storeInfo }: ServicePreviewSidebar
   const formattedPrice = getFormattedPrice(data.price);
 
   return (
-    <div className="sticky top-6">
+    <div>
       <div className="mx-auto w-full bg-white rounded-xl overflow-hidden border border-gray-200 relative">
 
         {/* Header */}

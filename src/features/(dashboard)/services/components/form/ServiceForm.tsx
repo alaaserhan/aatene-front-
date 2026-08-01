@@ -88,7 +88,7 @@ export function ServiceForm({
           </div>
 
           <div className="col-span-12 lg:col-span-4">
-            <div className="sticky top-6 flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
               <ServicePreviewSidebar
                 data={{
                   title: values.title,
