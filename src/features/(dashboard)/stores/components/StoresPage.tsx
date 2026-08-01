@@ -153,7 +153,7 @@ export function StoresPage() {
     <div className="bg-gray-50 min-h-full flex flex-col">
       <header className="mt-6 pb-0">
         <div className="heading-card flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h1 className="heading-one">إدارة المتاجر</h1>
+            <h1 className="heading-1">إدارة المتاجر</h1>
           <div className="flex flex-row gap-4 lg:gap-6">
             {/* TODO: this should be a link not a nested button */}
             <Link

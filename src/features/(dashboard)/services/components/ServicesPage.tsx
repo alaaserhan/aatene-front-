@@ -272,7 +272,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                         <header className="mt-6 pb-0">
                             <div className="heading-card flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
-                                    <h1 className="heading-one">إدارة الخدمات</h1>
+                                    <h1 className="heading-1">إدارة الخدمات</h1>
                                     <p className="heading-2">عرض وإدارة جميع الخدمات</p>
                                 </div>
                                 <div className="flex flex-row gap-4 lg:gap-6">

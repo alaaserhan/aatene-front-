@@ -23,14 +23,11 @@ export function AddServicePage({ storeId }: AddServicePageProps) {
 
   const storeServicesUrl = `${dashboardBase}/serviceProviders/${storeId}?status=pending`;
 
-  const breadcrumbItems = useMemo(
-    () => [
+  const breadcrumbItems =  [
       { label: "الخدمات", href: storeServicesUrl },
-      { label: "انشاء خدمة جديدة" },
-    ],
-    [storeServicesUrl]
-  );
-
+      { label: "إنشاء خدمة جديدة" },
+  ];
+  
   const handleSubmit = async (values: ServiceFormValues) => {
     try {
       await createService.mutateAsync({

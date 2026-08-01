@@ -29,18 +29,18 @@ export function AddStoreStep1() {
 
     return (
         <div className="min-h-screen ">
-            <div className="py-4 px-4">
+            <div>
                 {/* Breadcrumb */}
-                <Breadcrumb items={breadcrumbItems} className="mb-4" />
+                <Breadcrumb items={breadcrumbItems} withContainer />
 
                 {/* Main Content */}
-                <div className="bg-white rounded p-8">
+                <div className="heading-card">
                     {/* Title & Subtitle */}
-                    <div className=" mb-6 border-b border-gray-200 pb-6">
-                        <h1 className="text-3xl font-bold  mb-3">
-                            كن تاجر
+                    <div className=" mb-6 pb-6">
+                        <h1 className="heading-1 mb-3">
+                            كن تاجرا
                         </h1>
-                        <p className="text-gray-2 text-base">
+                        <p className="heading-2">
                             قم باختيار نوع المتجر الذي تريده (تقديم خدمات/بيع منتجات)
                         </p>
                     </div>

@@ -328,7 +328,7 @@ html body[data-scroll-locked] {
     cursor: pointer;
   }
 
-  .heading-one {
+  .heading-1 {
     @apply text-xl md:text-2xl font-bold text-primary;
   }
 
