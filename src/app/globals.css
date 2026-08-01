@@ -328,6 +328,10 @@ html body[data-scroll-locked] {
     cursor: pointer;
   }
 
+  .heading-one {
+    @apply text-xl md:text-2xl font-bold text-primary;
+  }
+
   .heading-2 {
     @apply text-base text-gray-6 font-normal;
   }

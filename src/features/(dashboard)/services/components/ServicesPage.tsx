@@ -14,6 +14,7 @@ import { useGetSections, useCreateSection } from "../../sections/hooks";
 import { useGetSingleStore } from "../../stores/hooks";
 import { Service, ServiceStatus } from "../api";
 import { SidebarFilterPanel } from "@/src/components/(dashboard)/SidebarFilterPanel";
+import { StatusTabs } from "@/src/components/(dashboard)/StatusTabs";
 import { ServicesTable } from "../components/ServicesTable";
 import { ServiceEmptyState } from "../components/ServiceEmptyState";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
@@ -222,27 +223,6 @@ export function ServicesPage({ storeId }: { storeId: number }) {
         }
     };
 
-    const statusTabs: { key: ServiceStatus; label: string; activeClass: string; badgeClass: string }[] = [
-        {
-            key: "approved",
-            label: "تمت الموافقة عليه",
-            activeClass: "border-emerald-500 text-emerald-500",
-            badgeClass: "bg-emerald-500"
-        },
-        {
-            key: "pending",
-            label: "قيد المراجعة",
-            activeClass: "border-amber-400 text-amber-400",
-            badgeClass: "bg-amber-400"
-        },
-        {
-            key: "rejected",
-            label: "مرفوض",
-            activeClass: "border-red-500 text-red-500",
-            badgeClass: "bg-red-500"
-        },
-    ];
-
     if (!storeId) {
         return <div className="p-8 text-center text-gray-2">الرجاء تحديد متجر لعرض خدماته</div>;
     }
@@ -292,7 +272,7 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                         <header className="mt-6 pb-0">
                             <div className="heading-card flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
-                                    <h1 className="text-xl md:text-2xl font-bold text-black">إدارة الخدمات</h1>
+                                    <h1 className="heading-one">إدارة الخدمات</h1>
                                     <p className="heading-2">عرض وإدارة جميع الخدمات</p>
                                 </div>
                                 <div className="flex flex-row gap-4 lg:gap-6">
@@ -487,29 +467,16 @@ export function ServicesPage({ storeId }: { storeId: number }) {
                             </div>
                         )}
 
-                        <div className={`col-span-12 ${!isLoadingSections && sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col`}>
-                            <div className="flex items-center gap-2 px-6 pt-4 border-b border-gray-100">
-                                {statusTabs.map((tab) => (
-                                    <button
-                                        key={tab.key}
-                                        onClick={() => {
-                                            setActiveStatus(tab.key);
-                                            setCurrentPage(1);
-                                        }}
-                                        className={`flex cursor-pointer items-center gap-2 pb-3 border-b-[3px] transition-all duration-200 px-6 ${activeStatus === tab.key
-                                            ? tab.activeClass
-                                            : "border-transparent text-gray-2 hover:text-gray-2"
-                                            }`}
-                                    >
-                                        <span className="font-bold text-sm">{tab.label}</span>
-                                        <span
-                                            className={`flex items-center justify-center min-w-6 h-6 px-1.5 pt-1 rounded text-xs font-bold text-white ${tab.badgeClass}`}
-                                        >
-                                            {getCountForStatus(tab.key)}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
+                        <div className={`col-span-12 ${!isLoadingSections && sections.length > 0 ? "lg:col-span-9" : "lg:col-span-12"}`}>
+                            <StatusTabs<ServiceStatus>
+                                activeKey={activeStatus}
+                                onChange={(key) => {
+                                    setActiveStatus(key);
+                                    setCurrentPage(1);
+                                }}
+                                getCount={getCountForStatus}
+                                className="bg-white rounded-lg border border-gray-200 mb-4"
+                            />
 
                             {!isLoadingSections && sections.length === 0 ? (
                                 <ServiceEmptyState
