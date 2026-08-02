@@ -132,9 +132,10 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   const isActive = (path: string) => {
     const basePath = path.split("?")[0];
     const fullPath = `${navPrefix}${basePath}`;
-    const isStoreShippingPath = /^\/(?:admin|dashboard)\/stores\/[^/]+\/shipping(?:\/|$)/.test(pathname || "");
+    // Store sub-pages have their own nav entries, so "/stores" must not light up for them
+    const isStoreSubPagePath = /^\/(?:admin|dashboard)\/stores\/[^/]+\/(?:shipping|settings)(?:\/|$)/.test(pathname || "");
 
-    if (basePath === "/stores" && isStoreShippingPath) return false;
+    if (basePath === "/stores" && isStoreSubPagePath) return false;
     
     if (basePath === "/users" && pathname?.startsWith(`${navPrefix}/permissions`)) return true;
 
@@ -211,6 +212,13 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
       href: activeStoreId ? `/stores/${activeStoreId}/shipping` : "/stores",
       show: isMerchant && storeType === "products" && !!activeStoreId && isAllowedByRole("/stores"),
       desc: "إعداد طريقة الشحن وشركات التوصيل للمتجر الحالي",
+    },
+    {
+      label: "إعدادات المتجر",
+      icon: Settings,
+      href: activeStoreId ? `/stores/${activeStoreId}/settings` : "/stores",
+      show: isMerchant && !!activeStoreId && isAllowedByRole("/stores"),
+      desc: "أكمل بيانات متجرك: الاتصال، أوقات العمل والكلمات المفتاحية",
     },
     { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: hasAdminPerm("/productProviders") },
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: activeStoreId ? `/serviceProviders/${activeStoreId}` : "/serviceProviders", show: isMerchant && (storeType === "services") && !!activeStoreId && isAllowedByRole("/serviceProviders") },

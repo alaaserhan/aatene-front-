@@ -1,0 +1,331 @@
+// src/features/(dashboard)/stores/create/services/CreateServiceStorePage.tsx
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { FormInput } from "@/src/components/ui/FormInput";
+import { Label } from "@/src/components/ui/label";
+import { OptionTag } from "@/src/components/ui/OptionTag";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { useAuthStore } from "@/src/stores/auth-store";
+import { StoreIdentitySelector } from "../../components/StoreIdentitySelector";
+import { StoreSubmitBar } from "../../components/StoreSubmitBar";
+import { CityMultiSelect } from "../../components/CityMultiSelect";
+import { useGetCities } from "../../../cities/hooks";
+import { useGetUsers } from "../../../users/hooks";
+import { useCreateStore } from "./hooks";
+import { ServiceStoreFormValues } from "./types";
+
+const breadcrumbItems = [
+  { label: "الرئيسية", href: "/admin/home" },
+  { label: "المتاجر", href: "/admin/stores" },
+  { label: "إضافة متجر خدمات" },
+];
+
+const EMPTY_FORM: ServiceStoreFormValues = {
+  name: "",
+  logo: null,
+  logoPreview: null,
+  locationCities: [],
+  serviceCities: [],
+  owner_id: 0,
+};
+
+/**
+ * Single-step creation of a services store. Only the essentials are asked
+ * for here — contact details, working hours and keywords are filled in later
+ * from the store settings page.
+ */
+export function CreateServiceStorePage() {
+  const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.user_type === "admin";
+
+  const createStoreMutation = useCreateStore();
+
+  const [values, setValues] = useState<ServiceStoreFormValues>(EMPTY_FORM);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [createdStoreId, setCreatedStoreId] = useState<number | null>(null);
+
+  const { data: citiesData } = useGetCities(new URLSearchParams());
+  const cities = citiesData?.data || [];
+
+  const [serviceCitySearch, setServiceCitySearch] = useState("");
+  const [ownerSearch, setOwnerSearch] = useState("");
+  const [debouncedOwnerSearch, setDebouncedOwnerSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedOwnerSearch(ownerSearch), 500);
+    return () => clearTimeout(timer);
+  }, [ownerSearch]);
+
+  const usersParams = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("per_page", "100");
+    if (debouncedOwnerSearch) params.set("search", debouncedOwnerSearch);
+    return params;
+  }, [debouncedOwnerSearch]);
+
+  const { data: usersData, isLoading: isUsersLoading } = useGetUsers(
+    usersParams,
+    { enabled: isAdmin }
+  );
+
+  const ownerOptions = useMemo(() => {
+    if (isUsersLoading) return [{ value: "", label: "جاري البحث..." }];
+    const options = (usersData?.data ?? []).map((owner) => ({
+      label: `${owner.first_name} ${owner.last_name} (${owner.email})`,
+      value: String(owner.id),
+    }));
+    return options.length > 0
+      ? options
+      : [{ value: "", label: "لا يوجد مستخدمين" }];
+  }, [usersData, isUsersLoading]);
+
+  const availableServiceCities = cities
+    .filter((city) => !values.serviceCities.includes(city.id))
+    .filter((city) =>
+      city.name.toLowerCase().includes(serviceCitySearch.toLowerCase())
+    )
+    .map((city) => ({ label: city.name, value: String(city.id) }));
+
+  const clearError = (field: string) => {
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!values.name.trim()) newErrors.name = "اسم المتجر مطلوب";
+    if (values.locationCities.length === 0)
+      newErrors.locationCities = "المدينة مطلوبة";
+    if (values.serviceCities.length === 0)
+      newErrors.serviceCities = "يجب اختيار منطقة واحدة على الأقل";
+    if (isAdmin && !values.owner_id)
+      newErrors.owner_id = "يجب اختيار مالك المتجر";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) return;
+
+    try {
+      const response = await createStoreMutation.mutateAsync({
+        type: "services",
+        name: values.name.trim(),
+        logo: values.logo,
+        locationCities: values.locationCities,
+        serviceCities: values.serviceCities,
+        ...(isAdmin && values.owner_id ? { owner_id: values.owner_id } : {}),
+      });
+
+      setCreatedStoreId(response.record?.id ?? null);
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error("Error creating store:", error);
+    }
+  };
+
+  // Falls back to the list if the response carried no store id
+  const handleSuccessClose = () => {
+    router.push(
+      createdStoreId
+        ? `/admin/stores/${createdStoreId}/settings`
+        : "/admin/stores"
+    );
+  };
+
+  return (
+    <div>
+      <div className="container mx-auto py-4 px-4">
+        <Breadcrumb items={breadcrumbItems} withContainer />
+
+        <div className="bg-white rounded-xl shadow-sm p-6">
+            <h1 className="mb-8 text-xl font-semibold">البيانات الأساسية</h1>
+
+
+          <div className="space-y-6">
+            <FormInput
+              label="اسم المتجر"
+              name="name"
+              value={values.name}
+              onChange={(e) => {
+                setValues({ ...values, name: e.target.value });
+                clearError("name");
+              }}
+              placeholder="ادخل اسم المتجر"
+              required
+              maxLength={50}
+              showCounter
+              error={errors.name}
+            />
+
+            <StoreIdentitySelector
+              value={values.logo}
+              previewUrl={values.logoPreview}
+              onChange={(fileName, src) =>
+                setValues({ ...values, logo: fileName, logoPreview: src })
+              }
+            />
+
+            <StoreSpecialtyField
+              onChange={() => router.push("/admin/stores/add")}
+            />
+
+            <CityMultiSelect
+              cities={cities}
+              selectedCityIds={values.locationCities}
+              onChange={(ids) => {
+                setValues({ ...values, locationCities: ids });
+                clearError("locationCities");
+              }}
+              error={errors.locationCities}
+              placeholder="اختر المدينة التي يقع فيها متجرك"
+            />
+
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">
+                المناطق التي يمكنك تقديم خدمتك فيها{" "}
+                <span className="text-red-500">*</span>
+              </Label>
+              <ReusableDropdown
+                options={availableServiceCities}
+                value=""
+                onChange={(cityId) => {
+                  const id = Number(cityId);
+                  if (!Number.isFinite(id) || values.serviceCities.includes(id))
+                    return;
+                  setValues({
+                    ...values,
+                    serviceCities: [...values.serviceCities, id],
+                  });
+                  clearError("serviceCities");
+                }}
+                placeholder="أضف مدينة جديدة"
+                error={errors.serviceCities}
+                className="h-11"
+                onSearch={setServiceCitySearch}
+                searchPlaceholder="ابحث باسم المدينة..."
+                triggerIcon={
+                  <img
+                    src="/icons/dashboard/mark.svg"
+                    alt=""
+                    className="w-5 h-5 opacity-50"
+                  />
+                }
+              />
+
+              <div className="flex flex-wrap gap-2 mt-2">
+                {values.serviceCities.map((cityId) => {
+                  const city = cities.find((c) => c.id === cityId);
+                  if (!city) return null;
+                  return (
+                    <OptionTag
+                      key={cityId}
+                      label={city.name}
+                      showRemoveButton
+                      onRemove={() =>
+                        setValues({
+                          ...values,
+                          serviceCities: values.serviceCities.filter(
+                            (id) => id !== cityId
+                          ),
+                        })
+                      }
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            {isAdmin && (
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-medium">
+                  المالك <span className="text-red-500">*</span>
+                </Label>
+                <ReusableDropdown
+                  placeholder="اختر المالك"
+                  options={ownerOptions}
+                  value={values.owner_id ? String(values.owner_id) : ""}
+                  onChange={(value) => {
+                    setValues({
+                      ...values,
+                      owner_id: value ? Number(value) : 0,
+                    });
+                    clearError("owner_id");
+                  }}
+                  error={errors.owner_id}
+                  className="h-11"
+                  dropdownPosition="top"
+                  onSearch={setOwnerSearch}
+                  searchPlaceholder="ابحث باسم المالك ..."
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <StoreSubmitBar
+        submitLabel="إنشاء المتجر"
+        loadingLabel="جاري الإنشاء..."
+        isSubmitting={createStoreMutation.isPending}
+        onSubmit={handleSubmit}
+        onCancel={() => router.push("/admin/stores")}
+      />
+
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleSuccessClose}
+        onButtonClick={handleSuccessClose}
+        title="تم إنشاء متجرك بنجاح"
+        message="متجرك جاهز الآن. أكمل باقي البيانات (الاتصال، أوقات العمل، الكلمات المفتاحية) من إعدادات المتجر في أي وقت."
+        buttonText="إكمال بيانات المتجر"
+      />
+    </div>
+  );
+}
+
+/**
+ * The store type is picked on the previous screen, so it is shown here as a
+ * summary with a way back rather than as an editable field.
+ */
+function StoreSpecialtyField({ onChange }: { onChange: () => void }) {
+  return (
+    <div className="space-y-2">
+      <Label className="text-sm font-medium">تخصص المتجر</Label>
+      <div className="flex items-center justify-between gap-3 p-4 border border-gray-200 rounded-sm bg-gray-50">
+        <div className="flex items-center gap-3">
+          <span className="p-2 rounded-xl bg-blue-3/10">
+            <Image
+              src="/icons/dashboard/service.svg"
+              alt=""
+              className="size-8"
+              width={12}
+              height={12}
+            />
+          </span>
+          <div>
+            <p className="text-sm font-semibold text-blue-3">تقديم خدمات</p>
+            <p className="text-xs text-gray-2">
+              متجر يقدّم خدمات للعملاء في مناطق محددة
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={onChange}
+          className="text-xs font-medium text-blue-4 underline cursor-pointer"
+        >
+          تغيير
+        </button>
+      </div>
+    </div>
+  );
+}

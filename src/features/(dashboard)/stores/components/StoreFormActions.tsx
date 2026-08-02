@@ -12,6 +12,7 @@ interface StoreFormActionsProps {
   backLabel?: string;
   className?: string;
   showBack?: boolean;
+  /** Pins the bar to the bottom of the viewport while the form is scrolled. */
   sticky?: boolean;
 }
 

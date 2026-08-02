@@ -24,7 +24,7 @@ import {
   UpdateStoreShownPayload,
 } from "./api";
 
-const StoresQK = {
+export const StoresQK = {
   any: ["stores"] as const,
   listAny: ["stores", "list"] as const,
   list: (paramsString: string) => ["stores", "list", paramsString] as const,

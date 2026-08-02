@@ -4,13 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { Loader2 } from "lucide-react";
-import { AddStoreStep6 } from "./AddStoreStep6";
+import { ShippingStep } from "../create/products/steps/ShippingStep";
 import { useGetSingleStore, useUpdateStoreShippingCompanies } from "../hooks";
-import { Step2FormData, Step6FormData } from "../types";
+import { StoreBasicDataValues, StoreShippingValues } from "../types";
 import {
   mapStoreShippingCompanies,
   normalizeShippingCompaniesForApi,
-} from "../buildStoreShippingUpdatePayload";
+} from "../store-shipping-payload";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { toast } from "sonner";
@@ -37,7 +37,7 @@ export function StoreShippingSettingsPage({ storeId }: StoreShippingSettingsPage
     }
   }, [isMerchant, storeId, router]);
 
-  const step2Preview = useMemo((): Step2FormData | null => {
+  const storePreview = useMemo((): StoreBasicDataValues | null => {
     if (!store) return null;
     return {
       name: store.name,
@@ -57,7 +57,7 @@ export function StoreShippingSettingsPage({ storeId }: StoreShippingSettingsPage
     };
   }, [store]);
 
-  const step6Initial = useMemo((): Step6FormData | undefined => {
+  const shippingInitial = useMemo((): StoreShippingValues | undefined => {
     if (!store) return undefined;
     return {
       delivery_type: store.delivery_type || "hand_delivery",
@@ -65,7 +65,7 @@ export function StoreShippingSettingsPage({ storeId }: StoreShippingSettingsPage
     };
   }, [store]);
 
-  const handleSave = async (data: Step6FormData) => {
+  const handleSave = async (data: StoreShippingValues) => {
     if (!store) return;
 
     const toastId = toast.loading("جاري حفظ إعدادات الشحن...");
@@ -103,7 +103,7 @@ export function StoreShippingSettingsPage({ storeId }: StoreShippingSettingsPage
     }
   };
 
-  if (isLoading || !step2Preview) {
+  if (isLoading || !storePreview) {
     return <PageLoader />;
   }
 
@@ -140,16 +140,14 @@ export function StoreShippingSettingsPage({ storeId }: StoreShippingSettingsPage
 
   return (
     <>
-      <AddStoreStep6
+      <ShippingStep
         variant="standalone"
-        storeType="products"
-        previousData={step2Preview}
-        initialData={step6Initial}
+        previousData={storePreview}
+        initialData={shippingInitial}
         onNext={() => {}}
         onSave={handleSave}
         onBack={() => router.push("/admin/home")}
         isSaving={updateShippingMutation.isPending}
-        barSteps={[]}
         breadcrumbItems={[
           { label: "الرئيسية", href: "/admin/home" },
           { label: "الشحن" },

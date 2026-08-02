@@ -1,30 +1,32 @@
-// src/features/(dashboard)/stores/components/AddStoreStep4.tsx
+// src/features/(dashboard)/stores/create/products/steps/disabled/ManagersStep.tsx
+//
+// DISABLED STEP — not rendered by any wizard right now. Kept intact so the
+// "موظفين المتجر" step can be brought back without rewriting it.
+// See ./README.md for the exact wiring needed to re-enable it.
 "use client";
 
 import { useState } from "react";
 import { Button } from "@/src/components/ui/button";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { StepperProgress } from "./StepperProgress";
-import { StoreFormActions } from "./StoreFormActions";
-import { StoreType, StoreManagerPayload, StoreStatus, ManagerTitle } from "../api";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
-import { cn } from "@/src/lib/utils";
 import { Label } from "@/src/components/ui/label";
-import { Step2FormData, Step4FormData } from "../types";
-import { useGetUsers, useCheckEmail } from "../../users/hooks";
-
-
+import { Input } from "@/src/components/ui/input";
+import { cn } from "@/src/lib/utils";
 import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { Input } from "@/src/components/ui/input";
+import { StepperProgress } from "../../../../components/StepperProgress";
+import { StoreFormActions } from "../../../../components/StoreFormActions";
+import { StoreManagerPayload, StoreStatus, ManagerTitle } from "../../../../api";
+import { StoreManagersValues, WizardStep } from "../../../../types";
+import { useGetUsers, useCheckEmail } from "../../../../../users/hooks";
+import { STORE_WIZARD_BREADCRUMB } from "../../breadcrumb";
 
-interface AddStoreStep4Props {
-  storeType: StoreType;
-  previousData: Step2FormData;
-  initialData?: Step4FormData;
-  onNext: (data: Step4FormData) => void;
+interface ManagersStepProps {
+  initialData?: StoreManagersValues;
+  onNext: (data: StoreManagersValues) => void;
   onBack: () => void;
-  barSteps: { number: number; label: string; completed: boolean }[];
+  steps: WizardStep[];
+  currentStepNumber: number;
 }
 
 interface NewManagerForm {
@@ -44,12 +46,13 @@ const STATUS_OPTIONS = [
   { value: "not-active", label: "غير نشط" },
 ];
 
-export function AddStoreStep4({
+export function ManagersStep({
   initialData,
   onNext,
   onBack,
-  barSteps,
-}: AddStoreStep4Props) {
+  steps,
+  currentStepNumber,
+}: ManagersStepProps) {
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.user_type === "admin";
 
@@ -86,14 +89,6 @@ export function AddStoreStep4({
   const dropdownOptions = [
     { value: "", label: isUsersLoading ? "جاري التحميل..." : "اختر الموظف" },
     ...userOptions,
-  ];
-
-  const steps = barSteps;
-
-  const breadcrumbItems = [
-    { label: "الرئيسية", href: "/admin/home" },
-    { label: "المتاجر", href: "/admin/stores" },
-    { label: "إضافة متجر" },
   ];
 
   const validateManager = () => {
@@ -232,8 +227,8 @@ export function AddStoreStep4({
   return (
     <div className="bg-gray-50">
       <div className="container mx-auto py-4 px-4">
-        <Breadcrumb items={breadcrumbItems} className="mb-4" />
-        <StepperProgress currentStep={3} steps={steps} />
+        <Breadcrumb items={STORE_WIZARD_BREADCRUMB} className="mb-4" />
+        <StepperProgress currentStep={currentStepNumber} steps={steps} />
 
         <div className="grid grid-cols-12 gap-6 mt-8">
           <div className="col-span-12">
@@ -454,7 +449,7 @@ export function AddStoreStep4({
         </div>
       </div>
 
-      <StoreFormActions onNext={handleNext} onBack={onBack} />
+      <StoreFormActions sticky onNext={handleNext} onBack={onBack} />
     </div>
   );
 }
