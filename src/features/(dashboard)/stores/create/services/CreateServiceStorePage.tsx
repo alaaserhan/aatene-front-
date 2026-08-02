@@ -3,13 +3,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { Tooltip } from "@/src/components/ui/Tooltip";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { HelpCircle } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { StoreIdentitySelector } from "../../components/StoreIdentitySelector";
 import { StoreSubmitBar } from "../../components/StoreSubmitBar";
@@ -18,6 +19,7 @@ import { useGetCities } from "../../../cities/hooks";
 import { useGetUsers } from "../../../users/hooks";
 import { useCreateStore } from "./hooks";
 import { ServiceStoreFormValues } from "./types";
+import Image from "next/image";
 
 const breadcrumbItems = [
   { label: "الرئيسية", href: "/admin/home" },
@@ -172,13 +174,11 @@ export function CreateServiceStorePage() {
               onChange={(fileName, src) =>
                 setValues({ ...values, logo: fileName, logoPreview: src })
               }
-            />
-
-            <StoreSpecialtyField
-              onChange={() => router.push("/admin/stores/add")}
+              required
             />
 
             <CityMultiSelect
+              label="مدينة المتجر"
               cities={cities}
               selectedCityIds={values.locationCities}
               onChange={(ids) => {
@@ -187,13 +187,27 @@ export function CreateServiceStorePage() {
               }}
               error={errors.locationCities}
               placeholder="اختر المدينة التي يقع فيها متجرك"
+              tooltip="اختر المدينة التي يقع فيها المتجر فعليًا. وإذا كان لديك عدة فروع في مدن مختلفة، يمكنك اختيار أكثر من مدينة."
             />
 
             <div className="space-y-3">
-              <Label className="text-sm font-medium">
-                المناطق التي يمكنك تقديم خدمتك فيها{" "}
-                <span className="text-red-500">*</span>
-              </Label>
+              <div className="flex items-center justify-between gap-4">
+                <Label className="text-sm font-medium">
+                  المناطق التي يمكنك تقديم خدمتك فيها{" "}
+                  <span className="text-red-500">*</span>
+                </Label>
+                <Tooltip
+                  trigger={
+                    <div className="flex items-center gap-1 text-blue-4 cursor-pointer">
+                      <HelpCircle className="w-3.5 h-3.5" />
+                      <span className="text-xs font-medium">
+                        ما هي مناطق الخدمة
+                      </span>
+                    </div>
+                  }
+                  content="اختر المدن التي تقدم فيها خدماتك. يمكنك اختيار أكثر من مدينة إذا كنت تقدم خدماتك في أكثر من مدينة."
+                />
+              </div>
               <ReusableDropdown
                 options={availableServiceCities}
                 value=""
@@ -213,10 +227,12 @@ export function CreateServiceStorePage() {
                 onSearch={setServiceCitySearch}
                 searchPlaceholder="ابحث باسم المدينة..."
                 triggerIcon={
-                  <img
+                  <Image
                     src="/icons/dashboard/mark.svg"
                     alt=""
                     className="w-5 h-5 opacity-50"
+                    width={20}
+                    height={20}
                   />
                 }
               />
@@ -288,44 +304,6 @@ export function CreateServiceStorePage() {
         message="متجرك جاهز الآن. أكمل باقي البيانات (الاتصال، أوقات العمل، الكلمات المفتاحية) من إعدادات المتجر في أي وقت."
         buttonText="إكمال بيانات المتجر"
       />
-    </div>
-  );
-}
-
-/**
- * The store type is picked on the previous screen, so it is shown here as a
- * summary with a way back rather than as an editable field.
- */
-function StoreSpecialtyField({ onChange }: { onChange: () => void }) {
-  return (
-    <div className="space-y-2">
-      <Label className="text-sm font-medium">تخصص المتجر</Label>
-      <div className="flex items-center justify-between gap-3 p-4 border border-gray-200 rounded-sm bg-gray-50">
-        <div className="flex items-center gap-3">
-          <span className="p-2 rounded-xl bg-blue-3/10">
-            <Image
-              src="/icons/dashboard/service.svg"
-              alt=""
-              className="size-8"
-              width={12}
-              height={12}
-            />
-          </span>
-          <div>
-            <p className="text-sm font-semibold text-blue-3">تقديم خدمات</p>
-            <p className="text-xs text-gray-2">
-              متجر يقدّم خدمات للعملاء في مناطق محددة
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={onChange}
-          className="text-xs font-medium text-blue-4 underline cursor-pointer"
-        >
-          تغيير
-        </button>
-      </div>
     </div>
   );
 }

@@ -14,6 +14,7 @@ interface StoreIdentitySelectorProps {
   previewUrl?: string | null;
   onChange: (fileName: string | null, src: string | null) => void;
   error?: string;
+  required?: boolean;
 }
 
 export function StoreIdentitySelector({
@@ -22,6 +23,7 @@ export function StoreIdentitySelector({
   previewUrl,
   onChange,
   error,
+  required = false,
 }: StoreIdentitySelectorProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -40,7 +42,9 @@ export function StoreIdentitySelector({
       {/* Header Section */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-1">
-          <label className="text-sm font-medium ">{label}</label>
+          <label className="text-sm font-medium">
+            {label} {required && <span className="text-red-500">*</span>}
+          </label>
         </div>
         <p className="text-xs text-gray-2">
           ستظهر هوية متجرك في صفحة المتجر

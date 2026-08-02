@@ -3,7 +3,8 @@
 
 import { useState } from "react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { Trash2 } from "lucide-react";
+import { HelpCircle, Trash2 } from "lucide-react";
+import { Tooltip } from "@/src/components/ui/Tooltip";
 
 // تعريف المدينة بـ ID رقمي
 interface CityOption {
@@ -16,7 +17,10 @@ interface CityMultiSelectProps {
   selectedCityIds: number[]; // مصفوفة أرقام
   onChange: (ids: number[]) => void;
   error?: string;
-  placeholder?: string
+  placeholder?: string;
+  label?: string;
+  tooltip?: string;
+  tooltipLabel?: string;
 }
 
 export function CityMultiSelect({
@@ -24,7 +28,10 @@ export function CityMultiSelect({
   selectedCityIds,
   onChange,
   error,
-  placeholder = "اختر المدينة"
+  placeholder = "اختر المدينة",
+  label = "المدينة",
+  tooltip,
+  tooltipLabel = "ما هي مدينة المتجر"
 }: CityMultiSelectProps) {
   const [citySearch, setCitySearch] = useState("");
 
@@ -51,9 +58,22 @@ export function CityMultiSelect({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium text-start block">
-          المدينة <span className="text-red-500">*</span>
-        </label>
+        <div className="flex items-center justify-between gap-4">
+          <label className="text-sm font-medium text-start block">
+            {label} <span className="text-red-500">*</span>
+          </label>
+          {tooltip && (
+            <Tooltip
+              trigger={
+                <div className="flex items-center gap-1 text-blue-4 cursor-pointer">
+                  <HelpCircle className="w-3.5 h-3.5" />
+                  <span className="text-xs font-medium">{tooltipLabel}</span>
+                </div>
+              }
+              content={tooltip}
+            />
+          )}
+        </div>
         <ReusableDropdown
           options={dropdownOptions}
           value=""

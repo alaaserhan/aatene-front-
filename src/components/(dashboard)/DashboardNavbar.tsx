@@ -82,6 +82,8 @@ interface NavItem {
   href: string;
   show: boolean;
   desc?: string;
+  /** Always render inside the "المزيد" dropdown, never in the main nav bar */
+  alwaysMore?: boolean;
 }
 
 interface IconProps {
@@ -136,7 +138,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     const isStoreSubPagePath = /^\/(?:admin|dashboard)\/stores\/[^/]+\/(?:shipping|settings)(?:\/|$)/.test(pathname || "");
 
     if (basePath === "/stores" && isStoreSubPagePath) return false;
-    
+
     if (basePath === "/users" && pathname?.startsWith(`${navPrefix}/permissions`)) return true;
 
     if (fullPath === navPrefix && pathname === fullPath) return true;
@@ -219,6 +221,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
       href: activeStoreId ? `/stores/${activeStoreId}/settings` : "/stores",
       show: isMerchant && !!activeStoreId && isAllowedByRole("/stores"),
       desc: "أكمل بيانات متجرك: الاتصال، أوقات العمل والكلمات المفتاحية",
+      alwaysMore: true,
     },
     { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: hasAdminPerm("/productProviders") },
     { label: "الخدمات", icon: <img src={"/icons/dashboard/nav_services.svg"} alt="" />, href: activeStoreId ? `/serviceProviders/${activeStoreId}` : "/serviceProviders", show: isMerchant && (storeType === "services") && !!activeStoreId && isAllowedByRole("/serviceProviders") },
@@ -245,8 +248,11 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
   ];
 
   const visibleNavItems = allNavItems.filter((item) => item.show);
-  const mainNavItems = visibleNavItems.slice(0, 5);
-  const moreMenuItems = visibleNavItems.slice(5);
+  const barNavItems = visibleNavItems.filter((item) => !item.alwaysMore);
+  const mainNavItems = barNavItems.slice(0, 5);
+  const moreMenuItems = visibleNavItems.filter(
+    (item) => item.alwaysMore || !mainNavItems.includes(item)
+  );
 
   const renderIcon = (
     icon: LucideIcon | React.ReactNode,

@@ -378,3 +378,8 @@ input[type="number"] {
     font-size: 16px;
   }
 }
+
+.reverse-in-rtl,
+  .lucide-circle-question-mark {
+    @apply rtl:scale-x-[-1];
+  }
