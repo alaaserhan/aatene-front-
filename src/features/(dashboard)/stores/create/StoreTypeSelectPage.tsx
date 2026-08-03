@@ -26,7 +26,7 @@ export function StoreTypeSelectPage() {
 
       <div className="heading-card">
         <div className="mb-6 pb-6">
-          <h1 className="heading-1 mb-3">كن تاجرا</h1>
+          <h1 className="heading-1 mb-3">كن تاجرًا</h1>
           <p className="heading-2">قم باختيار نوع المتجر الذي تريده (تقديم خدمات/بيع منتجات)</p>
         </div>
 

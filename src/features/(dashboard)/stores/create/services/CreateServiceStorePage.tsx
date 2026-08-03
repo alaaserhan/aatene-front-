@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
@@ -27,6 +27,13 @@ const breadcrumbItems = [
   { label: "إضافة متجر خدمات" },
 ];
 
+/** Shown in the "under review" modal so the merchant knows what to expect next. */
+const NEXT_STEPS = [
+  "سنُعلمك فور اعتماد المتجر ليظهر للعملاء.",
+  "يمكنك إضافة خدماتك من الآن، وستُنشر مع اعتماد المتجر.",
+  "]يمكنك إكمال باقي البيانات  من إعدادات المتجر في أي وقت.",
+];
+
 const EMPTY_FORM: ServiceStoreFormValues = {
   name: "",
   logo: null,
@@ -43,8 +50,17 @@ const EMPTY_FORM: ServiceStoreFormValues = {
  */
 export function CreateServiceStorePage() {
   const router = useRouter();
+  const routeParams = useParams<{ locale?: string; type?: string }>();
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.user_type === "admin";
+
+  // Keeps the current locale/dashboard segments (e.g. /ar/admin) when navigating
+  const dashboardBase =
+    routeParams?.locale && routeParams?.type
+      ? `/${routeParams.locale}/${routeParams.type}`
+      : isAdmin
+        ? "/admin"
+        : "/merchant";
 
   const createStoreMutation = useCreateStore();
 
@@ -134,12 +150,20 @@ export function CreateServiceStorePage() {
     }
   };
 
-  // Falls back to the list if the response carried no store id
-  const handleSuccessClose = () => {
+  // Both success actions fall back to the list if the response carried no store id
+  const handleAddService = () => {
     router.push(
       createdStoreId
-        ? `/admin/stores/${createdStoreId}/settings`
-        : "/admin/stores"
+        ? `${dashboardBase}/serviceProviders/services/add/${createdStoreId}`
+        : `${dashboardBase}/stores`
+    );
+  };
+
+  const handleCompleteStoreData = () => {
+    router.push(
+      createdStoreId
+        ? `${dashboardBase}/stores/${createdStoreId}/settings`
+        : `${dashboardBase}/stores`
     );
   };
 
@@ -298,12 +322,30 @@ export function CreateServiceStorePage() {
 
       <SuccessModal
         isOpen={showSuccessModal}
-        onClose={handleSuccessClose}
-        onButtonClick={handleSuccessClose}
-        title="تم إنشاء متجرك بنجاح"
-        message="متجرك جاهز الآن. أكمل باقي البيانات (الاتصال، أوقات العمل، الكلمات المفتاحية) من إعدادات المتجر في أي وقت."
-        buttonText="إكمال بيانات المتجر"
-      />
+        onClose={handleCompleteStoreData}
+        variant="pending"
+        badgeText="تم إنشاء المتجر بنجاح"
+        badgeTone="success"
+        title="المتجر قيد المراجعة"
+        message="متجرك الآن قيد المراجعة من فريق أعطيني، وسيظهر للعملاء فور اعتماده."
+        messageClassName="font-normal"
+        buttonText="إضافة خدمة"
+        onButtonClick={handleAddService}
+        secondaryButtonText="إكمال بيانات المتجر"
+        onSecondaryButtonClick={handleCompleteStoreData}
+      >
+        <div className="rounded-xl border border-[#FFD87D]/60 bg-[#FFFBF0] p-4">
+          <p className="text-sm font-semibold text-[#8A6000]">ماذا بعد؟</p>
+          <ul className="mt-2 space-y-2 text-sm leading-relaxed text-[#6B4A00]">
+            {NEXT_STEPS.map((step) => (
+              <li key={step} className="flex items-start gap-2">
+                <span className="mt-[0.4rem] w-1.5 h-1.5 shrink-0 rounded-full bg-[#C48A00]" />
+                <span>{step}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </SuccessModal>
     </div>
   );
 }

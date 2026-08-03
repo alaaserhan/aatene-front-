@@ -116,7 +116,7 @@ const Footer = () => {
         ] : []),
         { label: "إعدادات", href: localePath("/settings") },
         ...(!mounted || (!isMerchant && !isAdmin) ? [
-          { label: "كن تاجرا", href: localePath("/settings?tab=merchant") },
+          { label: "كن تاجرًا", href: localePath("/settings?tab=merchant") },
         ] : []),
       ],
     },
