@@ -7,7 +7,7 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { cn } from "@/src/lib/utils";
+import { Textarea } from "@/src/components/ui/Textarea";
 import { StoreIdentitySelector } from "../../components/StoreIdentitySelector";
 import { StoreBannerSelector } from "../../components/StoreBannerSelector";
 import { CityMultiSelect } from "../../components/CityMultiSelect";
@@ -138,23 +138,15 @@ export function MainDataSection({
           maxFiles={10}
         />
 
-        <div className="space-y-2">
-          <Label htmlFor="store-description" className="text-start text-sm font-medium">
-            وصف المتجر
-          </Label>
-          <textarea
-            id="store-description"
-            value={values.description}
-            onChange={(e) =>
-              setValues({ ...values, description: e.target.value })
-            }
-            placeholder="عرّف عملاءك بمتجرك وما يميّزه"
-            maxLength={300}
-            className={cn(
-              "flex w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[120px]"
-            )}
-          />
-        </div>
+        <Textarea
+          id="store-description"
+          label="وصف المتجر"
+          value={values.description}
+          onChange={(e) => setValues({ ...values, description: e.target.value })}
+          placeholder="عرّف عملاءك بمتجرك وما يميّزه"
+          maxLength={300}
+          showCounter
+        />
 
         <FormInput
           label="البريد الإلكتروني"

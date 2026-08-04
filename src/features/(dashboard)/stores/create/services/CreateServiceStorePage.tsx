@@ -162,7 +162,7 @@ export function CreateServiceStorePage() {
   const handleCompleteStoreData = () => {
     router.push(
       createdStoreId
-        ? `${dashboardBase}/stores/${createdStoreId}/settings`
+        ? `${dashboardBase}/stores/${createdStoreId}/edit`
         : `${dashboardBase}/stores`
     );
   };

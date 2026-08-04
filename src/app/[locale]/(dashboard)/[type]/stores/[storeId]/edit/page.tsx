@@ -1,14 +1,20 @@
-import { redirect } from "next/navigation";
+import { Metadata } from "next";
+import { StoreSettingsPage } from "@/src/features/(dashboard)/stores/settings/StoreSettingsPage";
+import { generatePageMetadata } from "@/src/lib/seo.config";
+
+export const metadata: Metadata = generatePageMetadata("dashboardHome");
 
 /**
- * The full-wizard edit page was replaced by the store settings page, where
- * each section saves independently. Old links keep working.
+ * Same sections as the settings page, but not tied to the store selected in
+ * the merchant's store context, so any store can be edited from its own URL.
  */
 export default async function Page({
   params,
 }: {
-  params: Promise<{ locale: string; type: string; storeId: string }>;
+  params: Promise<{ storeId: string }>;
 }) {
-  const { locale, type, storeId } = await params;
-  redirect(`/${locale}/${type}/stores/${storeId}/settings`);
+  const { storeId } = await params;
+  return (
+    <StoreSettingsPage storeId={Number(storeId)} lockToCurrentStore={false} />
+  );
 }

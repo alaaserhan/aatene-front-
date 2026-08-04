@@ -59,7 +59,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
   const store = storeData?.record;
 
   const handleEdit = () => {
-    router.push(`${storesBasePath}/${storeId}/settings`);
+    router.push(`${storesBasePath}/${storeId}/edit`);
   };
 
   const handleDeleteClick = () => {

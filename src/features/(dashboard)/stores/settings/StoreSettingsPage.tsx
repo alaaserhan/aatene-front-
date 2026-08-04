@@ -23,13 +23,22 @@ const breadcrumbItems = [
 
 interface StoreSettingsPageProps {
   storeId: number;
+  /**
+   * When true (the settings route), a merchant is redirected to the store
+   * currently selected in their store context. The edit route passes false so
+   * any of the merchant's stores can be opened directly.
+   */
+  lockToCurrentStore?: boolean;
 }
 
 /**
  * Store settings, one independent accordion per API endpoint. Merchants land
  * here after creating a store to fill in everything the create form skips.
  */
-export function StoreSettingsPage({ storeId }: StoreSettingsPageProps) {
+export function StoreSettingsPage({
+  storeId,
+  lockToCurrentStore = true,
+}: StoreSettingsPageProps) {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const isMerchant = user?.user_type === "merchant";
@@ -39,12 +48,12 @@ export function StoreSettingsPage({ storeId }: StoreSettingsPageProps) {
 
   // A merchant only ever manages the store selected in their store context
   useEffect(() => {
-    if (!isMerchant) return;
+    if (!lockToCurrentStore || !isMerchant) return;
     const { storeId: currentStoreId } = getStoreContext();
     if (currentStoreId && String(storeId) !== currentStoreId) {
       router.replace(`/admin/stores/${currentStoreId}/settings`);
     }
-  }, [isMerchant, storeId, router]);
+  }, [lockToCurrentStore, isMerchant, storeId, router]);
 
   const settings = useMemo(
     () => (store ? mapStoreToSettings(store) : null),
@@ -76,8 +85,8 @@ export function StoreSettingsPage({ storeId }: StoreSettingsPageProps) {
 
       <header className="mb-6">
         <h1 className="text-2xl font-semibold mb-2">إعدادات المتجر</h1>
-        <p className="text-sm text-gray-2">
-          أكمل بيانات متجر &quot;{store.name}&quot;. كل قسم يُحفظ بشكل مستقل عن
+        <p className="text-md text-gray-2">
+          أكمل بيانات متجر <span className="text-primary font-bold">&quot;{store.name}&quot;</span>. كل قسم يُحفظ بشكل مستقل عن
           الأقسام الأخرى.
         </p>
       </header>
