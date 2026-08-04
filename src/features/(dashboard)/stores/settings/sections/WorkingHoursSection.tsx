@@ -38,8 +38,6 @@ export function WorkingHoursSection({
   return (
     <SettingsSection
       value="workingHours"
-      title="أوقات العمل والعطلات"
-      description="حالة المتجر ومواعيد العمل خلال أيام الأسبوع"
       isSaving={mutation.isPending}
       onSave={handleSave}
     >

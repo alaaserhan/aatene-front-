@@ -81,7 +81,7 @@ export function StoreSettingsPage({
 
   return (
     <div className="container mx-auto p-0 py-4">
-      <Breadcrumb items={breadcrumbItems} withContainer/>
+      <Breadcrumb items={breadcrumbItems} withContainer />
 
       <header className="mb-6">
         <h1 className="text-2xl font-semibold mb-2">إعدادات المتجر</h1>
@@ -91,10 +91,7 @@ export function StoreSettingsPage({
         </p>
       </header>
 
-      <Accordion
-        type="multiple"
-        className="space-y-4 mb-8"
-      >
+      <Accordion type="multiple" className="mt-4 mb-8 space-y-4">
         <MainDataSection
           key={`mainData-${storeId}`}
           storeId={storeId}

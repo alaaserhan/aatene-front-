@@ -102,8 +102,6 @@ export function MainDataSection({
   return (
     <SettingsSection
       value="mainData"
-      title="البيانات الأساسية"
-      description="اسم المتجر، هويته، وصفه والمدن التي يعمل بها"
       isSaving={mutation.isPending}
       onSave={handleSave}
     >

@@ -9,11 +9,11 @@ import {
   AccordionTrigger,
 } from "@/src/components/ui/accordion";
 import { Button } from "@/src/components/ui/button";
+import { getStoreSettingsSection } from "../sections-meta";
+import { StoreSettingsSectionId } from "../types";
 
 interface SettingsSectionProps {
-  value: string;
-  title: string;
-  description: string;
+  value: StoreSettingsSectionId;
   isSaving?: boolean;
   onSave: () => void;
   children: ReactNode;
@@ -26,31 +26,50 @@ interface SettingsSectionProps {
  */
 export function SettingsSection({
   value,
-  title,
-  description,
   isSaving = false,
   onSave,
   children,
 }: SettingsSectionProps) {
+  const { label, description, icon: Icon } = getStoreSettingsSection(value);
+
   return (
     <AccordionItem
       value={value}
-      className="bg-white rounded-xl border border-gray-200 shadow-sm px-4 sm:px-6"
+      className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-colors data-[state=open]:border-blue-1"
     >
-      <AccordionTrigger iconStyle="chevron" className="hover:no-underline py-5">
-        <h2 className="text-base sm:text-lg font-semibold">{title}</h2>
-        <p className="text-xs text-gray-2 mt-1 font-normal">{description}</p>
+      <AccordionTrigger
+        iconStyle="chevron"
+        className="group px-4 py-4 hover:no-underline data-[state=open]:bg-blue-5/60 sm:px-6"
+      >
+        <div className="flex items-center gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-2 transition-colors group-hover:text-blue-4 group-data-[state=open]:border-blue-1 group-data-[state=open]:bg-white group-data-[state=open]:text-blue-3">
+            <Icon className="size-5" />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-blue-7 transition-colors sm:text-lg">
+              {label}
+            </h2>
+            <p className="mt-1 text-xs font-normal text-gray-2">
+              {description}
+            </p>
+          </div>
+        </div>
       </AccordionTrigger>
 
-      <AccordionContent className="pt-2 pb-6">
-        {children}
+      <AccordionContent className="p-0">
+        <div className="border-t border-gray-100 px-4 py-6 sm:px-6">
+          {children}
+        </div>
 
-        <div className="flex justify-end pt-6 mt-6 border-t border-gray-100">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 bg-gray-50/70 px-4 py-4 sm:px-6">
+          <p className="text-xs text-gray-2">
+            يُحفظ هذا القسم بشكل مستقل عن باقي الأقسام.
+          </p>
           <Button
             type="button"
             onClick={onSave}
             disabled={isSaving}
-            className="min-w-[160px] py-5 cursor-pointer rounded-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            className="min-w-40 cursor-pointer rounded-sm py-5 text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
             style={{ backgroundColor: "var(--blue-3)" }}
           >
             {isSaving ? (

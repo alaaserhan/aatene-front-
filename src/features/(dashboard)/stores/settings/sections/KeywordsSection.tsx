@@ -66,8 +66,6 @@ export function KeywordsSection({
   return (
     <SettingsSection
       value="keywords"
-      title="الكلمات المفتاحية"
-      description="كلمات تساعد العملاء على الوصول لمتجرك في البحث"
       isSaving={mutation.isPending}
       onSave={() => mutation.mutate({ tags })}
     >

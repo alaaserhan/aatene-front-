@@ -51,8 +51,6 @@ export function SocialMediaSection({
   return (
     <SettingsSection
       value="socialMedia"
-      title="الاتصال والسوشيال ميديا"
-      description="رقم الهاتف وروابط حسابات التواصل الاجتماعي"
       isSaving={mutation.isPending}
       onSave={handleSave}
     >
