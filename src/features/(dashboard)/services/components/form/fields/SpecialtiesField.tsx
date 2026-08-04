@@ -4,9 +4,9 @@
 import { HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Label } from "@/src/components/ui/label";
-import { Tooltip } from "@/src/components/ui/Tooltip";
 import { MAX_SPECIALTIES } from "../constants";
 import { TagInput } from "./TagInput";
+import { Tooltip } from "@/src/components/ui/Tooltip";
 
 interface SpecialtiesFieldProps {
   value: string[];
@@ -36,7 +36,7 @@ export function SpecialtiesField({ value, onChange }: SpecialtiesFieldProps) {
           trigger={
             <div className="flex items-center gap-1 text-blue-4 cursor-pointer transition-colors hover:text-blue-500">
               <HelpCircle className="w-3.5 h-3.5" />
-              <span className="text-xs font-medium">ماهي التخصصات</span>
+              <span className="text-xs font-medium">ما هي التخصصات</span>
             </div>
           }
           content={`استخدِم كلمات تصف التخصصات أو مجالات العمل، مثل: "محاسبة"، "تسويق"، "هندسة"، "تصميم جرافيكي"`}

@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { HelpCircle, Trash2 } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { Tooltip } from "@/src/components/ui/Tooltip";
 
 // تعريف المدينة بـ ID رقمي

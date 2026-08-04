@@ -84,7 +84,7 @@ export function StoreKeywordsFields({
           trigger={
             <div className="flex items-center gap-1 text-blue-4 cursor-pointer hover:text-blue-500 transition-colors">
               <HelpCircle className="w-3.5 h-3.5" />
-              <span className="text-xs font-medium">ماهي الكلمات المفتاحية</span>
+              <span className="text-xs font-medium pt-px">ما هي الكلمات المفتاحية</span>
             </div>
           }
           content={KEYWORDS_DESCRIPTION}

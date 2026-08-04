@@ -1,30 +1,30 @@
 "use client";
 
-import { useState, KeyboardEvent, useMemo, useEffect } from "react";
-import { HelpCircle, Loader2 } from "lucide-react";
-import Cookies from "js-cookie";
-import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
-import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
-import { ProductFormActions } from "./ProductFormActions";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
-import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { Tooltip } from "@/src/components/ui/Tooltip";
-import { OptionTag } from "@/src/components/ui/OptionTag";
-import { useInfiniteGetStores } from "../../stores/hooks";
-import { useGetSections, useCreateSection } from "../../sections/hooks";
-import { Step1FormData, Step2FormData } from "../types";
-import { toast } from "sonner";
-import { Label } from "@/src/components/ui/label";
-import { Stepper } from "@/src/components/ui/Stepper";
+import { Button } from "@/src/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/src/components/ui/dialog";
-import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
+import { Label } from "@/src/components/ui/label";
+import { OptionTag } from "@/src/components/ui/OptionTag";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { Stepper } from "@/src/components/ui/Stepper";
+import { Tooltip } from "@/src/components/ui/Tooltip";
+import Cookies from "js-cookie";
+import { HelpCircle, Loader2 } from "lucide-react";
+import { KeyboardEvent, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { useCreateSection, useGetSections } from "../../sections/hooks";
+import { useInfiniteGetStores } from "../../stores/hooks";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
+import { Step1FormData, Step2FormData } from "../types";
+import { ProductFormActions } from "./ProductFormActions";
+import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 
 interface ExtendedStep2FormData extends Step2FormData {
   section_id?: number;
@@ -363,7 +363,7 @@ export function AddProductStep2({
                         <div className="flex items-center gap-1 text-blue-4 cursor-pointer hover:text-blue-500 transition-colors">
                           <HelpCircle className="w-3.5 h-3.5" />
                           <span className="text-xs font-medium">
-                            ماهي الكلمات المفتاحية
+                            ما هي الكلمات المفتاحية
                           </span>
                         </div>
                       }

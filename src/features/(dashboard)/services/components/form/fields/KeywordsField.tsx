@@ -1,11 +1,11 @@
 // src/features/(dashboard)/services/components/form/fields/KeywordsField.tsx
 "use client";
 
+import { Label } from "@/src/components/ui/label";
+import { TagSearchInput } from "@/src/components/ui/TagSearchInput";
+import { Tooltip } from "@/src/components/ui/Tooltip";
 import { HelpCircle } from "lucide-react";
 import { toast } from "sonner";
-import { Label } from "@/src/components/ui/label";
-import { Tooltip } from "@/src/components/ui/Tooltip";
-import { TagSearchInput } from "@/src/components/ui/TagSearchInput";
 import { MAX_KEYWORDS } from "../constants";
 
 // --- AI generation (disabled for now, may come back) ---
@@ -83,7 +83,7 @@ export function KeywordsField({ value, onChange }: KeywordsFieldProps) {
           trigger={
             <div className="flex items-center gap-1 text-blue-4 cursor-pointer transition-colors hover:text-blue-500">
               <HelpCircle className="w-3.5 h-3.5" />
-              <span className="text-xs font-medium">ماهي الكلمات المفتاحية</span>
+              <span className="text-xs font-medium pt-px">ما هي الكلمات المفتاحية</span>
             </div>
           }
           content="الكلمات المفتاحية مصطلحات تصف محتوى الخدمة وتُحسّن ظهورها في البحث. ابحث عن كلمة موجودة واخترها، أو أضف كلمة جديدة."
