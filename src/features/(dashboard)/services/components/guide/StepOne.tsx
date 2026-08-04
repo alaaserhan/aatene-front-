@@ -3,12 +3,12 @@
 export default function StepOne() {
     return (
         <div className="w-full">
-            <h2 className="text-base md:text-lg lg:text-xl font-bold text-[#2D496A] mb-2">في حالة لا توجد أي أقسام مفتوحة</h2>
-            <p className="text-xs md:text-sm lg:text-base text-[#2D496A] mb-6 md:mb-8">من لوحة التحكم يمكنك الضغط علي إضافة أقسام جديدة لمتجرك</p>
-            
+            <h2 className="text-base md:text-lg lg:text-xl font-bold text-[#2D496A] mb-2">في حالة لا توجد أي خدمات</h2>
+            <p className="text-xs md:text-sm lg:text-base text-[#2D496A] mb-6 md:mb-8">من لوحة التحكم يمكنك الضغط علي أضف خدمة</p>
+
             <div className="hidden lg:block relative w-full max-w-[1336px] min-h-[400px] mx-auto ">
                 <img
-                    src="/guide-images/Frame1step11.webp"
+                    src="/guide-images/no-services-guide.webp"
                     alt="صفحة المتجر"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[57.3%] drop-shadow-xl"
                     loading="lazy"
@@ -29,7 +29,7 @@ export default function StepOne() {
                 />
 
                 <p className="absolute text-[#2D496A] text-sm font-medium text-center top-[89.2%] left-[65%] w-[20.9%]">
-                    الضغط علي إضافة قسم جديد لمتجرك
+                    الضغط علي إضافة خدمة جديدة
                 </p>
 
                 <p className="absolute text-[#2D496A] text-sm font-medium text-center top-[89.2%] left-[8%] w-[30.6%]">
