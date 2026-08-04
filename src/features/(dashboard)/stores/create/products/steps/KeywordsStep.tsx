@@ -65,6 +65,7 @@ export function KeywordsStep({
                 <StoreKeywordsFields
                   tags={tags}
                   onChange={setTags}
+                  type="product"
                   aiKeywords={aiKeywords}
                   isGeneratingAI={isGeneratingAI}
                 />

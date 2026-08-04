@@ -50,12 +50,7 @@ export function AdvancedInfoStep({ values, setField }: AdvancedInfoStepProps) {
       <Divider />
 
       {/* 3. Keywords */}
-      <KeywordsField
-        value={values.tags}
-        onChange={(tags) => setField("tags", tags)}
-        title={values.title}
-        description={values.description}
-      />
+      <KeywordsField value={values.tags} onChange={(tags) => setField("tags", tags)} />
 
       <Divider />
 

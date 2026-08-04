@@ -118,6 +118,7 @@ export function StoreSettingsPage({
           key={`keywords-${storeId}`}
           storeId={storeId}
           initialValues={settings.keywords}
+          storeType={store.type}
           storeName={store.name}
           storeDescription={store.description || ""}
         />

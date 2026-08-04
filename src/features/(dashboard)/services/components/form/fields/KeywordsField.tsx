@@ -1,34 +1,37 @@
 // src/features/(dashboard)/services/components/form/fields/KeywordsField.tsx
 "use client";
 
-import { useState } from "react";
-import { HelpCircle, Loader2, Sparkles } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Label } from "@/src/components/ui/label";
 import { Tooltip } from "@/src/components/ui/Tooltip";
-import { Button } from "@/src/components/ui/button";
-import { useGenerateProductAI } from "@/src/features/(dashboard)/products/hooks";
+import { TagSearchInput } from "@/src/components/ui/TagSearchInput";
 import { MAX_KEYWORDS } from "../constants";
-import { TagInput } from "./TagInput";
+
+// --- AI generation (disabled for now, may come back) ---
+// import { useState } from "react";
+// import { Loader2, Sparkles } from "lucide-react";
+// import { Button } from "@/src/components/ui/button";
+// import { useGenerateProductAI } from "@/src/features/(dashboard)/products/hooks";
 
 interface KeywordsFieldProps {
   value: string[];
   onChange: (keywords: string[]) => void;
-  /** Used to generate the keywords via AI */
-  title: string;
-  description: string;
+  // /** Used to generate the keywords via AI */
+  // title: string;
+  // description: string;
 }
 
-const stripHtml = (html: string) => {
-  const el = document.createElement("div");
-  el.innerHTML = html;
-  return (el.textContent || el.innerText || "").trim();
-};
+// const stripHtml = (html: string) => {
+//   const el = document.createElement("div");
+//   el.innerHTML = html;
+//   return (el.textContent || el.innerText || "").trim();
+// };
 
-/** Keywords (optional) — manual entry or AI generation from the title and description */
-export function KeywordsField({ value, onChange, title, description }: KeywordsFieldProps) {
-  const generateAI = useGenerateProductAI();
-  const [isGenerating, setIsGenerating] = useState(false);
+/** Keywords (optional) — pick an existing tag from the database or add a new one */
+export function KeywordsField({ value, onChange }: KeywordsFieldProps) {
+  // const generateAI = useGenerateProductAI();
+  // const [isGenerating, setIsGenerating] = useState(false);
 
   const handleAdd = (keyword: string): boolean => {
     if (value.includes(keyword)) {
@@ -43,34 +46,34 @@ export function KeywordsField({ value, onChange, title, description }: KeywordsF
     return true;
   };
 
-  const handleGenerate = async () => {
-    const descText = stripHtml(description);
-    if (!title.trim() || !descText) {
-      toast.error("يرجى إدخال عنوان ووصف للخدمة أولاً لتوليد الكلمات المفتاحية");
-      return;
-    }
-
-    setIsGenerating(true);
-    try {
-      const data = await generateAI.mutateAsync({
-        title: title.trim(),
-        description: descText,
-        type: "service",
-      });
-      const keywords = data.results?.keywords ?? [];
-      if (keywords.length > 0) {
-        onChange(keywords.slice(0, MAX_KEYWORDS));
-        toast.success("تم توليد الكلمات المفتاحية بنجاح");
-      } else {
-        toast.warning("لم تُستخرج كلمات مفتاحية — جرّب تعديل الوصف وأعد المحاولة");
-      }
-    } catch (error) {
-      console.error("AI Generation Error:", error);
-      toast.error("فشل توليد الكلمات المفتاحية");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+  // const handleGenerate = async () => {
+  //   const descText = stripHtml(description);
+  //   if (!title.trim() || !descText) {
+  //     toast.error("يرجى إدخال عنوان ووصف للخدمة أولاً لتوليد الكلمات المفتاحية");
+  //     return;
+  //   }
+  //
+  //   setIsGenerating(true);
+  //   try {
+  //     const data = await generateAI.mutateAsync({
+  //       title: title.trim(),
+  //       description: descText,
+  //       type: "service",
+  //     });
+  //     const keywords = data.results?.keywords ?? [];
+  //     if (keywords.length > 0) {
+  //       onChange(keywords.slice(0, MAX_KEYWORDS));
+  //       toast.success("تم توليد الكلمات المفتاحية بنجاح");
+  //     } else {
+  //       toast.warning("لم تُستخرج كلمات مفتاحية — جرّب تعديل الوصف وأعد المحاولة");
+  //     }
+  //   } catch (error) {
+  //     console.error("AI Generation Error:", error);
+  //     toast.error("فشل توليد الكلمات المفتاحية");
+  //   } finally {
+  //     setIsGenerating(false);
+  //   }
+  // };
 
   return (
     <div className="space-y-4">
@@ -83,17 +86,19 @@ export function KeywordsField({ value, onChange, title, description }: KeywordsF
               <span className="text-xs font-medium">ماهي الكلمات المفتاحية</span>
             </div>
           }
-          content="الكلمات المفتاحية مصطلحات تصف محتوى الخدمة وتُحسّن ظهورها في البحث."
+          content="الكلمات المفتاحية مصطلحات تصف محتوى الخدمة وتُحسّن ظهورها في البحث. ابحث عن كلمة موجودة واخترها، أو أضف كلمة جديدة."
         />
       </div>
 
-      <TagInput
+      <TagSearchInput
         tags={value}
         onAdd={handleAdd}
         onRemove={(keyword) => onChange(value.filter((k) => k !== keyword))}
-        placeholder="اضف الكلمة المفتاحية ثم اضغط علي إضافة"
+        type="service"
+        placeholder="ابحث عن كلمة مفتاحية أو أضف كلمة جديدة"
       />
 
+      {/* AI generation button — disabled for now, may come back
       <Button
         type="button"
         onClick={handleGenerate}
@@ -103,6 +108,7 @@ export function KeywordsField({ value, onChange, title, description }: KeywordsF
         {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
         {isGenerating ? "جاري التوليد..." : "توليد الكلمات المفتاحية من الوصف"}
       </Button>
+      */}
     </div>
   );
 }

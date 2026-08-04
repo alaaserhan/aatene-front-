@@ -1,11 +1,11 @@
 // src/features/(dashboard)/stores/components/StoreKeywordsFields.tsx
 "use client";
 
-import { KeyboardEvent, useState } from "react";
 import { HelpCircle } from "lucide-react";
 import { toast } from "sonner";
-import { OptionTag } from "@/src/components/ui/OptionTag";
+import { TagSearchInput } from "@/src/components/ui/TagSearchInput";
 import { Tooltip } from "@/src/components/ui/Tooltip";
+import { TagType } from "@/src/features/(dashboard)/tags/api";
 
 const MAX_TAGS = 10;
 const MIN_TAGS = 3;
@@ -29,6 +29,8 @@ export function normalizeTagList(tags: unknown): string[] {
 interface StoreKeywordsFieldsProps {
   tags: string[];
   onChange: (tags: string[]) => void;
+  /** Scopes the tag suggestions to the store's own type */
+  type: TagType;
   /** Keywords produced by the AI generator — at least 3 must be kept. */
   aiKeywords?: string[];
   isGeneratingAI?: boolean;
@@ -37,27 +39,24 @@ interface StoreKeywordsFieldsProps {
 export function StoreKeywordsFields({
   tags,
   onChange,
+  type,
   aiKeywords = [],
   isGeneratingAI = false,
 }: StoreKeywordsFieldsProps) {
-  const [inputValue, setInputValue] = useState("");
-
-  const addTag = () => {
-    const newTag = inputValue.trim();
-    if (!newTag) return;
-
+  /** Returns true on a successful add so the input clears */
+  const addTag = (newTag: string): boolean => {
     if (tags.includes(newTag)) {
       toast.error("الكلمة المفتاحية مضافة بالفعل");
-      return;
+      return false;
     }
 
     if (tags.length >= MAX_TAGS) {
       toast.error(`لا يمكن إضافة أكثر من ${MAX_TAGS} كلمات مفتاحية`);
-      return;
+      return false;
     }
 
     onChange([...tags, newTag]);
-    setInputValue("");
+    return true;
   };
 
   const removeTag = (tagToRemove: string) => {
@@ -77,13 +76,6 @@ export function StoreKeywordsFields({
     onChange(tags.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addTag();
-    }
-  };
-
   return (
     <div>
       <div className="flex items-center justify-between gap-2 mb-4">
@@ -99,41 +91,20 @@ export function StoreKeywordsFields({
         />
       </div>
 
-      <div className="flex items-center gap-3">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={
-            isGeneratingAI
-              ? "جاري توليد الكلمات المفتاحية..."
-              : "اكتب الوسم هنا..."
-          }
-          className="flex-1 px-4 py-2.5 border border-gray-200 rounded-sm focus:outline-none text-sm transition-all"
-        />
-        <button
-          type="button"
-          onClick={addTag}
-          disabled={!inputValue.trim()}
-          className="px-6 py-2.5 bg-blue-4 text-white rounded-sm text-sm font-medium hover:bg-[#2c425e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          إضافة
-        </button>
-      </div>
-
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-4">
-          {tags.map((tag) => (
-            <OptionTag
-              key={tag}
-              label={tag}
-              onRemove={() => removeTag(tag)}
-              showRemoveButton={tags.length > MIN_TAGS}
-            />
-          ))}
-        </div>
-      )}
+      <TagSearchInput
+        tags={tags}
+        onAdd={addTag}
+        onRemove={removeTag}
+        type={type}
+        showRemoveButton={tags.length > MIN_TAGS}
+        disabled={isGeneratingAI}
+        placeholder={
+          isGeneratingAI
+            ? "جاري توليد الكلمات المفتاحية..."
+            : "ابحث عن كلمة مفتاحية أو أضف كلمة جديدة"
+        }
+        inputClassName="py-2.5"
+      />
     </div>
   );
 }
