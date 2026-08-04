@@ -2,14 +2,16 @@
 "use client";
 
 import { useState } from "react";
+import { HelpCircle } from "lucide-react";
 import { FormInput } from "@/src/components/ui/FormInput";
+import { Tooltip } from "@/src/components/ui/Tooltip";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { OptionTag } from "@/src/components/ui/OptionTag";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { Textarea } from "@/src/components/ui/Textarea";
 import { StoreIdentitySelector } from "../../components/StoreIdentitySelector";
-import { StoreBannerSelector } from "../../components/StoreBannerSelector";
+import { StoreSingleBannerSelector } from "../../components/StoreSingleBannerSelector";
 import { CityMultiSelect } from "../../components/CityMultiSelect";
 import { useGetCities } from "../../../cities/hooks";
 import { StoreType } from "../../api";
@@ -129,13 +131,16 @@ export function MainDataSection({
           }
         />
 
-        <StoreBannerSelector
-          value={values.cover}
-          previews={values.coverPreviews}
-          onChange={(fileNames, srcs) =>
-            setValues({ ...values, cover: fileNames, coverPreviews: srcs })
+        <StoreSingleBannerSelector
+          value={values.cover[0] ?? null}
+          previewUrl={values.coverPreviews[0] ?? null}
+          onChange={(fileName, src) =>
+            setValues({
+              ...values,
+              cover: fileName ? [fileName] : [],
+              coverPreviews: src ? [src] : [],
+            })
           }
-          maxFiles={10}
         />
 
         <Textarea
@@ -161,6 +166,7 @@ export function MainDataSection({
         />
 
         <CityMultiSelect
+          label="مدينة المتجر"
           cities={cities}
           selectedCityIds={values.locationCities}
           onChange={(ids) => {
@@ -173,6 +179,7 @@ export function MainDataSection({
               ? "اختر المدينة التي يقع فيها مكتبك"
               : "اختر المدينة التي يقع فيها متجرك"
           }
+          tooltip="اختر المدينة التي يقع فيها المتجر فعليًا. وإذا كان لديك عدة فروع في مدن مختلفة، يمكنك اختيار أكثر من مدينة."
         />
 
         <div className="space-y-2">
@@ -191,10 +198,23 @@ export function MainDataSection({
 
         {isServicesStore && (
           <div className="space-y-3">
-            <Label className="text-sm font-medium">
-              المناطق التي يمكنك تقديم خدمتك فيها{" "}
-              <span className="text-red-500">*</span>
-            </Label>
+            <div className="flex items-center justify-between gap-4">
+              <Label className="text-sm font-medium">
+                المناطق التي يمكنك تقديم خدمتك فيها{" "}
+                <span className="text-red-500">*</span>
+              </Label>
+              <Tooltip
+                trigger={
+                  <div className="flex items-center gap-1 text-blue-4 cursor-pointer">
+                    <HelpCircle className="w-3.5 h-3.5" />
+                    <span className="text-xs font-medium">
+                      ما هي مناطق الخدمة
+                    </span>
+                  </div>
+                }
+                content="اختر المدن التي تقدم فيها خدماتك. يمكنك اختيار أكثر من مدينة إذا كنت تقدم خدماتك في أكثر من مدينة."
+              />
+            </div>
             <ReusableDropdown
               options={availableServiceCities}
               value=""
