@@ -67,7 +67,7 @@ export const FormInput = forwardRef<
     <div className={cn("space-y-2", containerClassName)}>
       {/* Label */}
       {label && (
-        <label className="block text-sm font-medium mb-2">
+        <label className="block text-sm text-[#3D3D3D] mb-2">
           {label}
           {required && <span className="text-red-500 mr-1">*</span>}
         </label>

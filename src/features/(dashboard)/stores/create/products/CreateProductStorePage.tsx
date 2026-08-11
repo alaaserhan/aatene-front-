@@ -3,15 +3,19 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
+import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { StoreIdentitySelector } from "../../components/StoreIdentitySelector";
+import { StoreShippingFields } from "../../components/StoreShippingFields";
 import { StoreSubmitBar } from "../../components/StoreSubmitBar";
 import { CityMultiSelect } from "../../components/CityMultiSelect";
+import { normalizeShippingCompaniesForApi } from "../../store-shipping-payload";
 import { useGetCities } from "../../../cities/hooks";
 import { useGetUsers } from "../../../users/hooks";
 import { useCreateStore } from "../hooks";
@@ -36,12 +40,14 @@ const EMPTY_FORM: ProductStoreFormValues = {
   logoPreview: null,
   locationCities: [],
   owner_id: 0,
+  shippingEnabled: true,
+  shipping: { delivery_type: "hand_delivery", shippingCompanies: [] },
 };
 
 /**
- * Single-step creation of a products store. Only the essentials are asked for
- * here — contact details, working hours, shipping and keywords are filled in
- * later from the store settings page.
+ * Single-step creation of a products store. Only the essentials are required
+ * here — contact details, working hours and keywords are filled in later from
+ * the store settings page. Shipping can optionally be set up now too.
  */
 export function CreateProductStorePage() {
   const router = useRouter();
@@ -111,12 +117,31 @@ export function CreateProductStorePage() {
     if (isAdmin && !values.owner_id)
       newErrors.owner_id = "يجب اختيار مالك المتجر";
 
+    if (
+      values.shippingEnabled &&
+      values.shipping.delivery_type === "shipping" &&
+      values.shipping.shippingCompanies.length === 0
+    ) {
+      newErrors.shipping = "يجب إضافة شركة شحن واحدة على الأقل";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
-    if (!validate()) return;
+    const isShipping = values.shipping.delivery_type === "shipping";
+    const shippingIncomplete =
+      values.shippingEnabled &&
+      isShipping &&
+      values.shipping.shippingCompanies.length === 0;
+
+    if (!validate()) {
+      if (shippingIncomplete) {
+        toast.error("يجب إضافة شركة شحن واحدة على الأقل");
+      }
+      return;
+    }
 
     try {
       const response = await createStoreMutation.mutateAsync({
@@ -126,6 +151,16 @@ export function CreateProductStorePage() {
         locationCities: values.locationCities,
         serviceCities: [],
         ...(isAdmin && values.owner_id ? { owner_id: values.owner_id } : {}),
+        ...(values.shippingEnabled
+          ? {
+              delivery_type: values.shipping.delivery_type,
+              shippingCompanies: isShipping
+                ? normalizeShippingCompaniesForApi(
+                    values.shipping.shippingCompanies
+                  )
+                : [],
+            }
+          : {}),
       });
 
       setCreatedStoreId(response.record?.id ?? null);
@@ -225,6 +260,39 @@ export function CreateProductStorePage() {
               </div>
             )}
           </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-4">
+          <div className="mb-6 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">طريقة الشحن</h2>
+              <p className="mt-1 text-sm text-gray-2">
+                اختياري، يمكنك إعدادها الآن أو لاحقًا من إعدادات المتجر
+              </p>
+            </div>
+            <ToggleSwitch
+              enabled={values.shippingEnabled}
+              onChange={(enabled) => {
+                setValues({ ...values, shippingEnabled: enabled });
+                clearError("shipping");
+              }}
+            />
+          </div>
+
+          {values.shippingEnabled && (
+            <>
+              <StoreShippingFields
+                values={values.shipping}
+                onChange={(shipping) => {
+                  setValues({ ...values, shipping });
+                  clearError("shipping");
+                }}
+              />
+              {errors.shipping && (
+                <p className="mt-2 text-xs text-red-500">{errors.shipping}</p>
+              )}
+            </>
+          )}
         </div>
       </div>
 

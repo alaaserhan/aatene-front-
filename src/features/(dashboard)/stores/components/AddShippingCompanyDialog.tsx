@@ -57,7 +57,9 @@ export function AddShippingCompanyDialog({
   const [step, setStep] = useState(1);
   const [phoneCountryCode, setPhoneCountryCode] = useState("+972");
   const [selectedCityIds, setSelectedCityIds] = useState<number[]>([]);
-  const [shippingPrices, setShippingPrices] = useState<Record<number, PriceData>>({});
+  const [shippingPrices, setShippingPrices] = useState<
+    Record<number, PriceData>
+  >({});
   const [storeName, setStoreName] = useState("");
   const [storePhone, setStorePhone] = useState("");
 
@@ -70,7 +72,7 @@ export function AddShippingCompanyDialog({
   const cities = useMemo(() => {
     if (!citySearch.trim()) return allCities;
     return allCities.filter((c) =>
-      c.name.toLowerCase().includes(citySearch.trim().toLowerCase())
+      c.name.toLowerCase().includes(citySearch.trim().toLowerCase()),
     );
   }, [allCities, citySearch]);
 
@@ -89,11 +91,10 @@ export function AddShippingCompanyDialog({
           const cityId = Number(p.city_id);
           pricesMap[cityId] = {
             days: Number(p.days),
-            price: Number(p.price)
+            price: Number(p.price),
           };
         });
         setShippingPrices(pricesMap);
-
       } else {
         setStoreName("");
         setStorePhone("");
@@ -111,7 +112,7 @@ export function AddShippingCompanyDialog({
         : [...prev, cityId];
 
       if (newSelection.length > 0 && errors.cities) {
-        setErrors(prevErr => ({ ...prevErr, cities: "" }));
+        setErrors((prevErr) => ({ ...prevErr, cities: "" }));
       }
       return newSelection;
     });
@@ -220,7 +221,7 @@ export function AddShippingCompanyDialog({
   const updateShippingPrice = (
     cityId: number,
     field: keyof PriceData,
-    value: number | ""
+    value: number | "",
   ) => {
     setShippingPrices((prev) => ({
       ...prev,
@@ -257,7 +258,8 @@ export function AddShippingCompanyDialog({
               {editingCompany ? "تعديل شركة الشحن" : "إضافة بيانات شركة الشحن"}
             </DialogTitle>
             <DialogDescription className="sr-only">
-              اختر المدن التي تدعمها شركة الشحن، ثم حدد مدة وسعر التوصيل لكل مدينة. اسم الشركة ورقم الهاتف اختياريان.
+              اختر المدن التي تدعمها شركة الشحن، ثم حدد مدة وسعر التوصيل لكل
+              مدينة. اسم الشركة ورقم الهاتف اختياريان.
             </DialogDescription>
           </div>
         </DialogHeader>
@@ -268,7 +270,10 @@ export function AddShippingCompanyDialog({
               {/* Removed Company Name Input */}
 
               <div className="space-y-4">
-                <h3 className="font-medium">المدن التي ترسل لها المنتجات؟ <span className="text-red-500">*</span></h3>
+                <h3 className="font-medium">
+                  المدن التي ترسل لها المنتجات؟{" "}
+                  <span className="text-red-500">*</span>
+                </h3>
 
                 {/* City Search */}
                 <div className="relative">
@@ -285,7 +290,7 @@ export function AddShippingCompanyDialog({
                 <div
                   className={cn(
                     "space-y-3 p-2 rounded-lg transition-colors max-h-52 overflow-y-auto",
-                    errors.cities ? "border border-red-500 bg-red-50" : ""
+                    errors.cities ? "border border-red-500 bg-red-50" : "",
                   )}
                 >
                   {cities.map((city) => {
@@ -302,7 +307,7 @@ export function AddShippingCompanyDialog({
                             "w-4 h-4 rounded-xs border transition-colors flex items-center justify-center shrink-0 cursor-pointer",
                             isSelected
                               ? "bg-blue-5 border-blue-4"
-                              : "bg-white border-gray-300 group-hover:border-gray-2"
+                              : "bg-white border-gray-300 group-hover:border-gray-2",
                           )}
                           aria-checked={isSelected}
                           role="checkbox"
@@ -383,18 +388,22 @@ export function AddShippingCompanyDialog({
                             updateShippingPrice(
                               cityId,
                               "days",
-                              e.target.value === "" ? "" : parseInt(e.target.value)
+                              e.target.value === ""
+                                ? ""
+                                : parseInt(e.target.value),
                             )
                           }
                           className={cn(
                             "w-full px-4 py-2 border text-sm rounded-full focus:outline-none focus:ring-2 transition-shadow",
                             daysError
                               ? "border-red-500 focus:ring-red-200"
-                              : "border-gray-300 focus:ring-[#3A5779]"
+                              : "border-gray-300 focus:ring-[#3A5779]",
                           )}
                         />
                         {daysError && (
-                          <p className="text-xs text-red-500 mt-1">{daysError}</p>
+                          <p className="text-xs text-red-500 mt-1">
+                            {daysError}
+                          </p>
                         )}
                       </div>
 
@@ -402,27 +411,36 @@ export function AddShippingCompanyDialog({
                         <label className="block text-xs text-gray-2 mb-2">
                           سعر التوصيل <span className="text-red-500">*</span>
                         </label>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={shippingPrices[cityId]?.price}
-                          onChange={(e) =>
-                            updateShippingPrice(
-                              cityId,
-                              "price",
-                              e.target.value === "" ? "" : parseFloat(e.target.value)
-                            )
-                          }
-                          className={cn(
-                            "w-full px-4 py-2 border text-sm rounded-full focus:outline-none focus:ring-2 transition-shadow",
-                            priceError
-                              ? "border-red-500 focus:ring-red-200"
-                              : "border-gray-300 focus:ring-[#3A5779]"
-                          )}
-                        />
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={shippingPrices[cityId]?.price}
+                            onChange={(e) =>
+                              updateShippingPrice(
+                                cityId,
+                                "price",
+                                e.target.value === ""
+                                  ? ""
+                                  : parseFloat(e.target.value),
+                              )
+                            }
+                            className={cn(
+                              "w-full px-4 pe-8 py-2 border text-sm rounded-full focus:outline-none focus:ring-2 transition-shadow",
+                              priceError
+                                ? "border-red-500 focus:ring-red-200"
+                                : "border-gray-300 focus:ring-[#3A5779]",
+                            )}
+                          />
+                          <span className="absolute inset-e-5 top-1/2 -translate-y-1/2 text-blue-7 font-medium pointer-events-none">
+                            ₪
+                          </span>
+                        </div>
                         {priceError && (
-                          <p className="text-xs text-red-500 mt-1">{priceError}</p>
+                          <p className="text-xs text-red-500 mt-1">
+                            {priceError}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -436,7 +454,8 @@ export function AddShippingCompanyDialog({
                   value={storeName}
                   onChange={(e) => {
                     setStoreName(e.target.value);
-                    if (errors.storeName) setErrors({ ...errors, storeName: "" });
+                    if (errors.storeName)
+                      setErrors({ ...errors, storeName: "" });
                   }}
                   placeholder="أدخل اسم الشركة"
                   className="h-10 rounded-full"
@@ -451,7 +470,8 @@ export function AddShippingCompanyDialog({
                   value={storePhone}
                   onChange={(e) => {
                     setStorePhone(e.target.value);
-                    if (errors.storePhone) setErrors({ ...errors, storePhone: "" });
+                    if (errors.storePhone)
+                      setErrors({ ...errors, storePhone: "" });
                   }}
                   className="h-10"
                   error={errors.storePhone}
@@ -460,7 +480,7 @@ export function AddShippingCompanyDialog({
               </div>
 
               <div>
-                <p className="text-xs text-gray-2">
+                <p className="text-xs text-[#717171] font-normal">
                   • المدن التي لن يتم إضافتها في الملف لا تستطيع الشراء منك
                 </p>
               </div>

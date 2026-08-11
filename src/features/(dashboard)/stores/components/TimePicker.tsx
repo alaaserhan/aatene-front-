@@ -83,7 +83,7 @@ export function TimePicker({
     <div
       ref={containerRef}
       className={cn(
-        "relative flex items-center justify-between w-[150px] h-[45px] px-3 bg-white border border-[#D5DEE7] rounded-lg transition-colors",
+        "relative flex items-center justify-between w-36 h-[45px] px-4 bg-white border border-[#CBD5E0] rounded-lg transition-colors",
         disabled ? "opacity-50 cursor-not-allowed bg-gray-50" : "hover:border-blue-3",
         className
       )}
@@ -93,7 +93,7 @@ export function TimePicker({
         <button
           type="button"
           onClick={() => !disabled && setIsHourOpen(!isHourOpen)}
-          className="text-base font-medium text-gray-2 hover:text-blue-3 transition-colors focus:outline-none w-full "
+          className="text-xs text-[#808080] hover:text-blue-3 transition-colors focus:outline-none"
           disabled={disabled}
         >
           {currentTimeDisplay}
@@ -126,18 +126,18 @@ export function TimePicker({
 
 
       {/* Vertical Divider */}
-      <div className="w-[1px] h-5 bg-gray-1 mx-1" />
+      <div className="w-px h-5 bg-gray-2 mx-3" />
 
       {/* Period Section (Left) */}
       <div className="relative">
         <button
           type="button"
           onClick={() => !disabled && setIsPeriodOpen(!isPeriodOpen)}
-          className="flex items-center gap-1.5 text-sm font-medium text-gray-2 hover:text-blue-3 transition-colors focus:outline-none"
+          className="flex items-center gap-1 text-sm text-gray-2 hover:text-blue-3 transition-colors focus:outline-none"
           disabled={disabled}
         >
+          <span className="pt-1 text-xs text-[#808080]">{period}</span>
           <ChevronDown className="w-4 h-4" />
-          <span>{period}</span>
         </button>
 
         {/* Period Dropdown */}

@@ -22,7 +22,7 @@ const OPEN_STATUS_OPTIONS: {
 }[] = [
   {
     value: "open_with_working_times",
-    label: "مفتوح خلال ساعات عمل معينه",
+    label: "مفتوح خلال ساعات عمل معينة",
     description: "أظهر متى يكون عملك مفتوحاً",
   },
   {
@@ -97,59 +97,53 @@ export function StoreWorkingHoursFields({
       </div>
 
       {openStatus === "open_with_working_times" && (
-        <div className="mt-8">
-          <div className="grid grid-cols-12 gap-4 mb-4 text-sm font-medium text-gray-3 px-2">
-            <div className="col-span-2">اليوم</div>
-            <div className="col-span-4">يفتح في</div>
-            <div className="col-span-4">يغلق في</div>
-            <div className="col-span-2"></div>
+        <div className="mt-8 space-y-6">
+          <div className="flex flex-wrap items-center gap-4 text-sm text-[#808080]">
+            <span className="w-20 shrink-0">اليوم</span>
+            <span className="w-37.5">يفتح في</span>
+            <span className="w-37.5">يغلق في</span>
           </div>
 
-          <div className="space-y-8">
-            {workingTimes.map((time, index) => (
-              <div key={time.day} className="grid grid-cols-12 gap-4 items-center">
-                <div className="col-span-12 md:col-span-2">
-                  <span className="text-sm font-medium">
-                    {WEEK_DAYS.find((d) => d.value === time.day)?.label}
-                  </span>
-                </div>
+          {workingTimes.map((time, index) => (
+            <div
+              key={time.day}
+              className="flex flex-wrap items-center gap-4"
+            >
+              <span className="text-sm text-black w-20 shrink-0">
+                {WEEK_DAYS.find((d) => d.value === time.day)?.label}
+              </span>
 
-                <div className="col-span-6 md:col-span-3 flex">
-                  <TimePicker
-                    value={time.from}
-                    onChange={(val) => updateWorkingTime(index, "from", val)}
-                    disabled={time.open_always || time.closed_always}
-                  />
-                </div>
+              <TimePicker
+                value={time.from}
+                onChange={(val) => updateWorkingTime(index, "from", val)}
+                disabled={time.open_always || time.closed_always}
+              />
 
-                <div className="col-span-6 md:col-span-3 flex">
-                  <TimePicker
-                    value={time.to}
-                    onChange={(val) => updateWorkingTime(index, "to", val)}
-                    disabled={time.open_always || time.closed_always}
-                  />
-                </div>
+              <TimePicker
+                value={time.to}
+                onChange={(val) => updateWorkingTime(index, "to", val)}
+                disabled={time.open_always || time.closed_always}
+              />
 
-                <div className="col-span-12 md:col-span-4 flex flex-row gap-4">
-                  <DayCheckbox
-                    label="مفتوح 24 ساعة"
-                    checked={time.open_always || false}
-                    onChange={(checked) =>
-                      updateWorkingTime(index, "open_always", checked)
-                    }
-                  />
+              <div className="flex items-center gap-4">
+                <DayCheckbox
+                  label="مفتوح 24 ساعة"
+                  checked={time.open_always || false}
+                  onChange={(checked) =>
+                    updateWorkingTime(index, "open_always", checked)
+                  }
+                />
 
-                  <DayCheckbox
-                    label="مغلق"
-                    checked={time.closed_always || false}
-                    onChange={(checked) =>
-                      updateWorkingTime(index, "closed_always", checked)
-                    }
-                  />
-                </div>
+                <DayCheckbox
+                  label="مغلق"
+                  checked={time.closed_always || false}
+                  onChange={(checked) =>
+                    updateWorkingTime(index, "closed_always", checked)
+                  }
+                />
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       )}
     </>
@@ -230,7 +224,7 @@ function DayCheckbox({ label, checked, onChange }: DayCheckboxProps) {
           </svg>
         )}
       </button>
-      <span className="text-sm text-gray-2 font-medium">{label}</span>
+      <span className="text-sm text-[#808080]">{label}</span>
     </div>
   );
 }
