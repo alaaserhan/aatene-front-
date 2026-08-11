@@ -159,7 +159,7 @@ export function CreateProductStorePage() {
       <div className="container mx-auto flex-1 py-4 px-4">
         <Breadcrumb items={breadcrumbItems} withContainer />
 
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-4">
           <h1 className="mb-8 text-xl font-semibold">البيانات الأساسية</h1>
 
           <div className="space-y-6">
