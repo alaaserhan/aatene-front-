@@ -1,32 +1,29 @@
 // src/features/(dashboard)/products/components/EditProductPage.tsx
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
-import { AddProductStep1 } from "./AddProductStep1";
-import { AddProductStep2 } from "./AddProductStep2";
-import { AddProductStep3 } from "./AddProductStep3";
-import { AddProductStep4 } from "./AddProductStep4";
+import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { Button } from "@/src/components/ui/button";
+import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { ProductUpdatePayload, Product as ApiProduct, Variation, CrossSellProduct } from "../api";
 import { useUpdateProduct, useGetSingleProduct, useGenerateProductAI } from "../hooks";
-import { Button } from "@/src/components/ui/button";
-import {
-  CompleteProductFormData,
-  Step1FormData,
-  Step2FormData,
-  Step3FormData,
-  Step4FormData,
-  VariationRow,
-  RelatedProduct,
-} from "../types";
+import { Step1FormData, Step3FormData, VariationRow, RelatedProduct } from "../types";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { normalizeProductCondition, validateProductStep1 } from "../product-step1-validation";
+import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
+import { ProductBasicInfoFields } from "./sections/ProductBasicInfoFields";
+import { ProductFormAccordion } from "./sections/ProductFormAccordion";
+import { ProductKeywordsField } from "./sections/ProductKeywordsField";
+import { ProductSectionField } from "./sections/ProductSectionField";
+import { ProductSubmitBar } from "./sections/ProductSubmitBar";
 import {
-  normalizeProductCondition,
-  validateProductStep1,
-} from "../product-step1-validation";
+  ProductVariationsFields,
+  validateProductVariations,
+} from "./sections/ProductVariationsFields";
 
 interface EditProductPageProps {
   productId: number;
@@ -81,6 +78,17 @@ interface VariationWithAttributeOptions extends Variation {
   attributes?: AttributeOption[];
 }
 
+/** بيانات العروض المرتبطة تُرسل كما هي — لم تعد جزءاً من نموذج التعديل */
+interface CrossSellsSnapshot {
+  crossSells: number[];
+  cross_sells_price?: number;
+  cross_sells_due_date?: string;
+  cross_sells_name?: string;
+  cross_sells_description?: string;
+}
+
+type AccordionKey = "basic" | "variations" | null;
+
 function firstPresent(...values: Array<number | string | undefined | null>) {
   return values.find((value) => value !== undefined && value !== null && value !== "");
 }
@@ -108,23 +116,30 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   const fromUrl = searchParams.get("from");
   const updateProductMutation = useUpdateProduct();
   const { data: productData, isLoading, isError } = useGetSingleProduct(productId);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const user = useAuthStore((state) => state.user);
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [openAccordion, setOpenAccordion] = useState<AccordionKey>("basic");
 
-  // Scroll to top on any step transition (next / back / stepper)
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentStep]);
+  const [basic, setBasic] = useState<Step1FormData | null>(null);
+  const [storeId, setStoreId] = useState(0);
+  const [sectionId, setSectionId] = useState<number | undefined>(undefined);
+  const [tags, setTags] = useState<string[]>([]);
+  const [variations, setVariations] = useState<Step3FormData | null>(null);
+  /** النسخة الأولية للاختلافات — تُستخدم لتهيئة الحقول مرة واحدة فقط */
+  const [variationsSeed, setVariationsSeed] = useState<Step3FormData | undefined>(undefined);
+  const [crossSells, setCrossSells] = useState<CrossSellsSnapshot>({ crossSells: [] });
 
-  const [formData, setFormData] = useState<CompleteProductFormData | null>(null);
+  /** الأخطاء تظهر فقط بعد أول محاولة حفظ، ثم تختفي تلقائياً عند إصلاح الحقل */
+  const [showErrors, setShowErrors] = useState(false);
+
   const [mappingError, setMappingError] = useState(false);
   const [prevProductData, setPrevProductData] = useState<unknown>(null);
+
   const generateAIMutation = useGenerateProductAI();
   const isGeneratingAI = generateAIMutation.isPending;
-  const [lastGeneratedInput, setLastGeneratedInput] = useState<{ title: string; description: string } | null>(null);
   const [aiKeywords, setAiKeywords] = useState<string[]>([]);
+  const lastGeneratedInputRef = useRef<string | null>(null);
 
   if (productData && productData !== prevProductData) {
     setPrevProductData(productData);
@@ -132,7 +147,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     const responseData = productData as unknown as { record?: ApiProduct; data?: ApiProduct };
     const product = responseData?.record || responseData?.data;
 
-    if (product && !formData) {
+    if (product && !basic) {
       try {
         const attributesMap = new Map<string, { id: string; name: string; options: string[] }>();
 
@@ -173,7 +188,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
                 attributesMap.set(attrId, {
                   id: attrId,
                   name: opt.attribute?.title || optionAttribute?.title || `attr_${attrId}`,
-                  options: []
+                  options: [],
                 });
               }
             });
@@ -183,28 +198,36 @@ export function EditProductPage({ productId }: EditProductPageProps) {
             id: String(v.id),
             attributeValues: attributeValues,
             price: Number(v.price) || 0,
-            images: v.image_url ? [v.image_url] : (v.image ? [v.image] : []),
+            images: v.image_url ? [v.image_url] : v.image ? [v.image] : [],
             imageFileName: v.image || "",
-            image_previews: v.image_url ? [v.image_url] : (v.image ? [v.image] : []),
+            image_previews: v.image_url ? [v.image_url] : v.image ? [v.image] : [],
             enabled: true,
           };
         });
 
         const extractedAttributes = Array.from(attributesMap.values());
 
-        const crossSellsData: RelatedProduct[] = (product.crossSells || []).map((cs: CrossSellProduct) => ({
-          id: cs.id,
-          name: cs.name,
-          cover_url: cs.cover_url,
-          category_name: cs.category_name || "",
-          price: Number(cs.price) || 0,
-        }));
+        const crossSellsData: RelatedProduct[] = (product.crossSells || []).map(
+          (cs: CrossSellProduct) => ({
+            id: cs.id,
+            name: cs.name,
+            cover_url: cs.cover_url,
+            category_name: cs.category_name || "",
+            price: Number(cs.price) || 0,
+          })
+        );
 
         // Workaround for API typo where key is sometimes "gallery    "
-        const galleryKey = Object.keys(product).find(k => k.trim() === 'gallery') || 'gallery';
+        const galleryKey = Object.keys(product).find((k) => k.trim() === "gallery") || "gallery";
         const rawGallery = (product as unknown as Record<string, string[]>)[galleryKey];
-        const validGallery = (rawGallery || []).filter((img: string) => img && typeof img === 'string' && img.trim() !== "" && img !== product.cover);
-        const validGalleryUrls = (product.gallery_url || []).filter((url: string) => url && typeof url === 'string' && url.trim() !== "" && url !== product.cover_url);
+        const validGallery = (rawGallery || []).filter(
+          (img: string) =>
+            img && typeof img === "string" && img.trim() !== "" && img !== product.cover
+        );
+        const validGalleryUrls = (product.gallery_url || []).filter(
+          (url: string) =>
+            url && typeof url === "string" && url.trim() !== "" && url !== product.cover_url
+        );
         const productRecord = product as unknown as Record<string, unknown>;
         const crossSellsName = firstStringField(productRecord, [
           "cross_sells_name",
@@ -216,43 +239,39 @@ export function EditProductPage({ productId }: EditProductPageProps) {
           "cross_sells_offer_description",
         ]);
 
-        const initialFormData: CompleteProductFormData = {
-          step1: {
-            category_id: Number(product.category_id) || Number(product.category?.id) || 0,
-            category_name: product.category?.full_name || product.category_name || product.category?.name || "",
-            cover: product.cover || "",
-            cover_preview: product.cover_url || "",
-            gallery: validGallery,
-            gallery_previews: validGalleryUrls,
-            name: product.name,
-            price: Number(product.price) || 0,
-            ask_for_price: Boolean(product.ask_for_price),
-            condition: normalizeProductCondition(product.condition),
-            short_description: product.short_description || "",
-            description: product.description || "",
-          },
-          step2: {
-            store_id: Number(product.store_id) || 0,
-            section_id: Number(product.section_id) || 0,
-            tags: product.tags || [],
-          },
-          step3: {
-            hasVariations: product.type === "variation",
-            attributes: extractedAttributes,
-            variations: variationRows,
-          },
-          step4: {
-            crossSells: crossSellsData.map((cs) => cs.id),
-            crossSellsData: crossSellsData,
-            cross_sells_price: Number(product.cross_sells_price) || 0,
-            cross_sells_due_date: product.cross_sells_due_date || "",
-            cross_sells_name: crossSellsName,
-            cross_sells_description: crossSellsDescription,
-            hasDiscount: Number(product.cross_sells_price) > 0,
-          },
+        const initialVariations: Step3FormData = {
+          hasVariations: product.type === "variation",
+          attributes: extractedAttributes,
+          variations: variationRows,
         };
 
-        setFormData(initialFormData);
+        setBasic({
+          category_id: Number(product.category_id) || Number(product.category?.id) || 0,
+          category_name:
+            product.category?.full_name || product.category_name || product.category?.name || "",
+          cover: product.cover || "",
+          cover_preview: product.cover_url || "",
+          gallery: validGallery,
+          gallery_previews: validGalleryUrls,
+          name: product.name,
+          price: Number(product.price) || 0,
+          ask_for_price: Boolean(product.ask_for_price),
+          condition: normalizeProductCondition(product.condition),
+          short_description: product.short_description || "",
+          description: product.description || "",
+        });
+        setStoreId(Number(product.store_id) || 0);
+        setSectionId(Number(product.section_id) || undefined);
+        setTags(product.tags || []);
+        setVariations(initialVariations);
+        setVariationsSeed(initialVariations);
+        setCrossSells({
+          crossSells: crossSellsData.map((cs) => cs.id),
+          cross_sells_price: Number(product.cross_sells_price) || undefined,
+          cross_sells_due_date: product.cross_sells_due_date || undefined,
+          cross_sells_name: crossSellsName || undefined,
+          cross_sells_description: crossSellsDescription || undefined,
+        });
       } catch (error) {
         console.error(error);
         setMappingError(true);
@@ -269,135 +288,85 @@ export function EditProductPage({ productId }: EditProductPageProps) {
   const breadcrumbItems = useMemo(() => {
     const backHref = fromUrl
       ? decodeURIComponent(fromUrl)
-      : formData?.step2?.store_id
-      ? `/admin/productProviders/${formData.step2.store_id}`
+      : storeId
+        ? `/admin/productProviders/${storeId}`
+        : "/admin/products";
+    return [{ label: "المنتجات", href: backHref }, { label: "تعديل منتج" }];
+  }, [fromUrl, storeId]);
+
+  // ---------------------------------------------------------------- توليد الكلمات المفتاحية
+  /** تُستدعى عند الخروج من حقل الوصف */
+  const generateKeywords = () => {
+    if (!basic) return;
+    const title = basic.name.trim();
+    const description = basic.description.trim();
+    if (!title || !description) return;
+
+    const source = `${title}||${description}`;
+    if (lastGeneratedInputRef.current === source) return;
+    lastGeneratedInputRef.current = source;
+
+    generateAIMutation
+      .mutateAsync({ title, description, type: "product" })
+      .then((data) => {
+        const generatedKeywords = data.results?.keywords || [];
+        if (generatedKeywords.length === 0) return;
+        setAiKeywords(generatedKeywords);
+        // لا نستبدل الكلمات الموجودة على المنتج أو التي أضافها المستخدم
+        setTags((prev) => (prev.length > 0 ? prev : generatedKeywords));
+      })
+      .catch((error) => {
+        console.error("AI Generation Error:", error);
+      });
+  };
+
+  // ---------------------------------------------------------------- التحقق
+  const collectErrors = (): Record<string, string> => {
+    if (!basic) return {};
+    const newErrors = validateProductStep1(basic);
+    if (!sectionId) newErrors.section_id = "يجب اختيار القسم";
+    return newErrors;
+  };
+
+  // الأخطاء محسوبة أثناء العرض، فتختفي بمجرد إصلاح الحقل
+  const errors = showErrors ? collectErrors() : {};
+  const variationsError =
+    showErrors && variations ? validateProductVariations(variations) : null;
+
+  const scrollToFirstError = (firstKey: string) => {
+    const element =
+      (firstKey === "cover" ? document.getElementById("product-step1-cover") : null) ||
+      document.querySelector(`[name="${firstKey}"]`) ||
+      document.querySelector(".text-red-500");
+    element?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const backUrl = fromUrl
+    ? decodeURIComponent(fromUrl)
+    : storeId
+      ? `/admin/productProviders/${storeId}`
       : "/admin/products";
-    return [
-      { label: "المنتجات", href: backHref },
-      { label: "تعديل منتج" },
-    ];
-  }, [fromUrl, formData?.step2?.store_id]);
 
-  const handleStep1Sync = (data: Step1FormData) => {
-    if (!formData) return;
-    setFormData({ ...formData, step1: data });
-  };
+  const handleSubmit = async () => {
+    if (!basic || !variations) return;
 
-  const handleStepClick = (step: number) => {
-    if (step > 1 && formData?.step1) {
-      const step1Errors = validateProductStep1(formData.step1);
-      if (Object.keys(step1Errors).length > 0) {
-        toast.error("يرجى إكمال المعلومات الأساسية قبل الانتقال");
-        setCurrentStep(1);
-        return;
-      }
-    }
-    setCurrentStep(step);
-  };
+    const basicErrors = collectErrors();
+    const variationsMessage = validateProductVariations(variations);
 
-  const handleGenerateAI = async (currentStep1Data: Step1FormData) => {
-    const title = currentStep1Data.name.trim();
-    const description = currentStep1Data.description.trim();
+    setShowErrors(true);
 
-    if (
-      lastGeneratedInput &&
-      lastGeneratedInput.title === title &&
-      lastGeneratedInput.description === description
-    ) {
+    const basicErrorKeys = Object.keys(basicErrors);
+    if (basicErrorKeys.length > 0) {
+      setOpenAccordion("basic");
+      toast.error("يرجى إكمال حقول المعلومات الأساسية المطلوبة");
+      // ننتظر فتح الأكورديون قبل التمرير للحقل
+      setTimeout(() => scrollToFirstError(basicErrorKeys[0]), 100);
       return;
     }
 
-    try {
-      const data = await generateAIMutation.mutateAsync({
-        title,
-        description,
-        type: "product",
-      });
-
-      setLastGeneratedInput({ title, description });
-
-
-      setFormData((prev) => {
-        if (!prev) return null;
-
-        const newStep1 = { ...prev.step1, ...currentStep1Data };
-        if (data.title) newStep1.name = data.title;
-        if (data.short_description) newStep1.short_description = data.short_description;
-
-        const newStep2 = { ...prev.step2 } as Step2FormData;
-        // Ensure step2 exists - though in edit mode it should
-        if (data.results?.keywords) {
-          newStep2.tags = data.results.keywords;
-          setAiKeywords(data.results.keywords);
-        }
-
-        return {
-          ...prev,
-          step1: newStep1,
-          step2: newStep2,
-        };
-      });
-
-    } catch (error) {
-      console.error("AI Generation Error:", error);
-      toast.error("فشل توليد البيانات");
-    }
-  };
-
-  const handleStep1Next = (data: Step1FormData) => {
-    if (!formData) return;
-    setFormData({ ...formData, step1: data });
-    setCurrentStep(2);
-    // Trigger AI generation
-    handleGenerateAI(data);
-  };
-
-  const handleStep1Cancel = () => {
-    const backUrl = fromUrl
-      ? decodeURIComponent(fromUrl)
-      : formData?.step2?.store_id
-      ? `/admin/productProviders/${formData.step2.store_id}`
-      : "/admin/products";
-    router.push(backUrl);
-  };
-
-  const handleStep2Next = (data: Step2FormData) => {
-    if (!formData) return;
-    setFormData({ ...formData, step2: data });
-    setCurrentStep(3);
-  };
-
-  const handleStep2Back = () => {
-    setCurrentStep(1);
-  };
-
-  const handleStep3Next = (data: Step3FormData) => {
-    if (!formData) return;
-    setFormData({ ...formData, step3: data });
-    setCurrentStep(4);
-  };
-
-  const handleStep3Back = () => {
-    setCurrentStep(2);
-  };
-
-  const handleStep4Save = async (data: Step4FormData) => {
-    if (!formData) return;
-    const updatedFormData = { ...formData, step4: data };
-
-    const step1 = updatedFormData.step1;
-    const step2 = updatedFormData.step2;
-    const step3 = updatedFormData.step3;
-
-    if (!step1 || !step2 || !step3) {
-      toast.error("يرجى إكمال جميع الخطوات المطلوبة");
-      return;
-    }
-
-    const step1Errors = validateProductStep1(step1);
-    if (Object.keys(step1Errors).length > 0) {
-      toast.error("يرجى إكمال المعلومات الأساسية (السعر والحقول المطلوبة)");
-      setCurrentStep(1);
+    if (variationsMessage) {
+      setOpenAccordion("variations");
+      toast.error(variationsMessage);
       return;
     }
 
@@ -406,34 +375,33 @@ export function EditProductPage({ productId }: EditProductPageProps) {
 
     const payload: ProductUpdatePayload = {
       sku: product?.sku || `SKU-${Date.now()}`,
-      name: updatedFormData.step1!.name,
-      short_description: updatedFormData.step1!.short_description,
-      description: updatedFormData.step1!.description,
-      cover: updatedFormData.step1!.cover,
-      gallery: updatedFormData.step1!.gallery.filter(
-        (url) => url?.trim() && url !== updatedFormData.step1!.cover
-      ),
-      type: updatedFormData.step3!.hasVariations ? "variation" : "simple",
-      condition: updatedFormData.step1!.condition,
-      category_id: updatedFormData.step1!.category_id,
-      store_id: updatedFormData.step2!.store_id,
-      section_id: updatedFormData.step2!.section_id || 0,
-      price: updatedFormData.step1!.price,
-      ask_for_price: updatedFormData.step1!.ask_for_price,
+      name: basic.name,
+      short_description: basic.short_description,
+      description: basic.description,
+      cover: basic.cover,
+      gallery: basic.gallery.filter((url) => url?.trim() && url !== basic.cover),
+      type: variations.hasVariations ? "variation" : "simple",
+      condition: basic.condition,
+      category_id: basic.category_id,
+      store_id: storeId,
+      section_id: sectionId || 0,
+      price: basic.price,
+      ask_for_price: basic.ask_for_price,
       status: product?.status || "pending",
-      tags: updatedFormData.step2!.tags,
-      crossSells: [...new Set(data.crossSells || [])],
-      cross_sells_price: data.cross_sells_price || undefined,
-      cross_sells_due_date: data.cross_sells_due_date || undefined,
-      cross_sells_name: data.cross_sells_name || undefined,
-      cross_sells_description: data.cross_sells_description || undefined,
-      cross_sells_title: data.cross_sells_name || undefined,
-      cross_sells_offer_name: data.cross_sells_name || undefined,
-      cross_sells_offer_description: data.cross_sells_description || undefined,
+      tags,
+      // العروض المرتبطة تُرسل كما هي حتى لا تُفقد عند التعديل
+      crossSells: [...new Set(crossSells.crossSells)],
+      cross_sells_price: crossSells.cross_sells_price,
+      cross_sells_due_date: crossSells.cross_sells_due_date,
+      cross_sells_name: crossSells.cross_sells_name,
+      cross_sells_description: crossSells.cross_sells_description,
+      cross_sells_title: crossSells.cross_sells_name,
+      cross_sells_offer_name: crossSells.cross_sells_name,
+      cross_sells_offer_description: crossSells.cross_sells_description,
     };
 
-    if (updatedFormData.step3!.hasVariations && updatedFormData.step3!.variations.length > 0) {
-      payload.variations = updatedFormData.step3!.variations
+    if (variations.hasVariations && variations.variations.length > 0) {
+      payload.variations = variations.variations
         .filter((v) => v.enabled)
         .map((v) => ({
           price: v.price,
@@ -446,20 +414,15 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     }
 
     try {
-      await updateProductMutation.mutateAsync({
-        id: productId,
-        payload,
-      });
+      await updateProductMutation.mutateAsync({ id: productId, payload });
       setShowSuccessModal(true);
     } catch (error) {
+      console.error("Error updating product:", error);
     }
   };
 
-  const handleStep4Back = (data: Step4FormData) => {
-    if (formData) {
-      setFormData({ ...formData, step4: data });
-    }
-    setCurrentStep(3);
+  const toggleAccordion = (key: Exclude<AccordionKey, null>) => {
+    setOpenAccordion((prev) => (prev === key ? null : key));
   };
 
   if (isLoading) {
@@ -483,13 +446,16 @@ export function EditProductPage({ productId }: EditProductPageProps) {
           <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
             <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-bold  mb-2">عذراً، حدث خطأ ما</h2>
+          <h2 className="text-xl font-bold mb-2">عذراً، حدث خطأ ما</h2>
           <p className="text-gray-2 mb-8 leading-relaxed">
             {mappingError
               ? "حدث خطأ أثناء معالجة بيانات المنتج."
               : "لم يتم العثور على المنتج أو حدث خطأ في الاتصال."}
           </p>
-          <Button onClick={() => router.push(fromUrl ? decodeURIComponent(fromUrl) : "/admin/products")} variant="outline">
+          <Button
+            onClick={() => router.push(fromUrl ? decodeURIComponent(fromUrl) : "/admin/products")}
+            variant="outline"
+          >
             العودة للقائمة
           </Button>
         </div>
@@ -497,7 +463,7 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     );
   }
 
-  if (!formData) {
+  if (!basic) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <Loader2 className="w-6 h-6 animate-spin text-blue-3" />
@@ -505,118 +471,105 @@ export function EditProductPage({ productId }: EditProductPageProps) {
     );
   }
 
-  const steps = [
-    { number: 1, label: "المعلومات الاساسية", completed: currentStep > 1 },
-    { number: 2, label: "المعلومات المتقدمة", completed: currentStep > 2 },
-    { number: 3, label: "الاختلافات و الكميات", completed: currentStep > 3 },
-    { number: 4, label: "منتجات مرتبطة", completed: false },
-  ];
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <AddProductStep1
-            initialData={formData.step1}
-            onNext={handleStep1Next}
-            onStep1Sync={handleStep1Sync}
-            onCancel={handleStep1Cancel}
-            barSteps={steps}
-            breadcrumbItems={breadcrumbItems}
-            onStepClick={handleStepClick}
-            showSaveDraft={false}
-          />
-        );
-      case 2:
-        if (!formData.step1) {
-          setCurrentStep(1);
-          return null;
-        }
-        return (
-          <AddProductStep2
-            previousData={formData.step1}
-            initialData={formData.step2}
-            onNext={handleStep2Next}
-            onBack={handleStep2Back}
-            barSteps={steps}
-            breadcrumbItems={breadcrumbItems}
-            onStepClick={handleStepClick}
-            showSaveDraft={false}
-            isGeneratingAI={isGeneratingAI}
-            aiKeywords={aiKeywords}
-            isEditMode={true}
-          />
-        );
-      case 3:
-        if (!formData.step1) {
-          setCurrentStep(1);
-          return null;
-        }
-        return (
-          <AddProductStep3
-            previousData={formData.step1}
-            initialData={formData.step3}
-            onNext={handleStep3Next}
-            onBack={handleStep3Back}
-            barSteps={steps}
-            breadcrumbItems={breadcrumbItems}
-            onStepClick={handleStepClick}
-            showSaveDraft={false}
-          />
-        );
-      case 4:
-        if (!formData.step1) {
-          setCurrentStep(1);
-          return null;
-        }
-        return (
-          <AddProductStep4
-            previousData={formData.step1}
-            initialData={formData.step4}
-            onSave={handleStep4Save}
-            onBack={handleStep4Back}
-            isSubmitting={updateProductMutation.isPending}
-            barSteps={steps}
-            breadcrumbItems={breadcrumbItems}
-            onStepClick={handleStepClick}
-            showSaveDraft={false}
-            isEditMode
-          />
-        );
-      default:
-        return (
-          <AddProductStep1
-            initialData={formData.step1}
-            onNext={handleStep1Next}
-            onStep1Sync={handleStep1Sync}
-            onCancel={handleStep1Cancel}
-            barSteps={steps}
-            breadcrumbItems={breadcrumbItems}
-            onStepClick={handleStepClick}
-            showSaveDraft={false}
-          />
-        );
-    }
-  };
+  const hasBasicErrors = Object.keys(errors).length > 0;
 
   return (
-    <>
-      {renderStep()}
+    // Filling the viewport keeps the submit bar at the bottom of the screen on
+    // a short form, while it still flows after the content on a long one.
+    <div className="flex min-h-[calc(100vh-5rem)] flex-col">
+      <div className="container mx-auto flex-1 py-4 px-4 mb-6">
+        <Breadcrumb items={breadcrumbItems} className="mb-4" />
+
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-12 lg:col-span-9 space-y-4">
+            <ProductFormAccordion
+              title="المعلومات الأساسية"
+              subtitle="الصور، الاسم، السعر، الفئة، القسم، الوصف والكلمات المفتاحية"
+              isOpen={openAccordion === "basic"}
+              onToggle={() => toggleAccordion("basic")}
+              hasError={hasBasicErrors}
+              errorText="يوجد حقول مطلوبة غير مكتملة"
+            >
+              <ProductBasicInfoFields
+                value={basic}
+                onChange={(patch) => setBasic((prev) => (prev ? { ...prev, ...patch } : prev))}
+                errors={errors}
+                onDescriptionBlur={generateKeywords}
+                sectionField={
+                  <ProductSectionField
+                    storeId={storeId}
+                    value={sectionId}
+                    onChange={setSectionId}
+                    error={errors.section_id}
+                  />
+                }
+                footerField={
+                  <ProductKeywordsField
+                    tags={tags}
+                    onChange={setTags}
+                    aiKeywords={aiKeywords}
+                    isGeneratingAI={isGeneratingAI}
+                  />
+                }
+              />
+            </ProductFormAccordion>
+
+            <ProductFormAccordion
+              title="الاختلافات"
+              subtitle="سمات المنتج مثل الحجم أو اللون وأسعارها"
+              isOpen={openAccordion === "variations"}
+              onToggle={() => toggleAccordion("variations")}
+              hasError={!!variationsError}
+              errorText={variationsError || undefined}
+            >
+              <ProductVariationsFields
+                categoryId={basic.category_id || undefined}
+                initialData={variationsSeed}
+                onChange={setVariations}
+              />
+            </ProductFormAccordion>
+          </div>
+
+          <div className="col-span-12 lg:col-span-3">
+            <div className="sticky top-6 flex flex-col gap-4">
+              <ProductPreviewSidebar
+                data={{
+                  name: basic.name,
+                  price: basic.price,
+                  ask_for_price: basic.ask_for_price,
+                  coverImage: basic.cover_preview,
+                  galleryImages: basic.gallery_previews,
+                }}
+              />
+              <GuideVideoCard location="add-product" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ProductSubmitBar
+        submitLabel="حفظ المنتج"
+        isSubmitting={updateProductMutation.isPending}
+        onSubmit={handleSubmit}
+        onCancel={() => router.push(backUrl)}
+      />
+
       <SuccessModal
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
-          const backUrl = fromUrl
-            ? decodeURIComponent(fromUrl)
-            : user?.user_type === "admin"
-            ? `/admin/productProviders/${formData?.step2?.store_id}`
-            : "/admin/products";
-          router.push(backUrl);
+          router.push(
+            fromUrl
+              ? decodeURIComponent(fromUrl)
+              : user?.user_type === "admin"
+                ? `/admin/productProviders/${storeId}`
+                : "/admin/products"
+          );
         }}
         title="تم تحديث المنتج بنجاح"
         message="تم حفظ التعديلات التي أجريتها على المنتج بنجاح."
         buttonText="العودة للقائمة"
       />
-    </>
+    </div>
   );
 }

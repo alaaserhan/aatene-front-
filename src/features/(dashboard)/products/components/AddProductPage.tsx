@@ -309,7 +309,7 @@ export function AddProductPage() {
             </ProductFormAccordion>
 
             <ProductFormAccordion
-              title="الاختلافات و الكميات"
+              title="الاختلافات"
               subtitle="سمات المنتج مثل الحجم أو اللون وأسعارها"
               isOpen={openAccordion === "variations"}
               onToggle={() => toggleAccordion("variations")}
