@@ -6,7 +6,9 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Plus, Search } from "lucide-react";
 import { useGetStores, useUpdateStoreShown } from "../hooks";
+import { useStoreDeleteConfirm } from "../use-store-delete-confirm";
 import { Store, StoreStatus } from "../api";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { StoresAdminTable } from "./StoresAdminTable";
 import { StoresTypeSidebar, StoreTypeFilter } from "./StoresTypeSidebar";
 import { StoreEmptyState } from "./StoreEmptyState";
@@ -138,16 +140,17 @@ export function StoresPage() {
     updateShown({ id: store.id, payload: { shown: !currentlyVisible } });
   };
 
+  const storesBasePath = locale && type ? `/${locale}/${type}/stores` : "/admin/stores";
+
   const openDetails = (store: Store) => {
-    if (locale && type) {
-      router.push(`/${locale}/${type}/stores/${store.id}`);
-    } else {
-      router.push(`/admin/stores/${store.id}`);
-    }
+    router.push(`${storesBasePath}/${store.id}`);
   };
 
-  const addStoreHref =
-    locale && type ? `/${locale}/${type}/stores/add` : "/admin/stores/add";
+  // نفس منطق الحذف المستخدم في صفحة تفاصيل المتجر
+  const { requestDelete, pendingStoreId, isDeleting, confirmModalProps } =
+    useStoreDeleteConfirm();
+
+  const addStoreHref = `${storesBasePath}/add`;
 
   return (
     <div className="bg-gray-50 min-h-full flex flex-col">
@@ -219,12 +222,17 @@ export function StoresPage() {
               listStatus={statusTab}
               onToggleShown={handleToggleShown}
               onViewDetails={openDetails}
+              getSettingsHref={(store) => `${storesBasePath}/${store.id}/edit`}
+              onDelete={(store) => requestDelete(store.id)}
+              deletingStoreId={isDeleting ? pendingStoreId : null}
               canToggleStoreShown={isAdmin || isMerchant}
             />
             </div>
           </div>
         )}
       </main>
+
+      <ConfirmDeleteModal {...confirmModalProps} />
     </div>
   );
 }

@@ -6,10 +6,10 @@ import Cookies from "js-cookie";
 import { CheckCircle2, Loader2, Minus, PauseCircle, Plus, X, XCircle } from "lucide-react";
 import {
   useGetSingleStore,
-  useDeleteStore,
   useUpdateStoreShown,
   useUpdateStoreStatus,
 } from "../hooks";
+import { useStoreDeleteConfirm } from "../use-store-delete-confirm";
 import { Button } from "@/src/components/ui/button";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
@@ -39,8 +39,6 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
     typeof routeParams.locale === "string" && typeof routeParams.type === "string"
       ? `/${routeParams.locale}/${routeParams.type}/stores`
       : "/admin/stores";
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
   const [managersExpanded, setManagersExpanded] = useState(true);
   const [showAllDays, setShowAllDays] = useState(false);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
@@ -48,7 +46,21 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
   const [dismissedStoreStatus, setDismissedStoreStatus] = useState<string | null>(null);
   const user = useAuthStore((state) => state.user);
 
-  const { mutate: deleteStoreMutation, isPending: isDeleting } = useDeleteStore();
+  const {
+    isDeleting,
+    isDeleteConfirmed,
+    requestDelete,
+    confirmModalProps,
+  } = useStoreDeleteConfirm({
+    onDeleted: () => {
+      if (onDeleteSuccess) {
+        onDeleteSuccess();
+      } else {
+        router.push(storesBasePath);
+      }
+    },
+  });
+
   const { data: storeData, isLoading } = useGetSingleStore(storeId, {
     enabled: !isDeleteConfirmed,
   });
@@ -63,25 +75,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
   };
 
   const handleDeleteClick = () => {
-    setDeleteModalOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
-    setIsDeleteConfirmed(true);
-
-    deleteStoreMutation(storeId, {
-      onSuccess: () => {
-        if (onDeleteSuccess) {
-          onDeleteSuccess();
-        } else {
-          router.push(storesBasePath);
-        }
-      },
-      onError: () => {
-        // إعادة التفعيل في حال فشل الحذف فقط
-        setIsDeleteConfirmed(false);
-      }
-    });
+    requestDelete(storeId);
   };
 
   const handleShownChange = (value: string) => {
@@ -569,15 +563,7 @@ export function StoreDetailsPage({ storeId, onDeleteSuccess }: StoreDetailsPageP
         </div>
       </div>
 
-      <ConfirmDeleteModal
-        isOpen={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="هل أنت متأكد من حذف هذا المتجر؟"
-        description="لا يمكن استرجاع المتجر بعد حذفه"
-        confirmText="نعم، قم بالحذف"
-        cancelText="إلغاء"
-      />
+      <ConfirmDeleteModal {...confirmModalProps} />
     </div>
   );
 }
