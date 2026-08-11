@@ -69,7 +69,7 @@ export function ProductSectionField({ storeId, value, onChange, error }: Product
   return (
     <div className="space-y-2">
       <Label className="text-sm font-medium flex items-center gap-1">
-        القسم
+        اختر القسم
         <span className="text-red-500">*</span>
       </Label>
       <ReusableDropdown

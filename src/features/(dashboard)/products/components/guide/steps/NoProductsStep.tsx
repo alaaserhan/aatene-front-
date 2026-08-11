@@ -1,17 +1,21 @@
 'use client';
 
-export default function StepOne() {
+import Image from 'next/image';
+
+export function NoProductsStep() {
     return (
         <div className="w-full">
             <h2 className="text-base md:text-lg lg:text-xl font-bold text-[#2D496A] mb-2">في حالة لا توجد أي أقسام مفتوحة</h2>
             <p className="text-xs md:text-sm lg:text-base text-[#2D496A] mb-6 md:mb-8">من لوحة التحكم يمكنك الضغط علي إضافة أقسام جديدة لمتجرك</p>
-            
+
             <div className="hidden lg:block relative w-full max-w-[1336px] min-h-[400px] mx-auto ">
-                <img
-                    src="/guide-images/Frame1step1.webp"
+                <Image
+                    src="/images/product-creation-help/no-products.webp"
                     alt="صفحة المتجر"
+                    width={0}
+                    height={0}
+                    sizes="100vw"
                     className="absolute w-[36.4%] h-auto top-[5%] left-[57.3%] drop-shadow-xl"
-                    loading="lazy"
                 />
 
                 <img
@@ -33,10 +37,8 @@ export default function StepOne() {
                 </p>
 
                 <p className="absolute text-[#2D496A] text-sm font-medium text-center top-[89.2%] left-[9%] w-[32.6%]">
-                    هنا في صفحة المتجر سوف تجد الأقسام الخاصة بك كما هو موضح <br/> بالشكل مع عدد المنتجات داخل كل قسم
+                    هنا في صفحة المتجر سوف تجد الأقسام الخاصة بك كما هو موضح <br /> بالشكل مع عدد المنتجات داخل كل قسم
                 </p>
-
-
             </div>
 
             <div className="lg:hidden">

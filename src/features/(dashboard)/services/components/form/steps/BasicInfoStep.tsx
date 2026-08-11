@@ -101,12 +101,13 @@ export function BasicInfoStep({ values, errors, setField, storeId }: BasicInfoSt
             maxFiles={MAX_IMAGES}
             error={errors.images}
             showMainSelector
-            mainImageLabel="الصورة الاساسية"
+            mainImageLabel="الصورة الأساسية"
             showDragHint
             mainImageAllowedMediaTypes={["image"]}
             allowedMediaTypes={["image", "gallery", "video"]}
             uploadPrimaryText="أضف أو اسحب صورة أو فيديو"
             uploadSecondaryText="الموضع الأول: تبويب الصور — الفيديو: تبويب المعرض"
+            required
           />
         </div>
 

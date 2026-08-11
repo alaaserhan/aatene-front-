@@ -353,7 +353,9 @@ export function AddProductPage() {
         onClose={() => {
           setShowSuccessModal(false);
           router.push(
-            storeIdFromUrl ? `/admin/productProviders/${storeIdFromUrl}` : "/admin/products"
+            storeIdFromUrl
+              ? `/admin/productProviders/${storeIdFromUrl}`
+              : "/admin/products?status=pending"
           );
         }}
         title="تم إضافة المنتج بنجاح"

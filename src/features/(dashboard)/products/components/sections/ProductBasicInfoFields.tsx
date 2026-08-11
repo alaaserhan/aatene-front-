@@ -46,13 +46,15 @@ export function ProductBasicInfoFields({
 }: ProductBasicInfoFieldsProps) {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   // Keeps the typed price around while "لا اريد اظهار السعر" is selected
-  const [lastVisiblePrice, setLastVisiblePrice] = useState<number>(Number(value.price || 0));
+  const [lastVisiblePrice, setLastVisiblePrice] = useState<number>(
+    Number(value.price || 0),
+  );
 
   const showPrice = !value.ask_for_price;
 
   const combinedFiles = useMemo(
     () => (value.cover ? [value.cover, ...value.gallery] : [...value.gallery]),
-    [value.cover, value.gallery]
+    [value.cover, value.gallery],
   );
 
   const combinedPreviews = useMemo(
@@ -60,7 +62,7 @@ export function ProductBasicInfoFields({
       value.cover_preview
         ? [value.cover_preview, ...value.gallery_previews]
         : [...value.gallery_previews],
-    [value.cover_preview, value.gallery_previews]
+    [value.cover_preview, value.gallery_previews],
   );
 
   const handleImagesChange = (files: string[], urls: string[]) => {
@@ -75,7 +77,7 @@ export function ProductBasicInfoFields({
   const categoryField = (
     <div className="space-y-2">
       <Label className="text-sm font-medium flex items-center gap-1">
-        الفئات <span className="text-red-500">*</span>
+        اختر الفئة <span className="text-red-500">*</span>
       </Label>
       <button
         type="button"
@@ -83,13 +85,15 @@ export function ProductBasicInfoFields({
         onClick={() => setIsCategoryModalOpen(true)}
         className={cn(
           "w-full h-11 flex items-center justify-between px-4 border rounded-sm text-sm transition-colors focus:outline-none bg-white",
-          errors.category_id ? "border-red-500" : "border-gray-200 hover:border-gray-300"
+          errors.category_id
+            ? "border-red-500"
+            : "border-gray-200 hover:border-gray-300",
         )}
       >
         <span
           className={cn(
             "truncate text-right",
-            value.category_name ? "text-gray-900" : "text-gray-400"
+            value.category_name ? "text-gray-900" : "text-gray-400",
           )}
         >
           {value.category_name || "اختر فئة المنتج"}
@@ -108,7 +112,9 @@ export function ProductBasicInfoFields({
       <ReusableDropdown
         options={CONDITION_OPTIONS}
         value={value.condition}
-        onChange={(condition) => onChange({ condition: condition as "new" | "used" })}
+        onChange={(condition) =>
+          onChange({ condition: condition as "new" | "used" })
+        }
         placeholder="اختر الحالة"
         className="h-11"
       />
@@ -118,26 +124,6 @@ export function ProductBasicInfoFields({
   return (
     <div className="space-y-8">
       {headerField}
-
-      <div id="product-step1-cover">
-        <ImageGallerySelector
-          label="معرض المنتج"
-          subLabel="حتى 10 ملفات — العنصر الأول يُحفظ كغلاف المنتج"
-          value={combinedFiles}
-          previews={combinedPreviews}
-          onChange={handleImagesChange}
-          maxFiles={10}
-          error={errors.cover}
-          showMainSelector={true}
-          mainImageLabel="الأساسية"
-          galleryItemLabel="الثانوية"
-          showDragHint={true}
-          dragHintText="يمكنك سحب وإفلات الصور أو الفيديو لإعادة الترتيب"
-          emptyStateText="أضف صورة أو فيديو"
-          allowedMediaTypes={["gallery", "image"]}
-          required
-        />
-      </div>
 
       <FormInput
         label="اسم المنتج"
@@ -151,6 +137,26 @@ export function ProductBasicInfoFields({
         showCounter
         error={errors.name}
       />
+
+      <div id="product-step1-cover">
+        <ImageGallerySelector
+          label="صور المنتج"
+          subLabel="حتى 10 ملفات — العنصر الأول يُحفظ كغلاف المنتج"
+          value={combinedFiles}
+          previews={combinedPreviews}
+          onChange={handleImagesChange}
+          maxFiles={10}
+          error={errors.cover}
+          showMainSelector
+          mainImageLabel="الصورة الأساسية"
+          showDragHint
+          mainImageAllowedMediaTypes={["image"]}
+          allowedMediaTypes={["image", "gallery", "video"]}
+          uploadPrimaryText="أضف أو اسحب صورة أو فيديو"
+          uploadSecondaryText="الموضع الأول: تبويب الصور — الفيديو: تبويب المعرض"
+          required
+        />
+      </div>
 
       <div className="space-y-2">
         <Label className="text-sm font-medium flex items-center gap-1">
@@ -168,20 +174,29 @@ export function ProductBasicInfoFields({
             }
             className={cn(
               "w-full border rounded-sm p-3 text-right transition-colors",
-              showPrice ? "border-blue-4 bg-[#EEF3FB]" : "border-gray-200 bg-[#F8F8F8]"
+              showPrice
+                ? "border-blue-4 bg-[#EEF3FB]"
+                : "border-gray-200 bg-[#F8F8F8]",
             )}
           >
             <div className="flex items-center gap-3 text-sm">
               <span
                 className={cn(
                   "shrink-0 w-4 h-4 rounded-full border flex items-center justify-center",
-                  showPrice ? "border-blue-4" : "border-gray-400"
+                  showPrice ? "border-blue-4" : "border-gray-400",
                 )}
                 aria-hidden
               >
-                {showPrice && <span className="w-2 h-2 rounded-full bg-blue-4" />}
+                {showPrice && (
+                  <span className="w-2 h-2 rounded-full bg-blue-4" />
+                )}
               </span>
-              <span className={cn("text-right", showPrice ? "text-blue-4" : "text-gray-700")}>
+              <span
+                className={cn(
+                  "text-right",
+                  showPrice ? "text-blue-4" : "text-gray-700",
+                )}
+              >
                 إظهار السعر
               </span>
             </div>
@@ -201,7 +216,7 @@ export function ProductBasicInfoFields({
                   placeholder="ادخل سعر السلعة"
                   className={cn(
                     "w-full px-4 py-2 border rounded-sm focus:outline-none text-sm bg-white",
-                    errors.price ? "border-red-500" : "border-gray-200"
+                    errors.price ? "border-red-500" : "border-gray-200",
                   )}
                 />
               </div>
@@ -216,26 +231,37 @@ export function ProductBasicInfoFields({
             }}
             className={cn(
               "w-full border rounded-sm p-3 text-right transition-colors",
-              !showPrice ? "border-blue-4 bg-[#EEF3FB]" : "border-gray-200 bg-[#F8F8F8]"
+              !showPrice
+                ? "border-blue-4 bg-[#EEF3FB]"
+                : "border-gray-200 bg-[#F8F8F8]",
             )}
           >
             <div className="flex items-center gap-3 text-sm">
               <span
                 className={cn(
                   "shrink-0 w-4 h-4 rounded-full border flex items-center justify-center",
-                  !showPrice ? "border-blue-4" : "border-gray-400"
+                  !showPrice ? "border-blue-4" : "border-gray-400",
                 )}
                 aria-hidden
               >
-                {!showPrice && <span className="w-2 h-2 rounded-full bg-blue-4" />}
+                {!showPrice && (
+                  <span className="w-2 h-2 rounded-full bg-blue-4" />
+                )}
               </span>
-              <span className={cn("text-right", !showPrice ? "text-blue-4" : "text-gray-700")}>
+              <span
+                className={cn(
+                  "text-right",
+                  !showPrice ? "text-blue-4" : "text-gray-700",
+                )}
+              >
                 لا اريد اظهار السعر
               </span>
             </div>
           </button>
         </div>
-        {errors.price && <p className="text-xs text-red-500 mt-1">{errors.price}</p>}
+        {errors.price && (
+          <p className="text-xs text-red-500 mt-1">{errors.price}</p>
+        )}
       </div>
 
       {sectionField ? (
@@ -278,7 +304,9 @@ export function ProductBasicInfoFields({
       <CategoryPickerModal
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
-        onSelect={(category_id, category_name) => onChange({ category_id, category_name })}
+        onSelect={(category_id, category_name) =>
+          onChange({ category_id, category_name })
+        }
         selectedCategoryId={value.category_id || undefined}
       />
     </div>

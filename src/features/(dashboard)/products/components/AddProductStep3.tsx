@@ -70,7 +70,7 @@ export function AddProductStep3({
                     <div className="col-span-12 lg:col-span-9">
                         <div className="bg-white rounded-xl p-6 border border-gray-200">
                             <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-xl font-bold">الاختلافات و الكميات</h2>
+                                <h2 className="text-xl font-bold">الاختلافات</h2>
                             </div>
 
                             <ProductVariationsFields
