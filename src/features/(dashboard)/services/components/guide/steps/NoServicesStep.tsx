@@ -1,6 +1,6 @@
 'use client';
 
-export default function StepOne() {
+export function NoServicesStep() {
     return (
         <div className="w-full">
             <h2 className="text-base md:text-lg lg:text-xl font-bold text-[#2D496A] mb-2">في حالة لا توجد أي خدمات</h2>
