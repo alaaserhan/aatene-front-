@@ -3,6 +3,7 @@
 import {
   StoreContactValues,
   StoreKeywordsValues,
+  StoreShippingValues,
   StoreWorkingHoursValues,
 } from "../types";
 
@@ -26,6 +27,8 @@ export interface StoreSettingsValues {
   mainData: StoreMainDataValues;
   socialMedia: StoreContactValues;
   workingHours: StoreWorkingHoursValues;
+  /** Products stores only — services stores never render this section. */
+  shipping: StoreShippingValues;
   keywords: StoreKeywordsValues;
 }
 

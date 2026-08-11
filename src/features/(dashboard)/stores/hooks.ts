@@ -18,7 +18,6 @@ import {
   SingleStoreResponse,
   Store,
   StoreCreatePayload,
-  StoreShippingCompaniesPayload,
   StoreUpdatePayload,
   UpdateStatusPayload,
   UpdateStoreShownPayload,
@@ -165,31 +164,6 @@ export function useUpdateStore() {
     onError: (_err, vars, ctx) => {
       toast.error("حدث خطأ أثناء التعديل");
       qc.invalidateQueries({ queryKey: StoresQK.listAny });
-    },
-
-    onSettled: (_data, _err, vars) => {
-      qc.invalidateQueries({ queryKey: StoresQK.listAny });
-      qc.invalidateQueries({ queryKey: StoresQK.single(vars.id) });
-    },
-  });
-}
-
-export function useUpdateStoreShippingCompanies() {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string | number;
-      payload: StoreShippingCompaniesPayload;
-    }) => api.updateStoreShippingCompanies(id, payload),
-
-    onSuccess: (data, vars) => {
-      if (data?.record) {
-        qc.setQueryData(StoresQK.single(vars.id), data);
-      }
     },
 
     onSettled: (_data, _err, vars) => {

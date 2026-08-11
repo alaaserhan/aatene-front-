@@ -1,9 +1,9 @@
-// src/features/(dashboard)/stores/create/services/hooks.ts
+// src/features/(dashboard)/stores/create/hooks.ts
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { setStoreContext } from "@/src/store-context";
-import { StoresQK } from "../../hooks";
+import { StoresQK } from "../hooks";
 import * as api from "./api";
 
 export function useCreateStore() {

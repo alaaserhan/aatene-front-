@@ -8,6 +8,7 @@ import {
   toApiBoolean,
   toCityIds,
 } from "../store-payload-utils";
+import { mapStoreShippingCompanies } from "../store-shipping-payload";
 import { StoreSettingsValues } from "./types";
 
 /** GET /stores/{id} -> the values every settings section starts from. */
@@ -46,6 +47,11 @@ export function mapStoreToSettings(store: Store): StoreSettingsValues {
     workingHours: {
       open_status: store.open_status || "open_with_working_times",
       workingtimes: workingtimes.length > 0 ? workingtimes : defaultWorkingTimes(),
+    },
+
+    shipping: {
+      delivery_type: store.delivery_type || "hand_delivery",
+      shippingCompanies: mapStoreShippingCompanies(store.shippingCompanies),
     },
 
     keywords: {

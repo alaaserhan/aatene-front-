@@ -1,6 +1,6 @@
 // src/features/(dashboard)/stores/settings/sections-meta.ts
 
-import { Clock, LucideIcon, Store, Share2, Tags } from "lucide-react";
+import { Clock, LucideIcon, Store, Share2, Tags, Truck } from "lucide-react";
 import { StoreSettingsSectionId } from "./types";
 
 export interface StoreSettingsSectionMeta {
@@ -32,6 +32,12 @@ export const STORE_SETTINGS_SECTIONS: StoreSettingsSectionMeta[] = [
     label: "أوقات العمل والعطلات",
     description: "حالة المتجر ومواعيد العمل خلال أيام الأسبوع",
     icon: Clock,
+  },
+  {
+    id: "shipping",
+    label: "طريقة الشحن",
+    description: "طريقة توصيل المنتجات وشركات الشحن وأسعارها",
+    icon: Truck,
   },
   {
     id: "keywords",

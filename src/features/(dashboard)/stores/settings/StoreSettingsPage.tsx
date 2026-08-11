@@ -13,6 +13,7 @@ import { mapStoreToSettings } from "./mapStoreToSettings";
 import { MainDataSection } from "./sections/MainDataSection";
 import { SocialMediaSection } from "./sections/SocialMediaSection";
 import { WorkingHoursSection } from "./sections/WorkingHoursSection";
+import { ShippingSection } from "./sections/ShippingSection";
 import { KeywordsSection } from "./sections/KeywordsSection";
 
 const breadcrumbItems = [
@@ -110,6 +111,14 @@ export function StoreSettingsPage({
           storeId={storeId}
           initialValues={settings.workingHours}
         />
+
+        {store.type === "products" && (
+          <ShippingSection
+            key={`shipping-${storeId}`}
+            storeId={storeId}
+            initialValues={settings.shipping}
+          />
+        )}
 
         <KeywordsSection
           key={`keywords-${storeId}`}

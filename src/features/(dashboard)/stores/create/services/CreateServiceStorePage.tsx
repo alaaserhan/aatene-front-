@@ -17,7 +17,7 @@ import { StoreSubmitBar } from "../../components/StoreSubmitBar";
 import { CityMultiSelect } from "../../components/CityMultiSelect";
 import { useGetCities } from "../../../cities/hooks";
 import { useGetUsers } from "../../../users/hooks";
-import { useCreateStore } from "./hooks";
+import { useCreateStore } from "../hooks";
 import { ServiceStoreFormValues } from "./types";
 import Image from "next/image";
 

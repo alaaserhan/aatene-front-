@@ -3,7 +3,11 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { SingleStoreResponse } from "../api";
+import {
+  SingleStoreResponse,
+  StoreShippingCompaniesPayload,
+  updateStoreShippingCompanies,
+} from "../api";
 import { StoresQK } from "../hooks";
 import * as api from "./api";
 
@@ -60,6 +64,15 @@ export function useUpdateStoreWorkingHours(storeId: string | number) {
     storeId,
     (payload) => api.updateStoreWorkingHours(storeId, payload),
     "تم حفظ أوقات العمل"
+  );
+}
+
+/** Shipping keeps its own endpoint, but saves like every other section. */
+export function useUpdateStoreShipping(storeId: string | number) {
+  return useStoreSectionMutation<StoreShippingCompaniesPayload>(
+    storeId,
+    (payload) => updateStoreShippingCompanies(storeId, payload),
+    "تم حفظ إعدادات الشحن"
   );
 }
 

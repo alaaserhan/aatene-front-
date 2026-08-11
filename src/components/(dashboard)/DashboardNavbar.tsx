@@ -36,7 +36,6 @@ import {
   TicketPercent,
   Trash2,
   Mail,
-  Truck,
   ExternalLink,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
@@ -209,18 +208,11 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "المتاجر", icon: <img src={"/icons/dashboard/nav_stores.svg"} alt="" />, href: "/stores", show: hasAdminPerm("/stores") || isMerchant },
     { label: "المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/products", show: isMerchant && (storeType === "products") && isAllowedByRole("/products") },
     {
-      label: "الشحن",
-      icon: Truck,
-      href: activeStoreId ? `/stores/${activeStoreId}/shipping` : "/stores",
-      show: isMerchant && storeType === "products" && !!activeStoreId && isAllowedByRole("/stores"),
-      desc: "إعداد طريقة الشحن وشركات التوصيل للمتجر الحالي",
-    },
-    {
       label: "إعدادات المتجر",
       icon: Settings,
       href: activeStoreId ? `/stores/${activeStoreId}/settings` : "/stores",
       show: isMerchant && !!activeStoreId && isAllowedByRole("/stores"),
-      desc: "أكمل بيانات متجرك: الاتصال، أوقات العمل والكلمات المفتاحية",
+      desc: "أكمل بيانات متجرك: الاتصال، أوقات العمل، الشحن والكلمات المفتاحية",
       alwaysMore: true,
     },
     { label: "مقدمي المنتجات", icon: <img src={"/icons/dashboard/nav_products.svg"} alt="" />, href: "/productProviders", show: hasAdminPerm("/productProviders") },

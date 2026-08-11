@@ -1,289 +1,267 @@
 // src/features/(dashboard)/stores/create/products/CreateProductStorePage.tsx
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { BasicDataStep } from "./steps/BasicDataStep";
-import { ContactStep } from "./steps/ContactStep";
-import { WorkingHoursStep } from "./steps/WorkingHoursStep";
-import { ShippingStep } from "./steps/ShippingStep";
-import { KeywordsStep } from "./steps/KeywordsStep";
-import {
-  PRODUCT_WIZARD_STEPS,
-  ProductStoreWizardData,
-  ProductWizardStepId,
-} from "./types";
-import {
-  StoreCreatePayload,
-  normalizeStoreCoverForApi,
-  normalizeStoreLogoForApi,
-} from "../../api";
-import { useCreateStore, useGenerateStoreAI } from "../../hooks";
-import {
-  StoreBasicDataValues,
-  StoreContactValues,
-  StoreKeywordsValues,
-  StoreShippingValues,
-  StoreWorkingHoursValues,
-} from "../../types";
-import { normalizeShippingCompaniesForApi } from "../../store-shipping-payload";
-import { useAuthStore } from "@/src/stores/auth-store";
-import { getStoreDescriptionValidationError } from "../../store-ai-validation";
+import { useEffect, useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { FormInput } from "@/src/components/ui/FormInput";
+import { Label } from "@/src/components/ui/label";
+import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
+import { useAuthStore } from "@/src/stores/auth-store";
+import { StoreIdentitySelector } from "../../components/StoreIdentitySelector";
+import { StoreSubmitBar } from "../../components/StoreSubmitBar";
+import { CityMultiSelect } from "../../components/CityMultiSelect";
+import { useGetCities } from "../../../cities/hooks";
+import { useGetUsers } from "../../../users/hooks";
+import { useCreateStore } from "../hooks";
+import { ProductStoreFormValues } from "./types";
 
-const STORES_LIST_PATH = "/admin/stores";
-const STORE_TYPE_PATH = "/admin/stores/add";
+const breadcrumbItems = [
+  { label: "الرئيسية", href: "/admin/home" },
+  { label: "المتاجر", href: "/admin/stores" },
+  { label: "إضافة متجر منتجات" },
+];
 
+/** Shown in the "under review" modal so the merchant knows what to expect next. */
+const NEXT_STEPS = [
+  "سنُعلمك فور اعتماد المتجر ليظهر للعملاء.",
+  "يمكنك إضافة منتجاتك من الآن، وستُنشر مع اعتماد المتجر.",
+  "يمكنك إكمال باقي البيانات من إعدادات المتجر في أي وقت.",
+];
+
+const EMPTY_FORM: ProductStoreFormValues = {
+  name: "",
+  logo: null,
+  logoPreview: null,
+  locationCities: [],
+  owner_id: 0,
+};
+
+/**
+ * Single-step creation of a products store. Only the essentials are asked for
+ * here — contact details, working hours, shipping and keywords are filled in
+ * later from the store settings page.
+ */
 export function CreateProductStorePage() {
   const router = useRouter();
+  const routeParams = useParams<{ locale?: string; type?: string }>();
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.user_type === "admin";
+
+  // Keeps the current locale/dashboard segments (e.g. /ar/admin) when navigating
+  const dashboardBase =
+    routeParams?.locale && routeParams?.type
+      ? `/${routeParams.locale}/${routeParams.type}`
+      : isAdmin
+        ? "/admin"
+        : "/merchant";
+
   const createStoreMutation = useCreateStore();
-  const { user } = useAuthStore();
 
-  const [currentStepId, setCurrentStepId] =
-    useState<ProductWizardStepId>("basicData");
+  const [values, setValues] = useState<ProductStoreFormValues>(EMPTY_FORM);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [data, setData] = useState<ProductStoreWizardData>({});
+  const [createdStoreId, setCreatedStoreId] = useState<number | null>(null);
 
-  const { mutateAsync: generateAI, isPending: isGeneratingAI } =
-    useGenerateStoreAI();
-  /** Only set on a real success, so an empty response doesn't block a retry. */
-  const lastSuccessfulAiInputRef = useRef<{
-    name: string;
-    description: string;
-  } | null>(null);
-  const isGeneratingRef = useRef(false);
-  const [aiKeywords, setAiKeywords] = useState<string[]>([]);
+  const { data: citiesData } = useGetCities(new URLSearchParams());
+  const cities = citiesData?.data || [];
 
-  const steps = useMemo(
-    () =>
-      PRODUCT_WIZARD_STEPS.map((step, index) => ({
-        number: index + 1,
-        label: step.label,
-        completed: false,
-      })),
-    []
-  );
+  const [ownerSearch, setOwnerSearch] = useState("");
+  const [debouncedOwnerSearch, setDebouncedOwnerSearch] = useState("");
 
-  const currentStepNumber =
-    PRODUCT_WIZARD_STEPS.findIndex((step) => step.id === currentStepId) + 1;
-
-  const goToStep = (id: ProductWizardStepId) => setCurrentStepId(id);
-
-  const generateKeywords = useCallback(
-    async (basicData: StoreBasicDataValues) => {
-      const name = basicData.name.trim();
-      const description = basicData.description.trim();
-
-      if (!name) return;
-
-      const descriptionError = getStoreDescriptionValidationError(description);
-      if (descriptionError) {
-        toast.error(descriptionError);
-        return;
-      }
-
-      const previous = lastSuccessfulAiInputRef.current;
-      if (previous?.name === name && previous.description === description) {
-        return;
-      }
-
-      if (isGeneratingRef.current) return;
-
-      try {
-        isGeneratingRef.current = true;
-        const response = await generateAI({ name, description });
-        const keywords = response.results?.keywords ?? [];
-
-        if (keywords.length === 0) {
-          toast.error(
-            "لم نتمكن من إكمال العملية. حاول توسيع وصف المتجر ثم أعد المحاولة."
-          );
-          return;
-        }
-
-        lastSuccessfulAiInputRef.current = { name, description };
-        setAiKeywords(keywords);
-        setData((prev) => ({ ...prev, keywords: { tags: keywords } }));
-      } catch (error) {
-        console.error("AI Generation Error:", error);
-      } finally {
-        isGeneratingRef.current = false;
-      }
-    },
-    [generateAI]
-  );
-
-  /** Retry generation on the keywords step when nothing was produced yet. */
   useEffect(() => {
-    if (currentStepId !== "keywords" || !data.basicData) return;
-    if (aiKeywords.length > 0 || (data.keywords?.tags.length ?? 0) > 0) return;
-    void generateKeywords(data.basicData);
-  }, [
-    currentStepId,
-    data.basicData,
-    data.keywords?.tags,
-    aiKeywords.length,
-    generateKeywords,
-  ]);
+    const timer = setTimeout(() => setDebouncedOwnerSearch(ownerSearch), 500);
+    return () => clearTimeout(timer);
+  }, [ownerSearch]);
 
-  const handleBasicDataNext = (values: StoreBasicDataValues) => {
-    setData((prev) => ({ ...prev, basicData: values }));
-    goToStep("contact");
-    void generateKeywords(values);
+  const usersParams = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set("per_page", "100");
+    if (debouncedOwnerSearch) params.set("search", debouncedOwnerSearch);
+    return params;
+  }, [debouncedOwnerSearch]);
+
+  const { data: usersData, isLoading: isUsersLoading } = useGetUsers(
+    usersParams,
+    { enabled: isAdmin }
+  );
+
+  const ownerOptions = useMemo(() => {
+    if (isUsersLoading) return [{ value: "", label: "جاري البحث..." }];
+    const options = (usersData?.data ?? []).map((owner) => ({
+      label: `${owner.first_name} ${owner.last_name} (${owner.email})`,
+      value: String(owner.id),
+    }));
+    return options.length > 0
+      ? options
+      : [{ value: "", label: "لا يوجد مستخدمين" }];
+  }, [usersData, isUsersLoading]);
+
+  const clearError = (field: string) => {
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const handleContactNext = (values: StoreContactValues) => {
-    setData((prev) => ({ ...prev, contact: values }));
-    goToStep("workingHours");
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!values.name.trim()) newErrors.name = "اسم المتجر مطلوب";
+    if (values.locationCities.length === 0)
+      newErrors.locationCities = "المدينة مطلوبة";
+    if (isAdmin && !values.owner_id)
+      newErrors.owner_id = "يجب اختيار مالك المتجر";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleWorkingHoursNext = (values: StoreWorkingHoursValues) => {
-    setData((prev) => ({ ...prev, workingHours: values }));
-    goToStep("shipping");
-  };
-
-  const handleShippingNext = (values: StoreShippingValues) => {
-    setData((prev) => ({ ...prev, shipping: values }));
-    goToStep("keywords");
-  };
-
-  const handleSave = async (values: StoreKeywordsValues) => {
-    const { basicData, contact, workingHours, shipping } = data;
-
-    if (!basicData || !contact || !workingHours || !shipping) {
-      toast.error("يرجى إكمال جميع الخطوات المطلوبة");
-      return;
-    }
-
-    const payload: StoreCreatePayload = {
-      type: "products",
-      name: basicData.name,
-      logo: normalizeStoreLogoForApi(basicData.logo),
-      status: "approved",
-      cover: normalizeStoreCoverForApi(basicData.cover),
-      description: basicData.description,
-      email: basicData.email,
-      address: basicData.address,
-      lng: null,
-      lat: null,
-      ...(user?.user_type !== "merchant" && { owner_id: basicData.owner_id }),
-      currency_id: basicData.currency_id,
-
-      phone: contact.phone,
-      hide_phone: contact.hide_phone === "1" ? "1" : "0",
-      whats_app: contact.whats_app || null,
-      tiktok: contact.tiktok || null,
-      facebook: contact.facebook || null,
-      instagram: contact.instagram || null,
-      twitter: contact.twitter || null,
-      youtube: contact.youtube || null,
-      linkedin: contact.linkedin || null,
-      pinterest: contact.pinterest || null,
-
-      // Filled from `data.managers` once the disabled managers step returns.
-      managers: [],
-
-      open_status: workingHours.open_status,
-      workingtimes: workingHours.workingtimes,
-
-      tags: values.tags,
-
-      locationCities: basicData.locationCities,
-      serviceCities: [],
-
-      delivery_type: shipping.delivery_type,
-      shippingCompanies:
-        shipping.delivery_type === "shipping"
-          ? normalizeShippingCompaniesForApi(shipping.shippingCompanies)
-          : [],
-    };
+  const handleSubmit = async () => {
+    if (!validate()) return;
 
     try {
-      await createStoreMutation.mutateAsync(payload);
+      const response = await createStoreMutation.mutateAsync({
+        type: "products",
+        name: values.name.trim(),
+        logo: values.logo,
+        locationCities: values.locationCities,
+        serviceCities: [],
+        ...(isAdmin && values.owner_id ? { owner_id: values.owner_id } : {}),
+      });
+
+      setCreatedStoreId(response.record?.id ?? null);
       setShowSuccessModal(true);
     } catch (error) {
       console.error("Error creating store:", error);
     }
   };
 
-  const renderStep = () => {
-    switch (currentStepId) {
-      case "contact":
-        return (
-          <ContactStep
-            initialData={data.contact}
-            onNext={handleContactNext}
-            onBack={() => goToStep("basicData")}
-            steps={steps}
-            currentStepNumber={currentStepNumber}
-          />
-        );
+  // Both success actions fall back to the list if the response carried no store id
+  const handleAddProduct = () => {
+    router.push(
+      createdStoreId
+        ? `${dashboardBase}/products/add?store_id=${createdStoreId}`
+        : `${dashboardBase}/stores`
+    );
+  };
 
-      case "workingHours":
-        return (
-          <WorkingHoursStep
-            initialData={data.workingHours}
-            onNext={handleWorkingHoursNext}
-            onBack={() => goToStep("contact")}
-            steps={steps}
-            currentStepNumber={currentStepNumber}
-          />
-        );
-
-      case "shipping":
-        return (
-          <ShippingStep
-            previousData={data.basicData!}
-            initialData={data.shipping}
-            onNext={handleShippingNext}
-            onBack={() => goToStep("workingHours")}
-            steps={steps}
-            currentStepNumber={currentStepNumber}
-          />
-        );
-
-      case "keywords":
-        return (
-          <KeywordsStep
-            initialData={data.keywords}
-            onSave={handleSave}
-            onBack={() => goToStep("shipping")}
-            isSubmitting={createStoreMutation.isPending}
-            steps={steps}
-            currentStepNumber={currentStepNumber}
-            isGeneratingAI={isGeneratingAI}
-            aiKeywords={aiKeywords}
-          />
-        );
-
-      case "basicData":
-      default:
-        return (
-          <BasicDataStep
-            initialData={data.basicData}
-            onNext={handleBasicDataNext}
-            onCancel={() => router.push(STORE_TYPE_PATH)}
-            steps={steps}
-            currentStepNumber={currentStepNumber}
-          />
-        );
-    }
+  const handleCompleteStoreData = () => {
+    router.push(
+      createdStoreId
+        ? `${dashboardBase}/stores/${createdStoreId}/edit`
+        : `${dashboardBase}/stores`
+    );
   };
 
   return (
-    <>
-      {renderStep()}
+    // Filling the viewport keeps the submit bar at the bottom of the screen on
+    // a short form, while it still flows after the content on a long one.
+    <div className="flex min-h-[calc(100vh-5rem)] flex-col">
+      <div className="container mx-auto flex-1 py-4 px-4">
+        <Breadcrumb items={breadcrumbItems} withContainer />
+
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h1 className="mb-8 text-xl font-semibold">البيانات الأساسية</h1>
+
+          <div className="space-y-6">
+            <FormInput
+              label="اسم المتجر"
+              name="name"
+              value={values.name}
+              onChange={(e) => {
+                setValues({ ...values, name: e.target.value });
+                clearError("name");
+              }}
+              placeholder="ادخل اسم المتجر"
+              required
+              maxLength={50}
+              showCounter
+              error={errors.name}
+            />
+
+            <StoreIdentitySelector
+              value={values.logo}
+              previewUrl={values.logoPreview}
+              onChange={(fileName, src) =>
+                setValues({ ...values, logo: fileName, logoPreview: src })
+              }
+              required
+            />
+
+            <CityMultiSelect
+              label="مدينة المتجر"
+              cities={cities}
+              selectedCityIds={values.locationCities}
+              onChange={(ids) => {
+                setValues({ ...values, locationCities: ids });
+                clearError("locationCities");
+              }}
+              error={errors.locationCities}
+              placeholder="اختر المدينة التي يقع فيها متجرك"
+              tooltip="اختر المدينة التي يقع فيها المتجر فعليًا. وإذا كان لديك عدة فروع في مدن مختلفة، يمكنك اختيار أكثر من مدينة."
+            />
+
+            {isAdmin && (
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-medium">
+                  المالك <span className="text-red-500">*</span>
+                </Label>
+                <ReusableDropdown
+                  placeholder="اختر المالك"
+                  options={ownerOptions}
+                  value={values.owner_id ? String(values.owner_id) : ""}
+                  onChange={(value) => {
+                    setValues({
+                      ...values,
+                      owner_id: value ? Number(value) : 0,
+                    });
+                    clearError("owner_id");
+                  }}
+                  error={errors.owner_id}
+                  className="h-11"
+                  dropdownPosition="top"
+                  onSearch={setOwnerSearch}
+                  searchPlaceholder="ابحث باسم المالك ..."
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <StoreSubmitBar
+        submitLabel="إنشاء المتجر"
+        loadingLabel="جاري الإنشاء..."
+        isSubmitting={createStoreMutation.isPending}
+        onSubmit={handleSubmit}
+        onCancel={() => router.push(`${dashboardBase}/stores`)}
+      />
+
       <SuccessModal
         isOpen={showSuccessModal}
-        onClose={() => {
-          setShowSuccessModal(false);
-          router.push(STORES_LIST_PATH);
-        }}
-        title="تم إضافة المتجر بنجاح"
-        message="تم إنشاء المتجر بنجاح، وهو الآن قيد المراجعة. يمكنك البدء بإضافة منتجاتك من الآن"
-        buttonText="العودة للقائمة"
-      />
-    </>
+        onClose={handleCompleteStoreData}
+        variant="pending"
+        badgeText="تم إنشاء المتجر بنجاح"
+        badgeTone="success"
+        title="المتجر قيد المراجعة"
+        message="متجرك الآن قيد المراجعة من فريق أعطيني، وسيظهر للعملاء فور اعتماده."
+        messageClassName="font-normal"
+        buttonText="إضافة منتج"
+        onButtonClick={handleAddProduct}
+        secondaryButtonText="إكمال بيانات المتجر"
+        onSecondaryButtonClick={handleCompleteStoreData}
+      >
+        <div className="rounded-xl border border-[#FFD87D]/60 bg-[#FFFBF0] p-4">
+          <p className="text-sm font-semibold text-[#8A6000]">ماذا بعد؟</p>
+          <ul className="mt-2 space-y-2 text-sm leading-relaxed text-[#6B4A00]">
+            {NEXT_STEPS.map((step) => (
+              <li key={step} className="flex items-start gap-2">
+                <span className="mt-[0.4rem] w-1.5 h-1.5 shrink-0 rounded-full bg-[#C48A00]" />
+                <span>{step}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </SuccessModal>
+    </div>
   );
 }

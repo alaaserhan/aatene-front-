@@ -16,9 +16,6 @@ interface StoreSubmitBarProps {
 /**
  * Sticky bottom bar for the single-page store forms: cancel at the start,
  * submit at the end. Mirrors ServiceFormActions so both flows feel the same.
- *
- * Replaces StoreFormActions, which still carries the wizard's next/back
- * semantics — that file goes away once the product wizard moves over.
  */
 export function StoreSubmitBar({ submitLabel, loadingLabel = "جاري الحفظ...", isSubmitting = false, onSubmit, onCancel, className }: StoreSubmitBarProps) {
   return (
