@@ -8,7 +8,12 @@ import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { FormInput } from "@/src/components/ui/FormInput";
 import { Label } from "@/src/components/ui/label";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
-import { ToggleSwitch } from "@/src/components/ui/ToggleSwitch";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/src/components/ui/accordion";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { StoreIdentitySelector } from "../../components/StoreIdentitySelector";
@@ -40,14 +45,13 @@ const EMPTY_FORM: ProductStoreFormValues = {
   logoPreview: null,
   locationCities: [],
   owner_id: 0,
-  shippingEnabled: true,
   shipping: { delivery_type: "hand_delivery", shippingCompanies: [] },
 };
 
 /**
  * Single-step creation of a products store. Only the essentials are required
  * here — contact details, working hours and keywords are filled in later from
- * the store settings page. Shipping can optionally be set up now too.
+ * the store settings page.
  */
 export function CreateProductStorePage() {
   const router = useRouter();
@@ -118,7 +122,6 @@ export function CreateProductStorePage() {
       newErrors.owner_id = "يجب اختيار مالك المتجر";
 
     if (
-      values.shippingEnabled &&
       values.shipping.delivery_type === "shipping" &&
       values.shipping.shippingCompanies.length === 0
     ) {
@@ -132,9 +135,7 @@ export function CreateProductStorePage() {
   const handleSubmit = async () => {
     const isShipping = values.shipping.delivery_type === "shipping";
     const shippingIncomplete =
-      values.shippingEnabled &&
-      isShipping &&
-      values.shipping.shippingCompanies.length === 0;
+      isShipping && values.shipping.shippingCompanies.length === 0;
 
     if (!validate()) {
       if (shippingIncomplete) {
@@ -151,16 +152,10 @@ export function CreateProductStorePage() {
         locationCities: values.locationCities,
         serviceCities: [],
         ...(isAdmin && values.owner_id ? { owner_id: values.owner_id } : {}),
-        ...(values.shippingEnabled
-          ? {
-              delivery_type: values.shipping.delivery_type,
-              shippingCompanies: isShipping
-                ? normalizeShippingCompaniesForApi(
-                    values.shipping.shippingCompanies
-                  )
-                : [],
-            }
-          : {}),
+        delivery_type: values.shipping.delivery_type,
+        shippingCompanies: isShipping
+          ? normalizeShippingCompaniesForApi(values.shipping.shippingCompanies)
+          : [],
       });
 
       setCreatedStoreId(response.record?.id ?? null);
@@ -263,36 +258,27 @@ export function CreateProductStorePage() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-6 mb-4">
-          <div className="mb-6 flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold">طريقة الشحن</h2>
-              <p className="mt-1 text-sm text-gray-2">
-                اختياري، يمكنك إعدادها الآن أو لاحقًا من إعدادات المتجر
-              </p>
-            </div>
-            <ToggleSwitch
-              enabled={values.shippingEnabled}
-              onChange={(enabled) => {
-                setValues({ ...values, shippingEnabled: enabled });
-                clearError("shipping");
-              }}
-            />
-          </div>
-
-          {values.shippingEnabled && (
-            <>
-              <StoreShippingFields
-                values={values.shipping}
-                onChange={(shipping) => {
-                  setValues({ ...values, shipping });
-                  clearError("shipping");
-                }}
-              />
-              {errors.shipping && (
-                <p className="mt-2 text-xs text-red-500">{errors.shipping}</p>
-              )}
-            </>
-          )}
+          <Accordion type="single" collapsible defaultValue="shipping">
+            <AccordionItem value="shipping" className="border-b-0">
+              <AccordionTrigger iconStyle="plus-minus" className="py-0 hover:no-underline">
+                <h2 className="text-xl font-semibold">
+                  طريقة الشحن (اختياري)
+                </h2>
+              </AccordionTrigger>
+              <AccordionContent className="pt-6">
+                <StoreShippingFields
+                  values={values.shipping}
+                  onChange={(shipping) => {
+                    setValues({ ...values, shipping });
+                    clearError("shipping");
+                  }}
+                />
+                {errors.shipping && (
+                  <p className="mt-2 text-xs text-red-500">{errors.shipping}</p>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </div>
 
