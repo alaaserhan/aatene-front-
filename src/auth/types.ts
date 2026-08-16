@@ -28,6 +28,9 @@ export interface User {
   cover?: string | null;
   cover_url?: string | null;
 
+  /** Registration doesn't enforce it, so the email can be unverified. Backend sends true/false or 1/0. */
+  is_email_verified?: boolean | number | string;
+
   // Profile fields — present on most endpoints
   gender?: string | null;
   bio?: string | null;
