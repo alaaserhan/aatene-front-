@@ -53,6 +53,45 @@
   --red-1: #D00416;
   --red-2: #FB37481A;
   --gold-1: #D3871A;
+
+  /* --------------------------------------------------------------- */
+  /* NEW COLOR SYSTEM (c2) — use these for all new/updated UI.
+     Legacy tokens above (--blue-*, --gray-*, --red-*, ...) stay as-is
+     until each screen using them gets refactored separately. */
+
+  /* neutral (grays / near-black / near-white) */
+  --c2-neutral-50: #fafafa;
+  --c2-neutral-300-a10: #AAAAAA1A;
+  --c2-neutral-600: #555555;
+  --c2-neutral-800: #2D2D2D;
+  --c2-neutral-900: #222222;
+
+  /* navy (brand blue family, incl. primary) */
+  --c2-navy-950: #141F2C;
+  --c2-navy-900: #203246;
+  --c2-navy-700: #2D496A;
+  --c2-navy-500: #406896;
+  --c2-navy-300: #8B96A5;
+
+  /* ink (distinct dark purple-navy surface, not part of the navy scale) */
+  --c2-ink-900: #200E32;
+
+  /* red / danger family */
+  --c2-red-800: #B12B2B;
+  --c2-red-700: #D00416;
+  --c2-red-600: #D92727;
+  --c2-red-500: #E40014;
+  --c2-red-400: #B75959;
+
+  /* status accents */
+  --c2-warning-500: #FFC220;
+  --c2-success-500: #35C21EE5;
+
+  /* semantic aliases */
+  --c2-primary: var(--c2-navy-700);
+  --c2-danger: var(--c2-red-500);
+  --c2-warning: var(--c2-warning-500);
+  --c2-success: var(--c2-success-500);
 }
 
 
@@ -113,6 +152,30 @@
   --color-gray-5: #555555;
   --color-gray-6: #8E8E8E;
   --color-gray-7: #1C1C1C;
+
+  /* c2 — new color system, see :root for notes */
+  --color-c2-neutral-50: var(--c2-neutral-50);
+  --color-c2-neutral-300-a10: var(--c2-neutral-300-a10);
+  --color-c2-neutral-600: var(--c2-neutral-600);
+  --color-c2-neutral-800: var(--c2-neutral-800);
+  --color-c2-neutral-900: var(--c2-neutral-900);
+  --color-c2-navy-950: var(--c2-navy-950);
+  --color-c2-navy-900: var(--c2-navy-900);
+  --color-c2-navy-700: var(--c2-navy-700);
+  --color-c2-navy-500: var(--c2-navy-500);
+  --color-c2-navy-300: var(--c2-navy-300);
+  --color-c2-ink-900: var(--c2-ink-900);
+  --color-c2-red-800: var(--c2-red-800);
+  --color-c2-red-700: var(--c2-red-700);
+  --color-c2-red-600: var(--c2-red-600);
+  --color-c2-red-500: var(--c2-red-500);
+  --color-c2-red-400: var(--c2-red-400);
+  --color-c2-warning-500: var(--c2-warning-500);
+  --color-c2-success-500: var(--c2-success-500);
+  --color-c2-primary: var(--c2-primary);
+  --color-c2-danger: var(--c2-danger);
+  --color-c2-warning: var(--c2-warning);
+  --color-c2-success: var(--c2-success);
 }
 
 @media (prefers-color-scheme: dark) {
