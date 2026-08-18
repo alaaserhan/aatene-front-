@@ -12,18 +12,7 @@ import {
     buildCategoryTree,
 } from "@/src/features/(web)/search/utils/categoryTree";
 
-export type SearchType = "products" | "services" | "stores" | "users";
-
-export interface FilterState {
-    category_id?: number;
-    city_id?: number[];
-    tags?: number[];
-    min_price?: number;
-    max_price?: number;
-    review_rate?: number;
-    variation_options?: number[];
-    has_discount?: number;
-}
+import type { FilterState, SearchType } from "../types";
 
 interface SearchFiltersProps {
     type: SearchType;

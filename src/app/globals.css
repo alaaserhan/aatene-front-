@@ -61,6 +61,7 @@
 
   /* neutral (grays / near-black / near-white) */
   --c2-neutral-50: #fafafa;
+  --c2-neutral-200: #E3E3E3;
   --c2-neutral-300-a10: #AAAAAA1A;
   --c2-neutral-600: #555555;
   --c2-neutral-800: #2D2D2D;
@@ -70,6 +71,7 @@
   --c2-navy-950: #141F2C;
   --c2-navy-900: #203246;
   --c2-navy-700: #2D496A;
+  --c2-navy-600: #3D5E83;
   --c2-navy-500: #406896;
   --c2-navy-300: #8B96A5;
 
@@ -155,6 +157,7 @@
 
   /* c2 — new color system, see :root for notes */
   --color-c2-neutral-50: var(--c2-neutral-50);
+  --color-c2-neutral-200: var(--c2-neutral-200);
   --color-c2-neutral-300-a10: var(--c2-neutral-300-a10);
   --color-c2-neutral-600: var(--c2-neutral-600);
   --color-c2-neutral-800: var(--c2-neutral-800);
@@ -162,6 +165,7 @@
   --color-c2-navy-950: var(--c2-navy-950);
   --color-c2-navy-900: var(--c2-navy-900);
   --color-c2-navy-700: var(--c2-navy-700);
+  --color-c2-navy-600: var(--c2-navy-600);
   --color-c2-navy-500: var(--c2-navy-500);
   --color-c2-navy-300: var(--c2-navy-300);
   --color-c2-ink-900: var(--c2-ink-900);

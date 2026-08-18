@@ -20,28 +20,9 @@ import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { CompareFloatingBar } from "../compares/components/CompareFloatingBar";
 import { Category, City, Tag, Attribute, PriceRange } from "@/src/features/(web)/searchAndFilter/api";
-
-export type SearchType = "products" | "services" | "stores" | "users";
-
-interface FilterState {
-    category_id?: number;
-    city_id?: number[];
-    tags?: number[];
-    min_price?: number;
-    max_price?: number;
-    review_rate?: number;
-    variation_options?: number[];
-    has_discount?: number;
-}
+import { normalizeSearchType, type FilterState } from "./types";
 
 const PER_PAGE = 16;
-
-function normalizeSearchType(raw: string | null): SearchType {
-    if (raw === "services" || raw === "stores" || raw === "users" || raw === "products") {
-        return raw;
-    }
-    return "products";
-}
 
 export default function SearchResultsPage() {
     const searchParams = useSearchParams();

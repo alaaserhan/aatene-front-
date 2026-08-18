@@ -1,7 +1,8 @@
 "use client";
 
 import { X } from "lucide-react";
-import SearchFilters, { SearchType, FilterState } from "./SearchFilters";
+import SearchFilters from "./SearchFilters";
+import type { FilterState, SearchType } from "../types";
 import { Category, City, Tag, Attribute, PriceRange } from "@/src/features/(web)/searchAndFilter/api";
 
 interface MobileFilterDrawerProps {

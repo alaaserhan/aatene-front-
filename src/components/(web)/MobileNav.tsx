@@ -96,11 +96,11 @@ export default function MobileNav() {
       <div className="flex items-center justify-between px-4 py-3 w-full gap-2">
         <div className="flex shrink-0 items-center">
           <button
-            className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
+            className="p-2 hover:bg-gray-100 rounded-md cursor-pointer text-c2-primary"
             onClick={toggleMobileMenu}
             aria-label={mobileMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
           >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            <Menu size={24} />
           </button>
         </div>
 
@@ -123,7 +123,7 @@ export default function MobileNav() {
         <div className="flex shrink-0 items-center gap-0.5">
 
           <button
-            className="p-2 hover:bg-gray-100 rounded-md cursor-pointer"
+            className="p-2 hover:bg-gray-100 rounded-md cursor-pointer text-c2-primary"
             onClick={toggleMobileSearch}
             aria-label={mobileSearchOpen ? "إغلاق البحث" : "فتح البحث"}
           >

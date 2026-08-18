@@ -7,8 +7,7 @@ import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import UserCard from "@/src/features/(web)/users/components/UserCard";
 import { Product, Service, Store, User } from "@/src/features/(web)/searchAndFilter/api";
 import { Loader2 } from "lucide-react";
-
-export type SearchType = "products" | "services" | "stores" | "users";
+import type { SearchType } from "../types";
 
 interface SearchResultsProps {
     type: SearchType;
