@@ -7,20 +7,7 @@ import { toLocal } from "@/src/lib/date-helper";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { Button } from "@/src/components/ui/button";
 import type { DashboardNotification } from "@/src/features/(web)/notifications/api";
-
-// Notification body can be plain text, JSON, or HTML — normalize it to plain text.
-function cleanNotificationBody(body: string): string {
-    if (!body) return "";
-    try {
-        const parsed = JSON.parse(body);
-        if (typeof parsed === "object" && parsed !== null) {
-            return parsed.message || parsed.body || parsed.text || parsed.title || JSON.stringify(parsed);
-        }
-        return String(parsed);
-    } catch {
-        return body.replace(/<[^>]*>/g, "").trim();
-    }
-}
+import { notificationBodyToText } from "@/src/lib/utils";
 
 interface NotificationListProps {
     notifications: DashboardNotification[];
@@ -66,7 +53,7 @@ export function NotificationList({ notifications, onItemClick, onViewAllClick }:
                                     {notification.title}
                                 </h4>
                                 <p className="text-[13px] leading-5 text-c2-neutral-600 line-clamp-2">
-                                    {cleanNotificationBody(notification.body)}
+                                    {notificationBodyToText(notification.body)}
                                 </p>
                                 <span className="text-xs text-c2-navy-300">
                                     {notification.created_at

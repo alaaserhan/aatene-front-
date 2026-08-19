@@ -103,3 +103,44 @@ export function sanitizeHtml(html: string | null | undefined): string {
     return DOMPurify.sanitize(html);
 }
 
+/** Detects markup — notification bodies arrive as plain text, JSON, or a full HTML email document. */
+export function isHtmlContent(value?: string | null): boolean {
+    return Boolean(value && /<\/?[a-z][^>]*>|<!doctype/i.test(value));
+}
+
+/**
+ * Normalizes any notification body shape (plain text, JSON payload, or HTML
+ * email document) into a single-line plain-text summary for list/table cells.
+ * Render the HTML itself with NotificationBodyModal instead of this.
+ */
+export function notificationBodyToText(body: string | null | undefined): string {
+    if (!body) return "";
+
+    let raw = body;
+
+    try {
+        const parsed = JSON.parse(body);
+        raw = typeof parsed === "object" && parsed !== null
+            ? parsed.message || parsed.body || parsed.text || parsed.title || ""
+            : String(parsed);
+    } catch {
+        // Not JSON — treat the body as text/HTML as-is.
+    }
+
+    return stripHtmlTags(raw).replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Sanitizes a full HTML document (email template) while keeping <head>, <style>
+ * and the document structure intact. The result is only safe to render inside a
+ * sandboxed iframe — never inline, since its <style> rules are document-global.
+ */
+export function sanitizeHtmlDocument(html: string | null | undefined): string {
+    if (!html) return "";
+    return DOMPurify.sanitize(html, {
+        WHOLE_DOCUMENT: true,
+        ADD_TAGS: ["style"],
+        ADD_ATTR: ["target"],
+    });
+}
+

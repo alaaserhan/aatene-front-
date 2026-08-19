@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit, RefreshCw, Trash2 } from "lucide-react";
+import { Edit, Eye, RefreshCw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { NotificationModel } from "../api";
 import { useDeleteNotification, useResendNotification } from "../hooks";
@@ -8,10 +8,11 @@ import { Loader2 } from "lucide-react";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { toast } from "sonner";
-import { cn } from "@/src/lib/utils";
+import { cn, isHtmlContent, notificationBodyToText } from "@/src/lib/utils";
 import { formatDate, toLocal } from "@/src/lib/date-helper";
 import { format } from "date-fns";
 import Image from "next/image";
+import { NotificationBodyModal } from "@/src/components/shared/NotificationBodyModal";
 
 interface NotificationsTableProps {
     data: NotificationModel[];
@@ -19,63 +20,29 @@ interface NotificationsTableProps {
     onEdit?: (notification: NotificationModel) => void;
 }
 
-const HTML_ENTITY_MAP: Record<string, string> = {
-    amp: "&",
-    lt: "<",
-    gt: ">",
-    quot: "\"",
-    apos: "'",
-    nbsp: " ",
-};
-
-function decodeHtmlEntities(value: string) {
-    return value.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (match, entity) => {
-        const normalized = entity.toLowerCase();
-
-        if (normalized.startsWith("#x")) {
-            const codePoint = Number.parseInt(normalized.slice(2), 16);
-            return Number.isNaN(codePoint) ? match : String.fromCodePoint(codePoint);
-        }
-
-        if (normalized.startsWith("#")) {
-            const codePoint = Number.parseInt(normalized.slice(1), 10);
-            return Number.isNaN(codePoint) ? match : String.fromCodePoint(codePoint);
-        }
-
-        return HTML_ENTITY_MAP[normalized] ?? match;
-    });
-}
-
-function stripHtmlToText(value: string) {
-    return decodeHtmlEntities(value)
-        .replace(/<!--[\s\S]*?-->/g, " ")
-        .replace(/<!doctype[^>]*>/gi, " ")
-        .replace(/<script[\s\S]*?<\/script>/gi, " ")
-        .replace(/<style[\s\S]*?<\/style>/gi, " ")
-        .replace(/<head[\s\S]*?<\/head>/gi, " ")
-        .replace(/<[^>]+>/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
-function isHtmlContent(value?: string | null) {
-    return Boolean(value && /<\/?[a-z][\s\S]*>|<!doctype/i.test(value));
-}
-
 function truncateText(value: string, maxLength = 120) {
     if (value.length <= maxLength) return value;
     return `${value.slice(0, maxLength).trim()}...`;
 }
 
+function getRawContent(row: NotificationModel) {
+    return row.message || row.body || row.template?.content || "";
+}
+
+/**
+ * Compact plain-text summary for the table cell. Full HTML email bodies are far
+ * too large to lay out here, so they are flattened to text and rendered properly
+ * in NotificationBodyModal instead.
+ */
 function getNotificationPreview(row: NotificationModel) {
-    const rawContent = row.message || row.body || row.template?.content || "";
+    const rawContent = getRawContent(row);
 
     if (!rawContent.trim()) {
         return row.template?.title ? `قالب بريد إلكتروني: ${row.template.title}` : "-";
     }
 
     if (isHtmlContent(rawContent)) {
-        const cleanedText = stripHtmlToText(rawContent);
+        const cleanedText = notificationBodyToText(rawContent);
 
         if (cleanedText && cleanedText.length <= 80) {
             return cleanedText;
@@ -96,6 +63,7 @@ export function NotificationsTable({ data, isLoading, onEdit }: NotificationsTab
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [successMsg, setSuccessMsg] = useState("");
+    const [previewedRow, setPreviewedRow] = useState<NotificationModel | null>(null);
 
     const { mutate: deleteNotification, isPending: isDeleting } = useDeleteNotification();
     const { mutate: resendNotification, isPending: isResending } = useResendNotification();
@@ -219,6 +187,16 @@ export function NotificationsTable({ data, isLoading, onEdit }: NotificationsTab
 
                                     <td className="px-6 py-4">
                                         <div className="flex items-center justify-center gap-2">
+                                            {isHtmlContent(getRawContent(row)) && (
+                                                <button
+                                                    onClick={() => setPreviewedRow(row)}
+                                                    className="p-2 cursor-pointer bg-c2-neutral-50 text-c2-navy-700 rounded-md hover:bg-c2-neutral-200 transition-colors"
+                                                    title="عرض محتوى الإشعار"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                </button>
+                                            )}
+
                                             <button
                                                 onClick={() => {
                                                     setSelectedId(row.id);
@@ -313,6 +291,16 @@ export function NotificationsTable({ data, isLoading, onEdit }: NotificationsTab
                                     {date} - {time}
                                 </div>
                                 <div className="flex items-center gap-2">
+                                    {isHtmlContent(getRawContent(row)) && (
+                                        <button
+                                            onClick={() => setPreviewedRow(row)}
+                                            className="p-2 cursor-pointer bg-c2-neutral-50 text-c2-navy-700 rounded-md hover:bg-c2-neutral-200 transition-colors"
+                                            title="عرض محتوى الإشعار"
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                        </button>
+                                    )}
+
                                     <button
                                         onClick={() => {
                                             setSelectedId(row.id);
@@ -360,6 +348,13 @@ export function NotificationsTable({ data, isLoading, onEdit }: NotificationsTab
                 onClose={() => setShowSuccessModal(false)}
                 title="نجاح!"
                 message={successMsg}
+            />
+
+            <NotificationBodyModal
+                isOpen={Boolean(previewedRow)}
+                onClose={() => setPreviewedRow(null)}
+                title={previewedRow?.title}
+                body={previewedRow ? getRawContent(previewedRow) : ""}
             />
         </div>
     );
