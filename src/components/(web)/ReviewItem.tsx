@@ -1,13 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronDown, ChevronUp, Flag, User, PlayCircle } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { ChevronDown, ChevronUp, Flag, Reply, Trash2, User, PlayCircle } from "lucide-react";
 import { StarRating } from "@/src/components/ui/StarRating";
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
+import { ConfirmationDialog } from "@/src/components/ui/ConfirmationDialog";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useUser } from "@/src/auth/session";
+import api from "@/src/lib/axios";
 
 
 export interface SharedReviewUser {
@@ -37,6 +43,7 @@ interface ReviewItemProps {
     isLoadingReplies?: boolean;
     onToggleReplies?: (reviewId: number) => void;
     showReplies?: boolean;
+    onDeleted?: (reviewId: number) => void;
 }
 
 export function ReviewItem({
@@ -48,12 +55,30 @@ export function ReviewItem({
     isLoadingReplies,
     onToggleReplies,
     showReplies,
+    onDeleted,
 }: ReviewItemProps) {
     const lang = useLanguage();
     const currentUser = useUser();
     const isOwnReview = !!currentUser?.slug && currentUser.slug === review.user.slug;
     const isReply = !!review.parent_id;
     const profileHref = `/${lang}/profile/${review.user.slug || "#"}`;
+
+    const [isDeleted, setIsDeleted] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
+    const { mutate: deleteReview, isPending: isDeleting } = useMutation({
+        mutationFn: () => api.delete(`/reviews/${review.id}`),
+        onSuccess: () => {
+            toast.success("تم حذف التقييم بنجاح");
+            setIsDeleted(true);
+            onDeleted?.(review.id);
+        },
+        onError: (error: AxiosError<{ message?: string }>) => {
+            toast.error(error.response?.data?.message || "حدث خطأ أثناء حذف التقييم");
+        },
+    });
+
+    if (isDeleted) return null;
 
     return (
         <div>
@@ -80,12 +105,15 @@ export function ReviewItem({
                                 )
                             }
                         </Link>
-                        <Link
-                            href={profileHref}
-                            className="hover:opacity-80 transition-opacity"
-                        >
-                            <h4 className="text-sm font-medium ">{review.user.name}</h4>
-                        </Link>
+                        <div className="flex flex-col">
+                            <Link
+                                href={profileHref}
+                                className="hover:opacity-80 transition-opacity"
+                            >
+                                <h4 className="text-sm font-medium ">{review.user.name}</h4>
+                            </Link>
+                            <span className="text-[11px] text-gray-2">{getRelativeTimeArabic(review.created_at)}</span>
+                        </div>
                     </div>
                     <div className="flex items-center gap-1">
                         {review.rate ? (
@@ -124,31 +152,56 @@ export function ReviewItem({
                 )}
 
                 <div className="flex items-center justify-between mt-1">
-                    <div className="flex items-center md:gap-7 gap-4 md:text-[14px] text-[12px] font-medium text-blue-4">
-                        <span>{getRelativeTimeArabic(review.created_at)}</span>
+                    <div className="flex items-center md:gap-7 gap-4 md:text-[14px] text-[12px] font-medium">
                         {!isReply && (
-                            <button onClick={() => onReply?.(review.id, review.user.name)} className="hover:underline cursor-pointer">رد</button>
+                            <button
+                                onClick={() => onReply?.(review.id, review.user.name)}
+                                className="flex items-center gap-1 rounded-full bg-c2-navy-700 px-3 py-1 text-white text-xs font-medium hover:bg-c2-navy-600 transition-colors cursor-pointer"
+                            >
+                                <Reply size={14} />
+                                <span>رد</span>
+                            </button>
                         )}
                         {!isReply && review.has_replies && (
                             <button
                                 onClick={() => onToggleReplies?.(review.id)}
-                                className="flex items-center gap-1 hover:underline cursor-pointer"
+                                className="flex items-center gap-1 text-blue-4 hover:underline cursor-pointer"
                             >
                                 {showReplies ? "إخفاء الردود" : `عرض الردود`}
                                 {showReplies ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                             </button>
                         )}
                     </div>
-                    {!isOwnReview && (
-                        <ReportAbuse type={reportType} id={review.id}>
-                            <button className="flex cursor-pointer items-center gap-1 text-[#d32f2f] text-[12px] font-medium transition-colors hover:text-red-700">
-                                <Flag size={14} />
-                                <span>بلغ عن إساءة</span>
+                    <div className="flex items-center gap-4">
+                        {isOwnReview && (
+                            <button
+                                onClick={() => setIsConfirmOpen(true)}
+                                disabled={isDeleting}
+                                className="flex cursor-pointer items-center gap-1 text-[#d32f2f] text-[12px] font-medium transition-colors hover:text-red-700 disabled:opacity-50"
+                            >
+                                <Trash2 size={14} />
+                                <span>حذف</span>
                             </button>
-                        </ReportAbuse>
-                    )}
+                        )}
+                        {!isOwnReview && (
+                            <ReportAbuse type={reportType} id={review.id}>
+                                <button className="flex cursor-pointer items-center gap-1 text-[#d32f2f] text-[12px] font-medium transition-colors hover:text-red-700">
+                                    <Flag size={14} />
+                                    <span>بلغ عن إساءة</span>
+                                </button>
+                            </ReportAbuse>
+                        )}
+                    </div>
                 </div>
             </div>
+
+            <ConfirmationDialog
+                isOpen={isConfirmOpen}
+                onClose={() => setIsConfirmOpen(false)}
+                onConfirm={() => deleteReview()}
+                title="حذف التقييم"
+                description="هل أنت متأكد من حذف هذا التقييم؟ لا يمكن التراجع عن هذا الإجراء."
+            />
 
             {showReplies && (
                 <div className="mt-2 space-y-2">
