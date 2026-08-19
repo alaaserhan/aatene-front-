@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Product, Store, ReviewStatistics } from "../api";
 import { useAddProductReview, useGetProductReviews, useGetProductReviewReplies } from "../hooks";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../../stores/hooks";

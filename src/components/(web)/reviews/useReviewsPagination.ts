@@ -32,7 +32,6 @@ export function useReviewsPagination({
 
     // Syncing state to fetched data: page 1's length is the only place the page
     // size is observable, and it must survive navigating to a shorter last page.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => {
         if (page === 1 && itemsOnPage > 0) setPageSize(itemsOnPage);
     }, [page, itemsOnPage]);

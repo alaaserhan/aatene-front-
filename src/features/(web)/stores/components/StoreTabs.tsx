@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { StoreProfile, StorePageData } from "../api";
 import { cn, sanitizeMediaUrl } from "@/src/lib/utils";

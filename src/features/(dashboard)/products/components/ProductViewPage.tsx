@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Pen, Phone, Send, CheckCircle2, XCircle, PauseCircle, Trash2, Play } from "lucide-react";
 import Cookies from "js-cookie";

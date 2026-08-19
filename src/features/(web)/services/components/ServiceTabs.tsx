@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Service, ServiceBoardQuestion } from "../api";
 import { Loader2, Plus, Minus, Search, Flag, ChevronLeft, ChevronDown, User } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/src/components/ui/dialog";
