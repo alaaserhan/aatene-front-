@@ -50,6 +50,7 @@ export function MainDataSection({
     const newErrors: Record<string, string> = {};
 
     if (!values.name.trim()) newErrors.name = "اسم المتجر مطلوب";
+    if (!values.speciality.trim()) newErrors.speciality = "تخصص المتجر مطلوب";
 
     if (values.email.trim()) {
       const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -83,6 +84,7 @@ export function MainDataSection({
       serviceCities: isServicesStore ? values.serviceCities : [],
       address: values.address.trim(),
       description: values.description.trim(),
+      speciality: values.speciality.trim(),
     };
 
     // Omitting `logo` keeps the current one; only send a freshly picked file.
@@ -127,6 +129,21 @@ export function MainDataSection({
           onChange={(fileName, src) =>
             setValues({ ...values, logo: fileName, logoPreview: src })
           }
+        />
+
+        <FormInput
+          label="تخصص المتجر"
+          name="speciality"
+          value={values.speciality}
+          onChange={(e) => {
+            setValues({ ...values, speciality: e.target.value });
+            clearError("speciality");
+          }}
+          placeholder="ادخل تخصص المتجر"
+          required
+          maxLength={50}
+          showCounter
+          error={errors.speciality}
         />
 
         <StoreSingleBannerSelector

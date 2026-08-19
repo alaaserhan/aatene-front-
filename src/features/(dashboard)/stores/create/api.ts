@@ -19,6 +19,7 @@ export interface CreateStorePayload {
   type: StoreType;
   name: string;
   logo: string | null;
+  speciality: string;
   locationCities: number[];
   serviceCities: number[];
   /** Admins create stores on behalf of a merchant. */

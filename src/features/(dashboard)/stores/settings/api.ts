@@ -22,6 +22,7 @@ export interface UpdateMainDataPayload {
   serviceCities: number[];
   address: string;
   description: string;
+  speciality: string;
 }
 
 export interface UpdateSocialMediaPayload {

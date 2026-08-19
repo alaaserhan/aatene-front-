@@ -25,6 +25,7 @@ export function mapStoreToSettings(store: Store): StoreSettingsValues {
         (url): url is string => typeof url === "string" && url.length > 0
       ),
       description: store.description || "",
+      speciality: store.speciality || "",
       email: store.email || "",
       locationCities: toCityIds(store.locationCities),
       serviceCities: toCityIds(store.serviceCities),

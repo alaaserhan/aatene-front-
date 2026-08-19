@@ -43,6 +43,7 @@ const EMPTY_FORM: ProductStoreFormValues = {
   name: "",
   logo: null,
   logoPreview: null,
+  speciality: "",
   locationCities: [],
   owner_id: 0,
   shipping: { delivery_type: "hand_delivery", shippingCompanies: [] },
@@ -116,6 +117,7 @@ export function CreateProductStorePage() {
     const newErrors: Record<string, string> = {};
 
     if (!values.name.trim()) newErrors.name = "اسم المتجر مطلوب";
+    if (!values.speciality.trim()) newErrors.speciality = "تخصص المتجر مطلوب";
     if (values.locationCities.length === 0)
       newErrors.locationCities = "المدينة مطلوبة";
     if (isAdmin && !values.owner_id)
@@ -149,6 +151,7 @@ export function CreateProductStorePage() {
         type: "products",
         name: values.name.trim(),
         logo: values.logo,
+        speciality: values.speciality.trim(),
         locationCities: values.locationCities,
         serviceCities: [],
         ...(isAdmin && values.owner_id ? { owner_id: values.owner_id } : {}),
@@ -215,6 +218,21 @@ export function CreateProductStorePage() {
                 setValues({ ...values, logo: fileName, logoPreview: src })
               }
               required
+            />
+
+            <FormInput
+              label="تخصص المتجر"
+              name="speciality"
+              value={values.speciality}
+              onChange={(e) => {
+                setValues({ ...values, speciality: e.target.value });
+                clearError("speciality");
+              }}
+              placeholder="ادخل تخصص المتجر"
+              required
+              maxLength={50}
+              showCounter
+              error={errors.speciality}
             />
 
             <CityMultiSelect

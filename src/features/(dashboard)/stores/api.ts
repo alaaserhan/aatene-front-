@@ -140,6 +140,7 @@ export interface Store {
   shown?: boolean;
   pending_services_count: string;
   description: string | null;
+  speciality?: string | null;
   address: string | null;
   review_rate: string;
   reviews_count: number | null;

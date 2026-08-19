@@ -17,6 +17,7 @@ export interface StoreMainDataValues {
   cover: string[];
   coverPreviews: string[];
   description: string;
+  speciality: string;
   email: string;
   locationCities: number[];
   serviceCities: number[];
