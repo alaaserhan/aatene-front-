@@ -311,7 +311,7 @@ function MobileSearchBar({ controller }: { controller: Controller }) {
 function NavbarSearchBar({ controller }: { controller: Controller }) {
   return (
     <div
-      className="flex h-12 w-full items-center rounded-md border border-c2-navy-700 bg-white"
+      className="flex h-12 w-full items-center rounded-md border border-c2-neutral-200 bg-white"
       dir="rtl"
     >
       <div className="relative flex h-full flex-1 items-center">
@@ -326,7 +326,7 @@ function NavbarSearchBar({ controller }: { controller: Controller }) {
 
       <TypeTabs controller={controller} appearance="plain" className="px-2" />
 
-      <SubmitButton onClick={controller.submit} className="h-full rounded-e-sm" />
+      <SubmitButton onClick={controller.submit} className="h-12 rounded-e-sm" />
     </div>
   );
 }

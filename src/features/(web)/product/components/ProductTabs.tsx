@@ -2,11 +2,9 @@
 
 import { useRef, useState } from "react";
 import { Product, Store, ReviewStatistics } from "../api";
-import { Loader2 } from "lucide-react";
 import { useAddProductReview, useGetProductReviews, useGetProductReviewReplies } from "../hooks";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../../stores/hooks";
-import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
-import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
+import { ReviewItem, ReviewsSection, type ReviewSubmitPayload, type SharedReview } from "@/src/components/(web)/reviews";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ReviewStatisticsDisplay } from "./ReviewStatisticsDisplay";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
@@ -105,9 +103,6 @@ function ProductAndStoreReviews({ product, store }: { product: Product; store: S
 
 
 function ProductReviewsSection({ slug, summary }: { slug: string; summary: { count: number; rate: number } }) {
-    const formRef = useRef<ReviewFormRef>(null);
-    const [parentId, setParentId] = useState<number | null>(null);
-    const [replyToName, setReplyToName] = useState<string | null>(null);
     const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
     const [mediaViewerState, setMediaViewerState] = useState<{
         isOpen: boolean;
@@ -115,20 +110,9 @@ function ProductReviewsSection({ slug, summary }: { slug: string; summary: { cou
         index: number;
     }>({ isOpen: false, media: [], index: 0 });
 
-    const { data, isLoading, refetch: refetchReviews } = useGetProductReviews(slug);
+    const [page, setPage] = useState(1);
+    const { data, isLoading, refetch: refetchReviews } = useGetProductReviews(slug, page);
     const { mutate: addReview, isPending } = useAddProductReview();
-
-    const handleReply = (id: number, userName: string) => {
-        setParentId(id);
-        setReplyToName(userName);
-        formRef.current?.scrollToForm();
-        formRef.current?.focusTextarea();
-    };
-
-    const handleCancelReply = () => {
-        setParentId(null);
-        setReplyToName(null);
-    };
 
     const handleSubmit = (formData: { content: string; rate: number; images: File[]; parent_id?: number | null }) => {
         return new Promise<void>((resolve, reject) => {
@@ -136,8 +120,6 @@ function ProductReviewsSection({ slug, summary }: { slug: string; summary: { cou
                 { slug, payload: { content: formData.content, rate: String(formData.rate), images: formData.images, parent_id: formData.parent_id } },
                 {
                     onSuccess: () => {
-                        setParentId(null);
-                        setReplyToName(null);
                         if (formData.parent_id) {
                             setExpandedReplies((prev) => new Set(prev).add(formData.parent_id!));
                         }
@@ -165,10 +147,7 @@ function ProductReviewsSection({ slug, summary }: { slug: string; summary: { cou
         setMediaViewerState({ isOpen: true, media, index });
     };
 
-    if (isLoading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin text-blue-3" /></div>;
-
     const reviews = data?.reviews || [];
-
 
     let statistics: ReviewStatistics | undefined;
     if (data?.rate_stats) {
@@ -186,31 +165,31 @@ function ProductReviewsSection({ slug, summary }: { slug: string; summary: { cou
     }
 
     return (
-        <div className="space-y-6">
-            {statistics && (
-                <ReviewStatisticsDisplay stats={statistics} />
-            )}
-
-            {reviews.length > 0 ? (
-                <div className="space-y-4">
-                    {reviews.map((review) => (
-                        <ProductReviewWithReplies
-                            key={review.id}
-                            review={review as unknown as SharedReview}
-                            slug={slug}
-                            onOpenMedia={openMedia}
-                            onReply={handleReply}
-                            showReplies={expandedReplies.has(review.id)}
-                            onToggleReplies={handleToggleReplies}
-                            onReviewChanged={refetchReviews}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <div className="text-center py-10 bg-gray-50 rounded-lg">
-                    <p className="text-gray-2">لا توجد مراجعات بعد</p>
-                </div>
-            )}
+        <>
+            <ReviewsSection
+                stats={statistics && <ReviewStatisticsDisplay stats={statistics} />}
+                isLoading={isLoading}
+                itemsOnPage={reviews.length}
+                total={data?.total}
+                page={page}
+                setPage={setPage}
+                onSubmit={handleSubmit}
+                isSubmitting={isPending}
+            >
+                {reviews.map((review) => (
+                    <ProductReviewWithReplies
+                        key={review.id}
+                        review={review as unknown as SharedReview}
+                        slug={slug}
+                        onOpenMedia={openMedia}
+                        onSubmitReply={handleSubmit}
+                        isSubmittingReply={isPending}
+                        showReplies={expandedReplies.has(review.id)}
+                        onToggleReplies={handleToggleReplies}
+                        onReviewChanged={refetchReviews}
+                    />
+                ))}
+            </ReviewsSection>
 
             {mediaViewerState.isOpen && (
                 <MediaViewer
@@ -220,16 +199,7 @@ function ProductReviewsSection({ slug, summary }: { slug: string; summary: { cou
                     initialIndex={mediaViewerState.index}
                 />
             )}
-
-            <ReviewForm
-                ref={formRef}
-                onSubmit={handleSubmit}
-                isSubmitting={isPending}
-                parentId={parentId}
-                replyToName={replyToName}
-                onCancelReply={handleCancelReply}
-            />
-        </div>
+        </>
     );
 }
 
@@ -237,7 +207,8 @@ function ProductReviewWithReplies({
     review,
     slug,
     onOpenMedia,
-    onReply,
+    onSubmitReply,
+    isSubmittingReply,
     showReplies,
     onToggleReplies,
     onReviewChanged,
@@ -245,7 +216,8 @@ function ProductReviewWithReplies({
     review: SharedReview;
     slug: string;
     onOpenMedia: (media: string[], index: number) => void;
-    onReply: (id: number, userName: string) => void;
+    onSubmitReply: (data: ReviewSubmitPayload) => Promise<void> | void;
+    isSubmittingReply: boolean;
     showReplies: boolean;
     onToggleReplies: (id: number) => void;
     onReviewChanged: () => void;
@@ -267,7 +239,8 @@ function ProductReviewWithReplies({
             review={review}
             onOpenMedia={onOpenMedia}
             reportType="comment"
-            onReply={onReply}
+            onSubmitReply={onSubmitReply}
+            isSubmittingReply={isSubmittingReply}
             showReplies={showReplies}
             onToggleReplies={onToggleReplies}
             replies={replies}
@@ -279,9 +252,6 @@ function ProductReviewWithReplies({
 }
 
 function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count: number; rate: number } }) {
-    const formRef = useRef<ReviewFormRef>(null);
-    const [parentId, setParentId] = useState<number | null>(null);
-    const [replyToName, setReplyToName] = useState<string | null>(null);
     const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
     const [mediaViewerState, setMediaViewerState] = useState<{
         isOpen: boolean;
@@ -289,20 +259,9 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
         index: number;
     }>({ isOpen: false, media: [], index: 0 });
 
-    const { data, isLoading, refetch: refetchReviews } = useGetStoreReviews(slug);
+    const [page, setPage] = useState(1);
+    const { data, isLoading, refetch: refetchReviews } = useGetStoreReviews(slug, page);
     const { mutate: addReview, isPending } = useAddStoreReview();
-
-    const handleReply = (id: number, userName: string) => {
-        setParentId(id);
-        setReplyToName(userName);
-        formRef.current?.scrollToForm();
-        formRef.current?.focusTextarea();
-    };
-
-    const handleCancelReply = () => {
-        setParentId(null);
-        setReplyToName(null);
-    };
 
     const handleSubmit = (formData: { content: string; rate: number; images: File[]; parent_id?: number | null }) => {
         return new Promise<void>((resolve, reject) => {
@@ -310,8 +269,6 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
                 { slug, payload: { content: formData.content, rate: String(formData.rate), images: formData.images, parent_id: formData.parent_id } },
                 {
                     onSuccess: () => {
-                        setParentId(null);
-                        setReplyToName(null);
                         if (formData.parent_id) {
                             setExpandedReplies((prev) => new Set(prev).add(formData.parent_id!));
                         }
@@ -339,8 +296,6 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
         setMediaViewerState({ isOpen: true, media, index });
     };
 
-    if (isLoading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin text-blue-3" /></div>;
-
     const reviews = data?.reviews || [];
     let statistics: ReviewStatistics | undefined;
     if (data?.rate_stats) {
@@ -358,32 +313,31 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
     }
 
     return (
-        <div className="space-y-6">
-            {statistics && (
-                <ReviewStatisticsDisplay stats={statistics} />
-            )}
-
-
-            {reviews.length > 0 ? (
-                <div className="space-y-4">
-                    {reviews.map((review) => (
-                        <StoreReviewWithReplies
-                            key={review.id}
-                            review={review as unknown as SharedReview}
-                            slug={slug}
-                            onOpenMedia={openMedia}
-                            onReply={handleReply}
-                            showReplies={expandedReplies.has(review.id)}
-                            onToggleReplies={handleToggleReplies}
-                            onReviewChanged={refetchReviews}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <div className="text-center py-10 bg-gray-50 rounded-lg">
-                    <p className="text-gray-500">لا توجد مراجعات بعد</p>
-                </div>
-            )}
+        <>
+            <ReviewsSection
+                stats={statistics && <ReviewStatisticsDisplay stats={statistics} />}
+                isLoading={isLoading}
+                itemsOnPage={reviews.length}
+                total={data?.total}
+                page={page}
+                setPage={setPage}
+                onSubmit={handleSubmit}
+                isSubmitting={isPending}
+            >
+                {reviews.map((review) => (
+                    <StoreReviewWithReplies
+                        key={review.id}
+                        review={review as unknown as SharedReview}
+                        slug={slug}
+                        onOpenMedia={openMedia}
+                        onSubmitReply={handleSubmit}
+                        isSubmittingReply={isPending}
+                        showReplies={expandedReplies.has(review.id)}
+                        onToggleReplies={handleToggleReplies}
+                        onReviewChanged={refetchReviews}
+                    />
+                ))}
+            </ReviewsSection>
 
             {mediaViewerState.isOpen && (
                 <MediaViewer
@@ -393,16 +347,7 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
                     initialIndex={mediaViewerState.index}
                 />
             )}
-
-            <ReviewForm
-                ref={formRef}
-                onSubmit={handleSubmit}
-                isSubmitting={isPending}
-                parentId={parentId}
-                replyToName={replyToName}
-                onCancelReply={handleCancelReply}
-            />
-        </div>
+        </>
     );
 }
 
@@ -410,7 +355,8 @@ function StoreReviewWithReplies({
     review,
     slug,
     onOpenMedia,
-    onReply,
+    onSubmitReply,
+    isSubmittingReply,
     showReplies,
     onToggleReplies,
     onReviewChanged,
@@ -418,7 +364,8 @@ function StoreReviewWithReplies({
     review: SharedReview;
     slug: string;
     onOpenMedia: (media: string[], index: number) => void;
-    onReply: (id: number, userName: string) => void;
+    onSubmitReply: (data: ReviewSubmitPayload) => Promise<void> | void;
+    isSubmittingReply: boolean;
     showReplies: boolean;
     onToggleReplies: (id: number) => void;
     onReviewChanged: () => void;
@@ -440,7 +387,8 @@ function StoreReviewWithReplies({
             review={review}
             onOpenMedia={onOpenMedia}
             reportType="comment"
-            onReply={onReply}
+            onSubmitReply={onSubmitReply}
+            isSubmittingReply={isSubmittingReply}
             showReplies={showReplies}
             onToggleReplies={onToggleReplies}
             replies={replies}

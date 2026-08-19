@@ -90,12 +90,15 @@
   /* status accents */
   --c2-warning-500: #FFC220;
   --c2-success-500: #35C21EE5;
+  --c2-amber-400: #FB923C;
 
   /* semantic aliases */
   --c2-primary: var(--c2-navy-700);
   --c2-danger: var(--c2-red-500);
   --c2-warning: var(--c2-warning-500);
   --c2-success: var(--c2-success-500);
+  /* filled rating stars — empty ones use --c2-neutral-200 */
+  --c2-rating: var(--c2-amber-400);
 }
 
 
@@ -179,10 +182,12 @@
   --color-c2-red-400: var(--c2-red-400);
   --color-c2-warning-500: var(--c2-warning-500);
   --color-c2-success-500: var(--c2-success-500);
+  --color-c2-amber-400: var(--c2-amber-400);
   --color-c2-primary: var(--c2-primary);
   --color-c2-danger: var(--c2-danger);
   --color-c2-warning: var(--c2-warning);
   --color-c2-success: var(--c2-success);
+  --color-c2-rating: var(--c2-rating);
 }
 
 @media (prefers-color-scheme: dark) {

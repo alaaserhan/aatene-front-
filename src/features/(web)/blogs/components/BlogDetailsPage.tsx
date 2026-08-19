@@ -3,8 +3,7 @@
 import { useBlog, useBlogReviews, useAddBlogReview, usePublicBlogs, useBlogReplies } from "../hooks";
 import { Blog } from "../types";
 import { BlogCard } from "./BlogCard";
-import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
-import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
+import { ReviewItem, ReviewsSection, type ReviewFormRef, type ReviewSubmitPayload, type SharedReview } from "@/src/components/(web)/reviews";
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import Link from "next/link";
 import Image from "next/image";
@@ -173,7 +172,8 @@ function BlogReviewWithReplies({
     review,
     slug,
     onOpenMedia,
-    onReply,
+    onSubmitReply,
+    isSubmittingReply,
     showReplies,
     onToggleReplies,
     onReviewChanged,
@@ -181,7 +181,8 @@ function BlogReviewWithReplies({
     review: SharedReview;
     slug: string;
     onOpenMedia: (media: string[], index: number) => void;
-    onReply: (id: number, userName: string) => void;
+    onSubmitReply: (data: ReviewSubmitPayload) => Promise<void> | void;
+    isSubmittingReply: boolean;
     showReplies: boolean;
     onToggleReplies: (id: number) => void;
     onReviewChanged: () => void;
@@ -200,7 +201,8 @@ function BlogReviewWithReplies({
         <ReviewItem
             review={review}
             onOpenMedia={onOpenMedia}
-            onReply={onReply}
+            onSubmitReply={onSubmitReply}
+            isSubmittingReply={isSubmittingReply}
             showReplies={showReplies}
             onToggleReplies={onToggleReplies}
             replies={repliesData?.reviews as unknown as SharedReview[]}
@@ -264,8 +266,6 @@ export default function BlogDetailsPage() {
     const closeMedia = () => {
         setMediaViewerState((prev) => ({ ...prev, isOpen: false }));
     };
-    const [parentId, setParentId] = useState<number | null>(null);
-    const [replyToName, setReplyToName] = useState<string | null>(null);
     const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
 
     const handleToggleReplies = (reviewId: number) => {
@@ -311,18 +311,6 @@ export default function BlogDetailsPage() {
         }
     };
 
-    const handleReply = (id: number, userName: string) => {
-        setParentId(id);
-        setReplyToName(userName);
-        formRef.current?.scrollToForm();
-        formRef.current?.focusTextarea();
-    };
-
-    const handleCancelReply = () => {
-        setParentId(null);
-        setReplyToName(null);
-    };
-
     const handleSubmitReview = async (data: { content: string; rate: number; images: File[]; parent_id?: number | null }) => {
         const formData = new FormData();
         formData.append("content", data.content);
@@ -335,8 +323,6 @@ export default function BlogDetailsPage() {
                 { slug, data: formData },
                 {
                     onSuccess: () => {
-                        setParentId(null);
-                        setReplyToName(null);
                         if (data.parent_id) {
                             setExpandedReplies((prev) => new Set(prev).add(data.parent_id!));
                         }
@@ -349,7 +335,8 @@ export default function BlogDetailsPage() {
     };
 
     const { data: blogData, isLoading, error } = useBlog(slug);
-    const { data: reviewsData, refetch: refetchReviews } = useBlogReviews(slug);
+    const [reviewsPage, setReviewsPage] = useState(1);
+    const { data: reviewsData, isLoading: isLoadingReviews, refetch: refetchReviews } = useBlogReviews(slug, { page: reviewsPage });
     const { data: relatedData } = usePublicBlogs({ per_page: 4 });
 
     const blog = blogData?.blog || blogData?.record;
@@ -520,26 +507,35 @@ export default function BlogDetailsPage() {
                         ))}
                     </div>
 
-                    {/* Reviews Section */}
-                    {reviews.length > 0 && (
-                        <div className="flex flex-col gap-4 mt-8">
-                            <h3 className="text-xl font-medium ">التعليقات</h3>
-                            <div className="flex flex-col gap-4">
-                                {reviews.map((review) => (
-                                    <BlogReviewWithReplies
-                                        key={review.id}
-                                        review={review as unknown as SharedReview}
-                                        slug={slug}
-                                        onOpenMedia={openMedia}
-                                        onReply={handleReply}
-                                        showReplies={expandedReplies.has(review.id)}
-                                        onToggleReplies={handleToggleReplies}
-                                        onReviewChanged={refetchReviews}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    {/* Comments: composer on top, then the paginated list */}
+                    <div className="mt-8 flex flex-col gap-4">
+                        <h3 className="text-xl font-medium">التعليقات</h3>
+                        <ReviewsSection
+                            isLoading={isLoadingReviews}
+                            itemsOnPage={reviews.length}
+                            total={reviewsData?.total}
+                            page={reviewsPage}
+                            setPage={setReviewsPage}
+                            emptyMessage="لا توجد تعليقات بعد — كن أول من يعلّق"
+                            composerRef={formRef}
+                            onSubmit={handleSubmitReview}
+                            isSubmitting={addReview.isPending}
+                        >
+                            {reviews.map((review) => (
+                                <BlogReviewWithReplies
+                                    key={review.id}
+                                    review={review as unknown as SharedReview}
+                                    slug={slug}
+                                    onOpenMedia={openMedia}
+                                    onSubmitReply={handleSubmitReview}
+                                    isSubmittingReply={addReview.isPending}
+                                    showReplies={expandedReplies.has(review.id)}
+                                    onToggleReplies={handleToggleReplies}
+                                    onReviewChanged={refetchReviews}
+                                />
+                            ))}
+                        </ReviewsSection>
+                    </div>
 
                     {mediaViewerState.isOpen && (
                         <MediaViewer
@@ -549,16 +545,6 @@ export default function BlogDetailsPage() {
                             initialIndex={mediaViewerState.index}
                         />
                     )}
-
-                    {/* Review Form */}
-                    <ReviewForm
-                        ref={formRef}
-                        onSubmit={handleSubmitReview}
-                        isSubmitting={addReview.isPending}
-                        parentId={parentId}
-                        replyToName={replyToName}
-                        onCancelReply={handleCancelReply}
-                    />
                 </div>
                 {/* Left Sidebar */}
                 <div className="w-full lg:w-[320px] shrink-0 flex flex-col gap-16">

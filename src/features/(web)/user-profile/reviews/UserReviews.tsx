@@ -2,11 +2,9 @@
 
 import { useRef, useState } from "react";
 import { useUserReviews, useAddUserReview, useUserReviewReplies } from "../hooks";
-import { ReviewItem, SharedReview } from "@/src/components/(web)/ReviewItem";
-import { Loader2 } from "lucide-react";
+import { ReviewItem, ReviewsSection, type ReviewSubmitPayload, type SharedReview } from "@/src/components/(web)/reviews";
 import { toast } from "sonner";
 import { UserReview } from "../types";
-import { ReviewForm, ReviewFormRef } from "@/src/components/(web)/ReviewForm";
 import { ReviewStatisticsDisplay, ReviewStatisticsData } from "@/src/components/(web)/ReviewStatisticsDisplay";
 
 interface UserReviewsProps {
@@ -14,13 +12,11 @@ interface UserReviewsProps {
 }
 
 export default function UserReviews({ userId }: UserReviewsProps) {
-    const [page] = useState(1);
+    const [page, setPage] = useState(1);
     const { data, isLoading, isError, refetch: refetchReviews } = useUserReviews(userId, page);
     const { mutate: addReview, isPending: isAdding } = useAddUserReview();
 
     const [expandedReviews, setExpandedReviews] = useState<Record<number, boolean>>({});
-    const [replyingTo, setReplyingTo] = useState<{ id: number; name: string } | null>(null);
-    const formRef = useRef<ReviewFormRef>(null);
 
     const handleSubmit = async (formData: { content: string; rate: number; images: File[]; parent_id?: number | null }) => {
         const payload = new FormData();
@@ -41,7 +37,6 @@ export default function UserReviews({ userId }: UserReviewsProps) {
                     onSuccess: (data: { status: boolean; message: string }) => {
                         if (data.status) {
                             toast.success("تم إضافة التقييم بنجاح");
-                            setReplyingTo(null);
                             resolve();
                         } else {
                             toast.error(data.message || "حدث خطأ ما");
@@ -61,13 +56,6 @@ export default function UserReviews({ userId }: UserReviewsProps) {
         setExpandedReviews(prev => ({ ...prev, [reviewId]: !prev[reviewId] }));
     };
 
-    const handleReply = (id: number, userName: string) => {
-        setReplyingTo({ id, name: userName });
-        formRef.current?.scrollToForm();
-        formRef.current?.focusTextarea();
-    };
-
-    if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
     if (isError) return <div className="text-center text-red-500 p-8">حدث خطأ في تحميل التقييمات</div>;
 
     const reviews = data?.reviews || [];
@@ -79,33 +67,30 @@ export default function UserReviews({ userId }: UserReviewsProps) {
     } : null;
 
     return (
-        <div className="space-y-8">
-            {statistics && <ReviewStatisticsDisplay stats={statistics} />}
-
-
-            <div className="space-y-4">
-                {reviews.map((review) => (
-                    <ReviewItemWrapper
+        <ReviewsSection
+            stats={statistics && <ReviewStatisticsDisplay stats={statistics} />}
+            isLoading={isLoading}
+            itemsOnPage={reviews.length}
+            total={data?.total}
+            page={page}
+            setPage={setPage}
+            onSubmit={handleSubmit}
+            isSubmitting={isAdding}
+        >
+            {reviews.map((review) => (
+                <ReviewItemWrapper
                     key={review.id}
                     review={review}
                     userId={userId}
                     isExpanded={!!expandedReviews[review.id]}
                     onToggleReplies={handleToggleReplies}
-                    onReply={handleReply}
+                    onSubmitReply={handleSubmit}
+                    isSubmittingReply={isAdding}
                     reportType="comment"
                     onReviewChanged={refetchReviews}
-                    />
-                ))}
-                <ReviewForm
-                    ref={formRef}
-                    onSubmit={handleSubmit}
-                    isSubmitting={isAdding}
-                    parentId={replyingTo?.id}
-                    replyToName={replyingTo?.name}
-                    onCancelReply={() => setReplyingTo(null)}
                 />
-            </div>
-        </div>
+            ))}
+        </ReviewsSection>
     );
 }
 
@@ -114,7 +99,8 @@ function ReviewItemWrapper({
     userId,
     isExpanded,
     onToggleReplies,
-    onReply,
+    onSubmitReply,
+    isSubmittingReply,
     reportType,
     onReviewChanged,
 }: {
@@ -122,7 +108,8 @@ function ReviewItemWrapper({
     userId: number,
     isExpanded: boolean,
     onToggleReplies: (id: number) => void,
-    onReply: (id: number, name: string) => void,
+    onSubmitReply: (data: ReviewSubmitPayload) => Promise<void> | void,
+    isSubmittingReply: boolean,
     reportType: "comment" | "store" | "product",
     onReviewChanged: () => void,
 }) {
@@ -168,7 +155,8 @@ function ReviewItemWrapper({
             showReplies={isExpanded}
             isLoadingReplies={isLoadingReplies && isExpanded}
             replies={replies}
-            onReply={onReply}
+            onSubmitReply={onSubmitReply}
+            isSubmittingReply={isSubmittingReply}
             reportType={reportType}
             onDeleted={handleChanged}
             onUpdated={handleChanged}
