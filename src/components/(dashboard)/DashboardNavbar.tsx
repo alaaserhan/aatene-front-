@@ -37,6 +37,7 @@ import {
   Trash2,
   Mail,
   ExternalLink,
+  MessageCircleMore,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -58,6 +59,7 @@ import { isSegmentAllowedForRole, isSegmentAllowedForAdmin, MerchantRole } from 
 // import { useGetStoreBalance } from "@/src/features/(dashboard)/coins/hooks"; // ⚠️ معطّل مؤقتاً - نظام العملات الذهبية
 import { useTotalUnreadCount } from "@/src/features/(dashboard)/chat/hooks";
 import { Badge } from "@/src/components/ui/badge";
+import { NavIconButton } from "../(web)/NavIconButton";
 
 // ⚠️ مكوّن رصيد العملات الذهبية - معطّل مؤقتاً
 // const MerchantNavbarPoints = ({ storeId }: { storeId?: string | number | null }) => {
@@ -421,27 +423,17 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
               <img src="/icons/search.svg" className="w-5 h-5" alt="search" />
             </Button> */}
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-lg hover:bg-white/20 relative cursor-pointer"
-              aria-label="الرسائل"
-              asChild
-            >
-              <Link href={`/admin/chat`}>
-                <img src="/icons/dashboard/chat3.svg" className="w-5 h-5" alt="chat" />
-                {unreadCount > 0 && (
-                  <Badge
-                    className="absolute bg-red-600 -top-1 text-white -right-1 h-4 w-4 flex items-center justify-center p-0 pt-[3px] text-[10px]"
-                    variant="destructive"
-                  >
-                    {unreadCount}
-                  </Badge>
-                )}
-              </Link>
-            </Button>
+            <Link href={`/admin/chat`} aria-label="الرسائل">
+              <NavIconButton
+                tabIndex={-1}
+                count={unreadCount}
+                className="text-c2-primary hover:text-c2-navy-900"
+              >
+                <MessageCircleMore className="size-5" />
+              </NavIconButton>
+            </Link>
 
-            <NotificationDropdown variant="dashboard" />
+            <NotificationDropdown triggerClassName="text-c2-primary hover:text-c2-navy-900" />
 
             <div className="">
               <DashboardUserMenu />

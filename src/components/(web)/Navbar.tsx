@@ -22,7 +22,9 @@ const Logo = () => {
   const { settings } = useSettingsStore();
   const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
 
-  const logoUrl = settings?.logo_url ? upgradeHttpToHttps(fixMediaUrl(settings.logo_url)) : null;
+  const logoUrl = settings?.logo_url
+    ? upgradeHttpToHttps(fixMediaUrl(settings.logo_url))
+    : null;
   const useRemoteLogo = !!logoUrl && failedLogoUrl !== logoUrl;
 
   return (
@@ -49,7 +51,7 @@ const NavIcons = () => {
 
   return (
     <>
-      <NotificationDropdown variant="web" />
+      <NotificationDropdown />
 
       <Link href={`/${lang}/compare`} aria-label="المقارنات">
         <NavIconButton tabIndex={-1}>
