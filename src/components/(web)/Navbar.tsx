@@ -51,8 +51,6 @@ const NavIcons = () => {
 
   return (
     <>
-      <NotificationDropdown />
-
       <Link href={`/${lang}/compare`} aria-label="المقارنات">
         <NavIconButton tabIndex={-1}>
           <ArrowUpDown className="size-5" />
@@ -70,6 +68,8 @@ const NavIcons = () => {
           <MessageCircleMore className="size-5" />
         </NavIconButton>
       </Link>
+
+      <NotificationDropdown />
     </>
   );
 };

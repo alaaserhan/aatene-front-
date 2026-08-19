@@ -26,7 +26,8 @@ export function NotificationDropdown({
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const lang = useLanguage();
-  const { data: notificationsData } = useMyNotifications(1, 3);
+  const { data: notificationsData, refetch: refetchNotifications } =
+    useMyNotifications(1, 3);
   const notifications = notificationsData?.notifications || [];
 
   const { data: statsData } = useMyNotificationStats();
@@ -37,8 +38,15 @@ export function NotificationDropdown({
     router.push(`/${lang}/notifications`);
   };
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (nextOpen) {
+      refetchNotifications();
+    }
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <NavIconButton
           count={unreadCount}
