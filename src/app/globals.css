@@ -74,6 +74,8 @@
   --c2-navy-600: #3D5E83;
   --c2-navy-500: #406896;
   --c2-navy-300: #8B96A5;
+  /* navy at low alpha — tinted surfaces (unread rows, icon chips) */
+  --c2-navy-700-a08: #2D496A14;
 
   /* ink (distinct dark purple-navy surface, not part of the navy scale) */
   --c2-ink-900: #200E32;
@@ -168,6 +170,7 @@
   --color-c2-navy-600: var(--c2-navy-600);
   --color-c2-navy-500: var(--c2-navy-500);
   --color-c2-navy-300: var(--c2-navy-300);
+  --color-c2-navy-700-a08: var(--c2-navy-700-a08);
   --color-c2-ink-900: var(--c2-ink-900);
   --color-c2-red-800: var(--c2-red-800);
   --color-c2-red-700: var(--c2-red-700);

@@ -59,23 +59,21 @@ export function NotificationDropdown({
       <PopoverContent
         align="end"
         dir="rtl"
-        className="w-70 p-2 border-none shadow-sm rounded-sm bg-white max-h-[85vh] overflow-y-auto custom-scrollbar"
+        className="w-88 max-w-[calc(100vw-2rem)] p-0 border border-c2-neutral-200 shadow-lg rounded-xl bg-white max-h-[85vh] overflow-y-auto custom-scrollbar"
         sideOffset={8}
       >
-        <div className="p-2">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium text-c2-primary">الإشعارات</h3>
-            {unreadCount > 0 && (
-              <Badge
-                variant="secondary"
-                className="bg-c2-neutral-300-a10 text-c2-primary"
-              >
-                {unreadCount} جديد
-              </Badge>
-            )}
-          </div>
+        <div className="flex items-center justify-between gap-2 px-4 py-3">
+          <h3 className="text-base font-semibold text-c2-navy-900">الإشعارات</h3>
+          {unreadCount > 0 && (
+            <Badge
+              variant="secondary"
+              className="bg-c2-navy-700-a08 text-c2-primary text-xs font-medium"
+            >
+              {unreadCount} جديد
+            </Badge>
+          )}
         </div>
-        <Separator className="bg-gray-50" />
+        <Separator className="bg-c2-neutral-200" />
         <NotificationList
           notifications={notifications}
           onItemClick={handleNotificationsClick}
