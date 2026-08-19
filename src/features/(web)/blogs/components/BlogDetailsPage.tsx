@@ -176,6 +176,7 @@ function BlogReviewWithReplies({
     onReply,
     showReplies,
     onToggleReplies,
+    onReviewChanged,
 }: {
     review: SharedReview;
     slug: string;
@@ -183,11 +184,17 @@ function BlogReviewWithReplies({
     onReply: (id: number, userName: string) => void;
     showReplies: boolean;
     onToggleReplies: (id: number) => void;
+    onReviewChanged: () => void;
 }) {
-    const { data: repliesData, isLoading: loadingReplies } = useBlogReplies(
+    const { data: repliesData, isLoading: loadingReplies, refetch: refetchReplies } = useBlogReplies(
         showReplies ? slug : "",
         showReplies ? review.id : 0
     );
+
+    const handleChanged = () => {
+        onReviewChanged();
+        if (showReplies) refetchReplies();
+    };
 
     return (
         <ReviewItem
@@ -198,6 +205,8 @@ function BlogReviewWithReplies({
             onToggleReplies={onToggleReplies}
             replies={repliesData?.reviews as unknown as SharedReview[]}
             isLoadingReplies={loadingReplies}
+            onDeleted={handleChanged}
+            onUpdated={handleChanged}
         />
     );
 }
@@ -340,7 +349,7 @@ export default function BlogDetailsPage() {
     };
 
     const { data: blogData, isLoading, error } = useBlog(slug);
-    const { data: reviewsData } = useBlogReviews(slug);
+    const { data: reviewsData, refetch: refetchReviews } = useBlogReviews(slug);
     const { data: relatedData } = usePublicBlogs({ per_page: 4 });
 
     const blog = blogData?.blog || blogData?.record;
@@ -525,6 +534,7 @@ export default function BlogDetailsPage() {
                                         onReply={handleReply}
                                         showReplies={expandedReplies.has(review.id)}
                                         onToggleReplies={handleToggleReplies}
+                                        onReviewChanged={refetchReviews}
                                     />
                                 ))}
                             </div>

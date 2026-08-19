@@ -103,7 +103,7 @@ function ServiceReviewsSection({ service }: { service: Service }) {
         index: number;
     }>({ isOpen: false, media: [], index: 0 });
 
-    const { data, isLoading } = useGetServiceReviews(service.slug);
+    const { data, isLoading, refetch: refetchReviews } = useGetServiceReviews(service.slug);
     const { mutate: addReview, isPending } = useAddServiceReview();
 
     const handleReply = (id: number, userName: string) => {
@@ -188,6 +188,7 @@ function ServiceReviewsSection({ service }: { service: Service }) {
                             onReply={handleReply}
                             showReplies={expandedReplies.has(review.id)}
                             onToggleReplies={handleToggleReplies}
+                            onReviewChanged={refetchReviews}
                         />
                     ))}
                 </div>
@@ -225,6 +226,7 @@ function ServiceReviewWithReplies({
     onReply,
     showReplies,
     onToggleReplies,
+    onReviewChanged,
 }: {
     review: SharedReview;
     serviceSlug: string;
@@ -232,13 +234,19 @@ function ServiceReviewWithReplies({
     onReply: (id: number, userName: string) => void;
     showReplies: boolean;
     onToggleReplies: (id: number) => void;
+    onReviewChanged: () => void;
 }) {
-    const { data: repliesData, isLoading: isLoadingReplies } = useGetServiceReviewReplies(
+    const { data: repliesData, isLoading: isLoadingReplies, refetch: refetchReplies } = useGetServiceReviewReplies(
         serviceSlug,
         showReplies ? review.id : 0
     );
 
     const replies = (repliesData?.reviews || []) as unknown as SharedReview[];
+
+    const handleChanged = () => {
+        onReviewChanged();
+        if (showReplies) refetchReplies();
+    };
 
     return (
         <ReviewItem
@@ -250,6 +258,8 @@ function ServiceReviewWithReplies({
             onToggleReplies={onToggleReplies}
             replies={replies}
             isLoadingReplies={isLoadingReplies && showReplies}
+            onDeleted={handleChanged}
+            onUpdated={handleChanged}
         />
     );
 }

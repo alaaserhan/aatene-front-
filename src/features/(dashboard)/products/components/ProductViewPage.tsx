@@ -739,7 +739,7 @@ function ProductReviewsSection({ slug, summary }: { slug: string; summary: { cou
         isOpen: false, media: [], index: 0,
     });
 
-    const { data, isLoading } = useGetProductReviews(slug);
+    const { data, isLoading, refetch: refetchReviews } = useGetProductReviews(slug);
     const { mutate: addReview, isPending } = useAddProductReview();
 
     const handleReply = (id: number, userName: string) => {
@@ -800,6 +800,7 @@ function ProductReviewsSection({ slug, summary }: { slug: string; summary: { cou
                                 onReply={handleReply}
                                 showReplies={showReplies}
                                 onToggleReplies={handleToggleReplies}
+                                onReviewChanged={refetchReviews}
                             />
                         );
                     })}
@@ -831,16 +832,22 @@ function ProductReviewsSection({ slug, summary }: { slug: string; summary: { cou
     );
 }
 
-function ReviewItemWithReplies({ review, slug, onOpenMedia, onReply, showReplies, onToggleReplies }: {
+function ReviewItemWithReplies({ review, slug, onOpenMedia, onReply, showReplies, onToggleReplies, onReviewChanged }: {
     review: SharedReview;
     slug: string;
     onOpenMedia: (media: string[], index: number) => void;
     onReply: (id: number, userName: string) => void;
     showReplies: boolean;
     onToggleReplies: (id: number) => void;
+    onReviewChanged: () => void;
 }) {
-    const { data: repliesData, isLoading: isLoadingReplies } = useGetProductReviewReplies(slug, showReplies ? review.id : 0);
+    const { data: repliesData, isLoading: isLoadingReplies, refetch: refetchReplies } = useGetProductReviewReplies(slug, showReplies ? review.id : 0);
     const replies = (repliesData?.reviews || []) as unknown as SharedReview[];
+
+    const handleChanged = () => {
+        onReviewChanged();
+        if (showReplies) refetchReplies();
+    };
 
     return (
         <ReviewItem
@@ -852,6 +859,8 @@ function ReviewItemWithReplies({ review, slug, onOpenMedia, onReply, showReplies
             onToggleReplies={onToggleReplies}
             replies={replies}
             isLoadingReplies={isLoadingReplies && showReplies}
+            onDeleted={handleChanged}
+            onUpdated={handleChanged}
         />
     );
 }

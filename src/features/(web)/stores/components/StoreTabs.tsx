@@ -968,7 +968,7 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
         index: number;
     }>({ isOpen: false, media: [], index: 0 });
 
-    const { data, isLoading } = useGetStoreReviews(slug);
+    const { data, isLoading, refetch: refetchReviews } = useGetStoreReviews(slug);
     const { mutate: addReview, isPending } = useAddStoreReview();
 
     const handleReply = (id: number, userName: string) => {
@@ -1058,6 +1058,7 @@ function StoreReviewsSection({ slug, summary }: { slug: string; summary: { count
                             onReply={handleReply}
                             showReplies={expandedReplies.has(review.id)}
                             onToggleReplies={handleToggleReplies}
+                            onReviewChanged={refetchReviews}
                         />
                     ))}
                 </div>
@@ -1095,6 +1096,7 @@ function StoreReviewWithReplies({
     onReply,
     showReplies,
     onToggleReplies,
+    onReviewChanged,
 }: {
     review: SharedReview;
     slug: string;
@@ -1102,11 +1104,17 @@ function StoreReviewWithReplies({
     onReply: (id: number, userName: string) => void;
     showReplies: boolean;
     onToggleReplies: (id: number) => void;
+    onReviewChanged: () => void;
 }) {
-    const { data: repliesData, isLoading: loadingReplies } = useGetStoreReviewReplies(
+    const { data: repliesData, isLoading: loadingReplies, refetch: refetchReplies } = useGetStoreReviewReplies(
         showReplies ? slug : "",
         showReplies ? review.id : 0
     );
+
+    const handleChanged = () => {
+        onReviewChanged();
+        if (showReplies) refetchReplies();
+    };
 
     return (
         <ReviewItem
@@ -1117,6 +1125,8 @@ function StoreReviewWithReplies({
             onToggleReplies={onToggleReplies}
             replies={repliesData?.reviews as unknown as SharedReview[]}
             isLoadingReplies={loadingReplies}
+            onDeleted={handleChanged}
+            onUpdated={handleChanged}
         />
     );
 }

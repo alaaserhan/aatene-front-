@@ -15,7 +15,7 @@ interface UserReviewsProps {
 
 export default function UserReviews({ userId }: UserReviewsProps) {
     const [page] = useState(1);
-    const { data, isLoading, isError } = useUserReviews(userId, page);
+    const { data, isLoading, isError, refetch: refetchReviews } = useUserReviews(userId, page);
     const { mutate: addReview, isPending: isAdding } = useAddUserReview();
 
     const [expandedReviews, setExpandedReviews] = useState<Record<number, boolean>>({});
@@ -93,6 +93,7 @@ export default function UserReviews({ userId }: UserReviewsProps) {
                     onToggleReplies={handleToggleReplies}
                     onReply={handleReply}
                     reportType="comment"
+                    onReviewChanged={refetchReviews}
                     />
                 ))}
                 <ReviewForm
@@ -114,16 +115,23 @@ function ReviewItemWrapper({
     isExpanded,
     onToggleReplies,
     onReply,
-    reportType
+    reportType,
+    onReviewChanged,
 }: {
     review: UserReview,
     userId: number,
     isExpanded: boolean,
     onToggleReplies: (id: number) => void,
     onReply: (id: number, name: string) => void,
-    reportType: "comment" | "store" | "product"
+    reportType: "comment" | "store" | "product",
+    onReviewChanged: () => void,
 }) {
-    const { data: repliesData, isLoading: isLoadingReplies } = useUserReviewReplies(userId, review.id, { enabled: isExpanded });
+    const { data: repliesData, isLoading: isLoadingReplies, refetch: refetchReplies } = useUserReviewReplies(userId, review.id, { enabled: isExpanded });
+
+    const handleChanged = () => {
+        onReviewChanged();
+        if (isExpanded) refetchReplies();
+    };
 
     const sharedReview: SharedReview = {
         id: review.id,
@@ -162,6 +170,8 @@ function ReviewItemWrapper({
             replies={replies}
             onReply={onReply}
             reportType={reportType}
+            onDeleted={handleChanged}
+            onUpdated={handleChanged}
         />
     );
 }
