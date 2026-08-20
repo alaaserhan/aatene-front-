@@ -1,41 +1,36 @@
 // src/features/(dashboard)/services/components/ServiceDetailsPage.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import {
-    Phone,
-    Send,
-    CheckCircle2,
-    Pen,
-    XCircle,
-    PauseCircle,
-    Trash2,
-    Clock4,
-} from "lucide-react";
-import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
-import { useDeleteService, useGetService, useUpdateServiceStatus, useUpdateServiceShown } from "../hooks";
-import { formatPrice } from "@/src/lib/format-price";
-import { useGetSingleStore } from "../../stores/hooks";
+import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
+import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
-import { Button } from "@/src/components/ui/button";
-import { RejectServiceModal } from "./RejectServiceModal";
-import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
-import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
+import { Button } from "@/src/components/ui/button";
+import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
+import { formatPrice } from "@/src/lib/format-price";
+import {
+  Clock4,
+  Pen,
+  Phone,
+  Send,
+  Trash2
+} from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useGetSingleStore } from "../../stores/hooks";
+import { useDeleteService, useGetService, useUpdateServiceShown, useUpdateServiceStatus } from "../hooks";
+import { RejectServiceModal } from "./RejectServiceModal";
 
+import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
 import { ProviderInfoCard } from "@/src/components/(dashboard)/ProviderInfoCard";
 import { ShareModal } from "@/src/components/ui/ShareModal";
-import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
-import { cn } from "@/src/lib/utils";
-import Cookies from "js-cookie"; // ✅ للتحقق من الصلاحيات
-import { useQueryClient } from "@tanstack/react-query";
-import ServiceTabs from "@/src/features/(web)/services/components/ServiceTabs";
-import { Service as WebService } from "@/src/features/(web)/services/api";
-import Link from "next/link";
-import { Switch } from "@/src/components/ui/switch";
 import { Badge } from "@/src/components/ui/badge";
+import { Switch } from "@/src/components/ui/switch";
+import { cn } from "@/src/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
+import Cookies from "js-cookie"; // ✅ للتحقق من الصلاحيات
+import Link from "next/link";
 
 interface ServiceDetailsPageProps {
     serviceId: number;

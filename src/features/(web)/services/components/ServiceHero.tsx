@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { useState, useMemo } from "react";
-import { Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Check, Clock4, ChevronDown } from "lucide-react";
+import { Share2, Flag, ChevronLeft, ChevronRight, Play, Phone, MoreVertical, Send, Check, Clock4 } from "lucide-react";
 import { Service } from "../api";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useAddServiceToCompare, useRemoveServiceFromCompare } from "@/src/features/(web)/compares/hooks";
@@ -27,44 +27,6 @@ const executeTypeMap: Record<string, string> = {
     week: "اسبوع",
     month: "شهر",
 };
-
-function SpecialtiesDropdown({ specialties }: { specialties: { id: number; title: string }[] }) {
-    const [open, setOpen] = useState(false);
-    return (
-        <div>
-            <button
-                type="button"
-                onClick={() => setOpen((v) => !v)}
-                className={cn(
-                    "w-full flex items-center justify-between px-4 py-3 border border-gray-200 bg-[#f5f8fc] hover:bg-[#eef2f7] transition-colors",
-                    open ? "rounded-t-xl" : "rounded-xl"
-                )}
-            >
-                <span className="text-sm font-medium text-gray-700">التخصصات ومجالات العمل</span>
-                <div className="flex items-center gap-2">
-                    <span className="text-xs text-[#395a7d] bg-[#dce8f4] px-2 py-0.5 rounded-full font-medium">
-                        {specialties.length}
-                    </span>
-                    <ChevronDown
-                        className={cn("w-4 h-4 text-gray-500 transition-transform duration-200", open && "rotate-180")}
-                    />
-                </div>
-            </button>
-            {open && (
-                <div className="border border-t-0 border-gray-200 rounded-b-xl bg-white max-h-52 overflow-y-auto">
-                    {specialties.map((spec) => (
-                        <div
-                            key={spec.id}
-                            className="px-4 py-2.5 hover:bg-[#f5f8fc] border-b border-gray-100 last:border-0 transition-colors"
-                        >
-                            <span className="text-sm text-gray-700">{spec.title}</span>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-}
 
 export default function ServiceHero({ service }: ServiceHeroProps) {
     const allMedia = useMemo(() => {
@@ -351,11 +313,6 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                                 ))}
                             </div>
                         </div>
-                    )}
-
-                    {/* Specialties / Field Tags */}
-                    {service.specialties && service.specialties.length > 0 && (
-                        <SpecialtiesDropdown specialties={service.specialties} />
                     )}
 
                     {/* CTA Buttons */}
