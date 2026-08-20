@@ -15,7 +15,11 @@ import { StoreSettingsSectionId } from "../types";
 interface SettingsSectionProps {
   value: StoreSettingsSectionId;
   isSaving?: boolean;
-  onSave: () => void;
+  /**
+   * Omitted by panels that persist each change on its own (the sections
+   * panel), which hides the shared save footer.
+   */
+  onSave?: () => void;
   children: ReactNode;
 }
 
@@ -61,27 +65,29 @@ export function SettingsSection({
           {children}
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 bg-gray-50/70 px-4 py-4 sm:px-6">
-          <p className="text-xs text-gray-2">
-            يُحفظ هذا القسم بشكل مستقل عن باقي الأقسام.
-          </p>
-          <Button
-            type="button"
-            onClick={onSave}
-            disabled={isSaving}
-            className="min-w-40 cursor-pointer rounded-sm py-5 text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-            style={{ backgroundColor: "var(--blue-3)" }}
-          >
-            {isSaving ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                جاري الحفظ...
-              </span>
-            ) : (
-              "حفظ التعديلات"
-            )}
-          </Button>
-        </div>
+        {onSave && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 bg-gray-50/70 px-4 py-4 sm:px-6">
+            <p className="text-xs text-gray-2">
+              يُحفظ هذا القسم بشكل مستقل عن باقي الأقسام.
+            </p>
+            <Button
+              type="button"
+              onClick={onSave}
+              disabled={isSaving}
+              className="min-w-40 cursor-pointer rounded-sm py-5 text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+              style={{ backgroundColor: "var(--blue-3)" }}
+            >
+              {isSaving ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  جاري الحفظ...
+                </span>
+              ) : (
+                "حفظ التعديلات"
+              )}
+            </Button>
+          </div>
+        )}
       </AccordionContent>
     </AccordionItem>
   );

@@ -1,6 +1,14 @@
 // src/features/(dashboard)/stores/settings/sections-meta.ts
 
-import { Clock, LucideIcon, Store, Share2, Tags, Truck } from "lucide-react";
+import {
+  Clock,
+  LucideIcon,
+  PanelsRightBottom,
+  Store,
+  Share2,
+  Tags,
+  Truck,
+} from "lucide-react";
 import { StoreSettingsSectionId } from "./types";
 
 export interface StoreSettingsSectionMeta {
@@ -20,6 +28,12 @@ export const STORE_SETTINGS_SECTIONS: StoreSettingsSectionMeta[] = [
     label: "البيانات الأساسية",
     description: "اسم المتجر، هويته، وصفه والمدن التي يعمل بها",
     icon: Store,
+  },
+  {
+    id: "storeSections",
+    label: "أقسام المتجر",
+    description: "إدارة الأقسام التي تنظم بها متجرك",
+    icon: PanelsRightBottom,
   },
   {
     id: "socialMedia",

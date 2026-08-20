@@ -200,10 +200,6 @@ export const PAGE_SEO: Record<string, PageSEO> = {
         title: "الخدمات المطلوبة",
         description: "إدارة طلبات الخدمات في لوحة تحكم أعطيني.",
     },
-    dashboardSections: {
-        title: "الأقسام",
-        description: "إدارة أقسام الصفحة الرئيسية في لوحة تحكم أعطيني.",
-    },
     dashboardCities: {
         title: "المدن",
         description: "إدارة المدن والمناطق على منصة أعطيني.",

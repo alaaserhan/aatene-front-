@@ -15,6 +15,7 @@ import { SocialMediaSection } from "./sections/SocialMediaSection";
 import { WorkingHoursSection } from "./sections/WorkingHoursSection";
 import { ShippingSection } from "./sections/ShippingSection";
 import { KeywordsSection } from "./sections/KeywordsSection";
+import { StoreSectionsSection } from "./sections/StoreSectionsSection";
 
 const breadcrumbItems = [
   { label: "الرئيسية", href: "/admin/home" },
@@ -98,6 +99,11 @@ export function StoreSettingsPage({
           storeId={storeId}
           storeType={store.type}
           initialValues={settings.mainData}
+        />
+
+        <StoreSectionsSection
+          key={`storeSections-${storeId}`}
+          storeId={storeId}
         />
 
         <SocialMediaSection

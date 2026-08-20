@@ -33,4 +33,8 @@ export interface StoreSettingsValues {
   keywords: StoreKeywordsValues;
 }
 
-export type StoreSettingsSectionId = keyof StoreSettingsValues;
+/**
+ * `storeSections` has no entry in StoreSettingsValues: it manages the store's
+ * sections through their own endpoints instead of the store update endpoints.
+ */
+export type StoreSettingsSectionId = keyof StoreSettingsValues | "storeSections";
