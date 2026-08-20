@@ -36,7 +36,7 @@ export default async function DashboardLayout({
   return <>
     <DashboardNavbar navPrefix="/admin" />
     <StoreGuard>
-      <div className="mx-auto w-full max-w-[1400px] px-3 sm:px-4">
+      <div className="mx-auto w-full max-w-350 px-3 sm:px-4">
         {children}
       </div>
     </StoreGuard>
