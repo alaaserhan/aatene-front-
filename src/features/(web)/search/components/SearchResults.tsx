@@ -7,7 +7,7 @@ import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import UserCard from "@/src/features/(web)/users/components/UserCard";
 import { Product, Service, Store, User } from "@/src/features/(web)/searchAndFilter/api";
 import type { SearchType } from "../types";
-import SearchResultsSkeleton from "./SearchResultsSkeleton";
+import SearchResultsSkeleton, { ResultsCountSkeleton } from "./SearchResultsSkeleton";
 
 interface SearchResultsProps {
     type: SearchType;
@@ -35,21 +35,28 @@ export default function SearchResults({
     const endItem = Math.min(currentPage * perPage, displayTotal);
 
     if (isLoading && displayTotal === 0) {
-        return <SearchResultsSkeleton count={perPage} />;
+        return (
+            <div className="flex flex-col gap-5">
+                <ResultsCountSkeleton />
+                <SearchResultsSkeleton type={type} count={perPage} />
+            </div>
+        );
     }
 
     return (
         <div className="flex flex-col gap-5">
             {/* Results Count */}
-            {displayTotal > 0 && (
+            {displayTotal > 0 ? (
                 <p className="text-gray-500 text-sm">
                     <span className="font-medium text-gray-700">{displayTotal}</span> نتيجة — إظهار {startItem}-{endItem}
                 </p>
-            )}
+            ) : isLoading ? (
+                <ResultsCountSkeleton />
+            ) : null}
 
             {/* Content Area */}
             {isLoading ? (
-                <SearchResultsSkeleton count={perPage} />
+                <SearchResultsSkeleton type={type} count={perPage} />
             ) : !items || items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 text-gray-400">
                     <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center mb-4">
