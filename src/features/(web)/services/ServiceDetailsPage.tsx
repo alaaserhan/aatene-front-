@@ -43,13 +43,13 @@ export default function ServiceDetailsPage() {
       <ServiceTabs service={data.service} />
 
       {pageData?.chooseForYou && pageData.chooseForYou.length > 0 && (
-        <Section>
+        <Section className="bg-c2-neutral-50 pt-8 pb-6 lg:pb-8">
           <ServicesChooseForYou services={pageData.chooseForYou} />
         </Section>
       )}
 
       {pageData?.similar && pageData.similar.length > 0 && (
-        <Section className="pb-8">
+        <Section className="bg-c2-neutral-50 pt-8 pb-6 lg:pb-8">
           <SimilarServices services={pageData.similar} />
         </Section>
       )}

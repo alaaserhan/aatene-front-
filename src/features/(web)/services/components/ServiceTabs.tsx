@@ -6,6 +6,7 @@ import {
   type ReviewSubmitPayload,
   type SharedReview,
 } from "@/src/components/(web)/reviews";
+import { Container } from "@/src/components/shared/Container";
 import { Badge } from "@/src/components/ui/badge";
 import {
   Dialog,
@@ -13,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/src/components/ui/dialog";
-import { Container } from "@/src/components/shared/Container";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
@@ -31,6 +31,7 @@ import {
   Flag,
   Loader2,
   Plus,
+  PlusSquare,
   Search,
   User,
 } from "lucide-react";
@@ -48,6 +49,7 @@ import {
   usePostServiceBoardAnswer,
   usePostServiceBoardQuestion,
 } from "../hooks";
+import { Button } from "@/src/components/ui/button";
 
 interface ServiceTabsProps {
   service: Service;
@@ -90,10 +92,13 @@ export default function ServiceTabs({ service }: ServiceTabsProps) {
         </Container>
       </div>
 
-      <div className="bg-white">
-        <Container className="py-8">
-          <TabsContent value="description" className="min-h-75 space-y-6">
-            <div className="prose prose-lg max-w-none leading-relaxed ">
+      <div className="bg-white shadow-md">
+        <Container className="pt-8 pb-8 lg:pb-20">
+          <TabsContent value="description" className="min-h-75">
+            <h3 className="mb-4 text-lg font-bold text-c2-navy-1000">
+              وصف الخدمة
+            </h3>
+            <div className="prose prose-lg max-w-none leading-relaxed text-black text-base font-normal">
               <SafeHTML html={service.description} />
             </div>
           </TabsContent>
@@ -126,11 +131,9 @@ function ServiceSpecialties({ service }: { service: Service }) {
 
   return (
     <div className="space-y-6">
-      <div className="mb-6">
-        <h3 className="text-lg font-bold mb-2 text-c2-navy-1000">
-          التخصصات ومجالات العمل
-        </h3>
-      </div>
+      <h3 className="mb-4 text-lg font-bold text-c2-navy-1000">
+        التخصصات ومجالات العمل
+      </h3>
 
       {specialties.length > 0 ? (
         <div className="flex flex-wrap gap-2">
@@ -356,24 +359,25 @@ function ServiceFAQ({ service }: { service: Service }) {
 
   return (
     <div className="space-y-6">
-      <div className="mb-6">
-        <h3 className="text-lg font-medium  mb-2">الأسئلة الشائعة</h3>
-        <p className="text-gray-500 text-sm">شاهد إجابات الأسئلة الشائعة</p>
+      <div className="mb-4">
+        <h3 className="text-lg font-bold text-c2-navy-1000">الأسئلة الشائعة</h3>
+        <p className="text-[#676D88] font-normal text-sm leading-relaxed">
+          شاهد إجابات الأسئلة الشائعة
+        </p>
       </div>
 
       <div className="divide-y divide-gray-100">
         {displayQuestions.map((q, index) => (
           <div key={q.id} className="py-4">
-            <button className="flex items-center justify-between w-full text-right group">
-              <span className={`font-medium text-sm transition-colors `}>
-                {index + 1}. {q.question}
-              </span>
-            </button>
-            <div
-              className={`overflow-hidden transition-all duration-300 ease-in-out  mt-2
-                                `}
+            <h5
+              className={`font-medium text-sm transition-colors text-c2-navy-1000 `}
             >
-              <p className="text-gray-600 leading-relaxed pr-4 border-r-2 border-blue-100 mr-1 text-sm">
+              {index + 1}. {q.question}
+            </h5>
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out  mt-2`}
+            >
+              <p className="text-[#343C60] leading-relaxed pr-4 border-r-2 border-blue-100 mr-1 text-sm">
                 {q.answer}
               </p>
             </div>
@@ -428,9 +432,9 @@ function ServiceQASection({ service }: { service: Service }) {
 
   return (
     <div className="space-y-6">
-      <div className="mb-6">
-        <h3 className="text-xl font-medium  mb-2">أسئلة وأجوبة</h3>
-        <p className="text-gray-2 text-sm leading-relaxed">
+      <div className="mb-4">
+        <h3 className="text-lg font-bold text-c2-navy-1000">أسئلة وأجوبة</h3>
+        <p className="text-[#676D88] font-normal text-sm leading-relaxed">
           جميع الإجابات المنشورة تمثل آراء وتجارب أصحابها فقط، ولا تعتبر
           بالضرورة عن وجهة نظر منصة أعطني. لا تقوم المنصة بمراجعة أو التحقق من
           صحة هذه الإجابات، ولا تُعد مؤيدة لها بأي شكل من الأشكال.
@@ -439,7 +443,7 @@ function ServiceQASection({ service }: { service: Service }) {
 
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between pb-4">
         <div className="flex items-center w-full sm:w-auto gap-4 flex-1">
-          <div className="relative w-full sm:max-w-xs border border-gray-300 rounded-full bg-white overflow-hidden flex items-center gap-2 h-11">
+          <div className="relative w-full sm:max-w-lg border border-c2-primary rounded-full bg-white overflow-hidden flex items-center gap-2 h-12">
             <input
               type="text"
               placeholder="بحث"
@@ -447,12 +451,12 @@ function ServiceQASection({ service }: { service: Service }) {
               onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-transparent px-4 py-2 text-sm focus:outline-none focus:ring-0 outline-none"
             />
-            <div className="w-11 h-9 bg-blue-3 rounded-full flex items-center justify-center  ml-1">
-              <Search className="w-4 h-4 text-white" />
+            <div className="size-10 bg-blue-3 shrink-0 rounded-full flex items-center justify-center  ml-2">
+              <Search className="w-5 h-5 text-white" />
             </div>
           </div>
 
-          <div className="w-[180px] shrink-0">
+          <div className="w-45 shrink-0">
             <ReusableDropdown
               options={sortOptions}
               value={orderType}
@@ -462,18 +466,18 @@ function ServiceQASection({ service }: { service: Service }) {
                 )
               }
               placeholder="ترتيب حسب"
-              className="w-full bg-white rounded-full border-gray-300 h-11"
+              className="w-full bg-white rounded-full border-gray-300 h-11 min-w-50"
             />
           </div>
         </div>
 
-        <button
+        <Button
+          className="rounded-full has-[>svg]:px-6 py-6 gap-1"
           onClick={() => setIsAddQuestionModalOpen(true)}
-          className="w-full sm:w-auto px-6 h-11 bg-[#456A8E] text-white rounded-full flex items-center justify-center gap-2 hover:bg-[#355A7E] transition-colors font-medium text-sm cursor-pointer shrink-0"
         >
-          <Plus className="w-4 h-4" />
+          <PlusSquare className="w-5 h-5" />
           أضف سؤال
-        </button>
+        </Button>
       </div>
 
       <div className="space-y-4 mt-6">

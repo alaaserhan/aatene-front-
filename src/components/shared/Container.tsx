@@ -1,7 +1,7 @@
 import { cn } from "@/src/lib/utils";
 import { ComponentPropsWithoutRef, ElementType, ReactNode } from "react";
 
-const CONTAINER = "w-full max-w-[1280px] mx-auto px-4 md:px-8 lg:px-16";
+const CONTAINER = "w-full max-w-[1400px] mx-auto px-4 md:px-8 lg:px-16";
 
 type ContainerProps<T extends ElementType> = {
   as?: T;

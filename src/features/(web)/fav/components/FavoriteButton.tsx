@@ -73,7 +73,7 @@ export function FavoriteButton({
                 aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
             >
                 <Heart
-                    className={cn("size-5", iconClassName, isFavorite ? "fill-red-500 text-red-500" : "text-current")}
+                    className={cn("size-5", iconClassName, isFavorite ? "fill-c2-red-700 text-c2-red-700" : "text-current")}
                 />
             </button>
 

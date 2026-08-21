@@ -127,7 +127,7 @@ export default function StoreInfoCard({
             onClick={handleFollowToggle}
             disabled={isFollowLoading}
             className={cn(
-              "rounded-full",
+              "rounded-full gap-1 px-4!",
               isFollowing
                 ? "bg-white hover:bg-c2-neutral-200 text-c2-primary border border-[#D1D1D6]"
                 : "bg-c2-primary hover:bg-c2-navy-600 text-white",
@@ -142,7 +142,7 @@ export default function StoreInfoCard({
               type="button"
               variant="destructive"
               onClick={() => setIsReportModalOpen(true)}
-              className="rounded-full"
+              className="rounded-full px-4!"
             >
               <Flag className="size-4" />
               <span>بلغ عن إساءة</span>

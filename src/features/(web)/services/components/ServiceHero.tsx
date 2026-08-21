@@ -1,38 +1,37 @@
 "use client";
 
-import { useRouter, useParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Share2,
-  Flag,
-  ChevronLeft,
-  ChevronRight,
-  Play,
-  Phone,
-  MoreVertical,
-  Send,
-  Check,
-  Clock4,
-} from "lucide-react";
-import { Service, ServiceExtra } from "../api";
-import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
+import StoreInfoCard from "@/src/components/shared/StoreInfoCard";
+import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { Button } from "@/src/components/ui/button";
+import { Checkbox } from "@/src/components/ui/checkbox";
+import { Price } from "@/src/components/ui/Price";
+import { RatingStars } from "@/src/components/ui/RatingStars";
+import { ShareModal } from "@/src/components/ui/ShareModal";
+import { VideoOrImageNext } from "@/src/components/ui/VideoOrImageNext";
 import {
   useAddServiceToCompare,
   useRemoveServiceFromCompare,
 } from "@/src/features/(web)/compares/hooks";
-import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
-import { Price } from "@/src/components/ui/Price";
+import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
-import { useQueryClient } from "@tanstack/react-query";
-import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
-import { ShareModal } from "@/src/components/ui/ShareModal";
-import { RatingStars } from "@/src/components/ui/RatingStars";
-import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
-import { VideoOrImageNext } from "@/src/components/ui/VideoOrImageNext";
+import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
-import { Button } from "@/src/components/ui/button";
-import { Checkbox } from "@/src/components/ui/checkbox";
-import StoreInfoCard from "@/src/components/shared/StoreInfoCard";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Clock4,
+  Flag,
+  MoreVertical,
+  Phone,
+  Play,
+  Send,
+  Share2,
+} from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
+import { Service, ServiceExtra } from "../api";
 
 const EXECUTE_TYPE_LABELS: Record<string, string> = {
   hour: "ساعة",
