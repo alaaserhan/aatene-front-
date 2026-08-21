@@ -41,7 +41,34 @@ export interface ProductCardProps {
     type?: "product" | "store" | "service" | "blog";
     /** لربط «اطلب السعر» بمحادثة المتجر؛ إن لم يُمرَّر يُفتح صفحة المنتج */
     storeId?: number | string;
+    /**
+     * Visual style of the card.
+     * - "default": bordered card, 4/5 cover, medium title
+     * - "c2": borderless shadowed card, square cover, bold navy title
+     */
+    variant?: "default" | "c2";
 }
+
+const CARD_VARIANTS = {
+    default: {
+        root: "flex w-full flex-col cursor-pointer group relative rounded-2xl bg-white border border-gray-100 hover:border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-visible transition-all hover:shadow-md",
+        mediaLink: "relative block w-full shrink-0 overflow-hidden bg-gray-100 aspect-[4/5] rounded-t-2xl",
+        video: "absolute inset-0",
+        videoInner: "group-hover:scale-105 transition-transform duration-300",
+        image: "object-cover object-center group-hover:scale-105 transition-transform duration-300",
+        content: "flex flex-col px-3 pt-2.5 pb-3 text-right gap-1.5",
+        title: "font-medium text-sm leading-snug line-clamp-2 group-hover:text-blue-3 transition-colors min-h-10",
+    },
+    c2: {
+        root: "flex w-full flex-col cursor-pointer group relative transition-all",
+        mediaLink: "relative block w-full shrink-0 card-shadow bg-gray-100 aspect-square rounded-[14px]",
+        video: "absolute inset-0 rounded-[14px]",
+        videoInner: "group-hover:scale-101 transition-transform duration-300",
+        image: "object-cover object-center group-hover:scale-101 transition-transform duration-300 rounded-[14px]",
+        content: "flex flex-col px-3 py-3 text-right gap-1",
+        title: "font-bold text-base text-c2-navy-900 leading-snug line-clamp-2 group-hover:text-blue-3 transition-colors",
+    },
+} as const;
 
 const ProductCard = memo(({
     id,
@@ -60,7 +87,9 @@ const ProductCard = memo(({
     className,
     type = "product", // Default type
     storeId,
+    variant = "default",
 }: ProductCardProps) => {
+    const styles = CARD_VARIANTS[variant] ?? CARD_VARIANTS.default;
     const normalizedCover = sanitizeMediaUrl(cover);
     const [failedCoverUrl, setFailedCoverUrl] = useState<string | null>(null);
     const mediaSrc = resolveImageSrc(normalizedCover, failedCoverUrl, "product");
@@ -117,10 +146,7 @@ const ProductCard = memo(({
 
     return (
         <div
-            className={cn(
-                "flex w-full flex-col cursor-pointer group relative rounded-2xl bg-white border border-gray-100 hover:border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-visible transition-all hover:shadow-md",
-                className
-            )}
+            className={cn(styles.root, className)}
             onClick={onClick}
         >
             <CompareCheckbox id={id} type="product" />
@@ -128,13 +154,13 @@ const ProductCard = memo(({
             {/* Image Container */}
             <Link
                 href={slug ? `/product/${slug}` : "#"}
-                className="relative block w-full shrink-0 overflow-hidden bg-gray-100 aspect-[4/5] rounded-t-2xl"
+                className={styles.mediaLink}
             >
                 {isVideoFile(normalizedCover) ? (
                     <HoverPlayVideo
                         src={mediaSrc}
-                        className="absolute inset-0"
-                        videoClassName="group-hover:scale-105 transition-transform duration-300"
+                        className={styles.video}
+                        videoClassName={styles.videoInner}
                     />
                 ) : (
                     <Image
@@ -142,7 +168,7 @@ const ProductCard = memo(({
                         alt={name}
                         fill
                         sizes="(max-width: 640px) 168px, (max-width: 768px) 200px, 220px"
-                        className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                        className={styles.image}
                         onError={() => {
                             setFailedCoverUrl(normalizedCover || null);
                         }}
@@ -178,10 +204,10 @@ const ProductCard = memo(({
             </Link>
 
             {/* Content */}
-            <div className="flex flex-col px-3 pt-2.5 pb-3 text-right gap-1.5" dir="rtl">
+            <div className={styles.content} dir="rtl">
                 {/* Product Name */}
                 <Link href={slug ? `/product/${slug}` : "#"}>
-                    <h3 className="font-medium text-sm leading-snug line-clamp-2 group-hover:text-blue-3 transition-colors min-h-10">
+                    <h3 className={styles.title}>
                         {name || "اسم المنتج"}
                     </h3>
                 </Link>

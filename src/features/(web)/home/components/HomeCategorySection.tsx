@@ -58,6 +58,7 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
                             dir="rtl"
                         >
                             <ProductCard
+                                variant="c2"
                                 className="h-full w-full"
                                 id={product.id}
                                 name={product.name}

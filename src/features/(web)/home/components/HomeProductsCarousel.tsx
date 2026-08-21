@@ -72,6 +72,7 @@ export default function HomeProductsCarousel({
                 dir="rtl"
               >
                 <ProductCard
+                  variant="c2"
                   className="h-full w-full"
                   id={product.id}
                   name={product.name}
