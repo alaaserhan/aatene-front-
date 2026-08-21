@@ -21,7 +21,6 @@ import {
   useRemoveServiceFromCompare,
 } from "@/src/features/(web)/compares/hooks";
 import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
-import { formatPrice } from "@/src/lib/format-price";
 import { Price } from "@/src/components/ui/Price";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { useQueryClient } from "@tanstack/react-query";
@@ -33,6 +32,7 @@ import { VideoOrImageNext } from "@/src/components/ui/VideoOrImageNext";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { Button } from "@/src/components/ui/button";
 import { Checkbox } from "@/src/components/ui/checkbox";
+import StoreInfoCard from "@/src/components/shared/StoreInfoCard";
 
 const EXECUTE_TYPE_LABELS: Record<string, string> = {
   hour: "ساعة",
@@ -49,6 +49,7 @@ interface ServiceHeroProps {
   service: Service;
 }
 
+// TODO: this component needs to be refactored
 export default function ServiceHero({ service }: ServiceHeroProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPhoneRevealed, setIsPhoneRevealed] = useState(false);
@@ -268,6 +269,10 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
                 ))}
               </ul>
             </div>
+          )}
+
+          {service.store && (
+            <StoreInfoCard store={service.store} className="mb-8" />
           )}
 
           <div className="flex flex-col gap-3">
