@@ -22,6 +22,7 @@ import {
     MoreHorizontal,
     Share2,
     Flag,
+    MapPin,
 } from "lucide-react";
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
@@ -29,6 +30,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/ShowStoryModal";
 import { Story } from "@/src/features/(dashboard)/stories/api";
 import { useStoreWhoFavorited } from "../hooks";
+import { Button } from "@/src/components/ui/button";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 import { useAuthStore } from "@/src/stores/auth-store";
@@ -429,7 +431,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                             <Star
                                                 key={i}
                                                 className={cn(
-                                                    "w-4 h-4 lg:w-[18px] lg:h-[18px]",
+                                                    "w-4 h-4 lg:w-3.5 lg:h-3.5",
                                                     i < Math.round(Number(store.review_rate || 0))
                                                         ? "fill-[#FACC15] text-[#FACC15]"
                                                         : "fill-[#D4D4D8] text-[#D4D4D8]"
@@ -437,7 +439,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                             />
                                         ))}
                                     </div>
-                                    <span className="text-gray-500 text-xs font-medium mt-0.5">
+                                    <span className="text-c2-neutral-700 text-sm font-medium mt-3">
                                         ( {store.review_count || 0} مراجعة )
                                     </span>
                                 </div>
@@ -457,7 +459,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                                 return (
                                                     <div
                                                         key={fItem.id || idx}
-                                                        className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border-2 border-white overflow-hidden relative shadow-sm bg-gray-100 flex items-center justify-center"
+                                                        className="size-7 rounded-full border-2 border-white overflow-hidden relative shadow-sm bg-gray-100 flex items-center justify-center"
                                                     >
                                                         <UserIcon className="w-3.5 h-3.5 text-gray-400 absolute" />
                                                         {avatarUrl && (
@@ -475,10 +477,10 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                                 );
                                             })
                                         ) : (
-                                            <span className="w-7 h-7 lg:w-8 lg:h-8 rounded-full border-2 border-white bg-gray-100 block" />
+                                            <span className="size-7 rounded-full border-2 border-white bg-gray-100 block" />
                                         )}
                                     </span>
-                                    <span className="text-gray-600 text-[11px] sm:text-xs lg:text-sm font-medium leading-tight">
+                                    <span className="text-c2-primary sm:text-xs text-sm font-medium leading-tight">
                                         {followersCount > 0
                                             ? `${followersCount} متابع`
                                             : "لا يوجد متابعين"}
@@ -486,20 +488,23 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                 </button>
                             </div>
 
-                            {/* الاسم والأزرار — متناسقة مع تصميم Etnix (بدون وصف) */}
-                            <div className="w-full flex flex-col gap-3 lg:gap-4 lg:flex-1 lg:min-w-0 lg:pb-2">
-                                <div className="w-full text-right">
-                                    <h1 className="text-2xl font-bold text-[#1e3a5f] leading-tight break-words">
+                            <div className="w-full flex flex-col gap-3 lg:gap-4 lg:flex-1 lg:min-w-0 lg:self-stretch lg:justify-between lg:pt-24 lg:pb-2">
+                                <div className="w-full text-right -mt-2 lg:mt-0">
+                                    <h1 className="text-2xl font-bold text-black leading-tight wrap-break-words">
                                         {store.name}
                                     </h1>
                                     {store.address && (
-                                        <p className="text-gray-400 text-sm mt-1.5">{store.address}</p>
+                                        <p className="flex items-center gap-1.5 text-gray-400 text-sm mt-1.5">
+                                            <MapPin className="w-4 h-4 shrink-0 text-black" strokeWidth={2} />
+                                            <span>{store.address}</span>
+                                        </p>
                                     )}
                                 </div>
 
-                                <div className="flex flex-col gap-3 w-full lg:flex-row lg:flex-wrap lg:items-center lg:gap-2">
-                                <button
+                                <div className="flex flex-col gap-3 w-full lg:flex-row lg:flex-wrap lg:items-end lg:gap-2">
+                                <Button
                                     type="button"
+                                    variant={store.am_i_following ? "outline" : "default"}
                                     disabled={isFollowing || isUnfollowing}
                                     onClick={() => {
                                         if (store.am_i_following) {
@@ -533,21 +538,22 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                         }
                                     }}
                                     className={cn(
-                                        "w-full h-12 px-5 rounded-full text-sm font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50",
-                                        "lg:w-auto lg:h-10 lg:px-6",
+                                        "w-full h-12 px-4! rounded-full text-sm",
+                                        "lg:w-auto lg:h-10",
                                         store.am_i_following
-                                            ? "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                                            : "bg-blue-4 text-white hover:bg-blue-3"
+                                            ? "text-gray-600 shadow-none"
+                                            : "bg-c2-navy-600 text-white hover:bg-blue-3 hover:opacity-100"
                                     )}
                                 >
                                     <UserPlus className="w-5 h-5 shrink-0" strokeWidth={2} />
                                     <span>
                                         {store.am_i_following ? "إلغاء المتابعة" : "تابع المتجر"}
                                     </span>
-                                </button>
+                                </Button>
 
-                                <button
+                                <Button
                                     type="button"
+                                    variant="ghost"
                                     disabled={isChatLoading}
                                     onClick={() => {
                                         if (!user) {
@@ -558,7 +564,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                         router.push(`/${lang}/chat?type=store&id=${store.id}`);
                                         setIsChatLoading(false);
                                     }}
-                                    className="w-full h-12 px-5 rounded-full text-sm border border-blue-4 text-blue-4 font-medium flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors cursor-pointer disabled:opacity-50 lg:w-auto lg:h-10 lg:px-6"
+                                    className="w-full h-12 px-4! rounded-full text-sm border border-c2-primary text-c2-primary hover:bg-blue-50 hover:text-c2-primary lg:w-auto lg:h-10 lg:px-6"
                                 >
                                     {isChatLoading ? (
                                         <Loader2 className="w-5 h-5 animate-spin shrink-0" />
@@ -566,7 +572,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                         <MessageCircle className="w-5 h-5 shrink-0" strokeWidth={2} />
                                     )}
                                     <span>الدردشة</span>
-                                </button>
+                                </Button>
 
                                 <div className="flex items-center justify-center gap-2 w-full lg:w-auto lg:justify-start lg:shrink-0">
                                     <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0">
@@ -583,7 +589,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                                 });
                                             }}
                                             className="w-full h-full"
-                                            iconClassName="w-4 h-4"
+                                            iconClassName="w-5 h-5"
                                         />
                                     </div>
 

@@ -29,6 +29,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { Button } from "@/src/components/ui/button";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -193,7 +194,7 @@ export default function StoreTabs({ store, pageData }: StoreTabsProps) {
                 ))}
             </div>
 
-            <div className="p-4 md:p-6 min-h-[300px]">
+            <div className="p-4 md:p-7 min-h-[300px]">
                 {activeTab === "overview" && (
                     <div className="animate-in fade-in slide-in-from-top-4 duration-300">
                         <OverviewTab store={store} />
@@ -476,7 +477,7 @@ function ShortcutButton({
     className?: string;
 }) {
     const commonClasses = cn(
-        "w-10 h-10 sm:w-11 sm:h-11 lg:w-8 lg:h-8 rounded-sm border border-blue-4 text-blue-4 flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0",
+        "w-10 h-10 sm:w-11 sm:h-11 lg:w-8 lg:h-8 rounded-sm border border-[#3C5D80] text-[#3C5D80] flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0",
         className
     );
 
@@ -561,13 +562,12 @@ function StoreShortcuts({ store }: { store: StoreProfile }) {
 
     return (
         <div
-            className="mb-2 bg-white border border-[#e0dfdc] rounded-[10px] px-3 py-2.5 sm:px-3.5 lg:px-2.5 lg:py-2 flex flex-row items-center gap-2 sm:gap-3 lg:gap-2 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]"
-            dir="rtl"
+            className="mb-2 bg-white border border-[#e0dfdc] justify-center rounded-[10px] px-3 py-2.5 sm:px-3.5 lg:px-2.5 lg:py-2 flex flex-row items-center gap-2 sm:gap-3 lg:gap-2 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.1)]"
         >
-            <h4 className="text-base sm:text-lg lg:text-sm font-bold text-blue-4 shrink-0 whitespace-nowrap">
+            <h4 className="text-base sm:text-lg lg:text-sm font-bold text-[#3C5D80] shrink-0 whitespace-nowrap">
                 اختصارات المتجر:
             </h4>
-            <div className="flex items-center justify-end gap-1.5 sm:gap-2 lg:gap-1 flex-wrap flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-1 flex-wrap min-w-0">
                 {shortcuts.filter(s => s.show).map((s, idx) => (
                     <ShortcutButton
                         key={idx}
@@ -899,26 +899,27 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-2.5 w-full" dir="rtl">
-                <button
+                <Button
                     type="button"
                     onClick={() => {
                         if (!user) { router.push(`/${lang}/login`); return; }
                         router.push(`/${lang}/chat?type=user&id=${store.owner?.id || store.owner_id}`);
                     }}
-                    className="w-full h-[34px] flex items-center justify-center gap-1.5 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full px-3 text-[11px] sm:text-xs font-medium cursor-pointer"
+                    className="rounded-full has-[>svg]:px-5 min-h-10"
                 >
                     <MessageSquare size={15} className="shrink-0" strokeWidth={2} />
                     <span className="whitespace-nowrap">تواصل مع البائع</span>
-                </button>
+                </Button>
                 <div className="min-w-0">
                     <ReportAbuse type="store" id={store.id}>
-                        <button
+                        <Button
                             type="button"
-                            className="w-full h-[34px] flex cursor-pointer items-center justify-center gap-1.5 bg-white border border-[#b75959] text-[#b75959] rounded-full px-3 text-[11px] sm:text-xs font-medium"
+                            variant="outline"
+                            className="rounded-full has-[>svg]:px-5 min-h-10 text-c2-red-400 border-c2-red-400 border bg-transparent"
                         >
                             <Flag size={15} className="shrink-0" strokeWidth={2} />
                             <span className="whitespace-nowrap">ابلغ عن إساءة</span>
-                        </button>
+                        </Button>
                     </ReportAbuse>
                 </div>
             </div>

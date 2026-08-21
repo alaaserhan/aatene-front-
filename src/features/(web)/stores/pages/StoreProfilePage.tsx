@@ -27,10 +27,10 @@ export default function StoreProfilePage({ slug }: { slug: string }) {
     const { data: pageData, isPending: isPendingPageData } = useStorePageData(slug);
     const authUser = useAuthStore(state => state.user);
     const queryClient = useQueryClient();
-    
+
     const store = profileData?.store;
     const isOwnStore = authUser?.id === Number(store?.owner_id);
-    
+
     const isAdmin = authUser?.user_type === "admin";
 
     const { mutate: createStory, isPending: isCreatingStory } = useCreateStory();
