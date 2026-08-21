@@ -417,7 +417,7 @@ html body[data-scroll-locked] {
   }
 
   .heading-1 {
-    @apply text-xl md:text-2xl font-bold text-primary;
+    @apply text-xl md:text-2xl font-bold text-c2-primary;
   }
 
   .heading-2 {
@@ -429,7 +429,7 @@ html body[data-scroll-locked] {
   }
 
   .white-card {
-    @apply bg-white rounded-xl border border-c2-neutral-200 p-3;
+    @apply bg-white rounded-xl border border-c2-neutral-200 p-4;
     box-shadow: 0px 4px 7px 0px #00000014;
   }
 

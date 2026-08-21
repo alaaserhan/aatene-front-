@@ -22,8 +22,8 @@ import {
 } from "@/src/features/(web)/compares/hooks";
 import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
 import { formatPrice } from "@/src/lib/format-price";
+import { Price } from "@/src/components/ui/Price";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
-import { productAskForPriceButtonClassName } from "@/src/features/(web)/product/components/productAskForPriceButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { ShareModal } from "@/src/components/ui/ShareModal";
@@ -31,6 +31,8 @@ import { RatingStars } from "@/src/components/ui/RatingStars";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
 import { VideoOrImageNext } from "@/src/components/ui/VideoOrImageNext";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { Button } from "@/src/components/ui/button";
+import { Checkbox } from "@/src/components/ui/checkbox";
 
 const EXECUTE_TYPE_LABELS: Record<string, string> = {
   hour: "ساعة",
@@ -106,8 +108,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
 
   const invalidateService = () => {
     // Both the slug and the id variants are cached, so refresh either one.
-    qc.invalidateQueries({ queryKey: ["service", service.slug] });
-    qc.invalidateQueries({ queryKey: ["service", service.id] });
+    qc.invalidateQueries({ queryKey: ["service"] });
   };
 
   const requireAuth = () => {
@@ -151,7 +152,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
   };
 
   return (
-    <section className="flex flex-col gap-5">
+    <section>
       <Breadcrumb
         items={[
           { label: "قائمة الخدمات", href: "/search?type=services" },
@@ -159,8 +160,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
         ]}
       />
 
-      <div className="flex flex-col lg:flex-row gap-10">
-        {/* Gallery */}
+      <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex flex-col-reverse lg:flex-row gap-3 lg:w-[55%] lg:items-start">
           {hasGallery && (
             <ul
@@ -214,41 +214,34 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
         </div>
 
         {/* Details */}
-        <div className="flex-1 flex flex-col gap-6">
-          <div className="white-card">
-            <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex-1">
+          <div className="white-card mb-6">
+            <div className="mb-4">
               {shouldAskForPrice ? (
-                <button
-                  type="button"
-                  onClick={() => goToChat(true)}
-                  className={productAskForPriceButtonClassName}
-                >
+                <Button size="md" onClick={() => goToChat(true)}>
                   اطلب السعر
-                </button>
+                </Button>
               ) : (
-                <p className="text-2xl font-normal">
-                  {formatPrice(totalPrice)} ₪
-                </p>
+                <Price value={totalPrice} className="text-primary" />
               )}
-              <span
-                aria-hidden="true"
-                className="w-px h-4 bg-gray-300 mx-2 shrink-0"
-              />
-              <RatingStars rating={rating} count={reviewCount} size="md" />
             </div>
 
+            <RatingStars
+              className="mb-4"
+              rating={rating}
+              count={reviewCount}
+              size="md"
+            />
+
             <div className="flex items-start justify-between gap-3">
-              <h1 className="text-2xl font-medium leading-relaxed">
-                {service.title}
-              </h1>
+              <h1 className="heading-1 text-c2-neutral-800">{service.title}</h1>
               <div className="flex items-center gap-2 shrink-0">
                 <FavoriteButton
                   id={service.id}
                   type="service"
                   isFavorite={service.is_favorite}
-                  className="w-8 h-8 rounded-full"
-                  iconClassName="w-5 h-5"
                   onSuccess={invalidateService}
+                  iconClassName="size-7"
                 />
                 <ServiceActionsMenu
                   onShare={() => setIsShareOpen(true)}
@@ -258,11 +251,9 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
             </div>
           </div>
 
-          <div className="h-px bg-gray-100 w-full" />
-
           {service.extras && service.extras.length > 0 && (
-            <div className="flex flex-col gap-3">
-              <h2 className="text-sm font-medium text-blue-3">
+            <div className="flex flex-col gap-3 white-card mb-6">
+              <h2 className="text-sm font-medium text-c2-navy-1000">
                 تطويرات اختيارية
               </h2>
               <ul className="flex flex-col gap-2 list-none">
@@ -316,7 +307,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
               onClick={toggleCompare}
               className={cn(
                 "text-sm font-medium underline underline-offset-4 cursor-pointer",
-                isInCompare ? "text-c2-danger" : "text-blue-4",
+                isInCompare ? "text-c2-danger" : "text-c2-navy-500",
               )}
             >
               {isInCompare ? "إزالة من المقارنة" : "أضف الى المقارنة"}
@@ -440,28 +431,29 @@ function ExtraOption({
           : "border-gray-200 hover:border-gray-300",
       )}
     >
-      <span
-        aria-hidden="true"
-        className={cn(
-          "w-4 h-4 shrink-0 rounded border flex items-center justify-center transition-colors",
-          isSelected ? "bg-blue-4 border-none" : "border-gray-200 bg-white",
-        )}
-      >
-        {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
-      </span>
+      <Checkbox checked={isSelected} />
 
-      <span className="flex flex-col gap-1">
-        <span className="font-medium text-sm">{extra.title}</span>
-        <span className="flex items-center gap-4 text-xs text-gray-2">
-          <span className="font-medium">
-            {formatPrice(extra.price)} <span className="text-base">₪</span>
-          </span>
-          <span className="flex items-center gap-1">
-            <Clock4 className="w-3 h-3 mb-0.5" aria-hidden="true" />
-            {extra.execute_count}{" "}
-            {EXECUTE_TYPE_LABELS[extra.execute_type] || extra.execute_type}
-          </span>
+      <span className="flex flex-col gap-2">
+        <span className="font-medium text-sm text-c2-navy-1000">
+          {extra.title}
         </span>
+        <div className="flex items-center gap-3">
+          <Price
+            value={extra.price}
+            size="sm"
+            className="text-c2-primary font-bold"
+          />
+          <div className="flex items-center gap-1 text-xs font-medium text-[#80859B]">
+            <Clock4 className="w-4 h-4 mb-1" aria-hidden="true" />
+
+            <div className="flex items-center gap-1">
+              <span>{extra.execute_count}</span>
+              <span>
+                {EXECUTE_TYPE_LABELS[extra.execute_type] || extra.execute_type}
+              </span>
+            </div>
+          </div>
+        </div>
       </span>
     </button>
   );
@@ -515,13 +507,13 @@ function ServiceActionsMenu({
         aria-label="خيارات الخدمة"
         className="w-8 h-8 flex items-center justify-center rounded-full cursor-pointer hover:bg-gray-100 transition-colors"
       >
-        <MoreVertical className="w-5 h-5 text-gray-600" aria-hidden="true" />
+        <MoreVertical className="w-7 h-7 text-c2-primary" aria-hidden="true" />
       </button>
 
       {isOpen && (
         <div
           role="menu"
-          className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[160px] z-30"
+          className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-40 z-30"
         >
           <button
             type="button"
