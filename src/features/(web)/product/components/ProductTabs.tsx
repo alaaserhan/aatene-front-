@@ -5,7 +5,9 @@ import { Product, Store, ReviewStatistics } from "../api";
 import { useAddProductReview, useGetProductReviews, useGetProductReviewReplies } from "../hooks";
 import { useAddStoreReview, useGetStoreReviews, useGetStoreReviewReplies } from "../../stores/hooks";
 import { ReviewItem, ReviewsSection, type ReviewSubmitPayload, type SharedReview } from "@/src/components/(web)/reviews";
+import { Container } from "@/src/components/shared/Container";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
 import { ReviewStatisticsDisplay } from "./ReviewStatisticsDisplay";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
 
@@ -14,88 +16,96 @@ interface ProductTabsProps {
     store: Store;
 }
 
-export default function ProductTabs({ product, store }: ProductTabsProps) {
-    const [activeTab, setActiveTab] = useState<"description" | "reviews">("description");
+type TabType = "description" | "reviews";
 
+export default function ProductTabs({ product, store }: ProductTabsProps) {
+    const [activeTab, setActiveTab] = useState<TabType>("description");
+
+    const tabs: { id: TabType; label: string }[] = [
+        { id: "description", label: "وصف المنتج" },
+        { id: "reviews", label: "تقييم و مراجعات" },
+    ];
+
+    // Full-bleed on purpose: the triggers sit on the same tinted band as the hero
+    // while the panels sit on the white band, so each half brings its own
+    // background and Container.
     return (
-        <div className="mt-12 overflow-hidden">
-            <div className="flex items-center border-b border-gray-200">
-                <button
-                    onClick={() => setActiveTab("description")}
-                    className={`flex-1 py-4 cursor-pointer text-center font-medium text-sm transition-all duration-300 relative ${activeTab === "description"
-                        ? "text-blue-3 bg-[#F8F7FF]"
-                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                        }`}
-                >
-                    وصف المنتج
-                    {activeTab === "description" && (
-                        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-4" />
-                    )}
-                </button>
-                <button
-                    onClick={() => setActiveTab("reviews")}
-                    className={`flex-1 py-4 cursor-pointer text-center font-medium text-sm transition-all duration-300 relative ${activeTab === "reviews"
-                        ? "text-blue-3 bg-[#F8F7FF]"
-                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                        }`}
-                >
-                    تقييم و مراجعات
-                    {activeTab === "reviews" && (
-                        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-4" />
-                    )}
-                </button>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)}>
+            <div className="bg-c2-neutral-50">
+                <Container className="pb-6 lg:pt-9">
+                    <TabsList className="w-full max-w-full justify-start overflow-x-auto">
+                        {tabs.map((tab) => (
+                            <TabsTrigger key={tab.id} value={tab.id} className="min-w-30">
+                                {tab.label}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                </Container>
             </div>
 
-            <div className="p-3 md:p-4 min-h-[300px]">
-                {activeTab === "description" ? (
-                    <div className="animate-in fade-in slide-in-from-top-4 duration-300 space-y-6">
+            <div className="bg-white shadow-md">
+                <Container className="pt-8 pb-8 lg:pb-20">
+                    <TabsContent value="description" className="min-h-75">
+                        <h3 className="mb-4 text-lg font-bold text-c2-navy-1000">وصف المنتج</h3>
                         <SafeHTML
                             html={product.description}
-                            className="prose prose-lg max-w-none text-gray-700 leading-relaxed font-sans"
+                            className="prose prose-lg max-w-none leading-relaxed text-black text-base font-normal"
                         />
-                    </div>
-                ) : (
-                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                    </TabsContent>
+
+                    <TabsContent value="reviews" className="min-h-75">
                         <ProductAndStoreReviews product={product} store={store} />
-                    </div>
-                )}
+                    </TabsContent>
+                </Container>
             </div>
-        </div>
+        </Tabs>
     );
 }
 
+type ReviewsSubTab = "product" | "store";
+
 function ProductAndStoreReviews({ product, store }: { product: Product; store: Store }) {
-    const [subTab, setSubTab] = useState<"product" | "store">("product");
+    const [subTab, setSubTab] = useState<ReviewsSubTab>("product");
 
     return (
-        <div className="space-y-8">
-            <div className="flex gap-4 border-b border-gray-100">
-                <button
-                    onClick={() => setSubTab("product")}
-                    className={`py-2 px-4 cursor-pointer  text-sm font-medium flex items-center gap-2 transition-all ${subTab === "product"
-                        ? "border-b-2 border-blue-3"
-                        : ""
-                        }`}
-                >
-                    مراجعات لهذا العنصر <div className="bg-blue-4 text-white  rounded-full px-2 py-1 text-xs">{product.review_count || 0}</div>
-                </button>
-                <button
-                    onClick={() => setSubTab("store")}
-                    className={`py-2 px-4 cursor-pointer text-sm font-medium transition-all flex items-center gap-2 ${subTab === "store"
-                        ? "border-b-2 border-blue-3"
-                        : ""
-                        }`}
-                >
-                    مراجعات لهذا المتجر <div className="bg-blue-4 text-white  rounded-full px-2 py-1 text-xs">{store.review_count || 0}</div>
-                </button>
-            </div>
+        <Tabs
+            value={subTab}
+            onValueChange={(value) => setSubTab(value as ReviewsSubTab)}
+            className="gap-8"
+        >
+            <TabsList className="max-w-full justify-start overflow-x-auto">
+                <TabsTrigger value="product">
+                    مراجعات لهذا العنصر
+                    <ReviewCountBadge count={product.review_count} isActive={subTab === "product"} />
+                </TabsTrigger>
+                <TabsTrigger value="store">
+                    مراجعات لهذا المتجر
+                    <ReviewCountBadge count={store.review_count} isActive={subTab === "store"} />
+                </TabsTrigger>
+            </TabsList>
 
-            {subTab === "product" ? (
+            <TabsContent value="product">
                 <ProductReviewsSection slug={product.slug} summary={{ count: Number(product.review_count) || 0, rate: Number(product.review_rate) || 0 }} />
-            ) : (
+            </TabsContent>
+
+            <TabsContent value="store">
                 <StoreReviewsSection slug={store.slug} summary={{ count: Number(store.review_count) || 0, rate: Number(store.review_rate) || 0 }} />
-            )}
-        </div>
+            </TabsContent>
+        </Tabs>
+    );
+}
+
+function ReviewCountBadge({ count, isActive }: { count?: string | number | null; isActive: boolean }) {
+    return (
+        <span
+            className={
+                isActive
+                    ? "rounded-full bg-white px-2 py-0.5 text-xs text-c2-navy-700"
+                    : "rounded-full bg-c2-neutral-200 px-2 py-0.5 text-xs text-c2-neutral-700"
+            }
+        >
+            {count || 0}
+        </span>
     );
 }
 

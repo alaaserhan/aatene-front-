@@ -23,7 +23,7 @@ export function ResultsCountSkeleton({ className }: { className?: string }) {
 function ProductCardSkeleton() {
     return (
         <div className="flex w-full flex-col rounded-2xl bg-white border border-c2-neutral-200 overflow-hidden">
-            <div className={cn("w-full aspect-4/5", shimmer)} />
+            <div className={cn("w-full aspect-square", shimmer)} />
 
             <div className="flex flex-col px-3 pt-2.5 pb-3 gap-2" dir="rtl">
                 {/* Title (two lines) */}

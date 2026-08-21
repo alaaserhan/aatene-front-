@@ -52,7 +52,7 @@ export interface ProductCardProps {
 const CARD_VARIANTS = {
     default: {
         root: "flex w-full flex-col cursor-pointer group relative rounded-2xl bg-white border border-gray-100 hover:border-gray-200 dark:bg-gray-800 dark:border-gray-700 overflow-visible transition-all hover:shadow-md",
-        mediaLink: "relative block w-full shrink-0 overflow-hidden bg-gray-100 aspect-[4/5] rounded-t-2xl",
+        mediaLink: "relative block w-full shrink-0 overflow-hidden bg-gray-100 aspect-square rounded-t-2xl",
         video: "absolute inset-0",
         videoInner: "group-hover:scale-105 transition-transform duration-300",
         image: "object-cover object-center group-hover:scale-105 transition-transform duration-300",
