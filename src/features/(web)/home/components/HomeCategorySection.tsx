@@ -16,18 +16,13 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const scroll = (direction: "left" | "right") => {
-        if (scrollContainerRef.current) {
-            const scrollAmount = 300; // Adjust as needed
-            const newScrollLeft =
-                direction === "left"
-                    ? scrollContainerRef.current.scrollLeft + scrollAmount
-                    : scrollContainerRef.current.scrollLeft - scrollAmount;
-
-            scrollContainerRef.current.scrollTo({
-                left: newScrollLeft,
-                behavior: "smooth",
-            });
-        }
+        if (!scrollContainerRef.current) return;
+        // scroll by a full view so items land aligned with the 2/4-per-view sizing
+        const scrollAmount = scrollContainerRef.current.clientWidth;
+        scrollContainerRef.current.scrollBy({
+            left: direction === "left" ? scrollAmount : -scrollAmount,
+            behavior: "smooth",
+        });
     };
 
     return (
@@ -52,13 +47,14 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
 
                 <div
                     ref={scrollContainerRef}
-                    className="flex flex-row flex-nowrap items-stretch overflow-x-auto gap-4 scroll-smooth scrollbar-hide pb-4 touch-auto overscroll-x-contain"
+                    className="flex w-full flex-row flex-nowrap items-stretch gap-4 overflow-x-auto overscroll-x-contain scroll-smooth scrollbar-hide snap-x snap-mandatory touch-auto pb-4 md:gap-6 lg:gap-8"
                     style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
                 >
                     {category.products.map((product) => (
                         <div
                             key={product.id}
-                            className="flex w-[180px] shrink-0 snap-start flex-col sm:w-[210px] md:w-[230px]"
+                            /* 2 per view on mobile, 4 on desktop — basis accounts for the gaps */
+                            className="flex shrink-0 snap-start flex-col basis-[calc((100%-1rem)/2)] md:basis-[calc((100%-1.5rem)/2)] lg:basis-[calc((100%-6rem)/4)]"
                             dir="rtl"
                         >
                             <ProductCard
