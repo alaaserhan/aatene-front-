@@ -76,7 +76,7 @@ const StoreCard = memo(({
         <div
             onClick={handleCardClick}
             className={cn(
-                "group relative flex h-full min-h-[400px] w-full min-w-0 cursor-pointer flex-col items-center rounded-2xl border border-[#E0E0E0] bg-white px-4 pb-4 pt-6 text-center transition-all duration-300 hover:shadow-md md:px-5 md:pb-5 md:pt-8",
+                "group relative flex h-full min-h-65 w-full min-w-0 cursor-pointer flex-col items-center rounded-2xl border border-[#E0E0E0] bg-white px-3 pb-3 pt-5 text-center transition-all duration-300 hover:shadow-md sm:min-h-85 sm:px-4 sm:pb-4 sm:pt-6 md:min-h-100 md:px-5 md:pb-5 md:pt-8",
                 className
             )}
         >
@@ -85,7 +85,7 @@ const StoreCard = memo(({
                     e.preventDefault();
                     e.stopPropagation();
                 }}
-                className="absolute top-2 inset-e-2 z-10 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                className="absolute top-2 inset-e-2 z-10 size-8 sm:size-10 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform"
             >
                 <FavoriteButton
                     id={store.id}
@@ -97,7 +97,7 @@ const StoreCard = memo(({
 
 
             <div className="flex w-full min-h-0 flex-1 flex-col items-center justify-center">
-                <div className="relative mb-3 aspect-square w-[74%] max-w-[11rem] shrink-0 overflow-hidden rounded-full bg-gray-100 md:mb-4 md:max-w-[10rem] lg:max-w-[11rem]">
+                <div className="relative mb-2.5 aspect-square w-[68%] max-w-28 shrink-0 overflow-hidden rounded-full bg-gray-100 sm:mb-3 sm:w-[74%] sm:max-w-36 md:mb-4 md:max-w-40 lg:max-w-44">
                     {store.logo_url || coverFallbackSrc ? (
                         <Image
                             src={avatarSrc}
@@ -119,24 +119,24 @@ const StoreCard = memo(({
                     )}
                 </div>
 
-                <h3 className="mb-2 line-clamp-2 w-full px-1 text-base font-bold text-gray-900 md:mb-3 md:text-lg">
+                <h3 className="mb-1.5 line-clamp-2 w-full px-1 text-sm font-bold text-gray-900 sm:mb-2 sm:text-base md:mb-3 md:text-lg">
                     {store.name}
                 </h3>
 
-                <div className="mb-1.5 flex w-full items-center justify-center gap-1.5 text-sm text-gray-500 md:mb-2" dir="rtl">
-                    <MapPin className="h-4 w-4 shrink-0 text-blue-4" />
+                <div className="mb-1 flex w-full items-center justify-center gap-1 text-xs text-gray-500 sm:mb-1.5 sm:gap-1.5 sm:text-sm md:mb-2" dir="rtl">
+                    <MapPin className="size-3.5 shrink-0 text-blue-4 sm:size-4" />
                     <span className="line-clamp-1">{store.city?.name || "--"}</span>
                 </div>
 
-                <div className="inline-flex items-center justify-center gap-1.5 text-sm leading-4 text-gray-400" dir="rtl">
-                    <Star className="size-4 shrink-0 fill-amber-400 text-amber-400" aria-hidden />
+                <div className="inline-flex items-center justify-center gap-1 text-xs leading-4 text-gray-400 sm:gap-1.5 sm:text-sm" dir="rtl">
+                    <Star className="size-3.5 shrink-0 fill-amber-400 text-amber-400 sm:size-4" aria-hidden />
                     <span className="translate-y-px font-medium tabular-nums leading-4">{rating.toFixed(1)}</span>
                 </div>
             </div>
 
-            <div className="w-full shrink-0 pt-3">
+            <div className="w-full shrink-0 pt-2.5 sm:pt-3">
                 {followed ? (
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5 sm:gap-2">
                         <button
                             type="button"
                             disabled={isPending}
@@ -153,9 +153,9 @@ const StoreCard = memo(({
                                     }
                                 );
                             }}
-                            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50"
+                            className="flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-gray-100 px-2 py-2.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50 sm:px-4 sm:py-3 sm:text-sm"
                         >
-                            <span>{isPending ? "جاري الإلغاء..." : "إلغاء المتابعة"}</span>
+                            <span className="truncate">{isPending ? "جاري الإلغاء..." : "إلغاء المتابعة"}</span>
                         </button>
                         <button
                             type="button"
@@ -163,7 +163,7 @@ const StoreCard = memo(({
                                 e.stopPropagation();
                                 handleCardClick();
                             }}
-                            className="flex w-12 cursor-pointer items-center justify-center rounded-lg bg-gray-50 py-3 text-blue-4 transition-colors hover:bg-gray-100"
+                            className="flex w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-gray-50 py-2.5 text-blue-4 transition-colors hover:bg-gray-100 sm:w-12 sm:py-3"
                             title="زيارة المتجر"
                         >
                             <ArrowLeft className="h-4 w-4" />
@@ -186,10 +186,10 @@ const StoreCard = memo(({
                                 }
                             );
                         }}
-                        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-4 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-3 disabled:opacity-50"
+                        className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-blue-4 px-2 py-2.5 text-xs font-medium text-white transition-colors hover:bg-blue-3 disabled:opacity-50 sm:gap-2 sm:px-4 sm:py-3 sm:text-sm"
                     >
-                        <UserPlus className="h-5 w-5" />
-                        <span>{isPending ? "جاري المتابعة..." : "متابعة المتجر"}</span>
+                        <UserPlus className="size-4 shrink-0 sm:size-5" />
+                        <span className="truncate">{isPending ? "جاري المتابعة..." : "متابعة المتجر"}</span>
                     </button>
                 )}
             </div>

@@ -89,24 +89,24 @@ function ServiceCardSkeleton() {
 /** Mirrors StoreCard: tall centered card with round logo, name, city, rating, follow button. */
 function StoreCardSkeleton() {
     return (
-        <div className="flex h-full min-h-100 w-full flex-col items-center rounded-2xl border border-c2-neutral-200 bg-white px-4 pb-4 pt-6 md:px-5 md:pb-5 md:pt-8">
+        <div className="flex h-full min-h-65 w-full flex-col items-center rounded-2xl border border-c2-neutral-200 bg-white px-3 pb-3 pt-5 sm:min-h-85 sm:px-4 sm:pb-4 sm:pt-6 md:min-h-100 md:px-5 md:pb-5 md:pt-8">
             <div className="flex w-full min-h-0 flex-1 flex-col items-center justify-center">
                 {/* Logo */}
-                <div className={cn("mb-3 aspect-square w-[74%] max-w-44 shrink-0 rounded-full md:mb-4 md:max-w-40 lg:max-w-44", shimmer)} />
+                <div className={cn("mb-2.5 aspect-square w-[68%] max-w-28 shrink-0 rounded-full sm:mb-3 sm:w-[74%] sm:max-w-36 md:mb-4 md:max-w-40 lg:max-w-44", shimmer)} />
 
                 {/* Name */}
-                <div className={cn("mb-2 h-4 w-3/4 rounded md:mb-3", shimmer)} />
+                <div className={cn("mb-1.5 h-4 w-3/4 rounded sm:mb-2 md:mb-3", shimmer)} />
 
                 {/* City */}
-                <div className={cn("mb-1.5 h-3 w-1/2 rounded md:mb-2", shimmer)} />
+                <div className={cn("mb-1 h-3 w-1/2 rounded sm:mb-1.5 md:mb-2", shimmer)} />
 
                 {/* Rating */}
                 <div className={cn("h-3 w-12 rounded", shimmer)} />
             </div>
 
             {/* Follow button */}
-            <div className="w-full shrink-0 pt-3">
-                <div className={cn("h-11 w-full rounded-lg", shimmer)} />
+            <div className="w-full shrink-0 pt-2.5 sm:pt-3">
+                <div className={cn("h-9 w-full rounded-lg sm:h-11", shimmer)} />
             </div>
         </div>
     );
