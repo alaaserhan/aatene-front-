@@ -307,6 +307,24 @@ export function generateDynamicMetadata({
     };
 }
 
+/**
+ * Descriptions coming from the API are rich-text HTML; meta tags and JSON-LD
+ * need plain text. Collapses markup/entities/whitespace and truncates.
+ */
+export function toPlainText(html: string | undefined | null, maxLength = 160): string {
+    const text = (html || "")
+        .replace(/<[^>]*>/g, " ")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/\s+/g, " ")
+        .trim();
+    return text.length > maxLength ? `${text.slice(0, maxLength - 1).trimEnd()}…` : text;
+}
+
 export function generateAlternates(locale: string, pathname: string) {
     const languages: Record<string, string> = {};
     for (const loc of locales) {

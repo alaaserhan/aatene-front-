@@ -11,6 +11,7 @@ import {
     generateDynamicMetadata,
     generatePageMetadata,
     generateAlternates,
+    toPlainText,
     SITE_URL,
 } from "@/src/lib/seo.config";
 import { makeQueryClient } from "@/src/lib/queryClient";
@@ -18,16 +19,6 @@ import { makeQueryClient } from "@/src/lib/queryClient";
 type PageProps = {
     params: Promise<{ locale: string; slug: string }>;
 };
-
-/** Service descriptions are stored as HTML; meta tags need plain text. */
-function toPlainText(html: string | undefined, maxLength = 160): string {
-    const text = (html || "")
-        .replace(/<[^>]*>/g, " ")
-        .replace(/&nbsp;/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-    return text.length > maxLength ? `${text.slice(0, maxLength - 1).trimEnd()}…` : text;
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { locale, slug } = await params;
