@@ -72,6 +72,7 @@ export default function SearchResults({
                     {type === "products" &&
                         (items as Product[]).map((product) => (
                             <ProductCard
+                                variant="c2"
                                 key={product.id}
                                 id={product.id}
                                 name={product.name}
