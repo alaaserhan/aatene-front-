@@ -76,7 +76,7 @@ const StoreCard = memo(({
         <div
             onClick={handleCardClick}
             className={cn(
-                "group relative flex h-full min-h-[400px] w-full min-w-0 cursor-pointer flex-col items-center rounded-2xl border border-gray-100 bg-white px-4 pb-4 pt-6 text-center transition-all duration-300 hover:shadow-md md:px-5 md:pb-5 md:pt-8",
+                "group relative flex h-full min-h-[400px] w-full min-w-0 cursor-pointer flex-col items-center rounded-2xl border border-[#E0E0E0] bg-white px-4 pb-4 pt-6 text-center transition-all duration-300 hover:shadow-md md:px-5 md:pb-5 md:pt-8",
                 className
             )}
         >
@@ -85,7 +85,7 @@ const StoreCard = memo(({
                     e.preventDefault();
                     e.stopPropagation();
                 }}
-                className="absolute top-3 inset-e-3 z-10 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                className="absolute top-2 inset-e-2 z-10 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-110 transition-transform"
             >
                 <FavoriteButton
                     id={store.id}
@@ -93,8 +93,8 @@ const StoreCard = memo(({
                     isFavorite={store.is_favorite}
                     onSuccess={invalidateStoreQueries}
                 />
-            </div>    
-            
+            </div>
+
 
             <div className="flex w-full min-h-0 flex-1 flex-col items-center justify-center">
                 <div className="relative mb-3 aspect-square w-[74%] max-w-[11rem] shrink-0 overflow-hidden rounded-full bg-gray-100 md:mb-4 md:max-w-[10rem] lg:max-w-[11rem]">

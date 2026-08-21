@@ -33,7 +33,7 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
     return (
         <section className="py-2 mb-8 last:mb-0" dir="rtl">
             {/* Header Row: Title & Action Buttons */}
-            <div className="mb-4 flex items-start justify-between gap-3 md:mb-6 md:items-center">
+            <div className="flex items-start justify-between gap-3 mb-6 md:items-center">
                 <h2 className="heading-3">
                     {category.name}
                 </h2>

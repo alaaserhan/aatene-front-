@@ -41,7 +41,7 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
   return (
     <section className="py-8 relative overflow-hidden" dir="rtl">
       <MaxWidthWrapper className="relative z-20">
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center justify-between mb-6">
           <h2 className="heading-3">
             المتاجر الأعلى تقييمًا
           </h2>
