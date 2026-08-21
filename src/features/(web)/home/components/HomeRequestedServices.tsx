@@ -23,7 +23,7 @@ export default function HomeRequestedServices({ requests: initialRequests }: Hom
     <section className="py-12 bg-gray-50 bg-linear-to-b from-white to-gray-50" dir="rtl">
       <MaxWidthWrapper>
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl md:text-3xl text-blue-4 font-medium relative inline-block">
+          <h2 className="heading-3">
             طلبات الخدمات الغير موجودة
           </h2>
           <HomeViewAllLink href={`/${lang}/requested-services`} />

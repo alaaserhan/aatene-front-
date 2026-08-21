@@ -443,7 +443,7 @@ function ServiceQASection({ service }: { service: Service }) {
 
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between pb-4">
         <div className="flex items-center w-full sm:w-auto gap-4 flex-1">
-          <div className="relative w-full sm:max-w-lg border border-c2-primary rounded-full bg-white overflow-hidden flex items-center gap-2 h-12">
+          <div className="relative w-full max-w-lg flex-1 border border-c2-primary rounded-full bg-white overflow-hidden flex items-center gap-2 h-12">
             <input
               type="text"
               placeholder="بحث"
@@ -456,7 +456,7 @@ function ServiceQASection({ service }: { service: Service }) {
             </div>
           </div>
 
-          <div className="w-45 shrink-0">
+          <div className="w-auto lg:w-45 lg:shrink-0">
             <ReusableDropdown
               options={sortOptions}
               value={orderType}
@@ -466,13 +466,13 @@ function ServiceQASection({ service }: { service: Service }) {
                 )
               }
               placeholder="ترتيب حسب"
-              className="w-full bg-white rounded-full border-gray-300 h-11 min-w-50"
+              className="w-full bg-white rounded-full border-gray-300 h-11 lg:min-w-50"
             />
           </div>
         </div>
 
         <Button
-          className="rounded-full has-[>svg]:px-6 py-6 gap-1"
+          className="rounded-full has-[>svg]:px-6 py-6 gap-1 w-full lg:w-auto"
           onClick={() => setIsAddQuestionModalOpen(true)}
         >
           <PlusSquare className="w-5 h-5" />

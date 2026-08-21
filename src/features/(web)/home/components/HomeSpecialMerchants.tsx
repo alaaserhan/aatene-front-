@@ -42,8 +42,8 @@ export default function HomeSpecialMerchants({ merchants: initialMerchants }: Ho
     <section className="py-8 relative overflow-hidden" dir="rtl">
       <MaxWidthWrapper className="relative z-20">
         <div className="flex items-center justify-between mb-10">
-          <h2 className="text-2xl md:text-3xl text-blue-4 font-medium relative inline-block">
-            المتاجر الأكثر تقييمًا
+          <h2 className="heading-3">
+            المتاجر الأعلى تقييمًا
           </h2>
           <HomeViewAllLink href="/search?type=stores" />
         </div>

@@ -34,7 +34,7 @@ export default function HomeCategorySection({ category }: HomeCategorySectionPro
         <section className="py-2 mb-8 last:mb-0" dir="rtl">
             {/* Header Row: Title & Action Buttons */}
             <div className="mb-4 flex items-start justify-between gap-3 md:mb-6 md:items-center">
-                <h2 className="min-w-0 flex-1 whitespace-normal break-words text-right text-lg font-bold leading-snug text-gray-800 md:text-2xl">
+                <h2 className="heading-3">
                     {category.name}
                 </h2>
 

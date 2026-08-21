@@ -419,6 +419,10 @@ html body[data-scroll-locked] {
     @apply text-base text-gray-6 font-normal;
   }
 
+  .heading-3 {
+    @apply text-2xl md:text-3xl text-c2-primary font-medium;
+  }
+
   .heading-card {
     @apply bg-white rounded-lg border border-gray-200 px-4 py-4 lg:py-7 lg:px-9;
   }

@@ -56,7 +56,7 @@ function AppStoreButtons({
           fill={!isMobile}
           width={isMobile ? 120 : undefined}
           height={isMobile ? 40 : undefined}
-          className="h-12 w-full object-contain object-right opacity-80 transition-opacity group-hover:opacity-100"
+          className="h-12 w-full object-contain object-right transition-opacity group-hover:opacity-100"
         />
       </AppBadgeLink>
 
@@ -67,7 +67,7 @@ function AppStoreButtons({
           fill={!isMobile}
           width={isMobile ? 120 : undefined}
           height={isMobile ? 40 : undefined}
-          className="h-12 w-full object-contain object-right opacity-80 transition-opacity group-hover:opacity-100"
+          className="h-12 w-full object-contain object-right transition-opacity group-hover:opacity-100"
         />
       </AppBadgeLink>
     </div>

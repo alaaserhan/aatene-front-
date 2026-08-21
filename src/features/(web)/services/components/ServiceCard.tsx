@@ -178,8 +178,8 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                         <p className="text-sm font-medium truncate">{providerName}</p>
                         <div className="flex items-center justify-between mt-1">
                             <div className="flex items-center gap-1 text-[10px] text-gray-500">
-                                <MapPin className="w-3 h-3 text-[#3D5E83]" />
-                                <span className="truncate max-w-[60px]">{cityName}</span>
+                                <MapPin className="w-3 h-3 text-[#3D5E83] mb-px" />
+                                <span className="truncate max-w-[60px] pt-0.5">{cityName}</span>
                             </div>
                             <div
                                 className={cn("flex items-center gap-1 text-xs", {
