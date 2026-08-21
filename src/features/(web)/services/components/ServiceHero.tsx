@@ -218,7 +218,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
           <div className="white-card mb-6">
             <div className="mb-4">
               {shouldAskForPrice ? (
-                <Button size="md" onClick={() => goToChat(true)}>
+                <Button size="md" className="text-base" onClick={() => goToChat(true)}>
                   اطلب السعر
                 </Button>
               ) : (

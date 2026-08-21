@@ -9,9 +9,14 @@ import ServicesChooseForYou from "./components/ServicesChooseForYou";
 import SimilarServices from "./components/SimilarServices";
 import { useGetService, useGetServicePageData } from "./hooks";
 
-export default function ServiceDetailsPage() {
+export default function ServiceDetailsPage({
+  slug: slugFromServer,
+}: {
+  /** Passed by the route so the first render matches the server-prefetched cache. */
+  slug?: string;
+}) {
   const params = useParams();
-  const slug = params?.slug as string;
+  const slug = slugFromServer ?? (params?.slug as string);
 
   const { data, isLoading, isError } = useGetService(slug);
   const { data: pageData } = useGetServicePageData(slug);
