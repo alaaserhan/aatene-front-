@@ -6,8 +6,8 @@ import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import UserCard from "@/src/features/(web)/users/components/UserCard";
 import { Product, Service, Store, User } from "@/src/features/(web)/searchAndFilter/api";
-import { Loader2 } from "lucide-react";
 import type { SearchType } from "../types";
+import SearchResultsSkeleton from "./SearchResultsSkeleton";
 
 interface SearchResultsProps {
     type: SearchType;
@@ -35,11 +35,7 @@ export default function SearchResults({
     const endItem = Math.min(currentPage * perPage, displayTotal);
 
     if (isLoading && displayTotal === 0) {
-        return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 animate-spin text-[#3D5E83]" />
-            </div>
-        );
+        return <SearchResultsSkeleton count={perPage} />;
     }
 
     return (
@@ -53,9 +49,7 @@ export default function SearchResults({
 
             {/* Content Area */}
             {isLoading ? (
-                <div className="flex items-center justify-center py-20 min-h-[300px]">
-                    <Loader2 className="w-8 h-8 animate-spin text-[#3D5E83]" />
-                </div>
+                <SearchResultsSkeleton count={perPage} />
             ) : !items || items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 text-gray-400">
                     <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center mb-4">
@@ -67,7 +61,7 @@ export default function SearchResults({
                     <p className="text-gray-400 text-sm mt-1">حاول تغيير كلمات البحث أو تصفية الفئات</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
                     {type === "products" &&
                         (items as Product[]).map((product) => (
                             <ProductCard
