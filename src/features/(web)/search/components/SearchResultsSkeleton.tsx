@@ -19,22 +19,34 @@ export function ResultsCountSkeleton({ className }: { className?: string }) {
     return <div className={cn("h-4 w-30 rounded", shimmer, className)} aria-hidden="true" />;
 }
 
-/** Mirrors ProductCard: 4/5 cover, two title lines, rating, price. */
+/** Mirrors ProductCard variant="c2": borderless card, shadowed square cover, two title lines, rating, price. */
 function ProductCardSkeleton() {
     return (
-        <div className="flex w-full flex-col rounded-2xl bg-white border border-c2-neutral-200 overflow-hidden">
-            <div className={cn("w-full aspect-square", shimmer)} />
+        <div className="flex w-full flex-col">
+            {/* Cover */}
+            <div className={cn("w-full aspect-square rounded-[14px] card-shadow", shimmer)} />
 
-            <div className="flex flex-col px-3 pt-2.5 pb-3 gap-2" dir="rtl">
-                {/* Title (two lines) */}
-                <div className={cn("h-3.5 w-full rounded", shimmer)} />
-                <div className={cn("h-3.5 w-2/3 rounded", shimmer)} />
+            <div className="flex flex-col px-3 py-3 gap-1" dir="rtl">
+                {/* Title (two lines of text-base/snug) */}
+                <div className="flex h-11 flex-col justify-center gap-1.5">
+                    <div className={cn("h-4 w-full rounded", shimmer)} />
+                    <div className={cn("h-4 w-2/3 rounded", shimmer)} />
+                </div>
 
-                {/* Rating */}
-                <div className={cn("h-3 w-1/2 rounded", shimmer)} />
+                {/* Rating: five stars + review count */}
+                <div className="flex h-4.5 items-center gap-1">
+                    <div className="flex items-center gap-0.5">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className={cn("h-3 w-3 rounded-xs", shimmer)} />
+                        ))}
+                    </div>
+                    <div className={cn("h-2.5 w-8 rounded", shimmer)} />
+                </div>
 
                 {/* Price */}
-                <div className={cn("mt-1 h-4 w-1/3 rounded", shimmer)} />
+                <div className="mt-1 flex h-6 items-center">
+                    <div className={cn("h-4 w-20 rounded", shimmer)} />
+                </div>
             </div>
         </div>
     );
