@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/src/components/ui/dialog";
+import { Container } from "@/src/components/shared/Container";
 import { MediaViewer } from "@/src/components/ui/MediaViewer";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { SafeHTML } from "@/src/components/ui/SafeHTML";
@@ -69,58 +70,53 @@ export default function ServiceTabs({ service }: ServiceTabsProps) {
     { id: "faq", label: "الأسئلة الشائعة" },
   ];
 
+  // Full-bleed on purpose: the triggers sit on the same tinted band as the hero
+  // while the panels sit on the white band, so each half brings its own
+  // background and Container.
   return (
     <Tabs
       value={activeTab}
       onValueChange={(value) => setActiveTab(value as TabType)}
-      className="my-12"
     >
-      <TabsList className="w-full max-w-full justify-start overflow-x-auto">
-        {tabs.map((tab) => (
-          <TabsTrigger key={tab.id} value={tab.id} className="min-w-30">
-            {tab.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+      <div className="bg-c2-neutral-50">
+        <Container className="pb-6 lg:pt-9">
+          <TabsList className="w-full max-w-full justify-start overflow-x-auto">
+            {tabs.map((tab) => (
+              <TabsTrigger key={tab.id} value={tab.id} className="min-w-30">
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Container>
+      </div>
 
-      <TabsContent
-        value="description"
-        className="p-3 md:p-4 min-h-75 space-y-6"
-      >
-        <div className="prose prose-lg max-w-none leading-relaxed ">
-          <SafeHTML html={service.description} />
-        </div>
-      </TabsContent>
+      <div className="bg-white">
+        <Container className="py-8">
+          <TabsContent value="description" className="min-h-75 space-y-6">
+            <div className="prose prose-lg max-w-none leading-relaxed ">
+              <SafeHTML html={service.description} />
+            </div>
+          </TabsContent>
 
-      {hasSpecialties && (
-        <TabsContent
-          value="specialties"
-          className="p-3 md:p-4 min-h-75"
-        >
-          <ServiceSpecialties service={service} />
-        </TabsContent>
-      )}
+          {hasSpecialties && (
+            <TabsContent value="specialties" className="min-h-75">
+              <ServiceSpecialties service={service} />
+            </TabsContent>
+          )}
 
-      <TabsContent
-        value="reviews"
-        className="p-3 md:p-4 min-h-75"
-      >
-        <ServiceReviewsSection service={service} />
-      </TabsContent>
+          <TabsContent value="reviews" className="min-h-75">
+            <ServiceReviewsSection service={service} />
+          </TabsContent>
 
-      <TabsContent
-        value="qa"
-        className="p-3 md:p-4 min-h-75"
-      >
-        <ServiceQASection service={service} />
-      </TabsContent>
+          <TabsContent value="qa" className="min-h-75">
+            <ServiceQASection service={service} />
+          </TabsContent>
 
-      <TabsContent
-        value="faq"
-        className="p-3 md:p-4 min-h-75"
-      >
-        <ServiceFAQ service={service} />
-      </TabsContent>
+          <TabsContent value="faq" className="min-h-75">
+            <ServiceFAQ service={service} />
+          </TabsContent>
+        </Container>
+      </div>
     </Tabs>
   );
 }
