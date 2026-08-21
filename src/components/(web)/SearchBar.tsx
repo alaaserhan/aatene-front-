@@ -217,7 +217,7 @@ const TAB_STYLES: Record<
   plain: {
     layout: "flex items-center gap-1",
     base: "px-2 py-1.5 text-sm whitespace-nowrap",
-    active: "text-c2-primary",
+    active: "text-c2-primary font-bold",
     inactive: "text-c2-neutral-600 hover:text-c2-neutral-800",
   },
   pill: {
