@@ -260,6 +260,7 @@ export interface User {
     review_count: string;
     city: City | null;
     is_following: boolean;
+    followers_count?: number | string;
     slug?: string;
     cover: string | null;
     cover_url: string | null;

@@ -112,29 +112,21 @@ function StoreCardSkeleton() {
     );
 }
 
-/** Mirrors UserCard: cover banner with overlapping avatar, name, bio, rating + city row. */
+/** Mirrors UserCard: centered avatar, name, followers count, follow button. */
 function UserCardSkeleton() {
     return (
-        <div className="flex w-full max-w-[320px] mx-auto flex-col rounded-lg border border-c2-neutral-200 bg-white overflow-hidden">
-            {/* Cover */}
-            <div className={cn("h-32 w-full", shimmer)} />
+        <div className="mx-auto flex w-full max-w-[320px] flex-col items-center rounded-2xl border border-c2-neutral-200 bg-white px-5 pb-5 pt-7">
+            {/* Avatar */}
+            <div className={cn("mb-5 size-32.5 rounded-full", shimmer)} />
 
-            <div className="relative px-3 pb-3 pt-12 flex flex-col items-center">
-                {/* Avatar */}
-                <div className={cn("absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full border-2 border-white z-10", shimmer)} />
+            {/* Name */}
+            <div className={cn("mb-2 h-5 w-1/2 rounded", shimmer)} />
 
-                {/* Name */}
-                <div className={cn("h-4 w-1/2 rounded mb-2", shimmer)} />
+            {/* Followers count */}
+            <div className={cn("mb-5 h-3.5 w-20 rounded", shimmer)} />
 
-                {/* Bio */}
-                <div className={cn("h-3 w-3/4 rounded mb-5", shimmer)} />
-
-                {/* Rating + city */}
-                <div className="flex items-center justify-center gap-4 w-full">
-                    <div className={cn("h-3 w-16 rounded", shimmer)} />
-                    <div className={cn("h-3 w-20 rounded", shimmer)} />
-                </div>
-            </div>
+            {/* Follow button */}
+            <div className={cn("h-11 w-full rounded-lg", shimmer)} />
         </div>
     );
 }
