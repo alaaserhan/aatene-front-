@@ -127,6 +127,8 @@ function ReviewItemWrapper({
         images: review.images,
         user: {
             name: review.user.name,
+            // Required for ReviewItem to detect the author and show edit/delete
+            slug: review.user.slug,
             avatar: review.user.avatar,
         },
         created_at: review.created_at,
@@ -142,6 +144,7 @@ function ReviewItemWrapper({
         images: r.images,
         user: {
             name: r.user.name,
+            slug: r.user.slug,
             avatar: r.user.avatar,
         },
         created_at: r.created_at,

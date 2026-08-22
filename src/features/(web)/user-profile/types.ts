@@ -79,6 +79,7 @@ export interface UserReview {
     images: string[];
     user: {
         name: string;
+        slug?: string;
         email: string;
         avatar: string;
     };
