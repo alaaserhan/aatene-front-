@@ -43,6 +43,9 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
     const shouldAskForPrice = shouldShowAskForPrice(service.ask_for_price, service.price);
     const cityName = service.store?.city?.name || "فلسطين";
     const providerName = service.store?.name || "مقدم الخدمة";
+    // The rating in the provider row belongs to the store, not the service.
+    const storeReviewCount = Number(service.store?.review_count || 0);
+    const storeReviewRate = parseFloat(service.store?.review_rate || "0");
 
     const handleClick = () => {
         if (onClick) {
@@ -179,15 +182,15 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                             </div>
                             <div
                                 className={cn("flex items-center gap-1 text-xs", {
-                                hidden: !service.review_count,
+                                hidden: !storeReviewCount,
                                 })}
                             >
                                 <Star className="w-3 h-3 fill-[#FFC220] text-[#FFC220]" />
                                 <span className="font-medium text-[#FB923C] pt-1">
-                                    {parseFloat(service.review_rate || "0").toFixed(1)}
+                                    {storeReviewRate.toFixed(1)}
                                 </span>
                                 <span className="whitespace-nowrap pt-1 text-gray-400">
-                                    ({service.review_count || 0})
+                                    ({storeReviewCount})
                                 </span>
                             </div>
                         </div>

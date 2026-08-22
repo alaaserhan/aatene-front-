@@ -8,7 +8,6 @@ import { useUserProfile, useUserProfilePageData } from "../hooks";
 import { useParams, useRouter, notFound } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
 import { cn, isVideoFile } from "@/src/lib/utils";
-import { formatPrice } from "@/src/lib/format-price";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useFollowUserOrStore, useUnfollowUserOrStore, useCreateHighlight, useGetStories } from "@/src/features/(web)/settings/hooks";
 import { useQueryClient } from "@tanstack/react-query";
@@ -16,13 +15,14 @@ import { ShowStoryModal } from "@/src/features/(dashboard)/stories/components/Sh
 import { CreateHighlightModal } from "@/src/features/(dashboard)/stories/components/CreateHighlightModal";
 import { Story } from "@/src/features/(dashboard)/stories/api";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
+import ServiceCard from "@/src/features/(web)/services/components/ServiceCard";
+import type { Service } from "@/src/features/(web)/services/api";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { Button } from "@/src/components/ui/button";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
-import Link from "next/link";
 
 function UserHeader({ user, isOwnProfile, followers, stories }: {
     user: UserProfile;
@@ -445,33 +445,6 @@ function ProfileTabs({ user }: { user: UserProfile }) {
 
 type ActiveFavoritesTab = "all" | "products" | "services" | "stores";
 
-function ServiceCardMini({ service }: { service: any }) {
-    const imageUrl = service.image_url || service.images_urls?.[0] || "/placeholder.png";
-    return (
-        <Link
-            href={`/services/${service.slug}`}
-            className="group flex flex-col rounded-xl overflow-hidden border border-gray-100 bg-white hover:shadow-md transition-shadow"
-        >
-            <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden">
-                <Image
-                    src={imageUrl}
-                    alt={service.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/placeholder.png"; }}
-                />
-            </div>
-            <div className="p-3 flex flex-col gap-1">
-                <p className="font-medium text-sm line-clamp-2 text-gray-800">{service.title}</p>
-                {service.store?.name && (
-                    <p className="text-xs text-gray-400 truncate">{service.store.name}</p>
-                )}
-                <p className="text-blue-4 font-semibold text-sm mt-1">{formatPrice(service.price || 0)} ₪</p>
-            </div>
-        </Link>
-    );
-}
-
 const PROFILE_FAV_PAGE_SIZE = 12;
 
 function partitionProfilePageFavorites(rows: ProfilePageFavoriteRow[] | undefined) {
@@ -703,7 +676,7 @@ function ProductsSection({
                                             <h3 className="text-lg font-semibold mb-3">الخدمات</h3>
                                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                                                 {services.map((service) => (
-                                                    <ServiceCardMini key={String(service.id)} service={service} />
+                                                    <ServiceCard key={String(service.id)} service={service as unknown as Service} />
                                                 ))}
                                             </div>
                                         </section>
@@ -767,7 +740,7 @@ function ProductsSection({
                                     ) : (
                                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                                             {services.map((service) => (
-                                                <ServiceCardMini key={String(service.id)} service={service} />
+                                                <ServiceCard key={String(service.id)} service={service as unknown as Service} />
                                             ))}
                                         </div>
                                     )}
