@@ -101,7 +101,7 @@ export function AddProductStep4({
 
     const defaultBreadcrumbItems = [
         { label: "المنتجات", href: "/admin/products" },
-        { label: "انشاء منتج جديد" },
+        { label: "إنشاء منتج جديد" },
     ];
 
     const handleSelectProducts = (products: RelatedProduct[]) => {

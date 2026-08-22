@@ -58,7 +58,7 @@ export function AddProductStep3({
 
     const defaultBreadcrumbItems = [
         { label: "المنتجات", href: "/admin/products" },
-        { label: "انشاء منتج جديد" },
+        { label: "إنشاء منتج جديد" },
     ];
 
     return (

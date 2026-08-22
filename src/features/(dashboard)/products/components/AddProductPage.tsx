@@ -91,7 +91,7 @@ export function AddProductPage() {
         label: "المنتجات",
         href: storeIdFromUrl ? `/admin/productProviders/${storeIdFromUrl}` : "/admin/products",
       },
-      { label: "انشاء منتج جديد" },
+      { label: "إنشاء منتج جديد" },
     ],
     [storeIdFromUrl]
   );
@@ -247,7 +247,7 @@ export function AddProductPage() {
     // a short form, while it still flows after the content on a long one.
     <div className="flex min-h-[calc(100vh-5rem)] flex-col">
       <div className="container mx-auto flex-1 py-4 px-4 mb-6">
-        <Breadcrumb items={breadcrumbItems} className="mb-4" />
+        <Breadcrumb items={breadcrumbItems} className="my-4" />
 
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-12 lg:col-span-9 space-y-4">

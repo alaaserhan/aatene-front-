@@ -56,7 +56,7 @@ export function AddProductStep1({
 
   const defaultBreadcrumbItems = [
     { label: "المنتجات", href: "/dashboard/products" },
-    { label: "انشاء منتج جديد" },
+    { label: "إنشاء منتج جديد" },
   ];
 
   // Sync with initialData if it changes (e.g. from AI)
