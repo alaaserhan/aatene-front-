@@ -269,8 +269,8 @@ export default function EmailTab() {
                                             : undefined
                                 }
                                 className={cn(
-                                    "bg-[#3D5E83] text-white px-16 py-2.5 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer hover:bg-[#324d6d]",
-                                    !canSave && "opacity-60 cursor-not-allowed hover:bg-[#3D5E83] active:scale-100"
+                                    "bg-c2-primary hover:bg-c2-navy-600 text-white px-16 py-2.5 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer",
+                                    !canSave && "opacity-60 cursor-not-allowed hover:bg-c2-primary active:scale-100"
                                 )}
                             >
                                 {sending === "change" ? "جاري الحفظ..." : "حفظ"}

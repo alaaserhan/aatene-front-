@@ -727,7 +727,7 @@ function WorkingStatusModal({
                             config.imageClass
                         )}
                     />
-                    <h3 className={cn("mt-3 text-[28px] sm:text-[30px] leading-tight font-bold", config.titleClass)}>
+                    <h3 className={cn("mt-5 text-[28px] leading-tight font-bold", config.titleClass)}>
                         {config.title}
                     </h3>
                     {/*

@@ -213,9 +213,9 @@ export function SignupForm() {
             لديك حساب بالفعل؟{" "}
             <Link
               href={`/login${authQuery}`}
-              className="font-semibold text-[#3d5e83] underline-offset-2 hover:underline"
+              className="font-semibold text-[#3D5E83] underline-offset-2 hover:underline"
             >
-              تسجيل الدخول
+              تسجيل الدخول .
             </Link>
           </p>
         </div>
@@ -416,7 +416,7 @@ export function SignupForm() {
             {/* Submit */}
             <Button
               type="submit"
-              className="h-11 w-full rounded-full bg-[#3d5e83] text-sm font-semibold text-white transition-colors hover:bg-[#2c4461]"
+              className="h-11 w-full rounded-full bg-c2-primary text-sm font-semibold text-white transition-colors hover:bg-[#2c4461]"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

@@ -18,7 +18,7 @@ const personalInfoSchema = z.object({
     date_of_birth: z.string().min(1, "تاريخ الميلاد مطلوب"),
     gender: z.string().min(1, "الجنس مطلوب"),
     city_id: z.number().min(1, "المدينة مطلوبة"),
-    bio: z.string().optional(),
+    bio: z.string().max(1000, "النبذة الشخصية يجب ألا تتجاوز 1000 حرف").optional(),
 });
 
 type FormErrors = Partial<Record<keyof typeof personalInfoSchema.shape, string>>;
@@ -206,7 +206,7 @@ export default function PersonalInfoTab() {
                         {/* Split input rows as requested */}
                         <div className="flex flex-col gap-3">
                             <label className="text-sm font-medium text-[#4B5563] text-right">
-                                الاسم الاول
+                                الاسم الاول <span className="text-red-500">*</span>
                             </label>
                             <div className="flex flex-col gap-1">
                                 <input
@@ -227,7 +227,7 @@ export default function PersonalInfoTab() {
                         </div>
                         <div className="flex flex-col gap-3">
                             <label className="text-sm font-medium text-[#4B5563] text-right">
-                                الاسم الاخير
+                                الاسم الاخير <span className="text-red-500">*</span>
                             </label>
                             <div className="flex flex-col gap-1">
                                 <input
@@ -387,15 +387,19 @@ export default function PersonalInfoTab() {
                                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                                     placeholder="هنا مثال لوصف...."
                                     rows={6}
+                                    maxLength={1000}
                                     className="w-full px-6 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:border-gray-400 text-right resize-none placeholder:text-gray-300 transition-colors"
                                 />
                             </div>
-                            <div className="flex justify-between items-center text-xs text-gray-400 ">
-                                <div className="flex items-center gap-1.5 ">
-                                    <div className="w-4 h-4 rounded-full border border-blue-3 flex items-center justify-center text-blue-3 text-[11px] font-medium">i</div>
-                                    <span className="text-right">لا بأس إن تجاوز النص 300 كلمة، يسمح بمرونة في عدد الكلمات حسب الحاجة.</span>
-                                </div>
-                                <span className="order-1">{bioLength}/50</span>
+                            <div className="flex justify-between items-center text-xs px-4">
+                                {errors.bio ? (
+                                    <p className="text-red-500">{errors.bio}</p>
+                                ) : (
+                                    <span />
+                                )}
+                                <span className={bioLength > 1000 ? "text-red-500" : "text-gray-400"}>
+                                    {bioLength}/1000
+                                </span>
                             </div>
                         </div>
 
@@ -405,7 +409,7 @@ export default function PersonalInfoTab() {
                                 type="submit"
                                 disabled={isUpdating}
                                 className={cn(
-                                    "bg-blue-3 text-white px-14 py-2.5 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer",
+                                    "bg-c2-primary hover:bg-c2-navy-600 text-white px-14 py-2.5 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer",
                                     isUpdating && "opacity-60 cursor-not-allowed"
                                 )}
                             >

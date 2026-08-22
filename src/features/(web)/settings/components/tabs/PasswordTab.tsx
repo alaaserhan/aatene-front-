@@ -128,7 +128,7 @@ export default function PasswordTab() {
                             type="submit"
                             disabled={isUpdating}
                             className={cn(
-                                "bg-[#3D5E83] text-white px-16 py-2.5 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer hover:bg-[#324d6d]",
+                                "bg-c2-primary hover:bg-c2-navy-600 text-white px-16 py-2.5 rounded-full font-medium transition-all shadow-sm active:scale-95 cursor-pointer",
                                 isUpdating && "opacity-60 cursor-not-allowed"
                             )}
                         >

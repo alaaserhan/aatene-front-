@@ -305,7 +305,7 @@ export function ForgotPasswordForm() {
 
                     <Button
                         type="submit"
-                        className="w-full bg-[#3D5E83] hover:bg-[#2c4460] h-[50px] text-base font-medium rounded-full text-white shadow-none transition-colors"
+                        className="w-full bg-c2-primary hover:bg-[#2c4460] h-[50px] text-base font-medium rounded-full text-white shadow-none transition-colors"
                         disabled={isSending}
                     >
                         {isSending ? <Loader2 className="animate-spin" /> : "أرسل لي الكود"}
@@ -317,7 +317,7 @@ export function ForgotPasswordForm() {
                         </span>
                         <button
                             type="button"
-                            className="px-1 cursor-pointer text-[#3D5E83] text-sm font-medium hover:underline"
+                            className="px-1 cursor-pointer text-c2-primary text-sm font-medium hover:underline"
                             onClick={() => router.push(`/${lang}/signup`)}
                         >
                              التسجيل
@@ -385,7 +385,7 @@ export function ForgotPasswordForm() {
 
                     <Button
                         type="submit"
-                        className="w-full bg-[#3D5E83] hover:bg-[#2c4460] h-[50px] text-base font-medium rounded-full text-white shadow-none transition-colors"
+                        className="w-full bg-c2-primary hover:bg-[#2c4460] h-[50px] text-base font-medium rounded-full text-white shadow-none transition-colors"
                         disabled={isVerifying}
                     >
                         {isVerifying ? <Loader2 className="animate-spin" /> : "استمرار"}
@@ -490,7 +490,7 @@ export function ForgotPasswordForm() {
 
                     <Button
                         type="submit"
-                        className="w-full bg-[#3D5E83] hover:bg-[#2c4460] h-[52px] text-base font-medium rounded-full text-white shadow-none transition-colors"
+                        className="w-full bg-c2-primary hover:bg-[#2c4460] h-[52px] text-base font-medium rounded-full text-white shadow-none transition-colors"
                         disabled={isResetting}
                     >
                         {isResetting ? <Loader2 className="animate-spin" /> : "إنشاء كلمة المرور"}

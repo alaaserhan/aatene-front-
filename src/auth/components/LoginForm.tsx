@@ -169,13 +169,13 @@ export function LoginForm() {
           <h1 className="text-[28px] font-bold leading-tight text-[#1c1c1c] lg:text-[32px]">
             تسجيل الدخول
           </h1>
-          <p className="text-sm text-[#6b7280]">
+          <p className="text-sm text-[#949494]">
             ليس لديك حساب ،{" "}
             <Link
               href={`/signup${authQuery}`}
-              className="font-medium text-[#3d5e83] underline-offset-2 hover:underline"
+              className="font-medium text-c2-primary underline-offset-2 hover:underline"
             >
-              إنشاء حساب جديد
+              إنشاء حساب جديد .
             </Link>
           </p>
         </div>
@@ -243,7 +243,7 @@ export function LoginForm() {
             <div className="flex flex-col items-center gap-4">
               <Button
                 type="submit"
-                className="h-12 w-full rounded-full bg-[#3d5e83] text-base font-semibold text-white hover:bg-[#2c4461]"
+                className="h-12 w-full rounded-full bg-c2-primary text-base font-semibold text-white hover:bg-[#2c4461]"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -257,7 +257,7 @@ export function LoginForm() {
               </Button>
               <Link
                 href={`/forgot-password${authQuery}`}
-                className="text-sm text-[#6b7280] hover:text-[#3d5e83] hover:underline"
+                className="text-sm text-[#6b7280] hover:text-c2-primbg-c2-primary hover:underline"
               >
                 نسيت كلمة السر
               </Link>
