@@ -78,6 +78,8 @@ api.interceptors.response.use(
       // Only sign-out when we HAD a session and the server invalidated it.
       if (token && !window.location.pathname.includes("/login")) {
         const lang = Cookies.get(LANG_COOKIE) || "ar";
+        // No explicit target: loginUrlWithAuthRequired captures the current
+        // page so the user comes back here after re-authenticating.
         forceSignOut(loginUrlWithAuthRequired(lang));
       }
       return Promise.reject(error);

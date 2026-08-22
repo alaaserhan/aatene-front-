@@ -92,10 +92,6 @@ export default function HomePage({
       {/* ── Below the fold: lazy loaded with smooth fade-in ── */}
 
       <LazySection fallback={<ProductsCarouselSkeleton />}>
-        <HomeTodayOffers />
-      </LazySection>
-
-      <LazySection fallback={<ProductsCarouselSkeleton />}>
         <HomeNewProducts />
       </LazySection>
 
@@ -123,6 +119,10 @@ export default function HomePage({
       {/* <LazySection fallback={<ProductsCarouselSkeleton />}>
         <HomeProductsYouMayLike />
       </LazySection> */}
+
+      <LazySection fallback={<ProductsCarouselSkeleton />}>
+        <HomeTodayOffers />
+      </LazySection>
 
       {sixthBannerData && <HomeSingleBanner banner={sixthBannerData} />}
 

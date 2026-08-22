@@ -29,6 +29,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { blogsKeys } from "../hooks";
 import { cn } from "@/src/lib/utils";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -112,7 +113,7 @@ function AuthorCard({ blog }: { blog: Blog }) {
             <div className="flex items-center gap-2 w-full">
                 <button
                     onClick={() => {
-                        if (!authUser) { router.push(`/${lang}/login`); return; }
+                        if (!authUser) { router.push(loginUrlWithAuthRequired(lang)); return; }
                         router.push(chatHref);
                     }}
                     className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer"

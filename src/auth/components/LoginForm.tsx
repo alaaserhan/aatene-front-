@@ -18,8 +18,9 @@ import { useLogin } from "../hooks";
 import { getFCMToken } from "@/src/lib/firebase";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { LOGIN_AUTH_REQUIRED_REASON } from "../links";
+import { LOGIN_AUTH_REQUIRED_REASON, authLinkQuery, readPostLoginRedirect } from "../links";
 import { BASE_URL } from "@/src/lib/config";
+import { useLanguage } from "@/src/hooks/use-language";
 
 const loginSchema = z.object({
   login: z.string().min(1, "البريد الإلكتروني أو الهاتف مطلوب"),
@@ -73,6 +74,7 @@ export function LoginForm() {
   const { mutate: loginMutation, isPending, isSuccess } = useLogin();
   const isSubmitting = isPending || isSuccess;
   const router = useRouter();
+  const lang = useLanguage();
   const queryClient = useQueryClient();
   // Initialize from the URL: if we landed here via the Google OAuth callback,
   // start in the loading state so we don't flash the form.
@@ -80,6 +82,12 @@ export function LoginForm() {
     if (typeof window === "undefined") return false;
     return new URLSearchParams(window.location.search).has("token");
   });
+  // Filled in on mount rather than during render so SSR and hydration agree.
+  const [authQuery, setAuthQuery] = useState("");
+
+  useEffect(() => {
+    setAuthQuery(authLinkQuery());
+  }, []);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -107,7 +115,7 @@ export function LoginForm() {
             return;
           }
           signIn({ token: tokenParam, user: data.user, queryClient });
-          router.replace("/");
+          router.replace(readPostLoginRedirect(lang));
         })
         .catch(() => {
           setIsGoogleLoading(false);
@@ -118,8 +126,11 @@ export function LoginForm() {
 
   const handleGoogleLogin = () => {
     setIsGoogleLoading(true);
-    const returnUrl = window.location.origin + window.location.pathname;
-    window.location.href = `${BASE_URL}/auth/google?return_url=${returnUrl}`;
+    // Keep ?redirect= on the return URL so the pending target survives the
+    // round-trip through Google and is still there when we land back here.
+    const returnUrl =
+      window.location.origin + window.location.pathname + authLinkQuery();
+    window.location.href = `${BASE_URL}/auth/google?return_url=${encodeURIComponent(returnUrl)}`;
   };
 
   const onSubmit = async (data: LoginFormData) => {
@@ -161,7 +172,7 @@ export function LoginForm() {
           <p className="text-sm text-[#6b7280]">
             ليس لديك حساب ،{" "}
             <Link
-              href="/signup"
+              href={`/signup${authQuery}`}
               className="font-medium text-[#3d5e83] underline-offset-2 hover:underline"
             >
               إنشاء حساب جديد
@@ -245,7 +256,7 @@ export function LoginForm() {
                 )}
               </Button>
               <Link
-                href="/forgot-password"
+                href={`/forgot-password${authQuery}`}
                 className="text-sm text-[#6b7280] hover:text-[#3d5e83] hover:underline"
               >
                 نسيت كلمة السر

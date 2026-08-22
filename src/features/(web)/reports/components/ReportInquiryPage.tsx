@@ -10,6 +10,7 @@ import ReportResponsesModal from "./ReportResponsesModal";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/src/auth";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 const statusMap: Record<string, { label: string; bg: string; border: string; text: string }> = {
     pending: { label: "جديدة", bg: "#e0eeff", border: "#c0d4f0", text: "#287cda" },
@@ -39,7 +40,7 @@ export default function ReportInquiryPage() {
 
     useEffect(() => {
         if (!isLoggedIn) {
-            router.replace(`/${lang}/login`);
+            router.replace(loginUrlWithAuthRequired(lang));
         }
     }, [isLoggedIn, router, lang]);
 

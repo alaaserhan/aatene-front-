@@ -30,6 +30,7 @@ import Link from "next/link";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { Button } from "@/src/components/ui/button";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -902,7 +903,7 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                 <Button
                     type="button"
                     onClick={() => {
-                        if (!user) { router.push(`/${lang}/login`); return; }
+                        if (!user) { router.push(loginUrlWithAuthRequired(lang)); return; }
                         router.push(`/${lang}/chat?type=user&id=${store.owner?.id || store.owner_id}`);
                     }}
                     className="rounded-full has-[>svg]:px-5 min-h-10"

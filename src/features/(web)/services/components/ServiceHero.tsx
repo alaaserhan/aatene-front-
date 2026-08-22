@@ -32,6 +32,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { Service, ServiceExtra } from "../api";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 const EXECUTE_TYPE_LABELS: Record<string, string> = {
   hour: "ساعة",
@@ -113,7 +114,7 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
 
   const requireAuth = () => {
     if (user) return true;
-    router.push(`/${lang}/login`);
+    router.push(loginUrlWithAuthRequired(lang));
     return false;
   };
 

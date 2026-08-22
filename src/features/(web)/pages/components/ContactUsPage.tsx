@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useUIStore } from "@/src/stores/ui-store";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useRouter, useParams } from "next/navigation";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 export default function ContactUsPage() {
     const { user } = useAuthStore();
@@ -14,7 +15,7 @@ export default function ContactUsPage() {
 
     const handleContactClick = () => {
         if (!user) {
-            router.push(`/${locale}/login`);
+            router.push(loginUrlWithAuthRequired(locale));
             return;
         }
         useUIStore.getState().setChatOpen(true);

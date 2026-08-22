@@ -90,5 +90,12 @@ export type {
 
 export {
   LOGIN_AUTH_REQUIRED_REASON,
+  LOGIN_REDIRECT_PARAM,
+  loginUrl,
   loginUrlWithAuthRequired,
+  sanitizeRedirectTarget,
+  currentRedirectTarget,
+  postLoginRedirect,
+  readPostLoginRedirect,
+  authLinkQuery,
 } from "./links";

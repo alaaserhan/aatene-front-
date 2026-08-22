@@ -27,6 +27,7 @@ import {
     useResetPassword,
 } from "../hooks";
 import { useLanguage } from "@/src/hooks/use-language";
+import { authLinkQuery } from "../links";
 
 // --- Schemas ---
 
@@ -511,14 +512,14 @@ export function ForgotPasswordForm() {
                 isOpen={isSuccessModalOpen}
                 onClose={() => {
                     setIsSuccessModalOpen(false);
-                    router.push(`/${lang}/login`);
+                    router.push(`/${lang}/login${authLinkQuery()}`);
                 }}
                 title="تم بنجاح"
                 message="تم تحديث كلمة المرور بنجاح"
                 buttonText="تسجيل الدخول"
                 onButtonClick={() => {
                     setIsSuccessModalOpen(false);
-                    router.push(`/${lang}/login`);
+                    router.push(`/${lang}/login${authLinkQuery()}`);
                 }}
             />
         </>

@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { ApiError } from "../types";
 import { useLanguage } from "@/src/hooks/use-language";
 import { BASE_URL } from "@/src/lib/config";
+import { authLinkQuery, readPostLoginRedirect } from "../links";
 
 const signupSchema = z
   .object({
@@ -105,6 +106,12 @@ export function SignupForm() {
     if (typeof window === "undefined") return false;
     return new URLSearchParams(window.location.search).has("token");
   });
+  // Filled in on mount rather than during render so SSR and hydration agree.
+  const [authQuery, setAuthQuery] = useState("");
+
+  useEffect(() => {
+    setAuthQuery(authLinkQuery());
+  }, []);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -119,7 +126,7 @@ export function SignupForm() {
             return;
           }
           signIn({ token: tokenParam, user: data.user, queryClient });
-          router.push(`/${lang}`);
+          router.push(readPostLoginRedirect(lang));
         })
         .catch(() => {
           setIsGoogleLoading(false);
@@ -130,8 +137,11 @@ export function SignupForm() {
 
   const handleGoogleLogin = () => {
     setIsGoogleLoading(true);
-    const returnUrl = window.location.origin + window.location.pathname;
-    window.location.href = `${BASE_URL}/auth/google?return_url=${returnUrl}`;
+    // Keep ?redirect= on the return URL so the pending target survives the
+    // round-trip through Google and is still there when we land back here.
+    const returnUrl =
+      window.location.origin + window.location.pathname + authLinkQuery();
+    window.location.href = `${BASE_URL}/auth/google?return_url=${encodeURIComponent(returnUrl)}`;
   };
 
   const onSubmit = (data: SignupFormData) => {
@@ -202,7 +212,7 @@ export function SignupForm() {
           <p className="text-sm text-[#6b7280]">
             لديك حساب بالفعل؟{" "}
             <Link
-              href="/login"
+              href={`/login${authQuery}`}
               className="font-semibold text-[#3d5e83] underline-offset-2 hover:underline"
             >
               تسجيل الدخول

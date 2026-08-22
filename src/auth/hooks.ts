@@ -14,6 +14,7 @@ import {
 import type { LoginCredentials, RegisterData } from "./types";
 import { useLanguage } from "@/src/hooks/use-language";
 import { signIn, signOut } from "./actions";
+import { authLinkQuery, readPostLoginRedirect } from "./links";
 
 /**
  * Stable per-device identifier sent with login/register. Persisted in
@@ -49,7 +50,7 @@ export const useLogin = () => {
       }),
     onSuccess: (data) => {
       signIn({ token: data.token, user: data.user, queryClient });
-      router.replace(`/${lang}/`);
+      router.replace(readPostLoginRedirect(lang));
     },
     // Errors are surfaced by the axios interceptor; per-form handlers can
     // override via the mutation's options.
@@ -78,7 +79,7 @@ export const useRegister = () => {
         localStorage.setItem("notifications_enabled", "false");
       }
 
-      router.replace(`/${lang}/`);
+      router.replace(readPostLoginRedirect(lang));
     },
   });
 };
@@ -125,7 +126,7 @@ export const useResetPassword = () => {
     mutationFn: resetPassword,
     onSuccess: (data) => {
       toast.success(data.message || "Password reset successfully!");
-      router.push(`/${lang}/login`);
+      router.push(`/${lang}/login${authLinkQuery()}`);
     },
   });
 };

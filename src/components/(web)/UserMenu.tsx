@@ -10,6 +10,7 @@ import Cookies from "js-cookie";
 import { useLanguage } from "@/src/hooks/use-language";
 import { useLogout } from "@/src/auth";
 import { STORE_SLUG_COOKIE } from "@/src/store-context";
+import { loginUrl } from "@/src/auth/links";
 
 interface UserMenuProps {
   isMobile?: boolean;
@@ -61,9 +62,12 @@ const UserMenu = ({ isMobile = false, onClose }: UserMenuProps) => {
   }, [isMobile]);
 
   if (!isLoggedIn) {
+    // `pathname` (not window.location) keeps the href identical on server and
+    // client, so signing in returns the user to the page they were browsing.
+    const loginHref = loginUrl(lang, { redirectTo: pathname });
     return (
       <Link
-        href={`/${lang}/login`}
+        href={loginHref}
         className={`group flex items-center gap-3 text-sm font-medium text-gray-700 hover:text-primary transition-all duration-200 ${isMobile
           ? "w-full p-4 border-2 border-dashed border-gray-200 rounded-xl hover:border-primary/30 hover:bg-primary/5"
           : "px-4 py-2 rounded-lg hover:bg-gray-50"

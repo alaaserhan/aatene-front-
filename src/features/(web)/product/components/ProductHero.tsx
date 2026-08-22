@@ -32,6 +32,7 @@ import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { Attribute, AttributeOption, Product, Store } from "../api";
 import { useAuthStore } from "@/src/stores/auth-store";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 const PRODUCT_CONDITION_LABELS: Record<string, string> = {
   new: "جديد",
@@ -150,7 +151,7 @@ export default function ProductHero({
 
   const requireAuth = () => {
     if (user) return true;
-    router.push(`/${lang}/login`);
+    router.push(loginUrlWithAuthRequired(lang));
     return false;
   };
 

@@ -16,6 +16,7 @@ import { getProductBySlug } from "@/src/features/(web)/product/api";
 import { toast } from "sonner";
 import { productAskForPriceButtonClassName } from "./productAskForPriceButton";
 import { HoverPlayVideo } from "@/src/components/ui/HoverPlayVideo";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 function normalizeStoreId(v: number | string | undefined | null): number | null {
     if (v === undefined || v === null || v === "") return null;
@@ -138,7 +139,7 @@ const ProductCard = memo(({
             return;
         }
         if (!user) {
-            router.push(`/${lang}/login`);
+            router.push(loginUrlWithAuthRequired(lang));
             return;
         }
         router.push(`/${lang}/chat?type=store&id=${sid}&productId=${id}&askPrice=1`);

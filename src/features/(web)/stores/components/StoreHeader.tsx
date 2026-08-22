@@ -36,6 +36,7 @@ import { ReportAbuseModal } from "@/src/features/(web)/reports/components/Report
 import { useAuthStore } from "@/src/stores/auth-store";
 import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 import { useLanguage } from "@/src/hooks/use-language";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 interface StoreHeaderProps {
     store: StoreProfile;
@@ -557,7 +558,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                     disabled={isChatLoading}
                                     onClick={() => {
                                         if (!user) {
-                                            router.push(`/${lang}/login`);
+                                            router.push(loginUrlWithAuthRequired(lang));
                                             return;
                                         }
                                         setIsChatLoading(true);

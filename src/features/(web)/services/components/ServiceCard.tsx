@@ -15,6 +15,7 @@ import { useAuthStore } from "@/src/stores/auth-store";
 import { toast } from "sonner";
 import { productAskForPriceButtonClassName } from "@/src/features/(web)/product/components/productAskForPriceButton";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
+import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 interface ServiceCardProps {
     service: Service;
@@ -74,7 +75,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
             return;
         }
         if (!user) {
-            router.push(`/${lang}/login`);
+            router.push(loginUrlWithAuthRequired(lang));
             return;
         }
         router.push(`/${lang}/chat?type=store&id=${sid}&serviceId=${service.id}&askPrice=1`);
