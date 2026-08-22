@@ -25,12 +25,11 @@ import { ReviewStatisticsDisplay } from "@/src/features/(web)/product/components
 import { ReviewStatistics, ProductInPageData } from "@/src/features/(web)/product/types";
 import { ReportAbuse } from "@/src/features/(web)/reports/components/ReportAbuse";
 import { Pagination } from "@/src/components/ui/Pagination";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
-import { useAuthStore } from "@/src/stores/auth-store";
 import { Button } from "@/src/components/ui/button";
-import { loginUrlWithAuthRequired } from "@/src/auth/links";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -855,10 +854,8 @@ function WorkingStatusModal({
 }
 
 function StoreOwnerCard({ store }: { store: StoreProfile }) {
-    const router = useRouter();
     const params = useParams();
     const lang = params?.locale || params?.lang || "ar";
-    const { user } = useAuthStore();
     const ownerName = store.owner
         ? (store.owner.first_name || "") + " " + (store.owner.last_name || "")
         : store.name;
@@ -900,17 +897,13 @@ function StoreOwnerCard({ store }: { store: StoreProfile }) {
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-2.5 w-full" dir="rtl">
-                <Button
-                    type="button"
-                    onClick={() => {
-                        if (!user) { router.push(loginUrlWithAuthRequired(lang)); return; }
-                        router.push(`/${lang}/chat?type=user&id=${store.owner?.id || store.owner_id}`);
-                    }}
+                <ChatNowButton
+                    target={{ type: "user", id: store.owner?.id || store.owner_id }}
+                    label={<span className="whitespace-nowrap">تواصل مع البائع</span>}
+                    icon={<MessageSquare size={15} className="shrink-0" strokeWidth={2} />}
+                    iconClassName="shrink-0 size-[15px]"
                     className="rounded-full has-[>svg]:px-5 min-h-10"
-                >
-                    <MessageSquare size={15} className="shrink-0" strokeWidth={2} />
-                    <span className="whitespace-nowrap">تواصل مع البائع</span>
-                </Button>
+                />
                 <div className="min-w-0">
                     <ReportAbuse type="store" id={store.id}>
                         <Button

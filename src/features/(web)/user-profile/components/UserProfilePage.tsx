@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { UserProfile, UserStory, UserFollower, UserProfilePageData, ProfilePageFavoriteRow } from "../types";
 import Image from "next/image";
-import { Star, Loader2, UserPlus, MessageSquare, Plus, Search, UserMinus, User as UserIcon, MoreHorizontal, Share2, Flag } from "lucide-react";
+import { Star, Loader2, UserPlus, Plus, Search, UserMinus, User as UserIcon, MoreHorizontal, Share2, Flag } from "lucide-react";
 import { useUserProfile, useUserProfilePageData } from "../hooks";
 import { useParams, useRouter, notFound } from "next/navigation";
 import UserReviews from "../reviews/UserReviews";
@@ -19,8 +19,7 @@ import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { ShareModal } from "@/src/components/ui/ShareModal";
-import { useLanguage } from "@/src/hooks/use-language";
-import { loginUrlWithAuthRequired } from "@/src/auth";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
 import Link from "next/link";
 
@@ -35,7 +34,6 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
     const [showShareModal, setShowShareModal] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showMoreMenu, setShowMoreMenu] = useState(false);
-    const { user: authUser } = useAuthStore();
 
     const mappedAvatarStories: Story[] = [...stories].reverse().map(s => ({
         id: s.id,
@@ -45,8 +43,6 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
         created_at: s.created_at,
     }));
     const router = useRouter();
-    const lang = useLanguage();
-    const [isChatLoading, setIsChatLoading] = useState(false);
     const queryClient = useQueryClient();
     const { mutate: follow, isPending: isFollowing } = useFollowUserOrStore();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUserOrStore();
@@ -214,26 +210,12 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                         </span>
                                     </button>
 
-                                    <button
-                                        disabled={isChatLoading}
-                                        onClick={() => {
-                                            if (!authUser) {
-                                                router.push(loginUrlWithAuthRequired(lang));
-                                                return;
-                                            }
-                                            setIsChatLoading(true);
-                                            router.push(`/${lang}/chat?type=user&id=${user.id}`);
-                                            setIsChatLoading(false);
-                                        }}
+                                    <ChatNowButton
+                                        unstyled
+                                        target={{ type: "user", id: user.id }}
+                                        iconClassName="h-4 w-4 shrink-0"
                                         className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1 rounded-full border border-[#456A8E] bg-white px-2 py-2 text-[11px] font-medium text-[#456A8E] transition-colors hover:bg-blue-50 max-md:min-w-0 md:h-auto md:min-h-0 md:min-w-[100px] md:flex-none md:gap-2 md:px-8 md:py-2 md:text-sm disabled:opacity-50"
-                                    >
-                                        {isChatLoading ? (
-                                            <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-                                        ) : (
-                                            <MessageSquare className="h-4 w-4 shrink-0" />
-                                        )}
-                                        <span className="shrink-0">دردش</span>
-                                    </button>
+                                    />
 
                                     <div className="relative shrink-0 self-center">
                                         <button

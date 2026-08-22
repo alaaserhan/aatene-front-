@@ -8,6 +8,7 @@ import { FollowEntity } from "../api";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import Link from "next/link";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 interface FollowersTableProps {
   data: FollowEntity[];
@@ -161,15 +162,15 @@ export function FollowersTable({
                 
 
                     {type === "followings" || (type === "followers" && item.is_following_back) ? (
-                      <Link href={`/admin/chat?type=${item.type}&id=${item.id}`}>
-                        <Button
-                          variant="outline"
-                          className="text-blue-3 w-28 shadow-none  rounded bg-blue-5 border-none gap-2 h-9 px-4 text-sm  font-medium"
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                          مراسلة
-                        </Button>
-                      </Link>
+                      <ChatNowButton
+                        variant="outline"
+                        target={{ type: item.type as "store" | "user", id: item.id }}
+                        basePath="/admin/chat"
+                        label="مراسلة"
+                        icon={<MessageCircle className="w-4 h-4" />}
+                        iconClassName="w-4 h-4"
+                        className="text-blue-3 w-28 shadow-none  rounded bg-blue-5 border-none gap-2 h-9 px-4 text-sm  font-medium"
+                      />
                     ) : (
                       <Button
                         onClick={() => onFollowBack(item)}

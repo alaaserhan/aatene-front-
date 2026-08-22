@@ -11,11 +11,10 @@ import { CompareCheckbox } from "@/src/features/(web)/compares/components/Compar
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { useRouter, useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useOpenChat } from "@/src/hooks/use-open-chat";
 import { toast } from "sonner";
 import { productAskForPriceButtonClassName } from "@/src/features/(web)/product/components/productAskForPriceButton";
 import { VideoOrImage } from "@/src/components/ui/VideoOrImage";
-import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 interface ServiceCardProps {
     service: Service;
@@ -34,8 +33,8 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
     const router = useRouter();
     const params = useParams();
     const lang = (params?.locale as string) || (params?.lang as string) || "ar";
-    const { user } = useAuthStore();
     const qc = useQueryClient();
+    const { openChat, isOpening: isOpeningChat } = useOpenChat();
     const [askPriceLoading, setAskPriceLoading] = useState(false);
     const [imgError, setImgError] = useState(false);
     const [logoError, setLogoError] = useState(false);
@@ -74,11 +73,7 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
             router.push(`/${lang}/services/${service.slug}`);
             return;
         }
-        if (!user) {
-            router.push(loginUrlWithAuthRequired(lang));
-            return;
-        }
-        router.push(`/${lang}/chat?type=store&id=${sid}&serviceId=${service.id}&askPrice=1`);
+        openChat({ type: "store", id: sid, serviceId: service.id, askPrice: true });
     };
 
     const serviceImage = sanitizeMediaUrl(
@@ -140,15 +135,15 @@ export default function ServiceCard({ service, className, onClick, onFavoriteCli
                     {shouldAskForPrice ? (
                         <button
                             type="button"
-                            disabled={askPriceLoading}
+                            disabled={askPriceLoading || isOpeningChat}
                             className={cn(
                                 productAskForPriceButtonClassName,
                                 "w-full max-w-full sm:w-auto",
-                                askPriceLoading && "opacity-75 cursor-wait pointer-events-none"
+                                (askPriceLoading || isOpeningChat) && "opacity-75 cursor-wait pointer-events-none"
                             )}
                             onClick={handleAskForPriceClick}
                         >
-                            {askPriceLoading ? "جاري الفتح…" : "اطلب السعر"}
+                            {askPriceLoading || isOpeningChat ? "جاري الفتح…" : "اطلب السعر"}
                         </button>
                     ) : (
                         <p className="flex font-medium items-baseline gap-1 h-9">

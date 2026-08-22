@@ -30,7 +30,7 @@ import { Switch } from "@/src/components/ui/switch";
 import { cn } from "@/src/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import Cookies from "js-cookie"; // ✅ للتحقق من الصلاحيات
-import Link from "next/link";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 interface ServiceDetailsPageProps {
     serviceId: number;
@@ -556,13 +556,16 @@ export function ServiceDetailsPage({ serviceId, storeId }: ServiceDetailsPagePro
                                             <Phone className="size-5 text-white" />
                                         </Button>
                                     )}
-                                    <Link href={`${dashboardBase}/chat?type=store&id=${store?.id}`}>
-                                        {/* TODO: no need for the nested button */}
-                                        <Button variant="outline" className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-13 rounded-md flex items-center justify-center gap-2 text-base shadow-sm">
-                                            <span>دردشة</span>
-                                            <Send className="size-5" />
-                                        </Button>
-                                    </Link>
+                                    <ChatNowButton
+                                        variant="outline"
+                                        target={{ type: "store", id: store?.id }}
+                                        basePath={`${dashboardBase}/chat`}
+                                        label="دردشة"
+                                        icon={<Send className="size-5" />}
+                                        iconPosition="end"
+                                        iconClassName="size-5"
+                                        className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-13 rounded-md flex items-center justify-center gap-2 text-base shadow-sm"
+                                    />
                                 </div>
 
                             </div>

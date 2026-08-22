@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { StoreProfile, WhoFavoritedUser } from "../api";
 import { cn } from "@/src/lib/utils";
 import {
@@ -33,10 +33,9 @@ import { useStoreWhoFavorited } from "../hooks";
 import { Button } from "@/src/components/ui/button";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
-import { useAuthStore } from "@/src/stores/auth-store";
 import { isStoreBannerVideoUrl } from "@/src/features/(web)/stores/utils/storeBannerMedia";
 import { useLanguage } from "@/src/hooks/use-language";
-import { loginUrlWithAuthRequired } from "@/src/auth/links";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 interface StoreHeaderProps {
     store: StoreProfile;
@@ -268,12 +267,8 @@ function WhoFavoritedSection({
 
 export default function StoreHeader({ store, followers, stories = [], isOwnStore = false }: StoreHeaderProps) {
     const router = useRouter();
-    const params = useParams();
-    const lang = params?.locale || params?.lang || "ar";
-    const { user } = useAuthStore();
     const queryClient = useQueryClient();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [isChatLoading, setIsChatLoading] = useState(false);
     const [showWhoFavorited, setShowWhoFavorited] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
@@ -552,28 +547,13 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                     </span>
                                 </Button>
 
-                                <Button
-                                    type="button"
+                                <ChatNowButton
                                     variant="ghost"
-                                    disabled={isChatLoading}
-                                    onClick={() => {
-                                        if (!user) {
-                                            router.push(loginUrlWithAuthRequired(lang));
-                                            return;
-                                        }
-                                        setIsChatLoading(true);
-                                        router.push(`/${lang}/chat?type=store&id=${store.id}`);
-                                        setIsChatLoading(false);
-                                    }}
+                                    target={{ type: "store", id: store.id }}
+                                    label="الدردشة"
+                                    icon={<MessageCircle className="w-5 h-5 shrink-0" strokeWidth={2} />}
                                     className="w-full h-12 px-4! rounded-full text-sm border border-c2-primary text-c2-primary hover:bg-blue-50 hover:text-c2-primary lg:w-auto lg:h-10 lg:px-6"
-                                >
-                                    {isChatLoading ? (
-                                        <Loader2 className="w-5 h-5 animate-spin shrink-0" />
-                                    ) : (
-                                        <MessageCircle className="w-5 h-5 shrink-0" strokeWidth={2} />
-                                    )}
-                                    <span>الدردشة</span>
-                                </Button>
+                                />
 
                                 <div className="flex items-center justify-center gap-2 w-full lg:w-auto lg:justify-start lg:shrink-0">
                                     <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0">

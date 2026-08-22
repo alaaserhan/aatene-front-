@@ -9,14 +9,13 @@ import { formatPrice } from "@/src/lib/format-price";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { CompareCheckbox } from "@/src/features/(web)/compares/components/CompareCheckbox";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAuthStore } from "@/src/stores/auth-store";
+import { useOpenChat } from "@/src/hooks/use-open-chat";
 import { getProductBySlug } from "@/src/features/(web)/product/api";
 import { toast } from "sonner";
 import { productAskForPriceButtonClassName } from "./productAskForPriceButton";
 import { HoverPlayVideo } from "@/src/components/ui/HoverPlayVideo";
-import { loginUrlWithAuthRequired } from "@/src/auth/links";
 
 function normalizeStoreId(v: number | string | undefined | null): number | null {
     if (v === undefined || v === null || v === "") return null;
@@ -109,10 +108,8 @@ const ProductCard = memo(({
     const rating = typeof reviewRate === 'number' ? reviewRate : parseFloat(reviewRate || "0");
     const count = typeof reviewCount === 'number' ? reviewCount : parseInt(String(reviewCount || "0"), 10);
     const router = useRouter();
-    const params = useParams();
-    const lang = (params?.locale as string) || (params?.lang as string) || "ar";
-    const { user } = useAuthStore();
     const qc = useQueryClient();
+    const { openChat, isOpening: isOpeningChat } = useOpenChat();
     const [localIsFavorite, setLocalIsFavorite] = useState(isFavorite);
     const [askPriceLoading, setAskPriceLoading] = useState(false);
 
@@ -138,11 +135,7 @@ const ProductCard = memo(({
             else toast.error("لا يمكن فتح المحادثة لهذا المنتج.");
             return;
         }
-        if (!user) {
-            router.push(loginUrlWithAuthRequired(lang));
-            return;
-        }
-        router.push(`/${lang}/chat?type=store&id=${sid}&productId=${id}&askPrice=1`);
+        openChat({ type: "store", id: sid, productId: id, askPrice: true });
     };
 
     return (
@@ -221,15 +214,15 @@ const ProductCard = memo(({
                     {shouldAskForPrice ? (
                         <button
                             type="button"
-                            disabled={askPriceLoading}
+                            disabled={askPriceLoading || isOpeningChat}
                             className={cn(
                                 productAskForPriceButtonClassName,
                                 "w-full text-xs py-1.5",
-                                askPriceLoading && "opacity-75 cursor-wait pointer-events-none"
+                                (askPriceLoading || isOpeningChat) && "opacity-75 cursor-wait pointer-events-none"
                             )}
                             onClick={handleAskForPriceClick}
                         >
-                            {askPriceLoading ? "جاري الفتح…" : "اطلب السعر"}
+                            {askPriceLoading || isOpeningChat ? "جاري الفتح…" : "اطلب السعر"}
                         </button>
                     ) : (
                         <div className="flex items-baseline gap-1.5">

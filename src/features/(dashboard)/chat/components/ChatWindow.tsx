@@ -117,6 +117,7 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messageIdCounter = useRef(0);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const messageInputRef = useRef<HTMLInputElement>(null);
 
     const serverMessages = useMemo(() => (messagesData?.messages || []).slice().reverse(), [messagesData]);
 
@@ -145,6 +146,14 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
         setIsDeleted(false);
         messageIdCounter.current = 0;
     }, [conversation.id]);
+
+    /**
+     * Focus the composer as soon as a conversation opens so the user can type
+     * straight away. `preventScroll` keeps the message list where it is.
+     */
+    useEffect(() => {
+        messageInputRef.current?.focus({ preventScroll: true });
+    }, [conversation.id, conversation.can_chat]);
 
     useEffect(() => {
         if (scrollAreaRef.current) {
@@ -719,6 +728,8 @@ export function ChatWindow({ conversation, onClose, context = "web" }: ChatWindo
 
                         <div className="flex-1 flex items-center bg-gray-50 rounded-full border border-gray-200 px-4">
                             <input
+                                ref={messageInputRef}
+                                autoFocus
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 onKeyDown={handleKeyDown}

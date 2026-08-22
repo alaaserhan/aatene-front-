@@ -1,5 +1,17 @@
 # Project notes for Claude
 
+## Comments are English — always
+
+Never write a code comment in Arabic. Every `//`, `/* */`, JSDoc block and JSX
+`{/* */}` comment is English, and so is every developer-facing message (`throw new
+Error(...)`, `console.*`). Arabic belongs only in user-facing strings — labels,
+placeholders, toasts, copy.
+
+This holds **even when the file you are editing is already full of Arabic
+comments**. Many older files are; matching their style is the mistake, not the
+fix. Leave the existing Arabic comments alone unless asked, but everything you
+add is English.
+
 ## Colors / design tokens
 
 All colors live in [src/app/globals.css](src/app/globals.css) as CSS custom properties, mirrored into Tailwind's `@theme inline` block so both `var(--token)` and Tailwind utilities (`bg-c2-navy-900`, `text-c2-danger`, ...) work.

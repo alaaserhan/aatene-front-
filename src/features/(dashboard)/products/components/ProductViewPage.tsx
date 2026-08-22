@@ -26,6 +26,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useFollowUser, useUnfollowUser } from "@/src/features/(dashboard)/followings/hooks";
 import { ConfirmDeleteModal } from "@/src/components/(dashboard)/ConfirmDeleteModal";
 import { PreviewStatusAlert } from "@/src/components/(dashboard)/PreviewStatusAlert";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 export default function ProductViewPage() {
     const params = useParams();
@@ -660,10 +661,16 @@ export default function ProductViewPage() {
                                         <Phone className="w-4 h-4 text-white" />
                                         <span dir="ltr">{store?.phone?.replace(/^\+?(\d{3}).*/, "+$1 *** *** ***") || "+972 *** *** ***"}</span>
                                     </Button>
-                                    <Button variant="outline" className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm">
-                                        <span>دردشة</span>
-                                        <Send className="w-4 h-4" />
-                                    </Button>
+                                    <ChatNowButton
+                                        variant="outline"
+                                        target={{ type: "store", id: store?.id }}
+                                        basePath="/admin/chat"
+                                        label="دردشة"
+                                        icon={<Send className="w-4 h-4" />}
+                                        iconPosition="end"
+                                        iconClassName="w-4 h-4"
+                                        className="w-full border-[#C9D4DF] text-gray-700 hover:bg-gray-50 bg-white font-bold h-10 rounded-md flex items-center justify-center gap-2 text-xs shadow-sm"
+                                    />
                                 </div>
                             </div>
                         </div>

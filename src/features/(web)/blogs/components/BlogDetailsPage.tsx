@@ -7,7 +7,7 @@ import { ReviewItem, ReviewsSection, type ReviewFormRef, type ReviewSubmitPayloa
 import { getRelativeTimeArabic } from "@/src/lib/date-helper";
 import Link from "next/link";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import {
     Star,
@@ -28,8 +28,7 @@ import { useAddToFavorites, useRemoveFromFavorites } from "@/src/features/(web)/
 import { useQueryClient } from "@tanstack/react-query";
 import { blogsKeys } from "../hooks";
 import { cn } from "@/src/lib/utils";
-import { useAuthStore } from "@/src/stores/auth-store";
-import { loginUrlWithAuthRequired } from "@/src/auth/links";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 
 const TiktokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -78,13 +77,6 @@ function AuthorCard({ blog }: { blog: Blog }) {
     const avatarUrl = isStore ? blog.store?.logo_url : blog.user?.avatar_url;
     const description = isStore ? blog.store?.description : blog.user?.bio;
 
-    const router = useRouter();
-    const params = useParams();
-    const lang = params?.locale || params?.lang || "ar";
-    const { user: authUser } = useAuthStore();
-
-    const chatHref = `/${lang}/chat?type=${isStore ? "store" : "user"}&id=${isStore ? blog.store?.id : blog.user?.id}`;
-
     return (
         <div className="bg-white border border-[#e0dfdc] rounded-xl p-6 flex flex-col items-center gap-4">
             <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-gray-100 flex items-center justify-center bg-gray-50">
@@ -111,16 +103,17 @@ function AuthorCard({ blog }: { blog: Blog }) {
                 {description?.slice(0, 150) || "لا يوجد وصف"}
             </p>
             <div className="flex items-center gap-2 w-full">
-                <button
-                    onClick={() => {
-                        if (!authUser) { router.push(loginUrlWithAuthRequired(lang)); return; }
-                        router.push(chatHref);
+                <ChatNowButton
+                    unstyled
+                    target={{
+                        type: isStore ? "store" : "user",
+                        id: isStore ? blog.store?.id : blog.user?.id,
                     }}
-                    className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer"
-                >
-                    <MessageSquare size={13} />
-                    تواصل معي
-                </button>
+                    label="تواصل معي"
+                    icon={<MessageSquare size={13} />}
+                    iconClassName="size-[13px] shrink-0"
+                    className="flex-1 flex items-center justify-center gap-1 bg-linear-to-r from-[#5b89ba] to-[#3a5c7f] border border-[#5e8cbe] text-white rounded-full h-[25px] text-[11px] font-medium whitespace-nowrap cursor-pointer disabled:opacity-50"
+                />
                 {blog.store ? (
                     <ReportAbuse type="store" id={blog.store.id}>
                         <button className="flex cursor-pointer items-center justify-center gap-1 border border-[#b75959] text-[#b75959] rounded-full px-4 h-[25px] text-[11px] font-medium whitespace-nowrap">

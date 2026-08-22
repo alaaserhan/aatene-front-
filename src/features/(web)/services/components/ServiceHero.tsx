@@ -2,7 +2,6 @@
 
 import StoreInfoCard from "@/src/components/shared/StoreInfoCard";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
-import { Button } from "@/src/components/ui/button";
 import { Checkbox } from "@/src/components/ui/checkbox";
 import { Price } from "@/src/components/ui/Price";
 import { RatingStars } from "@/src/components/ui/RatingStars";
@@ -15,7 +14,6 @@ import {
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
 import { shouldShowAskForPrice } from "@/src/lib/normalizeAskForPrice";
 import { cn, isVideoFile, sanitizeMediaUrl } from "@/src/lib/utils";
-import { useAuthStore } from "@/src/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ChevronLeft,
@@ -28,11 +26,11 @@ import {
   Send,
   Share2,
 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ReportAbuseModal } from "../../reports/components/ReportAbuseModal";
 import { Service, ServiceExtra } from "../api";
-import { loginUrlWithAuthRequired } from "@/src/auth/links";
+import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
+import type { ChatTarget } from "@/src/lib/chat-links";
 
 const EXECUTE_TYPE_LABELS: Record<string, string> = {
   hour: "ساعة",
@@ -58,10 +56,6 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isInCompare, setIsInCompare] = useState(service.is_compare);
 
-  const router = useRouter();
-  const params = useParams();
-  const lang = params?.locale || params?.lang || "ar";
-  const { user } = useAuthStore();
   const qc = useQueryClient();
   const { mutate: addToCompare } = useAddServiceToCompare();
   const { mutate: removeFromCompare } = useRemoveServiceFromCompare();
@@ -112,24 +106,12 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
     qc.invalidateQueries({ queryKey: ["service"] });
   };
 
-  const requireAuth = () => {
-    if (user) return true;
-    router.push(loginUrlWithAuthRequired(lang));
-    return false;
-  };
-
-  const goToChat = (askPrice = false) => {
-    if (!requireAuth()) return;
-    const storeId = service.store?.id;
-    if (!storeId) return;
-    const query = new URLSearchParams({
-      type: "store",
-      id: String(storeId),
-      serviceId: String(service.id),
-      ...(askPrice ? { askPrice: "1" } : {}),
-    });
-    router.push(`/${lang}/chat?${query.toString()}`);
-  };
+  const chatTarget = (askPrice = false): ChatTarget => ({
+    type: "store",
+    id: service.store?.id,
+    serviceId: service.id,
+    askPrice,
+  });
 
   const showPrev = () =>
     setSelectedIndex(activeIndex > 0 ? activeIndex - 1 : allMedia.length - 1);
@@ -219,9 +201,13 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
           <div className="white-card mb-6">
             <div className="mb-4">
               {shouldAskForPrice ? (
-                <Button size="md" className="text-base" onClick={() => goToChat(true)}>
-                  اطلب السعر
-                </Button>
+                <ChatNowButton
+                  size="md"
+                  className="text-base"
+                  target={chatTarget(true)}
+                  label="اطلب السعر"
+                  icon={null}
+                />
               ) : (
                 <Price value={totalPrice} className="text-primary" />
               )}
@@ -294,14 +280,14 @@ export default function ServiceHero({ service }: ServiceHeroProps) {
               </a>
             )}
 
-            <button
-              type="button"
-              onClick={() => goToChat()}
-              className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-11 cursor-pointer rounded-full font-medium hover:bg-gray-50 transition-colors"
-            >
-              دردش
-              <Send className="w-5 h-5" aria-hidden="true" />
-            </button>
+            <ChatNowButton
+              unstyled
+              target={chatTarget()}
+              icon={<Send className="w-5 h-5" aria-hidden="true" />}
+              iconPosition="end"
+              iconClassName="w-5 h-5"
+              className="flex items-center justify-center gap-2 bg-white border border-blue-3 text-blue-3 h-11 cursor-pointer rounded-full font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+            />
 
             <button
               type="button"
