@@ -65,7 +65,7 @@ const CARD_VARIANTS = {
         video: "absolute inset-0 rounded-[14px]",
         videoInner: "group-hover:scale-101 transition-transform duration-300",
         image: "object-cover object-center group-hover:scale-101 transition-transform duration-300 rounded-[14px]",
-        content: "flex flex-col px-3 py-3 text-right gap-1",
+        content: "flex flex-col px-0 py-3 text-right gap-1",
         title: "font-bold text-base text-c2-navy-900 leading-snug line-clamp-2 group-hover:text-blue-3 transition-colors",
     },
 } as const;
