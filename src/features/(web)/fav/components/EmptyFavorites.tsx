@@ -3,7 +3,7 @@
 import Image from "next/image";
 
 /** يطابق التبويب في صفحة المفضلة — لا نستورد من FavoritesPage لتجنب اعتماد دائري */
-export type EmptyFavoritesTab = "all" | "product" | "store" | "service";
+export type EmptyFavoritesTab = "all" | "product" | "store" | "service" | "blog";
 
 interface EmptyFavoritesProps {
     type?: EmptyFavoritesTab;
@@ -32,6 +32,11 @@ const COPY: Record<
         title: "لا توجد خدمات مفضلة بعد",
         description:
             "أضف الخدمات التي تهمك إلى المفضلة، أو أنشئ مجموعة جديدة لتنظيمها بسهولة.",
+    },
+    blog: {
+        title: "لا توجد مدونات مفضلة بعد",
+        description:
+            "احفظ المقالات التي تعجبك لتقرأها لاحقًا، أو أنشئ مجموعة جديدة لتنظيمها بسهولة.",
     },
 };
 
