@@ -18,6 +18,7 @@ import { Story } from "@/src/features/(dashboard)/stories/api";
 import ProductCard from "@/src/features/(web)/product/components/ProductCard";
 import StoreCard from "@/src/features/(web)/stores/components/StoreCard";
 import { Pagination } from "@/src/components/ui/Pagination";
+import { Button } from "@/src/components/ui/button";
 import { ShareModal } from "@/src/components/ui/ShareModal";
 import { ChatNowButton } from "@/src/components/shared/ChatNowButton";
 import { ReportAbuseModal } from "@/src/features/(web)/reports/components/ReportAbuseModal";
@@ -186,17 +187,16 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                 </button>
                             ) : (
                                 <>
-                                    <button
+                                    <Button
                                         onClick={handleFollowToggle}
                                         disabled={isFollowing || isUnfollowing}
                                         className={cn(
-                                            "flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1 rounded-full px-2 py-2 text-[11px] font-medium transition-colors cursor-pointer max-md:min-w-0 md:h-auto md:min-h-0 md:min-w-[100px] md:flex-none md:gap-2 md:px-8 md:py-2 md:text-sm",
+                                            "rounded-full px-5! min-h-10",
                                             user.is_following
-                                                ? "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                                                : "bg-[#456A8E] text-white hover:bg-[#355A7E]"
+                                                ? "border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50"
+                                                : "text-white hover:bg-[#355A7E] hover:opacity-100"
                                         )}
                                     >
-                                        
                                         {(isFollowing || isUnfollowing) ? (
                                             <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
                                         ) :
@@ -208,13 +208,13 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                         <span className="hidden md:inline">
                                             {user.is_following ? "إلغاء المتابعة" : "تابع المستخدم"}
                                         </span>
-                                    </button>
+                                    </Button>
 
                                     <ChatNowButton
                                         unstyled
                                         target={{ type: "user", id: user.id }}
                                         iconClassName="h-4 w-4 shrink-0"
-                                        className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1 rounded-full border border-[#456A8E] bg-white px-2 py-2 text-[11px] font-medium text-[#456A8E] transition-colors hover:bg-blue-50 max-md:min-w-0 md:h-auto md:min-h-0 md:min-w-[100px] md:flex-none md:gap-2 md:px-8 md:py-2 md:text-sm disabled:opacity-50"
+                                        className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1 rounded-full border border-c2-primary bg-white px-2 py-2 text-[11px] font-medium text-c2-primary transition-colors hover:bg-blue-50 max-md:min-w-0 md:h-auto md:min-h-0 md:min-w-[100px] md:flex-none md:gap-2 md:px-8 md:py-2 md:text-sm disabled:opacity-50"
                                     />
 
                                     <div className="relative shrink-0 self-center">
