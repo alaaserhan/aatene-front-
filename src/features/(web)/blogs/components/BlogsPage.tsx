@@ -8,6 +8,7 @@ import { Pagination } from "@/src/components/ui/Pagination";
 import { useState } from "react";
 
 import { BlogCard } from "./BlogCard";
+import { BlogsGridSkeleton } from "./BlogsPageSkeleton";
 
 
 export default function BlogsPage() {
@@ -22,14 +23,6 @@ export default function BlogsPage() {
 
     const blogs = data?.records || [];
     const totalPages = data ? Math.ceil(data.recordsTotal / 9) : 1;
-
-    if (isLoading) {
-        return (
-            <div className="flex justify-center items-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-        );
-    }
 
     if (error) {
         return (
@@ -58,7 +51,9 @@ export default function BlogsPage() {
             </div>
 
             {/* Content Grid */}
-            {blogs.length > 0 ? (
+            {isLoading ? (
+                <BlogsGridSkeleton />
+            ) : blogs.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     {/* Hero Section - Takes full width on mobile, 2 cols on desktop if available */}
                     {blogs[0] && (
