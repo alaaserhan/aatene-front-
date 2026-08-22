@@ -90,10 +90,13 @@ export default async function StorePage({ params }: PageProps) {
         notFound();
     }
 
+    // Seed the client cache with what we already fetched, so the first paint is
+    // server-rendered HTML (crawlable) instead of a spinner.
+    // Keys must match useApiQuery, which appends the locale to every query key.
     const queryClient = makeQueryClient();
-    queryClient.setQueryData(["storeProfile", slug], profile);
+    queryClient.setQueryData(["storeProfile", slug, locale], profile);
     if (pageData) {
-        queryClient.setQueryData(["storePageData", slug], pageData);
+        queryClient.setQueryData(["storePageData", slug, locale], pageData);
     }
 
     return (
