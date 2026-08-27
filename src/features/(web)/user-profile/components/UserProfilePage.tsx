@@ -119,7 +119,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                             </div>
                         </div>
 
-                        <div className="flex flex-row md:flex-col items-center justify-center gap-6 md:gap-4 mt-4 md:mt-2 px-2">
+                        <div className="flex flex-row md:flex-col items-center justify-center gap-4 mt-4 md:mt-2 px-2">
                             {/* Stars */}
                             <div className="flex flex-col items-center">
                                 <div className="flex items-center gap-1 mb-1">
@@ -191,7 +191,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                         onClick={handleFollowToggle}
                                         disabled={isFollowing || isUnfollowing}
                                         className={cn(
-                                            "rounded-full px-5! min-h-10",
+                                            "flex-1 basis-0 min-w-0 min-h-11 rounded-full px-2! text-[11px] md:flex-none md:basis-auto md:min-h-10 md:px-5! md:text-sm",
                                             user.is_following
                                                 ? "border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50"
                                                 : "text-white hover:bg-[#355A7E] hover:opacity-100"
@@ -203,7 +203,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                             user.is_following ? <UserMinus className="h-4 w-4 shrink-0" /> : <UserPlus className="h-4 w-4 shrink-0" />
                                         }
                                         <span className="min-w-0 truncate md:hidden">
-                                            {user.is_following ? "إلغاء" : "متابعة"}
+                                            {user.is_following ? "إلغاء" : "تابع المستخدم"}
                                         </span>
                                         <span className="hidden md:inline">
                                             {user.is_following ? "إلغاء المتابعة" : "تابع المستخدم"}
@@ -214,7 +214,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                         unstyled
                                         target={{ type: "user", id: user.id }}
                                         iconClassName="h-4 w-4 shrink-0"
-                                        className="flex min-h-11 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1 rounded-full border border-c2-primary bg-white px-2 py-2 text-[11px] font-medium text-c2-primary transition-colors hover:bg-blue-50 max-md:min-w-0 md:h-auto md:min-h-0 md:min-w-[100px] md:flex-none md:gap-2 md:px-8 md:py-2 md:text-sm disabled:opacity-50"
+                                        className="flex min-h-11 min-w-0 flex-1 basis-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-c2-primary bg-white px-2 py-2 text-[11px] font-medium text-c2-primary transition-colors hover:bg-blue-50 max-md:min-w-0 md:h-auto md:min-h-0 md:min-w-[100px] md:flex-none md:px-8 md:py-2 md:text-sm disabled:opacity-50"
                                     />
 
                                     <div className="relative shrink-0 self-center">
@@ -688,7 +688,7 @@ function ProductsSection({
                                             }
                                         >
                                             <h3 className="text-lg font-semibold mb-3">المتاجر</h3>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                                                 {stores.map((store) => (
                                                     <StoreCard key={String(store.id)} store={store as never} />
                                                 ))}
@@ -754,7 +754,7 @@ function ProductsSection({
                                             <p className="text-gray-500">لا توجد متاجر مفضلة</p>
                                         </div>
                                     ) : (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                                             {stores.map((store) => (
                                                 <StoreCard key={String(store.id)} store={store as never} />
                                             ))}

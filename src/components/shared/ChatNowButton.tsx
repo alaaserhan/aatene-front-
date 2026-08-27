@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentProps, ReactNode } from "react";
-import { Loader2, MessageSquare } from "lucide-react";
+import { Loader2, MessageSquareText } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/utils";
 import { useOpenChat } from "@/src/hooks/use-open-chat";
@@ -17,7 +17,7 @@ export interface ChatNowButtonProps
   basePath?: string;
   /** Button label. Defaults to the generic "chat" label. */
   label?: ReactNode;
-  /** Leading/trailing icon. Omit for a message bubble, pass `null` for none. */
+  /** Leading/trailing icon. Omit for the default message icon, pass `null` for none. */
   icon?: ReactNode;
   iconPosition?: "start" | "end";
   /** Classes applied to the icon and to the spinner that replaces it. */
@@ -58,9 +58,9 @@ export function ChatNowButton({
     openChat(target);
   };
 
-  /** `undefined` keeps the default bubble; an explicit `null` renders no icon. */
+  /** `undefined` keeps the default icon; an explicit `null` renders no icon. */
   const idleIcon =
-    icon === undefined ? <MessageSquare className={iconClassName} aria-hidden="true" /> : icon;
+    icon === undefined ? <MessageSquareText className={iconClassName} aria-hidden="true" /> : icon;
 
   const iconNode = isOpening ? (
     <Loader2 className={cn(iconClassName, "animate-spin")} aria-hidden="true" />
