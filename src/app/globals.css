@@ -69,6 +69,8 @@
   --c2-neutral-500: #7b7b7b;
   /* store header action icons (phone, chat) */
   --c2-neutral-550: #717171;
+  /* store header review counter */
+  --c2-neutral-560: #726f6e;
   /* tinted slate surface — sample / preview blocks that stand in for a screenshot */
   --c2-slate-50: #f9fbfc;
   /* muted slate — inactive tab / segmented-control labels */
@@ -189,6 +191,7 @@
   --color-c2-neutral-700: var(--c2-neutral-700);
   --color-c2-neutral-500: var(--c2-neutral-500);
   --color-c2-neutral-550: var(--c2-neutral-550);
+  --color-c2-neutral-560: var(--c2-neutral-560);
   --color-c2-slate-50: var(--c2-slate-50);
   --color-c2-slate-500: var(--c2-slate-500);
   --color-c2-slate-600: var(--c2-slate-600);
