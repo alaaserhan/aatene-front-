@@ -76,7 +76,7 @@ export default function PasswordTab() {
                         <label className="text-sm font-medium text-[#4B5563] text-right">
                             كلمة المرور
                         </label>
-                        <div className="relative flex flex-col items-center gap-1">
+                        <div className="relative flex flex-col gap-1">
                             <input
                                 type={showPassword ? "text" : "password"}
                                 value={formData.password}
