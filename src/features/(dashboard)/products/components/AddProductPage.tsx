@@ -1,11 +1,12 @@
 // src/features/(dashboard)/products/components/AddProductPage.tsx
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { Breadcrumb } from "@/src/components/ui/Breadcrumb";
+import { KeywordsField } from "@/src/components/ui/KeywordsField";
 import { Label } from "@/src/components/ui/label";
 import { ReusableDropdown } from "@/src/components/ui/ReusableDropdown";
 import { SuccessModal } from "@/src/components/(dashboard)/SuccessModal";
@@ -13,13 +14,12 @@ import { useDebounce } from "@/src/hooks/use-debounce";
 import { GuideVideoCard } from "../../user-guide/components/GuideVideoCard";
 import { useInfiniteGetStores } from "../../stores/hooks";
 import { ProductCreatePayload } from "../api";
-import { useCreateProduct, useGenerateProductAI } from "../hooks";
+import { useCreateProduct } from "../hooks";
 import { validateProductStep1 } from "../product-step1-validation";
 import { Step1FormData, Step3FormData } from "../types";
 import { ProductPreviewSidebar } from "./ProductPreviewSidebar";
 import { ProductBasicInfoFields } from "./sections/ProductBasicInfoFields";
 import { ProductFormAccordion } from "./sections/ProductFormAccordion";
-import { ProductKeywordsField } from "./sections/ProductKeywordsField";
 import { ProductSectionField } from "./sections/ProductSectionField";
 import { ProductSubmitBar } from "./sections/ProductSubmitBar";
 import {
@@ -61,8 +61,6 @@ export function AddProductPage() {
   const currentStoreId = Cookies.get("current_store_id");
 
   const createProductMutation = useCreateProduct();
-  const generateAIMutation = useGenerateProductAI();
-  const isGeneratingAI = generateAIMutation.isPending;
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<AccordionKey>("basic");
@@ -79,9 +77,6 @@ export function AddProductPage() {
 
   /** الأخطاء تظهر فقط بعد أول محاولة حفظ، ثم تختفي تلقائياً عند إصلاح الحقل */
   const [showErrors, setShowErrors] = useState(false);
-
-  const [aiKeywords, setAiKeywords] = useState<string[]>([]);
-  const lastGeneratedInputRef = useRef<string | null>(null);
 
   const showStoreField = isAdmin && !storeIdFromUrl;
 
@@ -124,31 +119,6 @@ export function AddProductPage() {
       })),
     [storesData]
   );
-
-  // ---------------------------------------------------------------- توليد الكلمات المفتاحية
-  /** تُستدعى عند الخروج من حقل الوصف — نفس توقيت التوليد في الخطوات القديمة */
-  const generateKeywords = () => {
-    const title = basic.name.trim();
-    const description = basic.description.trim();
-    if (!title || !description) return;
-
-    const source = `${title}||${description}`;
-    if (lastGeneratedInputRef.current === source) return;
-    lastGeneratedInputRef.current = source;
-
-    generateAIMutation
-      .mutateAsync({ title, description, type: "product" })
-      .then((data) => {
-        const generatedKeywords = data.results?.keywords || [];
-        if (generatedKeywords.length === 0) return;
-        setAiKeywords(generatedKeywords);
-        // لا نستبدل الكلمات التي أضافها المستخدم يدوياً
-        setTags((prev) => (prev.length > 0 ? prev : generatedKeywords));
-      })
-      .catch((error) => {
-        console.error("AI Generation Error:", error);
-      });
-  };
 
   // ---------------------------------------------------------------- التحقق
   const collectErrors = (): Record<string, string> => {
@@ -263,7 +233,6 @@ export function AddProductPage() {
                 value={basic}
                 onChange={(patch) => setBasic((prev) => ({ ...prev, ...patch }))}
                 errors={errors}
-                onDescriptionBlur={generateKeywords}
                 headerField={
                   showStoreField ? (
                     <div className="space-y-2">
@@ -298,12 +267,7 @@ export function AddProductPage() {
                   />
                 }
                 footerField={
-                  <ProductKeywordsField
-                    tags={tags}
-                    onChange={setTags}
-                    aiKeywords={aiKeywords}
-                    isGeneratingAI={isGeneratingAI}
-                  />
+                  <KeywordsField value={tags} onChange={setTags} type="product" />
                 }
               />
             </ProductFormAccordion>

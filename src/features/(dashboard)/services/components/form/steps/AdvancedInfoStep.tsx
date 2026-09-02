@@ -4,7 +4,7 @@
 import { ExecuteType } from "@/src/features/(dashboard)/services/api";
 import { ExecutionDurationField } from "../fields/ExecutionDurationField";
 import { SpecialtiesField } from "../fields/SpecialtiesField";
-import { KeywordsField } from "../fields/KeywordsField";
+import { KeywordsField } from "@/src/components/ui/KeywordsField";
 import { ServiceExtrasField } from "../fields/ServiceExtrasField";
 import { ServiceFaqField } from "../fields/ServiceFaqField";
 import { ServiceFormValues } from "../types";
@@ -50,7 +50,11 @@ export function AdvancedInfoStep({ values, setField }: AdvancedInfoStepProps) {
       <Divider />
 
       {/* 3. Keywords */}
-      <KeywordsField value={values.tags} onChange={(tags) => setField("tags", tags)} />
+      <KeywordsField
+        value={values.tags}
+        onChange={(tags) => setField("tags", tags)}
+        type="service"
+      />
 
       <Divider />
 
