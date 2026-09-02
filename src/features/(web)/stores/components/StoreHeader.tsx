@@ -23,6 +23,7 @@ import {
     Share2,
     Flag,
     MapPin,
+    Phone,
 } from "lucide-react";
 import { useFollowUserOrStore, useUnfollowUserOrStore } from "@/src/features/(web)/settings/hooks";
 import { FavoriteButton } from "@/src/features/(web)/fav/components/FavoriteButton";
@@ -309,6 +310,7 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
     };
 
     const followersCount = Number(store.followers_count || 0);
+    const showPhone = Boolean(store.phone) && store.hide_phone !== "1";
 
     return (
         <>
@@ -556,7 +558,18 @@ export default function StoreHeader({ store, followers, stories = [], isOwnStore
                                 />
 
                                 <div className="flex items-center justify-center gap-2 w-full lg:w-auto lg:justify-start lg:shrink-0">
-                                    <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0">
+                                    {showPhone && (
+                                        <a
+                                            href={`tel:${store.phone}`}
+                                            aria-label="اتصال بالمتجر"
+                                            title={store.phone}
+                                            className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0"
+                                        >
+                                            <Phone className="w-5 h-5 text-c2-neutral-550" strokeWidth={2} />
+                                        </a>
+                                    )}
+
+                                    <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer shrink-0 text-c2-neutral-550">
                                         <FavoriteButton
                                             id={store.id}
                                             type="store"
