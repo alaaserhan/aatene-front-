@@ -69,6 +69,8 @@
   --c2-neutral-500: #7b7b7b;
   /* muted slate — inactive tab / segmented-control labels */
   --c2-slate-500: #64748b;
+  /* secondary body copy — page subtitles, helper lines under a heading */
+  --c2-slate-600: #6a7282;
   --c2-neutral-800: #2d2d2d;
   --c2-neutral-900: #222222;
 
@@ -80,6 +82,8 @@
   --c2-navy-600: #3d5e83;
   --c2-navy-500: #406896;
   --c2-navy-300: #8b96a5;
+  /* palest navy tint — table header rows and similar flat surfaces */
+  --c2-navy-50: #eef2f6;
   /* navy at low alpha — tinted surfaces (unread rows, icon chips) */
   --c2-navy-700-a08: #2d496a14;
 
@@ -175,6 +179,7 @@
   --color-c2-neutral-700: var(--c2-neutral-700);
   --color-c2-neutral-500: var(--c2-neutral-500);
   --color-c2-slate-500: var(--c2-slate-500);
+  --color-c2-slate-600: var(--c2-slate-600);
   --color-c2-neutral-800: var(--c2-neutral-800);
   --color-c2-neutral-900: var(--c2-neutral-900);
   --color-c2-navy-1000: var(--c2-navy-1000);
@@ -184,6 +189,7 @@
   --color-c2-navy-600: var(--c2-navy-600);
   --color-c2-navy-500: var(--c2-navy-500);
   --color-c2-navy-300: var(--c2-navy-300);
+  --color-c2-navy-50: var(--c2-navy-50);
   --color-c2-navy-700-a08: var(--c2-navy-700-a08);
   --color-c2-ink-900: var(--c2-ink-900);
   --color-c2-red-800: var(--c2-red-800);

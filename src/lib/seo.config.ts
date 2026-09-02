@@ -136,6 +136,10 @@ export const PAGE_SEO: Record<string, PageSEO> = {
         title: "الكوبونات",
         description: "إنشاء وإدارة كوبونات الخصم في متجرك على أعطيني.",
     },
+    dashboardRelatedProducts: {
+        title: "المنتجات المرتبطة",
+        description: "إنشاء وإدارة عروض المنتجات المرتبطة في متجرك على أعطيني.",
+    },
     dashboardCategories: {
         title: "التصنيفات",
         description: "إدارة تصنيفات المنتجات والخدمات في لوحة تحكم أعطيني.",

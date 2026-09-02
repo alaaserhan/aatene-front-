@@ -37,6 +37,7 @@ import {
   Mail,
   ExternalLink,
   MessageCircleMore,
+  Workflow,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -234,6 +235,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "رسائل التواصل", icon: Mail, href: "/contacts", show: hasAdminPerm("/contacts"), desc: "رسائل المستخدمين من صفحة من نحن" },
     { label: "الإشعارات", icon: Bell, href: "/notifications", show: hasAdminPerm("/notifications"), desc: "إدارة ومتابعة سجل الاشعارات" },
     { label: "الكوبونات", icon: TicketPercent, href: "/coupons", show: isMerchant && (storeType === "products") && isAllowedByRole("/coupons"), desc: "إدارة ومتابعة الخصومات" },
+    { label: "المنتجات المرتبطة", icon: Workflow, href: "/related-products", show: isMerchant && (storeType === "products") && isAllowedByRole("/related-products"), desc: "إدارة ومتابعة المنتجات المرتبطة" },
 
     { label: "المحذوفات", icon: Trash2, href: "/trash", show: hasAdminPerm("/trash"), desc: "إدارة ومتابعة المحذوفات" },
     { label: "دليل الاستخدام", icon: Video, href: "/user-guide", show: hasAdminPerm("/user-guide"), desc: "إضافة فيديوهات لمساعدة المستخدمين" },
