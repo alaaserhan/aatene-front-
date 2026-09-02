@@ -191,7 +191,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                         onClick={handleFollowToggle}
                                         disabled={isFollowing || isUnfollowing}
                                         className={cn(
-                                            "flex-1 basis-0 min-w-0 min-h-11 rounded-full px-2! text-[11px] md:flex-none md:basis-auto md:min-h-10 md:px-5! md:text-sm",
+                                            "flex-[1.6] basis-0 min-w-0 min-h-11 rounded-full px-2! text-[11px] md:flex-none md:basis-auto md:min-h-10 md:px-5! md:text-sm",
                                             user.is_following
                                                 ? "border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50"
                                                 : "text-white hover:bg-[#355A7E] hover:opacity-100"
@@ -202,10 +202,7 @@ function UserHeader({ user, isOwnProfile, followers, stories }: {
                                         ) :
                                             user.is_following ? <UserMinus className="h-4 w-4 shrink-0" /> : <UserPlus className="h-4 w-4 shrink-0" />
                                         }
-                                        <span className="min-w-0 truncate md:hidden">
-                                            {user.is_following ? "إلغاء" : "تابع المستخدم"}
-                                        </span>
-                                        <span className="hidden md:inline">
+                                        <span className="min-w-0 whitespace-nowrap">
                                             {user.is_following ? "إلغاء المتابعة" : "تابع المستخدم"}
                                         </span>
                                     </Button>
