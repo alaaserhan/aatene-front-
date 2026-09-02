@@ -220,6 +220,10 @@ export const PAGE_SEO: Record<string, PageSEO> = {
         title: "الكلمات المسيئة",
         description: "إدارة قائمة الكلمات المسيئة والفلتر في أعطيني.",
     },
+    dashboardKeywords: {
+        title: "الكلمات المفتاحية",
+        description: "إدارة كلمات البحث للمنتجات والخدمات والمتاجر في لوحة تحكم أعطيني.",
+    },
     dashboardPermissions: {
         title: "الصلاحيات",
         description: "إدارة صلاحيات المشرفين في لوحة تحكم أعطيني.",

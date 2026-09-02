@@ -45,7 +45,7 @@ const ADMIN_PERMISSION_TO_SEGMENTS: Record<string, string[]> = {
     "requested-serviceses": ["requested-services"],
     "blogs": ["blogs"],
     "favs": ["favorites"],
-    "content": ["content-management"],
+    "content": ["content-management", "keywords"],
     "abusive-words": ["abusive-words"],
     "notifications": ["notifications"],
     "trash": ["trash"],

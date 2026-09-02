@@ -39,6 +39,7 @@ import {
   MessageCircleMore,
   Workflow,
   Tags,
+  Hash,
 } from "lucide-react";
 import { useAuthStore } from "@/src/stores/auth-store";
 import { useLanguage } from "@/src/hooks/use-language";
@@ -224,6 +225,7 @@ export function DashboardNavbar({ navPrefix }: DashboardNavbarProps) {
     { label: "تخصصات المتجر", icon: Tags, href: "/store-specialties", show: hasAdminPerm("/store-specialties"), desc: "عرض ومتابعة تخصصات المتاجر", alwaysMore: true },
     { label: "مدن الشحن", icon: Map, href: "/cities", show: hasAdminPerm("/cities"), desc: "اختر وجهات الشحن المتاحة" },
     { label: "الفئات", icon: Boxes, href: "/categories", show: hasAdminPerm("/categories"), desc: "إدارة وعرض الفئات" },
+    { label: "الكلمات المفتاحية", icon: Hash, href: "/keywords", show: hasAdminPerm("/keywords"), desc: "إدارة كلمات البحث للمنتجات والخدمات", alwaysMore: true },
     { label: "البنرات الإعلانية", icon: GalleryVerticalEnd, href: "/banners", show: hasAdminPerm("/banners"), desc: "ادارة ومتابعة البنرات الإعلانية" },
     { label: "مساعدي", icon: Bot, href: "/mosa3edy", show: hasAdminPerm("/mosa3edy"), desc: "إدارة التشات بوت والإحصائيات" },
     { label: "القصص", icon: ImageIcon, href: "/stories", show: isMerchant && isAllowedByRole("/stories"), desc: "إضافة وإدارة القصص" },
